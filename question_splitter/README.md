@@ -2,6 +2,10 @@
 
 This repo contains a reproducible pipeline to split a *scanned* PDF worksheet/exam into per-question outputs.
 
+## Verified inputs (known-good examples)
+- `p5.math.001.P5 Term 1 Weekend Worksheet 1.pdf` (detected Q001–Q006)
+- `p5.math.022.Mathematics Practice Paper Set 1.pdf` (detected Q001–Q030, with subparts grouped by default)
+
 ## What it does
 1. Render PDF pages to images (default: 150 DPI)
 2. OCR to detect question starts (supports:
@@ -51,6 +55,11 @@ python -m src.split_questions --pdf "/path/to/input.pdf" --out "/path/to/output_
 
 ## Notes / Heuristics
 - Horizontal cropping is **full width** on purpose to avoid clipping diagrams/tables.
+- **No overlap guarantee (same-page)**: When two consecutive questions start on the same page, the tool clamps
+  segment boundaries so the next question’s first line (e.g. `20a ...`) does not leak into the previous question,
+  even with padding enabled.
+- **Padding**: `--top-pad` / `--bottom-pad` expand each segment slightly above/below the detected marker. If you see
+  cuts that feel too tight/loose for a particular worksheet, adjust these first.
 - **STEM re-assignment**: If a page begins with an instruction block such as
   "Refer to the table below for Questions 13 and 14", the tool will *attach that stem*
   to the referenced question(s) (duplicated) instead of the previous question.

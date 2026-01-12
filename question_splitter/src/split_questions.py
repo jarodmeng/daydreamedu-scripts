@@ -99,6 +99,14 @@ def detect_markers_on_page(img: Image.Image, page0: int) -> List[Marker]:
 
     for _, g in df.groupby(line_cols):
         g2 = g.sort_values("left")
+        # Use the top of the whole OCR line as the marker Y.
+        # This is more stable than the marker token's own box top (which can be slightly low),
+        # and helps prevent the next question's first line (e.g. "20a ...") from leaking into
+        # the previous segment when we compute boundaries.
+        try:
+            line_top = int(g2["top"].min())
+        except Exception:
+            line_top = None
         for _, row in g2.iterrows():
             txt = str(row["text"]).strip()
             left = int(row["left"])
@@ -109,26 +117,53 @@ def detect_markers_on_page(img: Image.Image, page0: int) -> List[Marker]:
             if not (10 <= height <= 220):
                 continue
 
+            # Marker OCR tends to be higher confidence, but for some scans the "20a" style
+            # markers can be lower confidence. We apply confidence thresholds per pattern
+            # below instead of globally.
+
             # A: n. (match prefix; OCR may include trailing chars)
-            m = re.match(r"^0*([1-9]\d{0,2})\.", txt)
+            m = re.match(r"^0*([1-9]\d{0,2})\.(?:\s|$)", txt)
             if m and left <= 0.22 * w:
+                if conf < 30:
+                    continue
                 n = int(m.group(1))
-                markers.append(Marker(page0, (n, ""), f"{n}.", left, top, conf, "dot"))
+                y = line_top if line_top is not None else top
+                markers.append(Marker(page0, (n, ""), f"{n}.", left, y, conf, "dot"))
                 break
 
             # C: na (subparts)
-            m = re.match(r"^0*([1-9]\d{1,2})([a-zA-Z])", txt)
+            # Restrict suffix letters to common subparts (a-e) to avoid false positives like "23x".
+            # Allow trailing punctuation/underscores because OCR sometimes produces "20a_" or "19b,".
+            # NOTE: '_' is a word character in regex, so '\b|\W' does NOT match after '20a_'.
+            m = re.match(r"^0*([1-9]\d{1,2})([a-eA-E])(?:$|[^0-9A-Za-z])", txt)
             if m and left <= 0.20 * w:
+                if conf < 10:
+                    continue
                 n = int(m.group(1))
                 s = m.group(2).lower()
-                markers.append(Marker(page0, (n, s), f"{n}{s}", left, top, conf, "sub"))
+                y = line_top if line_top is not None else top
+                markers.append(Marker(page0, (n, s), f"{n}{s}", left, y, conf, "sub"))
                 break
 
             # B: plain n (two+ digits) used in some sections
             m = re.match(r"^0*([1-9]\d{1,2})\b", txt)
             if m and left <= 0.16 * w:
+                if conf < 30:
+                    continue
                 n = int(m.group(1))
-                markers.append(Marker(page0, (n, ""), f"{n}", left, top, conf, "plain"))
+                y = line_top if line_top is not None else top
+                markers.append(Marker(page0, (n, ""), f"{n}", left, y, conf, "plain"))
+                break
+
+            # D: plain single-digit n (some worksheets omit the dot)
+            # Keep this conservative to avoid capturing MCQ options like "(1)".
+            m = re.match(r"^0*([1-9])$", txt)
+            if m and left <= 0.12 * w:
+                if conf < 60:
+                    continue
+                n = int(m.group(1))
+                y = line_top if line_top is not None else top
+                markers.append(Marker(page0, (n, ""), f"{n}", left, y, conf, "plain"))
                 break
 
     # Dedup by close y (keep higher conf)
@@ -317,6 +352,8 @@ def main() -> None:
         })
 
     # Build "body" segments between consecutive markers
+    # Track last emitted y1 per page so we can avoid overlaps introduced by top/bottom padding.
+    last_y1_by_page: Dict[int, int] = {}
     for idx, m in enumerate(markers):
         start_page0 = m.page0
         start_y = m.y
@@ -336,13 +373,21 @@ def main() -> None:
             w, h = img.size
             if p == start_page0:
                 y0 = max(0, start_y - (args.top_pad if start_y > 0 else 0))
+                # Prevent overlap with the previous question segment on the same page.
+                # This matters when top_pad would otherwise pull the next marker into the prior segment.
+                if p in last_y1_by_page:
+                    y0 = max(y0, last_y1_by_page[p])
             else:
                 y0 = 0
             if p == end_page0:
+                # End at the next marker, subtracting bottom padding.
+                # We rely on the "last_y1_by_page" clamp (applied to the next segment's y0)
+                # to prevent any overlap introduced by top padding.
                 y1 = h if end_y is None else max(y0 + 50, end_y - args.bottom_pad)
             else:
                 y1 = h
             add_segment(qkey, label, p, 0, y0, w, y1, "body")
+            last_y1_by_page[p] = max(last_y1_by_page.get(p, 0), y1)
 
     # 4) STEM reassignment:
     # If a page has content above its first marker, we inspect that block. If it references "Questions X and Y",
