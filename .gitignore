@@ -1,1 +1,28 @@
 .DS_Store
+
+# ---- Python / virtualenv ----
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Virtual environments (do not commit)
+.venv/
+venv/
+ENV/
+env/
+
+# ---- question_splitter outputs (generated) ----
+# Naming convention suggestion:
+#   question_splitter/out/<pdf_stem>/
+# or (if you prefer flat):
+#   question_splitter/out_<pdf_stem>/
+question_splitter/out/
+question_splitter/out_*/
+
+# If you later add other generated dirs, keep them ignored too
+question_splitter/debug*/
