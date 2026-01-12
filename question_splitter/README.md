@@ -37,6 +37,18 @@ Outputs land in `--out`:
 - `segments_index.csv`
 - `manifest.json` (run settings + detected markers)
 
+### Subparts (e.g., 19a / 19b, 20a / 20b)
+
+By default, subparts are **treated as part of the same question**:
+- They are **NOT used as segmentation boundaries** (i.e., `19a` does not start a new clip after `19`).
+- `19a` + `19b` → `pdf/Q019_19.pdf` (and corresponding `png/Q019_19_*.png`)
+
+If you want the old behavior (each subpart as its own output), pass:
+
+```bash
+python -m src.split_questions --pdf "/path/to/input.pdf" --out "/path/to/output_dir" --split-subparts
+```
+
 ## Notes / Heuristics
 - Horizontal cropping is **full width** on purpose to avoid clipping diagrams/tables.
 - **STEM re-assignment**: If a page begins with an instruction block such as

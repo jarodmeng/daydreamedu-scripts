@@ -164,6 +164,32 @@ def monotonic_filter(markers: List[Marker]) -> List[Marker]:
     return out
 
 
+def collapse_subpart_markers(markers: List[Marker], *, split_subparts: bool) -> List[Marker]:
+    """
+    If split_subparts is False, treat subparts like 20a/20b as part of one question 20:
+    - keep only the first marker for each main question number (n)
+    - normalize keys to (n, '') so subparts do not become segmentation boundaries
+    """
+    if split_subparts:
+        return markers
+
+    markers = sorted(markers, key=lambda m: (m.page0, m.y, m.x))
+    out: List[Marker] = []
+    seen_n: set[int] = set()
+    for m in markers:
+        n = m.key[0]
+        if n in seen_n:
+            # drop subsequent subpart markers (20b, 20c, ...)
+            continue
+        seen_n.add(n)
+        # normalize marker to main question key
+        m.key = (n, "")
+        # normalize label too (so manifest/CSV labels don't show '20a' when it's treated as '20')
+        m.label = f"{n}."
+        out.append(m)
+    return out
+
+
 # ---------------------------
 # STEM reassignment
 # ---------------------------
@@ -231,6 +257,11 @@ def main() -> None:
     ap.add_argument("--top-pad", type=int, default=40)
     ap.add_argument("--bottom-pad", type=int, default=20)
     ap.add_argument("--keep-pages", action="store_true", help="Keep rendered page images")
+    ap.add_argument(
+        "--split-subparts",
+        action="store_true",
+        help="If set, keep subparts (e.g., 19a, 19b) as separate outputs. Default groups them under Q019_19.pdf.",
+    )
     args = ap.parse_args()
 
     out_dir = os.path.abspath(args.out)
@@ -252,6 +283,7 @@ def main() -> None:
     for i, img in enumerate(page_imgs):
         markers.extend(detect_markers_on_page(img, i))
     markers = monotonic_filter(markers)
+    markers = collapse_subpart_markers(markers, split_subparts=args.split_subparts)
 
     if not markers:
         raise RuntimeError("No question markers detected. Try increasing DPI or adjusting patterns.")
@@ -261,11 +293,22 @@ def main() -> None:
     segments_by_qkey: Dict[Tuple[int, str], List[dict]] = {}
     records: List[dict] = []
 
+    def group_key(qkey: Tuple[int, str]) -> Tuple[int, str]:
+        """
+        Group subparts (e.g., (19,'a'), (19,'b')) into the same main question key (19,'')
+        unless --split-subparts is enabled.
+        """
+        if args.split_subparts:
+            return qkey
+        n, _s = qkey
+        return (n, "")
+
     def add_segment(qkey: Tuple[int, str], label: str, page0: int, x0: int, y0: int, x1: int, y1: int, role: str) -> None:
-        seg = {"page0": page0, "x0": x0, "y0": y0, "x1": x1, "y1": y1, "role": role}
-        segments_by_qkey.setdefault(qkey, []).append(seg)
+        gkey = group_key(qkey)
+        seg = {"page0": page0, "x0": x0, "y0": y0, "x1": x1, "y1": y1, "role": role, "label": label}
+        segments_by_qkey.setdefault(gkey, []).append(seg)
         records.append({
-            "q_index": f"{qkey[0]}{qkey[1]}",
+            "q_index": f"{gkey[0]}{gkey[1]}",
             "label": label,
             "page": page0 + 1,
             "x0": x0, "y0": y0, "x1": x1, "y1": y1,
@@ -359,6 +402,7 @@ def main() -> None:
         segs = sorted(segs, key=lambda s: (0 if s["role"] == "stem" else 1, s["page0"], s["y0"]))
         segments_by_qkey[qkey] = segs
 
+        # qkey is already grouped if --split-subparts is not set
         q_index_str = f"{qkey[0]}{qkey[1]}"
         base = f"Q{qkey[0]:03d}_{q_index_str}"
 
