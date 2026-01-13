@@ -26,3 +26,11 @@ question_splitter/out_*/
 
 # If you later add other generated dirs, keep them ignored too
 question_splitter/debug*/
+
+# ---- general debug outputs (generated) ----
+# e.g. math_practice_book_page_number/debug_p5.math.040.Review 4/
+debug_*/
+**/debug_*/
+
+# ---- math_practice_book_page_number outputs (generated) ----
+math_practice_book_page_number/output/
