@@ -34,3 +34,6 @@ debug_*/
 
 # ---- math_practice_book_page_number outputs (generated) ----
 math_practice_book_page_number/output/
+
+# ---- doc_info_store outputs (generated) ----
+doc_info_store/out/
