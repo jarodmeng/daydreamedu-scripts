@@ -37,3 +37,9 @@ math_practice_book_page_number/output/
 
 # ---- doc_info_store outputs (generated) ----
 doc_info_store/out/
+
+# ---- chinese_chr_app outputs (generated) ----
+chinese_chr_app/extract_characters_using_ai/rendered_pages/
+chinese_chr_app/extract_using_local_ocr/tessdata/
+chinese_chr_app/extract_characters_using_ai/output/
+chinese_chr_app/extract_characters_using_ai/jsonl/
