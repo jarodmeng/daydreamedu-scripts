@@ -1,6 +1,6 @@
 ## Chinese Character Card Extraction Pipeline
 
-This folder contains experiments and scripts for extracting structured data from the 冯式早教识字卡 PDF set (index, character, pinyin, radical, strokes, structure).
+This folder contains experiments and scripts for extracting structured data from the 冯式早教识字卡 PDF set (index, character, pinyin, radical, strokes, structure, sentence, words).
 
 ### Overview of Approaches
 
@@ -30,9 +30,9 @@ All Attempt 2 files are located in the `extract_characters_using_ai/` subfolder:
   - System prompt used for the vision model.  
   - Defines:
     - Which pages to read (only page 2 of each 2-page pair: 2,4,6,8,...)  
-    - Fields to extract: **Index, Character, Pinyin, Radical, Strokes, Structure**  
+    - Fields to extract: **Index, Character, Pinyin, Radical, Strokes, Structure, Sentence (例句), Words (词组)**  
     - Dictionary cross-check rules and how to mark corrections with `(dictionary)`  
-    - Output format: **single Markdown table**.
+    - Output format: **single Markdown table** with 8 columns (Words must be a JSON array).
 
 - `extract_characters_using_ai/make_batch_jsonl_per_character.py`  
   - Generates one **OpenAI Batch JSONL request per character**.  
@@ -50,13 +50,13 @@ All Attempt 2 files are located in the `extract_characters_using_ai/` subfolder:
     python3 make_batch_jsonl_per_character.py \
       --pdf_dir "/Users/jarodm/Library/CloudStorage/GoogleDrive-winston.ry.meng@gmail.com/My Drive/冯式早教识字卡/" \
       --prompt_md ./chinese_character_extraction_prompt.md \
-      --out_jsonl requests.jsonl \
+      --out_jsonl jsonl/requests.jsonl \
       --dpi 250 \
       --model gpt-5-mini \
       --max_pdfs 10 \
       --save_images
     ```
-  - Output: `requests.jsonl` – ready to upload to the OpenAI Batch API.
+  - Output: `jsonl/requests.jsonl` – ready to upload to the OpenAI Batch API.
 
 - `extract_characters_using_ai/upload_batch.py`  
   - Master script to **upload** `requests.jsonl` and manage the Batch run.  
@@ -69,7 +69,7 @@ All Attempt 2 files are located in the `extract_characters_using_ai/` subfolder:
     ```bash
     cd extract_characters_using_ai
     # Assumes OPENAI_API_KEY is set in your shell
-    python3 upload_batch.py --jsonl requests.jsonl --output results.jsonl
+    python3 upload_batch.py --jsonl jsonl/requests.jsonl --output jsonl/results.jsonl
     ```
   - The script prints the `batch_id` so you can re-check status later:
     ```bash
@@ -81,25 +81,26 @@ All Attempt 2 files are located in the `extract_characters_using_ai/` subfolder:
   - For each line:
     - Locates the assistant message with `output_text`  
     - Extracts the Markdown table row  
-    - Parses: **Index, Character, Pinyin, Radical, Strokes, Structure**  
+    - Parses: **Index, Character, Pinyin, Radical, Strokes, Structure, Sentence, Words**  
     - Normalizes `Index` to 4-digit format (e.g. `1 → 0001`)  
+    - Validates `Words` as a JSON array and parses it for JSON output  
     - Attaches `custom_id` (should match the 4-digit index).
   - Also supports:
-    - **Validation** (checks required fields, numeric strokes, single-character `Character`, etc.)  
+    - **Validation** (checks required fields, numeric strokes, single-character `Character`, valid JSON array for `Words`, etc.)  
     - **Statistics** (index range, unique characters, count of `(dictionary)` corrections).
   - Example command used for the first batch (0001–0100):
     ```bash
     cd extract_characters_using_ai
     python3 parse_results.py \
-      --input results.jsonl \
-      --output characters.csv \
-      --json characters.json \
+      --input jsonl/results.jsonl \
+      --output output/characters.csv \
+      --json output/characters.json \
       --validate \
       --stats
     ```
   - Output:
-    - `characters.csv` – 100 rows with columns: `custom_id, Index, Character, Pinyin, Radical, Strokes, Structure`  
-    - `characters.json` – same data in JSON form.
+    - `output/characters.csv` – 100 rows with columns: `custom_id, Index, Character, Pinyin, Radical, Strokes, Structure, Sentence, Words` (Words stored as JSON string)  
+    - `output/characters.json` – same data in JSON form (Words parsed as actual JSON array).
 
 ### Current Status
 

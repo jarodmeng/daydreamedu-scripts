@@ -36,6 +36,18 @@ For each required page, extract:
 6) **Structure (结构)**  
 - The structure label printed in the bottom-left (e.g., 左右结构 / 上下结构 / 半包围结构 / 独体结构).
 
+7) **Sentence (例句)**  
+- The example sentence printed in the sentence line area (usually under the character info).  
+- Copy punctuation exactly (e.g., 。 ， ！ ？).  
+- If there is no sentence printed or it is illegible, leave blank.
+
+8) **Words (词组)**  
+- Extract ALL word/phrase items printed in the word list area.  
+- Keep the order as shown on the page (left-to-right, top-to-bottom).  
+- Output as a **JSON array of strings**, e.g.:
+  - `["他们","他乡","他人","吉他","他日","他家","他山之石","异地他乡"]`
+- Do not invent missing words. If a word is unclear, leave it out rather than guessing.
+
 ---
 
 ## Extraction Rules (VERY IMPORTANT)
@@ -53,7 +65,9 @@ After extracting from the page, you are allowed to correct values **ONLY for**:
 ❌ Do NOT correct / infer:
 - Index  
 - Character  
-- Structure
+- Structure  
+- Sentence  
+- Words
 
 ---
 
@@ -94,4 +108,10 @@ If the final value is confidently from the page, do not add any note.
 ## Output Format (STRICT)
 Return a **Markdown table only**, with exactly these headers:
 
-| Index | Character | Pinyin | Radical | Strokes | Structure |
+| Index | Character | Pinyin | Radical | Strokes | Structure | Sentence | Words |
+
+### Words formatting requirements
+- The `Words` column must contain a **valid JSON array** (double quotes required).
+- No trailing commas.
+- No extra commentary text inside the cell.
+- If there are no words or illegible, output: `[]`

@@ -5,7 +5,7 @@ Parse OpenAI Batch API results and extract Chinese character data.
 This script:
 1. Reads the results.jsonl file from OpenAI Batch API
 2. Extracts markdown tables from each response
-3. Parses the structured data (Index, Character, Pinyin, Radical, Strokes, Structure)
+3. Parses the structured data (Index, Character, Pinyin, Radical, Strokes, Structure, Sentence, Words)
 4. Outputs to CSV and/or JSON format
 5. Provides statistics and validation
 
@@ -28,8 +28,8 @@ def parse_markdown_table(table_text: str) -> Optional[Dict[str, str]]:
     """
     Parse a markdown table row and extract fields.
     Expected format:
-    | Index | Character | Pinyin | Radical | Strokes | Structure |
-    | 0001  | 爸       | bà     | 父      | 8       | 左右结构  |
+    | Index | Character | Pinyin | Radical | Strokes | Structure | Sentence | Words |
+    | 0001  | 爸       | bà     | 父      | 8       | 左右结构  | ...      | [...] |
     """
     lines = [line.strip() for line in table_text.strip().split('\n') if line.strip()]
     
@@ -47,7 +47,7 @@ def parse_markdown_table(table_text: str) -> Optional[Dict[str, str]]:
         # Parse table row: | value1 | value2 | value3 | ...
         parts = [p.strip() for p in line.split('|') if p.strip()]
         
-        if len(parts) >= 6:
+        if len(parts) >= 8:
             return {
                 'Index': parts[0],
                 'Character': parts[1],
@@ -55,6 +55,20 @@ def parse_markdown_table(table_text: str) -> Optional[Dict[str, str]]:
                 'Radical': parts[3],
                 'Strokes': parts[4],
                 'Structure': parts[5],
+                'Sentence': parts[6],
+                'Words': parts[7],
+            }
+        elif len(parts) >= 6:
+            # Fallback for old format (6 columns)
+            return {
+                'Index': parts[0],
+                'Character': parts[1],
+                'Pinyin': parts[2],
+                'Radical': parts[3],
+                'Strokes': parts[4],
+                'Structure': parts[5],
+                'Sentence': '',
+                'Words': '[]',
             }
     
     return None
@@ -64,9 +78,13 @@ def extract_table_from_response(response_text: str) -> Optional[str]:
     """
     Extract markdown table from response text.
     Looks for table starting with | Index | Character | ...
+    Supports both old (6 columns) and new (8 columns) formats.
     """
-    # Find table start
-    table_start = response_text.find('| Index | Character |')
+    # Find table start - try new format first, then fallback to old
+    table_start = response_text.find('| Index | Character | Pinyin | Radical | Strokes | Structure | Sentence | Words |')
+    if table_start == -1:
+        # Fallback to old format
+        table_start = response_text.find('| Index | Character |')
     if table_start == -1:
         return None
     
@@ -159,6 +177,7 @@ def validate_character_data(data: Dict[str, str]) -> List[str]:
     
     # Check required fields
     required_fields = ['Index', 'Character', 'Pinyin', 'Radical', 'Strokes', 'Structure']
+    optional_fields = ['Sentence', 'Words']  # These can be empty
     for field in required_fields:
         if field not in data or not data[field]:
             issues.append(f"Missing {field}")
@@ -183,6 +202,17 @@ def validate_character_data(data: Dict[str, str]) -> List[str]:
         if not strokes_clean.isdigit():
             issues.append(f"Invalid Strokes format: {data['Strokes']}")
     
+    # Validate Words (should be a valid JSON array)
+    if 'Words' in data and data['Words']:
+        words_str = data['Words'].strip()
+        if words_str and words_str != '[]':
+            try:
+                words_list = json.loads(words_str)
+                if not isinstance(words_list, list):
+                    issues.append(f"Words is not a JSON array: {data['Words']}")
+            except json.JSONDecodeError as e:
+                issues.append(f"Invalid Words JSON format: {data['Words']} - {e}")
+    
     return issues
 
 
@@ -192,9 +222,9 @@ def main():
     )
     parser.add_argument(
         "--input",
-        required=True,
+        default="jsonl/results.jsonl",
         type=Path,
-        help="Path to results.jsonl file",
+        help="Path to results.jsonl file (default: jsonl/results.jsonl)",
     )
     parser.add_argument(
         "--output",
@@ -223,7 +253,15 @@ def main():
         raise SystemExit(f"Input file not found: {args.input}")
 
     if not args.output and not args.json:
-        raise SystemExit("Must specify at least one output format (--output or --json)")
+        # Default to output folder if neither is specified
+        args.output = Path("output/characters.csv")
+        args.json = Path("output/characters.json")
+
+    # Create output directories if they don't exist
+    if args.output:
+        args.output.parent.mkdir(parents=True, exist_ok=True)
+    if args.json:
+        args.json.parent.mkdir(parents=True, exist_ok=True)
 
     print(f"📖 Reading results from: {args.input}")
     
@@ -255,22 +293,42 @@ def main():
     # Write CSV
     if args.output:
         print(f"📝 Writing CSV to: {args.output}")
-        fieldnames = ['custom_id', 'Index', 'Character', 'Pinyin', 'Radical', 'Strokes', 'Structure']
+        fieldnames = ['custom_id', 'Index', 'Character', 'Pinyin', 'Radical', 'Strokes', 'Structure', 'Sentence', 'Words']
         with open(args.output, 'w', newline='', encoding='utf-8') as f:
             writer = csv.DictWriter(f, fieldnames=fieldnames)
             writer.writeheader()
             for data in all_data:
                 # Only write if no error
                 if 'error' not in data:
-                    writer.writerow(data)
+                    # For CSV, Words stays as JSON string (CSV doesn't support arrays)
+                    csv_data = data.copy()
+                    writer.writerow(csv_data)
         print(f"✅ CSV written: {len(all_data)} rows")
 
     # Write JSON
     if args.json:
         print(f"📝 Writing JSON to: {args.json}")
+        # For JSON, parse Words into actual array if it's a JSON string
+        json_data = []
+        for data in all_data:
+            json_entry = data.copy()
+            if 'Words' in json_entry and json_entry['Words']:
+                words_str = json_entry['Words'].strip()
+                if words_str and words_str != '[]':
+                    try:
+                        json_entry['Words'] = json.loads(words_str)
+                    except json.JSONDecodeError:
+                        # If parsing fails, keep as string
+                        pass
+                else:
+                    json_entry['Words'] = []
+            else:
+                json_entry['Words'] = []
+            json_data.append(json_entry)
+        
         with open(args.json, 'w', encoding='utf-8') as f:
-            json.dump(all_data, f, ensure_ascii=False, indent=2)
-        print(f"✅ JSON written: {len(all_data)} entries")
+            json.dump(json_data, f, ensure_ascii=False, indent=2)
+        print(f"✅ JSON written: {len(json_data)} entries")
 
     # Show errors
     if errors:

@@ -13,8 +13,8 @@ Requirements:
 
 Usage:
     python3 upload_batch.py \
-      --jsonl requests.jsonl \
-      --output results.jsonl \
+      --jsonl jsonl/requests.jsonl \
+      --output jsonl/results.jsonl \
       --poll_interval 60
 """
 
@@ -150,15 +150,15 @@ def main():
     )
     parser.add_argument(
         "--jsonl",
-        required=True,
+        default="jsonl/requests.jsonl",
         type=Path,
-        help="Path to input JSONL file (e.g., requests.jsonl)",
+        help="Path to input JSONL file (default: jsonl/requests.jsonl)",
     )
     parser.add_argument(
         "--output",
-        default="results.jsonl",
+        default="jsonl/results.jsonl",
         type=Path,
-        help="Path to save results JSONL file (default: results.jsonl)",
+        help="Path to save results JSONL file (default: jsonl/results.jsonl)",
     )
     parser.add_argument(
         "--errors",
@@ -222,6 +222,11 @@ def main():
             if batch_status["status"] == "completed":
                 download_results(client, batch_status, args.output, args.errors)
         return
+
+    # Create output directory if it doesn't exist
+    args.output.parent.mkdir(parents=True, exist_ok=True)
+    if args.errors:
+        args.errors.parent.mkdir(parents=True, exist_ok=True)
 
     # Validate input file
     if not args.jsonl.exists():

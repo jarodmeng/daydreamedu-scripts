@@ -17,7 +17,7 @@ Usage Example:
     python3 make_batch_jsonl_per_character.py \
       --pdf_dir "/Users/jarodm/Library/CloudStorage/GoogleDrive-winston.ry.meng@gmail.com/My Drive/冯式早教识字卡/" \
       --prompt_md ./chinese_character_extraction_prompt.md \
-      --out_jsonl requests.jsonl \
+      --out_jsonl jsonl/requests.jsonl \
       --dpi 250 \
       --model gpt-5-mini \
       --max_pdfs 10 \
@@ -107,7 +107,11 @@ def build_batch_line(custom_id: str, model: str, prompt_text: str, image_url: st
                             "text": (
                                 "Extract the fields for this single Chinese character card.\n"
                                 "This image is the SECOND page of the 2-page character set.\n"
-                                "Output ONLY the Markdown table with one row.\n"
+                                "You MUST extract: Index, Character, Pinyin, Radical, Strokes, Structure, Sentence(例句), Words(词组).\n"
+                                "Output ONLY a Markdown table with exactly ONE row.\n"
+                                "IMPORTANT: The Words column MUST be a valid JSON array of strings, e.g. [\"他们\",\"他乡\"].\n"
+                                "If no words are present or legible, output [] in the Words column.\n"
+                                "Do not output any extra text outside the Markdown table.\n"
                             ),
                         },
                         {"type": "input_image", "image_url": image_url},
@@ -124,7 +128,7 @@ def main():
     )
     parser.add_argument("--pdf_dir", required=True, help="Folder containing PDFs")
     parser.add_argument("--prompt_md", required=True, help="Path to saved prompt .md")
-    parser.add_argument("--out_jsonl", default="requests.jsonl", help="Output JSONL file")
+    parser.add_argument("--out_jsonl", default="jsonl/requests.jsonl", help="Output JSONL file")
     parser.add_argument("--dpi", type=int, default=250, help="Render DPI (200–300 recommended)")
     parser.add_argument("--model", default="gpt-5-mini", help="Model name (default: gpt-5-mini)")
     parser.add_argument(
@@ -152,6 +156,8 @@ def main():
     pdf_dir = Path(args.pdf_dir)
     prompt_md = Path(args.prompt_md)
     out_jsonl = Path(args.out_jsonl)
+    # Create output directory if it doesn't exist
+    out_jsonl.parent.mkdir(parents=True, exist_ok=True)
 
     if not pdf_dir.is_dir():
         raise SystemExit(f"Not a directory: {pdf_dir}")
