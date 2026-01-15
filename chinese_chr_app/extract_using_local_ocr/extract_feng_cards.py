@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Extract (index_number, character) pairs from 冯式早教识字卡 scanned PDFs.
+Extract (index_number, character) pairs from 冯氏早教识字卡 scanned PDFs.
 
 Card format assumptions:
 - 2 pages per character/card
@@ -410,7 +410,7 @@ def extract_cards(pdf_path: Path, *, dpi: int, tessdata_dir: Path, mode: OcrMode
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Extract indices + characters from 冯式早教识字卡 PDFs.")
+    parser = argparse.ArgumentParser(description="Extract indices + characters from 冯氏早教识字卡 PDFs.")
     parser.add_argument("pdf", type=str, help="Path to input PDF (absolute or relative).")
     parser.add_argument("--dpi", type=int, default=300, help="Render DPI for OCR (default: 300).")
     parser.add_argument(

@@ -1,6 +1,6 @@
 ## Chinese Character Card Extraction Pipeline
 
-This folder contains experiments and scripts for extracting structured data from the 冯式早教识字卡 PDF set (index, character, pinyin, radical, strokes, structure, sentence, words).
+This folder contains experiments and scripts for extracting structured data from the 冯氏早教识字卡 PDF set (index, character, pinyin, radical, strokes, structure, sentence, words).
 
 ### Overview of Approaches
 
@@ -48,7 +48,7 @@ All Attempt 2 files are located in the `extract_characters_using_ai/` subfolder:
     ```bash
     cd extract_characters_using_ai
     python3 make_batch_jsonl_per_character.py \
-      --pdf_dir "/Users/jarodm/Library/CloudStorage/GoogleDrive-winston.ry.meng@gmail.com/My Drive/冯式早教识字卡/" \
+      --pdf_dir "/Users/jarodm/Library/CloudStorage/GoogleDrive-winston.ry.meng@gmail.com/My Drive/冯氏早教识字卡/" \
       --prompt_md ./chinese_character_extraction_prompt.md \
       --out_jsonl jsonl/requests.jsonl \
       --dpi 250 \
@@ -111,7 +111,7 @@ All Attempt 2 files are located in the `extract_characters_using_ai/` subfolder:
 - **Attempt 2 (OpenAI Batch + vision prompt)**:  
   - Successfully processed **0001–0100** using the `/v1/responses` Batch endpoint.  
   - All 100 requests completed with **0 failures**, and validation passed with **0 issues**.  
-  - This is the **current recommended approach** for extracting data from the 冯式早教识字卡 PDFs.
+  - This is the **current recommended approach** for extracting data from the 冯氏早教识字卡 PDFs.
 
 ### How to Run the Full Pipeline (Summary)
 
@@ -121,7 +121,7 @@ All commands should be run from the `extract_characters_using_ai/` directory:
    ```bash
    cd extract_characters_using_ai
    python3 make_batch_jsonl_per_character.py \
-     --pdf_dir "/path/to/冯式早教识字卡/" \
+     --pdf_dir "/path/to/冯氏早教识字卡/" \
      --prompt_md ./chinese_character_extraction_prompt.md \
      --out_jsonl requests.jsonl \
      --dpi 250 \

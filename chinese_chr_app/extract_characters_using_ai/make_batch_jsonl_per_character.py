@@ -15,7 +15,7 @@ Behavior:
 
 Usage Example:
     python3 make_batch_jsonl_per_character.py \
-      --pdf_dir "/Users/jarodm/Library/CloudStorage/GoogleDrive-winston.ry.meng@gmail.com/My Drive/冯式早教识字卡/" \
+      --pdf_dir "/Users/jarodm/Library/CloudStorage/GoogleDrive-winston.ry.meng@gmail.com/My Drive/冯氏早教识字卡/" \
       --prompt_md ./chinese_character_extraction_prompt.md \
       --out_jsonl jsonl/requests.jsonl \
       --dpi 250 \
