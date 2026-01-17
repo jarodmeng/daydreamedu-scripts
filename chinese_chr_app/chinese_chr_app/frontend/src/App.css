@@ -116,3 +116,50 @@ h1 {
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
+
+.metadata-table {
+  width: 100%;
+  max-width: 1000px;
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-top: 30px;
+}
+
+.metadata-table h3 {
+  font-size: 1.5rem;
+  color: #333;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.metadata-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.metadata-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid #eee;
+  font-size: 1rem;
+}
+
+.metadata-table td:first-child {
+  font-weight: 600;
+  color: #555;
+  width: 120px;
+}
+
+.metadata-table td:last-child {
+  color: #333;
+}
+
+.metadata-table tr:last-child td {
+  border-bottom: none;
+}
+
+.dictionary-corrected {
+  color: #d32f2f;
+  font-weight: 500;
+}

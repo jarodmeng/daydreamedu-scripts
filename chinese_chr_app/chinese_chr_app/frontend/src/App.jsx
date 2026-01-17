@@ -80,6 +80,51 @@ function App() {
     }
   }
 
+  // Helper function to process field values and detect dictionary corrections
+  const processFieldValue = (value, isArray = false) => {
+    if (isArray && Array.isArray(value)) {
+      // Process array values (like Pinyin)
+      const processed = value.map(item => {
+        if (typeof item === 'string' && item.includes(' (dictionary)')) {
+          return { text: item.replace(' (dictionary)', ''), isDictionary: true }
+        }
+        return { text: item, isDictionary: false }
+      })
+      return processed
+    } else if (typeof value === 'string') {
+      // Process string values
+      if (value.includes(' (dictionary)')) {
+        return { text: value.replace(' (dictionary)', ''), isDictionary: true }
+      }
+      return { text: value, isDictionary: false }
+    }
+    return { text: value || '无', isDictionary: false }
+  }
+
+  // Helper component to render field value with dictionary correction styling
+  const renderFieldValue = (value, isArray = false) => {
+    const processed = processFieldValue(value, isArray)
+    
+    if (isArray && Array.isArray(processed)) {
+      // Render array with dictionary markers
+      return processed.map((item, idx) => (
+        <span key={idx}>
+          <span className={item.isDictionary ? 'dictionary-corrected' : ''}>
+            {item.text}
+          </span>
+          {idx < processed.length - 1 && ', '}
+        </span>
+      ))
+    } else {
+      // Render single value
+      return (
+        <span className={processed.isDictionary ? 'dictionary-corrected' : ''}>
+          {processed.text}
+        </span>
+      )
+    }
+  }
+
   return (
     <div className="app">
       <div className="container">
@@ -118,24 +163,81 @@ function App() {
         )}
 
         {character && !loading && (
-          <div className="character-cards">
-            <div className="card">
-              <h3>Front (正面)</h3>
-              <img 
-                src={`/api/images/${character.custom_id}/page1`}
-                alt={`Front of character ${character.Character}`}
-                className="card-image"
-              />
+          <>
+            <div className="character-cards">
+              <div className="card">
+                <h3>Front (正面)</h3>
+                <img 
+                  src={`/api/images/${character.custom_id}/page1`}
+                  alt={`Front of character ${character.Character}`}
+                  className="card-image"
+                />
+              </div>
+              <div className="card">
+                <h3>Back (背面)</h3>
+                <img 
+                  src={`/api/images/${character.custom_id}/page2`}
+                  alt={`Back of character ${character.Character}`}
+                  className="card-image"
+                />
+              </div>
             </div>
-            <div className="card">
-              <h3>Back (背面)</h3>
-              <img 
-                src={`/api/images/${character.custom_id}/page2`}
-                alt={`Back of character ${character.Character}`}
-                className="card-image"
-              />
+            <div className="metadata-table">
+              <h3>Character Information (字符信息)</h3>
+              <table>
+                <tbody>
+                  <tr>
+                    <td>拼音</td>
+                    <td>
+                      {character.Pinyin && character.Pinyin.length > 0 
+                        ? renderFieldValue(character.Pinyin, true)
+                        : '无'}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>部首</td>
+                    <td>
+                      {character.Radical 
+                        ? renderFieldValue(character.Radical, false)
+                        : '无'}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>笔画</td>
+                    <td>
+                      {character.Strokes 
+                        ? renderFieldValue(character.Strokes, false)
+                        : '无'}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>结构</td>
+                    <td>
+                      {character.Structure 
+                        ? renderFieldValue(character.Structure, false)
+                        : '无'}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>例句</td>
+                    <td>
+                      {character.Sentence 
+                        ? renderFieldValue(character.Sentence, false)
+                        : '无'}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>词组</td>
+                    <td>
+                      {character.Words && character.Words.length > 0 
+                        ? renderFieldValue(character.Words, true)
+                        : '无'}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
-          </div>
+          </>
         )}
       </div>
     </div>
