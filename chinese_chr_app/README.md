@@ -1,152 +1,167 @@
-## Chinese Character Card Extraction Pipeline
+# Chinese Learning App
 
-This folder contains experiments and scripts for extracting structured data from the 冯氏早教识字卡 PDF set (index, character, pinyin, radical, strokes, structure, sentence, words).
+This folder contains a web application for learning Chinese characters, along with utility scripts for extracting and processing character data from PDF card sets.
 
-### Overview of Approaches
+## Overview
 
-- **Attempt 1 – Local OCR (not recommended now)**  
-  - Location: `extract_using_local_ocr/` folder  
-  - Script: `extract_using_local_ocr/extract_feng_cards.py`  
-  - Approach:  
-    - Render each PDF page with `pdftoppm`  
-    - Use Tesseract (`chi_sim`) to OCR:
-      - Page 1 center region → big character  
-      - Page 2 top-right corner → index number  
-  - Status: **Results not very good**  
-    - OCR struggled on some fonts / low-res scans  
-    - Index numbers and some characters were unreliable  
-    - Kept for reference, but no longer the main path.
+The Chinese Learning App is a full-stack web application that helps primary school students learn simplified Chinese characters. The app displays character cards with detailed information including pinyin, radicals, stroke counts, example sentences, and word combinations.
 
-- **Attempt 2 – OpenAI Batch API (current recommended path)**  
-  - Location: `extract_characters_using_ai/` folder  
-  - Idea: Treat the back of each card (2nd page of each pair) as an image and let a vision model do structured extraction, with a carefully designed prompt and dictionary cross-check.
-  - Result: **Promising** – test run on characters `0001–0100` produced clean, validated data.
+This repository also includes utility scripts for extracting structured character data from the 冯氏早教识字卡 PDF card set.
 
-### Files and Scripts
+## Project Structure
 
-All Attempt 2 files are located in the `extract_characters_using_ai/` subfolder:
+```
+chinese_chr_app/
+├── chinese_chr_app/              # Main web application
+│   ├── backend/                   # Flask API server
+│   ├── frontend/                  # React frontend
+│   └── README.md                  # Detailed app documentation
+│
+├── extract_characters_using_ai/  # Utility: AI-based character extraction
+│   └── (scripts for OpenAI Batch API extraction)
+│
+├── extract_using_local_ocr/      # Utility: Local OCR extraction
+│   └── extract_feng_cards.py
+│
+└── generate_png/                 # Utility: PDF to PNG conversion
+    └── generate_png_from_pdfs.py
+```
 
-- `extract_characters_using_ai/chinese_character_extraction_prompt.md`  
-  - System prompt used for the vision model.  
-  - Defines:
-    - Which pages to read (only page 2 of each 2-page pair: 2,4,6,8,...)  
-    - Fields to extract: **Index, Character, Pinyin, Radical, Strokes, Structure, Sentence (例句), Words (词组)**  
-    - Dictionary cross-check rules and how to mark corrections with `(dictionary)`  
-    - Output format: **single Markdown table** with 8 columns (Words must be a JSON array).
+## Main Application
 
-- `extract_characters_using_ai/make_batch_jsonl_per_character.py`  
-  - Generates one **OpenAI Batch JSONL request per character**.  
-  - Expects PDFs in a directory, named like `dddd-dddd.pdf`, e.g. `0721-0730.pdf`.  
-  - For each range file:
-    - Parses the index range from the filename (e.g. `0721–0730`)  
-    - Assumes 2 pages per character and extracts only the **second page** for each character (pages 2,4,6,...)  
-    - Renders those pages to PNG using **PyMuPDF (fitz)**  
-    - Embeds each page as a base64 `data:image/png;base64,...` URL in a JSONL line  
-    - Uses `chinese_character_extraction_prompt.md` as the system message  
-    - Sets `custom_id` to the 4-digit index (e.g. `0721`) so downstream parsing is simple.
-  - Example command used in this project:
-    ```bash
-    cd extract_characters_using_ai
-    python3 make_batch_jsonl_per_character.py \
-      --pdf_dir "/Users/jarodm/Library/CloudStorage/GoogleDrive-winston.ry.meng@gmail.com/My Drive/冯氏早教识字卡/" \
-      --prompt_md ./chinese_character_extraction_prompt.md \
-      --out_jsonl jsonl/requests.jsonl \
-      --dpi 250 \
-      --model gpt-5-mini \
-      --max_pdfs 10 \
-      --save_images
-    ```
-  - Output: `jsonl/requests.jsonl` – ready to upload to the OpenAI Batch API.
+The **Chinese Character Learning App** (`chinese_chr_app/chinese_chr_app/`) is a web application that provides an interactive interface for searching and viewing Chinese character cards.
 
-- `extract_characters_using_ai/upload_batch.py`  
-  - Master script to **upload** `requests.jsonl` and manage the Batch run.  
-  - Responsibilities:
-    - Uploads the JSONL as a `file` with purpose `"batch"`  
-    - Creates a batch for the `/v1/responses` endpoint  
-    - Polls batch status until it reaches `completed` (or fails/ends)  
-    - Downloads the **output file** to a local `results.jsonl`  
-  - Example usage:
-    ```bash
-    cd extract_characters_using_ai
-    # Assumes OPENAI_API_KEY is set in your shell
-    python3 upload_batch.py --jsonl jsonl/requests.jsonl --output jsonl/results.jsonl
-    ```
-  - The script prints the `batch_id` so you can re-check status later:
-    ```bash
-    python3 upload_batch.py --batch_id <batch_id> --output results.jsonl
-    ```
+### Features
+- Search for Chinese characters by entering a single character
+- Display both sides of character cards (front and back)
+- Show detailed information: pinyin, radical, strokes, structure, example sentences, and word combinations
 
-- `extract_characters_using_ai/parse_results.py`  
-  - Parses the Batch API `results.jsonl` and turns the model’s Markdown table outputs into structured data.  
-  - For each line:
-    - Locates the assistant message with `output_text`  
-    - Extracts the Markdown table row  
-    - Parses: **Index, Character, Pinyin, Radical, Strokes, Structure, Sentence, Words**  
-    - Normalizes `Index` to 4-digit format (e.g. `1 → 0001`)  
-    - Validates `Words` as a JSON array and parses it for JSON output  
-    - Attaches `custom_id` (should match the 4-digit index).
-  - Also supports:
-    - **Validation** (checks required fields, numeric strokes, single-character `Character`, valid JSON array for `Words`, etc.)  
-    - **Statistics** (index range, unique characters, count of `(dictionary)` corrections).
-  - Example command used for the first batch (0001–0100):
-    ```bash
-    cd extract_characters_using_ai
-    python3 parse_results.py \
-      --input jsonl/results.jsonl \
-      --output output/characters.csv \
-      --json output/characters.json \
-      --validate \
-      --stats
-    ```
-  - Output:
-    - `output/characters.csv` – 100 rows with columns: `custom_id, Index, Character, Pinyin, Radical, Strokes, Structure, Sentence, Words` (Words stored as JSON string)  
-    - `output/characters.json` – same data in JSON form (Words parsed as actual JSON array).
+### Quick Start
 
-### Current Status
+See the detailed documentation in [`chinese_chr_app/README.md`](chinese_chr_app/README.md) for:
+- Setup instructions (backend and frontend)
+- API endpoints
+- Usage guide
 
-- **Attempt 1 (local OCR, `extract_using_local_ocr/extract_feng_cards.py`)**:  
-  - Working end‑to‑end but accuracy is not sufficient, especially for indices and some glyphs.  
-  - Kept for historical reference and possible hybrid use, but not the primary pipeline.
+**Quick commands:**
+```bash
+# Backend (Flask API)
+cd chinese_chr_app/backend
+pip3 install -r requirements.txt
+python3 app.py  # Runs on http://localhost:5001
 
-- **Attempt 2 (OpenAI Batch + vision prompt)**:  
-  - Successfully processed **0001–0100** using the `/v1/responses` Batch endpoint.  
-  - All 100 requests completed with **0 failures**, and validation passed with **0 issues**.  
-  - This is the **current recommended approach** for extracting data from the 冯氏早教识字卡 PDFs.
+# Frontend (React)
+cd chinese_chr_app/frontend
+npm install
+npm run dev  # Runs on http://localhost:3000
+```
 
-### How to Run the Full Pipeline (Summary)
+## Utility Scripts
 
-All commands should be run from the `extract_characters_using_ai/` directory:
+These utilities are used to extract and process character data from PDF card sets.
 
-1. **Generate requests JSONL**  
-   ```bash
-   cd extract_characters_using_ai
-   python3 make_batch_jsonl_per_character.py \
-     --pdf_dir "/path/to/冯氏早教识字卡/" \
-     --prompt_md ./chinese_character_extraction_prompt.md \
-     --out_jsonl requests.jsonl \
-     --dpi 250 \
-     --model gpt-5-mini \
-     --max_pdfs 10 \
-     --save_images
-   ```
+### 1. AI-Based Character Extraction (`extract_characters_using_ai/`)
 
-2. **Upload and run Batch**  
-   - Ensure `OPENAI_API_KEY` is set in your shell.  
-   ```bash
-   cd extract_characters_using_ai
-   python3 upload_batch.py --jsonl requests.jsonl --output results.jsonl
-   ```
+**Purpose**: Extract structured character data using OpenAI's vision models via Batch API.
 
-3. **Parse and validate results**  
-   ```bash
-   cd extract_characters_using_ai
-   python3 parse_results.py \
-     --input results.jsonl \
-     --output characters.csv \
-     --json characters.json \
-     --validate \
-     --stats
-   ```
+**Status**: ✅ **Recommended approach** - High accuracy with validation
 
-You can repeat steps 1–3 for additional PDF ranges (e.g., 0101–0200, etc.) by adjusting `--max_pdfs` or pointing `--pdf_dir` to the appropriate subset.
+**Key Features**:
+- Uses OpenAI Batch API with GPT-5-mini vision model
+- Extracts: Index, Character, Pinyin, Radical, Strokes, Structure, Sentence (例句), Words (词组)
+- Includes character validation to prevent OCR errors
+- Processes PDFs directly (no pre-processing needed)
 
+**Main Scripts**:
+- `make_batch_jsonl_per_character.py` - Generate batch requests from PDFs
+- `upload_batch.py` - Upload and manage batch jobs
+- `parse_results.py` - Parse results into CSV/JSON
+- `verify_results.py` - Validate extracted characters
+
+**Quick Start**:
+```bash
+cd extract_characters_using_ai
+
+# 1. Generate requests
+python3 make_batch_jsonl_per_character.py \
+  --pdf_dir "/path/to/冯氏早教识字卡/" \
+  --prompt_md ./chinese_character_extraction_prompt.md \
+  --out_jsonl jsonl/requests.jsonl \
+  --dpi 250
+
+# 2. Upload batch (requires OPENAI_API_KEY)
+python3 upload_batch.py --jsonl jsonl/requests.jsonl --output jsonl/results.jsonl
+
+# 3. Parse results
+python3 parse_results.py \
+  --input jsonl/results.jsonl \
+  --output output/characters.csv \
+  --json output/characters.json \
+  --validate --stats
+```
+
+**Documentation**: See `extract_characters_using_ai/` folder for detailed scripts and usage.
+
+### 2. Local OCR Extraction (`extract_using_local_ocr/`)
+
+**Purpose**: Extract character data using local Tesseract OCR.
+
+**Status**: ⚠️ **Not recommended** - Lower accuracy, kept for reference
+
+**Approach**:
+- Uses Tesseract OCR with `chi_sim` language model
+- Renders PDF pages with `pdftoppm`
+- OCRs specific regions (center for character, top-right for index)
+
+**Limitations**:
+- OCR struggles with some fonts and low-resolution scans
+- Index numbers and some characters are unreliable
+- Kept for historical reference and possible hybrid use
+
+**Script**: `extract_using_local_ocr/extract_feng_cards.py`
+
+### 3. PNG Generation (`generate_png/`)
+
+**Purpose**: Pre-process PDF files by extracting individual pages as PNG images.
+
+**Use Cases**:
+- Extract PNG files before running extraction pipelines
+- Manual inspection of character cards
+- Image-based workflows
+
+**Features**:
+- Reads PDF files (named like `0001-0010.pdf`)
+- Extracts all pages as PNG files
+- Creates organized folder structure: `png/<dddd>/` for each character
+- Each character folder contains 2 PNG files (page 1 and page 2)
+
+**Usage**:
+```bash
+cd generate_png
+python3 generate_png_from_pdfs.py \
+  --pdf_dir "/path/to/冯氏早教识字卡/" \
+  --output_dir "/path/to/冯氏早教识字卡/png" \
+  --dpi 300
+```
+
+**Note**: The AI extraction pipeline can work directly from PDFs, so this script is optional unless you specifically need standalone PNG files.
+
+## Data Flow
+
+1. **PDF Source**: 冯氏早教识字卡 PDF card set
+2. **Extraction**: Use `extract_characters_using_ai/` to extract structured data
+3. **Output**: CSV/JSON files with character data
+4. **Application**: Main app (`chinese_chr_app/`) uses this data to display character cards
+
+## Current Status
+
+- **Main App**: ✅ Functional web application
+- **AI Extraction**: ✅ Production-ready, successfully processed 900+ characters
+- **Local OCR**: ⚠️ Working but low accuracy, kept for reference
+- **PNG Generation**: ✅ Functional utility script
+
+## Getting Started
+
+1. **For using the web app**: See [`chinese_chr_app/README.md`](chinese_chr_app/README.md)
+2. **For extracting character data**: See `extract_characters_using_ai/` folder
+3. **For generating PNGs**: See `generate_png/` folder
