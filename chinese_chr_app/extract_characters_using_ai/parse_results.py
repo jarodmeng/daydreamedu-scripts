@@ -6,7 +6,10 @@ This script:
 1. Reads the results.jsonl file from OpenAI Batch API
 2. Extracts markdown tables from each response
 3. Parses the structured data (Index, Character, Pinyin, Radical, Strokes, Structure, Sentence, Words)
+   - Pinyin and Words are JSON arrays (Pinyin supports multiple pronunciations)
 4. Outputs to CSV and/or JSON format
+   - CSV: Pinyin and Words stored as JSON strings
+   - JSON: Pinyin and Words parsed as actual arrays
 5. Provides statistics and validation
 
 Usage:
@@ -29,7 +32,8 @@ def parse_markdown_table(table_text: str) -> Optional[Dict[str, str]]:
     Parse a markdown table row and extract fields.
     Expected format:
     | Index | Character | Pinyin | Radical | Strokes | Structure | Sentence | Words |
-    | 0001  | 爸       | bà     | 父      | 8       | 左右结构  | ...      | [...] |
+    | 0001  | 爸       | ["bà"] | 父      | 8       | 左右结构  | ...      | [...] |
+    Note: Pinyin and Words are JSON arrays.
     """
     lines = [line.strip() for line in table_text.strip().split('\n') if line.strip()]
     
@@ -202,6 +206,17 @@ def validate_character_data(data: Dict[str, str]) -> List[str]:
         if not strokes_clean.isdigit():
             issues.append(f"Invalid Strokes format: {data['Strokes']}")
     
+    # Validate Pinyin (should be a valid JSON array)
+    if 'Pinyin' in data and data['Pinyin']:
+        pinyin_str = data['Pinyin'].strip()
+        if pinyin_str and pinyin_str != '[]':
+            try:
+                pinyin_list = json.loads(pinyin_str)
+                if not isinstance(pinyin_list, list):
+                    issues.append(f"Pinyin is not a JSON array: {data['Pinyin']}")
+            except json.JSONDecodeError as e:
+                issues.append(f"Invalid Pinyin JSON format: {data['Pinyin']} - {e}")
+    
     # Validate Words (should be a valid JSON array)
     if 'Words' in data and data['Words']:
         words_str = data['Words'].strip()
@@ -308,10 +323,26 @@ def main():
     # Write JSON
     if args.json:
         print(f"📝 Writing JSON to: {args.json}")
-        # For JSON, parse Words into actual array if it's a JSON string
+        # For JSON, parse Pinyin and Words into actual arrays if they're JSON strings
         json_data = []
         for data in all_data:
             json_entry = data.copy()
+            
+            # Parse Pinyin
+            if 'Pinyin' in json_entry and json_entry['Pinyin']:
+                pinyin_str = json_entry['Pinyin'].strip()
+                if pinyin_str and pinyin_str != '[]':
+                    try:
+                        json_entry['Pinyin'] = json.loads(pinyin_str)
+                    except json.JSONDecodeError:
+                        # If parsing fails, keep as string
+                        pass
+                else:
+                    json_entry['Pinyin'] = []
+            else:
+                json_entry['Pinyin'] = []
+            
+            # Parse Words
             if 'Words' in json_entry and json_entry['Words']:
                 words_str = json_entry['Words'].strip()
                 if words_str and words_str != '[]':
@@ -324,6 +355,7 @@ def main():
                     json_entry['Words'] = []
             else:
                 json_entry['Words'] = []
+            
             json_data.append(json_entry)
         
         with open(args.json, 'w', encoding='utf-8') as f:
@@ -357,9 +389,29 @@ def main():
         
         if all_data:
             # Count entries with dictionary corrections
+            # Note: Pinyin is now a JSON array (or JSON string), so we need to check appropriately
+            def has_dict_correction(pinyin_value):
+                """Check if Pinyin has dictionary correction marker."""
+                if not pinyin_value:
+                    return False
+                # If it's already a list (from JSON parsing), check each element
+                if isinstance(pinyin_value, list):
+                    return any('(dictionary)' in str(p) for p in pinyin_value)
+                # If it's a string (JSON string or plain string), check it
+                pinyin_str = str(pinyin_value)
+                # Try to parse as JSON array first
+                try:
+                    pinyin_list = json.loads(pinyin_str)
+                    if isinstance(pinyin_list, list):
+                        return any('(dictionary)' in str(p) for p in pinyin_list)
+                except (json.JSONDecodeError, TypeError):
+                    pass
+                # Fallback: check the string directly
+                return '(dictionary)' in pinyin_str
+            
             dict_corrections = sum(
                 1 for d in all_data
-                if '(dictionary)' in str(d.get('Pinyin', '')) or
+                if has_dict_correction(d.get('Pinyin', '')) or
                    '(dictionary)' in str(d.get('Radical', '')) or
                    '(dictionary)' in str(d.get('Strokes', ''))
             )

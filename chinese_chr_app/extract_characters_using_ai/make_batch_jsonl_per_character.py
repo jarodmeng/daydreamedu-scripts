@@ -108,9 +108,26 @@ def build_batch_line(custom_id: str, model: str, prompt_text: str, image_url: st
                                 "Extract the fields for this single Chinese character card.\n"
                                 "This image is the SECOND page of the 2-page character set.\n"
                                 "You MUST extract: Index, Character, Pinyin, Radical, Strokes, Structure, Sentence(例句), Words(词组).\n"
+                                "\n"
+                                "⚠️ CRITICAL VALIDATION (MANDATORY - DO NOT SKIP):\n"
+                                "BEFORE outputting the final table, you MUST verify that the extracted Character appears in:\n"
+                                "  1. The Sentence (例句) field\n"
+                                "  2. At least some of the Words (词组) field\n"
+                                "\n"
+                                "If the character does NOT appear in the Sentence or Words:\n"
+                                "  - STOP IMMEDIATELY - This is a definite OCR error.\n"
+                                "  - DO NOT OUTPUT the incorrect character.\n"
+                                "  - Re-examine the image very carefully.\n"
+                                "  - The character in the Sentence/Words is DEFINITELY the correct one.\n"
+                                "  - Extract that character instead, even if it looks different in the main area.\n"
+                                "\n"
+                                "Common confusions: 要/耍 (check for 玩耍), 晴/睛 (check for 眼睛), 从/丛 (check for 丛林/丛书).\n"
+                                "If your character doesn't appear in sentence/words, you have made an error - fix it before outputting.\n"
+                                "\n"
                                 "Output ONLY a Markdown table with exactly ONE row.\n"
-                                "IMPORTANT: The Words column MUST be a valid JSON array of strings, e.g. [\"他们\",\"他乡\"].\n"
-                                "If no words are present or legible, output [] in the Words column.\n"
+                                "IMPORTANT: Both Pinyin and Words columns MUST be valid JSON arrays of strings.\n"
+                                "  - Pinyin: Always output as array, e.g. [\"tā\"] for single pronunciation or [\"hé\",\"huó\",\"hú\",\"hè\"] for multiple.\n"
+                                "  - Words: e.g. [\"他们\",\"他乡\"]. If no words present, output [] in the Words column.\n"
                                 "Do not output any extra text outside the Markdown table.\n"
                             ),
                         },
@@ -150,8 +167,35 @@ def main():
             "Otherwise it will warn but still attempt extraction."
         ),
     )
+    parser.add_argument(
+        "--pdf_file",
+        type=str,
+        default=None,
+        help="Process only a specific PDF file (e.g., '2861-2870.pdf')",
+    )
+    parser.add_argument(
+        "--range",
+        type=str,
+        default=None,
+        help="Process only PDFs containing characters in this range (e.g., '2861-2870')",
+    )
+    parser.add_argument(
+        "--max_file_size_mb",
+        type=int,
+        default=190,
+        help="Maximum size per JSONL file in MB (default: 190, OpenAI limit for gpt-5-mini: 200MB)",
+    )
 
     args = parser.parse_args()
+    
+    # Validate that only one filtering option is used
+    filter_count = sum([
+        args.max_pdfs is not None,
+        args.pdf_file is not None,
+        args.range is not None,
+    ])
+    if filter_count > 1:
+        raise SystemExit("Error: Can only use one of --max_pdfs, --pdf_file, or --range at a time")
 
     pdf_dir = Path(args.pdf_dir)
     prompt_md = Path(args.prompt_md)
@@ -168,11 +212,39 @@ def main():
     prompt_text = prompt_md.read_text(encoding="utf-8")
 
     pdf_files = sorted(pdf_dir.glob("*.pdf"))
-    if args.max_pdfs is not None:
+    
+    # Filter PDFs based on options
+    if args.pdf_file:
+        # Process only the specified PDF file
+        pdf_path = pdf_dir / args.pdf_file
+        if not pdf_path.exists():
+            raise SystemExit(f"PDF file not found: {pdf_path}")
+        pdf_files = [pdf_path]
+    elif args.range:
+        # Process only PDFs that overlap with the specified range
+        range_match = re.match(r'^(\d+)-(\d+)$', args.range)
+        if not range_match:
+            raise SystemExit(f"Invalid range format: {args.range}. Use format like '2861-2870'")
+        min_idx = int(range_match.group(1))
+        max_idx = int(range_match.group(2))
+        if min_idx > max_idx:
+            raise SystemExit(f"Invalid range: start ({min_idx}) > end ({max_idx})")
+        
+        filtered_files = []
+        for pdf_file in pdf_files:
+            try:
+                start, end = parse_index_range_from_filename(pdf_file)
+                # Check if PDF range overlaps with requested range
+                if not (end < min_idx or start > max_idx):
+                    filtered_files.append(pdf_file)
+            except ValueError:
+                continue
+        pdf_files = filtered_files
+    elif args.max_pdfs is not None:
         pdf_files = pdf_files[: args.max_pdfs]
 
     if not pdf_files:
-        raise SystemExit(f"No PDF files found in: {pdf_dir}")
+        raise SystemExit(f"No PDF files found matching the criteria in: {pdf_dir}")
 
     rendered_root = Path("rendered_pages")
     used_custom_ids = set()
@@ -181,9 +253,32 @@ def main():
     skipped: List[str] = []
     warnings: List[str] = []
     requests_written = 0
-
-    with out_jsonl.open("w", encoding="utf-8") as f_out:
-        for pdf_path in pdf_files:
+    
+    # File splitting setup
+    max_file_size_bytes = args.max_file_size_mb * 1024 * 1024
+    current_file_num = 1
+    current_file_size = 0
+    output_files = []
+    
+    def get_output_file_path(file_num: int) -> Path:
+        """Generate output file path with number suffix if splitting."""
+        if file_num == 1:
+            return out_jsonl
+        else:
+            # Add number suffix: requests.jsonl -> requests_002.jsonl
+            stem = out_jsonl.stem
+            suffix = out_jsonl.suffix
+            return out_jsonl.parent / f"{stem}_{file_num:03d}{suffix}"
+    
+    def open_next_file():
+        """Open the next output file."""
+        file_path = get_output_file_path(current_file_num)
+        output_files.append(file_path)
+        return file_path.open("w", encoding="utf-8"), file_path
+    
+    f_out, current_file_path = open_next_file()
+    
+    for pdf_path in pdf_files:
             # Skip files not matching pattern
             try:
                 start, end = parse_index_range_from_filename(pdf_path)
@@ -245,14 +340,29 @@ def main():
                     image_url=image_url,
                 )
 
-                f_out.write(json.dumps(batch_line, ensure_ascii=False) + "\n")
+                # Serialize to JSON to check size
+                line_json = json.dumps(batch_line, ensure_ascii=False) + "\n"
+                line_size = len(line_json.encode('utf-8'))
+                
+                # Check if we need to start a new file
+                if current_file_size + line_size > max_file_size_bytes and requests_written > 0:
+                    f_out.close()
+                    current_file_num += 1
+                    f_out, current_file_path = open_next_file()
+                    current_file_size = 0
+                    print(f"📄 Starting new file: {current_file_path.name} (file #{current_file_num})")
+                
+                f_out.write(line_json)
+                current_file_size += line_size
                 requests_written += 1
 
             processed_pdfs += 1
+    
+    # Close the last file
+    f_out.close()
 
     # Summary
     print("\n✅ Batch JSONL generation complete")
-    print(f"Output JSONL: {out_jsonl.resolve()}")
     print(f"PDF dir     : {pdf_dir.resolve()}")
     print(f"Model       : {args.model}")
     print(f"DPI         : {args.dpi}")
@@ -261,6 +371,11 @@ def main():
         print(f"PDFs limit  : {args.max_pdfs}")
     print(f"PDFs processed (matching pattern): {processed_pdfs}")
     print(f"Requests written (characters)    : {requests_written}")
+    print(f"Output files created            : {len(output_files)}")
+    for i, file_path in enumerate(output_files, 1):
+        file_size = file_path.stat().st_size
+        file_size_mb = file_size / (1024 * 1024)
+        print(f"  {i}. {file_path.name} ({file_size_mb:.2f} MB)")
     if args.save_images:
         print(f"Rendered PNGs saved under       : {rendered_root.resolve()}")
 

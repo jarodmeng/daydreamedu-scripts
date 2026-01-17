@@ -22,7 +22,7 @@ import argparse
 import json
 import time
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Literal
 
 try:
     from openai import OpenAI
@@ -31,6 +31,146 @@ except ImportError:
         "Missing dependency: openai\n"
         "Install it with: pip install openai\n"
     )
+
+
+# Batch state management
+BATCH_STATE = Literal["CREATED", "COMPLETED", "RESULT RETRIEVED"]
+
+
+def load_batch_ids_file(batch_ids_file: Path) -> dict:
+    """Load batch_ids.json file, migrating old format if needed."""
+    if not batch_ids_file.exists():
+        return {
+            "created_at": int(time.time()),
+            "updated_at": int(time.time()),
+            "batches": []
+        }
+    
+    try:
+        with batch_ids_file.open("r", encoding="utf-8") as f:
+            data = json.load(f)
+        
+        # Migrate old format to new format
+        if "batches" in data:
+            for batch in data.get("batches", []):
+                # If batch doesn't have state, migrate it
+                if "state" not in batch:
+                    batch["state"] = "CREATED"
+                    batch["state_history"] = [
+                        {
+                            "state": "CREATED",
+                            "timestamp": batch.get("created_at", int(time.time()))
+                        }
+                    ]
+                # If batch has state but no state_history, create it
+                elif "state_history" not in batch:
+                    batch["state_history"] = [
+                        {
+                            "state": batch["state"],
+                            "timestamp": batch.get("created_at", int(time.time()))
+                        }
+                    ]
+        
+        return data
+    except (json.JSONDecodeError, KeyError):
+        # If file is corrupted, return empty structure
+        return {
+            "created_at": int(time.time()),
+            "updated_at": int(time.time()),
+            "batches": []
+        }
+
+
+def update_batch_state(
+    batch_ids_file: Path,
+    batch_id: str,
+    new_state: BATCH_STATE,
+    timestamp: Optional[int] = None
+) -> bool:
+    """
+    Update the state of a batch in batch_ids.json.
+    Returns True if batch was found and updated, False otherwise.
+    """
+    if timestamp is None:
+        timestamp = int(time.time())
+    
+    data = load_batch_ids_file(batch_ids_file)
+    
+    # Find the batch
+    batch_found = False
+    for batch in data.get("batches", []):
+        if batch.get("batch_id") == batch_id:
+            batch_found = True
+            old_state = batch.get("state", "CREATED")
+            
+            # Only update if state actually changed
+            if old_state != new_state:
+                batch["state"] = new_state
+                
+                # Initialize state_history if it doesn't exist
+                if "state_history" not in batch:
+                    batch["state_history"] = []
+                
+                # Add new state entry
+                batch["state_history"].append({
+                    "state": new_state,
+                    "timestamp": timestamp
+                })
+            
+            break
+    
+    if batch_found:
+        data["updated_at"] = timestamp
+        with batch_ids_file.open("w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2)
+        return True
+    
+    return False
+
+
+def add_batch_to_file(
+    batch_ids_file: Path,
+    file: str,
+    file_id: str,
+    batch_id: str,
+    timestamp: Optional[int] = None
+):
+    """Add a new batch to batch_ids.json with CREATED state."""
+    if timestamp is None:
+        timestamp = int(time.time())
+    
+    data = load_batch_ids_file(batch_ids_file)
+    
+    # Check if batch already exists
+    for batch in data.get("batches", []):
+        if batch.get("batch_id") == batch_id:
+            # Batch already exists, don't add again
+            return
+    
+    # Add new batch
+    batch_info = {
+        "file": str(file),
+        "file_id": file_id,
+        "batch_id": batch_id,
+        "state": "CREATED",
+        "created_at": timestamp,
+        "state_history": [
+            {
+                "state": "CREATED",
+                "timestamp": timestamp
+            }
+        ]
+    }
+    
+    data["batches"].append(batch_info)
+    data["updated_at"] = timestamp
+    
+    # Set created_at if this is the first batch
+    if not data.get("created_at"):
+        data["created_at"] = timestamp
+    
+    with batch_ids_file.open("w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2)
 
 
 def upload_file(client: OpenAI, file_path: Path) -> str:
@@ -208,19 +348,26 @@ def main():
 
     # Handle existing batch ID
     if args.batch_id:
+        batch_ids_file = args.output.parent / "batch_ids.json"
         print(f"📊 Checking status of existing batch: {args.batch_id}")
         batch_status = get_batch_status(client, args.batch_id)
         print(json.dumps(batch_status, indent=2))
 
         if batch_status["status"] in ("completed", "failed", "expired", "cancelled"):
+            if batch_status["status"] == "completed":
+                update_batch_state(batch_ids_file, args.batch_id, "COMPLETED")
             if batch_status["output_file_id"]:
                 download_results(client, batch_status, args.output, args.errors)
+                if batch_status["status"] == "completed":
+                    update_batch_state(batch_ids_file, args.batch_id, "RESULT RETRIEVED")
         elif not args.no_poll:
             batch_status = poll_batch_status(
                 client, args.batch_id, args.poll_interval, args.max_wait_time
             )
             if batch_status["status"] == "completed":
+                update_batch_state(batch_ids_file, args.batch_id, "COMPLETED")
                 download_results(client, batch_status, args.output, args.errors)
+                update_batch_state(batch_ids_file, args.batch_id, "RESULT RETRIEVED")
         return
 
     # Create output directory if it doesn't exist
@@ -252,6 +399,15 @@ def main():
     print(f"   Save this batch ID to check status later:")
     print(f"   python3 upload_batch.py --batch_id {batch_id}")
 
+    # Save batch to batch_ids.json with CREATED state
+    batch_ids_file = args.output.parent / "batch_ids.json"
+    add_batch_to_file(batch_ids_file, str(args.jsonl), file_id, batch_id)
+    
+    data = load_batch_ids_file(batch_ids_file)
+    print(f"\n💾 Batch saved to: {batch_ids_file.resolve()}")
+    print(f"   State: CREATED")
+    print(f"   Total batches in file: {len(data.get('batches', []))}")
+
     if args.no_poll:
         print("\n⏸️  Skipping polling (--no_poll flag set)")
         return
@@ -261,9 +417,19 @@ def main():
         client, batch_id, args.poll_interval, args.max_wait_time
     )
 
-    # Download results if completed
+    # Update state to COMPLETED if batch finished successfully
+    batch_ids_file = args.output.parent / "batch_ids.json"
     if batch_status["status"] == "completed":
+        update_batch_state(batch_ids_file, batch_id, "COMPLETED")
+        print(f"📝 Batch state updated to: COMPLETED")
+        
+        # Download results
         download_results(client, batch_status, args.output, args.errors)
+        
+        # Update state to RESULT RETRIEVED after downloading
+        update_batch_state(batch_ids_file, batch_id, "RESULT RETRIEVED")
+        print(f"📝 Batch state updated to: RESULT RETRIEVED")
+        
         print(f"\n✅ Results saved to: {args.output.resolve()}")
         if args.errors and batch_status["error_file_id"]:
             print(f"✅ Errors saved to: {args.errors.resolve()}")

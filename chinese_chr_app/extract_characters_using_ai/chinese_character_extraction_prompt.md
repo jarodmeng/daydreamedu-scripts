@@ -21,7 +21,10 @@ For each required page, extract:
 - The main character being studied.
 
 3) **Pinyin (tone marks REQUIRED)**  
-- Printed near/above the character. Must include tone marks exactly.
+- Printed near/above the character. Must include tone marks exactly.  
+- **IMPORTANT: Output Pinyin as a JSON array of strings ALWAYS.**
+  - If the page shows only one pronunciation: `["tā"]`
+  - If the page shows multiple pronunciations (多音字): include ALL in printed order, e.g. `["hé","huó","hú","hè"]`
 
 4) **Radical (部首)**  
 - The symbol/character printed immediately after **<部首>**.  
@@ -71,6 +74,35 @@ After extracting from the page, you are allowed to correct values **ONLY for**:
 
 ---
 
+## Character Validation (MANDATORY - CRITICAL STEP)
+
+### Step 0 — Verify Character Appears in Context (MUST DO THIS BEFORE OUTPUTTING)
+**⚠️ THIS IS A MANDATORY VALIDATION STEP. DO NOT SKIP IT. ⚠️**
+
+**BEFORE you output the final table, you MUST perform this verification:**
+
+1. **Check Sentence (例句)**: The extracted Character **MUST appear** in the Sentence field.
+2. **Check Words (词组)**: The extracted Character **MUST appear** in at least some of the Words.
+
+**If the character does NOT appear in the Sentence or Words:**
+- **STOP IMMEDIATELY** - This indicates a definite OCR error.
+- **DO NOT OUTPUT** the incorrect character.
+- **Re-examine the image very carefully** to identify the correct character.
+- Look for subtle differences in stroke patterns, radicals, or structure.
+- **The character that appears in the Sentence and Words is DEFINITELY the correct one.**
+- Extract that character instead, even if it looks slightly different in the main character area.
+
+**Examples of common confusions to watch for:**
+- 要 (yào) vs 耍 (shuǎ) - check if sentence/words contain 玩耍 → must be 耍
+- 晴 (qíng) vs 睛 (jīng) - check if sentence/words contain 眼睛 → must be 睛
+- 日 (rì) vs 目 (mù) - check context in sentence/words
+- 从 (cóng) vs 丛 (cóng) - check if sentence/words contain 丛林/丛书 → must be 丛
+- 島 (dǎo) vs 岛 (dǎo) - check if sentence/words use simplified → must match
+
+**REMEMBER: If your extracted character doesn't appear in the sentence/words, you have made an error. Fix it before outputting.**
+
+---
+
 ## Dictionary Cross-Check & Discrepancy Resolution (MANDATORY)
 
 After you extract **Pinyin + Radical + Strokes** from the page:
@@ -97,7 +129,7 @@ If you used the dictionary-standard value due to mismatch, append:
 - **(dictionary)**
 
 Examples:
-- `jiù (dictionary)`
+- `["jiù (dictionary)"]`
 - `攵 (dictionary)`
 - `11 (dictionary)`
 
@@ -110,8 +142,9 @@ Return a **Markdown table only**, with exactly these headers:
 
 | Index | Character | Pinyin | Radical | Strokes | Structure | Sentence | Words |
 
-### Words formatting requirements
+### JSON formatting requirements
+- The `Pinyin` column must contain a **valid JSON array** (double quotes required).
 - The `Words` column must contain a **valid JSON array** (double quotes required).
 - No trailing commas.
-- No extra commentary text inside the cell.
+- No extra commentary text inside any cell.
 - If there are no words or illegible, output: `[]`
