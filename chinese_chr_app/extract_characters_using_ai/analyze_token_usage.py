@@ -1,6 +1,22 @@
 #!/usr/bin/env python3
 """
 Analyze token usage from OpenAI batch results to estimate costs.
+
+This script uses actual Batch API pricing rates derived from OpenAI dashboard
+billing data. The rates are NOT a simple 50% discount from standard pricing.
+
+Why the discount isn't 50%:
+- Input tokens: ~40% discount ($0.15 → $0.0895 per 1M tokens)
+- Output tokens: Actually HIGHER than expected ($0.7161 vs assumed $0.60)
+- This suggests Batch API pricing has a more complex structure than a uniform discount
+- Possible explanations:
+  1. Standard pricing may differ from commonly assumed values
+  2. Batch API may have different rate structures for input vs output
+  3. Output tokens may include additional processing fees
+  4. The discount model may be tiered or volume-based rather than flat 50%
+
+The rates in this script are empirically derived from actual billing data
+and will produce accurate cost estimates that match OpenAI dashboard totals.
 """
 
 import json
@@ -59,31 +75,51 @@ def extract_token_usage(results_file: Path) -> Dict:
 def calculate_cost(tokens: Dict, model: str = 'gpt-5-mini') -> Dict:
     """
     Calculate cost based on OpenAI Batch API pricing.
-    Batch API has 50% discount on input/output tokens.
     
-    GPT-5-mini pricing (as of 2025):
-    - Input: $0.15 per 1M tokens
-    - Output: $0.60 per 1M tokens
-    - Reasoning tokens: Same as output tokens
+    Pricing rates were derived from actual OpenAI dashboard billing data
+    for Jan 17, 2026 (gpt-5-mini-2025-08-07 via Batch API):
     
-    With Batch API 50% discount:
-    - Input: $0.075 per 1M tokens
-    - Output: $0.30 per 1M tokens
-    - Cached tokens: $0.00 (free)
+    Dashboard breakdown:
+    - Cached input: $0.002 for 213,504 tokens
+    - Input: $0.471 for 5,265,496 tokens  
+    - Output: $2.338 for 3,265,000 tokens
+    - Total: $2.811
+    
+    Calculated effective rates:
+    - Cached input: ($0.002 / 213,504) × 1,000,000 = $0.0094 per 1M tokens
+    - Input: ($0.471 / 5,265,496) × 1,000,000 = $0.0895 per 1M tokens
+    - Output: ($2.338 / 3,265,000) × 1,000,000 = $0.7161 per 1M tokens
+    
+    Note on discount:
+    - Input tokens show ~40% discount from standard pricing ($0.15 → $0.0895)
+    - Output tokens appear HIGHER than expected ($0.7161 vs assumed $0.60)
+    - This suggests either:
+      1. Standard pricing differs from assumed values
+      2. Batch API discount structure is more complex than a simple 50% off
+      3. Output pricing may include additional fees or different rate structure
+    - The actual Batch API discount is NOT a uniform 50% across all token types
+    
+    Reasoning tokens are included in output token counts and billed at output rate.
     """
-    # Batch API pricing (50% discount)
-    input_price_per_million = 0.075
-    output_price_per_million = 0.30
+    # Batch API pricing (derived from actual dashboard billing, Jan 17, 2026)
+    # These rates were calculated by dividing actual costs by token counts
+    # from the OpenAI dashboard "Spend categories" view
+    cached_input_price_per_million = 0.0094  # $0.002 / 213,504 tokens × 1M
+    input_price_per_million = 0.0895         # $0.471 / 5,265,496 tokens × 1M
+    output_price_per_million = 0.7161         # $2.338 / 3,265,000 tokens × 1M
     
-    # Calculate billable tokens (excluding cached)
+    # Calculate billable tokens
     billable_input = tokens['input_tokens'] - tokens['cached_tokens']
     billable_output = tokens['output_tokens']  # Reasoning tokens are part of output
     
+    # Calculate costs for each token type
+    cached_cost = (tokens['cached_tokens'] / 1_000_000) * cached_input_price_per_million
     input_cost = (billable_input / 1_000_000) * input_price_per_million
     output_cost = (billable_output / 1_000_000) * output_price_per_million
-    total_cost = input_cost + output_cost
+    total_cost = cached_cost + input_cost + output_cost
     
     return {
+        'cached_cost': cached_cost,
         'input_cost': input_cost,
         'output_cost': output_cost,
         'total_cost': total_cost,
@@ -134,6 +170,8 @@ def main():
         print(f"   Total tokens: {stats['total_tokens']:,}")
         print(f"   Avg tokens/entry: {stats['avg_tokens_per_entry']:,.0f}")
         print(f"   Cost: ${cost['total_cost']:.4f}")
+        if stats['cached_tokens'] > 0:
+            print(f"      - Cached input: ${cost['cached_cost']:.4f} ({stats['cached_tokens']:,} tokens)")
         print(f"      - Input: ${cost['input_cost']:.4f} ({cost['billable_input_tokens']:,} billable tokens)")
         print(f"      - Output: ${cost['output_cost']:.4f} ({cost['billable_output_tokens']:,} tokens)")
     
@@ -150,6 +188,8 @@ def main():
         
         total_cost = calculate_cost(total_stats)
         print(f"\n💰 Total Cost: ${total_cost['total_cost']:.4f}")
+        if total_stats['cached_tokens'] > 0:
+            print(f"   - Cached input: ${total_cost['cached_cost']:.4f}")
         print(f"   - Input: ${total_cost['input_cost']:.4f}")
         print(f"   - Output: ${total_cost['output_cost']:.4f}")
         
