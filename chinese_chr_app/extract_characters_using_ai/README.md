@@ -259,6 +259,73 @@ python3 generate_single_entry.py \
 
 **Use case**: When a character is incorrectly extracted, use this script to regenerate just that one entry with the updated prompt, then upload it separately for reprocessing.
 
+### 13. `organize_by_radicals.py`
+
+Organizes characters by their radicals and outputs a JSON file.
+
+**Purpose**: Group characters by radical for analysis and organization
+
+**Key Features**:
+- Reads character data from `characters.json`
+- Groups all characters by their radical
+- Strips dictionary markers (e.g., " (dictionary)") from radicals
+- Outputs structured JSON with radical and character arrays
+- Provides statistics on radical distribution
+
+**Usage**:
+```bash
+# Use default paths (output/characters.json → output/characters_by_radicals.json)
+python3 organize_by_radicals.py
+
+# Specify custom paths
+python3 organize_by_radicals.py \
+  --input output/characters.json \
+  --output output/characters_by_radicals.json
+```
+
+**Options**:
+- `--input`: Input characters.json file path (default: `output/characters.json`)
+- `--output`: Output JSON file path (default: `output/characters_by_radicals.json`)
+
+**Output Format**:
+```json
+[
+  {
+    "radical": "口",
+    "characters": [
+      {
+        "Character": "叫",
+        "custom_id": "0123",
+        "Index": "0123",
+        "Pinyin": ["jiào"],
+        "Strokes": "5",
+        "Structure": "左右结构"
+      },
+      ...
+    ]
+  },
+  ...
+]
+```
+
+**Output**: `output/characters_by_radicals.json` - JSON array organized by radicals
+
+**Statistics**: The script prints:
+- Total number of unique radicals
+- Top 10 radicals by character count
+- Total characters processed
+
+**Example Output**:
+```
+Loaded 3000 characters
+Organized into 246 unique radicals
+Top 10 radicals by character count:
+  1. 口: 161 characters
+  2. 扌: 160 characters
+  3. 氵: 157 characters
+  ...
+```
+
 ## Shell Scripts
 
 Located in `sh/` folder:
