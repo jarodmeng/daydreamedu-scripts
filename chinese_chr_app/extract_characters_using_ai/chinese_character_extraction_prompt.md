@@ -98,6 +98,32 @@ After extracting from the page, you are allowed to correct values **ONLY for**:
 - 日 (rì) vs 目 (mù) - check context in sentence/words
 - 从 (cóng) vs 丛 (cóng) - check if sentence/words contain 丛林/丛书 → must be 丛
 - 島 (dǎo) vs 岛 (dǎo) - check if sentence/words use simplified → must match
+- 脸 (liǎn) vs 睑 (jiǎn) - check if words contain 眼睑 → must be 睑 (radical 目, not 月)
+- 治 (zhì) vs 冶 (yě) - check if words contain 陶冶/冶炼/冶金 → must be 冶 (radical 冫, not 氵)
+
+**⚠️ CRITICAL: Rare 2-Character Compound Words (Both Characters Can Be Confused)**
+Some rare 2-character compound words are especially error-prone because **BOTH characters in the pair** can be confused with other characters. When you see these compound words in sentences/words, you must verify which character you're extracting:
+
+- **踉跄 (liàngqiàng)** - "staggering"
+  - 踉 (liàng) can be confused with 跟 (gēn) - if words contain 踉跄/踉踉跄跄, verify you're extracting 踉, not 跟
+  - 跄 (qiàng) can be confused with 跑 (pǎo) - if words contain 踉跄/踉踉跄跄, verify you're extracting 跄, not 跑
+  - **Both characters** in this compound word can be misidentified, so check carefully which one you're extracting
+
+- **霹雳 (pīlì)** - "thunderbolt"
+  - 霹 (pī) vs 雳 (lì) - both are visually similar and rare
+  - If sentence/words contain 霹雳/晴天霹雳, verify which character you're extracting
+  - Check stroke count carefully: 霹=21 strokes, 雳=12 strokes
+  - **Both characters** can be confused, so identify which one you're extracting
+
+- **陷阱 (xiànjǐng)** - "trap"
+  - 阱 (jǐng) can be confused with 陷 (xiàn) - if words contain 陷阱, verify you're extracting 阱 (6 strokes), not 陷 (10 strokes)
+  - **Both characters** in this compound word can be misidentified, so check carefully which one you're extracting
+
+**For rare compound words where BOTH characters can be confused:**
+- The sentence/words will contain the full compound word (e.g., 踉跄, 霹雳, 陷阱)
+- You MUST verify which character in the compound word you're extracting
+- The character you extract MUST be the correct one from that compound word
+- Pay extra attention to stroke counts and radicals to distinguish between the characters
 
 **REMEMBER: If your extracted character doesn't appear in the sentence/words, you have made an error. Fix it before outputting.**
 
