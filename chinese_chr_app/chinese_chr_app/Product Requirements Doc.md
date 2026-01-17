@@ -51,5 +51,7 @@ Milestone 1: A search function to learn about a particular character
 * No user profile yet. We will build per-user profiles in future milestones.
 * When the website loads, it has a search box in the middle of the page.
 * The user can input a simplified Chinese character to search.
-    * If the character is found in the 3000 character cards, display page 1 and page 2 of the character card side by side below the search bar.
+    * If the character is found in the 3000 character cards, display page 1 and page 2 of the character card side by side below the search bar. Also display the other meta data in a table below the card png files: 拼音，部首，笔画，例句，词组，结构.
+        * If the information is dictionary-corrected, strip the " (dictionary)" part from the information in display, but make the color red.
+        * Make the table cells editable. The user can double click the cell to edit it and press enter to complete the edit. If the edited value is different from the stored data, prompt a dialog to ask the user if they indeed want the information changed. If they click yes, edit the stored data. We should also log every change in a logging file.
     * If the character is not found, display an error message and ask the user to input a new character.
