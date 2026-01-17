@@ -155,8 +155,8 @@ python3 generate_png_from_pdfs.py \
 
 ## Current Status
 
-- **Main App**: ✅ Functional web application with 2994 unique characters (3000 total entries)
-- **AI Extraction**: ✅ Production-ready, successfully processed all 3000 characters
+- **Main App**: ✅ Functional web application with all 3000 unique characters
+- **AI Extraction**: ✅ Production-ready, successfully processed all 3000 characters with no duplicates
 - **Local OCR**: ⚠️ Working but low accuracy, kept for reference
 - **PNG Generation**: ✅ Functional utility script
 
