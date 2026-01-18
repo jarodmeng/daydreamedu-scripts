@@ -6,6 +6,7 @@ import shutil
 from datetime import datetime
 from pathlib import Path
 from typing import Optional, Dict, Any, List, Tuple
+from collections import defaultdict
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for React frontend
@@ -18,7 +19,8 @@ _backend_dir = Path(__file__).resolve().parent
 BASE_DIR = _backend_dir.parent.parent  # Go up to chinese_chr_app level
 DATA_DIR = BASE_DIR / "data"  # Data directory for character files
 CHARACTERS_JSON = DATA_DIR / "characters.json"
-RADICALS_JSON = DATA_DIR / "characters_by_radicals.json"
+# RADICALS_JSON is no longer used - radicals are generated dynamically from characters_data
+# RADICALS_JSON = DATA_DIR / "characters_by_radicals.json"  # Kept for reference, not used
 PNG_BASE_DIR = Path("/Users/jarodm/Library/CloudStorage/GoogleDrive-winston.ry.meng@gmail.com/My Drive/冯氏早教识字卡/png")
 LOGS_DIR = _backend_dir / "logs"
 EDIT_LOG_FILE = LOGS_DIR / "character_edits.log"
@@ -307,6 +309,9 @@ def update_character_field(custom_id: str, field: str, new_value: Any) -> Tuple[
         # Log the change
         log_character_edit(custom_id, field, old_value, new_value)
         
+        # Invalidate and regenerate radicals cache (in case radical field changed)
+        reload_radicals()
+        
         # Return the updated character
         return True, None, character
         
@@ -422,19 +427,66 @@ def get_image(custom_id, page):
     
     return send_file(str(image_path), mimetype='image/png')
 
+def generate_radicals_data(characters_data: List[Dict]) -> List[Dict]:
+    """
+    Generate radicals data from characters_data.
+    Groups characters by their radical field.
+    
+    Args:
+        characters_data: List of character dictionaries
+        
+    Returns:
+        List of {radical, characters} dictionaries
+    """
+    # Organize by radical
+    radical_dict = defaultdict(list)
+    
+    for char in characters_data:
+        radical = char.get('Radical', '').strip()
+        # Remove dictionary markers if present
+        if ' (dictionary)' in radical:
+            radical = radical.replace(' (dictionary)', '')
+        
+        if radical:
+            character_info = {
+                'Character': char.get('Character', ''),
+                'custom_id': char.get('custom_id', ''),
+                'Index': char.get('Index', ''),
+                'Pinyin': char.get('Pinyin', []),
+                'Strokes': char.get('Strokes', ''),
+                'Structure': char.get('Structure', '')
+            }
+            radical_dict[radical].append(character_info)
+    
+    # Convert to the desired format
+    result = []
+    for radical, chars in sorted(radical_dict.items()):
+        result.append({
+            'radical': radical,
+            'characters': chars
+        })
+    
+    return result
+
+def reload_radicals():
+    """Force regenerate radicals data (used after character updates)"""
+    global radicals_data, radicals_lookup
+    radicals_data = None
+    radicals_lookup = {}
+    load_radicals()
+
 def load_radicals():
-    """Load radicals data from JSON file"""
+    """Load/generate radicals data from characters_data (cached in memory)"""
     global radicals_data, radicals_lookup
     if radicals_data is None:
-        print(f"Loading radicals from: {RADICALS_JSON}")
-        print(f"File exists: {RADICALS_JSON.exists()}")
-        if not RADICALS_JSON.exists():
-            raise FileNotFoundError(f"Radicals data file not found at: {RADICALS_JSON}")
-        with open(RADICALS_JSON, 'r', encoding='utf-8') as f:
-            radicals_data = json.load(f)
+        print("Generating radicals data from characters...")
+        # Load characters first
+        characters, _ = load_characters()
+        # Generate radicals data from characters
+        radicals_data = generate_radicals_data(characters)
         # Create lookup dictionary for fast search
         radicals_lookup = {entry['radical']: entry for entry in radicals_data}
-        print(f"Loaded {len(radicals_data)} radicals")
+        print(f"✓ Generated {len(radicals_data)} radicals from {len(characters)} characters")
     return radicals_data, radicals_lookup
 
 @app.route('/api/radicals', methods=['GET'])
@@ -512,9 +564,9 @@ if __name__ == '__main__':
     
     try:
         load_radicals()
-        print(f"✓ Successfully loaded {len(radicals_lookup)} radicals")
+        print(f"✓ Successfully generated {len(radicals_lookup)} radicals")
     except Exception as e:
-        print(f"✗ Error loading radicals: {e}")
+        print(f"✗ Error generating radicals: {e}")
         import traceback
         traceback.print_exc()
     
