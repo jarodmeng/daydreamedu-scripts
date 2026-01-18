@@ -164,6 +164,53 @@ h1 {
   font-weight: 500;
 }
 
+.nav-links {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.nav-link {
+  padding: 10px 20px;
+  background-color: #4CAF50;
+  color: white;
+  text-decoration: none;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.nav-link:hover {
+  background-color: #45a049;
+}
+
+.updating-indicator {
+  text-align: center;
+  color: #4CAF50;
+  font-weight: 500;
+  margin-bottom: 10px;
+}
+
+.editable-cell {
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.editable-cell:hover {
+  background-color: #f0f0f0;
+}
+
+.editable-input {
+  width: 100%;
+  padding: 4px 8px;
+  border: 2px solid #4CAF50;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
 .editable-cell {
   cursor: pointer;
   padding: 4px 8px;

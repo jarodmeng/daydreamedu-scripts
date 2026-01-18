@@ -55,3 +55,22 @@ Milestone 1: A search function to learn about a particular character
         * If the information is dictionary-corrected, strip the " (dictionary)" part from the information in display, but make the color red.
         * Make the table cells editable. The user can double click the cell to edit it and press enter to complete the edit. If the edited value is different from the stored data, prompt a dialog to ask the user if they indeed want the information changed. If they click yes, edit the stored data. We should also log every change in a logging file.
     * If the character is not found, display an error message and ask the user to input a new character.
+
+Milestone 2: A radicals page to organize characters by radical
+* A new page named "部首 (Radicals)" accessible from the main search page via navigation links.
+* The radicals page displays all unique radicals in a grid layout with clickable boxes.
+* Each radical box shows:
+    * The radical character displayed in KaiTi (楷体) font
+    * The number of characters associated with that radical
+* Radicals are sorted by the number of associated characters (descending order), with radicals having more characters appearing first.
+* When a user clicks on a radical box, they are directed to a detail page dedicated to that radical.
+* The radical detail page shows:
+    * All characters associated with the selected radical
+    * Each character is displayed in a clickable box showing:
+        * The character in KaiTi (楷体) font
+        * The pinyin pronunciation(s)
+        * The number of strokes
+    * Characters are sorted first by number of strokes (ascending), then by pinyin (alphabetically)
+    * Clicking on a character box navigates to the search page with that character pre-filled
+* Navigation links are available on all pages to switch between the search page and the radicals page.
+* The radicals data is loaded from a pre-computed JSON file (`characters_by_radicals.json`) for efficient performance.
