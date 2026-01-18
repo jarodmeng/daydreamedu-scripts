@@ -133,8 +133,8 @@ Parses OpenAI Batch API results into structured CSV and JSON files.
 ```bash
 python3 parse_results.py \
   --input jsonl/results.jsonl \
-  --output output/characters.csv \
-  --json output/characters.json \
+  --output ../data/characters.csv \
+  --json ../data/characters.json \
   --validate \
   --stats
 ```
@@ -147,8 +147,8 @@ python3 parse_results.py \
 - `--stats`: Show statistics (optional)
 
 **Output**:
-- `output/characters.csv` - CSV format (Words as JSON string)
-- `output/characters.json` - JSON format (Words as JSON array)
+- `../data/characters.csv` - CSV format (Words as JSON string)
+- `../data/characters.json` - JSON format (Words as JSON array)
 
 ## Utility Scripts
 
@@ -274,18 +274,18 @@ Organizes characters by their radicals and outputs a JSON file.
 
 **Usage**:
 ```bash
-# Use default paths (output/characters.json → output/characters_by_radicals.json)
+# Use default paths (../data/characters.json → ../data/characters_by_radicals.json)
 python3 organize_by_radicals.py
 
 # Specify custom paths
 python3 organize_by_radicals.py \
-  --input output/characters.json \
-  --output output/characters_by_radicals.json
+  --input ../data/characters.json \
+  --output ../data/characters_by_radicals.json
 ```
 
 **Options**:
-- `--input`: Input characters.json file path (default: `output/characters.json`)
-- `--output`: Output JSON file path (default: `output/characters_by_radicals.json`)
+- `--input`: Input characters.json file path (default: `../data/characters.json`)
+- `--output`: Output JSON file path (default: `../data/characters_by_radicals.json`)
 
 **Output Format**:
 ```json
@@ -308,7 +308,7 @@ python3 organize_by_radicals.py \
 ]
 ```
 
-**Output**: `output/characters_by_radicals.json` - JSON array organized by radicals
+**Output**: `../data/characters_by_radicals.json` - JSON array organized by radicals
 
 **Statistics**: The script prints:
 - Total number of unique radicals
@@ -368,13 +368,17 @@ extract_characters_using_ai/
 │   ├── results_*.jsonl       # Batch result files
 │   ├── results.jsonl         # Merged results
 │   └── batch_ids.json        # Batch metadata
-├── output/                   # Parsed output files
-│   ├── characters.csv        # CSV format
-│   └── characters.json             # JSON format
 ├── sh/                       # Shell scripts
 │   ├── upload_day1.sh
 │   └── upload_day2.sh
 └── (Python scripts)
+
+chinese_chr_app/
+└── data/                     # Parsed output files (shared by all apps)
+    ├── characters.csv        # CSV format
+    ├── characters.json       # JSON format
+    ├── characters_by_radicals.json
+    └── backups/              # Backup files
 ```
 
 ## Complete Workflow Example
@@ -411,8 +415,8 @@ python3 poll_and_merge_batches.py \
 ```bash
 python3 parse_results.py \
   --input jsonl/results.jsonl \
-  --output output/characters.csv \
-  --json output/characters.json \
+  --output ../data/characters.csv \
+  --json ../data/characters.json \
   --validate \
   --stats
 ```

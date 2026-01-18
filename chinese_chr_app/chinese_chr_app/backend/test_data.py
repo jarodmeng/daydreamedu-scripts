@@ -7,7 +7,7 @@ from pathlib import Path
 # Calculate the same path as app.py
 _backend_dir = Path(__file__).resolve().parent
 BASE_DIR = _backend_dir.parent.parent
-CHARACTERS_JSON = BASE_DIR / "extract_characters_using_ai" / "output" / "characters.json"
+CHARACTERS_JSON = BASE_DIR / "data" / "characters.json"
 
 def test_data_loading():
     """Test that character data loads correctly"""

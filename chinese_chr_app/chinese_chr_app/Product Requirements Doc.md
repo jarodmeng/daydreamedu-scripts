@@ -24,7 +24,7 @@ I have data on 3000 common simplifed chinese character cards.
     * A few sample words (词组)
     * The order of strokes (笔顺)
     * The structure (结构), e.g. 左右结构，上下结构，半包围结构，etc
-* The structured information of all character cards is stored in the `/Users/jarodm/github/jarodmeng/daydreamedu-scripts/chinese_chr_app/extract_characters_using_ai/output` folder.
+* The structured information of all character cards is stored in the `/Users/jarodm/github/jarodmeng/daydreamedu-scripts/chinese_chr_app/data` folder.
     * The `characters.csv` file contains the information in a CSV format. Each row is a character card, so there should be 3000 rows in the file (excluding the header row).
     * The `characters.json` file contains the information in a JSON format.
     * The fields of information included in the CSV and JSON files are the following:

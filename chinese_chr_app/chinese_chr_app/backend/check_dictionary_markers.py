@@ -5,7 +5,7 @@ from pathlib import Path
 
 _backend_dir = Path(__file__).resolve().parent
 BASE_DIR = _backend_dir.parent.parent
-CHARACTERS_JSON = BASE_DIR / "extract_characters_using_ai" / "output" / "characters.json"
+CHARACTERS_JSON = BASE_DIR / "data" / "characters.json"
 
 with open(CHARACTERS_JSON, 'r', encoding='utf-8') as f:
     data = json.load(f)

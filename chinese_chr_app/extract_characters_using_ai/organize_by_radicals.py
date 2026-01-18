@@ -10,6 +10,13 @@ import argparse
 from pathlib import Path
 from collections import defaultdict
 
+# Default data directory (relative to script location)
+# Script is at: chinese_chr_app/extract_characters_using_ai/organize_by_radicals.py
+# Data is at: chinese_chr_app/data/
+DEFAULT_DATA_DIR = Path(__file__).resolve().parent.parent / "data"
+DEFAULT_INPUT = str(DEFAULT_DATA_DIR / "characters.json")
+DEFAULT_OUTPUT = str(DEFAULT_DATA_DIR / "characters_by_radicals.json")
+
 def organize_by_radicals(input_json_path, output_json_path):
     """
     Organize characters by their radicals.
@@ -80,14 +87,14 @@ def main():
     parser.add_argument(
         '--input',
         type=str,
-        default='output/characters.json',
-        help='Input characters.json file path (default: output/characters.json)'
+        default=DEFAULT_INPUT,
+        help=f'Input characters.json file path (default: {DEFAULT_INPUT})'
     )
     parser.add_argument(
         '--output',
         type=str,
-        default='output/characters_by_radicals.json',
-        help='Output JSON file path (default: output/characters_by_radicals.json)'
+        default=DEFAULT_OUTPUT,
+        help=f'Output JSON file path (default: {DEFAULT_OUTPUT})'
     )
     
     args = parser.parse_args()

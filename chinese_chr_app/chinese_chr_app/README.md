@@ -17,10 +17,10 @@ chinese_chr_app/
 │   │   └── App.css
 │   ├── package.json
 │   └── vite.config.js
-└── extract_characters_using_ai/
-    └── output/      # Character data (CSV/JSON)
-        ├── characters.json
-        └── characters_by_radicals.json
+└── data/            # Character data (CSV/JSON)
+    ├── characters.json
+    ├── characters.csv
+    └── characters_by_radicals.json
 ```
 
 ## Setup Instructions

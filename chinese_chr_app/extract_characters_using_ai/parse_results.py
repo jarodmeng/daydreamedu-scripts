@@ -26,6 +26,13 @@ import re
 from pathlib import Path
 from typing import List, Dict, Optional, Any
 
+# Default data directory (relative to script location)
+# Script is at: chinese_chr_app/extract_characters_using_ai/parse_results.py
+# Data is at: chinese_chr_app/data/
+DEFAULT_DATA_DIR = Path(__file__).resolve().parent.parent / "data"
+DEFAULT_CSV = DEFAULT_DATA_DIR / "characters.csv"
+DEFAULT_JSON = DEFAULT_DATA_DIR / "characters.json"
+
 
 def parse_markdown_table(table_text: str) -> Optional[Dict[str, str]]:
     """
@@ -268,9 +275,9 @@ def main():
         raise SystemExit(f"Input file not found: {args.input}")
 
     if not args.output and not args.json:
-        # Default to output folder if neither is specified
-        args.output = Path("output/characters.csv")
-        args.json = Path("output/characters.json")
+        # Default to data folder if neither is specified
+        args.output = DEFAULT_CSV
+        args.json = DEFAULT_JSON
 
     # Create output directories if they don't exist
     if args.output:

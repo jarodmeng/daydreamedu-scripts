@@ -95,8 +95,8 @@ python3 upload_batch.py --jsonl jsonl/requests.jsonl --output jsonl/results.json
 # 3. Parse results
 python3 parse_results.py \
   --input jsonl/results.jsonl \
-  --output output/characters.csv \
-  --json output/characters.json \
+  --output ../data/characters.csv \
+  --json ../data/characters.json \
   --validate --stats
 ```
 

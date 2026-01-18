@@ -7,7 +7,7 @@ from pathlib import Path
 # Calculate the same path as app.py
 _backend_dir = Path(__file__).resolve().parent
 BASE_DIR = _backend_dir.parent.parent
-CHARACTERS_JSON = BASE_DIR / "extract_characters_using_ai" / "output" / "characters.json"
+CHARACTERS_JSON = BASE_DIR / "data" / "characters.json"
 
 # Get character from command line or use default
 search_char = sys.argv[1] if len(sys.argv) > 1 else "丛"

@@ -13,17 +13,18 @@ CORS(app)  # Enable CORS for React frontend
 
 # Paths configuration
 # Backend is at: chinese_chr_app/chinese_chr_app/backend/app.py
-# JSON is at: chinese_chr_app/extract_characters_using_ai/output/characters.json
+# JSON is at: chinese_chr_app/data/characters.json
 # Use absolute path resolution to avoid issues
 _backend_dir = Path(__file__).resolve().parent
 BASE_DIR = _backend_dir.parent.parent  # Go up to chinese_chr_app level
-CHARACTERS_JSON = BASE_DIR / "extract_characters_using_ai" / "output" / "characters.json"
-CHARACTERS_CSV = BASE_DIR / "extract_characters_using_ai" / "output" / "characters.csv"
-RADICALS_JSON = BASE_DIR / "extract_characters_using_ai" / "output" / "characters_by_radicals.json"
+DATA_DIR = BASE_DIR / "data"  # Data directory for character files
+CHARACTERS_JSON = DATA_DIR / "characters.json"
+CHARACTERS_CSV = DATA_DIR / "characters.csv"
+RADICALS_JSON = DATA_DIR / "characters_by_radicals.json"
 PNG_BASE_DIR = Path("/Users/jarodm/Library/CloudStorage/GoogleDrive-winston.ry.meng@gmail.com/My Drive/冯氏早教识字卡/png")
 LOGS_DIR = _backend_dir / "logs"
 EDIT_LOG_FILE = LOGS_DIR / "character_edits.log"
-BACKUP_DIR = BASE_DIR / "extract_characters_using_ai" / "output" / "backups"
+BACKUP_DIR = DATA_DIR / "backups"
 
 # Load character data into memory
 characters_data = None
