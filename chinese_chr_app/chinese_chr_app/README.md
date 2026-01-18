@@ -17,9 +17,8 @@ chinese_chr_app/
 │   │   └── App.css
 │   ├── package.json
 │   └── vite.config.js
-└── data/            # Character data (CSV/JSON)
+└── data/            # Character data (JSON)
     ├── characters.json
-    ├── characters.csv
     └── characters_by_radicals.json
 ```
 

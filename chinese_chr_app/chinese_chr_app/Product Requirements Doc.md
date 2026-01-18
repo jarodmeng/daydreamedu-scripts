@@ -25,8 +25,7 @@ I have data on 3000 common simplifed chinese character cards.
     * The order of strokes (笔顺)
     * The structure (结构), e.g. 左右结构，上下结构，半包围结构，etc
 * The structured information of all character cards is stored in the `/Users/jarodm/github/jarodmeng/daydreamedu-scripts/chinese_chr_app/data` folder.
-    * The `characters.csv` file contains the information in a CSV format. Each row is a character card, so there should be 3000 rows in the file (excluding the header row).
-    * The `characters.json` file contains the information in a JSON format.
+    * The `characters.json` file contains the information in a JSON format. This is the primary data format used by the application.
     * The fields of information included in the CSV and JSON files are the following:
         * **custom_id** (string): The character card index number in `<dddd>` format (e.g., "0001", "0002", "3000")
         * **Index** (string): The character card index number, same as custom_id

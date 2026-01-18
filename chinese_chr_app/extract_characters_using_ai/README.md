@@ -133,7 +133,6 @@ Parses OpenAI Batch API results into structured CSV and JSON files.
 ```bash
 python3 parse_results.py \
   --input jsonl/results.jsonl \
-  --output ../data/characters.csv \
   --json ../data/characters.json \
   --validate \
   --stats
@@ -141,14 +140,14 @@ python3 parse_results.py \
 
 **Options**:
 - `--input`: Input results JSONL file (default: `jsonl/results.jsonl`)
-- `--output`: Output CSV file path (optional)
-- `--json`: Output JSON file path (optional)
+- `--output`: Output CSV file path (optional, not required)
+- `--json`: Output JSON file path (optional, defaults to `../data/characters.json`)
 - `--validate`: Enable validation checks (optional)
 - `--stats`: Show statistics (optional)
 
 **Output**:
-- `../data/characters.csv` - CSV format (Words as JSON string)
-- `../data/characters.json` - JSON format (Words as JSON array)
+- `../data/characters.json` - JSON format (Words as JSON array) - Primary format used by the application
+- CSV output is optional and can be generated if needed for external tools
 
 ## Utility Scripts
 
@@ -375,8 +374,7 @@ extract_characters_using_ai/
 
 chinese_chr_app/
 └── data/                     # Parsed output files (shared by all apps)
-    ├── characters.csv        # CSV format
-    ├── characters.json       # JSON format
+    ├── characters.json       # JSON format (primary data format)
     ├── characters_by_radicals.json
     └── backups/              # Backup files
 ```
@@ -415,7 +413,6 @@ python3 poll_and_merge_batches.py \
 ```bash
 python3 parse_results.py \
   --input jsonl/results.jsonl \
-  --output ../data/characters.csv \
   --json ../data/characters.json \
   --validate \
   --stats

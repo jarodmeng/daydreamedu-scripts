@@ -275,8 +275,7 @@ def main():
         raise SystemExit(f"Input file not found: {args.input}")
 
     if not args.output and not args.json:
-        # Default to data folder if neither is specified
-        args.output = DEFAULT_CSV
+        # Default to JSON only (CSV is optional and not required)
         args.json = DEFAULT_JSON
 
     # Create output directories if they don't exist

@@ -1,7 +1,6 @@
 from flask import Flask, jsonify, send_file, request
 from flask_cors import CORS
 import json
-import csv
 import logging
 import shutil
 from datetime import datetime
@@ -19,7 +18,6 @@ _backend_dir = Path(__file__).resolve().parent
 BASE_DIR = _backend_dir.parent.parent  # Go up to chinese_chr_app level
 DATA_DIR = BASE_DIR / "data"  # Data directory for character files
 CHARACTERS_JSON = DATA_DIR / "characters.json"
-CHARACTERS_CSV = DATA_DIR / "characters.csv"
 RADICALS_JSON = DATA_DIR / "characters_by_radicals.json"
 PNG_BASE_DIR = Path("/Users/jarodm/Library/CloudStorage/GoogleDrive-winston.ry.meng@gmail.com/My Drive/冯氏早教识字卡/png")
 LOGS_DIR = _backend_dir / "logs"
@@ -172,10 +170,9 @@ def log_character_edit(custom_id: str, field: str, old_value: Any, new_value: An
 def cleanup_old_backups(max_backups: int = 200):
     """
     Remove old backup files, keeping only the most recent N backups.
-    Each backup consists of a .json and .csv file pair with the same timestamp.
     
     Args:
-        max_backups: Maximum number of backup pairs to keep (default: 200)
+        max_backups: Maximum number of backup files to keep (default: 200)
     """
     try:
         if not BACKUP_DIR.exists():
@@ -201,19 +198,11 @@ def cleanup_old_backups(max_backups: int = 200):
             files_to_delete = backup_files[max_backups:]
             deleted_count = 0
             for timestamp, json_file in files_to_delete:
-                # Delete both JSON and CSV files with the same timestamp
-                csv_file = BACKUP_DIR / json_file.name.replace(".json", ".csv")
                 try:
                     json_file.unlink()
                     deleted_count += 1
                 except Exception as e:
                     print(f"Warning: Failed to delete {json_file}: {e}")
-                
-                try:
-                    if csv_file.exists():
-                        csv_file.unlink()
-                except Exception as e:
-                    print(f"Warning: Failed to delete {csv_file}: {e}")
             
             if deleted_count > 0:
                 print(f"✓ Cleaned up {deleted_count} old backup(s), keeping {max_backups} most recent")
@@ -223,12 +212,12 @@ def cleanup_old_backups(max_backups: int = 200):
 
 def backup_character_files(max_backups: int = 200) -> Tuple[bool, Optional[str]]:
     """
-    Create timestamped backups of characters.json and characters.csv before editing.
+    Create timestamped backup of characters.json before editing.
     Automatically cleans up old backups to limit disk usage.
     
     Args:
-        max_backups: Maximum number of backup pairs to keep (default: 200)
-                     Each backup pair is ~1.6MB, so 200 backups = ~320MB
+        max_backups: Maximum number of backup files to keep (default: 200)
+                     Each backup is ~1.1MB, so 200 backups = ~220MB
     
     Returns:
         (success, backup_path_or_error_message)
@@ -237,9 +226,8 @@ def backup_character_files(max_backups: int = 200) -> Tuple[bool, Optional[str]]
         # Generate timestamp for backup filename
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         
-        # Create backup filenames
+        # Create backup filename
         json_backup = BACKUP_DIR / f"characters_{timestamp}.json"
-        csv_backup = BACKUP_DIR / f"characters_{timestamp}.csv"
         
         # Backup JSON file
         if CHARACTERS_JSON.exists():
@@ -247,14 +235,6 @@ def backup_character_files(max_backups: int = 200) -> Tuple[bool, Optional[str]]
             print(f"✓ Backed up JSON to: {json_backup}")
         else:
             return False, f"Source JSON file not found: {CHARACTERS_JSON}"
-        
-        # Backup CSV file
-        if CHARACTERS_CSV.exists():
-            shutil.copy2(CHARACTERS_CSV, csv_backup)
-            print(f"✓ Backed up CSV to: {csv_backup}")
-        else:
-            # CSV might not exist yet, that's okay
-            print(f"⚠ CSV file not found (may not exist yet): {CHARACTERS_CSV}")
         
         # Clean up old backups (after creating new one)
         cleanup_old_backups(max_backups)
@@ -264,31 +244,6 @@ def backup_character_files(max_backups: int = 200) -> Tuple[bool, Optional[str]]
         error_msg = f"Failed to create backup: {str(e)}"
         print(f"❌ {error_msg}")
         return False, error_msg
-
-def regenerate_csv_from_json():
-    """Regenerate CSV file from JSON data"""
-    try:
-        data, _ = load_characters()
-        
-        fieldnames = ['custom_id', 'Index', 'Character', 'Pinyin', 'Radical', 'Strokes', 'Structure', 'Sentence', 'Words']
-        
-        with open(CHARACTERS_CSV, 'w', newline='', encoding='utf-8') as f:
-            writer = csv.DictWriter(f, fieldnames=fieldnames)
-            writer.writeheader()
-            
-            for entry in data:
-                csv_entry = entry.copy()
-                # Convert arrays to JSON strings for CSV
-                if isinstance(csv_entry.get('Pinyin'), list):
-                    csv_entry['Pinyin'] = json.dumps(csv_entry['Pinyin'], ensure_ascii=False)
-                if isinstance(csv_entry.get('Words'), list):
-                    csv_entry['Words'] = json.dumps(csv_entry['Words'], ensure_ascii=False)
-                writer.writerow(csv_entry)
-        
-        return True
-    except Exception as e:
-        print(f"Error regenerating CSV: {e}")
-        return False
 
 def update_character_field(custom_id: str, field: str, new_value: Any) -> Tuple[bool, Optional[str], Optional[Dict]]:
     """
@@ -348,10 +303,6 @@ def update_character_field(custom_id: str, field: str, new_value: Any) -> Tuple[
         # Write updated JSON back to file
         with open(CHARACTERS_JSON, 'w', encoding='utf-8') as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
-        
-        # Regenerate CSV
-        if not regenerate_csv_from_json():
-            return False, "Failed to regenerate CSV file", None
         
         # Log the change
         log_character_edit(custom_id, field, old_value, new_value)
