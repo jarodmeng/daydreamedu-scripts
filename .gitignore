@@ -43,3 +43,6 @@ chinese_chr_app/extract_characters_using_ai/rendered_pages/
 chinese_chr_app/extract_using_local_ocr/tessdata/
 chinese_chr_app/extract_characters_using_ai/output/
 chinese_chr_app/extract_characters_using_ai/jsonl/
+
+# ---- chinese_chr_app data backups (not tracked) ----
+chinese_chr_app/data/backups/
