@@ -23764,7 +23764,7 @@
   },
   {
     "Index": "1073",
-    "Character": "島",
+    "Character": "岛",
     "Pinyin": [
       "dǎo"
     ],
@@ -42188,23 +42188,23 @@
   },
   {
     "Index": "1962",
-    "Character": "辯",
+    "Character": "辩",
     "Pinyin": [
       "biàn"
     ],
     "Radical": "辛",
     "Strokes": "16",
     "Structure": "左中右结构",
-    "Sentence": "他一辯論起來就十分激動。",
+    "Sentence": "他一辩论起來就十分激动。",
     "Words": [
-      "辯護",
-      "辯解",
-      "辯論",
-      "狡辯",
-      "爭辯",
-      "答辯",
-      "百口莫辯",
-      "能言善辯"
+      "辩护",
+      "辩解",
+      "辩论",
+      "狡辩",
+      "争辩",
+      "答辩",
+      "百口莫辩",
+      "能言善辩"
     ],
     "custom_id": "1962"
   },
@@ -48333,7 +48333,7 @@
     "Pinyin": [
       "mó"
     ],
-    "Radical": "麻 (dictionary)",
+    "Radical": "鬼",
     "Strokes": "20",
     "Structure": "半包围结构",
     "Sentence": "他是个真正的魔法师。",
@@ -52280,18 +52280,18 @@
   },
   {
     "Index": "2474",
-    "Character": "鯨",
+    "Character": "鲸",
     "Pinyin": [
       "jīng"
     ],
     "Radical": "魚",
     "Strokes": "16",
     "Structure": "左右结构",
-    "Sentence": "鯨尾輕輕一拍便把小船打翻了。",
+    "Sentence": "鲸尾轻轻一拍便把小船打翻了。",
     "Words": [
-      "鯨魚",
-      "鯨吞",
-      "鯨吞虎據"
+      "鲸鱼",
+      "鲸吞",
+      "鲸吞虎据"
     ],
     "custom_id": "2474"
   },
@@ -56042,16 +56042,16 @@
   },
   {
     "Index": "2674",
-    "Character": "鰓",
+    "Character": "鳃",
     "Pinyin": [
       "sāi"
     ],
     "Radical": "魚",
     "Strokes": "17",
     "Structure": "左右结构",
-    "Sentence": "鰓是魚類用來呼吸的器官。",
+    "Sentence": "鳃是鱼类用來呼吸的器官。",
     "Words": [
-      "魚鰓"
+      "鱼鳃"
     ],
     "custom_id": "2674"
   },
@@ -58604,7 +58604,7 @@
   },
   {
     "Index": "2816",
-    "Character": "機",
+    "Character": "械",
     "Pinyin": [
       "xiè"
     ],
@@ -59009,18 +59009,18 @@
   },
   {
     "Index": "2838",
-    "Character": "櫻",
+    "Character": "樱",
     "Pinyin": [
       "yīng"
     ],
     "Radical": "木",
     "Strokes": "15",
     "Structure": "左右结构",
-    "Sentence": "櫻桃树开始开花了。",
+    "Sentence": "樱桃树开始开花了。",
     "Words": [
-      "櫻花",
-      "金櫻子",
-      "紅櫻桃"
+      "樱花",
+      "金樱子",
+      "红樱桃"
     ],
     "custom_id": "2838"
   },
