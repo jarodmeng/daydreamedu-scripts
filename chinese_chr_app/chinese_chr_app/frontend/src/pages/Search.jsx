@@ -471,6 +471,14 @@ function Search() {
                       <td>{dictionary['总笔画'] ?? '—'}</td>
                     </tr>
                     <tr>
+                      <td>分类</td>
+                      <td>
+                        {Array.isArray(dictionary['分类'])
+                          ? dictionary['分类'].join(', ')
+                          : dictionary['分类'] || '—'}
+                      </td>
+                    </tr>
+                    <tr>
                       <td>基本解释</td>
                       <td>
                         {Array.isArray(dictionary['基本字义解释']) &&
@@ -493,8 +501,15 @@ function Search() {
                                 {Array.isArray(item['释义']) && item['释义'].length > 0 && (
                                   <ul style={{ paddingLeft: '1.2em', margin: 0 }}>
                                     {item['释义'].map((exp, j) => (
-                                      <li key={j} style={{ marginBottom: '2px', lineHeight: 1.4 }}>
+                                      <li key={j} style={{ marginBottom: '4px', lineHeight: 1.4 }}>
                                         {exp['解释']}
+                                        {Array.isArray(exp['例词']) && exp['例词'].length > 0 && (
+                                          <ul style={{ paddingLeft: '1.2em', marginTop: '2px', marginBottom: 0 }}>
+                                            <li style={{ fontSize: '0.9em', color: '#666', lineHeight: 1.3 }}>
+                                              {exp['例词'].join(', ')}
+                                            </li>
+                                          </ul>
+                                        )}
                                       </li>
                                     ))}
                                   </ul>

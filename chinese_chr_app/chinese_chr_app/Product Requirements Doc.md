@@ -49,7 +49,7 @@ Milestone 1: A search function to learn about a particular character
         * Display the other meta data (extracted from the 冯氏早教识字卡 back-side information) in a table below the card png files: 拼音，部首，笔画，例句，词组，结构.
             * If the information is dictionary-corrected (i.e., adjusted from the original 冯氏早教识字卡 data based on dictionary sources), strip the " (dictionary)" part from the information in display, but make the color red.
             * Make the table cells editable. The user can double click the cell to edit it and press enter to complete the edit. If the edited value is different from the stored data, prompt a dialog to ask the user if they indeed want the information changed. If they click yes, edit the stored data. We should also log every change in a logging file.
-        * Also display meta data (extracted from hwxnet) in a table: 拼音，部首，总笔画，基本解释，英语
+        * Also display meta data (extracted from hwxnet) in a table: 拼音，部首，总笔画，分类，基本解释，英语
     * If the character is not found, display an error message and ask the user to input a new character.
 
 Milestone 2: A radicals page to organize characters by radical
