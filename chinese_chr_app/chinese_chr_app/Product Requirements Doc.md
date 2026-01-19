@@ -73,3 +73,22 @@ Milestone 2: A radicals page to organize characters by radical
     * Clicking on a character box navigates to the search page with that character pre-filled
 * Navigation links are available on all pages to switch between the search page and the radicals page.
 * The radicals data is loaded from a pre-computed JSON file (`characters_by_radicals.json`) for efficient performance.
+
+Milestone 3: A structures page to organize characters by structure
+* A new page named "结构 (Structures)" accessible from the main search page via navigation links.
+* The structures page displays all unique structure types in a grid layout with clickable boxes.
+* Each structure box shows:
+    * The structure type name (e.g., "左右结构", "上下结构", "半包围结构")
+    * The number of characters associated with that structure type
+* Structure types are sorted by the number of associated characters (descending order), with structure types having more characters appearing first.
+* When a user clicks on a structure box, they are directed to a detail page dedicated to that structure type.
+* The structure detail page shows:
+    * All characters associated with the selected structure type
+    * Each character is displayed in a clickable box showing:
+        * The character in KaiTi (楷体) font
+        * The pinyin pronunciation(s)
+        * The number of strokes
+    * Characters are sorted first by number of strokes (ascending), then by pinyin (alphabetically)
+    * Clicking on a character box navigates to the search page with that character pre-filled
+* Navigation links are available on all pages to switch between the search page, radicals page, and structures page.
+* The structures data is generated dynamically from `characters.json` on-the-fly and cached in memory for efficient performance, ensuring it stays synchronized with any character edits.

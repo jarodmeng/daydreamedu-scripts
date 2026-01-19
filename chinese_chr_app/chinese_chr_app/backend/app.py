@@ -34,6 +34,10 @@ character_lookup = {}  # Map character -> character data for fast lookup
 radicals_data = None  # Array of {radical, characters}
 radicals_lookup = {}  # Map radical -> {radical, characters} for fast lookup
 
+# Load structures data into memory
+structures_data = None  # Array of {structure, characters}
+structures_lookup = {}  # Map structure -> {structure, characters} for fast lookup
+
 # Setup logging
 LOGS_DIR.mkdir(exist_ok=True)
 BACKUP_DIR.mkdir(parents=True, exist_ok=True)
@@ -312,6 +316,9 @@ def update_character_field(custom_id: str, field: str, new_value: Any) -> Tuple[
         # Invalidate and regenerate radicals cache (in case radical field changed)
         reload_radicals()
         
+        # Invalidate and regenerate structures cache (in case structure field changed)
+        reload_structures()
+        
         # Return the updated character
         return True, None, character
         
@@ -538,6 +545,117 @@ def get_radical_detail(radical):
         'error': f'No characters found for radical "{decoded_radical}"'
     }), 404
 
+def generate_structures_data(characters_data: List[Dict]) -> List[Dict]:
+    """
+    Generate structures data from characters_data.
+    Groups characters by their structure field.
+    
+    Args:
+        characters_data: List of character dictionaries
+        
+    Returns:
+        List of {structure, characters} dictionaries
+    """
+    # Organize by structure
+    structure_dict = defaultdict(list)
+    
+    for char in characters_data:
+        structure = char.get('Structure', '').strip()
+        # Remove dictionary markers if present
+        if ' (dictionary)' in structure:
+            structure = structure.replace(' (dictionary)', '')
+        
+        if structure:
+            character_info = {
+                'Character': char.get('Character', ''),
+                'custom_id': char.get('custom_id', ''),
+                'Index': char.get('Index', ''),
+                'Pinyin': char.get('Pinyin', []),
+                'Strokes': char.get('Strokes', ''),
+                'Radical': char.get('Radical', '')
+            }
+            structure_dict[structure].append(character_info)
+    
+    # Convert to the desired format
+    result = []
+    for structure, chars in sorted(structure_dict.items()):
+        result.append({
+            'structure': structure,
+            'characters': chars
+        })
+    
+    return result
+
+def reload_structures():
+    """Force regenerate structures data (used after character updates)"""
+    global structures_data, structures_lookup
+    structures_data = None
+    structures_lookup = {}
+    load_structures()
+
+def load_structures():
+    """Load/generate structures data from characters_data (cached in memory)"""
+    global structures_data, structures_lookup
+    if structures_data is None:
+        print("Generating structures data from characters...")
+        # Load characters first
+        characters, _ = load_characters()
+        # Generate structures data from characters
+        structures_data = generate_structures_data(characters)
+        # Create lookup dictionary for fast search
+        structures_lookup = {entry['structure']: entry for entry in structures_data}
+        print(f"✓ Generated {len(structures_data)} structure types from {len(characters)} characters")
+    return structures_data, structures_lookup
+
+@app.route('/api/structures', methods=['GET'])
+def get_structures():
+    """Get all structure types sorted by number of characters"""
+    structures_list, _ = load_structures()
+    
+    # Convert to list with character count and sort by character count (descending)
+    structures_with_count = [
+        {
+            'structure': entry['structure'],
+            'character_count': len(entry['characters'])
+        }
+        for entry in structures_list
+    ]
+    structures_with_count.sort(key=lambda x: x['character_count'], reverse=True)
+    
+    # Calculate total characters
+    total_characters = sum(len(entry['characters']) for entry in structures_list)
+    
+    return jsonify({
+        'structures': structures_with_count,
+        'total_structures': len(structures_list),
+        'total_characters': total_characters
+    })
+
+@app.route('/api/structures/<structure>', methods=['GET'])
+def get_structure_detail(structure):
+    """Get all characters for a specific structure type"""
+    _, lookup = load_structures()
+    
+    # Decode the structure from URL
+    decoded_structure = structure
+    
+    # Find the structure in lookup
+    if decoded_structure in lookup:
+        entry = lookup[decoded_structure]
+        return jsonify({
+            'structure': entry['structure'],
+            'characters': entry['characters'],
+            'count': len(entry['characters'])
+        })
+    
+    # If not found, return 404
+    return jsonify({
+        'structure': decoded_structure,
+        'characters': [],
+        'count': 0,
+        'error': f'No characters found for structure "{decoded_structure}"'
+    }), 404
+
 @app.route('/api/health', methods=['GET'])
 def health():
     """Health check endpoint"""
@@ -570,7 +688,16 @@ if __name__ == '__main__':
         import traceback
         traceback.print_exc()
     
+    try:
+        load_structures()
+        print(f"✓ Successfully generated {len(structures_lookup)} structure types")
+    except Exception as e:
+        print(f"✗ Error generating structures: {e}")
+        import traceback
+        traceback.print_exc()
+    
     print(f"\nStarting Flask server on http://localhost:5001")
     print(f"API endpoint: http://localhost:5001/api/characters/search?q=<character>")
     print(f"Radicals endpoint: http://localhost:5001/api/radicals")
+    print(f"Structures endpoint: http://localhost:5001/api/structures")
     app.run(debug=True, port=5001)
