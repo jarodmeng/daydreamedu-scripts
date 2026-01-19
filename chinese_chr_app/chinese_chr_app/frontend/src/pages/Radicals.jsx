@@ -2,6 +2,11 @@ import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import './Radicals.css'
 
+// API base URL - use environment variable in production, empty string in development (uses proxy)
+// Fallback to hardcoded URL if env var is not available
+const API_BASE = import.meta.env.VITE_API_URL || 
+  (import.meta.env.DEV ? '' : 'https://chinese-chr-app-177544945895.us-central1.run.app')
+
 function Radicals() {
   const [radicals, setRadicals] = useState([])
   const [loading, setLoading] = useState(true)
@@ -15,7 +20,7 @@ function Radicals() {
   const fetchRadicals = async () => {
     try {
       setLoading(true)
-      const response = await fetch('/api/radicals')
+      const response = await fetch(`${API_BASE}/api/radicals`)
       if (!response.ok) {
         throw new Error('Failed to fetch radicals')
       }

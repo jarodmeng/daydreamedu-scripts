@@ -2,6 +2,20 @@ import { useState, useRef, useEffect } from 'react'
 import { useSearchParams, Link } from 'react-router-dom'
 import '../App.css'
 
+// API base URL - use environment variable in production, empty string in development (uses proxy)
+// In production, VITE_API_URL must be set, otherwise API calls will fail
+// Fallback to hardcoded URL if env var is not available (for debugging)
+const API_BASE = import.meta.env.VITE_API_URL || 
+  (import.meta.env.DEV ? '' : 'https://chinese-chr-app-177544945895.us-central1.run.app')
+// Debug: log API_BASE in production to help troubleshoot
+if (!import.meta.env.DEV) {
+  console.log('[DEBUG] API_BASE:', API_BASE)
+  console.log('[DEBUG] VITE_API_URL env var:', import.meta.env.VITE_API_URL)
+  if (!import.meta.env.VITE_API_URL) {
+    console.warn('[WARNING] VITE_API_URL is not set! Using fallback URL.')
+  }
+}
+
 function Search() {
   const [searchParams, setSearchParams] = useSearchParams()
   const initialQuery = searchParams.get('q') || ''
@@ -31,10 +45,13 @@ function Search() {
     setDictionary(null)
 
     try {
-      const response = await fetch(`/api/characters/search?q=${encodeURIComponent(query)}`)
+      const apiUrl = `${API_BASE}/api/characters/search?q=${encodeURIComponent(query)}`
+      console.log('Fetching from:', apiUrl, 'API_BASE:', API_BASE)
+      const response = await fetch(apiUrl)
       
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}))
+        console.error('API Error:', response.status, response.statusText, errorData)
         setError(errorData.error || `Server error: ${response.status} ${response.statusText}`)
         setCharacter(null)
         setLoading(false)
@@ -251,7 +268,7 @@ function Search() {
     setError('')
 
     try {
-      const response = await fetch(`/api/characters/${character.custom_id}/update`, {
+      const response = await fetch(`${API_BASE}/api/characters/${character.custom_id}/update`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -389,7 +406,7 @@ function Search() {
               <div className="card">
                 <h3>Front (正面)</h3>
                 <img 
-                  src={`/api/images/${character.custom_id}/page1`}
+                  src={`${API_BASE}/api/images/${character.custom_id}/page1`}
                   alt={`Front of character ${character.Character}`}
                   className="card-image"
                 />
@@ -397,7 +414,7 @@ function Search() {
               <div className="card">
                 <h3>Back (背面)</h3>
                 <img 
-                  src={`/api/images/${character.custom_id}/page2`}
+                  src={`${API_BASE}/api/images/${character.custom_id}/page2`}
                   alt={`Back of character ${character.Character}`}
                   className="card-image"
                 />

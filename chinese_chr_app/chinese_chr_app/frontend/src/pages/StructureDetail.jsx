@@ -2,6 +2,11 @@ import { useState, useEffect } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import './StructureDetail.css'
 
+// API base URL - use environment variable in production, empty string in development (uses proxy)
+// Fallback to hardcoded URL if env var is not available
+const API_BASE = import.meta.env.VITE_API_URL || 
+  (import.meta.env.DEV ? '' : 'https://chinese-chr-app-177544945895.us-central1.run.app')
+
 function StructureDetail() {
   const { structure } = useParams()
   const navigate = useNavigate()
@@ -18,7 +23,7 @@ function StructureDetail() {
   const fetchStructureDetail = async (structureType) => {
     try {
       setLoading(true)
-      const response = await fetch(`/api/structures/${encodeURIComponent(structureType)}`)
+      const response = await fetch(`${API_BASE}/api/structures/${encodeURIComponent(structureType)}`)
       if (!response.ok) {
         throw new Error('Failed to fetch structure details')
       }
