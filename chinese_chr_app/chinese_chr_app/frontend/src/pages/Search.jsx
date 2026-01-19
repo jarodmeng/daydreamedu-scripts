@@ -8,6 +8,7 @@ function Search() {
   
   const [searchTerm, setSearchTerm] = useState(initialQuery)
   const [character, setCharacter] = useState(null)
+  const [dictionary, setDictionary] = useState(null)  // hwxnet dictionary data
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [isComposing, setIsComposing] = useState(false)
@@ -27,6 +28,7 @@ function Search() {
     setLoading(true)
     setError('')
     setCharacter(null)
+    setDictionary(null)
 
     try {
       const response = await fetch(`/api/characters/search?q=${encodeURIComponent(query)}`)
@@ -43,10 +45,12 @@ function Search() {
 
       if (data.found) {
         setCharacter(data.character)
+        setDictionary(data.dictionary || null)
         setError('')
       } else {
         setError(data.error || 'Character not found')
         setCharacter(null)
+        setDictionary(null)
       }
     } catch (err) {
       console.error('Search error:', err)
@@ -400,7 +404,7 @@ function Search() {
               </div>
             </div>
             <div className="metadata-table">
-              <h3>Character Information (字符信息)</h3>
+              <h3>Character Information (字符信息，来源：冯氏早教识字卡)</h3>
               {updating && (
                 <div className="updating-indicator">更新中...</div>
               )}
@@ -445,6 +449,90 @@ function Search() {
                 </tbody>
               </table>
             </div>
+            {dictionary && (
+              <div className="metadata-table" style={{ marginTop: '24px' }}>
+                <h3>Dictionary Information (字典信息，来源：hwxnet)</h3>
+                <table>
+                  <tbody>
+                    <tr>
+                      <td>拼音</td>
+                      <td>
+                        {Array.isArray(dictionary['拼音'])
+                          ? dictionary['拼音'].join(', ')
+                          : dictionary['拼音'] || '—'}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>部首</td>
+                      <td>{dictionary['部首'] || '—'}</td>
+                    </tr>
+                    <tr>
+                      <td>总笔画</td>
+                      <td>{dictionary['总笔画'] ?? '—'}</td>
+                    </tr>
+                    <tr>
+                      <td>基本解释</td>
+                      <td>
+                        {Array.isArray(dictionary['基本字义解释']) &&
+                        dictionary['基本字义解释'].length > 0 ? (
+                          <div className="dictionary-explanations">
+                            {dictionary['基本字义解释'].map((item, idx) => (
+                              <div key={idx} style={{ marginBottom: '10px' }}>
+                                {/* 读音行 */}
+                                {item['读音'] && (
+                                  <div
+                                    style={{
+                                      fontWeight: 'bold',
+                                      marginBottom: '4px',
+                                    }}
+                                  >
+                                    {item['读音']}
+                                  </div>
+                                )}
+                                {/* 释义列表 */}
+                                {Array.isArray(item['释义']) && item['释义'].length > 0 && (
+                                  <ul style={{ paddingLeft: '1.2em', margin: 0 }}>
+                                    {item['释义'].map((exp, j) => (
+                                      <li key={j} style={{ marginBottom: '2px', lineHeight: 1.4 }}>
+                                        {exp['解释']}
+                                      </li>
+                                    ))}
+                                  </ul>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          '—'
+                        )}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>英语</td>
+                      <td>
+                        {Array.isArray(dictionary['英文翻译'])
+                          ? dictionary['英文翻译'].join(', ')
+                          : dictionary['英文翻译'] || '—'}
+                      </td>
+                    </tr>
+                    {dictionary.source_url && (
+                      <tr>
+                        <td>来源链接</td>
+                        <td>
+                          <a
+                            href={dictionary.source_url}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            查看 hwxnet 详情
+                          </a>
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </>
         )}
       </div>

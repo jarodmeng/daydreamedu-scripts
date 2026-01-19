@@ -34,6 +34,11 @@ character_lookup = {}  # Map character -> character data for fast lookup
 radicals_data = None  # Array of {radical, characters}
 radicals_lookup = {}  # Map radical -> {radical, characters} for fast lookup
 
+# Load dictionary (hwxnet) data into memory
+HWXNET_JSON = DATA_DIR / "extracted_characters_hwxnet.json"
+hwxnet_data = None      # Raw dict loaded from JSON
+hwxnet_lookup = {}      # Map character -> hwxnet entry
+
 # Load structures data into memory
 structures_data = None  # Array of {structure, characters}
 structures_lookup = {}  # Map structure -> {structure, characters} for fast lookup
@@ -54,6 +59,32 @@ def reload_characters():
     characters_data = None
     character_lookup = {}
     load_characters()
+
+def load_hwxnet():
+    """Load hwxnet dictionary data from JSON file"""
+    global hwxnet_data, hwxnet_lookup
+    if hwxnet_data is None:
+        print(f"Loading hwxnet dictionary data from: {HWXNET_JSON}")
+        print(f"File exists: {HWXNET_JSON.exists()}")
+        if not HWXNET_JSON.exists():
+            print(f"Warning: hwxnet data file not found at: {HWXNET_JSON}")
+            hwxnet_data = {}
+            hwxnet_lookup = {}
+            return hwxnet_data, hwxnet_lookup
+        with open(HWXNET_JSON, 'r', encoding='utf-8') as f:
+            hwxnet_data = json.load(f)
+        # hwxnet JSON is expected to be a dict keyed by character
+        if isinstance(hwxnet_data, dict):
+            hwxnet_lookup = hwxnet_data
+        else:
+            # Fallback: build lookup if data is a list
+            hwxnet_lookup = {}
+            for entry in hwxnet_data:
+                char = entry.get('character') or entry.get('Character')
+                if char:
+                    hwxnet_lookup[char] = entry
+        print(f"Loaded hwxnet entries for {len(hwxnet_lookup)} characters")
+    return hwxnet_data, hwxnet_lookup
 
 def load_characters():
     """Load character data from JSON file"""
@@ -387,6 +418,7 @@ def search_character():
         return jsonify({'error': 'Please enter exactly one Chinese character'}), 400
     
     _, lookup = load_characters()
+    _, hwx_lookup = load_hwxnet()
     
     # Debug: log the query and lookup info
     print(f"Searching for character: '{query}' (repr: {repr(query)})")
@@ -399,9 +431,14 @@ def search_character():
     if query in lookup:
         print(f"Found character data: {lookup[query]}")
         character = lookup[query]
+        
+        # Attach dictionary (hwxnet) data if available
+        dictionary = hwx_lookup.get(query)
+        
         return jsonify({
             'found': True,
-            'character': character
+            'character': character,
+            'dictionary': dictionary
         })
     
     # If not found, show debug info
@@ -685,6 +722,14 @@ if __name__ == '__main__':
         print(f"✓ Successfully generated {len(radicals_lookup)} radicals")
     except Exception as e:
         print(f"✗ Error generating radicals: {e}")
+        import traceback
+        traceback.print_exc()
+
+    try:
+        load_hwxnet()
+        print(f"✓ Successfully loaded hwxnet dictionary data for {len(hwxnet_lookup)} characters")
+    except Exception as e:
+        print(f"✗ Error loading hwxnet dictionary data: {e}")
         import traceback
         traceback.print_exc()
     

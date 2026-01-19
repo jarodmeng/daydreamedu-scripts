@@ -12,14 +12,14 @@ chinese_chr_app/
 │   └── logs/        # Character edit logs
 ├── frontend/        # React frontend
 │   ├── src/
-│   │   ├── pages/   # Page components (Search, Radicals, RadicalDetail)
+│   │   ├── pages/   # Page components (Search, Radicals, RadicalDetail, Structures)
 │   │   ├── App.jsx  # Main router component
 │   │   └── App.css
 │   ├── package.json
 │   └── vite.config.js
-└── data/            # Character data (JSON)
-    ├── characters.json
-    └── characters_by_radicals.json
+└── data/            # Character and dictionary data (JSON)
+    ├── characters.json                   # Primary character metadata (from 冯氏早教识字卡, editable in app)
+    ├── extracted_characters_hwxnet.json  # Dictionary data extracted from hwxnet (read-only in app)
 ```
 
 ## Setup Instructions
@@ -113,3 +113,9 @@ The frontend will run on `http://localhost:3000`
 - Characters sorted by strokes and pinyin
 - Navigation between search and radicals pages
 - KaiTi (楷体) font styling for radicals and characters
+
+### Milestone 3: Structures and Dictionary View
+- Browse all structure types sorted by character count
+- View all characters for each structure type (sorted by strokes and pinyin)
+- Navigation between search, radicals, and structures pages
+- View a read-only dictionary information table (from `extracted_characters_hwxnet.json` / hwxnet) alongside the editable 冯氏 card metadata for each character
