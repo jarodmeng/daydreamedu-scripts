@@ -5,8 +5,9 @@ import sys
 from pathlib import Path
 
 # Calculate the same path as app.py
-_backend_dir = Path(__file__).resolve().parent
-BASE_DIR = _backend_dir.parent.parent
+# File is in backend/tests/, so go up to backend/, then up to chinese_chr_app/chinese_chr_app/
+_backend_dir = Path(__file__).resolve().parent.parent  # backend/
+BASE_DIR = _backend_dir.parent  # chinese_chr_app/chinese_chr_app/
 CHARACTERS_JSON = BASE_DIR / "data" / "characters.json"
 
 def test_data_loading():

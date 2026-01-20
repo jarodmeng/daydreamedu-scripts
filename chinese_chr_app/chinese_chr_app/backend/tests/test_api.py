@@ -3,8 +3,8 @@
 import sys
 from pathlib import Path
 
-# Add parent directory to path to import app
-sys.path.insert(0, str(Path(__file__).parent))
+# Add parent directory (backend/) to path to import app
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
 # Import the load_characters function directly
 from app import load_characters, CHARACTERS_JSON
