@@ -24,7 +24,7 @@ steps:
       - 'managed'
       - '--allow-unauthenticated'
       - '--set-env-vars'
-      - 'CORS_ORIGINS=https://daydreamedu.org\,https://chinese-chr.daydreamedu.org,GCS_BUCKET_NAME=chinese-chr-app-images'
+      - 'CORS_ORIGINS=https://chinese-chr.daydreamedu.org,GCS_BUCKET_NAME=chinese-chr-app-images'
     env:
       - 'CLOUDSDK_RUN_REGION=us-central1'
 
