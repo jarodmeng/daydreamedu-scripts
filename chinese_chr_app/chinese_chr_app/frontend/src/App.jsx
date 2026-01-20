@@ -8,6 +8,7 @@ import './App.css'
 
 function App() {
   return (
+    // App now runs at the root of the domain, so no basename is needed
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Search />} />
