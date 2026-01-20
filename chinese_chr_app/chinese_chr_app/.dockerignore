@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.pyc
+venv/
+*.pyc
+*.pyo
+*.pyd
+
+# Environment
+.env
+.env.local
+
+# Logs
+logs/
+*.log
+
+# Git
+.git/
+.gitignore
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Frontend (not needed in backend container)
+frontend/
+node_modules/
+dist/
+
+# PNG files - served from GCS, not bundled in container
+data/png/
+**/png/
+
+# Backups
+data/backups/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo

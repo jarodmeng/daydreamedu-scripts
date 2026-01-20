@@ -46,3 +46,6 @@ chinese_chr_app/extract_characters_using_ai/jsonl/
 
 # ---- chinese_chr_app data backups (not tracked) ----
 chinese_chr_app/data/backups/
+
+# ---- chinese_chr_app PNG images (large files, not tracked) ----
+chinese_chr_app/data/png/
