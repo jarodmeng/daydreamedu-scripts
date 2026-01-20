@@ -11,7 +11,7 @@ This script:
 Usage:
     python3 generate_png_from_pdfs.py \
       --pdf_dir "/path/to/冯氏早教识字卡/" \
-      --output_dir "/path/to/冯氏早教识字卡/png"
+      --output_dir "chinese_chr_app/data/png"
 """
 
 import argparse
