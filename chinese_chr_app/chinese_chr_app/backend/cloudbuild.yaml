@@ -1,8 +1,8 @@
 steps:
   # Build the container image
-  # Build context is chinese_chr_app/ so Dockerfile can access data/
+  # Build context is chinese_chr_app/ so Dockerfile can access both backend/ and data/
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'gcr.io/$PROJECT_ID/chinese-chr-app', '-f', 'chinese_chr_app/chinese_chr_app/backend/Dockerfile', 'chinese_chr_app/chinese_chr_app']
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/chinese-chr-app', '-f', 'chinese_chr_app/chinese_chr_app/backend/Dockerfile', 'chinese_chr_app']
     dir: '.'
   
   # Push the container image to Container Registry
