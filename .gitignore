@@ -51,4 +51,4 @@ chinese_chr_app/data/backups/
 chinese_chr_app/data/png/
 
 # ---- chinese_chr_app temporary analysis files ----
-chinese_chr_app/temp/
+chinese_chr_app/data/temp/
