@@ -52,3 +52,6 @@ chinese_chr_app/data/png/
 
 # ---- chinese_chr_app temporary analysis files ----
 chinese_chr_app/data/temp/
+
+# ---- chinese_chr_app planning docs (local only) ----
+chinese_chr_app/chinese_chr_app/planning_docs/

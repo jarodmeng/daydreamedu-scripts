@@ -211,7 +211,7 @@
     "Pinyin": [
       "gē"
     ],
-    "Radical": "口 (dictionary)",
+    "Radical": "口",
     "Strokes": "10",
     "Structure": "上下结构",
     "Sentence": "哥哥就是自己的兄长。",
@@ -234,7 +234,7 @@
     "Pinyin": [
       "dì"
     ],
-    "Radical": "弓 (dictionary)",
+    "Radical": "弓",
     "Strokes": "7",
     "Structure": "独体结构",
     "Sentence": "我有一个可爱调皮的弟弟。",
@@ -275,7 +275,7 @@
     "Pinyin": [
       "huà"
     ],
-    "Radical": "田 (dictionary)",
+    "Radical": "田",
     "Strokes": "8",
     "Structure": "半包围结构",
     "Sentence": "我每天都要画一幅画。",
@@ -391,7 +391,7 @@
     "Pinyin": [
       "jī"
     ],
-    "Radical": "又",
+    "Radical": "鸟",
     "Strokes": "7",
     "Structure": "左右结构",
     "Sentence": "我们家乡有很多人养鸡。",
@@ -463,7 +463,7 @@
       "le",
       "liǎo"
     ],
-    "Radical": "乙 (dictionary)",
+    "Radical": "乙",
     "Strokes": "2",
     "Structure": "独体结构",
     "Sentence": "我们愉快的度过了假期。",
@@ -510,7 +510,7 @@
       "lè",
       "yuè"
     ],
-    "Radical": "丷 (dictionary)",
+    "Radical": "丿",
     "Strokes": "5",
     "Structure": "独体结构",
     "Sentence": "大家一起快乐的玩耍。",
@@ -534,7 +534,7 @@
     "Pinyin": [
       "chū"
     ],
-    "Radical": "出 (dictionary)",
+    "Radical": "凵",
     "Strokes": "5",
     "Structure": "独体结构",
     "Sentence": "今天出去玩的好开心。",
@@ -582,7 +582,7 @@
     "Pinyin": [
       "shū"
     ],
-    "Radical": "乙 (dictionary)",
+    "Radical": "乙",
     "Strokes": "4",
     "Structure": "独体结构",
     "Sentence": "老师发给了我新书。",
@@ -961,7 +961,7 @@
       "hú",
       "hè"
     ],
-    "Radical": "禾",
+    "Radical": "口",
     "Strokes": "8",
     "Structure": "左右结构",
     "Sentence": "爸爸妈妈和我一起旅游。",
@@ -1374,7 +1374,7 @@
     "Pinyin": [
       "bàn"
     ],
-    "Radical": "八",
+    "Radical": "十",
     "Strokes": "5",
     "Structure": "独体结构",
     "Sentence": "今年已经过去半年了。",
@@ -1397,7 +1397,7 @@
     "Pinyin": [
       "yún"
     ],
-    "Radical": "一",
+    "Radical": "二",
     "Strokes": "4",
     "Structure": "独体结构",
     "Sentence": "天上漂浮一朵朵白云。",
@@ -1439,7 +1439,7 @@
     "Pinyin": [
       "lǎo"
     ],
-    "Radical": "老",
+    "Radical": "耂",
     "Strokes": "6",
     "Structure": "半包围结构",
     "Sentence": "老师传授给我们知识",
@@ -1510,7 +1510,7 @@
     "Pinyin": [
       "duǒ"
     ],
-    "Radical": "几",
+    "Radical": "木",
     "Strokes": "6",
     "Structure": "上下结构",
     "Sentence": "那朵菊花好漂亮。",
@@ -1550,7 +1550,7 @@
     "Pinyin": [
       "tiáo"
     ],
-    "Radical": "木 (dictionary)",
+    "Radical": "木",
     "Strokes": "7",
     "Structure": "上下结构",
     "Sentence": "课堂上有人上课传纸条。",
@@ -1597,7 +1597,7 @@
     "Pinyin": [
       "tiān"
     ],
-    "Radical": "一",
+    "Radical": "大",
     "Strokes": "4",
     "Structure": "独体结构",
     "Sentence": "今天天气真好。",
@@ -1693,7 +1693,7 @@
     "Pinyin": [
       "èr"
     ],
-    "Radical": "二 (dictionary)",
+    "Radical": "二",
     "Strokes": "2",
     "Structure": "独体结构",
     "Sentence": "它就是独一无二的。",
@@ -1755,7 +1755,7 @@
     "Pinyin": [
       "sì"
     ],
-    "Radical": "口",
+    "Radical": "囗",
     "Strokes": "5",
     "Structure": "独体结构",
     "Sentence": "今天屋外这四周都好热闹啊。",
@@ -1775,7 +1775,7 @@
     "Pinyin": [
       "wǔ"
     ],
-    "Radical": "一",
+    "Radical": "二",
     "Strokes": "4",
     "Structure": "独体结构",
     "Sentence": "秋天的颜色是五颜六色。",
@@ -1795,7 +1795,7 @@
     "Pinyin": [
       "liù"
     ],
-    "Radical": "亠 (dictionary)",
+    "Radical": "八",
     "Strokes": "4",
     "Structure": "独体结构",
     "Sentence": "它们六个一群，三个一伙。",
@@ -1851,7 +1851,7 @@
     "Pinyin": [
       "jiǔ"
     ],
-    "Radical": "乙 (dictionary)",
+    "Radical": "丿",
     "Strokes": "2",
     "Structure": "独体结构",
     "Sentence": "这点东西对它们来说，不过九牛一毛。",
@@ -2005,7 +2005,7 @@
     "Pinyin": [
       "tù"
     ],
-    "Radical": "免",
+    "Radical": "刀",
     "Strokes": "8",
     "Structure": "上下结构",
     "Sentence": "今天学习了龟兔赛跑的故事。",
@@ -2258,7 +2258,7 @@
     "Pinyin": [
       "tái"
     ],
-    "Radical": "口 (dictionary)",
+    "Radical": "口",
     "Strokes": "5",
     "Structure": "上下结构",
     "Sentence": "他的书桌上放着一盏台灯。",
@@ -2306,7 +2306,7 @@
     "Pinyin": [
       "diàn"
     ],
-    "Radical": "电 (dictionary)",
+    "Radical": "田",
     "Strokes": "5",
     "Structure": "独体结构",
     "Sentence": "今天我们一起去看电影。",
@@ -2330,7 +2330,7 @@
     "Pinyin": [
       "shì"
     ],
-    "Radical": "礻",
+    "Radical": "见",
     "Strokes": "8",
     "Structure": "左右结构",
     "Sentence": "妈妈每天都会追她喜欢看的电视剧。",
@@ -2377,7 +2377,7 @@
     "Pinyin": [
       "shàng"
     ],
-    "Radical": "一 (dictionary)",
+    "Radical": "一",
     "Strokes": "3",
     "Structure": "独体结构",
     "Sentence": "马上就该我上场了。",
@@ -2473,7 +2473,7 @@
     "Pinyin": [
       "yě"
     ],
-    "Radical": "乙 (dictionary)",
+    "Radical": "乙",
     "Strokes": "3",
     "Structure": "独体结构",
     "Sentence": "这些事也是他们做的。",
@@ -2754,7 +2754,7 @@
     "Pinyin": [
       "zhēn"
     ],
-    "Radical": "目 (dictionary)",
+    "Radical": "目",
     "Strokes": "10",
     "Structure": "上下结构",
     "Sentence": "必须过真实的生活，过有价值的生活。",
@@ -2920,7 +2920,7 @@
     "Pinyin": [
       "wú"
     ],
-    "Radical": "无",
+    "Radical": "一",
     "Strokes": "4",
     "Structure": "独体结构",
     "Sentence": "他感到无比幸福。",
@@ -3042,7 +3042,7 @@
     "Pinyin": [
       "lái"
     ],
-    "Radical": "一",
+    "Radical": "木",
     "Strokes": "7",
     "Structure": "独体结构",
     "Sentence": "今天来了好多人啊。",
@@ -3092,7 +3092,7 @@
     "Pinyin": [
       "duì"
     ],
-    "Radical": "又",
+    "Radical": "寸",
     "Strokes": "5",
     "Structure": "左右结构",
     "Sentence": "他们是一对好搭档。",
@@ -3181,7 +3181,7 @@
     "Pinyin": [
       "yuán"
     ],
-    "Radical": "囗 (dictionary)",
+    "Radical": "囗",
     "Strokes": "7 (dictionary)",
     "Structure": "全包围结构",
     "Sentence": "今天我画了一个圆形和一个正方形。",
@@ -3289,7 +3289,7 @@
     "Pinyin": [
       "jiù"
     ],
-    "Radical": "京 (dictionary)",
+    "Radical": "尢",
     "Strokes": "12",
     "Structure": "左右结构",
     "Sentence": "只要有时间我就会帮妈妈做家务。",
@@ -3826,7 +3826,7 @@
     "Pinyin": [
       "wū"
     ],
-    "Radical": "尸 (dictionary)",
+    "Radical": "尸",
     "Strokes": "9",
     "Structure": "半包围结构",
     "Sentence": "他们都高高兴兴地回屋了。",
@@ -3847,7 +3847,7 @@
       "yāo",
       "yào"
     ],
-    "Radical": "西",
+    "Radical": "覀",
     "Strokes": "9",
     "Structure": "上下结构",
     "Sentence": "我们要给予自己信心，不要自暴自弃。",
@@ -3930,7 +3930,7 @@
     "Pinyin": [
       "dào"
     ],
-    "Radical": "至",
+    "Radical": "刂",
     "Strokes": "8",
     "Structure": "左右结构",
     "Sentence": "我们从九点工作到六点。",
@@ -4021,7 +4021,7 @@
     "Pinyin": [
       "lěng"
     ],
-    "Radical": "冫 (dictionary)",
+    "Radical": "冫",
     "Strokes": "7",
     "Structure": "左右结构",
     "Sentence": "天气慢慢变冷了。",
@@ -4045,7 +4045,7 @@
     "Pinyin": [
       "kāi"
     ],
-    "Radical": "一",
+    "Radical": "廾",
     "Strokes": "4",
     "Structure": "独体结构",
     "Sentence": "勤奋是一把开启成功之门的钥匙。",
@@ -4182,7 +4182,7 @@
     "Pinyin": [
       "guāng"
     ],
-    "Radical": "小",
+    "Radical": "儿",
     "Strokes": "6",
     "Structure": "上下结构",
     "Sentence": "隔壁的亮光从门缝中传了过来。",
@@ -4206,7 +4206,7 @@
     "Pinyin": [
       "jǔ"
     ],
-    "Radical": "手 (dictionary)",
+    "Radical": "丶",
     "Strokes": "9",
     "Structure": "上下结构",
     "Sentence": "上课时老师要求举手回答。",
@@ -4248,7 +4248,7 @@
     "Pinyin": [
       "wàng"
     ],
-    "Radical": "王",
+    "Radical": "月",
     "Strokes": "11",
     "Structure": "上下结构",
     "Sentence": "上课的时候不允许随便张望。",
@@ -4296,7 +4296,7 @@
     "Pinyin": [
       "gù"
     ],
-    "Radical": "攵 (dictionary)",
+    "Radical": "攵",
     "Strokes": "9",
     "Structure": "左右结构",
     "Sentence": "小时候我总喜欢听爷爷讲故事。",
@@ -4320,7 +4320,7 @@
     "Pinyin": [
       "xiāng"
     ],
-    "Radical": "一",
+    "Radical": "乙",
     "Strokes": "3",
     "Structure": "独体结构",
     "Sentence": "为了给家乡修路，大家都很卖力。",
@@ -4440,7 +4440,7 @@
       "kàn",
       "kān"
     ],
-    "Radical": "手",
+    "Radical": "目",
     "Strokes": "9",
     "Structure": "半包围结构",
     "Sentence": "我们大家一起去看电影。",
@@ -4654,7 +4654,7 @@
       "gèng",
       "gēng"
     ],
-    "Radical": "一",
+    "Radical": "曰",
     "Strokes": "7",
     "Structure": "独体结构",
     "Sentence": "我们要比之前更进一步。",
@@ -4861,7 +4861,7 @@
     "Pinyin": [
       "qián"
     ],
-    "Radical": "刀 (dictionary)",
+    "Radical": "刂",
     "Strokes": "9",
     "Structure": "上下结构",
     "Sentence": "我前面还有两个人，马上就轮到我了。",
@@ -4884,7 +4884,7 @@
     "Pinyin": [
       "hòu"
     ],
-    "Radical": "厂",
+    "Radical": "口",
     "Strokes": "6",
     "Structure": "半包围结构",
     "Sentence": "工作结束后他就回家了。",
@@ -4954,7 +4954,7 @@
       "zhe",
       "zhuó"
     ],
-    "Radical": "羊",
+    "Radical": "目",
     "Strokes": "11",
     "Structure": "半包围结构",
     "Sentence": "这件事情好像没什么着落。",
@@ -5135,7 +5135,7 @@
     "Pinyin": [
       "bā"
     ],
-    "Radical": "巴",
+    "Radical": "巳",
     "Strokes": "4",
     "Structure": "独体结构",
     "Sentence": "又想起小时候一起玩泥巴的场景了。",
@@ -5291,7 +5291,7 @@
     "Pinyin": [
       "zuì"
     ],
-    "Radical": "日",
+    "Radical": "曰",
     "Strokes": "12",
     "Structure": "上下结构",
     "Sentence": "我实施了最无聊的想法。",
@@ -5608,7 +5608,7 @@
     "Pinyin": [
       "shāng"
     ],
-    "Radical": "立",
+    "Radical": "口",
     "Strokes": "11",
     "Structure": "上下结构",
     "Sentence": "商店里有各种商品。",
@@ -5773,7 +5773,7 @@
     "Pinyin": [
       "bǐ"
     ],
-    "Radical": "⺮",
+    "Radical": "毛",
     "Strokes": "10",
     "Structure": "上下结构",
     "Sentence": "从小练习毛笔字。",
@@ -5797,7 +5797,7 @@
     "Pinyin": [
       "chǐ"
     ],
-    "Radical": "尺",
+    "Radical": "尸",
     "Strokes": "4",
     "Structure": "独体结构",
     "Sentence": "这件衣服的尺寸刚刚好。",
@@ -5842,7 +5842,7 @@
     "Pinyin": [
       "yè"
     ],
-    "Radical": "业",
+    "Radical": "一",
     "Strokes": "5",
     "Structure": "独体结构",
     "Sentence": "他这个月的业绩做的非常好。",
@@ -5866,7 +5866,7 @@
     "Pinyin": [
       "běn"
     ],
-    "Radical": "木 (dictionary)",
+    "Radical": "木",
     "Strokes": "5",
     "Structure": "独体结构",
     "Sentence": "我又新买了一个笔记本。",
@@ -5914,7 +5914,7 @@
     "Pinyin": [
       "xī"
     ],
-    "Radical": "西",
+    "Radical": "覀",
     "Strokes": "6",
     "Structure": "独体结构",
     "Sentence": "这个西瓜又大又圆。",
@@ -5959,7 +5959,7 @@
     "Pinyin": [
       "yuán"
     ],
-    "Radical": "囗 (dictionary)",
+    "Radical": "囗",
     "Strokes": "7",
     "Structure": "全包围结构",
     "Sentence": "公园里有很多人在散步。",
@@ -6340,7 +6340,7 @@
     "Pinyin": [
       "miè"
     ],
-    "Radical": "一",
+    "Radical": "火",
     "Strokes": "5",
     "Structure": "上下结构",
     "Sentence": "消防队员们终于将大火熄灭了。",
@@ -6411,7 +6411,7 @@
     "Pinyin": [
       "xiū"
     ],
-    "Radical": "亻 (dictionary)",
+    "Radical": "亻",
     "Strokes": "6",
     "Structure": "左右结构",
     "Sentence": "不要在休息时间打扰他人。",
@@ -6800,7 +6800,7 @@
     "Pinyin": [
       "shēng"
     ],
-    "Radical": "卜",
+    "Radical": "十",
     "Strokes": "4",
     "Structure": "独体结构",
     "Sentence": "五星红旗缓缓地升起。",
@@ -6846,7 +6846,7 @@
     "Pinyin": [
       "diǎn"
     ],
-    "Radical": "占",
+    "Radical": "灬",
     "Strokes": "9",
     "Structure": "上下结构",
     "Sentence": "他今天好像一点儿也不高兴。",
@@ -6872,7 +6872,7 @@
       "shù",
       "shuò"
     ],
-    "Radical": "攵 (dictionary)",
+    "Radical": "攵",
     "Strokes": "13",
     "Structure": "左右结构",
     "Sentence": "我们在数天之后才得知此消息。",
@@ -7047,7 +7047,7 @@
     "Pinyin": [
       "huí"
     ],
-    "Radical": "口",
+    "Radical": "囗",
     "Strokes": "6",
     "Structure": "全包围结构",
     "Sentence": "妈妈要我立刻回答她的话。",
@@ -7071,7 +7071,7 @@
     "Pinyin": [
       "dá (dictionary)"
     ],
-    "Radical": "⺮",
+    "Radical": "竹",
     "Strokes": "12",
     "Structure": "上下结构",
     "Sentence": "答案很快就找到了。",
@@ -7193,7 +7193,7 @@
     "Pinyin": [
       "zhè"
     ],
-    "Radical": "讠",
+    "Radical": "辶",
     "Strokes": "7",
     "Structure": "半包围结构",
     "Sentence": "这道菜我很喜欢吃。",
@@ -7214,7 +7214,7 @@
     "Pinyin": [
       "xiē"
     ],
-    "Radical": "止",
+    "Radical": "二",
     "Strokes": "8",
     "Structure": "上下结构",
     "Sentence": "这些东西没用就扔了吧。",
@@ -7607,7 +7607,7 @@
     "Pinyin": [
       "měi"
     ],
-    "Radical": "羊",
+    "Radical": "八",
     "Strokes": "9",
     "Structure": "上下结构",
     "Sentence": "苏州以其美丽的园林而闻名。",
@@ -7629,7 +7629,7 @@
     "Pinyin": [
       "cì"
     ],
-    "Radical": "冫",
+    "Radical": "欠",
     "Strokes": "6",
     "Structure": "左右结构",
     "Sentence": "我们这次一定要保证万无一失。",
@@ -7676,7 +7676,7 @@
       "yàn",
       "yān"
     ],
-    "Radical": "灬 (dictionary)",
+    "Radical": "灬",
     "Strokes": "16",
     "Structure": "上中下结构",
     "Sentence": "春天来了，燕子飞回来了。",
@@ -7781,7 +7781,7 @@
     "Pinyin": [
       "zài"
     ],
-    "Radical": "一",
+    "Radical": "冂",
     "Strokes": "6",
     "Structure": "独体结构",
     "Sentence": "我已经上了一次当了，不可能再次上当。",
@@ -7898,7 +7898,7 @@
     "Pinyin": [
       "xiàn"
     ],
-    "Radical": "王",
+    "Radical": "见",
     "Strokes": "8",
     "Structure": "左右结构",
     "Sentence": "我们等了两个小时，它终于出现了。",
@@ -8230,7 +8230,7 @@
     "Pinyin": [
       "yòng"
     ],
-    "Radical": "用 (dictionary)",
+    "Radical": "用",
     "Strokes": "5",
     "Structure": "独体结构",
     "Sentence": "任何药品都有相应的副作用。",
@@ -8321,7 +8321,7 @@
       "wéi",
       "wèi"
     ],
-    "Radical": "丶 (dictionary)",
+    "Radical": "丶",
     "Strokes": "4",
     "Structure": "独体结构",
     "Sentence": "我想那就是作为职业球员的全部。",
@@ -8434,7 +8434,7 @@
     "Pinyin": [
       "fàng"
     ],
-    "Radical": "方",
+    "Radical": "攵",
     "Strokes": "8",
     "Structure": "左右结构",
     "Sentence": "把笼子里的鸟放了，让它获得自由。",
@@ -8483,7 +8483,7 @@
     "Pinyin": [
       "xióng"
     ],
-    "Radical": "灬 (dictionary)",
+    "Radical": "灬",
     "Strokes": "14",
     "Structure": "上下结构",
     "Sentence": "大熊猫很可爱，也是我们的国宝。",
@@ -8596,7 +8596,7 @@
     "Pinyin": [
       "ná"
     ],
-    "Radical": "手 (dictionary)",
+    "Radical": "手",
     "Strokes": "10",
     "Structure": "上下结构",
     "Sentence": "他拿了我的好处，肯定要为我做事。",
@@ -8620,7 +8620,7 @@
       "zhèng",
       "zhēng"
     ],
-    "Radical": "止 (dictionary)",
+    "Radical": "止",
     "Strokes": "5",
     "Structure": "独体结构",
     "Sentence": "去做了个体检，让我安心的是都很正常。",
@@ -8668,7 +8668,7 @@
     "Pinyin": [
       "wù"
     ],
-    "Radical": "牛",
+    "Radical": "牜",
     "Strokes": "8",
     "Structure": "左右结构",
     "Sentence": "这里的商品，真是物美价廉啊。",
@@ -9013,7 +9013,7 @@
       "shě",
       "shè"
     ],
-    "Radical": "人",
+    "Radical": "舌",
     "Strokes": "8",
     "Structure": "上下结构",
     "Sentence": "我和新朋友们分别时，觉得恋恋不舍。",
@@ -9064,7 +9064,7 @@
     "Pinyin": [
       "nián"
     ],
-    "Radical": "干 (dictionary)",
+    "Radical": "干",
     "Strokes": "6",
     "Structure": "独体结构",
     "Sentence": "还有十多天就要过年了。",
@@ -9088,7 +9088,7 @@
     "Pinyin": [
       "zhí"
     ],
-    "Radical": "十",
+    "Radical": "目",
     "Strokes": "8",
     "Structure": "上下结构",
     "Sentence": "我说话很直的，从不拐弯抹角。",
@@ -9136,7 +9136,7 @@
     "Pinyin": [
       "shù"
     ],
-    "Radical": "一",
+    "Radical": "木",
     "Strokes": "7",
     "Structure": "独体结构",
     "Sentence": "直播马上就要结束了。",
@@ -9204,7 +9204,7 @@
     "Pinyin": [
       "fù"
     ],
-    "Radical": "久",
+    "Radical": "夂",
     "Strokes": "9",
     "Structure": "上中下结构",
     "Sentence": "留出星期五下午的时间做复习。",
@@ -9339,7 +9339,7 @@
     "Pinyin": [
       "quán"
     ],
-    "Radical": "白",
+    "Radical": "水",
     "Strokes": "9",
     "Structure": "上下结构",
     "Sentence": "泉水从岩石中渗出。",
@@ -9379,7 +9379,7 @@
     "Pinyin": [
       "bǎi"
     ],
-    "Radical": "一",
+    "Radical": "白",
     "Strokes": "6",
     "Structure": "独体结构",
     "Sentence": "顺利地过了百天，奇迹又发生了！",
@@ -9423,7 +9423,7 @@
     "Pinyin": [
       "zhēng"
     ],
-    "Radical": "争",
+    "Radical": "刀",
     "Strokes": "6",
     "Structure": "上下结构",
     "Sentence": "经过争论之后她愤然离开。",
@@ -9447,7 +9447,7 @@
     "Pinyin": [
       "míng"
     ],
-    "Radical": "口",
+    "Radical": "鸟",
     "Strokes": "8",
     "Structure": "左右结构",
     "Sentence": "雷鸣般的掌声打破了寂静。",
@@ -9864,7 +9864,7 @@
     "Pinyin": [
       "huān"
     ],
-    "Radical": "又",
+    "Radical": "欠",
     "Strokes": "6",
     "Structure": "左右结构",
     "Sentence": "我一点也不喜欢这个地方。",
@@ -9888,7 +9888,7 @@
     "Pinyin": [
       "dèng"
     ],
-    "Radical": "又",
+    "Radical": "阝",
     "Strokes": "4",
     "Structure": "左右结构",
     "Sentence": "他一直在生邓斯丹的气。",
@@ -10036,7 +10036,7 @@
     "Pinyin": [
       "xī"
     ],
-    "Radical": "自",
+    "Radical": "心",
     "Strokes": "10",
     "Structure": "上下结构",
     "Sentence": "可喜的胜利消息不断传来。",
@@ -10085,7 +10085,7 @@
       "xíng",
       "háng"
     ],
-    "Radical": "行 (dictionary)",
+    "Radical": "行",
     "Strokes": "6",
     "Structure": "左右结构",
     "Sentence": "完全被她的行为欺骗了。",
@@ -10153,7 +10153,7 @@
     "Pinyin": [
       "qīn"
     ],
-    "Radical": "立",
+    "Radical": "亠",
     "Strokes": "9",
     "Structure": "上下结构",
     "Sentence": "母亲对她和他都一样疼爱。",
@@ -10176,7 +10176,7 @@
     "Pinyin": [
       "gǔ"
     ],
-    "Radical": "十",
+    "Radical": "口",
     "Strokes": "5",
     "Structure": "上下结构",
     "Sentence": "这新来的人举动上很古怪。",
@@ -10345,7 +10345,7 @@
     "Pinyin": [
       "jū"
     ],
-    "Radical": "尸 (dictionary)",
+    "Radical": "尸",
     "Strokes": "8",
     "Structure": "半包围结构",
     "Sentence": "我们有了一个舒适的新居。",
@@ -10440,7 +10440,7 @@
       "sǎn",
       "sàn"
     ],
-    "Radical": "攴 (dictionary)",
+    "Radical": "攵",
     "Strokes": "12",
     "Structure": "左右结构",
     "Sentence": "我们现有的力量不能分散。",
@@ -10465,7 +10465,7 @@
     "Pinyin": [
       "máng"
     ],
-    "Radical": "忄 (dictionary)",
+    "Radical": "忄",
     "Strokes": "6",
     "Structure": "左右结构",
     "Sentence": "我趁他忙乱的时候逃走了。",
@@ -10618,7 +10618,7 @@
     "Pinyin": [
       "qián"
     ],
-    "Radical": "钅 (dictionary)",
+    "Radical": "钅",
     "Strokes": "10",
     "Structure": "左右结构",
     "Sentence": "你欠我的钱还没还给我呢。",
@@ -10734,7 +10734,7 @@
       "jiào",
       "jiāo"
     ],
-    "Radical": "攵 (dictionary)",
+    "Radical": "攵",
     "Strokes": "11",
     "Structure": "左右结构",
     "Sentence": "他可能在教室里。",
@@ -10806,7 +10806,7 @@
     "Pinyin": [
       "shì"
     ],
-    "Radical": "一",
+    "Radical": "亅",
     "Strokes": "8",
     "Structure": "独体结构",
     "Sentence": "我们不该打听他人的私事。",
@@ -10830,7 +10830,7 @@
     "Pinyin": [
       "gǎi"
     ],
-    "Radical": "攴 (dictionary)",
+    "Radical": "攵",
     "Strokes": "7",
     "Structure": "左右结构",
     "Sentence": "我们发现错误了要及时改正。",
@@ -10854,7 +10854,7 @@
     "Pinyin": [
       "yuàn"
     ],
-    "Radical": "厂",
+    "Radical": "心",
     "Strokes": "14",
     "Structure": "半包围结构",
     "Sentence": "我不愿意别人看我的日记。",
@@ -10898,7 +10898,7 @@
     "Pinyin": [
       "kuài"
     ],
-    "Radical": "⺮",
+    "Radical": "竹",
     "Strokes": "13",
     "Structure": "上下结构",
     "Sentence": "他用筷子不太熟练。",
@@ -10963,7 +10963,7 @@
     "Pinyin": [
       "quán"
     ],
-    "Radical": "人",
+    "Radical": "入",
     "Strokes": "6",
     "Structure": "上下结构",
     "Sentence": "全市都洋溢着春天的气息。",
@@ -11095,7 +11095,7 @@
     "Pinyin": [
       "guān"
     ],
-    "Radical": "门",
+    "Radical": "丷",
     "Strokes": "6",
     "Structure": "上下结构",
     "Sentence": "关心一下比你困难的人。",
@@ -11210,7 +11210,7 @@
     "Pinyin": [
       "xiě"
     ],
-    "Radical": "冖 (dictionary)",
+    "Radical": "冖",
     "Strokes": "5",
     "Structure": "上下结构",
     "Sentence": "他马上就要接着写日记了。",
@@ -11292,7 +11292,7 @@
     "Pinyin": [
       "xǐ"
     ],
-    "Radical": "士",
+    "Radical": "口",
     "Strokes": "12",
     "Structure": "上中下结构",
     "Sentence": "我一点也不喜欢这个地方。",
@@ -11409,7 +11409,7 @@
     "Pinyin": [
       "tì"
     ],
-    "Radical": "日",
+    "Radical": "曰",
     "Strokes": "12",
     "Structure": "上下结构",
     "Sentence": "那位老人要我替他写封信。",
@@ -11697,7 +11697,7 @@
     "Pinyin": [
       "shōu"
     ],
-    "Radical": "攵 (dictionary)",
+    "Radical": "攵",
     "Strokes": "6",
     "Structure": "左右结构",
     "Sentence": "我好久没收到她来信了。",
@@ -11763,7 +11763,7 @@
     "Pinyin": [
       "hé"
     ],
-    "Radical": "口 (dictionary)",
+    "Radical": "口",
     "Strokes": "6",
     "Structure": "上下结构",
     "Sentence": "他说的话很合理。",
@@ -11830,7 +11830,7 @@
     "Pinyin": [
       "bǎi"
     ],
-    "Radical": "扌 (dictionary)",
+    "Radical": "扌",
     "Strokes": "12 (dictionary)",
     "Structure": "左右结构",
     "Sentence": "在一张桌子上摆着一盘棋。",
@@ -11853,7 +11853,7 @@
     "Pinyin": [
       "lián"
     ],
-    "Radical": "穴",
+    "Radical": "巾",
     "Strokes": "8",
     "Structure": "上下结构",
     "Sentence": "晶莹的一片远海映入眼帘。",
@@ -11919,7 +11919,7 @@
     "Pinyin": [
       "zhuāng"
     ],
-    "Radical": "衤 (dictionary)",
+    "Radical": "衣",
     "Strokes": "12",
     "Structure": "上下结构",
     "Sentence": "恐怕你还要重新包装一下。",
@@ -12012,7 +12012,7 @@
     "Pinyin": [
       "bìng"
     ],
-    "Radical": "疒 (dictionary)",
+    "Radical": "疒",
     "Strokes": "10",
     "Structure": "半包围结构",
     "Sentence": "我的汽车发动机出毛病了。",
@@ -12064,7 +12064,7 @@
       "léi",
       "lèi"
     ],
-    "Radical": "田",
+    "Radical": "糸",
     "Strokes": "11",
     "Structure": "上下结构",
     "Sentence": "他过度劳累而损害了健康。",
@@ -12131,7 +12131,7 @@
     "Pinyin": [
       "lí"
     ],
-    "Radical": "一",
+    "Radical": "忄",
     "Strokes": "10",
     "Structure": "上下结构",
     "Sentence": "那村庄离这里至多两公里。",
@@ -12174,7 +12174,7 @@
     "Pinyin": [
       "piào"
     ],
-    "Radical": "西",
+    "Radical": "示",
     "Strokes": "11",
     "Structure": "上下结构",
     "Sentence": "所有乘客都必须出示车票。",
@@ -12196,7 +12196,7 @@
     "Pinyin": [
       "yuán"
     ],
-    "Radical": "二 (dictionary)",
+    "Radical": "二",
     "Strokes": "4",
     "Structure": "上下结构",
     "Sentence": "她卖出一张二十元的钞票。",
@@ -12346,7 +12346,7 @@
       "cháo",
       "zhāo"
     ],
-    "Radical": "卓",
+    "Radical": "月",
     "Strokes": "12",
     "Structure": "左右结构",
     "Sentence": "你为什么朝他大声喊叫？",
@@ -12492,7 +12492,7 @@
     "Pinyin": [
       "qiān"
     ],
-    "Radical": "十 (dictionary)",
+    "Radical": "十",
     "Strokes": "3",
     "Structure": "独体结构",
     "Sentence": "他证明了一千次都落了空。",
@@ -12574,7 +12574,7 @@
     "Pinyin": [
       "dàn"
     ],
-    "Radical": "虫 (dictionary)",
+    "Radical": "虫",
     "Strokes": "11",
     "Structure": "上下结构",
     "Sentence": "你喜欢吃鸡蛋吗？",
@@ -12595,7 +12595,7 @@
     "Pinyin": [
       "qǔ"
     ],
-    "Radical": "耳",
+    "Radical": "又",
     "Strokes": "8",
     "Structure": "左右结构",
     "Sentence": "我们一定要立即采取行动。",
@@ -13037,7 +13037,7 @@
     "Pinyin": [
       "zhǔ"
     ],
-    "Radical": "一",
+    "Radical": "丶",
     "Strokes": "5",
     "Structure": "独体结构",
     "Sentence": "这个方法有两个主要部分。",
@@ -13061,7 +13061,7 @@
     "Pinyin": [
       "yì"
     ],
-    "Radical": "音",
+    "Radical": "心",
     "Strokes": "13",
     "Structure": "上下结构",
     "Sentence": "我的意思您能听懂吗？",
@@ -13263,7 +13263,7 @@
     "Pinyin": [
       "tuī"
     ],
-    "Radical": "手",
+    "Radical": "扌",
     "Strokes": "11",
     "Structure": "左右结构",
     "Sentence": "他把我从房间里推了出来。",
@@ -13325,7 +13325,7 @@
     "Pinyin": [
       "jiǔ"
     ],
-    "Radical": "久 (dictionary)",
+    "Radical": "丿",
     "Strokes": "3",
     "Structure": "独体结构",
     "Sentence": "他打算在这儿长久住下去。",
@@ -13371,7 +13371,7 @@
     "Pinyin": [
       "jìng"
     ],
-    "Radical": "氵",
+    "Radical": "冫",
     "Strokes": "8",
     "Structure": "左右结构",
     "Sentence": "她穿着干干净净的衣服。",
@@ -13395,7 +13395,7 @@
     "Pinyin": [
       "shī"
     ],
-    "Radical": "丿",
+    "Radical": "大",
     "Strokes": "5",
     "Structure": "独体结构",
     "Sentence": "他失手打碎了一个玻璃杯。",
@@ -13465,7 +13465,7 @@
       "guān",
       "guàn"
     ],
-    "Radical": "又",
+    "Radical": "见",
     "Strokes": "6",
     "Structure": "左右结构",
     "Sentence": "我们必须乐观地面对未来。",
@@ -13488,7 +13488,7 @@
     "Pinyin": [
       "wéi"
     ],
-    "Radical": "口",
+    "Radical": "囗",
     "Strokes": "7",
     "Structure": "全包围结构",
     "Sentence": "我们在周围放了几把椅子。",
@@ -13629,7 +13629,7 @@
     "Pinyin": [
       "cái"
     ],
-    "Radical": "一",
+    "Radical": "扌",
     "Strokes": "3",
     "Structure": "独体结构",
     "Sentence": "只有好好学习，将来才会成为有才华的人。",
@@ -13693,7 +13693,7 @@
     "Pinyin": [
       "gè"
     ],
-    "Radical": "夂",
+    "Radical": "口",
     "Strokes": "6",
     "Structure": "上下结构",
     "Sentence": "在这一点上意见各不相同。",
@@ -13713,7 +13713,7 @@
     "Pinyin": [
       "zì"
     ],
-    "Radical": "宀",
+    "Radical": "子",
     "Strokes": "6",
     "Structure": "上下结构",
     "Sentence": "把名字写在下面的空格内。",
@@ -14077,7 +14077,7 @@
     "Pinyin": [
       "wǎng"
     ],
-    "Radical": "网 (dictionary)",
+    "Radical": "冂",
     "Strokes": "6",
     "Structure": "半包围结构",
     "Sentence": "公安人员张开大网去抓逃犯。",
@@ -14126,7 +14126,7 @@
     "Pinyin": [
       "mù"
     ],
-    "Radical": "牛",
+    "Radical": "牜",
     "Strokes": "8",
     "Structure": "左右结构",
     "Sentence": "马群正在牧场上吃草。",
@@ -14324,7 +14324,7 @@
     "Pinyin": [
       "róu"
     ],
-    "Radical": "矛 (dictionary)",
+    "Radical": "木",
     "Strokes": "9",
     "Structure": "上下结构",
     "Sentence": "他温柔地握着她的手。",
@@ -14541,7 +14541,7 @@
     "Pinyin": [
       "chì"
     ],
-    "Radical": "羽 (dictionary)",
+    "Radical": "羽",
     "Strokes": "10",
     "Structure": "半包围结构",
     "Sentence": "那只鸟拍着翅膀慢慢地飞走了。",
@@ -14639,7 +14639,7 @@
     "Pinyin": [
       "kū"
     ],
-    "Radical": "犬",
+    "Radical": "口",
     "Strokes": "10",
     "Structure": "上下结构",
     "Sentence": "他弄不清她是笑还是哭。",
@@ -15278,7 +15278,7 @@
     "Pinyin": [
       "táo"
     ],
-    "Radical": "走",
+    "Radical": "辶",
     "Strokes": "9",
     "Structure": "半包围结构",
     "Sentence": "你不能逃避这样的事实。",
@@ -15301,7 +15301,7 @@
       "nán",
       "nàn"
     ],
-    "Radical": "又",
+    "Radical": "隹",
     "Strokes": "10",
     "Structure": "左右结构",
     "Sentence": "大家都被这个问题难住了。",
@@ -15467,7 +15467,7 @@
     "Pinyin": [
       "lán"
     ],
-    "Radical": "扌 (dictionary)",
+    "Radical": "扌",
     "Strokes": "8",
     "Structure": "左右结构",
     "Sentence": "你既然一定要去，我也不便阻拦。",
@@ -15510,7 +15510,7 @@
     "Pinyin": [
       "tuán"
     ],
-    "Radical": "囗 (dictionary)",
+    "Radical": "囗",
     "Strokes": "6",
     "Structure": "全包围结构",
     "Sentence": "团结是胜利的保证。",
@@ -15535,7 +15535,7 @@
       "liáng",
       "liàng (dictionary)"
     ],
-    "Radical": "日",
+    "Radical": "里",
     "Strokes": "12",
     "Structure": "上下结构",
     "Sentence": "我要尽一切力量做好这项工作。",
@@ -15555,7 +15555,7 @@
     "Pinyin": [
       "xiāng"
     ],
-    "Radical": "木",
+    "Radical": "目",
     "Strokes": "9",
     "Structure": "左右结构",
     "Sentence": "我们都相信这个故事是真的。",
@@ -15648,7 +15648,7 @@
     "Pinyin": [
       "gōng"
     ],
-    "Radical": "攵 (dictionary)",
+    "Radical": "攵",
     "Strokes": "7",
     "Structure": "左右结构",
     "Sentence": "进攻是最好的防御。",
@@ -15674,7 +15674,7 @@
     "Pinyin": [
       "hù"
     ],
-    "Radical": "一",
+    "Radical": "二",
     "Strokes": "4",
     "Structure": "独体结构",
     "Sentence": "他们在工作中互相支持。",
@@ -15935,7 +15935,7 @@
     "Pinyin": [
       "tián"
     ],
-    "Radical": "甘 (dictionary)",
+    "Radical": "甘",
     "Strokes": "11",
     "Structure": "左右结构",
     "Sentence": "这种梨又甜又脆。",
@@ -16048,7 +16048,7 @@
     "Pinyin": [
       "yīn"
     ],
-    "Radical": "口",
+    "Radical": "囗",
     "Strokes": "6",
     "Structure": "全包围结构",
     "Sentence": "他是因为个头小吃亏了。",
@@ -16072,7 +16072,7 @@
     "Pinyin": [
       "jì"
     ],
-    "Radical": "禾",
+    "Radical": "子",
     "Strokes": "8",
     "Structure": "上下结构",
     "Sentence": "该工程将于今年春季开工。",
@@ -16116,7 +16116,7 @@
     "Pinyin": [
       "yā"
     ],
-    "Radical": "鸟 (dictionary)",
+    "Radical": "鸟",
     "Strokes": "9",
     "Structure": "左右结构",
     "Sentence": "这下孩子们都鸦雀无声。",
@@ -16290,7 +16290,7 @@
     "Pinyin": [
       "sī"
     ],
-    "Radical": "司 (dictionary)",
+    "Radical": "口",
     "Strokes": "5",
     "Structure": "半包围结构",
     "Sentence": "今天我跟上司大吵了一顿。",
@@ -16544,7 +16544,7 @@
     "Pinyin": [
       "jiù"
     ],
-    "Radical": "攴 (dictionary)",
+    "Radical": "攵",
     "Strokes": "11",
     "Structure": "左右结构",
     "Sentence": "他救起了一个溺水的孩子。",
@@ -16920,7 +16920,7 @@
     "Pinyin": [
       "chǒu"
     ],
-    "Radical": "丑 (dictionary)",
+    "Radical": "一",
     "Strokes": "4",
     "Structure": "独体结构",
     "Sentence": "家丑不可外扬。",
@@ -17399,7 +17399,7 @@
     "Pinyin": [
       "mìng"
     ],
-    "Radical": "人",
+    "Radical": "口",
     "Strokes": "8",
     "Structure": "上下结构",
     "Sentence": "他一直很服从党的命令。",
@@ -17448,7 +17448,7 @@
     "Pinyin": [
       "shì"
     ],
-    "Radical": "土",
+    "Radical": "士",
     "Strokes": "3",
     "Structure": "独体结构",
     "Sentence": "全体士兵都决心奋战到底。",
@@ -17607,7 +17607,7 @@
     "Pinyin": [
       "dí"
     ],
-    "Radical": "舌",
+    "Radical": "攵",
     "Strokes": "10",
     "Structure": "左右结构",
     "Sentence": "他们的敌人善于先发制人。",
@@ -17962,7 +17962,7 @@
       "ké",
       "qiào"
     ],
-    "Radical": "土",
+    "Radical": "士",
     "Strokes": "7",
     "Structure": "上下结构",
     "Sentence": "这类甲虫有坚硬的外壳。",
@@ -18176,7 +18176,7 @@
     "Pinyin": [
       "xī"
     ],
-    "Radical": "丷",
+    "Radical": "巾",
     "Strokes": "7",
     "Structure": "上下结构",
     "Sentence": "我很希望他说的是对的。",
@@ -18218,7 +18218,7 @@
     "Pinyin": [
       "guó"
     ],
-    "Radical": "口",
+    "Radical": "囗",
     "Strokes": "8",
     "Structure": "全包围结构",
     "Sentence": "我爱我的祖国。",
@@ -18241,7 +18241,7 @@
     "Pinyin": [
       "yóu"
     ],
-    "Radical": "由 (dictionary)",
+    "Radical": "田",
     "Strokes": "5",
     "Structure": "独体结构",
     "Sentence": "现在有理由提出这个问题。",
@@ -18280,7 +18280,7 @@
     "Pinyin": [
       "fēng"
     ],
-    "Radical": "一",
+    "Radical": "丨",
     "Strokes": "4",
     "Structure": "独体结构",
     "Sentence": "今年的粮食大丰收啊。",
@@ -18324,7 +18324,7 @@
     "Pinyin": [
       "gǎn"
     ],
-    "Radical": "攴 (dictionary)",
+    "Radical": "攵",
     "Strokes": "11",
     "Structure": "左右结构",
     "Sentence": "我可不敢做那么危险的事。",
@@ -18368,7 +18368,7 @@
     "Pinyin": [
       "jìng"
     ],
-    "Radical": "攵 (dictionary)",
+    "Radical": "攵",
     "Strokes": "12",
     "Structure": "左右结构",
     "Sentence": "他是一个值得尊敬的人。",
@@ -18453,7 +18453,7 @@
     "Pinyin": [
       "shēn"
     ],
-    "Radical": "申",
+    "Radical": "田",
     "Strokes": "5",
     "Structure": "独体结构",
     "Sentence": "他为他的发明申请了专利。",
@@ -18899,7 +18899,7 @@
     "Pinyin": [
       "zhěng"
     ],
-    "Radical": "立 (dictionary)",
+    "Radical": "攵",
     "Strokes": "16",
     "Structure": "上下结构",
     "Sentence": "她立刻就懂得了整个计划。",
@@ -18947,7 +18947,7 @@
     "Pinyin": [
       "xí"
     ],
-    "Radical": "乙 (dictionary)",
+    "Radical": "乙",
     "Strokes": "3",
     "Structure": "独体结构",
     "Sentence": "这是一次出色的救护演习。",
@@ -19182,7 +19182,7 @@
     "Pinyin": [
       "cān"
     ],
-    "Radical": "食",
+    "Radical": "飠",
     "Strokes": "16",
     "Structure": "上下结构",
     "Sentence": "光顾这家餐馆的人很多。",
@@ -19205,7 +19205,7 @@
     "Pinyin": [
       "diū"
     ],
-    "Radical": "丨 (dictionary)",
+    "Radical": "丿",
     "Strokes": "6",
     "Structure": "上下结构",
     "Sentence": "他有可能把钥匙丢了。",
@@ -19444,7 +19444,7 @@
       "jiā",
       "jiá"
     ],
-    "Radical": "一",
+    "Radical": "大",
     "Strokes": "6",
     "Structure": "独体结构",
     "Sentence": "她的手指让门给夹住了。",
@@ -19464,7 +19464,7 @@
     "Pinyin": [
       "pén"
     ],
-    "Radical": "皿 (dictionary)",
+    "Radical": "皿",
     "Strokes": "9",
     "Structure": "上下结构",
     "Sentence": "他遇上一场倾盆大雨。",
@@ -19506,7 +19506,7 @@
     "Pinyin": [
       "xuǎn"
     ],
-    "Radical": "讠",
+    "Radical": "辶",
     "Strokes": "9",
     "Structure": "半包围结构",
     "Sentence": "你选好你喜欢的壁纸了吗？",
@@ -19530,7 +19530,7 @@
     "Pinyin": [
       "bìng"
     ],
-    "Radical": "丷",
+    "Radical": "干",
     "Strokes": "6",
     "Structure": "上下结构",
     "Sentence": "他来到屋里并供认了一切。",
@@ -19575,7 +19575,7 @@
     "Pinyin": [
       "fēn"
     ],
-    "Radical": "八",
+    "Radical": "刀",
     "Strokes": "4",
     "Structure": "上下结构",
     "Sentence": "她来了没有五分钟就走了。",
@@ -19658,7 +19658,7 @@
     "Pinyin": [
       "sī"
     ],
-    "Radical": "丝 (dictionary)",
+    "Radical": "一",
     "Strokes": "4 (dictionary)",
     "Structure": "上下结构",
     "Sentence": "小明的计算丝毫不差。",
@@ -19678,7 +19678,7 @@
     "Pinyin": [
       "biǎo"
     ],
-    "Radical": "一",
+    "Radical": "衣",
     "Strokes": "8",
     "Structure": "上下结构",
     "Sentence": "他的表情很丰富。",
@@ -19822,7 +19822,7 @@
     "Pinyin": [
       "chū"
     ],
-    "Radical": "衤",
+    "Radical": "刀",
     "Strokes": "7",
     "Structure": "左右结构",
     "Sentence": "今天我要与他初次见面。",
@@ -19950,7 +19950,7 @@
     "Pinyin": [
       "yàn"
     ],
-    "Radical": "隹 (dictionary)",
+    "Radical": "隹",
     "Strokes": "12",
     "Structure": "半包围结构",
     "Sentence": "大雁由北向南飞。",
@@ -19968,7 +19968,7 @@
     "Pinyin": [
       "guī"
     ],
-    "Radical": "儿 (dictionary)",
+    "Radical": "彐",
     "Strokes": "5",
     "Structure": "左右结构",
     "Sentence": "小明把捡到的钱包归还给了失主。",
@@ -20303,7 +20303,7 @@
     "Pinyin": [
       "lán"
     ],
-    "Radical": "艹 (dictionary)",
+    "Radical": "丷",
     "Strokes": "5",
     "Structure": "上下结构",
     "Sentence": "园里的兰花和郁金香已经盛开。",
@@ -20412,7 +20412,7 @@
     "Pinyin": [
       "tè"
     ],
-    "Radical": "牛",
+    "Radical": "牜",
     "Strokes": "10",
     "Structure": "左右结构",
     "Sentence": "每个人都有他特有的习惯。",
@@ -20458,7 +20458,7 @@
       "huá",
       "huà (dictionary)"
     ],
-    "Radical": "刀 (dictionary)",
+    "Radical": "刂",
     "Strokes": "6",
     "Structure": "左右结构",
     "Sentence": "他看到了自己的计划落空。",
@@ -20479,7 +20479,7 @@
     "Pinyin": [
       "cǎi"
     ],
-    "Radical": "爫",
+    "Radical": "采",
     "Strokes": "8",
     "Structure": "上下结构",
     "Sentence": "他们兴高采烈地登上山冈。",
@@ -20590,7 +20590,7 @@
     "Pinyin": [
       "liè"
     ],
-    "Radical": "刀 (dictionary)",
+    "Radical": "刂",
     "Strokes": "6",
     "Structure": "左右结构",
     "Sentence": "列车每隔一小时开出一趟。",
@@ -20614,7 +20614,7 @@
     "Pinyin": [
       "nòng"
     ],
-    "Radical": "王",
+    "Radical": "廾",
     "Strokes": "7",
     "Structure": "上下结构",
     "Sentence": "我弄到了一张戏院入场券。",
@@ -20840,7 +20840,7 @@
     "Pinyin": [
       "mèng"
     ],
-    "Radical": "夕",
+    "Radical": "木",
     "Strokes": "11",
     "Structure": "上下结构",
     "Sentence": "昨晚我听见你说梦话。",
@@ -20864,7 +20864,7 @@
     "Pinyin": [
       "míng"
     ],
-    "Radical": "夕",
+    "Radical": "口",
     "Strokes": "6",
     "Structure": "上下结构",
     "Sentence": "把你们的名字写在名单上。",
@@ -21035,7 +21035,7 @@
     "Pinyin": [
       "gǔ"
     ],
-    "Radical": "支",
+    "Radical": "鼓",
     "Strokes": "13",
     "Structure": "左右结构",
     "Sentence": "妈妈经常鼓励我好好学习。",
@@ -21200,7 +21200,7 @@
       "jǐn",
       "jìn"
     ],
-    "Radical": "户",
+    "Radical": "尸",
     "Strokes": "6",
     "Structure": "上下结构",
     "Sentence": "我们尽快帮助他们。",
@@ -21281,7 +21281,7 @@
     "Pinyin": [
       "shuǎng"
     ],
-    "Radical": "爻 (dictionary)",
+    "Radical": "爻",
     "Strokes": "11",
     "Structure": "特殊结构",
     "Sentence": "今天的天气比较凉爽。",
@@ -21304,7 +21304,7 @@
     "Pinyin": [
       "zhuàng"
     ],
-    "Radical": "土",
+    "Radical": "士",
     "Strokes": "6",
     "Structure": "左右结构",
     "Sentence": "他长得结实健壮。",
@@ -21398,7 +21398,7 @@
     "Pinyin": [
       "tú"
     ],
-    "Radical": "口",
+    "Radical": "囗",
     "Strokes": "8",
     "Structure": "全包围结构",
     "Sentence": "他打算把路线图画出来。",
@@ -21443,7 +21443,7 @@
       "lóng",
       "lǒng"
     ],
-    "Radical": "竹",
+    "Radical": "龙",
     "Strokes": "11",
     "Structure": "上下结构",
     "Sentence": "动物园里的动物都在笼子里关着。",
@@ -21548,7 +21548,7 @@
     "Pinyin": [
       "láo"
     ],
-    "Radical": "力 (dictionary)",
+    "Radical": "力",
     "Strokes": "7",
     "Structure": "上下结构",
     "Sentence": "他靠辛勤劳动而致富。",
@@ -21591,7 +21591,7 @@
     "Pinyin": [
       "yóu"
     ],
-    "Radical": "尤",
+    "Radical": "尢",
     "Strokes": "4",
     "Structure": "独体结构",
     "Sentence": "这个商店的服饰尤其漂亮。",
@@ -21728,7 +21728,7 @@
     "Pinyin": [
       "jù"
     ],
-    "Radical": "巨",
+    "Radical": "工",
     "Strokes": "4",
     "Structure": "半包围结构",
     "Sentence": "我们已取得了巨大的胜利。",
@@ -21753,7 +21753,7 @@
       "dāng",
       "dàng"
     ],
-    "Radical": "小",
+    "Radical": "彐",
     "Strokes": "6",
     "Structure": "上下结构",
     "Sentence": "他很后悔当初的选择。",
@@ -21839,7 +21839,7 @@
     "Pinyin": [
       "zhuàng"
     ],
-    "Radical": "犭",
+    "Radical": "犬",
     "Strokes": "7",
     "Structure": "左右结构",
     "Sentence": "不能让这种状况延续下去。",
@@ -22107,7 +22107,7 @@
     "Pinyin": [
       "liú"
     ],
-    "Radical": "刀 (dictionary)",
+    "Radical": "刂",
     "Strokes": "6",
     "Structure": "左右结构",
     "Sentence": "刘翔2006年在田径世界大赛夺冠。",
@@ -22376,7 +22376,7 @@
     "Pinyin": [
       "qiú"
     ],
-    "Radical": "求 (dictionary)",
+    "Radical": "水",
     "Strokes": "7",
     "Structure": "独体结构",
     "Sentence": "他不断地提出自己的要求。",
@@ -22769,7 +22769,7 @@
     "Pinyin": [
       "pí"
     ],
-    "Radical": "疒 (dictionary)",
+    "Radical": "疒",
     "Strokes": "10",
     "Structure": "半包围结构",
     "Sentence": "长途旅行使他疲惫不堪。",
@@ -22807,7 +22807,7 @@
     "Pinyin": [
       "qiān"
     ],
-    "Radical": "大",
+    "Radical": "牛",
     "Strokes": "9",
     "Structure": "上下结构",
     "Sentence": "这里面牵扯许多大问题。",
@@ -22833,7 +22833,7 @@
     "Pinyin": [
       "kùn"
     ],
-    "Radical": "口",
+    "Radical": "囗",
     "Strokes": "7",
     "Structure": "全包围结构",
     "Sentence": "他们有不少困难有待克服。",
@@ -23197,7 +23197,7 @@
     "Pinyin": [
       "jué"
     ],
-    "Radical": "氵",
+    "Radical": "冫",
     "Strokes": "6",
     "Structure": "左右结构",
     "Sentence": "他们想尽办法来解决问题。",
@@ -23292,7 +23292,7 @@
     "Pinyin": [
       "mào"
     ],
-    "Radical": "日 (dictionary)",
+    "Radical": "冂",
     "Strokes": "9",
     "Structure": "上下结构",
     "Sentence": "告诉我们你的冒险故事。",
@@ -23357,7 +23357,7 @@
     "Pinyin": [
       "jǐn"
     ],
-    "Radical": "纟 (dictionary)",
+    "Radical": "糸",
     "Strokes": "10",
     "Structure": "上下结构",
     "Sentence": "别那么紧张，放松一点。",
@@ -23708,7 +23708,7 @@
     "Pinyin": [
       "zhōu"
     ],
-    "Radical": "川 (dictionary)",
+    "Radical": "川",
     "Strokes": "6",
     "Structure": "独体结构",
     "Sentence": "杭州以风景优美为名。",
@@ -23871,7 +23871,7 @@
     "Pinyin": [
       "mín"
     ],
-    "Radical": "民 (dictionary)",
+    "Radical": "氏",
     "Strokes": "5",
     "Structure": "独体结构",
     "Sentence": "我的⼀切权利属于人民。",
@@ -24018,7 +24018,7 @@
     "Pinyin": [
       "qū"
     ],
-    "Radical": "曲 (dictionary)",
+    "Radical": "曰",
     "Strokes": "6",
     "Structure": "独体结构",
     "Sentence": "你曲解了我对此事的意见。",
@@ -24039,7 +24039,7 @@
     "Pinyin": [
       "yì"
     ],
-    "Radical": "乙 (dictionary)",
+    "Radical": "亻",
     "Strokes": "2 (dictionary)",
     "Structure": "左右结构",
     "Sentence": "他通过努力成为了亿万富翁。",
@@ -24183,7 +24183,7 @@
     "Pinyin": [
       "zhōu"
     ],
-    "Radical": "囗 (dictionary)",
+    "Radical": "口",
     "Strokes": "8",
     "Structure": "半包围结构",
     "Sentence": "他喜欢在周末做登山运动。",
@@ -24493,7 +24493,7 @@
     "Pinyin": [
       "jī"
     ],
-    "Radical": "殳 (dictionary)",
+    "Radical": "凵",
     "Strokes": "5",
     "Structure": "独体结构",
     "Sentence": "她在上周决赛时被击败了。",
@@ -24626,7 +24626,7 @@
     "Pinyin": [
       "yáng"
     ],
-    "Radical": "扌 (dictionary)",
+    "Radical": "扌",
     "Strokes": "6",
     "Structure": "左右结构",
     "Sentence": "她的画得到了老师的表扬。",
@@ -24782,7 +24782,7 @@
     "Pinyin": [
       "pū"
     ],
-    "Radical": "钅 (dictionary)",
+    "Radical": "钅",
     "Strokes": "12",
     "Structure": "左右结构",
     "Sentence": "他铺好被子然后进了浴室。",
@@ -24888,7 +24888,7 @@
     "Pinyin": [
       "wēi"
     ],
-    "Radical": "己",
+    "Radical": "厄",
     "Strokes": "6",
     "Structure": "半包围结构",
     "Sentence": "走路玩手机是很危险的。",
@@ -24936,7 +24936,7 @@
     "Pinyin": [
       "mǎi"
     ],
-    "Radical": "乙 (dictionary)",
+    "Radical": "乙",
     "Strokes": "6",
     "Structure": "上下结构",
     "Sentence": "今天买了几本书？",
@@ -25004,7 +25004,7 @@
     "Pinyin": [
       "zá"
     ],
-    "Radical": "九",
+    "Radical": "木",
     "Strokes": "6",
     "Structure": "上下结构",
     "Sentence": "他父亲开了几间杂货店。",
@@ -25216,7 +25216,7 @@
     "Pinyin": [
       "gōng"
     ],
-    "Radical": "力 (dictionary)",
+    "Radical": "力",
     "Strokes": "5",
     "Structure": "左右结构",
     "Sentence": "她在拼命用功，准备考试。",
@@ -26658,7 +26658,7 @@
     "Pinyin": [
       "qiān"
     ],
-    "Radical": "金",
+    "Radical": "钅",
     "Strokes": "10",
     "Structure": "左右结构",
     "Sentence": "这支铅笔需要削尖。",
@@ -26678,7 +26678,7 @@
     "Pinyin": [
       "rě"
     ],
-    "Radical": "忄",
+    "Radical": "心",
     "Strokes": "12",
     "Structure": "上中下结构",
     "Sentence": "你太淘气了，总惹爸爸生气。",
@@ -26920,7 +26920,7 @@
     "Pinyin": [
       "xìng"
     ],
-    "Radical": "干 (dictionary)",
+    "Radical": "干",
     "Strokes": "8",
     "Structure": "上下结构",
     "Sentence": "这是我特别幸运的一年。",
@@ -27008,7 +27008,7 @@
     "Pinyin": [
       "zhī"
     ],
-    "Radical": "乙 (dictionary)",
+    "Radical": "丶",
     "Strokes": "3 (dictionary)",
     "Structure": "独体结构",
     "Sentence": "她完全沉浸在幸福之中了。",
@@ -27196,7 +27196,7 @@
     "Pinyin": [
       "tiě"
     ],
-    "Radical": "钅 (dictionary)",
+    "Radical": "钅",
     "Strokes": "8 (dictionary)",
     "Structure": "左右结构",
     "Sentence": "小孩子们在操场上滚铁环。",
@@ -27219,7 +27219,7 @@
     "Pinyin": [
       "dīng"
     ],
-    "Radical": "金",
+    "Radical": "钅",
     "Strokes": "7",
     "Structure": "左右结构",
     "Sentence": "我的衣服被钉子挂住了。",
@@ -27300,7 +27300,7 @@
     "Pinyin": [
       "téng"
     ],
-    "Radical": "疒 (dictionary)",
+    "Radical": "疒",
     "Strokes": "10",
     "Structure": "半包围结构",
     "Sentence": "我的眼睛被烟熏得很疼。",
@@ -27409,7 +27409,7 @@
     "Pinyin": [
       "tàn"
     ],
-    "Radical": "火 (dictionary)",
+    "Radical": "火",
     "Strokes": "7 (dictionary)",
     "Structure": "上下结构",
     "Sentence": "煤层的炭化程度取决于温度。",
@@ -27497,7 +27497,7 @@
     "Pinyin": [
       "suǒ"
     ],
-    "Radical": "糸 (dictionary)",
+    "Radical": "糸",
     "Strokes": "10",
     "Structure": "上下结构",
     "Sentence": "警方已获得罪犯的线索。",
@@ -27543,7 +27543,7 @@
     "Pinyin": [
       "yǒng"
     ],
-    "Radical": "水 (dictionary)",
+    "Radical": "水",
     "Strokes": "5",
     "Structure": "独体结构",
     "Sentence": "但这一点恐怕永远做不到。",
@@ -27700,7 +27700,7 @@
     "Pinyin": [
       "liáng"
     ],
-    "Radical": "艮 (dictionary)",
+    "Radical": "艮",
     "Strokes": "7",
     "Structure": "上下结构",
     "Sentence": "谈判取得了良好的进展。",
@@ -27792,7 +27792,7 @@
     "Pinyin": [
       "shí"
     ],
-    "Radical": "食 (dictionary)",
+    "Radical": "飠",
     "Strokes": "9",
     "Structure": "上下结构",
     "Sentence": "每一粒粮食都来之不易。",
@@ -27899,7 +27899,7 @@
     "Pinyin": [
       "zé"
     ],
-    "Radical": "贝",
+    "Radical": "刂",
     "Strokes": "6",
     "Structure": "左右结构",
     "Sentence": "你必须遵守学校的规则。",
@@ -27965,7 +27965,7 @@
     "Pinyin": [
       "xiàn"
     ],
-    "Radical": "羊",
+    "Radical": "八",
     "Strokes": "12",
     "Structure": "上下结构",
     "Sentence": "大家都羡慕他们的幸福。",
@@ -27981,7 +27981,7 @@
     "Pinyin": [
       "mù"
     ],
-    "Radical": "心 (dictionary)",
+    "Radical": "小",
     "Strokes": "14",
     "Structure": "上下结构",
     "Sentence": "我羡慕你的好运气。",
@@ -28024,7 +28024,7 @@
     "Pinyin": [
       "liào"
     ],
-    "Radical": "米",
+    "Radical": "斗",
     "Strokes": "10",
     "Structure": "左右结构",
     "Sentence": "此处出售饮料和矿泉水。",
@@ -28575,7 +28575,7 @@
     "Pinyin": [
       "jǐn"
     ],
-    "Radical": "钅 (dictionary)",
+    "Radical": "钅",
     "Strokes": "13",
     "Structure": "左右结构",
     "Sentence": "该项演出使晚会锦上添花。",
@@ -28790,7 +28790,7 @@
     "Pinyin": [
       "cháo"
     ],
-    "Radical": "巢 (dictionary)",
+    "Radical": "巛",
     "Strokes": "11",
     "Structure": "上下结构",
     "Sentence": "终于有一群蜂落进了蜂巢。",
@@ -28874,7 +28874,7 @@
       "juǎn",
       "juàn"
     ],
-    "Radical": "巴",
+    "Radical": "厄",
     "Strokes": "8",
     "Structure": "左右结构",
     "Sentence": "他不要很久就会卷土重来。",
@@ -28943,7 +28943,7 @@
     "Pinyin": [
       "guī"
     ],
-    "Radical": "龟 (dictionary)",
+    "Radical": "刀",
     "Strokes": "7",
     "Structure": "上下结构",
     "Sentence": "龟蛇二山隔江相望。",
@@ -29104,7 +29104,7 @@
     "Pinyin": [
       "shèn"
     ],
-    "Radical": "一",
+    "Radical": "甘",
     "Strokes": "9",
     "Structure": "上下结构",
     "Sentence": "雨散云飞，让人甚感惆怅。",
@@ -29220,7 +29220,7 @@
     "Pinyin": [
       "hū"
     ],
-    "Radical": "一",
+    "Radical": "丿",
     "Strokes": "5",
     "Structure": "独体结构",
     "Sentence": "我几乎都见到了所有的人。",
@@ -29391,7 +29391,7 @@
     "Pinyin": [
       "lí"
     ],
-    "Radical": "黍 (dictionary)",
+    "Radical": "黍",
     "Strokes": "15",
     "Structure": "上下结构",
     "Sentence": "巴黎是一座美丽的城市。",
@@ -29410,7 +29410,7 @@
       "shè",
       "yè"
     ],
-    "Radical": "身",
+    "Radical": "寸",
     "Strokes": "10",
     "Structure": "左右结构",
     "Sentence": "阳光从石缝中间射进来。",
@@ -29845,7 +29845,7 @@
       "quān",
       "juàn"
     ],
-    "Radical": "口",
+    "Radical": "囗",
     "Strokes": "11",
     "Structure": "全包围结构",
     "Sentence": "我决不让自己中了圈套。",
@@ -29933,7 +29933,7 @@
     "Pinyin": [
       "shū"
     ],
-    "Radical": "人",
+    "Radical": "舌",
     "Strokes": "12",
     "Structure": "左右结构",
     "Sentence": "他今天好像不怎么舒服。",
@@ -30412,7 +30412,7 @@
     "Pinyin": [
       "quē"
     ],
-    "Radical": "欠",
+    "Radical": "缶",
     "Strokes": "10",
     "Structure": "左右结构",
     "Sentence": "大浪在堤上冲出一个缺口。",
@@ -30480,7 +30480,7 @@
     "Pinyin": [
       "nóng"
     ],
-    "Radical": "一",
+    "Radical": "冖",
     "Strokes": "6",
     "Structure": "独体结构",
     "Sentence": "轻工业和农业密切相关。",
@@ -30525,7 +30525,7 @@
     "Pinyin": [
       "yuán"
     ],
-    "Radical": "土",
+    "Radical": "衣",
     "Strokes": "10",
     "Structure": "上下结构",
     "Sentence": "袁隆平被誉为“杂交水稻之父”。",
@@ -30582,7 +30582,7 @@
     "Pinyin": [
       "shào"
     ],
-    "Radical": "纟 (dictionary)",
+    "Radical": "纟",
     "Strokes": "8",
     "Structure": "左右结构",
     "Sentence": "我们是经介绍认识的。",
@@ -30641,7 +30641,7 @@
     "Pinyin": [
       "chǎn"
     ],
-    "Radical": "立",
+    "Radical": "亠",
     "Strokes": "6",
     "Structure": "独体结构",
     "Sentence": "工业生产下降百分之十。",
@@ -30764,7 +30764,7 @@
     "Pinyin": [
       "xiū"
     ],
-    "Radical": "羊",
+    "Radical": "八",
     "Strokes": "10",
     "Structure": "半包围结构",
     "Sentence": "她的脸儿羞得通红。",
@@ -31342,7 +31342,7 @@
     "Pinyin": [
       "gāng"
     ],
-    "Radical": "门",
+    "Radical": "冂",
     "Strokes": "4",
     "Structure": "半包围结构",
     "Sentence": "太阳正从山冈上升起。",
@@ -31382,7 +31382,7 @@
     "Pinyin": [
       "méi"
     ],
-    "Radical": "王",
+    "Radical": "攵",
     "Strokes": "8",
     "Structure": "左右结构",
     "Sentence": "微风吹送玫瑰花香气。",
@@ -31555,7 +31555,7 @@
     "Pinyin": [
       "xī"
     ],
-    "Radical": "牛",
+    "Radical": "牜",
     "Strokes": "10",
     "Structure": "左右结构",
     "Sentence": "他富有自我牺牲精神。",
@@ -31570,7 +31570,7 @@
     "Pinyin": [
       "shēng"
     ],
-    "Radical": "牛",
+    "Radical": "牜",
     "Strokes": "9",
     "Structure": "左右结构",
     "Sentence": "他为革命而牺牲生命。",
@@ -31922,7 +31922,7 @@
       "céng",
       "zēng"
     ],
-    "Radical": "日",
+    "Radical": "曰",
     "Strokes": "12",
     "Structure": "上下结构",
     "Sentence": "他曾经是一名高尔夫球手。",
@@ -32388,7 +32388,7 @@
     "Pinyin": [
       "kǎ"
     ],
-    "Radical": "卜",
+    "Radical": "丨",
     "Strokes": "5",
     "Structure": "上下结构",
     "Sentence": "按颜色将这些卡片分开。",
@@ -32408,7 +32408,7 @@
     "Pinyin": [
       "luó"
     ],
-    "Radical": "网 (dictionary)",
+    "Radical": "罒",
     "Strokes": "8",
     "Structure": "上下结构",
     "Sentence": "我们张罗来五十个观众看这出戏。",
@@ -32564,7 +32564,7 @@
     "Pinyin": [
       "tì"
     ],
-    "Radical": "户",
+    "Radical": "尸",
     "Strokes": "8",
     "Structure": "半包围结构",
     "Sentence": "他打开了另一个抽屉。",
@@ -32579,7 +32579,7 @@
     "Pinyin": [
       "miǎn"
     ],
-    "Radical": "儿",
+    "Radical": "刀",
     "Strokes": "7",
     "Structure": "上下结构",
     "Sentence": "尽量避免人身攻击。",
@@ -32682,7 +32682,7 @@
     "Pinyin": [
       "yì"
     ],
-    "Radical": "乙 (dictionary)",
+    "Radical": "丶",
     "Strokes": "3",
     "Structure": "独体结构",
     "Sentence": "这不过是朋友之间的义气。",
@@ -32795,7 +32795,7 @@
     "Pinyin": [
       "táng"
     ],
-    "Radical": "广",
+    "Radical": "口",
     "Strokes": "10",
     "Structure": "半包围结构",
     "Sentence": "李白是唐代一位才气横溢的诗人。",
@@ -33142,7 +33142,7 @@
     "Pinyin": [
       "mì"
     ],
-    "Radical": "宀",
+    "Radical": "虫",
     "Strokes": "14",
     "Structure": "上下结构",
     "Sentence": "蜜蜂从花朵上采集花蜜。",
@@ -33186,7 +33186,7 @@
     "Pinyin": [
       "wéi"
     ],
-    "Radical": "纟 (dictionary)",
+    "Radical": "纟",
     "Strokes": "11",
     "Structure": "左右结构",
     "Sentence": "警察在街上维持秩序。",
@@ -33344,7 +33344,7 @@
     "Pinyin": [
       "qiāo"
     ],
-    "Radical": "支",
+    "Radical": "攴",
     "Strokes": "14",
     "Structure": "左右结构",
     "Sentence": "我们听到了敲鼓的声音。",
@@ -33579,7 +33579,7 @@
     "Pinyin": [
       "huī"
     ],
-    "Radical": "光",
+    "Radical": "车",
     "Strokes": "12",
     "Structure": "左右结构",
     "Sentence": "太阳出来，万物生辉。",
@@ -33978,7 +33978,7 @@
     "Pinyin": [
       "nèi"
     ],
-    "Radical": "门",
+    "Radical": "冂",
     "Strokes": "4",
     "Structure": "独体结构",
     "Sentence": "他的内心充满了喜悦。",
@@ -34002,7 +34002,7 @@
     "Pinyin": [
       "jiǎn"
     ],
-    "Radical": "氵",
+    "Radical": "冫",
     "Strokes": "11",
     "Structure": "左右结构",
     "Sentence": "这家商店的服装全部减价出售。",
@@ -34094,7 +34094,7 @@
     "Pinyin": [
       "lín"
     ],
-    "Radical": "魚",
+    "Radical": "鱼",
     "Strokes": "20",
     "Structure": "左右结构",
     "Sentence": "搏斗结束后，他遍体鳞伤。",
@@ -34327,7 +34327,7 @@
     "Pinyin": [
       "dūn"
     ],
-    "Radical": "攴 (dictionary)",
+    "Radical": "攵",
     "Strokes": "12",
     "Structure": "左右结构",
     "Sentence": "我在伦敦住了五个月。",
@@ -34345,7 +34345,7 @@
     "Pinyin": [
       "jiǔ"
     ],
-    "Radical": "氵",
+    "Radical": "酉",
     "Strokes": "10",
     "Structure": "左右结构",
     "Sentence": "他喝光了瓶里的酒。",
@@ -34560,7 +34560,7 @@
     "Pinyin": [
       "dān"
     ],
-    "Radical": "丨",
+    "Radical": "丿",
     "Strokes": "4",
     "Structure": "独体结构",
     "Sentence": "牡丹是艳丽的花。",
@@ -34645,7 +34645,7 @@
     "Pinyin": [
       "chōng"
     ],
-    "Radical": "儿",
+    "Radical": "亠",
     "Strokes": "6",
     "Structure": "上下结构",
     "Sentence": "教室里充满着同学们快乐的笑声。",
@@ -35049,7 +35049,7 @@
     "Pinyin": [
       "fǔ"
     ],
-    "Radical": "父",
+    "Radical": "斤",
     "Strokes": "8",
     "Structure": "上下结构",
     "Sentence": "斧头一下子把木头劈开了。",
@@ -35288,7 +35288,7 @@
     "Pinyin": [
       "yā"
     ],
-    "Radical": "厂 (dictionary)",
+    "Radical": "厂",
     "Strokes": "6",
     "Structure": "半包围结构",
     "Sentence": "他压低了声音悄悄地说话。",
@@ -35311,7 +35311,7 @@
     "Pinyin": [
       "luàn"
     ],
-    "Radical": "乙 (dictionary)",
+    "Radical": "乙",
     "Strokes": "7",
     "Structure": "左右结构",
     "Sentence": "她最大的优点是临危不乱。",
@@ -35374,7 +35374,7 @@
     "Pinyin": [
       "zhì"
     ],
-    "Radical": "厂",
+    "Radical": "贝",
     "Strokes": "8",
     "Structure": "半包围结构",
     "Sentence": "经检查，产品质量合格。",
@@ -35434,7 +35434,7 @@
     "Pinyin": [
       "cè"
     ],
-    "Radical": "冂",
+    "Radical": "丿",
     "Strokes": "5",
     "Structure": "独体结构",
     "Sentence": "她从怀里取出一本小册子。",
@@ -35455,7 +35455,7 @@
     "Pinyin": [
       "hòu"
     ],
-    "Radical": "广",
+    "Radical": "厂",
     "Strokes": "9",
     "Structure": "半包围结构",
     "Sentence": "地上覆盖着厚厚的积雪。",
@@ -35503,7 +35503,7 @@
     "Pinyin": [
       "hén"
     ],
-    "Radical": "疒 (dictionary)",
+    "Radical": "疒",
     "Strokes": "11",
     "Structure": "半包围结构",
     "Sentence": "这块玻璃有一道裂痕。",
@@ -35593,7 +35593,7 @@
     "Pinyin": [
       "zhēn"
     ],
-    "Radical": "钅 (dictionary)",
+    "Radical": "钅",
     "Strokes": "6 (dictionary)",
     "Structure": "左右结构",
     "Sentence": "他说话总是一针见血。",
@@ -36305,7 +36305,7 @@
     "Pinyin": [
       "jì"
     ],
-    "Radical": "歹",
+    "Radical": "旡",
     "Strokes": "9",
     "Structure": "左右结构",
     "Sentence": "既然这个方法不好，我们试试另一个。",
@@ -36604,7 +36604,7 @@
     "Pinyin": [
       "qiǎng"
     ],
-    "Radical": "扌 (dictionary)",
+    "Radical": "扌",
     "Strokes": "7",
     "Structure": "左右结构",
     "Sentence": "她把照片抢了过去。",
@@ -36736,7 +36736,7 @@
     "Pinyin": [
       "káng"
     ],
-    "Radical": "手",
+    "Radical": "扌",
     "Strokes": "5 (dictionary)",
     "Structure": "左右结构",
     "Sentence": "他肩上扛着个箱子。",
@@ -37252,7 +37252,7 @@
     "Pinyin": [
       "chú"
     ],
-    "Radical": "钅 (dictionary)",
+    "Radical": "钅",
     "Strokes": "12",
     "Structure": "左右结构",
     "Sentence": "在小菜园里松土并锄草。",
@@ -37531,7 +37531,7 @@
     "Pinyin": [
       "kuī"
     ],
-    "Radical": "亏 (dictionary)",
+    "Radical": "二",
     "Strokes": "3",
     "Structure": "上下结构",
     "Sentence": "我们不久就会转亏为盈了。",
@@ -37633,7 +37633,7 @@
     "Pinyin": [
       "sháo"
     ],
-    "Radical": "勺",
+    "Radical": "勹",
     "Strokes": "3",
     "Structure": "半包围结构",
     "Sentence": "吃沙拉时，你应该用勺还是用叉？",
@@ -37668,7 +37668,7 @@
     "Pinyin": [
       "hú"
     ],
-    "Radical": "土",
+    "Radical": "士",
     "Strokes": "10",
     "Structure": "上下结构",
     "Sentence": "他生了火，烧热了一壶水。",
@@ -37886,7 +37886,7 @@
     "Pinyin": [
       "héng"
     ],
-    "Radical": "行 (dictionary)",
+    "Radical": "行",
     "Strokes": "16",
     "Structure": "左中右结构",
     "Sentence": "我们要保持生态平衡。",
@@ -38283,7 +38283,7 @@
     "Pinyin": [
       "wáng"
     ],
-    "Radical": "亡",
+    "Radical": "亠",
     "Strokes": "3",
     "Structure": "独体结构",
     "Sentence": "每年有许多人都在饥荒中死亡。",
@@ -38324,7 +38324,7 @@
     "Pinyin": [
       "rǔ"
     ],
-    "Radical": "儿",
+    "Radical": "乚",
     "Strokes": "8",
     "Structure": "左右结构",
     "Sentence": "母乳是婴儿的最佳食物。",
@@ -38425,7 +38425,7 @@
     "Pinyin": [
       "zhě"
     ],
-    "Radical": "老",
+    "Radical": "耂",
     "Strokes": "8",
     "Structure": "半包围结构",
     "Sentence": "今天有记者来我们小区做采访。",
@@ -38535,7 +38535,7 @@
       "píng",
       "bǐng"
     ],
-    "Radical": "户",
+    "Radical": "尸",
     "Strokes": "9",
     "Structure": "半包围结构",
     "Sentence": "我按屏幕上的指示继续操作。",
@@ -39085,7 +39085,7 @@
     "Pinyin": [
       "jì"
     ],
-    "Radical": "魚",
+    "Radical": "鱼",
     "Strokes": "15",
     "Structure": "左右结构",
     "Sentence": "也许你会喜欢鲫鱼汤。",
@@ -39120,7 +39120,7 @@
     "Pinyin": [
       "zhū"
     ],
-    "Radical": "丿",
+    "Radical": "木",
     "Strokes": "6",
     "Structure": "独体结构",
     "Sentence": "朱门酒肉臭，路有冻死骨。",
@@ -39137,7 +39137,7 @@
     "Pinyin": [
       "qiáo"
     ],
-    "Radical": "一",
+    "Radical": "丿",
     "Strokes": "6",
     "Structure": "上下结构",
     "Sentence": "侦查员乔装打扮进入了敌人的内部。",
@@ -39270,7 +39270,7 @@
     "Pinyin": [
       "lù"
     ],
-    "Radical": "ヨ",
+    "Radical": "彐",
     "Strokes": "8",
     "Structure": "上下结构",
     "Sentence": "记者把他的讲话记录下来了。",
@@ -39576,7 +39576,7 @@
     "Pinyin": [
       "kǎo"
     ],
-    "Radical": "老 (dictionary)",
+    "Radical": "耂",
     "Strokes": "6",
     "Structure": "半包围结构",
     "Sentence": "我认为这个建议值得考虑。",
@@ -39724,7 +39724,7 @@
     "Pinyin": [
       "yì"
     ],
-    "Radical": "丷",
+    "Radical": "廾",
     "Strokes": "6",
     "Structure": "上下结构",
     "Sentence": "大家异口同声的叫喊起来。",
@@ -40045,7 +40045,7 @@
     "Pinyin": [
       "xián"
     ],
-    "Radical": "衤",
+    "Radical": "行",
     "Strokes": "11",
     "Structure": "左中右结构",
     "Sentence": "这两个接头衔接得很好。",
@@ -40105,7 +40105,7 @@
     "Pinyin": [
       "mù"
     ],
-    "Radical": "艹",
+    "Radical": "日",
     "Strokes": "14",
     "Structure": "上下结构",
     "Sentence": "暮色正在静悄悄地笼罩下来。",
@@ -40145,7 +40145,7 @@
     "Pinyin": [
       "yǎ"
     ],
-    "Radical": "牙",
+    "Radical": "隹",
     "Strokes": "12",
     "Structure": "左右结构",
     "Sentence": "他温文尔雅，彬彬有礼。",
@@ -40503,7 +40503,7 @@
     "Pinyin": [
       "gù"
     ],
-    "Radical": "口",
+    "Radical": "囗",
     "Strokes": "8",
     "Structure": "全包围结构",
     "Sentence": "我们要不断巩固学过的知识。",
@@ -40618,7 +40618,7 @@
     "Pinyin": [
       "jiān"
     ],
-    "Radical": "户",
+    "Radical": "月",
     "Strokes": "8",
     "Structure": "半包围结构",
     "Sentence": "我们在并肩作战。",
@@ -40721,7 +40721,7 @@
     "Pinyin": [
       "wèi"
     ],
-    "Radical": "田",
+    "Radical": "月",
     "Strokes": "9",
     "Structure": "上下结构",
     "Sentence": "巧克力糖不合我的胃口。",
@@ -40762,7 +40762,7 @@
     "Pinyin": [
       "jiān"
     ],
-    "Radical": "八",
+    "Radical": "丷",
     "Strokes": "10",
     "Structure": "上下结构",
     "Sentence": "小明是一个品学兼优的好学生。",
@@ -40825,7 +40825,7 @@
     "Pinyin": [
       "qiū"
     ],
-    "Radical": "丘 (dictionary)",
+    "Radical": "丿",
     "Strokes": "5",
     "Structure": "独体结构",
     "Sentence": "在山丘上有一块巨大的石头。",
@@ -41470,7 +41470,7 @@
     "Pinyin": [
       "jù"
     ],
-    "Radical": "刀",
+    "Radical": "刂",
     "Strokes": "10",
     "Structure": "左右结构",
     "Sentence": "我的胃突然感觉一阵剧痛。",
@@ -41530,7 +41530,7 @@
     "Pinyin": [
       "yì"
     ],
-    "Radical": "一",
+    "Radical": "亠",
     "Strokes": "6",
     "Structure": "上下结构",
     "Sentence": "有朋自远方来，不亦乐乎。",
@@ -41621,7 +41621,7 @@
     "Pinyin": [
       "wēi"
     ],
-    "Radical": "戈",
+    "Radical": "女",
     "Strokes": "9",
     "Structure": "半包围结构",
     "Sentence": "我要做一个威武善战的英雄。",
@@ -41667,7 +41667,7 @@
     "Pinyin": [
       "luǎn"
     ],
-    "Radical": "卵 (dictionary)",
+    "Radical": "卩",
     "Strokes": "7",
     "Structure": "左右结构",
     "Sentence": "鸟类、鱼都是卵生动物。",
@@ -41913,7 +41913,7 @@
     "Pinyin": [
       "jiàn"
     ],
-    "Radical": "刀",
+    "Radical": "刂",
     "Strokes": "9",
     "Structure": "左右结构",
     "Sentence": "他在剑桥大学上学。",
@@ -41934,7 +41934,7 @@
     "Pinyin": [
       "guā"
     ],
-    "Radical": "刀 (dictionary)",
+    "Radical": "刂",
     "Strokes": "6 (dictionary)",
     "Structure": "左右结构",
     "Sentence": "我的帽子被风刮掉了。",
@@ -41990,7 +41990,7 @@
     "Pinyin": [
       "dùn"
     ],
-    "Radical": "厂",
+    "Radical": "目",
     "Strokes": "9",
     "Structure": "半包围结构",
     "Sentence": "这个矛盾很快就解决了。",
@@ -42011,7 +42011,7 @@
     "Pinyin": [
       "chí"
     ],
-    "Radical": "扌 (dictionary)",
+    "Radical": "扌",
     "Strokes": "9",
     "Structure": "左右结构",
     "Sentence": "我要坚持把这个工作做完。",
@@ -42536,7 +42536,7 @@
     "Pinyin": [
       "má"
     ],
-    "Radical": "麻 (dictionary)",
+    "Radical": "麻",
     "Strokes": "11",
     "Structure": "半包围结构",
     "Sentence": "我们不希望有太多的麻烦。",
@@ -42583,7 +42583,7 @@
     "Pinyin": [
       "jí"
     ],
-    "Radical": "疒 (dictionary)",
+    "Radical": "疒",
     "Strokes": "10",
     "Structure": "半包围结构",
     "Sentence": "这是一种比较罕见的疾病。",
@@ -42676,7 +42676,7 @@
     "Pinyin": [
       "zhèn"
     ],
-    "Radical": "金",
+    "Radical": "钅",
     "Strokes": "15",
     "Structure": "左右结构",
     "Sentence": "这个小镇上有两所中学。",
@@ -42722,7 +42722,7 @@
     "Pinyin": [
       "shù"
     ],
-    "Radical": "讠",
+    "Radical": "辶",
     "Strokes": "8",
     "Structure": "半包围结构",
     "Sentence": "他具有清晰的表述能力。",
@@ -42765,7 +42765,7 @@
     "Pinyin": [
       "chuí"
     ],
-    "Radical": "金",
+    "Radical": "钅",
     "Strokes": "13",
     "Structure": "左右结构",
     "Sentence": "我的工具箱里少了一把锤子。",
@@ -42826,7 +42826,7 @@
     "Pinyin": [
       "yǔ"
     ],
-    "Radical": "子",
+    "Radical": "乙",
     "Strokes": "4",
     "Structure": "独体结构",
     "Sentence": "老师对我寄予很大希望。",
@@ -42847,7 +42847,7 @@
     "Pinyin": [
       "shèng"
     ],
-    "Radical": "又 (dictionary)",
+    "Radical": "土",
     "Strokes": "5",
     "Structure": "上下结构",
     "Sentence": "那个国家的人过圣诞节吗？",
@@ -43608,7 +43608,7 @@
     "Pinyin": [
       "qǐ"
     ],
-    "Radical": "户",
+    "Radical": "口",
     "Strokes": "7",
     "Structure": "半包围结构",
     "Sentence": "这件事给我很大的启发。",
@@ -43729,7 +43729,7 @@
     "Pinyin": [
       "fù"
     ],
-    "Radical": "西",
+    "Radical": "覀",
     "Strokes": "18",
     "Structure": "上下结构",
     "Sentence": "地上覆盖着厚厚的积雪。",
@@ -44220,7 +44220,7 @@
     "Pinyin": [
       "bēi"
     ],
-    "Radical": "心",
+    "Radical": "忄",
     "Strokes": "12",
     "Structure": "上下结构",
     "Sentence": "他们了解到了战争的悲惨。",
@@ -44334,7 +44334,7 @@
     "Pinyin": [
       "sù"
     ],
-    "Radical": "丰",
+    "Radical": "聿",
     "Strokes": "8",
     "Structure": "独体结构",
     "Sentence": "房间里的人表情都很严肃。",
@@ -44435,7 +44435,7 @@
     "Pinyin": [
       "āi"
     ],
-    "Radical": "亠",
+    "Radical": "口",
     "Strokes": "9",
     "Structure": "上下结构",
     "Sentence": "他抛开了心里那无比的哀愁。",
@@ -44734,7 +44734,7 @@
     "Pinyin": [
       "shì"
     ],
-    "Radical": "亻 (dictionary)",
+    "Radical": "亻",
     "Strokes": "8",
     "Structure": "左右结构",
     "Sentence": "侍者送来了菜谱。",
@@ -45040,7 +45040,7 @@
     "Pinyin": [
       "zhuō"
     ],
-    "Radical": "扌 (dictionary)",
+    "Radical": "扌",
     "Strokes": "8",
     "Structure": "左右结构",
     "Sentence": "她的表演拙劣得令人难堪。",
@@ -45183,7 +45183,7 @@
     "Pinyin": [
       "wǔ"
     ],
-    "Radical": "手",
+    "Radical": "扌",
     "Strokes": "10",
     "Structure": "左右结构",
     "Sentence": "他用手帕捂着鼻子。",
@@ -45259,7 +45259,7 @@
     "Pinyin": [
       "cōng"
     ],
-    "Radical": "勺",
+    "Radical": "勹",
     "Strokes": "5",
     "Structure": "独体结构",
     "Sentence": "她的文章我匆匆读过一遍。",
@@ -45319,7 +45319,7 @@
     "Pinyin": [
       "còu"
     ],
-    "Radical": "氵",
+    "Radical": "冫",
     "Strokes": "11",
     "Structure": "左右结构",
     "Sentence": "日程安排得很紧凑。",
@@ -45560,7 +45560,7 @@
     "Pinyin": [
       "shòu"
     ],
-    "Radical": "豸",
+    "Radical": "丷",
     "Strokes": "11",
     "Structure": "上中下结构",
     "Sentence": "他像野兽般地咆哮起来。",
@@ -45794,7 +45794,7 @@
     "Pinyin": [
       "xiàng"
     ],
-    "Radical": "页 (dictionary)",
+    "Radical": "页",
     "Strokes": "9",
     "Structure": "左右结构",
     "Sentence": "他对该项建议没有反对意见。",
@@ -45879,7 +45879,7 @@
     "Pinyin": [
       "chǎng"
     ],
-    "Radical": "女",
+    "Radical": "攵",
     "Strokes": "12",
     "Structure": "左右结构",
     "Sentence": "这间屋子既宽敞，又亮堂。",
@@ -45995,7 +45995,7 @@
     "Pinyin": [
       "xián"
     ],
-    "Radical": "戈",
+    "Radical": "口",
     "Strokes": "9",
     "Structure": "半包围结构",
     "Sentence": "大滇亦盛产虾酱和咸鱼。",
@@ -46158,7 +46158,7 @@
     "Pinyin": [
       "níng"
     ],
-    "Radical": "氵",
+    "Radical": "冫",
     "Strokes": "16",
     "Structure": "左中右结构",
     "Sentence": "湖面上凝结了一层薄冰。",
@@ -46216,7 +46216,7 @@
     "Pinyin": [
       "ní"
     ],
-    "Radical": "户",
+    "Radical": "尸",
     "Strokes": "5",
     "Structure": "半包围结构",
     "Sentence": "尼龙是一种人造纤维。",
@@ -47020,7 +47020,7 @@
     "Pinyin": [
       "dǐng"
     ],
-    "Radical": "目",
+    "Radical": "鼎",
     "Strokes": "12",
     "Structure": "上下结构",
     "Sentence": "这个鼎是青铜铸就的。",
@@ -47232,7 +47232,7 @@
     "Pinyin": [
       "hǎn"
     ],
-    "Radical": "穴",
+    "Radical": "冖",
     "Strokes": "7",
     "Structure": "上下结构",
     "Sentence": "那个地方人迹罕至。",
@@ -47342,7 +47342,7 @@
     "Pinyin": [
       "yào"
     ],
-    "Radical": "光",
+    "Radical": "羽",
     "Strokes": "20",
     "Structure": "左右结构",
     "Sentence": "他夸耀自己技术高明。",
@@ -47549,7 +47549,7 @@
     "Pinyin": [
       "tún"
     ],
-    "Radical": "豕 (dictionary)",
+    "Radical": "豕",
     "Strokes": "11",
     "Structure": "左右结构",
     "Sentence": "一群海豚正在畅游。",
@@ -47698,7 +47698,7 @@
     "Pinyin": [
       "qì"
     ],
-    "Radical": "丿",
+    "Radical": "廾",
     "Strokes": "7",
     "Structure": "上下结构",
     "Sentence": "她做任何事都不轻易放弃。",
@@ -48101,7 +48101,7 @@
     "Pinyin": [
       "chāi"
     ],
-    "Radical": "扌 (dictionary)",
+    "Radical": "扌",
     "Strokes": "8",
     "Structure": "左右结构",
     "Sentence": "那些旧房子已经拆掉了。",
@@ -48621,7 +48621,7 @@
     "Pinyin": [
       "shǔ"
     ],
-    "Radical": "户",
+    "Radical": "尸",
     "Strokes": "12",
     "Structure": "半包围结构",
     "Sentence": "这个故事纯属虚构。",
@@ -48723,7 +48723,7 @@
     "Pinyin": [
       "yǎng"
     ],
-    "Radical": "疒 (dictionary)",
+    "Radical": "疒",
     "Strokes": "11",
     "Structure": "左上包围结构",
     "Sentence": "我嗓子发痒大概是感冒了。",
@@ -48824,7 +48824,7 @@
     "Pinyin": [
       "kàng"
     ],
-    "Radical": "手",
+    "Radical": "扌",
     "Strokes": "7",
     "Structure": "左右结构",
     "Sentence": "他们不作抵抗就屈服了。",
@@ -48989,7 +48989,7 @@
     "Pinyin": [
       "jiā"
     ],
-    "Radical": "士",
+    "Radical": "口",
     "Strokes": "14",
     "Structure": "上下结构",
     "Sentence": "他的贡献得到认可而受到嘉奖。",
@@ -49040,7 +49040,7 @@
     "Pinyin": [
       "tún"
     ],
-    "Radical": "卜",
+    "Radical": "屮",
     "Strokes": "4",
     "Structure": "单一结构",
     "Sentence": "这个地方叫桃花屯。",
@@ -49076,7 +49076,7 @@
     "Pinyin": [
       "pò"
     ],
-    "Radical": "鬼 (dictionary)",
+    "Radical": "鬼",
     "Strokes": "14",
     "Structure": "左右结构",
     "Sentence": "我现在正需要一个有魄力的人。",
@@ -49958,7 +49958,7 @@
     "Pinyin": [
       "xún"
     ],
-    "Radical": "川",
+    "Radical": "巛",
     "Strokes": "6",
     "Structure": "半包围结构",
     "Sentence": "指挥官在营地巡视一周。",
@@ -50039,7 +50039,7 @@
     "Pinyin": [
       "qiāng"
     ],
-    "Radical": "金",
+    "Radical": "钅",
     "Strokes": "14",
     "Structure": "左右结构",
     "Sentence": "这金属工具击墙时发出铿锵声。",
@@ -50073,7 +50073,7 @@
     "Pinyin": [
       "shān"
     ],
-    "Radical": "刀",
+    "Radical": "刂",
     "Strokes": "7",
     "Structure": "左右结构",
     "Sentence": "他的名字从名单上删去了。",
@@ -50654,7 +50654,7 @@
     "Pinyin": [
       "dùn"
     ],
-    "Radical": "金",
+    "Radical": "钅",
     "Strokes": "9",
     "Structure": "左右结构",
     "Sentence": "悲伤使她变得迟钝麻木了。",
@@ -50751,7 +50751,7 @@
     "Pinyin": [
       "mǐn"
     ],
-    "Radical": "攴 (dictionary)",
+    "Radical": "攵",
     "Strokes": "11",
     "Structure": "左右结构",
     "Sentence": "一些人对花粉有过敏反应。",
@@ -51710,7 +51710,7 @@
     "Pinyin": [
       "chuí"
     ],
-    "Radical": "手",
+    "Radical": "扌",
     "Strokes": "11",
     "Structure": "左右结构",
     "Sentence": "老板生气了，用拳头重捶桌子。",
@@ -51888,7 +51888,7 @@
     "Pinyin": [
       "nǎi"
     ],
-    "Radical": "乃",
+    "Radical": "丿",
     "Strokes": "2",
     "Structure": "单一结构",
     "Sentence": "胜败乃兵家常事。",
@@ -51961,7 +51961,7 @@
     "Pinyin": [
       "mǔ"
     ],
-    "Radical": "一",
+    "Radical": "亠",
     "Strokes": "7",
     "Structure": "上下结构",
     "Sentence": "这个农场有160英亩。",
@@ -52071,7 +52071,7 @@
       "dāng",
       "chēng"
     ],
-    "Radical": "钅 (dictionary)",
+    "Radical": "钅",
     "Strokes": "11",
     "Structure": "左右结构",
     "Sentence": "骆驼的铃铛上挂着一个铃铛。",
@@ -52265,7 +52265,7 @@
     "Pinyin": [
       "jiàn"
     ],
-    "Radical": "钅 (dictionary)",
+    "Radical": "钅",
     "Strokes": "12 (dictionary)",
     "Structure": "左右结构",
     "Sentence": "关键在于要有决心和信心。",
@@ -52284,7 +52284,7 @@
     "Pinyin": [
       "jīng"
     ],
-    "Radical": "魚",
+    "Radical": "鱼",
     "Strokes": "16",
     "Structure": "左右结构",
     "Sentence": "鲸尾轻轻一拍便把小船打翻了。",
@@ -52301,7 +52301,7 @@
     "Pinyin": [
       "xiè"
     ],
-    "Radical": "户",
+    "Radical": "尸",
     "Strokes": "10",
     "Structure": "左上包围结构",
     "Sentence": "不要随地乱扔果皮纸屑。",
@@ -52549,7 +52549,7 @@
     "Pinyin": [
       "nuó"
     ],
-    "Radical": "手",
+    "Radical": "扌",
     "Strokes": "9",
     "Structure": "左右结构",
     "Sentence": "没有人帮忙，我可挪不动这架钢琴。",
@@ -53220,7 +53220,7 @@
     "Pinyin": [
       "shuā"
     ],
-    "Radical": "刀 (dictionary)",
+    "Radical": "刂",
     "Strokes": "8",
     "Structure": "左右结构",
     "Sentence": "把油漆罐和刷子递上来。",
@@ -53260,7 +53260,7 @@
     "Pinyin": [
       "shì"
     ],
-    "Radical": "衤",
+    "Radical": "饣",
     "Strokes": "8",
     "Structure": "左右结构",
     "Sentence": "它只不过是闪亮的装饰品。",
@@ -53282,7 +53282,7 @@
     "Pinyin": [
       "guān"
     ],
-    "Radical": "冖 (dictionary)",
+    "Radical": "冖",
     "Strokes": "9",
     "Structure": "上下结构",
     "Sentence": "我下定决心要赢得冠军。",
@@ -53536,7 +53536,7 @@
       "sài",
       "sè"
     ],
-    "Radical": "宀",
+    "Radical": "土",
     "Strokes": "13",
     "Structure": "上中下结构",
     "Sentence": "我们不能阻塞交通。",
@@ -53837,7 +53837,7 @@
     "Pinyin": [
       "zhì"
     ],
-    "Radical": "扌 (dictionary)",
+    "Radical": "手",
     "Strokes": "10",
     "Structure": "上下结构",
     "Sentence": "他脸上总是带着一副诚挚的表情。",
@@ -53895,7 +53895,7 @@
     "Pinyin": [
       "chī"
     ],
-    "Radical": "疒 (dictionary)",
+    "Radical": "疒",
     "Strokes": "13",
     "Structure": "左上包围结构",
     "Sentence": "中国功夫令他们对中国痴迷不已。",
@@ -54040,7 +54040,7 @@
     "Pinyin": [
       "yì"
     ],
-    "Radical": "皮",
+    "Radical": "殳",
     "Strokes": "15",
     "Structure": "左右结构",
     "Sentence": "他做任何事情都很有毅力。",
@@ -54609,7 +54609,7 @@
     "Pinyin": [
       "bì"
     ],
-    "Radical": "巾 (dictionary)",
+    "Radical": "巾",
     "Strokes": "4",
     "Structure": "独体结构",
     "Sentence": "你要纸币还是要硬币？",
@@ -54669,7 +54669,7 @@
     "Pinyin": [
       "chóu"
     ],
-    "Radical": "亻 (dictionary)",
+    "Radical": "亻",
     "Strokes": "4",
     "Structure": "左右结构",
     "Sentence": "他心急如焚要报杀父之仇。",
@@ -55018,7 +55018,7 @@
     "Pinyin": [
       "yǐn"
     ],
-    "Radical": "疒 (dictionary)",
+    "Radical": "疒",
     "Strokes": "16",
     "Structure": "半包围结构",
     "Sentence": "他看小说看上瘾了。",
@@ -55037,7 +55037,7 @@
     "Pinyin": [
       "hú"
     ],
-    "Radical": "囗 (dictionary)",
+    "Radical": "囗",
     "Strokes": "7",
     "Structure": "全包围结构",
     "Sentence": "我们囫囵吞枣地吃了几口就出门了。",
@@ -55053,7 +55053,7 @@
     "Pinyin": [
       "lún"
     ],
-    "Radical": "囗 (dictionary)",
+    "Radical": "囗",
     "Strokes": "7",
     "Structure": "全包围结构",
     "Sentence": "我们囫囵吞枣地吃了几口就出门了。",
@@ -56046,7 +56046,7 @@
     "Pinyin": [
       "sāi"
     ],
-    "Radical": "魚",
+    "Radical": "鱼",
     "Strokes": "17",
     "Structure": "左右结构",
     "Sentence": "鳃是鱼类用來呼吸的器官。",
@@ -56242,7 +56242,7 @@
     "Pinyin": [
       "yì"
     ],
-    "Radical": "纟 (dictionary)",
+    "Radical": "纟",
     "Strokes": "8",
     "Structure": "左右结构",
     "Sentence": "参观展览会的人络绎不绝。",
@@ -56526,7 +56526,7 @@
     "Pinyin": [
       "jiù"
     ],
-    "Radical": "臼 (dictionary)",
+    "Radical": "臼",
     "Strokes": "11 (dictionary)",
     "Structure": "上下结构",
     "Sentence": "我上份工作是我舅舅介绍的。",
@@ -56562,7 +56562,7 @@
     "Pinyin": [
       "hóng"
     ],
-    "Radical": "鸟 (dictionary)",
+    "Radical": "鸟",
     "Strokes": "11",
     "Structure": "左中右结构",
     "Sentence": "他现在是鸿运当头。",
@@ -57016,7 +57016,7 @@
     "Pinyin": [
       "màn"
     ],
-    "Radical": "日",
+    "Radical": "曰",
     "Strokes": "11",
     "Structure": "上中下结构",
     "Sentence": "那曼妙的舞姿令人陶醉。",
@@ -57300,7 +57300,7 @@
     "Pinyin": [
       "jiān"
     ],
-    "Radical": "又",
+    "Radical": "艮",
     "Strokes": "8",
     "Structure": "左右结构",
     "Sentence": "那的确是很艰苦的一天。",
@@ -57838,7 +57838,7 @@
     "Pinyin": [
       "zhù"
     ],
-    "Radical": "金",
+    "Radical": "钅",
     "Strokes": "12",
     "Structure": "左右结构",
     "Sentence": "这个鼎是青铜铸就的。",
@@ -57873,7 +57873,7 @@
     "Pinyin": [
       "wán"
     ],
-    "Radical": "丸",
+    "Radical": "丿",
     "Strokes": "3",
     "Structure": "独体结构",
     "Sentence": "我服了些药丸，感冒就好了。",
@@ -57910,7 +57910,7 @@
     "Pinyin": [
       "qíng"
     ],
-    "Radical": "扌 (dictionary)",
+    "Radical": "手",
     "Strokes": "16",
     "Structure": "上下结构",
     "Sentence": "引擎的爆击声响得厉害。",
@@ -58004,7 +58004,7 @@
     "Pinyin": [
       "nǐ"
     ],
-    "Radical": "扌 (dictionary)",
+    "Radical": "扌",
     "Strokes": "7",
     "Structure": "左右结构",
     "Sentence": "这种比拟是不恰当的。",
@@ -58378,7 +58378,7 @@
     "Pinyin": [
       "è"
     ],
-    "Radical": "邑 (dictionary)",
+    "Radical": "阝",
     "Strokes": "11",
     "Structure": "左右结构",
     "Sentence": "他来自鄂尔多斯，爱好长笛和吉他演奏。",
@@ -58427,7 +58427,7 @@
     "Pinyin": [
       "āo"
     ],
-    "Radical": "凵 (dictionary)",
+    "Radical": "凵",
     "Strokes": "5",
     "Structure": "独体结构",
     "Sentence": "他感到床垫薄而凹凸不平。",
@@ -58626,7 +58626,7 @@
     "Pinyin": [
       "záo"
     ],
-    "Radical": "凵 (dictionary)",
+    "Radical": "凵",
     "Strokes": "12",
     "Structure": "上下结构",
     "Sentence": "我们有确凿的证据。",
@@ -58797,7 +58797,7 @@
     "Pinyin": [
       "xiào"
     ],
-    "Radical": "攵 (dictionary)",
+    "Radical": "攵",
     "Strokes": "10",
     "Structure": "左右结构",
     "Sentence": "我不敢说这方法绝对有效。",
@@ -58887,7 +58887,7 @@
       "bō",
       "bāo"
     ],
-    "Radical": "刀 (dictionary)",
+    "Radical": "刂",
     "Strokes": "10",
     "Structure": "左右结构",
     "Sentence": "砖墙上的白漆已开始剥落。",
@@ -59253,7 +59253,7 @@
     "Pinyin": [
       "yuē"
     ],
-    "Radical": "日",
+    "Radical": "曰",
     "Strokes": "4",
     "Structure": "独体结构",
     "Sentence": "这间大厅美其名曰 “金屋”。",
@@ -59268,7 +59268,7 @@
     "Pinyin": [
       "qín"
     ],
-    "Radical": "隹 (dictionary)",
+    "Radical": "忄",
     "Strokes": "12",
     "Structure": "上下结构",
     "Sentence": "你们用什么饲料喂养家禽？",
@@ -59314,7 +59314,7 @@
     "Pinyin": [
       "bì"
     ],
-    "Radical": "攵 (dictionary)",
+    "Radical": "攵",
     "Strokes": "11",
     "Structure": "左右结构",
     "Sentence": "能否赏光来敝处作客。",
@@ -59331,7 +59331,7 @@
     "Pinyin": [
       "qiú"
     ],
-    "Radical": "口",
+    "Radical": "囗",
     "Strokes": "5",
     "Structure": "全包围结构",
     "Sentence": "囚犯从看守者手中逃脱了。",
@@ -59458,7 +59458,7 @@
     "Pinyin": [
       "yì"
     ],
-    "Radical": "亻",
+    "Radical": "彳",
     "Strokes": "7",
     "Structure": "左右结构",
     "Sentence": "他们已服兵役两年了。",
@@ -59535,7 +59535,7 @@
     "Pinyin": [
       "hào"
     ],
-    "Radical": "老 (dictionary)",
+    "Radical": "耒",
     "Strokes": "10",
     "Structure": "左右结构",
     "Sentence": "她听了这噩耗，悲痛欲绝。",
@@ -59689,7 +59689,7 @@
     "Pinyin": [
       "liǎn"
     ],
-    "Radical": "女",
+    "Radical": "攵",
     "Strokes": "11",
     "Structure": "左右结构",
     "Sentence": "他经过上次的教训是该有所收敛的时候了。",
@@ -59705,7 +59705,7 @@
     "Pinyin": [
       "gē"
     ],
-    "Radical": "广",
+    "Radical": "疒",
     "Strokes": "8",
     "Structure": "半包围结构",
     "Sentence": "冻得我直起鸡皮疙瘩。",
@@ -59721,7 +59721,7 @@
     "Pinyin": [
       "dá"
     ],
-    "Radical": "疒 (dictionary)",
+    "Radical": "疒",
     "Strokes": "14",
     "Structure": "半包围结构",
     "Sentence": "我浑身都起鸡皮疙瘩了。",
@@ -59768,7 +59768,7 @@
     "Pinyin": [
       "xiù"
     ],
-    "Radical": "钅 (dictionary)",
+    "Radical": "钅",
     "Strokes": "12",
     "Structure": "左右结构",
     "Sentence": "请擦去刀上的锈斑。",
@@ -59786,7 +59786,7 @@
     "Pinyin": [
       "sì"
     ],
-    "Radical": "豕",
+    "Radical": "聿",
     "Strokes": "13",
     "Structure": "左右结构",
     "Sentence": "他放肆的做法让大家忍无可忍。",
@@ -59914,7 +59914,7 @@
     "Pinyin": [
       "mù"
     ],
-    "Radical": "艹",
+    "Radical": "力",
     "Strokes": "12",
     "Structure": "上下结构",
     "Sentence": "他们为这一运动筹募基金。",
@@ -59932,7 +59932,7 @@
     "Pinyin": [
       "bèng"
     ],
-    "Radical": "氵 (dictionary)",
+    "Radical": "水",
     "Strokes": "9",
     "Structure": "上下结构",
     "Sentence": "我们试着用柴油机来带动水泵。",
@@ -60101,7 +60101,7 @@
     "Pinyin": [
       "jù"
     ],
-    "Radical": "扌 (dictionary)",
+    "Radical": "扌",
     "Strokes": "7",
     "Structure": "左右结构",
     "Sentence": "他们的请求遭到拒绝。",
@@ -60177,7 +60177,7 @@
     "Pinyin": [
       "cáo"
     ],
-    "Radical": "日",
+    "Radical": "曰",
     "Strokes": "11",
     "Structure": "上下结构",
     "Sentence": "曹操唯才是用，军事上灵活多变。",
@@ -60631,7 +60631,7 @@
     "Pinyin": [
       "juān"
     ],
-    "Radical": "金",
+    "Radical": "钅",
     "Strokes": "15",
     "Structure": "左右结构",
     "Sentence": "大理石上镌刻着很多文字。",
@@ -61140,7 +61140,7 @@
     "Pinyin": [
       "tán"
     ],
-    "Radical": "疒 (dictionary)",
+    "Radical": "疒",
     "Strokes": "13",
     "Structure": "半包围结构",
     "Sentence": "请不要随地吐痰。",
@@ -61156,7 +61156,7 @@
     "Pinyin": [
       "jiē"
     ],
-    "Radical": "比",
+    "Radical": "白",
     "Strokes": "9",
     "Structure": "上下结构",
     "Sentence": "他们是尽人皆知的骗子。",
@@ -61360,7 +61360,7 @@
     "Pinyin": [
       "chāo"
     ],
-    "Radical": "金",
+    "Radical": "钅",
     "Strokes": "9",
     "Structure": "左右结构",
     "Sentence": "她掏出一张二十元的钞票。",
@@ -61563,7 +61563,7 @@
     "Pinyin": [
       "gù"
     ],
-    "Radical": "隹 (dictionary)",
+    "Radical": "隹",
     "Strokes": "12",
     "Structure": "半包围结构",
     "Sentence": "我接受了一些临时的雇用。",
@@ -61639,7 +61639,7 @@
     "Pinyin": [
       "gān"
     ],
-    "Radical": "九",
+    "Radical": "尢",
     "Strokes": "13",
     "Structure": "半包围结构",
     "Sentence": "这会使他处境非常尴尬。",
@@ -61654,7 +61654,7 @@
     "Pinyin": [
       "gà"
     ],
-    "Radical": "九",
+    "Radical": "尢",
     "Strokes": "7",
     "Structure": "半包围结构",
     "Sentence": "这会使他处境非常尴尬。",
