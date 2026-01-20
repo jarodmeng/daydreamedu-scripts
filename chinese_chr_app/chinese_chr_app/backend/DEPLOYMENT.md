@@ -1,5 +1,10 @@
 # Deployment Guide
 
+> **Note:** Day-to-day deployment is now handled automatically:
+> - **Backend**: Cloud Build trigger on `main` builds the Docker image and deploys to Cloud Run.
+> - **Frontend**: Netlify builds and deploys on pushes to `main`.
+> Use this document primarily as a reference and for **manual recovery or one-off troubleshooting**, not as the standard deployment workflow.
+
 This document outlines the deployment process for the Chinese Character Learning App.
 
 ## Architecture
