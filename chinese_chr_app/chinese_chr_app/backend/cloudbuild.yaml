@@ -27,3 +27,6 @@ steps:
       - 'CORS_ORIGINS=https://daydreamedu.org,GCS_BUCKET_NAME=chinese-chr-app-images'
     env:
       - 'CLOUDSDK_RUN_REGION=us-central1'
+
+options:
+  logging: CLOUD_LOGGING_ONLY
