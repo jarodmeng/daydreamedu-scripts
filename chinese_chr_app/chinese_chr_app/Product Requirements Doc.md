@@ -13,7 +13,7 @@ Skills Required
 Chinese character data
 
 I have data on 3000 common simplifed chinese character cards.
-* There are 3000 folders in the  `/Users/jarodm/Library/CloudStorage/GoogleDrive-winston.ry.meng@gmail.com/My Drive/冯氏早教识字卡/png` folder. All folders are named using a `<dddd>` pattern. The names correspond to the character cards' index numbers.
+* There are 3000 folders in the `chinese_chr_app/data/png/` folder. All folders are named using a `<dddd>` pattern. The names correspond to the character cards' index numbers.
 * Each `<dddd>` folder has 2 PNG files. `page1.png` is the front of the character card. `page2.png` is the back of the character card.
 * The front side of a character card is a full size simplified Chinese character. The back side of the character card contains more detailed information of the simplified Chinese character.
     * The character

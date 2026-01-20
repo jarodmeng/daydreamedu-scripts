@@ -2,6 +2,12 @@
 
 A web application to help primary school students learn simplified Chinese characters.
 
+Production deployment is live at:
+
+- **Frontend**: `https://chinese-chr.daydreamedu.org/`
+- **Backend API**: Google Cloud Run service (e.g. `https://chinese-chr-app-xxxxx-uc.a.run.app`)
+- **Images**: Google Cloud Storage bucket `chinese-chr-app-images`
+
 ## Project Structure
 
 ```
@@ -67,6 +73,8 @@ npm run dev
 ```
 
 The frontend will run on `http://localhost:3000`
+
+In production, the frontend is built with Vite and deployed to Netlify. API requests are sent to the Cloud Run backend using the `VITE_API_URL` environment variable set in the Netlify site settings.
 
 ## Usage
 
