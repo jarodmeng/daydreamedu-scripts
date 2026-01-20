@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+venv/
+.env
+.env.local
+logs/
+*.log
+.git/
+.DS_Store
+
+# Exclude PNG files - they're served from GCS, not bundled in the container
+data/png/
+**/png/

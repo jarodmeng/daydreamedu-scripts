@@ -3,28 +3,66 @@ from flask_cors import CORS
 import json
 import logging
 import shutil
+import os
 from datetime import datetime
 from pathlib import Path
 from typing import Optional, Dict, Any, List, Tuple
 from collections import defaultdict
 
-app = Flask(__name__)
-CORS(app)  # Enable CORS for React frontend
+# Load environment variables from .env file if it exists (for local development)
+try:
+    from dotenv import load_dotenv
+    load_dotenv('.env.local')
+except ImportError:
+    pass  # python-dotenv not installed, skip
 
-# Paths configuration
+app = Flask(__name__)
+
+# Paths configuration - use environment variables with fallbacks
 # Backend is at: chinese_chr_app/chinese_chr_app/backend/app.py
 # JSON is at: chinese_chr_app/data/characters.json
-# Use absolute path resolution to avoid issues
 _backend_dir = Path(__file__).resolve().parent
 BASE_DIR = _backend_dir.parent.parent  # Go up to chinese_chr_app level
-DATA_DIR = BASE_DIR / "data"  # Data directory for character files
+
+# Data directory - default to /app/data in container, or relative path for local dev
+# In Docker container, files are at /app/data/, so use that as default
+# For local development, calculate relative to BASE_DIR
+if os.getenv('DATA_DIR'):
+    DATA_DIR = Path(os.getenv('DATA_DIR'))
+elif Path('/app/data').exists():
+    # Running in container - data is at /app/data
+    DATA_DIR = Path('/app/data')
+else:
+    # Local development - data is relative to BASE_DIR
+    DATA_DIR = BASE_DIR / "data"
 CHARACTERS_JSON = DATA_DIR / "characters.json"
-# RADICALS_JSON is no longer used - radicals are generated dynamically from characters_data
-# RADICALS_JSON = DATA_DIR / "characters_by_radicals.json"  # Kept for reference, not used
-PNG_BASE_DIR = Path("/Users/jarodm/Library/CloudStorage/GoogleDrive-winston.ry.meng@gmail.com/My Drive/冯氏早教识字卡/png")
-LOGS_DIR = _backend_dir / "logs"
-EDIT_LOG_FILE = LOGS_DIR / "character_edits.log"
+HWXNET_JSON = DATA_DIR / "extracted_characters_hwxnet.json"
 BACKUP_DIR = DATA_DIR / "backups"
+
+# PNG directory - use GCS in production, local path for development
+GCS_BUCKET_NAME = os.getenv('GCS_BUCKET_NAME', '')
+# Default to data/png/ relative to BASE_DIR (chinese_chr_app/data/png/)
+# Can be overridden via PNG_BASE_DIR environment variable
+PNG_BASE_DIR = Path(os.getenv('PNG_BASE_DIR', str(DATA_DIR / "png")))
+
+# Logs directory
+LOGS_DIR = Path(os.getenv('LOGS_DIR', str(_backend_dir / "logs")))
+EDIT_LOG_FILE = LOGS_DIR / "character_edits.log"
+
+# CORS configuration - allow multiple origins
+# Automatically allow all netlify.app subdomains
+CORS_ORIGINS_RAW = os.getenv('CORS_ORIGINS', 'http://localhost:3000').split(',')
+CORS_ORIGINS = [origin.strip() for origin in CORS_ORIGINS_RAW]
+
+# Use regex pattern to allow all netlify.app subdomains + explicit origins
+# Flask-CORS supports regex patterns in the origins list
+import re
+CORS_ORIGINS_WITH_WILDCARD = CORS_ORIGINS.copy()
+# Add regex pattern for netlify.app subdomains if not already present
+if not any('netlify.app' in o for o in CORS_ORIGINS):
+    CORS_ORIGINS_WITH_WILDCARD.append(r'https://.*\.netlify\.app')
+
+CORS(app, origins=CORS_ORIGINS_WITH_WILDCARD, supports_credentials=True)
 
 # Load character data into memory
 characters_data = None
@@ -35,7 +73,6 @@ radicals_data = None  # Array of {radical, characters}
 radicals_lookup = {}  # Map radical -> {radical, characters} for fast lookup
 
 # Load dictionary (hwxnet) data into memory
-HWXNET_JSON = DATA_DIR / "extracted_characters_hwxnet.json"
 hwxnet_data = None      # Raw dict loaded from JSON
 hwxnet_lookup = {}      # Map character -> hwxnet entry
 
@@ -460,10 +497,30 @@ def search_character():
 
 @app.route('/api/images/<custom_id>/<page>', methods=['GET'])
 def get_image(custom_id, page):
-    """Serve character card images"""
+    """Serve character card images from GCS or local filesystem"""
     if page not in ['page1', 'page2']:
         return jsonify({'error': 'Invalid page. Use page1 or page2'}), 400
     
+    # Try GCS first if bucket is configured
+    if GCS_BUCKET_NAME:
+        try:
+            from google.cloud import storage
+            storage_client = storage.Client()
+            bucket = storage_client.bucket(GCS_BUCKET_NAME)
+            # PNG files are organized under png/ folder in GCS bucket
+            blob_path = f"png/{custom_id}/{page}.png"
+            blob = bucket.blob(blob_path)
+            
+            if blob.exists():
+                image_bytes = blob.download_as_bytes()
+                from io import BytesIO
+                return send_file(BytesIO(image_bytes), mimetype='image/png')
+        except ImportError:
+            print("Warning: google-cloud-storage not installed, falling back to local filesystem")
+        except Exception as e:
+            print(f"Error loading from GCS: {e}, falling back to local filesystem")
+    
+    # Fallback to local filesystem
     image_path = PNG_BASE_DIR / custom_id / f"{page}.png"
     
     if not image_path.exists():
@@ -741,8 +798,23 @@ if __name__ == '__main__':
         import traceback
         traceback.print_exc()
     
-    print(f"\nStarting Flask server on http://localhost:5001")
-    print(f"API endpoint: http://localhost:5001/api/characters/search?q=<character>")
-    print(f"Radicals endpoint: http://localhost:5001/api/radicals")
-    print(f"Structures endpoint: http://localhost:5001/api/structures")
-    app.run(debug=True, port=5001)
+    # Get port from environment variable (Cloud Run sets PORT automatically)
+    port = int(os.getenv('PORT', 5001))
+    host = '0.0.0.0'  # Listen on all interfaces for Cloud Run
+    
+    print(f"\nStarting Flask server on http://{host}:{port}")
+    print(f"API endpoint: http://{host}:{port}/api/characters/search?q=<character>")
+    print(f"Radicals endpoint: http://{host}:{port}/api/radicals")
+    print(f"Structures endpoint: http://{host}:{port}/api/structures")
+    if GCS_BUCKET_NAME:
+        print(f"Image storage: Google Cloud Storage bucket '{GCS_BUCKET_NAME}'")
+    else:
+        print(f"Image storage: Local filesystem at '{PNG_BASE_DIR}'")
+    
+    # Use gunicorn in production (Cloud Run), Flask dev server locally
+    if os.getenv('GAE_ENV') or os.getenv('K_SERVICE'):
+        # Running in Cloud Run - gunicorn will be used via Dockerfile CMD
+        print("Running in Cloud Run - gunicorn will handle the server")
+    else:
+        # Local development
+        app.run(debug=True, host=host, port=port)
