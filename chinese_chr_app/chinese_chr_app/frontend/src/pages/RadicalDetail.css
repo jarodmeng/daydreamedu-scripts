@@ -70,7 +70,7 @@
   color: #333;
   margin-bottom: 10px;
   line-height: 1;
-  font-family: "KaiTi", "STKaiti", "BiauKai", "SimKai", "楷体", "標楷體", serif;
+  font-family: "KaiTi", "STKaiti", "BiauKai", "SimKai", "楷体", "標楷體", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "WenQuanYi Micro Hei", "Noto Sans CJK SC", sans-serif;
 }
 
 .character-info {
