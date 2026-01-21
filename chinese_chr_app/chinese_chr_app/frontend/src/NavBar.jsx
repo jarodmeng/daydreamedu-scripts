@@ -3,8 +3,8 @@ import { Link, useLocation } from 'react-router-dom'
 import './App.css'
 
 const SEGMENTATIONS = [
-  { path: '/radicals', label: '部首 (Radicals)' },
-  { path: '/structures', label: '结构 (Structures)' }
+  { path: '/radicals', label: '部首' },
+  { path: '/structures', label: '结构' }
 ]
 
 function NavBar() {
@@ -36,7 +36,7 @@ function NavBar() {
         className={`nav-link ${isSearchActive ? 'nav-link-active' : ''}`}
         onClick={closeMenu}
       >
-        Search
+        搜索
       </Link>
 
       <div
@@ -51,7 +51,7 @@ function NavBar() {
           aria-haspopup="true"
           aria-expanded={isOpen}
         >
-          Segmentation (分类)
+          分类
         </button>
 
         {isOpen && (

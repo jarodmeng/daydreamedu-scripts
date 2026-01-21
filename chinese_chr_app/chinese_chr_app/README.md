@@ -112,7 +112,7 @@ In production, the frontend is built with Vite and deployed to Netlify. API requ
 ### Milestone 1: Character Search
 - Search for simplified Chinese characters
 - Display character card images (front and back)
-- View and edit character metadata with dictionary correction highlighting
+- View and edit character metadata
 - Editable metadata fields with confirmation dialogs and change logging
 
 ### Milestone 2: Radicals Organization

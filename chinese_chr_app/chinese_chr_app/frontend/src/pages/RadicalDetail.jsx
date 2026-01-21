@@ -55,7 +55,7 @@ function RadicalDetail() {
       setData(result)
       setError('')
     } catch (err) {
-      setError('Error loading radical details. Please try again.')
+      setError('加载部首详情时出错，请重试。')
       console.error('Error fetching radical detail:', err)
     } finally {
       setLoading(false)
@@ -69,11 +69,11 @@ function RadicalDetail() {
   return (
     <div className="radical-detail-page">
       <div className="radical-detail-container">
-        <Link to="/radicals" className="back-link">← Back to Radicals</Link>
+        <Link to="/radicals" className="back-link">← 返回部首列表</Link>
         
         {loading && (
           <div className="loading">
-            <p>Loading...</p>
+            <p>加载中...</p>
           </div>
         )}
 
@@ -88,7 +88,7 @@ function RadicalDetail() {
             <div className="radical-header">
               <h1>部首: {data.radical}</h1>
               <p className="character-count">
-                {data.count} character{data.count !== 1 ? 's' : ''}
+                共{data.count}个汉字
               </p>
             </div>
 
@@ -107,7 +107,7 @@ function RadicalDetail() {
                         : char.Pinyin || '—'}
                     </div>
                     <div className="character-strokes">
-                      {char.Strokes || '—'} strokes
+                      {char.Strokes || '—'}画
                     </div>
                   </div>
                 </div>

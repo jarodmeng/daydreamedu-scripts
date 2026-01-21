@@ -159,11 +159,6 @@ h1 {
   border-bottom: none;
 }
 
-.dictionary-corrected {
-  color: #d32f2f;
-  font-weight: 500;
-}
-
 .nav-links {
   display: flex;
   gap: 20px;

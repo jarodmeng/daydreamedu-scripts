@@ -55,7 +55,7 @@ function StructureDetail() {
       setData(result)
       setError('')
     } catch (err) {
-      setError('Error loading structure details. Please try again.')
+      setError('加载结构详情时出错，请重试。')
       console.error('Error fetching structure detail:', err)
     } finally {
       setLoading(false)
@@ -69,11 +69,11 @@ function StructureDetail() {
   return (
     <div className="structure-detail-page">
       <div className="structure-detail-container">
-        <Link to="/structures" className="back-link">← Back to Structures</Link>
+        <Link to="/structures" className="back-link">← 返回结构列表</Link>
         
         {loading && (
           <div className="loading">
-            <p>Loading...</p>
+            <p>加载中...</p>
           </div>
         )}
 
@@ -88,7 +88,7 @@ function StructureDetail() {
             <div className="structure-header">
               <h1>结构: {data.structure}</h1>
               <p className="character-count">
-                {data.count} character{data.count !== 1 ? 's' : ''}
+                共{data.count}个汉字
               </p>
             </div>
 
@@ -107,7 +107,7 @@ function StructureDetail() {
                         : char.Pinyin || '—'}
                     </div>
                     <div className="character-strokes">
-                      {char.Strokes || '—'} strokes
+                      {char.Strokes || '—'}画
                     </div>
                   </div>
                 </div>

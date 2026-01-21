@@ -53,7 +53,7 @@ function Search() {
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}))
         console.error('API Error:', response.status, response.statusText, errorData)
-        setError(errorData.error || `Server error: ${response.status} ${response.statusText}`)
+        setError(errorData.error || `服务器错误：${response.status} ${response.statusText}`)
         setCharacter(null)
         setLoading(false)
         return
@@ -66,13 +66,13 @@ function Search() {
         setDictionary(data.dictionary || null)
         setError('')
       } else {
-        setError(data.error || 'Character not found')
+        setError(data.error || '未找到该汉字')
         setCharacter(null)
         setDictionary(null)
       }
     } catch (err) {
       console.error('Search error:', err)
-      setError(`Error searching for character: ${err.message}. Make sure the backend server is running on port 5001.`)
+      setError(`搜索汉字时出错：${err.message}。请确保后端服务器在端口 5001 上运行。`)
       setCharacter(null)
     } finally {
       setLoading(false)
@@ -85,13 +85,13 @@ function Search() {
     // Validate input - only allow single Chinese character
     const trimmed = searchTerm.trim()
     if (trimmed.length === 0) {
-      setError('Please enter a character')
+      setError('请输入一个汉字')
       setCharacter(null)
       return
     }
     
     if (trimmed.length > 1) {
-      setError('Please enter exactly one Chinese character')
+      setError('请输入一个汉字')
       setCharacter(null)
       return
     }
@@ -159,22 +159,9 @@ function Search() {
       return ''
     }
     if (typeof value === 'string') {
-      return value.replace(' (dictionary)', '')
+      return value
     }
     return value || ''
-  }
-
-  const hasDictionaryMarker = (field) => {
-    if (!character) return false
-    const value = character[field]
-    if (field === 'Pinyin' || field === 'Words') {
-      if (Array.isArray(value)) {
-        return value.some(item => typeof item === 'string' && item.includes(' (dictionary)'))
-      }
-    } else if (typeof value === 'string') {
-      return value.includes(' (dictionary)')
-    }
-    return false
   }
 
   const handleCellDoubleClick = (field) => {
@@ -200,7 +187,7 @@ function Search() {
     if (field === 'Pinyin' || field === 'Words') {
       newValue = parseArrayValue(newValue)
       if (field === 'Pinyin' && newValue.length === 0) {
-        setError('Pinyin cannot be empty')
+        setError('拼音不能为空')
         handleCancelEdit()
         return
       }
@@ -300,7 +287,6 @@ function Search() {
   const EditableCell = ({ field, isArray = false }) => {
     const isEditing = editingField === field
     const displayValue = getDisplayValue(field)
-    const hasMarker = hasDictionaryMarker(field)
 
     if (isEditing) {
       return (
@@ -349,7 +335,7 @@ function Search() {
     const displayText = displayValue || '无'
     return (
       <span
-        className={`editable-cell ${hasMarker ? 'dictionary-corrected' : ''}`}
+        className="editable-cell"
         onDoubleClick={() => handleCellDoubleClick(field)}
         title="双击编辑"
       >
@@ -362,9 +348,6 @@ function Search() {
     <div className="app">
       <div className="container">
         <NavBar />
-        
-        <h1>Chinese Character Learning</h1>
-        
         <form onSubmit={handleSearch} className="search-form">
           <input
             type="text"
@@ -387,7 +370,7 @@ function Search() {
 
         {loading && (
           <div className="loading">
-            <p>Loading...</p>
+            <p>加载中...</p>
           </div>
         )}
 
@@ -401,24 +384,24 @@ function Search() {
           <>
             <div className="character-cards">
               <div className="card">
-                <h3>Front (正面)</h3>
+                <h3>正面</h3>
                 <img 
                   src={`${API_BASE}/api/images/${character.custom_id}/page1`}
-                  alt={`Front of character ${character.Character}`}
+                  alt={`${character.Character} 的正面`}
                   className="card-image"
                 />
               </div>
               <div className="card">
-                <h3>Back (背面)</h3>
+                <h3>背面</h3>
                 <img 
                   src={`${API_BASE}/api/images/${character.custom_id}/page2`}
-                  alt={`Back of character ${character.Character}`}
+                  alt={`${character.Character} 的背面`}
                   className="card-image"
                 />
               </div>
             </div>
             <div className="metadata-table">
-              <h3>Character Information (字符信息，来源：冯氏早教识字卡)</h3>
+              <h3>字符信息（来源：冯氏早教识字卡）</h3>
               {updating && (
                 <div className="updating-indicator">更新中...</div>
               )}
@@ -465,7 +448,7 @@ function Search() {
             </div>
             {dictionary && (
               <div className="metadata-table" style={{ marginTop: '24px' }}>
-                <h3>Dictionary Information (字典信息，来源：hwxnet)</h3>
+                <h3>字典信息（来源：hwxnet）</h3>
                 <table>
                   <tbody>
                     <tr>

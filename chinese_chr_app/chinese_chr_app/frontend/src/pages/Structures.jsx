@@ -29,7 +29,7 @@ function Structures() {
       setStructures(data.structures || [])
       setError('')
     } catch (err) {
-      setError('Error loading structures. Please try again.')
+      setError('加载结构时出错，请重试。')
       console.error('Error fetching structures:', err)
     } finally {
       setLoading(false)
@@ -45,14 +45,14 @@ function Structures() {
       <div className="structures-container">
         <NavBar />
         
-        <h1>结构 (Structures)</h1>
+        <h1>结构</h1>
         <p className="structures-subtitle">
-          Click on a structure type to see all characters with that structure
+          点击结构类型查看该结构下的所有汉字
         </p>
 
         {loading && (
           <div className="loading">
-            <p>Loading structures...</p>
+            <p>加载结构中...</p>
           </div>
         )}
 
@@ -65,7 +65,7 @@ function Structures() {
         {!loading && !error && (
           <>
             <p className="structures-count">
-              Total: {structures.length} unique structure types
+              共{structures.length}种结构类型
             </p>
             <div className="structures-grid">
               {structures.map((item, index) => (
@@ -75,7 +75,7 @@ function Structures() {
                   onClick={() => handleStructureClick(item.structure)}
                 >
                   <div className="structure-name">{item.structure}</div>
-                  <div className="structure-count">{item.character_count}</div>
+                  <div className="structure-count">{item.character_count}字</div>
                 </div>
               ))}
             </div>

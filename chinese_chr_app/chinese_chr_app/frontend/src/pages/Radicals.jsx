@@ -29,7 +29,7 @@ function Radicals() {
       setRadicals(data.radicals || [])
       setError('')
     } catch (err) {
-      setError('Error loading radicals. Please try again.')
+      setError('加载部首时出错，请重试。')
       console.error('Error fetching radicals:', err)
     } finally {
       setLoading(false)
@@ -45,14 +45,14 @@ function Radicals() {
       <div className="radicals-container">
         <NavBar />
         
-        <h1>部首 (Radicals)</h1>
+        <h1>部首</h1>
         <p className="radicals-subtitle">
-          Click on a radical to see all characters with that radical
+          点击部首查看该部首下的所有汉字
         </p>
 
         {loading && (
           <div className="loading">
-            <p>Loading radicals...</p>
+            <p>加载部首中...</p>
           </div>
         )}
 
@@ -65,7 +65,7 @@ function Radicals() {
         {!loading && !error && (
           <>
             <p className="radicals-count">
-              Total: {radicals.length} unique radicals
+              共{radicals.length}个部首
             </p>
             <div className="radicals-grid">
               {radicals.map((item, index) => (
@@ -75,7 +75,7 @@ function Radicals() {
                   onClick={() => handleRadicalClick(item.radical)}
                 >
                   <div className="radical-character">{item.radical}</div>
-                  <div className="radical-count">{item.character_count}</div>
+                  <div className="radical-count">{item.character_count}字</div>
                 </div>
               ))}
             </div>
