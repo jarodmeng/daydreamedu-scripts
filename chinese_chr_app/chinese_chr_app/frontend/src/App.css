@@ -101,7 +101,8 @@ h1 {
   padding: 20px;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  max-width: 500px;
+  width: 500px;
+  flex: 0 0 500px;
 }
 
 .card h3 {
@@ -115,6 +116,20 @@ h1 {
   height: auto;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.stroke-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 420px;
+}
+
+.stroke-container {
+  width: 420px;
+  height: 420px;
 }
 
 .metadata-table {

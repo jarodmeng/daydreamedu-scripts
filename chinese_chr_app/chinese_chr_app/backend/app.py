@@ -492,7 +492,7 @@ def search_character():
     
     return jsonify({
         'found': False,
-        'error': f'Character "{query}" not found in the database'
+        'error': f'未在数据库中找到“{query}”这个汉字'
     })
 
 @app.route('/api/images/<custom_id>/<page>', methods=['GET'])

@@ -106,24 +106,3 @@ In production, the frontend is built with Vite and deployed to Netlify. API requ
 - `GET /api/health` - Health check endpoint
 
 **Note:** The backend uses port 5001 instead of 5000 to avoid conflicts with macOS AirPlay Receiver.
-
-## Features
-
-### Milestone 1: Character Search
-- Search for simplified Chinese characters
-- Display character card images (front and back)
-- View and edit character metadata
-- Editable metadata fields with confirmation dialogs and change logging
-
-### Milestone 2: Radicals Organization
-- Browse all radicals sorted by character count
-- View all characters for each radical
-- Characters sorted by strokes and pinyin
-- Navigation between search and radicals pages
-- KaiTi (楷体) font styling for radicals and characters
-
-### Milestone 3: Structures and Dictionary View
-- Browse all structure types sorted by character count
-- View all characters for each structure type (sorted by strokes and pinyin)
-- Navigation between search, radicals, and structures pages
-- View a read-only dictionary information table (from `extracted_characters_hwxnet.json` / hwxnet) alongside the editable 冯氏 card metadata for each character

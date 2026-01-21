@@ -27,15 +27,15 @@ I have data on 3000 common simplifed chinese character cards.
 * The structured information of all character cards is stored in the `/Users/jarodm/github/jarodmeng/daydreamedu-scripts/chinese_chr_app/data` folder.
     * The `characters.json` file contains the information in a JSON format. This is the primary data format used by the application.
         * The fields of information included in the structured data (currently stored in `characters.json`) are the following:
-            * **custom_id** (string): The character card index number in `<dddd>` format (e.g., "0001", "0002", "3000")
-            * **Index** (string): The character card index number, same as custom_id
-            * **Character** (string): The simplified Chinese character itself (e.g., "爸", "妈")
+        * **custom_id** (string): The character card index number in `<dddd>` format (e.g., "0001", "0002", "3000")
+        * **Index** (string): The character card index number, same as custom_id
+        * **Character** (string): The simplified Chinese character itself (e.g., "爸", "妈")
             * **Pinyin** (array of strings): The pinyin pronunciation(s) of the character.
-                * Tone marks are required (e.g., "bà" not "ba")
-            * **Radical** (string): The radical component of the character (e.g., "父", "女")
-            * **Strokes** (string): The number of strokes required to write the character (e.g., "8", "6")
-            * **Structure** (string): The structural classification of the character (e.g., "左右结构", "上下结构", "半包围结构")
-            * **Sentence** (string): A sample sentence (例句) that uses the character in context. This field is optional and may be empty for some characters.
+            * Tone marks are required (e.g., "bà" not "ba")
+        * **Radical** (string): The radical component of the character (e.g., "父", "女")
+        * **Strokes** (string): The number of strokes required to write the character (e.g., "8", "6")
+        * **Structure** (string): The structural classification of the character (e.g., "左右结构", "上下结构", "半包围结构")
+        * **Sentence** (string): A sample sentence (例句) that uses the character in context. This field is optional and may be empty for some characters.
             * **Words** (array of strings): Sample words/phrases (词组) that contain the character. This field is optional and may be an empty array `[]` for some characters.
     * We also have structured dictionary data for all 3000 characters in a `extracted_characters_hwxnet.json` file. This file contains dictionary reference data extracted from 汉文学网 (HWXNet) and serves as a source of truth for dictionary-corrected information. The fields included in this structured dictionary data are:
         * **character** (string): The simplified Chinese character itself
@@ -118,3 +118,12 @@ The implemented behavior is:
     * **Search** is highlighted when the user is on `/`
     * **Segmentation (分类)** is highlighted when the user is on any segmentation page (currently `/radicals` or `/structures`)
 * The navigation bar is implemented via a shared `NavBar` component so that future segmentation types can be added by extending the Segmentation submenu without changing the overall layout.
+
+Milestone 5: Display stroke order animation
+* On the character search page, when a character is found, display a stroke order animation for that character in place of the original page1.png image.
+* The stroke order animation:
+    * Uses SVG-based rendering to draw each stroke in sequence.
+    * Plays automatically once when the character is loaded.
+    * Can be replayed by the user via a “重播” button under the animation.
+* The stroke order panel and the 字卡 panel are displayed side by side with consistent sizing so that the animation visually matches the layout of the 冯氏字卡背面.
+* The stroke order animation is currently implemented as a frontend-only feature (no server-side changes required to generate frames), so it can be iterated on independently of backend deployments.

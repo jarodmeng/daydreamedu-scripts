@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
+import HanziWriter from 'hanzi-writer'
 import NavBar from '../NavBar'
 import '../App.css'
 
@@ -31,6 +32,8 @@ function Search() {
   const [editValue, setEditValue] = useState('')
   const [updating, setUpdating] = useState(false)
   const enterPressedRef = useRef(false)
+  const strokeContainerRef = useRef(null)
+  const writerRef = useRef(null)
 
   // Auto-search if query param is present
   useEffect(() => {
@@ -38,6 +41,27 @@ function Search() {
       performSearch(initialQuery)
     }
   }, []) // Only run on mount
+
+  // Initialize / update stroke order animation when character changes
+  useEffect(() => {
+    if (!character || !strokeContainerRef.current) return
+
+    // Clear previous rendering
+    strokeContainerRef.current.innerHTML = ''
+
+    const writer = HanziWriter.create(strokeContainerRef.current, character.Character, {
+      width: 420,
+      height: 420,
+      padding: 10,
+      showCharacter: true,
+      showOutline: true,
+      strokeAnimationSpeed: 1,
+      delayBetweenStrokes: 300
+    })
+
+    writerRef.current = writer
+    writer.animateCharacter()
+  }, [character])
 
   const performSearch = async (query) => {
     setLoading(true)
@@ -344,6 +368,12 @@ function Search() {
     )
   }
 
+  const handleReplayAnimation = () => {
+    if (writerRef.current) {
+      writerRef.current.animateCharacter()
+    }
+  }
+
   return (
     <div className="app">
       <div className="container">
@@ -384,18 +414,28 @@ function Search() {
           <>
             <div className="character-cards">
               <div className="card">
-                <h3>正面</h3>
-                <img 
-                  src={`${API_BASE}/api/images/${character.custom_id}/page1`}
-                  alt={`${character.Character} 的正面`}
-                  className="card-image"
-                />
+                <h3>笔顺动画</h3>
+                <div className="stroke-wrapper">
+                  <div
+                    ref={strokeContainerRef}
+                    className="stroke-container"
+                  />
+                  <button
+                    type="button"
+                    className="search-button"
+                    style={{ marginTop: '12px' }}
+                    onClick={handleReplayAnimation}
+                    disabled={!character}
+                  >
+                    重播
+                  </button>
+                </div>
               </div>
               <div className="card">
-                <h3>背面</h3>
+                <h3>字卡</h3>
                 <img 
                   src={`${API_BASE}/api/images/${character.custom_id}/page2`}
-                  alt={`${character.Character} 的背面`}
+                  alt={`${character.Character} 的字卡`}
                   className="card-image"
                 />
               </div>
