@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
-import { useSearchParams, Link } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
+import NavBar from '../NavBar'
 import '../App.css'
 
 // API base URL - use environment variable in production, empty string in development (uses proxy)
@@ -360,11 +361,7 @@ function Search() {
   return (
     <div className="app">
       <div className="container">
-        <div className="nav-links">
-          <Link to="/" className="nav-link">Search</Link>
-          <Link to="/radicals" className="nav-link">部首 (Radicals)</Link>
-          <Link to="/structures" className="nav-link">结构 (Structures)</Link>
-        </div>
+        <NavBar />
         
         <h1>Chinese Character Learning</h1>
         

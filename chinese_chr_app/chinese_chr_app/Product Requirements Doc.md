@@ -26,17 +26,31 @@ I have data on 3000 common simplifed chinese character cards.
     * The structure (结构), e.g. 左右结构，上下结构，半包围结构，etc
 * The structured information of all character cards is stored in the `/Users/jarodm/github/jarodmeng/daydreamedu-scripts/chinese_chr_app/data` folder.
     * The `characters.json` file contains the information in a JSON format. This is the primary data format used by the application.
-    * The fields of information included in the structured data (currently stored in `characters.json`) are the following:
-        * **custom_id** (string): The character card index number in `<dddd>` format (e.g., "0001", "0002", "3000")
-        * **Index** (string): The character card index number, same as custom_id
-        * **Character** (string): The simplified Chinese character itself (e.g., "爸", "妈")
-        * **Pinyin** (array of strings): The pinyin pronunciation(s) of the character.
-            * Tone marks are required (e.g., "bà" not "ba")
-        * **Radical** (string): The radical component of the character (e.g., "父", "女")
-        * **Strokes** (string): The number of strokes required to write the character (e.g., "8", "6")
-        * **Structure** (string): The structural classification of the character (e.g., "左右结构", "上下结构", "半包围结构")
-        * **Sentence** (string): A sample sentence (例句) that uses the character in context. This field is optional and may be empty for some characters.
-        * **Words** (array of strings): Sample words/phrases (词组) that contain the character. This field is optional and may be an empty array `[]` for some characters.
+        * The fields of information included in the structured data (currently stored in `characters.json`) are the following:
+            * **custom_id** (string): The character card index number in `<dddd>` format (e.g., "0001", "0002", "3000")
+            * **Index** (string): The character card index number, same as custom_id
+            * **Character** (string): The simplified Chinese character itself (e.g., "爸", "妈")
+            * **Pinyin** (array of strings): The pinyin pronunciation(s) of the character.
+                * Tone marks are required (e.g., "bà" not "ba")
+            * **Radical** (string): The radical component of the character (e.g., "父", "女")
+            * **Strokes** (string): The number of strokes required to write the character (e.g., "8", "6")
+            * **Structure** (string): The structural classification of the character (e.g., "左右结构", "上下结构", "半包围结构")
+            * **Sentence** (string): A sample sentence (例句) that uses the character in context. This field is optional and may be empty for some characters.
+            * **Words** (array of strings): Sample words/phrases (词组) that contain the character. This field is optional and may be an empty array `[]` for some characters.
+    * We also have structured dictionary data for all 3000 characters in a `extracted_characters_hwxnet.json` file. This file contains dictionary reference data extracted from 汉文学网 (HWXNet) and serves as a source of truth for dictionary-corrected information. The fields included in this structured dictionary data are:
+        * **character** (string): The simplified Chinese character itself
+        * **index** (string): The character card index number in `<dddd>` format, matching the index from `characters.json`
+        * **分类** (array of strings): Character category classification (e.g., "通用字", "常用字", "次常用字")
+        * **拼音** (array of strings): All pronunciations of the character with tone marks (supports breve variants: ă, ĕ, ŏ, ĭ, ŭ)
+        * **部首** (string): The radical component of the character (used as the authoritative source for radical corrections)
+        * **总笔画** (integer): The total number of strokes required to write the character
+        * **基本字义解释** (array of objects): Detailed meanings and explanations, with each entry containing:
+            * **读音** (string): The pronunciation for this meaning entry
+            * **释义** (array of objects): List of meanings, each containing:
+                * **解释** (string): The meaning explanation
+                * **例词** (array of strings): Example words/phrases that use this meaning
+        * **英文翻译** (array of strings): English translation words for the character
+        * **source_url** (string): The URL from which the data was extracted
 
 Key Features
 
@@ -49,7 +63,7 @@ Milestone 1: A search function to learn about a particular character
         * Display the other meta data (extracted from the 冯氏早教识字卡 back-side information) in a table below the card png files: 拼音，部首，笔画，例句，词组，结构.
             * If the information is dictionary-corrected (i.e., adjusted from the original 冯氏早教识字卡 data based on dictionary sources), strip the " (dictionary)" part from the information in display, but make the color red.
             * Make the table cells editable. The user can double click the cell to edit it and press enter to complete the edit. If the edited value is different from the stored data, prompt a dialog to ask the user if they indeed want the information changed. If they click yes, edit the stored data. We should also log every change in a logging file.
-        * Also display meta data (extracted from hwxnet) in a table: 拼音，部首，总笔画，分类，基本解释，英语
+        * Also display meta structured dictionary data in a table: 拼音，部首，总笔画，分类，基本解释，英语
     * If the character is not found, display an error message and ask the user to input a new character.
 
 Milestone 2: A radicals page to organize characters by radical
@@ -89,3 +103,19 @@ Milestone 3: A structures page to organize characters by structure
     * Clicking on a character box navigates to the search page with that character pre-filled
 * Navigation links are available on all pages to switch between the search page, radicals page, and structures page.
 * The structures data is generated dynamically from `characters.json` on-the-fly and cached in memory for efficient performance, ensuring it stays synchronized with any character edits.
+
+Milestone 4: Simplify navigation bar to Search and Segmentation (分类)
+Both milestone 2 and 3 are different segmentations of 3000 common simplified Chinese characters. Rather than having each segmentation occupy one space in the top navigation bar, we consolidate the segmentations into one top-level "Segmentation (分类)" button in the navigation bar.
+
+The implemented behavior is:
+* The top navigation bar now has two primary items:
+    * **Search** – links to the main search page (`/`)
+    * **Segmentation (分类)** – acts as a dropdown menu trigger, not a standalone page
+* When the user hovers over **Segmentation (分类)** on desktop (or taps it on touch devices), a dropdown menu appears with two submenu items:
+    * **部首 (Radicals)** – links to the radicals page (`/radicals`)
+    * **结构 (Structures)** – links to the structures page (`/structures`)
+* The dropdown stays open while the cursor is over the Segmentation button or its menu, so users can reliably click submenu items.
+* The active tab is clearly indicated with a darker green background and a black border:
+    * **Search** is highlighted when the user is on `/`
+    * **Segmentation (分类)** is highlighted when the user is on any segmentation page (currently `/radicals` or `/structures`)
+* The navigation bar is implemented via a shared `NavBar` component so that future segmentation types can be added by extending the Segmentation submenu without changing the overall layout.
