@@ -32,7 +32,7 @@ steps:
       - '--update-secrets'
       - 'DATABASE_URL=math-practice-database-url-prod:latest'
       - '--set-env-vars'
-      - 'ENVIRONMENT=production,SUPABASE_URL=https://hjavufbcqentnetqugno.supabase.co,SUPABASE_JWT_AUD=authenticated'
+      - 'ENVIRONMENT=production,SUPABASE_URL=https://bcyvuwcktwljsdbsjuyx.supabase.co,SUPABASE_JWT_AUD=authenticated'
     env:
       - 'CLOUDSDK_RUN_REGION=asia-south1'
 
