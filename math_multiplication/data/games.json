@@ -1,0 +1,408 @@
+[
+  {
+    "timestamp": "2026-01-22T19:53:43.964232",
+    "name": "Winston",
+    "time_elapsed": 50282,
+    "rounds": 1,
+    "total_questions": 20
+  },
+  {
+    "timestamp": "2026-01-22T19:58:10.236772",
+    "name": "Emma",
+    "time_elapsed": 243555,
+    "rounds": 1,
+    "total_questions": 20
+  },
+  {
+    "timestamp": "2026-01-22T20:01:32.779804",
+    "name": "Emma",
+    "time_elapsed": 171114,
+    "rounds": 1,
+    "total_questions": 20
+  },
+  {
+    "timestamp": "2026-01-22T20:02:40.920349",
+    "name": "Winston",
+    "time_elapsed": 46630,
+    "rounds": 1,
+    "total_questions": 20
+  },
+  {
+    "timestamp": "2026-01-22T20:05:58.975499",
+    "name": "Emma",
+    "time_elapsed": 104832,
+    "rounds": 1,
+    "total_questions": 20
+  },
+  {
+    "timestamp": "2026-01-22T20:08:53.505650",
+    "name": "Emma",
+    "time_elapsed": 116173,
+    "rounds": 2,
+    "total_questions": 20
+  },
+  {
+    "timestamp": "2026-01-22T20:10:38.466346",
+    "name": "Winston",
+    "time_elapsed": 79252,
+    "rounds": 1,
+    "total_questions": 20
+  },
+  {
+    "timestamp": "2026-01-22T20:13:12.926505",
+    "name": "Emma",
+    "time_elapsed": 88153,
+    "rounds": 1,
+    "total_questions": 20
+  },
+  {
+    "timestamp": "2026-01-22T20:16:43.805458",
+    "name": "Emma",
+    "time_elapsed": 133503,
+    "rounds": 2,
+    "total_questions": 20
+  },
+  {
+    "timestamp": "2026-01-22T20:17:55.288672",
+    "name": "Winston",
+    "time_elapsed": 49676,
+    "rounds": 1,
+    "total_questions": 20
+  },
+  {
+    "timestamp": "2026-01-22T20:20:33.148462",
+    "name": "Emma",
+    "time_elapsed": 116812,
+    "rounds": 2,
+    "total_questions": 20
+  },
+  {
+    "timestamp": "2026-01-22T20:21:42.421690",
+    "name": "Winston",
+    "time_elapsed": 40251,
+    "rounds": 1,
+    "total_questions": 20
+  },
+  {
+    "timestamp": "2026-01-22T20:22:50.894536",
+    "name": "Jarod",
+    "time_elapsed": 34021,
+    "rounds": 1,
+    "total_questions": 20
+  },
+  {
+    "timestamp": "2026-01-22T20:24:04.147773",
+    "name": "Monica",
+    "time_elapsed": 36621,
+    "rounds": 1,
+    "total_questions": 20
+  },
+  {
+    "timestamp": "2026-01-22T20:25:18.161305",
+    "name": "Winston ",
+    "time_elapsed": 41652,
+    "rounds": 1,
+    "total_questions": 20
+  },
+  {
+    "timestamp": "2026-01-22T20:26:24.555276",
+    "name": "Abby",
+    "time_elapsed": 45412,
+    "rounds": 2,
+    "total_questions": 20
+  },
+  {
+    "timestamp": "2026-01-22T20:27:44.449210",
+    "name": "Winston",
+    "time_elapsed": 62881,
+    "rounds": 2,
+    "total_questions": 20
+  },
+  {
+    "timestamp": "2026-01-22T20:28:49.513436",
+    "name": "Jarod",
+    "time_elapsed": 32412,
+    "rounds": 1,
+    "total_questions": 20
+  },
+  {
+    "timestamp": "2026-01-22T20:30:09.096193",
+    "name": "Monica",
+    "time_elapsed": 43501,
+    "rounds": 2,
+    "total_questions": 20
+  },
+  {
+    "timestamp": "2026-01-22T20:31:13.147397",
+    "name": "Monica",
+    "time_elapsed": 43202,
+    "rounds": 2,
+    "total_questions": 20
+  },
+  {
+    "timestamp": "2026-01-22T20:41:30.578441",
+    "name": "Abby",
+    "time_elapsed": 426499,
+    "rounds": 1,
+    "total_questions": 20
+  },
+  {
+    "timestamp": "2026-01-22T20:46:22.288726",
+    "name": "Emma",
+    "time_elapsed": 136893,
+    "rounds": 2,
+    "total_questions": 20
+  },
+  {
+    "timestamp": "2026-01-22T20:55:59.280020",
+    "name": "Winston",
+    "time_elapsed": 488108,
+    "rounds": 4,
+    "total_questions": 20
+  },
+  {
+    "timestamp": "2026-01-23T19:52:29.636532",
+    "name": "Winston",
+    "time_elapsed": 36603,
+    "rounds": 1,
+    "total_questions": 20
+  },
+  {
+    "timestamp": "2026-01-23T19:55:33.166603",
+    "name": "Emma",
+    "time_elapsed": 127894,
+    "rounds": 3,
+    "total_questions": 20
+  },
+  {
+    "timestamp": "2026-01-23T19:58:21.525030",
+    "name": "Emma",
+    "time_elapsed": 76155,
+    "rounds": 2,
+    "total_questions": 20
+  },
+  {
+    "timestamp": "2026-01-23T19:59:56.594184",
+    "name": "Emma",
+    "time_elapsed": 69513,
+    "rounds": 1,
+    "total_questions": 20
+  },
+  {
+    "timestamp": "2026-01-23T20:01:26.485059",
+    "name": "Emma",
+    "time_elapsed": 80263,
+    "rounds": 2,
+    "total_questions": 20
+  },
+  {
+    "timestamp": "2026-01-23T20:03:20.599310",
+    "name": "Emma",
+    "time_elapsed": 94934,
+    "rounds": 3,
+    "total_questions": 20
+  },
+  {
+    "timestamp": "2026-01-23T20:05:23.703028",
+    "name": "Emma",
+    "time_elapsed": 114035,
+    "rounds": 7,
+    "total_questions": 20
+  },
+  {
+    "timestamp": "2026-01-23T20:07:19.038053",
+    "name": "Emma",
+    "time_elapsed": 90375,
+    "rounds": 4,
+    "total_questions": 20
+  },
+  {
+    "timestamp": "2026-01-23T20:08:53.044785",
+    "name": "Emma",
+    "time_elapsed": 83808,
+    "rounds": 3,
+    "total_questions": 20
+  },
+  {
+    "timestamp": "2026-01-23T20:10:46.829529",
+    "name": "Emma",
+    "time_elapsed": 101663,
+    "rounds": 2,
+    "total_questions": 20
+  },
+  {
+    "timestamp": "2026-01-23T20:12:12.029160",
+    "name": "Emma",
+    "time_elapsed": 77193,
+    "rounds": 1,
+    "total_questions": 20
+  },
+  {
+    "timestamp": "2026-01-23T20:14:52.806893",
+    "name": "emma",
+    "time_elapsed": 140385,
+    "rounds": 5,
+    "total_questions": 20
+  },
+  {
+    "timestamp": "2026-01-23T20:16:06.540161",
+    "name": "Emma",
+    "time_elapsed": 65953,
+    "rounds": 1,
+    "total_questions": 20
+  },
+  {
+    "timestamp": "2026-01-23T20:17:59.932425",
+    "name": "Emma",
+    "time_elapsed": 73233,
+    "rounds": 2,
+    "total_questions": 20
+  },
+  {
+    "timestamp": "2026-01-23T20:19:30.264681",
+    "name": "Emma",
+    "time_elapsed": 72523,
+    "rounds": 3,
+    "total_questions": 20
+  },
+  {
+    "timestamp": "2026-01-23T20:20:41.788842",
+    "name": "emma",
+    "time_elapsed": 64293,
+    "rounds": 1,
+    "total_questions": 20
+  },
+  {
+    "timestamp": "2026-01-23T20:22:42.877485",
+    "name": "emma",
+    "time_elapsed": 71164,
+    "rounds": 2,
+    "total_questions": 20
+  },
+  {
+    "timestamp": "2026-01-23T20:23:56.053731",
+    "name": "emma",
+    "time_elapsed": 65433,
+    "rounds": 1,
+    "total_questions": 20
+  },
+  {
+    "timestamp": "2026-01-23T20:26:56.582249",
+    "name": "emma",
+    "time_elapsed": 81723,
+    "rounds": 2,
+    "total_questions": 20
+  },
+  {
+    "timestamp": "2026-01-23T20:31:33.389624",
+    "name": "emma",
+    "time_elapsed": 55283,
+    "rounds": 1,
+    "total_questions": 20
+  },
+  {
+    "timestamp": "2026-01-23T20:32:38.461960",
+    "name": "Winston",
+    "time_elapsed": 42583,
+    "rounds": 1,
+    "total_questions": 20
+  },
+  {
+    "timestamp": "2026-01-23T20:33:47.862278",
+    "name": "Monica",
+    "time_elapsed": 38223,
+    "rounds": 1,
+    "total_questions": 20
+  },
+  {
+    "timestamp": "2026-01-23T20:37:24.592489",
+    "name": "Winston",
+    "time_elapsed": 42963,
+    "rounds": 1,
+    "total_questions": 20
+  },
+  {
+    "timestamp": "2026-01-23T20:43:13.850166",
+    "name": "Emma",
+    "time_elapsed": 80162,
+    "rounds": 1,
+    "total_questions": 20
+  },
+  {
+    "timestamp": "2026-01-24T20:24:17.260568",
+    "name": "Emma",
+    "time_elapsed": 52683,
+    "rounds": 1,
+    "total_questions": 20
+  },
+  {
+    "timestamp": "2026-01-24T20:27:30.203888",
+    "name": "Emma",
+    "time_elapsed": 48501,
+    "rounds": 1,
+    "total_questions": 20
+  },
+  {
+    "timestamp": "2026-01-24T20:31:23.237085",
+    "name": "emma",
+    "time_elapsed": 51443,
+    "rounds": 1,
+    "total_questions": 20
+  },
+  {
+    "timestamp": "2026-01-24T20:33:15.073494",
+    "name": "emma",
+    "time_elapsed": 52531,
+    "rounds": 1,
+    "total_questions": 20
+  },
+  {
+    "timestamp": "2026-01-24T20:34:44.648247",
+    "name": "emma",
+    "time_elapsed": 67571,
+    "rounds": 2,
+    "total_questions": 20
+  },
+  {
+    "timestamp": "2026-01-24T20:36:17.461237",
+    "name": "emma",
+    "time_elapsed": 51342,
+    "rounds": 1,
+    "total_questions": 20
+  },
+  {
+    "timestamp": "2026-01-24T20:38:46.384984",
+    "name": "emma",
+    "time_elapsed": 58572,
+    "rounds": 2,
+    "total_questions": 20
+  },
+  {
+    "timestamp": "2026-01-24T20:40:06.822480",
+    "name": "emma",
+    "time_elapsed": 56167,
+    "rounds": 1,
+    "total_questions": 20
+  },
+  {
+    "timestamp": "2026-01-24T20:50:13.297514",
+    "name": "emma",
+    "time_elapsed": 73792,
+    "rounds": 2,
+    "total_questions": 20
+  },
+  {
+    "timestamp": "2026-01-24T20:51:29.344322",
+    "name": "emma",
+    "time_elapsed": 64991,
+    "rounds": 2,
+    "total_questions": 20
+  },
+  {
+    "timestamp": "2026-01-24T20:52:44.676765",
+    "name": "emma",
+    "time_elapsed": 55622,
+    "rounds": 2,
+    "total_questions": 20
+  }
+]
