@@ -23,7 +23,14 @@ BASE_DIR = SCRIPT_DIR.parent
 DATA_DIR = BASE_DIR / "data"
 CHARACTERS_JSON = DATA_DIR / "characters.json"
 OUTPUT_JSON = DATA_DIR / "extracted_characters_hwxnet.json"
+BACKUP_DIR = DATA_DIR / "backups"
 PROGRESS_JSON = SCRIPT_DIR / "extraction_progress_hwxnet.json"
+
+LEVEL_JSON_FILES = [
+    DATA_DIR / "level-1.json",
+    DATA_DIR / "level-2.json",
+    DATA_DIR / "level-3.json",
+]
 
 
 def load_characters(limit: int = None) -> List[str]:
@@ -49,6 +56,36 @@ def load_characters(limit: int = None) -> List[str]:
     return characters
 
 
+def load_characters_from_txt(file_path: Path, limit: int = None) -> List[str]:
+    """
+    Load characters from a text file (one character per line).
+    Ignores blank lines and lines starting with '#'.
+    """
+    if not file_path.exists():
+        raise FileNotFoundError(f"Characters file not found: {file_path}")
+
+    characters: List[str] = []
+    seen = set()
+
+    for raw_line in file_path.read_text(encoding="utf-8").splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#"):
+            continue
+
+        # Expect exactly one unicode character per line
+        if len(line) != 1:
+            raise ValueError(f"Invalid line in {file_path} (expected 1 character): {raw_line!r}")
+
+        if line not in seen:
+            characters.append(line)
+            seen.add(line)
+
+        if limit and len(characters) >= limit:
+            break
+
+    return characters
+
+
 def load_progress() -> Dict[str, Any]:
     """Load previous extraction progress."""
     if PROGRESS_JSON.exists():
@@ -66,6 +103,17 @@ def save_progress(progress: Dict[str, Any]):
     progress["last_updated"] = datetime.now().isoformat()
     with open(PROGRESS_JSON, 'w', encoding='utf-8') as f:
         json.dump(progress, f, ensure_ascii=False, indent=2)
+
+def load_existing_output() -> Dict[str, Any]:
+    """Load existing extracted results from OUTPUT_JSON, if present."""
+    if not OUTPUT_JSON.exists():
+        return {}
+    try:
+        with open(OUTPUT_JSON, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        return data if isinstance(data, dict) else {}
+    except Exception:
+        return {}
 
 
 def load_char_to_index_mapping() -> Dict[str, str]:
@@ -92,10 +140,76 @@ def get_char_to_index_mapping() -> Dict[str, str]:
     return _char_to_index_cache
 
 
+def load_char_to_zibiao_index_mapping() -> Dict[str, int]:
+    """
+    Load character -> zibiao index mapping from level-*.json.
+    These indices correspond to the Zìbiǎo-style ordering used in the level files.
+    """
+    mapping: Dict[str, int] = {}
+    for p in LEVEL_JSON_FILES:
+        if not p.exists():
+            continue
+        try:
+            with open(p, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            for item in data:
+                ch = item.get("char")
+                idx = item.get("index")
+                if isinstance(ch, str) and isinstance(idx, int):
+                    mapping[ch] = idx
+        except Exception:
+            # If any level file is unreadable, skip it (mapping will be partial)
+            continue
+    return mapping
+
+
+_char_to_zibiao_index_cache = None
+
+
+def get_char_to_zibiao_index_mapping() -> Dict[str, int]:
+    """Get character -> zibiao index mapping (cached)."""
+    global _char_to_zibiao_index_cache
+    if _char_to_zibiao_index_cache is None:
+        _char_to_zibiao_index_cache = load_char_to_zibiao_index_mapping()
+    return _char_to_zibiao_index_cache
+
+
+_did_backup_output = False
+
+
+def ensure_output_backup():
+    """
+    Ensure OUTPUT_JSON is backed up once per run before any write.
+    Backup is stored in DATA_DIR/backups (gitignored).
+    """
+    global _did_backup_output
+    if _did_backup_output:
+        return
+    if not OUTPUT_JSON.exists():
+        _did_backup_output = True
+        return
+
+    BACKUP_DIR.mkdir(parents=True, exist_ok=True)
+    ts = datetime.now().strftime("%Y%m%d-%H%M%S")
+    backup_path = BACKUP_DIR / f"{OUTPUT_JSON.stem}.{ts}.json"
+    # Avoid collisions if multiple backups in same second
+    if backup_path.exists():
+        ts = datetime.now().strftime("%Y%m%d-%H%M%S-%f")
+        backup_path = BACKUP_DIR / f"{OUTPUT_JSON.stem}.{ts}.json"
+
+    backup_path.write_bytes(OUTPUT_JSON.read_bytes())
+    print(f"Backed up existing output to: {backup_path}")
+    _did_backup_output = True
+
+
 def save_results(results: Dict[str, Any]):
     """Save extracted results, preserving and adding index fields."""
+    # IMPORTANT: backup original output before any merge/write
+    ensure_output_backup()
+
     # Get character to index mapping first (always needed)
     char_to_index = get_char_to_index_mapping()
+    char_to_zibiao_index = get_char_to_zibiao_index_mapping()
     
     # Load existing file to preserve all existing entries and their index fields
     merged_results = {}
@@ -110,8 +224,11 @@ def save_results(results: Dict[str, Any]):
     for char, data in results.items():
         # CRITICAL: Always preserve index from existing merged_results if present
         existing_index = None
+        existing_zibiao_index = None
         if char in merged_results and 'index' in merged_results[char]:
             existing_index = merged_results[char]['index']
+        if char in merged_results and 'zibiao_index' in merged_results[char]:
+            existing_zibiao_index = merged_results[char]['zibiao_index']
         
         # Update the entry with new data
         merged_results[char] = data
@@ -121,12 +238,20 @@ def save_results(results: Dict[str, Any]):
             merged_results[char]['index'] = existing_index
         elif char in char_to_index:
             merged_results[char]['index'] = char_to_index[char]
+
+        # Add/restore zibiao_index (from level lists)
+        if existing_zibiao_index is not None:
+            merged_results[char]['zibiao_index'] = existing_zibiao_index
+        elif char in char_to_zibiao_index:
+            merged_results[char]['zibiao_index'] = char_to_zibiao_index[char]
     
     # CRITICAL: Ensure ALL entries have index fields (for any that might be missing)
     # This handles cases where the file was written without indices
     for char, data in merged_results.items():
         if 'index' not in data and char in char_to_index:
             data['index'] = char_to_index[char]
+        if 'zibiao_index' not in data and char in char_to_zibiao_index:
+            data['zibiao_index'] = char_to_zibiao_index[char]
     
     # Save merged results
     with open(OUTPUT_JSON, 'w', encoding='utf-8') as f:
@@ -210,6 +335,13 @@ def batch_extract(characters: List[str],
     progress = load_progress()
     processed = progress.get("processed", {})
     failed = progress.get("failed", {})
+
+    # Also treat existing OUTPUT_JSON entries as processed (skip by default)
+    existing_output = load_existing_output()
+    if existing_output:
+        for ch, entry in existing_output.items():
+            if ch not in processed and isinstance(entry, dict):
+                processed[ch] = entry
     
     # Filter out already processed characters (unless overwrite is enabled)
     if overwrite:
@@ -240,9 +372,12 @@ def batch_extract(characters: List[str],
     results = processed.copy()
     # Ensure all loaded results have index fields
     char_to_index = get_char_to_index_mapping()
+    char_to_zibiao_index = get_char_to_zibiao_index_mapping()
     for char, data in results.items():
         if 'index' not in data and char in char_to_index:
             data['index'] = char_to_index[char]
+        if 'zibiao_index' not in data and char in char_to_zibiao_index:
+            data['zibiao_index'] = char_to_zibiao_index[char]
     
     new_failed = {}
     
@@ -287,6 +422,11 @@ def batch_extract(characters: List[str],
                 char_to_index = get_char_to_index_mapping()
                 if char in char_to_index:
                     info['index'] = char_to_index[char]
+
+                # Add zibiao index (from level lists) when available
+                char_to_zibiao_index = get_char_to_zibiao_index_mapping()
+                if char in char_to_zibiao_index:
+                    info['zibiao_index'] = char_to_zibiao_index[char]
                 
                 results[char] = info
                 processed[char] = info
@@ -416,6 +556,11 @@ def extract_worker(char: str,
                 char_to_index = get_char_to_index_mapping()
                 if char in char_to_index:
                     info['index'] = char_to_index[char]
+
+                # Add zibiao index (from level lists) when available
+                char_to_zibiao_index = get_char_to_zibiao_index_mapping()
+                if char in char_to_zibiao_index:
+                    info['zibiao_index'] = char_to_zibiao_index[char]
                 
                 results[char] = info
                 processed[char] = info
@@ -464,6 +609,13 @@ def batch_extract_parallel(characters: List[str],
     progress = load_progress()
     processed = progress.get("processed", {})
     failed = progress.get("failed", {})
+
+    # Also treat existing OUTPUT_JSON entries as processed (skip by default)
+    existing_output = load_existing_output()
+    if existing_output:
+        for ch, entry in existing_output.items():
+            if ch not in processed and isinstance(entry, dict):
+                processed[ch] = entry
     
     # Filter out already processed characters (unless overwrite is enabled)
     if overwrite:
@@ -496,9 +648,12 @@ def batch_extract_parallel(characters: List[str],
     results = processed.copy()
     # Ensure all loaded results have index fields
     char_to_index = get_char_to_index_mapping()
+    char_to_zibiao_index = get_char_to_zibiao_index_mapping()
     for char, data in results.items():
         if 'index' not in data and char in char_to_index:
             data['index'] = char_to_index[char]
+        if 'zibiao_index' not in data and char in char_to_zibiao_index:
+            data['zibiao_index'] = char_to_zibiao_index[char]
     
     new_failed = {}
     times = []
@@ -645,12 +800,21 @@ def main():
                        help='Resume from previous progress')
     parser.add_argument('--overwrite', action='store_true',
                        help='Reprocess and overwrite existing entries')
+    parser.add_argument('--characters-file', type=str, default=None,
+                       help='Path to a text file (one character per line) to process instead of characters.json (relative paths are resolved from this script directory)')
     
     args = parser.parse_args()
     
     # Load characters
-    print("Loading characters from characters.json...")
-    characters = load_characters(limit=args.limit)
+    if args.characters_file:
+        characters_file_path = Path(args.characters_file)
+        if not characters_file_path.is_absolute():
+            characters_file_path = SCRIPT_DIR / characters_file_path
+        print(f"Loading characters from: {characters_file_path} ...")
+        characters = load_characters_from_txt(characters_file_path, limit=args.limit)
+    else:
+        print("Loading characters from characters.json...")
+        characters = load_characters(limit=args.limit)
     print(f"Loaded {len(characters)} characters")
     print()
     

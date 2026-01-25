@@ -92,6 +92,41 @@ h1 {
   margin-top: 20px;
 }
 
+/* Search page: 2-up rows (stroke+dictionary, card+metadata) */
+.search-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(320px, 1fr));
+  gap: 30px;
+  width: 100%;
+  margin-top: 20px;
+  align-items: start;
+}
+
+.search-row .card {
+  width: 100%;
+  flex: initial;
+}
+
+.search-row .metadata-table {
+  width: 100%;
+  max-width: none;
+  margin-top: 0;
+}
+
+.dictionary-panel {
+  max-height: 620px;
+  overflow: auto;
+}
+
+@media (max-width: 1100px) {
+  .search-row {
+    grid-template-columns: 1fr;
+  }
+  .dictionary-panel {
+    max-height: none;
+  }
+}
+
 .card {
   display: flex;
   flex-direction: column;

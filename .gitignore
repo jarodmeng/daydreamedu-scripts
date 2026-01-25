@@ -46,6 +46,7 @@ chinese_chr_app/extract_characters_using_ai/jsonl/
 
 # ---- chinese_chr_app data backups (not tracked) ----
 chinese_chr_app/data/backups/
+chinese_chr_app/data/characters.json.bak
 
 # ---- chinese_chr_app PNG images (large files, not tracked) ----
 chinese_chr_app/data/png/
@@ -55,3 +56,6 @@ chinese_chr_app/data/temp/
 
 # ---- chinese_chr_app planning docs (local only) ----
 chinese_chr_app/chinese_chr_app/planning_docs/
+
+# ---- HWXNet extraction progress (generated) ----
+chinese_chr_app/extract_character_from_wxnet/extraction_progress_hwxnet.json

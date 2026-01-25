@@ -4,6 +4,10 @@ import json
 import logging
 import shutil
 import os
+import urllib.request
+import urllib.parse
+import ssl
+import certifi
 from datetime import datetime
 from pathlib import Path
 from typing import Optional, Dict, Any, List, Tuple
@@ -38,6 +42,7 @@ else:
 CHARACTERS_JSON = DATA_DIR / "characters.json"
 HWXNET_JSON = DATA_DIR / "extracted_characters_hwxnet.json"
 BACKUP_DIR = DATA_DIR / "backups"
+HANZI_WRITER_CACHE_DIR = DATA_DIR / "temp" / "hanzi_writer"
 
 # PNG directory - use GCS in production, local path for development
 GCS_BUCKET_NAME = os.getenv('GCS_BUCKET_NAME', '')
@@ -464,17 +469,26 @@ def search_character():
     print(f"Lookup dictionary size: {len(lookup)}")
     print(f"Character in lookup: {query in lookup}")
     
-    # Try exact match first
+    # Try exact match in characters.json first
     if query in lookup:
         print(f"Found character data: {lookup[query]}")
         character = lookup[query]
-        
+
         # Attach dictionary (hwxnet) data if available
         dictionary = hwx_lookup.get(query)
-        
+
         return jsonify({
             'found': True,
             'character': character,
+            'dictionary': dictionary
+        })
+
+    # Fallback: dictionary-only match (character not in characters.json)
+    if query in hwx_lookup:
+        dictionary = hwx_lookup.get(query)
+        return jsonify({
+            'found': True,
+            'character': None,
             'dictionary': dictionary
         })
     
@@ -527,6 +541,67 @@ def get_image(custom_id, page):
         return jsonify({'error': 'Image not found'}), 404
     
     return send_file(str(image_path), mimetype='image/png')
+
+
+@app.route('/api/strokes', methods=['GET'])
+def get_hanzi_writer_strokes():
+    """
+    Proxy HanziWriter stroke JSON (makemeahanzi) through our backend.
+    This avoids client-side CDN/adblock/CORS issues and caches locally.
+    """
+    ch = request.args.get('char', '').strip()
+    if not ch or len(ch) != 1:
+        return jsonify({'error': 'Please provide exactly one character via ?char='}), 400
+
+    HANZI_WRITER_CACHE_DIR.mkdir(parents=True, exist_ok=True)
+    cache_file = HANZI_WRITER_CACHE_DIR / f"{ord(ch):x}.json"
+
+    # Serve cached if available
+    if cache_file.exists():
+        try:
+            with open(cache_file, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+            return jsonify(data)
+        except Exception:
+            # If cache is corrupted, fall through to refetch
+            try:
+                cache_file.unlink()
+            except Exception:
+                pass
+
+    encoded = urllib.parse.quote(ch)
+    urls = [
+        f"https://cdn.jsdelivr.net/npm/hanzi-writer-data@2.0.1/{encoded}.json",
+        f"https://unpkg.com/hanzi-writer-data@2.0.1/{encoded}.json",
+    ]
+
+    # Use certifi CA bundle to avoid local truststore issues
+    # (common on some macOS/Python setups).
+    verify_ssl = os.getenv('HW_STROKES_VERIFY_SSL', '').strip().lower() not in ('0', 'false', 'no', 'off')
+    ssl_context = ssl.create_default_context(cafile=certifi.where()) if verify_ssl else ssl._create_unverified_context()
+
+    last_err = None
+    for url in urls:
+        try:
+            req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+            with urllib.request.urlopen(req, timeout=20, context=ssl_context) as resp:
+                if getattr(resp, 'status', 200) != 200:
+                    raise Exception(f"HTTP {getattr(resp, 'status', 'unknown')}")
+                raw = resp.read().decode('utf-8')
+                data = json.loads(raw)
+            # Cache best-effort (Cloud Run FS is ephemeral; permission errors shouldn't break the response)
+            try:
+                with open(cache_file, 'w', encoding='utf-8', newline='\n') as f:
+                    json.dump(data, f, ensure_ascii=False)
+                    f.write('\n')
+            except Exception as cache_err:
+                print(f"Warning: failed to write stroke cache {cache_file}: {cache_err}")
+            return jsonify(data)
+        except Exception as e:
+            last_err = e
+            continue
+
+    return jsonify({'error': f'Failed to load stroke data for {ch}: {last_err}'}), 502
 
 def generate_radicals_data(characters_data: List[Dict]) -> List[Dict]:
     """
@@ -817,4 +892,8 @@ if __name__ == '__main__':
         print("Running in Cloud Run - gunicorn will handle the server")
     else:
         # Local development
-        app.run(debug=True, host=host, port=port)
+        # NOTE: Some local Python installs can crash when Werkzeug's debugger
+        # initializes (e.g. ctypes import issues). Default debug to off and
+        # allow enabling explicitly via FLASK_DEBUG=1.
+        debug_enabled = os.getenv('FLASK_DEBUG', '').strip().lower() in ('1', 'true', 'yes', 'on')
+        app.run(debug=debug_enabled, host=host, port=port)
