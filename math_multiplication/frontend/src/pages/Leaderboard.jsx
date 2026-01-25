@@ -46,8 +46,10 @@ function Leaderboard() {
   }
 
   const formatDate = (timestamp) => {
+    if (!timestamp) return ''
     const date = new Date(timestamp)
-    return date.toLocaleString()
+    if (Number.isNaN(date.getTime())) return String(timestamp)
+    return date.toLocaleString('en-SG', { timeZone: 'Asia/Singapore' })
   }
 
   // Sort games by time (ascending - fastest first)

@@ -2,7 +2,7 @@
 
 ## Summary
 
-We replaced local JSON file logging (`data/games.json`) with **Supabase Postgres** so leaderboard logging works in production (Cloud Run) where filesystem writes are not durable.
+We replaced local JSON file logging with **Supabase Postgres** so leaderboard logging works in production (Cloud Run) where filesystem writes are not durable.
 
 ## Decision
 
@@ -24,7 +24,8 @@ Single table: `games`
 - `created_at` (UTC)
 
 Notes:
-- Backend returns timestamps as ISO-8601 **UTC with `Z`** (e.g. `2026-01-25T05:14:12Z`) so the browser renders the user’s local time correctly.
+- Backend returns timestamps as ISO-8601 **UTC with `Z`** (e.g. `2026-01-25T05:14:12Z`).
+- Frontend formats leaderboard timestamps in **Singapore time**.
 
 ## Environment separation (test vs prod)
 
@@ -53,11 +54,6 @@ If the password contains special characters (`/`, `@`, `:`, `%`), URL-encode it 
 
 See `backend/DATABASE_SETUP.md` for the short quickstart and curl tests.
 
-## Migration from JSON (optional)
+## Migration from JSON (completed)
 
-If you have existing `data/games.json`, run:
-
-```
-python backend/migrations/migrate_json_to_db.py
-```
-
+The one-time JSON migration into Supabase has been completed, and the legacy files were removed from the repo.

@@ -10,21 +10,20 @@ math_multiplication/
 │   ├── app.py       # Main Flask application
 │   ├── database.py  # Database connection and operations
 │   ├── models.py    # SQLAlchemy database models
-│   ├── migrations/  # Database migration scripts
-│   │   └── migrate_json_to_db.py
+│   ├── Dockerfile   # Cloud Run container image
+│   └── cloudbuild.yaml # Cloud Build: build/push/deploy to Cloud Run
 │   ├── requirements.txt
 │   ├── .env.local.example  # Environment variable template
 │   └── DATABASE_SETUP.md   # Database setup guide
-├── frontend/        # React frontend
-│   ├── src/
-│   │   ├── pages/   # Page components (Game, Leaderboard)
-│   │   ├── App.jsx  # Main router component
-│   │   ├── NavBar.jsx
-│   │   └── App.css
-│   ├── package.json
-│   └── vite.config.js
-└── data/            # Legacy JSON data (for migration)
-    └── games.json   # Game results (can be migrated to database)
+└── frontend/        # React frontend
+    ├── netlify.toml # Netlify build + SPA redirect config
+    ├── src/
+    │   ├── pages/   # Page components (Game, Leaderboard)
+    │   ├── App.jsx  # Main router component
+    │   ├── NavBar.jsx
+    │   └── App.css
+    ├── package.json
+    └── vite.config.js
 ```
 
 ## Setup Instructions
@@ -49,7 +48,7 @@ pip3 install -r requirements.txt
 
 4. Set up database (Supabase):
    - See `backend/DATABASE_SETUP.md` for detailed instructions
-   - Create a `.env.local` file with your Supabase connection string:
+   - Create a `.env.local` file with your Supabase **transaction pooler** connection string:
      ```bash
      # Recommended (Transaction pooler)
      DATABASE_URL=postgresql://postgres.<PROJECT_REF>:password@aws-<n>-<region>.pooler.supabase.com:6543/postgres?sslmode=require
@@ -85,10 +84,28 @@ The frontend will run on `http://localhost:3000`
 
 In production, the frontend is built with Vite and can be deployed to Netlify. API requests are sent to the backend using the `VITE_API_URL` environment variable set in the deployment settings.
 
+## Deployment (Production)
+
+### Backend (Cloud Run via Cloud Build)
+
+- **Service**: Cloud Run `math-practice-app` (public)
+- **Region**: `asia-south1`
+- **Build trigger**: Cloud Build trigger `math-practice-app-backend`
+- **Build config**: `math_multiplication/backend/cloudbuild.yaml`
+- **Secrets**: `DATABASE_URL` is injected from Secret Manager (e.g. `math-practice-database-url-prod`)
+
+### Frontend (Netlify)
+
+- **Base directory**: `math_multiplication/frontend`
+- **Build command**: `npm run build`
+- **Publish directory**: `dist`
+- **SPA redirects**: handled by `math_multiplication/frontend/netlify.toml`
+- **Env var**: set `VITE_API_URL` to your Cloud Run backend URL (for example: `https://math-practice-app-177544945895.asia-south1.run.app`)
+
 ## Usage
 
 1. Open your browser and go to `http://localhost:3000`
-2. **Game Page**: 
+2. **Game Page**:
    - Enter your first name to start
    - Answer 20 unique multiplication questions (2-12 × 2-12)
    - Timer starts automatically when the game begins and tracks total time
@@ -99,7 +116,7 @@ In production, the frontend is built with Vite and can be deployed to Netlify. A
    - Wrong answers are re-asked in randomized order in subsequent rounds until all are correct
    - Game completes when all 20 unique questions are answered correctly
    - Final results show: name, time elapsed (MM:SS.mmm), rounds completed, and total questions answered correctly
-3. **Leaderboard Page**: View all game results sorted by completion time (fastest first), showing rank, name, time, rounds, questions, and date
+3. **Leaderboard Page**: View all game results sorted by completion time (fastest first), showing rank, name, time, rounds, questions, and date (shown in Singapore time)
 
 ## API Endpoints
 
@@ -126,3 +143,4 @@ In production, the frontend is built with Vite and can be deployed to Netlify. A
 - **Game Logging**: Each question attempt is logged with round number, question, correct answer, user answer, and correctness
 
 **Note:** The backend uses port 5001 instead of 5000 to avoid conflicts with macOS AirPlay Receiver.
+

@@ -47,12 +47,11 @@ curl http://localhost:5001/api/games
 
 Verify the row in Supabase: **Table Editor** → `games`.
 
-## Optional: migrate old JSON data
+## Legacy JSON migration (completed)
 
-```bash
-python migrations/migrate_json_to_db.py
-```
+The one-time migration from local JSON into Supabase has been completed, and the legacy migration utilities/files were removed.
 
 ## Production note (Cloud Run)
 
 Store `DATABASE_URL` in **Secret Manager** and inject it as an env var in Cloud Run (avoid hardcoding it in the service config).
+
