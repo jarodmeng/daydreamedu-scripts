@@ -24,6 +24,7 @@ cp .env.local.example .env.local
 
 Set:
 - `DATABASE_URL=<the pooler URL above>`
+- `SUPABASE_URL=https://<PROJECT_REF>.supabase.co` (used to verify Google login JWTs)
 
 ## 3) Run the backend
 
@@ -35,6 +36,10 @@ python app.py
 ```
 
 Tables are created automatically on first run.
+
+Schema notes:
+- Backend will ensure `games.user_id` exists (nullable) for authenticated submissions.
+- Backend will create a `user_profiles` table for storing the editable `display_name`.
 
 ## 4) Test
 

@@ -6,12 +6,11 @@ export default defineConfig({
   plugins: [react()],
   server: {
     port: 3000,
-    // Proxy only in development
-    proxy: process.env.NODE_ENV === 'development' ? {
+    proxy: {
       '/api': {
         target: 'http://localhost:5001',
-        changeOrigin: true
-      }
-    } : undefined
+        changeOrigin: true,
+      },
+    },
   }
 })

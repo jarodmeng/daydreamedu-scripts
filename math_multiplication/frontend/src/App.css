@@ -10,10 +10,20 @@
 .nav-links {
   display: flex;
   gap: 20px;
-  justify-content: center;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
   margin-bottom: 30px;
   width: 100%;
   max-width: 1200px;
+}
+
+.nav-left,
+.nav-right {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  flex-wrap: wrap;
 }
 
 .nav-link {
@@ -28,7 +38,24 @@
   font-size: 1rem;
 }
 
-.nav-link:hover {
+.nav-link-secondary {
+  background-color: #607D8B;
+}
+
+.nav-link-secondary:hover:not(:disabled) {
+  background-color: #546E7A;
+}
+
+button.nav-link {
+  border: 2px solid transparent;
+}
+
+button.nav-link:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.nav-link:not(.nav-link-secondary):hover {
   background-color: #45a049;
 }
 

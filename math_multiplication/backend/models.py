@@ -26,6 +26,7 @@ class Game(db.Model):
     
     id = db.Column(db.Integer, primary_key=True)
     timestamp = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    user_id = db.Column(db.String(36), nullable=True)
     name = db.Column(db.String(100), nullable=False)
     time_elapsed = db.Column(db.Integer, nullable=False)  # in milliseconds
     rounds = db.Column(db.Integer, nullable=False)
@@ -37,6 +38,7 @@ class Game(db.Model):
         return {
             'id': self.id,
             'timestamp': _to_utc_iso_z(self.timestamp),
+            'user_id': self.user_id,
             'name': self.name,
             'time_elapsed': self.time_elapsed,
             'rounds': self.rounds,
@@ -46,3 +48,25 @@ class Game(db.Model):
     
     def __repr__(self):
         return f'<Game {self.id}: {self.name} - {self.time_elapsed}ms>'
+
+
+class UserProfile(db.Model):
+    """
+    Minimal user profile (kid-safe).
+
+    Keyed by Supabase Auth `sub` (UUID string).
+    """
+    __tablename__ = 'user_profiles'
+
+    user_id = db.Column(db.String(36), primary_key=True)
+    display_name = db.Column(db.String(32), nullable=False)
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    def to_dict(self):
+        return {
+            'user_id': self.user_id,
+            'display_name': self.display_name,
+            'created_at': _to_utc_iso_z(self.created_at),
+            'updated_at': _to_utc_iso_z(self.updated_at),
+        }

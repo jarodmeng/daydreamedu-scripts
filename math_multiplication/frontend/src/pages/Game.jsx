@@ -1,10 +1,13 @@
 import { useState, useEffect, useRef } from 'react'
+import { Link } from 'react-router-dom'
 import '../App.css'
+import { useAuth } from '../AuthContext'
 
 const API_URL = import.meta.env.VITE_API_URL || ''
 
 function Game() {
   const [name, setName] = useState('')
+  const { authLoading, user, accessToken, profileLoading, profile } = useAuth()
   const [gameStarted, setGameStarted] = useState(false)
   const [gameCompleted, setGameCompleted] = useState(false)
   const [currentRound, setCurrentRound] = useState(1)
@@ -24,6 +27,14 @@ function Game() {
   const totalQuestionsAnsweredRef = useRef(0)
   const initialQuestionsRef = useRef([]) // Track the initial 20 unique questions
   const correctlyAnsweredQuestionsRef = useRef(new Set()) // Track which unique questions were answered correctly
+
+  const effectiveName = user ? (profile?.display_name || '') : name
+
+  useEffect(() => {
+    if (user && profile?.display_name) {
+      setName(profile.display_name)
+    }
+  }, [user, profile?.display_name])
 
   // Generate 20 unique random multiplication questions (2-12 x 2-12, excluding 1)
   const generateQuestions = () => {
@@ -60,7 +71,7 @@ function Game() {
       e.preventDefault()
     }
     
-    if (!name.trim()) {
+    if (!effectiveName.trim()) {
       return
     }
     
@@ -246,7 +257,7 @@ function Game() {
     
     setGameCompleted(true)
     setResults({
-      name,
+      name: effectiveName,
       time: finalTime,
       rounds: currentRound,
       totalQuestions
@@ -254,13 +265,18 @@ function Game() {
     
     // Save game data to backend (time_elapsed in milliseconds)
     try {
+      const headers = {
+        'Content-Type': 'application/json',
+      }
+      if (accessToken) {
+        headers.Authorization = `Bearer ${accessToken}`
+      }
+
       const response = await fetch(`${API_URL}/api/games`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
         body: JSON.stringify({
-          name,
+          name: effectiveName,
           time_elapsed: finalTime, // in milliseconds
           rounds: currentRound,
           total_questions: totalQuestions
@@ -293,7 +309,11 @@ function Game() {
 
   // Reset game
   const handleReset = () => {
-    setName('')
+    if (user && profile?.display_name) {
+      setName(profile.display_name)
+    } else {
+      setName('')
+    }
     setGameStarted(false)
     setGameCompleted(false)
     setQuestions([])
@@ -324,28 +344,59 @@ function Game() {
       <div className="game-container">
         {!gameStarted ? (
           <div className="name-input-container">
-            <h2>Enter Your First Name</h2>
-            <input
-              type="text"
-              className="name-input"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              onKeyPress={(e) => {
-                if (e.key === 'Enter' && name.trim()) {
-                  handleStartGame()
-                }
-              }}
-              placeholder="Your name"
-              autoFocus
-            />
-            <button
-              type="button"
-              className="start-button"
-              onClick={handleStartGame}
-              disabled={!name.trim()}
-            >
-              Start Game
-            </button>
+            {user ? (
+              <>
+                <h2>Ready to Play</h2>
+                <div style={{ fontSize: '1.1rem', color: '#333', textAlign: 'center' }}>
+                  Playing as{' '}
+                  <span style={{ fontWeight: 700 }}>{profile?.display_name || 'Loading…'}</span>
+                </div>
+                {!profile?.display_name && (
+                  <div className="error" style={{ textAlign: 'center' }}>
+                    Please set your display name in Profile before playing.
+                  </div>
+                )}
+                <Link className="nav-link" to="/profile">
+                  Edit Profile
+                </Link>
+                <button
+                  type="button"
+                  className="start-button"
+                  onClick={handleStartGame}
+                  disabled={authLoading || profileLoading || !profile?.display_name}
+                >
+                  Start Game
+                </button>
+              </>
+            ) : (
+              <>
+                <h2>Enter Your First Name</h2>
+                <input
+                  type="text"
+                  className="name-input"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter' && name.trim()) {
+                      handleStartGame()
+                    }
+                  }}
+                  placeholder="Your name"
+                  autoFocus
+                />
+                <div style={{ fontSize: '0.95rem', color: '#666', textAlign: 'center' }}>
+                  Optional: sign in with Google (top right) to save your display name.
+                </div>
+                <button
+                  type="button"
+                  className="start-button"
+                  onClick={handleStartGame}
+                  disabled={!name.trim()}
+                >
+                  Start Game
+                </button>
+              </>
+            )}
           </div>
         ) : gameCompleted ? (
           <div className="results-container">

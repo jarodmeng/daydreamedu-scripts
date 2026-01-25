@@ -53,6 +53,12 @@ pip3 install -r requirements.txt
      # Recommended (Transaction pooler)
      DATABASE_URL=postgresql://postgres.<PROJECT_REF>:password@aws-<n>-<region>.pooler.supabase.com:6543/postgres?sslmode=require
      ```
+   - Configure Supabase Auth verification (for Google login):
+     ```bash
+     # Used to verify Supabase JWTs
+     SUPABASE_URL=https://<PROJECT_REF>.supabase.co
+     SUPABASE_JWT_AUD=authenticated
+     ```
 
 5. Run the Flask server:
 ```bash
@@ -82,7 +88,12 @@ npm run dev
 
 The frontend will run on `http://localhost:3000`
 
-In production, the frontend is built with Vite and can be deployed to Netlify. API requests are sent to the backend using the `VITE_API_URL` environment variable set in the deployment settings.
+In production, the frontend is built with Vite and can be deployed to Netlify.
+
+Environment variables:
+- `VITE_API_URL` (backend base URL; in dev you can omit it to use the `/api` proxy)
+- `VITE_SUPABASE_URL` (e.g. `https://<PROJECT_REF>.supabase.co`)
+- `VITE_SUPABASE_ANON_KEY` (Supabase project anon key; safe to expose to the browser)
 
 ## Deployment (Production)
 
@@ -93,6 +104,7 @@ In production, the frontend is built with Vite and can be deployed to Netlify. A
 - **Build trigger**: Cloud Build trigger `math-practice-app-backend`
 - **Build config**: `math_multiplication/backend/cloudbuild.yaml`
 - **Secrets**: `DATABASE_URL` is injected from Secret Manager (e.g. `math-practice-database-url-prod`)
+- **Env vars**: `SUPABASE_URL` and `SUPABASE_JWT_AUD` must be set so the backend can verify Google login tokens.
 
 ### Frontend (Netlify)
 
@@ -100,13 +112,44 @@ In production, the frontend is built with Vite and can be deployed to Netlify. A
 - **Build command**: `npm run build`
 - **Publish directory**: `dist`
 - **SPA redirects**: handled by `math_multiplication/frontend/netlify.toml`
-- **Env var**: set `VITE_API_URL` to your Cloud Run backend URL (for example: `https://math-practice-app-177544945895.asia-south1.run.app`)
+- **Env vars**:
+  - `VITE_API_URL` = your Cloud Run backend URL (for example: `https://math-practice-app-177544945895.asia-south1.run.app`)
+  - `VITE_SUPABASE_URL` = `https://<PROJECT_REF>.supabase.co`
+  - `VITE_SUPABASE_ANON_KEY` = Supabase anon key
+
+## Google Login Setup (Supabase Auth)
+
+1. **Create Google OAuth credentials**
+   - In Google Cloud Console → **APIs & Services** → **Credentials**
+   - Create an **OAuth client ID** (Web application)
+   - Add **Authorized redirect URI**:
+     - `https://<PROJECT_REF>.supabase.co/auth/v1/callback`
+
+2. **Enable Google provider in Supabase**
+   - Supabase → **Authentication** → **Providers** → **Google**
+   - Enable it and paste your **Client ID** and **Client Secret**
+
+3. **Allow your site URLs**
+   - Supabase → **Authentication** → **URL Configuration**
+   - Set **Site URL** to your Netlify site (e.g. `https://<your-site>.netlify.app`)
+   - Add **Additional Redirect URLs**:
+     - `http://localhost:3000`
+     - Your Netlify site URL
+
+4. **Set frontend env vars (Netlify)**
+   - `VITE_SUPABASE_URL=https://<PROJECT_REF>.supabase.co`
+   - `VITE_SUPABASE_ANON_KEY=<anon key>`
+
+5. **Set backend env vars (Cloud Run)**
+   - `SUPABASE_URL=https://<PROJECT_REF>.supabase.co`
+   - `SUPABASE_JWT_AUD=authenticated`
 
 ## Usage
 
 1. Open your browser and go to `http://localhost:3000`
 2. **Game Page**:
-   - Enter your first name to start
+   - Optionally sign in with Google and set your display name in **Profile**
+   - Or play anonymously by entering your name
    - Answer 20 unique multiplication questions (2-12 × 2-12)
    - Timer starts automatically when the game begins and tracks total time
    - Progress indicator shows current question number and round number
@@ -126,6 +169,10 @@ In production, the frontend is built with Vite and can be deployed to Netlify. A
   - Returns: `{ "success": boolean, "game": object }` with timestamp added
 - `GET /api/games` - Get all games (for leaderboard)
   - Returns: `{ "games": array }` - array of game objects sorted by time_elapsed
+
+### Profile (Google login)
+- `GET /api/profile` - Get/create the current user's profile (requires `Authorization: Bearer <token>`)
+- `PUT /api/profile` - Update display name (requires `Authorization: Bearer <token>`)
 
 ### System
 - `GET /api/health` - Health check endpoint

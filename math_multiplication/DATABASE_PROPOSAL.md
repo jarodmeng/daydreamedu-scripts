@@ -13,15 +13,25 @@ We replaced local JSON file logging with **Supabase Postgres** so leaderboard lo
 
 ## Data model
 
-Single table: `games`
+Tables:
+
+### `games`
 
 - `id` (int, primary key)
 - `timestamp` (UTC) – when the game was completed
-- `name` (string)
+- `user_id` (nullable UUID string) – set when the player is signed in
+- `name` (string) – **snapshot** of the player’s display name at the time of play (Option A)
 - `time_elapsed` (int, milliseconds)
 - `rounds` (int)
 - `total_questions` (int)
 - `created_at` (UTC)
+
+### `user_profiles`
+
+- `user_id` (UUID string, primary key) – Supabase Auth `sub`
+- `display_name` (string, editable)
+- `created_at` (UTC)
+- `updated_at` (UTC)
 
 Notes:
 - Backend returns timestamps as ISO-8601 **UTC with `Z`** (e.g. `2026-01-25T05:14:12Z`).
@@ -38,9 +48,11 @@ Current implementation uses a single `games` table in the connected database.
 
 ## Configuration
 
-Backend uses a single environment variable:
+Backend uses these environment variables:
 
 - `DATABASE_URL` (Supabase pooler connection string)
+- `SUPABASE_URL` (e.g. `https://<PROJECT_REF>.supabase.co`) for verifying Supabase JWTs (Google login)
+- `SUPABASE_JWT_AUD` (default: `authenticated`)
 
 Example (do not commit secrets):
 
