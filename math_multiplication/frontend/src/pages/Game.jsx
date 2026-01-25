@@ -30,26 +30,36 @@ function Game() {
 
   const effectiveName = user ? (profile?.display_name || '') : name
 
+  // Question numbers pool: 2-12 excluding 10 (and excluding 1 by construction)
+  const QUESTION_NUMBER_POOL = [2, 3, 4, 5, 6, 7, 8, 9, 11, 12]
+
+  // Treat a×b and b×a as the same question for uniqueness/tracking.
+  const getPairKey = (a, b) => {
+    const min = Math.min(a, b)
+    const max = Math.max(a, b)
+    return `${min}×${max}`
+  }
+
   useEffect(() => {
     if (user && profile?.display_name) {
       setName(profile.display_name)
     }
   }, [user, profile?.display_name])
 
-  // Generate 20 unique random multiplication questions (2-12 x 2-12, excluding 1)
+  // Generate 20 unique random multiplication questions (2-12 excluding 10; unordered uniqueness)
   const generateQuestions = () => {
     const newQuestions = []
-    const questionSet = new Set() // Track unique questions (exact format: "num1×num2")
+    const questionSet = new Set() // Track unique questions (unordered pair key: "min×max")
     
     while (newQuestions.length < 20) {
-      // Generate numbers from 2 to 12 (excluding 1)
-      const num1 = Math.floor(Math.random() * 11) + 2
-      const num2 = Math.floor(Math.random() * 11) + 2
-      // Create a unique key for the exact question format
-      const questionKey = `${num1}×${num2}`
+      // Generate numbers from pool (2-12 excluding 10)
+      const num1 = QUESTION_NUMBER_POOL[Math.floor(Math.random() * QUESTION_NUMBER_POOL.length)]
+      const num2 = QUESTION_NUMBER_POOL[Math.floor(Math.random() * QUESTION_NUMBER_POOL.length)]
+
+      // Unique key treats "3×4" and "4×3" as the same question
+      const questionKey = getPairKey(num1, num2)
       
-      // Only add if we haven't seen this exact question before
-      // Note: "3×4" and "4×3" are considered different questions
+      // Only add if we haven't seen this unordered pair before
       if (!questionSet.has(questionKey)) {
         questionSet.add(questionKey)
         newQuestions.push({
@@ -95,7 +105,7 @@ function Game() {
       setTotalQuestionsAnswered(0)
       totalQuestionsAnsweredRef.current = 0
       // Store initial questions and reset tracking
-      initialQuestionsRef.current = initialQuestions.map(q => `${q.num1}×${q.num2}`)
+      initialQuestionsRef.current = initialQuestions.map(q => getPairKey(q.num1, q.num2))
       correctlyAnsweredQuestionsRef.current = new Set()
       setGameStarted(true)
       
@@ -169,7 +179,7 @@ function Game() {
     setGameLog(prev => [...prev, logEntry])
     
     // Only count unique questions that are answered correctly for the first time
-    const questionKey = `${currentQuestion.num1}×${currentQuestion.num2}`
+    const questionKey = getPairKey(currentQuestion.num1, currentQuestion.num2)
     if (isCorrect && 
         initialQuestionsRef.current.includes(questionKey) && 
         !correctlyAnsweredQuestionsRef.current.has(questionKey)) {

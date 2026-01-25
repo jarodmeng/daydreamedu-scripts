@@ -150,7 +150,7 @@ Environment variables:
 2. **Game Page**:
    - Optionally sign in with Google and set your display name in **Profile**
    - Or play anonymously by entering your name
-   - Answer 20 unique multiplication questions (2-12 × 2-12)
+   - Answer 20 unique multiplication questions (2-12 excluding 10; `a×b` and `b×a` count as the same question)
    - Timer starts automatically when the game begins and tracks total time
    - Progress indicator shows current question number and round number
    - Input box auto-focuses for quick answering
