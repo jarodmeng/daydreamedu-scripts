@@ -18,10 +18,13 @@ chinese_chr_app/
 │   └── logs/        # Character edit logs
 ├── frontend/        # React frontend
 │   ├── src/
-│   │   ├── pages/   # Page components (Search, Radicals, RadicalDetail)
+│   │   ├── pages/   # Page components (Search, Radicals, RadicalDetail, StrokeCounts, StrokeCountDetail)
 │   │   ├── App.jsx  # Main router component
 │   │   └── App.css
+│   ├── e2e/         # Playwright E2E tests + fixtures
+│   ├── scripts/     # Helper scripts (e.g. start backend for E2E)
 │   ├── package.json
+│   ├── playwright.config.js
 │   └── vite.config.js
 └── data/            # Character and dictionary data (JSON)
     ├── characters.json                   # Primary character metadata (from 冯氏早教识字卡, editable in app)
