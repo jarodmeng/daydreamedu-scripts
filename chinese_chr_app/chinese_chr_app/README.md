@@ -18,7 +18,7 @@ chinese_chr_app/
 │   └── logs/        # Character edit logs
 ├── frontend/        # React frontend
 │   ├── src/
-│   │   ├── pages/   # Page components (Search, Radicals, RadicalDetail, Structures)
+│   │   ├── pages/   # Page components (Search, Radicals, RadicalDetail)
 │   │   ├── App.jsx  # Main router component
 │   │   └── App.css
 │   ├── package.json

@@ -81,45 +81,25 @@ Milestone 2: A radicals page to organize characters by radical
         * The number of strokes
     * Characters are sorted first by number of strokes (ascending), then by pinyin (alphabetically)
     * Clicking on a character box navigates to the search page with that character pre-filled
-* Navigation links are available on all pages to switch between the search page, radicals page, and (after Milestone 3) the structures page.
+* Navigation links are available on all pages to switch between the search page and radicals page.
 * The radicals data is generated dynamically from `characters.json` on-the-fly and cached in memory for efficient performance, ensuring it stays synchronized with any character edits.
 
-Milestone 3: A structures page to organize characters by structure
-* A new page named "结构 (Structures)" accessible from the main search page via navigation links.
-* The structures page displays all unique structure types in a grid layout with clickable boxes.
-* Each structure box shows:
-    * The structure type name (e.g., "左右结构", "上下结构", "半包围结构")
-    * The number of characters associated with that structure type
-* Structure types are sorted by the number of associated characters (descending order), with structure types having more characters appearing first.
-* When a user clicks on a structure box, they are directed to a detail page dedicated to that structure type.
-* The structure detail page shows:
-    * All characters associated with the selected structure type
-    * Each character is displayed in a clickable box showing:
-        * The character in KaiTi (楷体) font
-        * The pinyin pronunciation(s)
-        * The number of strokes
-    * Characters are sorted first by number of strokes (ascending), then by pinyin (alphabetically)
-    * Clicking on a character box navigates to the search page with that character pre-filled
-* Navigation links are available on all pages to switch between the search page, radicals page, and structures page.
-* The structures data is generated dynamically from `characters.json` on-the-fly and cached in memory for efficient performance, ensuring it stays synchronized with any character edits.
-
-Milestone 4: Simplify navigation bar to Search and Segmentation (分类)
-Both milestone 2 and 3 are different segmentations of 3000 common simplified Chinese characters. Rather than having each segmentation occupy one space in the top navigation bar, we consolidate the segmentations into one top-level "Segmentation (分类)" button in the navigation bar.
+Milestone 3: Simplify navigation bar to Search and Segmentation (分类)
+Milestone 2 introduces a segmentation page (部首 / Radicals). Rather than having each segmentation occupy one space in the top navigation bar, we consolidate segmentations into one top-level "Segmentation (分类)" button in the navigation bar (and keep it extensible for future segmentations).
 
 The implemented behavior is:
 * The top navigation bar now has two primary items:
     * **Search** – links to the main search page (`/`)
     * **Segmentation (分类)** – acts as a dropdown menu trigger, not a standalone page
-* When the user hovers over **Segmentation (分类)** on desktop (or taps it on touch devices), a dropdown menu appears with two submenu items:
+* When the user hovers over **Segmentation (分类)** on desktop (or taps it on touch devices), a dropdown menu appears with submenu items:
     * **部首 (Radicals)** – links to the radicals page (`/radicals`)
-    * **结构 (Structures)** – links to the structures page (`/structures`)
 * The dropdown stays open while the cursor is over the Segmentation button or its menu, so users can reliably click submenu items.
 * The active tab is clearly indicated with a darker green background and a black border:
     * **Search** is highlighted when the user is on `/`
-    * **Segmentation (分类)** is highlighted when the user is on any segmentation page (currently `/radicals` or `/structures`)
+    * **Segmentation (分类)** is highlighted when the user is on any segmentation page (currently `/radicals`)
 * The navigation bar is implemented via a shared `NavBar` component so that future segmentation types can be added by extending the Segmentation submenu without changing the overall layout.
 
-Milestone 5: Display stroke order animation
+Milestone 4: Display stroke order animation
 * On the character search page, when a character is found, display a stroke order animation for that character in place of the original page1.png image.
 * The stroke order animation:
     * Uses SVG-based rendering to draw each stroke in sequence.
