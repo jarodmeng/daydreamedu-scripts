@@ -603,37 +603,69 @@ def get_hanzi_writer_strokes():
 
     return jsonify({'error': f'Failed to load stroke data for {ch}: {last_err}'}), 502
 
-def generate_radicals_data(characters_data: List[Dict]) -> List[Dict]:
+def generate_radicals_data(characters_data: List[Dict], hwxnet_lookup: Optional[Dict[str, Any]] = None) -> List[Dict]:
     """
-    Generate radicals data from characters_data.
-    Groups characters by their radical field.
-    
-    Args:
-        characters_data: List of character dictionaries
-        
+    Generate radicals data for the Radicals pages.
+
+    Preferred source: HWXNet dictionary data (covers 3664 characters).
+    Fallback: characters.json (covers 3000 characters).
+
     Returns:
-        List of {radical, characters} dictionaries
+        List of {radical, characters} dictionaries where each character entry has:
+          - Character
+          - Pinyin (array)
+          - Strokes (string)
+          - (optional) Index/custom_id/Structure when available
     """
-    # Organize by radical
     radical_dict = defaultdict(list)
-    
-    for char in characters_data:
-        radical = char.get('Radical', '').strip()
-        # Remove dictionary markers if present
-        if ' (dictionary)' in radical:
-            radical = radical.replace(' (dictionary)', '')
-        
-        if radical:
+
+    # Use HWXNet dictionary data if available (includes the extra 664 chars)
+    if isinstance(hwxnet_lookup, dict) and hwxnet_lookup:
+        for ch, entry in hwxnet_lookup.items():
+            if not isinstance(entry, dict):
+                continue
+            radical = str(entry.get('部首') or '').strip()
+            if not radical or radical == '—':
+                continue
+
+            pinyin = entry.get('拼音')
+            pinyin_list = pinyin if isinstance(pinyin, list) else ([pinyin] if isinstance(pinyin, str) and pinyin else [])
+
+            strokes = entry.get('总笔画')
+            strokes_str = str(strokes) if strokes is not None else ''
+
             character_info = {
-                'Character': char.get('Character', ''),
-                'custom_id': char.get('custom_id', ''),
-                'Index': char.get('Index', ''),
-                'Pinyin': char.get('Pinyin', []),
-                'Strokes': char.get('Strokes', ''),
-                'Structure': char.get('Structure', '')
+                'Character': ch,
+                'Pinyin': pinyin_list,
+                'Strokes': strokes_str,
             }
+
+            # Preserve these fields when present (for 3000 characters sourced from characters.json)
+            if 'index' in entry:
+                character_info['Index'] = entry.get('index')
+            if 'zibiao_index' in entry:
+                character_info['zibiao_index'] = entry.get('zibiao_index')
+
             radical_dict[radical].append(character_info)
-    
+    else:
+        # Fallback: derive radicals from characters.json
+        for char in characters_data:
+            radical = char.get('Radical', '').strip()
+            # Remove dictionary markers if present
+            if ' (dictionary)' in radical:
+                radical = radical.replace(' (dictionary)', '')
+
+            if radical:
+                character_info = {
+                    'Character': char.get('Character', ''),
+                    'custom_id': char.get('custom_id', ''),
+                    'Index': char.get('Index', ''),
+                    'Pinyin': char.get('Pinyin', []),
+                    'Strokes': char.get('Strokes', ''),
+                    'Structure': char.get('Structure', '')
+                }
+                radical_dict[radical].append(character_info)
+
     # Convert to the desired format
     result = []
     for radical, chars in sorted(radical_dict.items()):
@@ -641,7 +673,7 @@ def generate_radicals_data(characters_data: List[Dict]) -> List[Dict]:
             'radical': radical,
             'characters': chars
         })
-    
+
     return result
 
 def reload_radicals():
@@ -655,14 +687,15 @@ def load_radicals():
     """Load/generate radicals data from characters_data (cached in memory)"""
     global radicals_data, radicals_lookup
     if radicals_data is None:
-        print("Generating radicals data from characters...")
-        # Load characters first
+        # Prefer HWXNet dictionary (covers 3664 characters)
+        print("Generating radicals data from hwxnet dictionary...")
         characters, _ = load_characters()
-        # Generate radicals data from characters
-        radicals_data = generate_radicals_data(characters)
+        _, hwx_lookup = load_hwxnet()
+        radicals_data = generate_radicals_data(characters, hwxnet_lookup=hwx_lookup)
         # Create lookup dictionary for fast search
         radicals_lookup = {entry['radical']: entry for entry in radicals_data}
-        print(f"✓ Generated {len(radicals_data)} radicals from {len(characters)} characters")
+        # Note: hwxnet_lookup includes 3664 chars; characters.json includes 3000
+        print(f"✓ Generated {len(radicals_data)} radicals from hwxnet dictionary ({len(hwx_lookup)} characters)")
     return radicals_data, radicals_lookup
 
 @app.route('/api/radicals', methods=['GET'])
