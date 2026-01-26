@@ -1,0 +1,58 @@
+name: chinese-chr-app e2e
+
+on:
+  pull_request:
+    paths:
+      - "chinese_chr_app/chinese_chr_app/**"
+      - ".github/workflows/chinese_chr_app_e2e.yml"
+  push:
+    branches: ["main"]
+    paths:
+      - "chinese_chr_app/chinese_chr_app/**"
+      - ".github/workflows/chinese_chr_app_e2e.yml"
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: chinese_chr_app/chinese_chr_app/frontend
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: chinese_chr_app/chinese_chr_app/frontend/package-lock.json
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install backend deps
+        run: python -m pip install -r ../backend/requirements.txt
+
+      - name: Install frontend deps
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Run E2E tests
+        run: npx playwright test --project=chromium
+        env:
+          E2E_PYTHON: python
+
+      - name: Upload Playwright report (on failure)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: chinese_chr_app/chinese_chr_app/frontend/playwright-report
+

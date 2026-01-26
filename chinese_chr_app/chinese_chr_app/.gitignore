@@ -12,6 +12,8 @@ ENV/
 node_modules/
 dist/
 .vite/
+playwright-report/
+test-results/
 
 # IDE
 .vscode/

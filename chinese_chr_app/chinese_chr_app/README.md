@@ -102,6 +102,25 @@ The frontend will run on `http://localhost:3000`
 
 In production, the frontend is built with Vite and deployed to Netlify. API requests are sent to the Cloud Run backend using the `VITE_API_URL` environment variable set in the Netlify site settings.
 
+### E2E tests (Playwright)
+
+Playwright end-to-end tests live under `frontend/e2e/` and cover core flows:
+- Search a character that exists in `characters.json` (4-panel view)
+- Search a dictionary-only character (2-panel view)
+- Navigate `/radicals` → a radical detail page → click a character back to search
+
+From `chinese_chr_app/frontend`:
+
+```bash
+npm install
+npx playwright install
+npm run test:e2e
+```
+
+Notes:
+- If you already have the backend running on `http://localhost:5001`, Playwright will **reuse** it.
+- If you don’t, Playwright will try to start it; make sure you’ve installed backend deps (from `chinese_chr_app/backend`: `pip3 install -r requirements.txt`) or have a backend venv at `backend/venv` / `backend/.venv`.
+
 ### Stroke animation (HanziWriter) notes
 
 HanziWriter loads per-character stroke data from `hanzi-writer-data`. In some environments, direct CDN fetches can be blocked; the backend provides a proxy + cache:

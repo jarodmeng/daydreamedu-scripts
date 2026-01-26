@@ -69,6 +69,12 @@ if not any('netlify.app' in o for o in CORS_ORIGINS):
 
 CORS(app, origins=CORS_ORIGINS_WITH_WILDCARD, supports_credentials=True)
 
+
+@app.route('/api/health', methods=['GET'])
+def health_check():
+    """Lightweight health check for local dev / CI."""
+    return jsonify({'ok': True}), 200
+
 # Load character data into memory
 characters_data = None
 character_lookup = {}  # Map character -> character data for fast lookup
