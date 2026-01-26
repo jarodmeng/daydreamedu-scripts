@@ -31,10 +31,6 @@ function Search() {
   const [strokeStatus, setStrokeStatus] = useState('idle') // idle | loading | ready | error
   const [strokeError, setStrokeError] = useState('')
   const [isComposing, setIsComposing] = useState(false)
-  const [editingField, setEditingField] = useState(null)
-  const [editValue, setEditValue] = useState('')
-  const [updating, setUpdating] = useState(false)
-  const enterPressedRef = useRef(false)
   const strokeContainerRef = useRef(null)
   const writerRef = useRef(null)
 
@@ -217,26 +213,6 @@ function Search() {
     }).join(', ')
   }
 
-  const formatArrayForEdit = (arr) => {
-    if (!Array.isArray(arr)) return ''
-    return arr.map(item => {
-      if (typeof item === 'string' && item.includes(' (dictionary)')) {
-        return item.replace(' (dictionary)', '')
-      }
-      return item
-    }).join(', ')
-  }
-
-  const parseArrayValue = (str) => {
-    if (!str || str.trim() === '') return []
-    return str.split(',').map(item => item.trim()).filter(item => item.length > 0)
-  }
-
-  const getOriginalValue = (field) => {
-    if (!character) return null
-    return character[field]
-  }
-
   const getDisplayValue = (field) => {
     if (!character) return null
     const value = character[field]
@@ -252,184 +228,10 @@ function Search() {
     return value || ''
   }
 
-  const handleCellDoubleClick = (field) => {
-    if (updating) return
+  const ReadOnlyCell = ({ field }) => {
     const displayValue = getDisplayValue(field)
-    setEditingField(field)
-    setEditValue(displayValue || '')
-  }
-
-  const handleCancelEdit = () => {
-    setEditingField(null)
-    setEditValue('')
-  }
-
-  const handleSaveEdit = async (field) => {
-    if (!character || updating || editingField !== field) {
-      return
-    }
-
-    const originalValue = getOriginalValue(field)
-    let newValue = editValue.trim()
-
-    if (field === 'Pinyin' || field === 'Words') {
-      newValue = parseArrayValue(newValue)
-      if (field === 'Pinyin' && newValue.length === 0) {
-        setError('拼音不能为空')
-        handleCancelEdit()
-        return
-      }
-    }
-
-    let originalForComparison = originalValue
-    if (field === 'Pinyin' || field === 'Words') {
-      if (Array.isArray(originalValue)) {
-        originalForComparison = originalValue.map(item => {
-          if (typeof item === 'string') {
-            return item.replace(' (dictionary)', '')
-          }
-          return item
-        })
-      } else {
-        originalForComparison = []
-      }
-    } else if (typeof originalValue === 'string') {
-      originalForComparison = originalValue.replace(' (dictionary)', '').trim()
-    } else if (originalValue === null || originalValue === undefined) {
-      originalForComparison = ''
-    }
-
-    const normalizedOriginal = Array.isArray(originalForComparison) 
-      ? originalForComparison.join(',') 
-      : String(originalForComparison || '')
-    const normalizedNew = Array.isArray(newValue) 
-      ? newValue.join(',') 
-      : String(newValue || '')
-
-    const hasChanged = normalizedOriginal !== normalizedNew
-
-    if (hasChanged) {
-      const fieldNames = {
-        'Pinyin': '拼音',
-        'Radical': '部首',
-        'Strokes': '笔画',
-        'Structure': '结构',
-        'Sentence': '例句',
-        'Words': '词组'
-      }
-      const fieldName = fieldNames[field] || field
-      const oldDisplay = Array.isArray(originalForComparison) 
-        ? (originalForComparison.length > 0 ? originalForComparison.join(', ') : '(空)')
-        : (originalForComparison || '(空)')
-      const newDisplay = Array.isArray(newValue) 
-        ? (newValue.length > 0 ? newValue.join(', ') : '(空)')
-        : (newValue || '(空)')
-
-      const confirmed = window.confirm(
-        `确定要修改 ${fieldName} 吗？\n\n` +
-        `原值: ${oldDisplay}\n` +
-        `新值: ${newDisplay}`
-      )
-
-      if (!confirmed) {
-        handleCancelEdit()
-        return
-      }
-    } else {
-      handleCancelEdit()
-      return
-    }
-
-    setUpdating(true)
-    setError('')
-
-    try {
-      const response = await fetch(`${API_BASE}/api/characters/${character.custom_id}/update`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          field: field,
-          value: newValue
-        })
-      })
-
-      const data = await response.json()
-
-      if (data.success) {
-        setCharacter(data.character)
-        setEditingField(null)
-        setEditValue('')
-      } else {
-        setError(data.error || '更新失败')
-      }
-    } catch (err) {
-      console.error('Update error:', err)
-      setError(`更新错误: ${err.message}`)
-    } finally {
-      setUpdating(false)
-    }
-  }
-
-  const EditableCell = ({ field, isArray = false }) => {
-    const isEditing = editingField === field
-    const displayValue = getDisplayValue(field)
-
-    if (isEditing) {
-      return (
-        <input
-          type="text"
-          value={editValue}
-          onChange={(e) => setEditValue(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' || e.key === 'Escape') {
-              e.preventDefault()
-              e.stopPropagation()
-              enterPressedRef.current = true
-              
-              if (e.key === 'Enter') {
-                handleSaveEdit(field)
-              } else if (e.key === 'Escape') {
-                handleCancelEdit()
-              }
-            }
-          }}
-          onKeyPress={(e) => {
-            if (e.key === 'Enter') {
-              e.preventDefault()
-            }
-          }}
-          onBlur={(e) => {
-            if (enterPressedRef.current) {
-              enterPressedRef.current = false
-              return
-            }
-            setTimeout(() => {
-              if (editingField === field) {
-                handleSaveEdit(field)
-              }
-            }, 200)
-          }}
-          autoFocus
-          className="editable-input"
-          disabled={updating}
-          placeholder={isArray ? "用逗号分隔多个值" : "输入新值"}
-          style={{ outline: 'none' }}
-        />
-      )
-    }
-
     const displayText = displayValue || '无'
-    return (
-      <span
-        className="editable-cell"
-        onDoubleClick={() => handleCellDoubleClick(field)}
-        title="双击编辑"
-      >
-        {displayText}
-      </span>
-    )
+    return <span>{displayText}</span>
   }
 
   const handleReplayAnimation = () => {
@@ -648,45 +450,42 @@ function Search() {
                 </div>
                 <div className="metadata-table">
                   <h3>字符信息（来源：冯氏早教识字卡）</h3>
-                  {updating && (
-                    <div className="updating-indicator">更新中...</div>
-                  )}
                   <table>
                     <tbody>
                       <tr>
                         <td>拼音</td>
                         <td>
-                          <EditableCell field="Pinyin" isArray={true} />
+                          <ReadOnlyCell field="Pinyin" />
                         </td>
                       </tr>
                       <tr>
                         <td>部首</td>
                         <td>
-                          <EditableCell field="Radical" isArray={false} />
+                          <ReadOnlyCell field="Radical" />
                         </td>
                       </tr>
                       <tr>
                         <td>笔画</td>
                         <td>
-                          <EditableCell field="Strokes" isArray={false} />
+                          <ReadOnlyCell field="Strokes" />
                         </td>
                       </tr>
                       <tr>
                         <td>结构</td>
                         <td>
-                          <EditableCell field="Structure" isArray={false} />
+                          <ReadOnlyCell field="Structure" />
                         </td>
                       </tr>
                       <tr>
                         <td>例句</td>
                         <td>
-                          <EditableCell field="Sentence" isArray={false} />
+                          <ReadOnlyCell field="Sentence" />
                         </td>
                       </tr>
                       <tr>
                         <td>词组</td>
                         <td>
-                          <EditableCell field="Words" isArray={true} />
+                          <ReadOnlyCell field="Words" />
                         </td>
                       </tr>
                     </tbody>
