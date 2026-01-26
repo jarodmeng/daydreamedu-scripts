@@ -77,6 +77,10 @@ character_lookup = {}  # Map character -> character data for fast lookup
 radicals_data = None  # Array of {radical, characters}
 radicals_lookup = {}  # Map radical -> {radical, characters} for fast lookup
 
+# Load stroke-counts data into memory
+stroke_counts_data = None  # Array of {count, character_count}
+stroke_counts_lookup = {}  # Map count(int) -> list of character entries
+
 # Load dictionary (hwxnet) data into memory
 hwxnet_data = None      # Raw dict loaded from JSON
 hwxnet_lookup = {}      # Map character -> hwxnet entry
@@ -694,6 +698,87 @@ def load_radicals():
         print(f"✓ Generated {len(radicals_data)} radicals from hwxnet dictionary ({len(hwx_lookup)} characters)")
     return radicals_data, radicals_lookup
 
+def generate_stroke_counts_data(hwxnet_lookup: Dict[str, Any]) -> Tuple[List[Dict[str, Any]], Dict[int, List[Dict[str, Any]]]]:
+    """
+    Generate stroke-counts data from HWXNet dictionary entries.
+
+    Returns:
+        - stroke_counts: list of {count, character_count}, sorted by count asc
+        - lookup: map count(int) -> list of {character, pinyin, radical, strokes, zibiao_index}
+    """
+    by_count: Dict[int, List[Dict[str, Any]]] = defaultdict(list)
+
+    for ch, entry in (hwxnet_lookup or {}).items():
+        if not isinstance(entry, dict):
+            continue
+
+        strokes_raw = entry.get('总笔画')
+        if strokes_raw is None:
+            continue
+
+        try:
+            strokes_int = int(str(strokes_raw).strip())
+        except Exception:
+            continue
+
+        if strokes_int <= 0:
+            continue
+
+        radical = str(entry.get('部首') or '').strip()
+        if radical == '—':
+            radical = ''
+
+        pinyin = entry.get('拼音')
+        pinyin_list = pinyin if isinstance(pinyin, list) else ([pinyin] if isinstance(pinyin, str) and pinyin else [])
+
+        zibiao_raw = entry.get('zibiao_index')
+        try:
+            zibiao_int = int(zibiao_raw) if zibiao_raw is not None else None
+        except Exception:
+            zibiao_int = None
+
+        by_count[strokes_int].append({
+            'character': ch,
+            'pinyin': pinyin_list,
+            'radical': radical,
+            'strokes': strokes_int,
+            'zibiao_index': zibiao_int,
+        })
+
+    # Sort characters by zibiao_index (asc; missing last), then character
+    for count, chars in by_count.items():
+        chars.sort(key=lambda x: (
+            x['zibiao_index'] if isinstance(x.get('zibiao_index'), int) else 10**9,
+            x.get('character', '')
+        ))
+
+    stroke_counts = [
+        {'count': count, 'character_count': len(chars)}
+        for count, chars in by_count.items()
+        if len(chars) > 0
+    ]
+    stroke_counts.sort(key=lambda x: x['count'])
+
+    return stroke_counts, dict(by_count)
+
+def reload_stroke_counts():
+    """Force regenerate stroke-counts data (cached in memory)"""
+    global stroke_counts_data, stroke_counts_lookup
+    stroke_counts_data = None
+    stroke_counts_lookup = {}
+    load_stroke_counts()
+
+def load_stroke_counts():
+    """Load/generate stroke-counts data from HWXNet (cached in memory)"""
+    global stroke_counts_data, stroke_counts_lookup
+    if stroke_counts_data is None:
+        print("Generating stroke-counts data from hwxnet dictionary...")
+        _, hwx_lookup = load_hwxnet()
+        stroke_counts_data, stroke_counts_lookup = generate_stroke_counts_data(hwx_lookup)
+        total_characters = sum(item['character_count'] for item in stroke_counts_data)
+        print(f"✓ Generated {len(stroke_counts_data)} stroke counts ({total_characters} characters)")
+    return stroke_counts_data, stroke_counts_lookup
+
 @app.route('/api/radicals', methods=['GET'])
 def get_radicals():
     """Get all radicals sorted by number of characters"""
@@ -741,6 +826,36 @@ def get_radical_detail(radical):
         'characters': [],
         'count': 0,
         'error': f'No characters found for radical "{decoded_radical}"'
+    }), 404
+
+@app.route('/api/stroke-counts', methods=['GET'])
+def get_stroke_counts():
+    """Get all stroke counts that exist, sorted ascending"""
+    stroke_counts, _ = load_stroke_counts()
+    total_characters = sum(item['character_count'] for item in stroke_counts)
+    return jsonify({
+        'stroke_counts': stroke_counts,
+        'total_counts': len(stroke_counts),
+        'total_characters': total_characters,
+    })
+
+@app.route('/api/stroke-counts/<int:count>', methods=['GET'])
+def get_stroke_count_detail(count: int):
+    """Get all characters for a specific stroke count"""
+    _, lookup = load_stroke_counts()
+    if count in lookup:
+        chars = lookup[count]
+        return jsonify({
+            'count': count,
+            'characters': chars,
+            'total': len(chars),
+        })
+
+    return jsonify({
+        'count': count,
+        'characters': [],
+        'total': 0,
+        'error': f'No characters found for stroke count "{count}"'
     }), 404
 
 @app.route('/api/health', methods=['GET'])

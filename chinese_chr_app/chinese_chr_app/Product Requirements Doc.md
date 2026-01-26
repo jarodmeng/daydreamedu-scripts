@@ -107,3 +107,14 @@ Milestone 4: Display stroke order animation
     * Can be replayed by the user via a “重播” button under the animation.
 * The stroke order panel and the 字卡 panel are displayed side by side with consistent sizing so that the animation visually matches the layout of the 冯氏字卡背面.
 * The stroke order animation is currently implemented as a frontend-only feature (no server-side changes required to generate frames), so it can be iterated on independently of backend deployments.
+
+Milestone 5: Add a "Num of strokes" (笔画) page in Segmentation (分类)
+
+* Add a new segmentation page: **笔画 (Strokes)**
+    * Routes: `/stroke-counts` and `/stroke-counts/:count`
+* `/stroke-counts` shows a grid of **stroke counts that exist** (≥1 character), sorted ascending; each tile shows: `N画` + `character_count`.
+* `/stroke-counts/:count` shows all characters with that stroke count, sorted by `zibiao_index` (ascending); each card shows: Character + 拼音 + 部首; click navigates to `/?q=<char>`.
+* Data source: **HWXNet only** (`extracted_characters_hwxnet.json`) for 总笔画/拼音/部首/`zibiao_index`.
+* Backend API:
+    * `GET /api/stroke-counts`
+    * `GET /api/stroke-counts/<count>`

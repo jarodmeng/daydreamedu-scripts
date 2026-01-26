@@ -1,0 +1,107 @@
+.stroke-count-detail-page {
+  width: 100%;
+  min-height: 100vh;
+  padding: 40px 20px;
+  background-color: #f5f5f5;
+}
+
+.stroke-count-detail-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.back-link {
+  display: inline-block;
+  margin-bottom: 20px;
+  color: #4CAF50;
+  text-decoration: none;
+  font-size: 1rem;
+  transition: color 0.2s;
+}
+
+.back-link:hover {
+  color: #45a049;
+  text-decoration: underline;
+}
+
+.stroke-count-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.stroke-count-header h1 {
+  font-size: 2.5rem;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.character-count {
+  font-size: 1.2rem;
+  color: #666;
+}
+
+.stroke-characters-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 20px;
+  margin-top: 30px;
+}
+
+.stroke-character-box {
+  background: white;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.stroke-character-box:hover {
+  border-color: #4CAF50;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.stroke-character-main {
+  font-size: 3rem;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 10px;
+  line-height: 1;
+  font-family: "KaiTi", "STKaiti", "BiauKai", "SimKai", "楷体", "標楷體", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "WenQuanYi Micro Hei", "Noto Sans CJK SC", sans-serif;
+}
+
+.stroke-character-info {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.stroke-character-pinyin {
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+
+.stroke-character-radical {
+  font-size: 0.85rem;
+  color: #888;
+}
+
+.loading {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+}
+
+.error {
+  padding: 20px;
+  background-color: #ffebee;
+  border: 1px solid #f44336;
+  border-radius: 8px;
+  color: #c62828;
+  text-align: center;
+  max-width: 500px;
+  margin: 0 auto;
+}
+

@@ -4,6 +4,7 @@ import './App.css'
 
 const SEGMENTATIONS = [
   { path: '/radicals', label: '部首' },
+  { path: '/stroke-counts', label: '笔画' },
 ]
 
 function NavBar() {
@@ -11,7 +12,7 @@ function NavBar() {
   const [isOpen, setIsOpen] = useState(false)
 
   const isSearchActive = location.pathname === '/'
-  const SEGMENTATION_PREFIXES = ['/radicals']
+  const SEGMENTATION_PREFIXES = ['/radicals', '/stroke-counts']
   const isSegmentationActive = SEGMENTATION_PREFIXES.some(prefix =>
     location.pathname.startsWith(prefix)
   )

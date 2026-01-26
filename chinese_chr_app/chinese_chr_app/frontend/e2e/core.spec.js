@@ -17,9 +17,11 @@ async function routeStrokeFixtures(page) {
 
     const decoded = decodeURIComponent(ch);
     const fixturePath = path.join(fixturesDir, `${decoded}.json`);
-    if (!fs.existsSync(fixturePath)) return route.continue();
+    const fallbackPath = path.join(fixturesDir, `专.json`);
+    const selectedPath = fs.existsSync(fixturePath) ? fixturePath : fallbackPath;
+    if (!fs.existsSync(selectedPath)) return route.continue();
 
-    const body = fs.readFileSync(fixturePath, 'utf-8');
+    const body = fs.readFileSync(selectedPath, 'utf-8');
     return route.fulfill({
       status: 200,
       contentType: 'application/json; charset=utf-8',
@@ -66,6 +68,28 @@ test('core flows: search + dictionary-only + radicals', async ({ page }) => {
   // Click character "囊" under radical "口" -> should navigate back to search
   await page.locator('.character-box').filter({ hasText: '囊' }).first().click();
   await expect(page.getByRole('textbox', { name: '输入一个汉字' })).toHaveValue('囊');
+  await expect(page.getByRole('button', { name: '重播' })).toBeEnabled();
+
+  // 4) Stroke counts list + detail -> click through to search
+  await page.goto('/stroke-counts');
+  await expect(page.getByRole('heading', { name: '笔画' })).toBeVisible();
+
+  const firstCountBox = page.locator('.stroke-count-box').first();
+  await expect(firstCountBox).toBeVisible();
+  const countLabel = await firstCountBox.locator('.stroke-count-number').innerText();
+  const match = countLabel.match(/(\d+)/);
+  await firstCountBox.click();
+  if (match && match[1]) {
+    await expect(page).toHaveURL(new RegExp(`/stroke-counts/${match[1]}$`));
+  } else {
+    await expect(page).toHaveURL(/\/stroke-counts\/.+/);
+  }
+
+  const firstCharacterBox = page.locator('.stroke-character-box').first();
+  await expect(firstCharacterBox).toBeVisible();
+  const pickedChar = await firstCharacterBox.locator('.stroke-character-main').innerText();
+  await firstCharacterBox.click();
+  await expect(page.getByRole('textbox', { name: '输入一个汉字' })).toHaveValue(pickedChar);
   await expect(page.getByRole('button', { name: '重播' })).toBeEnabled();
 });
 
