@@ -209,6 +209,15 @@ h1 {
   border-bottom: none;
 }
 
+.inline-link {
+  color: #1a73e8;
+  text-decoration: underline;
+}
+
+.inline-link:hover {
+  color: #1557b0;
+}
+
 .nav-links {
   display: flex;
   gap: 20px;

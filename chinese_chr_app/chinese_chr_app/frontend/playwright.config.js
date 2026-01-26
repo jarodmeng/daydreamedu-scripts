@@ -1,7 +1,9 @@
 // @ts-check
 import { defineConfig, devices } from '@playwright/test';
 
-const isCI = !!process.env.CI;
+// NOTE: In some local environments (including certain IDE shells), `CI` can be set even though
+// we're not actually running in a CI provider. Use GitHub Actions as the authoritative CI signal.
+const isCI = process.env.GITHUB_ACTIONS === 'true';
 
 export default defineConfig({
   testDir: './e2e',

@@ -88,7 +88,7 @@ function RadicalDetail() {
             <div className="radical-header">
               <h1>部首: {data.radical}</h1>
               <p className="character-count">
-                共{data.count}个汉字
+                共{data.count}个简体字
               </p>
             </div>
 

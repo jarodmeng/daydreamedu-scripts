@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useSearchParams, Link } from 'react-router-dom'
 import HanziWriter from 'hanzi-writer'
 import NavBar from '../NavBar'
 import '../App.css'
@@ -154,13 +154,13 @@ function Search() {
         setDictionary(data.dictionary || null)
         setError('')
       } else {
-        setError(data.error || '未找到该汉字')
+        setError(data.error || '未找到该简体字')
         setCharacter(null)
         setDictionary(null)
       }
     } catch (err) {
       console.error('Search error:', err)
-      setError(`搜索汉字时出错：${err.message}。请确保后端服务器在端口 5001 上运行。`)
+      setError(`搜索简体字时出错：${err.message}。请确保后端服务器在端口 5001 上运行。`)
       setCharacter(null)
     } finally {
       setLoading(false)
@@ -173,13 +173,13 @@ function Search() {
     // Validate input - only allow single Chinese character
     const trimmed = searchTerm.trim()
     if (trimmed.length === 0) {
-      setError('请输入一个汉字')
+      setError('请输入一个简体字')
       setCharacter(null)
       return
     }
     
     if (trimmed.length > 1) {
-      setError('请输入一个汉字')
+      setError('请输入一个简体字')
       setCharacter(null)
       return
     }
@@ -449,7 +449,7 @@ function Search() {
             onChange={handleInputChange}
             onCompositionStart={handleCompositionStart}
             onCompositionEnd={handleCompositionEnd}
-            placeholder="输入一个汉字"
+            placeholder="输入一个简体字"
             className="search-input"
             disabled={loading}
           />
@@ -519,11 +519,41 @@ function Search() {
                       </tr>
                       <tr>
                         <td>部首</td>
-                        <td>{dictionary['部首'] || '—'}</td>
+                        <td>
+                          {(() => {
+                            const radical = String(dictionary['部首'] || '').trim()
+                            if (!radical || radical === '—') return '—'
+                            return (
+                              <Link
+                                to={`/radicals/${encodeURIComponent(radical)}`}
+                                className="inline-link"
+                                data-testid="dictionary-radical-link"
+                              >
+                                {radical}
+                              </Link>
+                            )
+                          })()}
+                        </td>
                       </tr>
                       <tr>
                         <td>总笔画</td>
-                        <td>{dictionary['总笔画'] ?? '—'}</td>
+                        <td>
+                          {(() => {
+                            const raw = dictionary['总笔画']
+                            if (raw === null || raw === undefined) return '—'
+                            const count = Number(raw)
+                            if (!Number.isFinite(count) || count <= 0) return String(raw)
+                            return (
+                              <Link
+                                to={`/stroke-counts/${encodeURIComponent(String(count))}`}
+                                className="inline-link"
+                                data-testid="dictionary-strokes-link"
+                              >
+                                {count}
+                              </Link>
+                            )
+                          })()}
+                        </td>
                       </tr>
                       <tr>
                         <td>分类</td>

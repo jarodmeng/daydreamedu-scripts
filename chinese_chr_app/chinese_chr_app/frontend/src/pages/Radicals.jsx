@@ -47,7 +47,7 @@ function Radicals() {
         
         <h1>部首</h1>
         <p className="radicals-subtitle">
-          点击部首查看该部首下的所有汉字
+          点击部首查看该部首下的所有简体字
         </p>
 
         {loading && (

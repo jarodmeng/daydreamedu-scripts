@@ -64,7 +64,7 @@ function StrokeCountDetail() {
             <div className="stroke-count-header">
               <h1>笔画: {data.count}画</h1>
               <p className="character-count">
-                共{data.total}个汉字
+                共{data.total}个简体字
               </p>
             </div>
 

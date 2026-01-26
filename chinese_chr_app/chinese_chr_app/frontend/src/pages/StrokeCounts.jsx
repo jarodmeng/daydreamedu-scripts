@@ -47,7 +47,7 @@ function StrokeCounts() {
 
         <h1>笔画</h1>
         <p className="stroke-counts-subtitle">
-          点击笔画数查看对应汉字
+          点击笔画数查看对应简体字
         </p>
 
         {loading && (

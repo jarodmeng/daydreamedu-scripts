@@ -63,12 +63,24 @@ test('core flows: search + dictionary-only + radicals', async ({ page }) => {
   // Click radical "口"
   await page.locator('.radical-box').filter({ hasText: '口' }).first().click();
   await expect(page.getByText('部首: 口')).toBeVisible();
-  await expect(page.getByText('共194个汉字')).toBeVisible();
+  await expect(page.getByText('共194个简体字')).toBeVisible();
 
   // Click character "囊" under radical "口" -> should navigate back to search
   await page.locator('.character-box').filter({ hasText: '囊' }).first().click();
-  await expect(page.getByRole('textbox', { name: '输入一个汉字' })).toHaveValue('囊');
+  await expect(page.getByRole('textbox', { name: '输入一个简体字' })).toHaveValue('囊');
   await expect(page.getByRole('button', { name: '重播' })).toBeEnabled();
+
+  // Dictionary radical is clickable -> navigates to radical detail
+  await page.getByTestId('dictionary-radical-link').click();
+  await expect(page.getByText('部首: 口')).toBeVisible();
+  await page.goBack();
+  await expect(page.getByRole('textbox', { name: '输入一个简体字' })).toHaveValue('囊');
+
+  // Dictionary stroke count is clickable -> navigates to stroke-count detail
+  await page.getByTestId('dictionary-strokes-link').click();
+  await expect(page.getByRole('heading', { name: '笔画: 22画' })).toBeVisible();
+  await page.goBack();
+  await expect(page.getByRole('textbox', { name: '输入一个简体字' })).toHaveValue('囊');
 
   // 4) Stroke counts list + detail -> click through to search
   await page.goto('/stroke-counts');
@@ -89,7 +101,7 @@ test('core flows: search + dictionary-only + radicals', async ({ page }) => {
   await expect(firstCharacterBox).toBeVisible();
   const pickedChar = await firstCharacterBox.locator('.stroke-character-main').innerText();
   await firstCharacterBox.click();
-  await expect(page.getByRole('textbox', { name: '输入一个汉字' })).toHaveValue(pickedChar);
+  await expect(page.getByRole('textbox', { name: '输入一个简体字' })).toHaveValue(pickedChar);
   await expect(page.getByRole('button', { name: '重播' })).toBeEnabled();
 });
 
