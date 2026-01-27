@@ -68,9 +68,9 @@ function Leaderboard() {
   }, [sortedGames, user])
 
   return (
-    <div className="container">
-      <div className="game-container">
-        <h2>Leaderboard</h2>
+    <div className="leaderboard-page">
+      <div className="leaderboard-card">
+        <h2 className="leaderboard-title">Leaderboard</h2>
         {loading && <div>Loading...</div>}
         {error && <div className="error">Error: {error}</div>}
         {!loading && !error && (
@@ -113,42 +113,32 @@ function Leaderboard() {
 
             {/* If user is logged in, show global + personal side by side */}
             {isAuthConfigured && user && (
-              <div
-                style={{
-                  display: 'flex',
-                  flexDirection: 'row',
-                  gap: '24px',
-                  marginTop: '20px',
-                  alignItems: 'flex-start',
-                }}
-              >
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <h3 style={{ marginTop: 0 }}>Global leaderboard</h3>
+              <div className="leaderboard-grid">
+                <div className="leaderboard-column">
+                  <h3 className="leaderboard-subtitle">Global leaderboard</h3>
                   {sortedGames.length === 0 ? (
                     <div>No games recorded yet. Be the first to play!</div>
                   ) : (
-                    <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '8px' }}>
+                    <table className="leaderboard-table">
                       <thead>
-                        <tr style={{ borderBottom: '2px solid #ddd' }}>
-                          <th style={{ padding: '8px', textAlign: 'left' }}>Rank</th>
-                          <th style={{ padding: '8px', textAlign: 'left' }}>Name</th>
-                          <th style={{ padding: '8px', textAlign: 'left' }}>Time</th>
-                          <th style={{ padding: '8px', textAlign: 'left' }}>Rounds</th>
-                          <th style={{ padding: '8px', textAlign: 'left' }}>Questions</th>
-                          <th style={{ padding: '8px', textAlign: 'left' }}>Date</th>
+                        <tr>
+                          <th>Rank</th>
+                          <th>Name</th>
+                          <th>Time</th>
+                          <th>Rounds</th>
+                          <th>Questions</th>
+                          <th>Date</th>
                         </tr>
                       </thead>
                       <tbody>
                         {sortedGames.map((game, index) => (
-                          <tr key={game.id ?? index} style={{ borderBottom: '1px solid #eee' }}>
-                            <td style={{ padding: '8px' }}>{index + 1}</td>
-                            <td style={{ padding: '8px', fontWeight: '500' }}>{game.name}</td>
-                            <td style={{ padding: '8px' }}>{formatTimeWithMs(game.time_elapsed)}</td>
-                            <td style={{ padding: '8px' }}>{game.rounds}</td>
-                            <td style={{ padding: '8px' }}>{game.total_questions}</td>
-                            <td style={{ padding: '8px', fontSize: '0.9rem', color: '#666' }}>
-                              {formatDate(game.timestamp)}
-                            </td>
+                          <tr key={game.id ?? index}>
+                            <td>{index + 1}</td>
+                            <td className="leaderboard-name-cell">{game.name}</td>
+                            <td>{formatTimeWithMs(game.time_elapsed)}</td>
+                            <td>{game.rounds}</td>
+                            <td>{game.total_questions}</td>
+                            <td className="leaderboard-date-cell">{formatDate(game.timestamp)}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -156,8 +146,8 @@ function Leaderboard() {
                   )}
                 </div>
 
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <h3 style={{ marginTop: 0 }}>
+                <div className="leaderboard-column">
+                  <h3 className="leaderboard-subtitle">
                     Your games{profile?.display_name ? ` (${profile.display_name})` : ''}
                   </h3>
                   {personalGames.length === 0 ? (
@@ -166,26 +156,24 @@ function Leaderboard() {
                       personal bests here.
                     </div>
                   ) : (
-                    <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '8px' }}>
+                    <table className="leaderboard-table">
                       <thead>
-                        <tr style={{ borderBottom: '2px solid #ddd' }}>
-                          <th style={{ padding: '8px', textAlign: 'left' }}>Rank</th>
-                          <th style={{ padding: '8px', textAlign: 'left' }}>Time</th>
-                          <th style={{ padding: '8px', textAlign: 'left' }}>Rounds</th>
-                          <th style={{ padding: '8px', textAlign: 'left' }}>Questions</th>
-                          <th style={{ padding: '8px', textAlign: 'left' }}>Date</th>
+                        <tr>
+                          <th>Rank</th>
+                          <th>Time</th>
+                          <th>Rounds</th>
+                          <th>Questions</th>
+                          <th>Date</th>
                         </tr>
                       </thead>
                       <tbody>
                         {personalGames.map((game, index) => (
-                          <tr key={game.id ?? index} style={{ borderBottom: '1px solid #eee' }}>
-                            <td style={{ padding: '8px' }}>{index + 1}</td>
-                            <td style={{ padding: '8px' }}>{formatTimeWithMs(game.time_elapsed)}</td>
-                            <td style={{ padding: '8px' }}>{game.rounds}</td>
-                            <td style={{ padding: '8px' }}>{game.total_questions}</td>
-                            <td style={{ padding: '8px', fontSize: '0.9rem', color: '#666' }}>
-                              {formatDate(game.timestamp)}
-                            </td>
+                          <tr key={game.id ?? index}>
+                            <td>{index + 1}</td>
+                            <td>{formatTimeWithMs(game.time_elapsed)}</td>
+                            <td>{game.rounds}</td>
+                            <td>{game.total_questions}</td>
+                            <td className="leaderboard-date-cell">{formatDate(game.timestamp)}</td>
                           </tr>
                         ))}
                       </tbody>
