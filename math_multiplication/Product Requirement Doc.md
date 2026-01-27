@@ -14,4 +14,4 @@ A web application to help lower primary school students practice multiplication 
    - Wrong answers are re-asked in randomized rounds until all are correct
    - Results show time elapsed, rounds completed, and questions answered correctly
 
-3. **Leaderboard**: Displays all game results sorted by completion time (fastest first)
+3. **Leaderboard**: Shows a global leaderboard (all games) and, when logged in, a personal leaderboard with that user’s games

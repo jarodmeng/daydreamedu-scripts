@@ -177,7 +177,7 @@ Notes:
    - Wrong answers are re-asked in randomized order in subsequent rounds until all are correct
    - Game completes when all 20 unique questions are answered correctly
    - Final results show: name, time elapsed (MM:SS.mmm), rounds completed, and total questions answered correctly
-3. **Leaderboard Page**: View all game results sorted by completion time (fastest first), showing rank, name, time, rounds, questions, and date (shown in Singapore time)
+3. **Leaderboard Page**: View a global leaderboard of all games, and when logged in, a personal leaderboard showing games for the current account (times shown in Singapore time)
 
 ## API Endpoints
 
