@@ -95,6 +95,24 @@ Environment variables:
 - `VITE_SUPABASE_URL` (e.g. `https://<PROJECT_REF>.supabase.co`)
 - `VITE_SUPABASE_ANON_KEY` (Supabase project anon key; safe to expose to the browser)
 
+### E2E tests (Playwright)
+
+Playwright end-to-end tests live under `frontend/e2e/` and cover core flows:
+- Starting an anonymous game, answering questions, and seeing feedback
+- Navigating to the leaderboard and verifying it renders correctly
+
+From `math_multiplication/frontend`:
+
+```bash
+npm install
+npx playwright install
+npm run test:e2e
+```
+
+Notes:
+- If you already have the backend running on `http://localhost:5001`, Playwright will **reuse** it.
+- If you don’t, Playwright will try to start it using `scripts/run-backend-for-e2e.mjs`; make sure you’ve installed backend deps (from `math_multiplication/backend`: `pip3 install -r requirements.txt`) and configured your `.env.local` database settings.
+
 ## Deployment (Production)
 
 ### Backend (Cloud Run via Cloud Build)
