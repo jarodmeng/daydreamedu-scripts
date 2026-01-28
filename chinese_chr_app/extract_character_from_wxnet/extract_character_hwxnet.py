@@ -239,13 +239,15 @@ def extract_character_info(character: str) -> Dict[str, Any]:
                 # Take the first part before semicolon
                 pinyin_clean = pinyin_clean.split(';')[0].strip()
             
-            # Validate it looks like pinyin (contains only letters and tone marks)
-            # Single character pinyin is typically 1-6 characters (e.g., "màn"=4, "liàng"=5, "shuāng"=6, "hé"=2)
-            # Longer strings are likely compound words, not single character pronunciations
-            # Note: includes ă/ĕ/ŏ/ĭ/ŭ (a/e/o/i/u with breve) which some sites use instead of ǎ/ě/ǒ/ǐ/ǔ (caron)
-            # Also accepts numbers (1-5) for tone marks (e.g., "ng4" for 嗯)
-            if pinyin_clean and (re.match(r'^[a-zāáǎàăēéěèĕīíǐìĭōóǒòŏūúǔùŭǖǘǚǜü]+$', pinyin_clean, re.IGNORECASE) or
-                                 re.match(r'^[a-zāáǎàăēéěèĕīíǐìĭōóǒòŏūúǔùŭǖǘǚǜü]+[1-5]$', pinyin_clean, re.IGNORECASE)):
+            # Validate it looks like pinyin (contains only letters + tone marks, optional trailing 1-5)
+            # and has at least one vowel (to exclude things like \"r2\", \"hng5\").
+            if pinyin_clean and (
+                re.match(r'^[a-zāáǎàăēéěèĕīíǐìĭōóǒòŏūúǔùŭǖǘǚǜü]+$', pinyin_clean, re.IGNORECASE)
+                or re.match(r'^[a-zāáǎàăēéěèĕīíǐìĭōóǒòŏūúǔùŭǖǘǚǜü]+[1-5]$', pinyin_clean, re.IGNORECASE)
+            ):
+                # Require at least one vowel (with or without tone mark).
+                if not re.search(r'[aeiouāáǎàăēéěèĕīíǐìĭōóǒòŏūúǔùŭǖǘǚǜü]', pinyin_clean, re.IGNORECASE):
+                    continue
                 # Filter out compound words:
                 # 1. Longer than 6 characters
                 # 2. Has multiple tone marks (indicating multiple syllables)
