@@ -14,7 +14,7 @@ Notes:
 - Use the **pooler** hostname (`*.pooler.supabase.com`). Some projects won’t have a working `db.<ref>.supabase.co` DNS record.
 - If your password has special characters (`/`, `@`, `:`, `%`), **URL-encode** it in the URL.
 
-## 2) Configure local env
+## 2) Configure local env (main project, test schema)
 
 From `math_multiplication/backend`:
 
@@ -22,9 +22,17 @@ From `math_multiplication/backend`:
 cp .env.local.example .env.local
 ```
 
-Set:
-- `DATABASE_URL=<the pooler URL above>`
-- `SUPABASE_URL=https://<PROJECT_REF>.supabase.co` (used to verify Google login JWTs)
+Then in `.env.local`:
+
+- Use the **main Supabase project** (`math_practice`, ref `bcyvuwcktwljsdbsjuyx`):
+  - `ENVIRONMENT=test`
+  - `DATABASE_URL=<the pooler URL above for the main project>`
+  - `SUPABASE_URL=https://bcyvuwcktwljsdbsjuyx.supabase.co` (used to verify Supabase JWTs)
+  - `SUPABASE_JWT_AUD=authenticated`
+
+When `ENVIRONMENT=test`, the backend connects to the main project database but
+uses the **`test` schema** (`test.games`, `test.user_profiles`) so local dev and
+e2e data stay isolated from production (`public.games`, `public.user_profiles`).
 
 ## 3) Run the backend
 

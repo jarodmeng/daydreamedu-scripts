@@ -39,12 +39,24 @@ Notes:
 
 ## Environment separation (test vs prod)
 
-Supabase free tier is typically **one database per project**. Recommended options:
+Supabase free tier is typically **one database per project**. For this app we use:
 
-- **Recommended**: use **two Supabase projects** (one for testing, one for production), each with its own `DATABASE_URL`.
-- Alternative: use **two schemas** (e.g. `test.games` and `prod.games`) and configure the backend to write to the schema based on `ENVIRONMENT`.
+- A **single Supabase project** (`math_practice`, ref `bcyvuwcktwljsdbsjuyx`)
+- Two **schemas** inside that project:
+  - `public` schema for **production** data:
+    - `public.games`
+    - `public.user_profiles`
+  - `test` schema for **local dev + e2e** data:
+    - `test.games`
+    - `test.user_profiles`
 
-Current implementation uses a single `games` table in the connected database.
+The backend selects the schema based on `ENVIRONMENT`:
+
+- `ENVIRONMENT=production` → default schema (`public`)
+- `ENVIRONMENT=test`       → `test` schema
+
+Both environments share the same connection string (`DATABASE_URL`) but operate
+on different schemas so production and test data stay isolated.
 
 ## Configuration
 

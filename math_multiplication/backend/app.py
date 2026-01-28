@@ -5,13 +5,19 @@ import json
 import time
 import uuid
 import hashlib
+from pathlib import Path
 
-# Load environment variables from .env file if it exists (for local development)
+# Load environment variables from backend/.env.local if it exists (for local development).
+# Use a path relative to this file so it works regardless of the current working directory
+# (e.g. when started via Playwright from the frontend directory).
 try:
     from dotenv import load_dotenv
-    load_dotenv('.env.local')
+
+    _BASE_DIR = Path(__file__).resolve().parent
+    load_dotenv(_BASE_DIR / ".env.local")
 except ImportError:
-    pass  # python-dotenv not installed, skip
+    # python-dotenv not installed, skip
+    pass
 
 from jwt import InvalidTokenError
 

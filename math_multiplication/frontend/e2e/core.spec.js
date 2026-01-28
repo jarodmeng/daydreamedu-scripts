@@ -44,10 +44,9 @@ test('anonymous game start and basic flow, then leaderboard', async ({ page }) =
   const emptyMessage = page.getByText('No games recorded yet. Be the first to play!');
   const table = page.locator('table');
 
-  if (await emptyMessage.isVisible()) {
-    await expect(emptyMessage).toBeVisible();
-  } else {
-    await expect(table).toBeVisible();
-  }
+  // Wait for either the empty state message or the leaderboard table to appear.
+  // Using .or() avoids a race where we check visibility before either is rendered.
+  const leaderboardContent = emptyMessage.or(table);
+  await expect(leaderboardContent).toBeVisible();
 });
 
