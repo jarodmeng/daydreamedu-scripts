@@ -50,6 +50,7 @@ console.log(`[e2e-backend] Starting: ${appPath}`);
 
 const child = spawn(pythonExe, [appPath], {
   stdio: 'inherit',
+  cwd: backendDir,
   env: {
     ...process.env,
     PORT: process.env.PORT || '5001',

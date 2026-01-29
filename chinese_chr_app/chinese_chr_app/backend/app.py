@@ -54,6 +54,9 @@ PNG_BASE_DIR = Path(os.getenv('PNG_BASE_DIR', str(DATA_DIR / "png")))
 LOGS_DIR = Path(os.getenv('LOGS_DIR', str(_backend_dir / "logs")))
 EDIT_LOG_FILE = LOGS_DIR / "character_edits.log"
 
+# Use Supabase tables instead of JSON files when set (e.g. USE_DATABASE=true)
+USE_DATABASE = os.environ.get('USE_DATABASE', '').strip().lower() in ('1', 'true', 'yes')
+
 # CORS configuration - allow multiple origins
 # Automatically allow all netlify.app subdomains
 CORS_ORIGINS_RAW = os.getenv('CORS_ORIGINS', 'http://localhost:3000').split(',')
@@ -103,9 +106,20 @@ def reload_characters():
     load_characters()
 
 def load_hwxnet():
-    """Load hwxnet dictionary data from JSON file"""
+    """Load hwxnet dictionary data from JSON file or Supabase (when USE_DATABASE)."""
     global hwxnet_data, hwxnet_lookup
     if hwxnet_data is None:
+        if USE_DATABASE:
+            try:
+                import database as db
+                hwxnet_lookup = db.get_hwxnet_lookup()
+                hwxnet_data = hwxnet_lookup
+                print(f"Loaded hwxnet entries for {len(hwxnet_lookup)} characters (from database)")
+            except Exception as e:
+                print(f"Warning: Failed to load hwxnet from database: {e}")
+                hwxnet_data = {}
+                hwxnet_lookup = {}
+            return hwxnet_data, hwxnet_lookup
         print(f"Loading hwxnet dictionary data from: {HWXNET_JSON}")
         print(f"File exists: {HWXNET_JSON.exists()}")
         if not HWXNET_JSON.exists():
@@ -129,9 +143,25 @@ def load_hwxnet():
     return hwxnet_data, hwxnet_lookup
 
 def load_characters():
-    """Load character data from JSON file"""
+    """Load character data from JSON file or Supabase (when USE_DATABASE)."""
     global characters_data, character_lookup
     if characters_data is None:
+        if USE_DATABASE:
+            try:
+                import database as db
+                characters_data = db.get_feng_characters()
+                character_lookup = {}
+                for char in characters_data:
+                    char_key = char.get('Character', '').strip()
+                    if char_key:
+                        character_lookup[char_key] = char
+                print(f"Loaded {len(characters_data)} characters (from database)")
+                print(f"Lookup dictionary has {len(character_lookup)} entries")
+                if '爸' in character_lookup:
+                    print(f"✓ Character '爸' found in lookup: {character_lookup['爸']['Index']}")
+            except Exception as e:
+                raise FileNotFoundError(f"Failed to load characters from database: {e}") from e
+            return characters_data, character_lookup
         print(f"Loading characters from: {CHARACTERS_JSON}")
         print(f"File exists: {CHARACTERS_JSON.exists()}")
         if not CHARACTERS_JSON.exists():
@@ -219,13 +249,21 @@ def validate_field_value(field: str, value: Any) -> Tuple[bool, Optional[str]]:
 def log_character_edit(index: str, field: str, old_value: Any, new_value: Any):
     """Log a character edit to the log file"""
     try:
-        # Get character name for logging
-        _, lookup = load_characters()
         character_name = "unknown"
-        for char_data in characters_data:
-            if char_data.get('Index') == index:
-                character_name = char_data.get('Character', 'unknown')
-                break
+        if USE_DATABASE:
+            try:
+                import database as db
+                row = db.get_feng_character_by_index(index)
+                if row:
+                    character_name = row.get('Character', 'unknown')
+            except Exception:
+                pass
+        else:
+            _, _lookup = load_characters()
+            for char_data in (characters_data or []):
+                if char_data.get('Index') == index:
+                    character_name = char_data.get('Character', 'unknown')
+                    break
         
         # Get client IP if available
         client_ip = request.remote_addr if request else "unknown"
@@ -291,33 +329,27 @@ def cleanup_old_backups(max_backups: int = 200):
 
 def backup_character_files(max_backups: int = 200) -> Tuple[bool, Optional[str]]:
     """
-    Create timestamped backup of characters.json before editing.
-    Automatically cleans up old backups to limit disk usage.
-    
-    Args:
-        max_backups: Maximum number of backup files to keep (default: 200)
-                     Each backup is ~1.1MB, so 200 backups = ~220MB
-    
-    Returns:
-        (success, backup_path_or_error_message)
+    Create timestamped backup of character data before editing.
+    When USE_DATABASE: export feng_characters from DB to JSON.
+    Otherwise: copy characters.json.
     """
     try:
-        # Generate timestamp for backup filename
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        
-        # Create backup filename
         json_backup = BACKUP_DIR / f"characters_{timestamp}.json"
-        
-        # Backup JSON file
-        if CHARACTERS_JSON.exists():
+
+        if USE_DATABASE:
+            import database as db
+            rows = db.get_feng_characters()
+            with open(json_backup, 'w', encoding='utf-8') as f:
+                json.dump(rows, f, ensure_ascii=False, indent=2)
+            print(f"✓ Backed up feng_characters to: {json_backup}")
+        else:
+            if not CHARACTERS_JSON.exists():
+                return False, f"Source JSON file not found: {CHARACTERS_JSON}"
             shutil.copy2(CHARACTERS_JSON, json_backup)
             print(f"✓ Backed up JSON to: {json_backup}")
-        else:
-            return False, f"Source JSON file not found: {CHARACTERS_JSON}"
-        
-        # Clean up old backups (after creating new one)
+
         cleanup_old_backups(max_backups)
-        
         return True, str(BACKUP_DIR)
     except Exception as e:
         error_msg = f"Failed to create backup: {str(e)}"
@@ -326,16 +358,37 @@ def backup_character_files(max_backups: int = 200) -> Tuple[bool, Optional[str]]
 
 def update_character_field(index: str, field: str, new_value: Any) -> Tuple[bool, Optional[str], Optional[Dict]]:
     """
-    Update a character field in the JSON file.
+    Update a character field (in JSON file or Supabase when USE_DATABASE).
     Returns (success, error_message, updated_character)
     """
     global characters_data
-    
+
+    if USE_DATABASE:
+        try:
+            import database as db
+            current = db.get_feng_character_by_index(index)
+            if not current:
+                return False, f"Character with index {index} not found", None
+            old_value = current.get(field)
+            is_valid, error_msg = validate_field_value(field, new_value)
+            if not is_valid:
+                return False, error_msg, None
+            backup_success, backup_result = backup_character_files()
+            if not backup_success:
+                return False, f"Cannot proceed without backup: {backup_result}", None
+            success, err, updated = db.update_feng_character(index, field, new_value)
+            if not success:
+                return False, err or "Update failed", None
+            log_character_edit(index, field, old_value, new_value)
+            reload_characters()
+            reload_radicals()
+            reload_structures()
+            return True, None, updated
+        except Exception as e:
+            return False, f"Error updating character: {str(e)}", None
+
     try:
-        # Reload data to get latest version
         data, lookup = load_characters()
-        
-        # Find the character
         character = None
         char_index = None
         for i, char in enumerate(data):
@@ -343,58 +396,31 @@ def update_character_field(index: str, field: str, new_value: Any) -> Tuple[bool
                 character = char
                 char_index = i
                 break
-        
         if not character:
             return False, f"Character with index {index} not found", None
-        
-        # Get old value
         old_value = character.get(field)
-        
-        # Validate new value
         is_valid, error_msg = validate_field_value(field, new_value)
         if not is_valid:
             return False, error_msg, None
-        
-        # Create backup before making any changes
         backup_success, backup_result = backup_character_files()
         if not backup_success:
-            # Backup failed - this is critical, so we should abort the update
             return False, f"Cannot proceed without backup: {backup_result}", None
-        
-        # Update the character data
         character[field] = new_value
-        
-        # Update in-memory data
         data[char_index] = character
         characters_data = data
-        
-        # Update lookup if this is the Character field
         if field == 'Character':
-            # Remove old character from lookup
             old_char_key = character.get('Character', '').strip()
             if old_char_key and old_char_key in character_lookup:
                 del character_lookup[old_char_key]
-            # Add new character to lookup
             char_key = new_value.strip()
             if char_key:
                 character_lookup[char_key] = character
-        
-        # Write updated JSON back to file
         with open(CHARACTERS_JSON, 'w', encoding='utf-8') as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
-        
-        # Log the change
         log_character_edit(index, field, old_value, new_value)
-        
-        # Invalidate and regenerate radicals cache (in case radical field changed)
         reload_radicals()
-        
-        # Invalidate and regenerate structures cache (in case structure field changed)
         reload_structures()
-        
-        # Return the updated character
         return True, None, character
-        
     except Exception as e:
         return False, f"Error updating character: {str(e)}", None
 
@@ -450,64 +476,73 @@ def update_character(index):
 @app.route('/api/characters/search', methods=['GET'])
 def search_character():
     """Search for a character by its simplified Chinese character"""
-    query = request.args.get('q', '').strip()
-    
-    if not query:
-        return jsonify({'error': 'Please provide a character to search'}), 400
-    
-    # Only allow single character
-    if len(query) != 1:
-        return jsonify({'error': 'Please enter exactly one Chinese character'}), 400
-    
-    _, lookup = load_characters()
-    _, hwx_lookup = load_hwxnet()
-    
-    # Debug: log the query and lookup info
-    print(f"Searching for character: '{query}' (repr: {repr(query)})")
-    print(f"Query length: {len(query)}")
-    print(f"Query bytes: {query.encode('utf-8')}")
-    print(f"Lookup dictionary size: {len(lookup)}")
-    print(f"Character in lookup: {query in lookup}")
-    
-    # Try exact match in characters.json first
-    if query in lookup:
-        print(f"Found character data: {lookup[query]}")
-        character = lookup[query]
+    try:
+        query = request.args.get('q', '').strip()
 
-        # Attach dictionary (hwxnet) data if available
-        dictionary = hwx_lookup.get(query)
+        if not query:
+            return jsonify({'error': 'Please provide a character to search'}), 400
+
+        # Only allow single character
+        if len(query) != 1:
+            return jsonify({'error': 'Please enter exactly one Chinese character'}), 400
+
+        _, lookup = load_characters()
+        _, hwx_lookup = load_hwxnet()
+
+        # Debug: log the query and lookup info
+        print(f"Searching for character: '{query}' (repr: {repr(query)})")
+        print(f"Query length: {len(query)}")
+        print(f"Query bytes: {query.encode('utf-8')}")
+        print(f"Lookup dictionary size: {len(lookup)}")
+        print(f"Character in lookup: {query in lookup}")
+
+        # Try exact match in characters.json first
+        if query in lookup:
+            print(f"Found character data: {lookup[query]}")
+            character = lookup[query]
+
+            # Attach dictionary (hwxnet) data if available
+            dictionary = hwx_lookup.get(query)
+
+            return jsonify({
+                'found': True,
+                'character': character,
+                'dictionary': dictionary
+            })
+
+        # Fallback: dictionary-only match (character not in characters.json)
+        if query in hwx_lookup:
+            dictionary = hwx_lookup.get(query)
+            return jsonify({
+                'found': True,
+                'character': None,
+                'dictionary': dictionary
+            })
+
+        # If not found, show debug info
+        print(f"Character '{query}' not found in lookup")
+        sample_keys = list(lookup.keys())[:5] if lookup else []
+        print(f"Sample keys in lookup: {sample_keys}")
+
+        # Check if there are any similar characters (for debugging)
+        if lookup:
+            first_char = list(lookup.keys())[0]
+            print(f"First character in lookup: '{first_char}' (repr: {repr(first_char)})")
+            print(f"First char bytes: {first_char.encode('utf-8')}")
+            print(f"Query matches first char: {query == first_char}")
 
         return jsonify({
-            'found': True,
-            'character': character,
-            'dictionary': dictionary
+            'found': False,
+            'error': f'未在数据库中找到"{query}"这个简体字'
         })
-
-    # Fallback: dictionary-only match (character not in characters.json)
-    if query in hwx_lookup:
-        dictionary = hwx_lookup.get(query)
+    except Exception as e:
+        print(f"Search error: {e}", flush=True)
+        import traceback
+        traceback.print_exc()
         return jsonify({
-            'found': True,
-            'character': None,
-            'dictionary': dictionary
-        })
-    
-    # If not found, show debug info
-    print(f"Character '{query}' not found in lookup")
-    sample_keys = list(lookup.keys())[:5] if lookup else []
-    print(f"Sample keys in lookup: {sample_keys}")
-    
-    # Check if there are any similar characters (for debugging)
-    if lookup:
-        first_char = list(lookup.keys())[0]
-        print(f"First character in lookup: '{first_char}' (repr: {repr(first_char)})")
-        print(f"First char bytes: {first_char.encode('utf-8')}")
-        print(f"Query matches first char: {query == first_char}")
-    
-    return jsonify({
-        'found': False,
-        'error': f'未在数据库中找到“{query}”这个简体字'
-    })
+            'error': f'服务器错误: {str(e)}',
+            'detail': str(e)
+        }), 500
 
 @app.route('/api/images/<index>/<page>', methods=['GET'])
 def get_image(index, page):

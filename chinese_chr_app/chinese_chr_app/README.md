@@ -18,7 +18,9 @@ chinese_chr_app/
 │   ├── backend/         # Flask backend API
 │   │   ├── app.py       # Main Flask application
 │   │   ├── auth.py      # Supabase JWT verification
+│   │   ├── database.py  # Supabase/Postgres layer (feng_characters, hwxnet_characters)
 │   │   ├── requirements.txt
+│   │   ├── MIGRATION_TO_DATABASE.md  # How to use DB instead of JSON
 │   │   └── logs/        # Character edit logs
 │   └── frontend/        # React frontend
 │       ├── src/
@@ -77,12 +79,18 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 
 4. Install dependencies:
 ```bash
-pip3 install -r requirements.txt
+pip install -r requirements.txt
 ```
 
-5. Run the Flask server:
+5. Run the Flask server (with the venv activated from step 2, `python3` uses the venv and has psycopg for database mode):
 ```bash
+source venv/bin/activate   # if not already activated from step 2
 python3 app.py
+```
+
+Or in one line from `backend/`:
+```bash
+./venv/bin/python3 app.py
 ```
 
 The backend will run on `http://localhost:5001`
@@ -90,6 +98,7 @@ The backend will run on `http://localhost:5001`
 **Local gotcha (Werkzeug debugger crash):** on some macOS/Python setups, enabling Flask debug can crash due to `_ctypes` import issues. Debug is **off by default**; enable explicitly with:
 
 ```bash
+source venv/bin/activate
 FLASK_DEBUG=1 python3 app.py
 ```
 
@@ -133,7 +142,7 @@ npm run test:e2e
 
 Notes:
 - If you already have the backend running on `http://localhost:5001`, Playwright will **reuse** it.
-- If you don’t, Playwright will try to start it; make sure you’ve installed backend deps (from `chinese_chr_app/chinese_chr_app/backend`: `pip3 install -r requirements.txt`) or have a backend venv at `backend/venv` / `backend/.venv`.
+- If you don’t, Playwright will try to start it; make sure you’ve installed backend deps (from `chinese_chr_app/chinese_chr_app/backend`: `pip install -r requirements.txt`) and have a backend venv at `backend/venv` or `backend/.venv` (Playwright uses the venv’s Python so database/psycopg works).
 
 ### Stroke animation (HanziWriter) notes
 
@@ -146,6 +155,7 @@ HanziWriter loads per-character stroke data from `hanzi-writer-data`. In some en
 If the backend cannot verify TLS certificates when fetching CDNs, it uses the `certifi` CA bundle. As a last resort, SSL verification can be disabled:
 
 ```bash
+source venv/bin/activate
 HW_STROKES_VERIFY_SSL=0 python3 app.py
 ```
 
@@ -164,6 +174,42 @@ HW_STROKES_VERIFY_SSL=0 python3 app.py
    - Click on a radical to see all characters with that radical
    - Characters are sorted by strokes (ascending), then by pinyin
    - Click on any character to search for it
+
+## Using the database (Supabase)
+
+The backend can read/write character data from Supabase tables instead of JSON files.
+
+- Set **`USE_DATABASE=true`** and **`DATABASE_URL`** (Supabase Postgres connection string) in the backend environment.
+- Tables: **`feng_characters`** (3000 冯氏早教识字卡 entries) and **`hwxnet_characters`** (3664 dictionary entries).
+- Without these, the app uses `data/characters.json` and `data/extracted_characters_hwxnet.json` as before.
+- See **`backend/MIGRATION_TO_DATABASE.md`** for details and scripts to create/seed the tables.
+
+### If you see "psycopg is required for database support"
+
+**1. Wrong Python / venv not used**  
+If the backend is started without the venv (e.g. IDE using system Python), start it with the venv:
+
+```bash
+cd chinese_chr_app/chinese_chr_app/backend
+source venv/bin/activate
+python3 app.py
+```
+
+Or: `./venv/bin/python3 app.py`. In an IDE, set the run configuration to use `backend/venv/bin/python3`.
+
+**2. macOS: Python 3.13 and broken _ctypes**  
+On some macOS setups, Python 3.13 has a broken `_ctypes` (e.g. `symbol not found: __PyErr_SetLocaleString`), so `psycopg` fails to import even inside the venv. Use **Python 3.12** for the backend venv instead:
+
+```bash
+cd chinese_chr_app/chinese_chr_app/backend
+rm -rf venv
+python3.12 -m venv venv          # or: /usr/local/bin/python3.12 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+python3 app.py
+```
+
+Then keep using `USE_DATABASE=true` in `.env.local`; the backend will load from Supabase.
 
 ## API Endpoints
 
