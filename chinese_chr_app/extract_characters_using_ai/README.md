@@ -28,7 +28,7 @@ Generates OpenAI Batch JSONL request files from PDF character cards.
 - Renders pages to PNG using PyMuPDF
 - Embeds images as base64-encoded data URLs
 - Uses prompt from `chinese_character_extraction_prompt.md`
-- Sets `custom_id` to 4-digit index (e.g., "0721")
+- Sets Index (and batch API custom_id) to 4-digit index (e.g., "0721")
 
 **Usage**:
 ```bash
@@ -294,7 +294,7 @@ python3 organize_by_radicals.py \
     "characters": [
       {
         "Character": "叫",
-        "custom_id": "0123",
+        "Index": "0123",
         "Index": "0123",
         "Pinyin": ["jiào"],
         "Strokes": "5",

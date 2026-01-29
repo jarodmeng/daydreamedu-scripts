@@ -170,10 +170,10 @@ HW_STROKES_VERIFY_SSL=0 python3 app.py
 ### Character Search
 - `GET /api/characters/search?q=<character>` - Search for a character
   - Returns `character: null` but `dictionary` present for dictionary-only characters
-- `PUT /api/characters/<custom_id>/update` - Update character metadata
+- `PUT /api/characters/<index>/update` - Update character metadata
 
 ### Images
-- `GET /api/images/<custom_id>/<page>` - Get character card images (page1 or page2)
+- `GET /api/images/<index>/<page>` - Get character card images (page1 or page2)
 
 ### Stroke data (HanziWriter)
 - `GET /api/strokes?char=<character>` - Proxy/cached stroke JSON for HanziWriter

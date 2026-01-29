@@ -51,7 +51,7 @@ def test_data_loading():
     if test_char in character_lookup:
         char_data = character_lookup[test_char]
         print(f"   ✓ Found character '{test_char}'")
-        print(f"   ✓ Character ID: {char_data.get('custom_id', 'N/A')}")
+        print(f"   ✓ Character Index: {char_data.get('Index', 'N/A')}")
         print(f"   ✓ Pinyin: {char_data.get('Pinyin', 'N/A')}")
         print(f"   ✓ Radical: {char_data.get('Radical', 'N/A')}")
         print(f"   ✓ Strokes: {char_data.get('Strokes', 'N/A')}")
@@ -66,7 +66,7 @@ def test_data_loading():
     all_found = True
     for char in test_chars:
         if char in character_lookup:
-            char_id = character_lookup[char].get('custom_id', 'N/A')
+            char_id = character_lookup[char].get('Index', 'N/A')
             print(f"   ✓ Found '{char}' (ID: {char_id})")
         else:
             print(f"   ✗ '{char}' NOT found")

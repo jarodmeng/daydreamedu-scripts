@@ -169,7 +169,7 @@ def main():
         f.write(json.dumps(request_line, ensure_ascii=False) + '\n')
     
     print(f"✅ Generated request entry: {args.output}")
-    print(f"   custom_id: {request_line['custom_id']}")
+    print(f"   Index (custom_id in request): {request_line['custom_id']}")
 
 
 if __name__ == "__main__":

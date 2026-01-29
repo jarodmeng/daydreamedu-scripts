@@ -112,7 +112,7 @@ def main():
                     print(f"⚠️  Line {line_num}: Invalid JSON")
                     continue
                 
-                custom_id = result.get('custom_id', '')
+                index = result.get('custom_id', '')  # API field name; value is character card Index
                 response = result.get('response', {})
                 body = response.get('body', {})
                 output = body.get('output', [])
@@ -154,8 +154,7 @@ def main():
                     valid_entries += 1
                 else:
                     all_issues.append({
-                        'custom_id': custom_id,
-                        'index': char_data.get('Index', ''),
+                        'Index': index,
                         'character': char,
                         'sentence': sentence,
                         'words': words_str,
@@ -173,7 +172,7 @@ def main():
     if all_issues:
         print(f"\n❌ Issues found:")
         for issue in all_issues:
-            print(f"\n  Index {issue['index']} (custom_id: {issue['custom_id']}):")
+            print(f"\n  Index {issue['Index']}:")
             print(f"    Character: {issue['character']}")
             print(f"    Sentence: {issue['sentence']}")
             try:

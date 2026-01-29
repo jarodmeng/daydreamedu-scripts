@@ -27,8 +27,7 @@ I have data on 3000 common simplifed chinese character cards.
 * The structured information of all character cards is stored in the `/Users/jarodm/github/jarodmeng/daydreamedu-scripts/chinese_chr_app/data` folder.
     * The `characters.json` file contains the information in a JSON format. This is the primary data format used by the application.
         * The fields of information included in the structured data (currently stored in `characters.json`) are the following:
-        * **custom_id** (string): The character card index number in `<dddd>` format (e.g., "0001", "0002", "3000")
-        * **Index** (string): The character card index number, same as custom_id
+        * **Index** (string): The character card index number in `<dddd>` format (e.g., "0001", "0002", "3000")
         * **Character** (string): The simplified Chinese character itself (e.g., "爸", "妈")
             * **Pinyin** (array of strings): The pinyin pronunciation(s) of the character.
             * Tone marks are required (e.g., "bà" not "ba")

@@ -30,6 +30,6 @@ if duplicates:
         print(f"    At indices: {indices}")
         for idx in indices:
             entry = data[idx]
-            print(f"      - Index {idx}: custom_id={entry.get('custom_id')}, Index={entry.get('Index')}")
+            print(f"      - Index {idx}: Index={entry.get('Index')}")
 else:
     print("\nNo duplicate characters found!")

@@ -151,7 +151,7 @@ def load_characters():
         print(f"Lookup dictionary has {len(character_lookup)} entries")
         # Check for 爸 specifically
         if '爸' in character_lookup:
-            print(f"✓ Character '爸' found in lookup: {character_lookup['爸']['custom_id']}")
+            print(f"✓ Character '爸' found in lookup: {character_lookup['爸']['Index']}")
         else:
             print("✗ Character '爸' NOT found in lookup")
             # Show first few characters for debugging
@@ -216,14 +216,14 @@ def validate_field_value(field: str, value: Any) -> Tuple[bool, Optional[str]]:
     else:
         return False, f"Unknown field: {field}"
 
-def log_character_edit(custom_id: str, field: str, old_value: Any, new_value: Any):
+def log_character_edit(index: str, field: str, old_value: Any, new_value: Any):
     """Log a character edit to the log file"""
     try:
         # Get character name for logging
         _, lookup = load_characters()
         character_name = "unknown"
         for char_data in characters_data:
-            if char_data.get('custom_id') == custom_id:
+            if char_data.get('Index') == index:
                 character_name = char_data.get('Character', 'unknown')
                 break
         
@@ -232,7 +232,7 @@ def log_character_edit(custom_id: str, field: str, old_value: Any, new_value: An
         
         log_entry = {
             "timestamp": datetime.now().isoformat(),
-            "character_index": custom_id,
+            "character_index": index,
             "character": character_name,
             "field": field,
             "old_value": str(old_value) if not isinstance(old_value, (list, dict)) else json.dumps(old_value, ensure_ascii=False),
@@ -324,7 +324,7 @@ def backup_character_files(max_backups: int = 200) -> Tuple[bool, Optional[str]]
         print(f"❌ {error_msg}")
         return False, error_msg
 
-def update_character_field(custom_id: str, field: str, new_value: Any) -> Tuple[bool, Optional[str], Optional[Dict]]:
+def update_character_field(index: str, field: str, new_value: Any) -> Tuple[bool, Optional[str], Optional[Dict]]:
     """
     Update a character field in the JSON file.
     Returns (success, error_message, updated_character)
@@ -339,13 +339,13 @@ def update_character_field(custom_id: str, field: str, new_value: Any) -> Tuple[
         character = None
         char_index = None
         for i, char in enumerate(data):
-            if char.get('custom_id') == custom_id or char.get('Index') == custom_id:
+            if char.get('Index') == index:
                 character = char
                 char_index = i
                 break
         
         if not character:
-            return False, f"Character with index {custom_id} not found", None
+            return False, f"Character with index {index} not found", None
         
         # Get old value
         old_value = character.get(field)
@@ -384,7 +384,7 @@ def update_character_field(custom_id: str, field: str, new_value: Any) -> Tuple[
             json.dump(data, f, ensure_ascii=False, indent=2)
         
         # Log the change
-        log_character_edit(custom_id, field, old_value, new_value)
+        log_character_edit(index, field, old_value, new_value)
         
         # Invalidate and regenerate radicals cache (in case radical field changed)
         reload_radicals()
@@ -398,8 +398,8 @@ def update_character_field(custom_id: str, field: str, new_value: Any) -> Tuple[
     except Exception as e:
         return False, f"Error updating character: {str(e)}", None
 
-@app.route('/api/characters/<custom_id>/update', methods=['PUT'])
-def update_character(custom_id):
+@app.route('/api/characters/<index>/update', methods=['PUT'])
+def update_character(index):
     """Update a character field"""
     try:
         data = request.get_json()
@@ -428,7 +428,7 @@ def update_character(custom_id):
                         new_value = [w.strip() for w in new_value.split(',') if w.strip()]
         
         # Update the field
-        success, error_msg, updated_character = update_character_field(custom_id, field, new_value)
+        success, error_msg, updated_character = update_character_field(index, field, new_value)
         
         if success:
             return jsonify({
@@ -509,8 +509,8 @@ def search_character():
         'error': f'未在数据库中找到“{query}”这个简体字'
     })
 
-@app.route('/api/images/<custom_id>/<page>', methods=['GET'])
-def get_image(custom_id, page):
+@app.route('/api/images/<index>/<page>', methods=['GET'])
+def get_image(index, page):
     """Serve character card images from GCS or local filesystem"""
     if page not in ['page1', 'page2']:
         return jsonify({'error': 'Invalid page. Use page1 or page2'}), 400
@@ -522,7 +522,7 @@ def get_image(custom_id, page):
             storage_client = storage.Client()
             bucket = storage_client.bucket(GCS_BUCKET_NAME)
             # PNG files are organized under png/ folder in GCS bucket
-            blob_path = f"png/{custom_id}/{page}.png"
+            blob_path = f"png/{index}/{page}.png"
             blob = bucket.blob(blob_path)
             
             if blob.exists():
@@ -535,7 +535,7 @@ def get_image(custom_id, page):
             print(f"Error loading from GCS: {e}, falling back to local filesystem")
     
     # Fallback to local filesystem
-    image_path = PNG_BASE_DIR / custom_id / f"{page}.png"
+    image_path = PNG_BASE_DIR / index / f"{page}.png"
     
     if not image_path.exists():
         return jsonify({'error': 'Image not found'}), 404
@@ -615,7 +615,7 @@ def generate_radicals_data(characters_data: List[Dict], hwxnet_lookup: Optional[
           - Character
           - Pinyin (array)
           - Strokes (string)
-          - (optional) Index/custom_id/Structure when available
+          - (optional) Index/Structure when available
     """
     radical_dict = defaultdict(list)
 
@@ -658,7 +658,6 @@ def generate_radicals_data(characters_data: List[Dict], hwxnet_lookup: Optional[
             if radical:
                 character_info = {
                     'Character': char.get('Character', ''),
-                    'custom_id': char.get('custom_id', ''),
                     'Index': char.get('Index', ''),
                     'Pinyin': char.get('Pinyin', []),
                     'Strokes': char.get('Strokes', ''),
@@ -874,7 +873,7 @@ if __name__ == '__main__':
         load_characters()
         print(f"✓ Successfully loaded {len(character_lookup)} characters into lookup dictionary")
         if '爸' in character_lookup:
-            print(f"✓ Test: Character '爸' is available (ID: {character_lookup['爸']['custom_id']})")
+            print(f"✓ Test: Character '爸' is available (ID: {character_lookup['爸']['Index']})")
         else:
             print(f"✗ Warning: Character '爸' not found in lookup!")
     except Exception as e:

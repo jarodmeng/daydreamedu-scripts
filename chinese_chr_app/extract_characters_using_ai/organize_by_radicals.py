@@ -44,7 +44,6 @@ def organize_by_radicals(input_json_path, output_json_path):
         if radical:
             character_info = {
                 'Character': char.get('Character', ''),
-                'custom_id': char.get('custom_id', ''),
                 'Index': char.get('Index', ''),
                 'Pinyin': char.get('Pinyin', []),
                 'Strokes': char.get('Strokes', ''),

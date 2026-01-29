@@ -441,7 +441,7 @@ function Search() {
                 <div className="card">
                   <h3>字卡</h3>
                   <img 
-                    src={`${API_BASE}/api/images/${character.custom_id}/page2`}
+                    src={`${API_BASE}/api/images/${character.Index}/page2`}
                     alt={`${character.Character} 的字卡`}
                     className="card-image"
                   />

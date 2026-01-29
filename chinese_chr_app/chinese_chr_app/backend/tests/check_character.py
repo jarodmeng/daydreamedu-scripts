@@ -27,7 +27,7 @@ if search_char in chars:
     for idx in indices:
         entry = data[idx]
         print(f"\nEntry {idx}:")
-        print(f"  custom_id: {entry.get('custom_id')}")
+        print(f"  Index: {entry.get('Index')}")
         print(f"  Index: {entry.get('Index')}")
         print(f"  Character: {entry.get('Character')}")
         print(f"  Pinyin: {entry.get('Pinyin')}")

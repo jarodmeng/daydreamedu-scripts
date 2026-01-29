@@ -117,7 +117,7 @@ def extract_table_from_response(response_text: str) -> Optional[str]:
 def parse_result_line(line: str) -> Optional[Dict[str, Any]]:
     """
     Parse a single JSONL line from results file.
-    Returns dict with custom_id and parsed character data.
+    Returns dict with Index and parsed character data.
     """
     try:
         result = json.loads(line)
@@ -125,8 +125,8 @@ def parse_result_line(line: str) -> Optional[Dict[str, Any]]:
         print(f"⚠️  Failed to parse JSON line: {e}")
         return None
     
-    # Extract custom_id (character index)
-    custom_id = result.get('custom_id', '')
+    # Extract index (from API custom_id field - character card index)
+    index = result.get('custom_id', '')
     
     # Extract response content
     response = result.get('response', {})
@@ -151,7 +151,7 @@ def parse_result_line(line: str) -> Optional[Dict[str, Any]]:
     
     if not output_text:
         return {
-            'custom_id': custom_id,
+            'Index': index,
             'error': 'No output text found in response',
             'raw_output': str(output)[:200] if output else 'No output',
         }
@@ -160,7 +160,7 @@ def parse_result_line(line: str) -> Optional[Dict[str, Any]]:
     table_text = extract_table_from_response(output_text)
     if not table_text:
         return {
-            'custom_id': custom_id,
+            'Index': index,
             'error': 'No table found in response',
             'raw_output': output_text[:200] if output_text else 'No output',
         }
@@ -169,13 +169,13 @@ def parse_result_line(line: str) -> Optional[Dict[str, Any]]:
     char_data = parse_markdown_table(table_text)
     if not char_data:
         return {
-            'custom_id': custom_id,
+            'Index': index,
             'error': 'Failed to parse table',
             'raw_table': table_text[:200],
         }
     
-    # Add custom_id to the data
-    char_data['custom_id'] = custom_id
+    # Ensure Index is set (character card index)
+    char_data['Index'] = index
     
     return char_data
 
@@ -302,7 +302,7 @@ def main():
                     if args.validate:
                         issues = validate_character_data(result)
                         if issues:
-                            validation_issues.append((result.get('custom_id', 'unknown'), issues))
+                            validation_issues.append((result.get('Index', 'unknown'), issues))
 
     print(f"✅ Parsed {len(all_data)} successful results")
     if errors:
@@ -314,7 +314,7 @@ def main():
     # Write CSV
     if args.output:
         print(f"📝 Writing CSV to: {args.output}")
-        fieldnames = ['custom_id', 'Index', 'Character', 'Pinyin', 'Radical', 'Strokes', 'Structure', 'Sentence', 'Words']
+        fieldnames = ['Index', 'Character', 'Pinyin', 'Radical', 'Strokes', 'Structure', 'Sentence', 'Words']
         with open(args.output, 'w', newline='', encoding='utf-8') as f:
             writer = csv.DictWriter(f, fieldnames=fieldnames)
             writer.writeheader()
@@ -381,8 +381,8 @@ def main():
     # Show validation issues
     if validation_issues:
         print(f"\n⚠️  Validation issues found:")
-        for custom_id, issues in validation_issues[:10]:  # Show first 10
-            print(f"   {custom_id}: {', '.join(issues)}")
+        for index, issues in validation_issues[:10]:  # Show first 10
+            print(f"   {index}: {', '.join(issues)}")
         if len(validation_issues) > 10:
             print(f"   ... and {len(validation_issues) - 10} more issues")
 
