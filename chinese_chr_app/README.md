@@ -35,6 +35,7 @@ The **Chinese Character Learning App** (`chinese_chr_app/chinese_chr_app/`) is a
 - Search for Chinese characters by entering a single character
 - Display both sides of character cards (front and back)
 - Show detailed information: pinyin, radical, strokes, structure, example sentences, and word combinations
+- Sign in with Google (Supabase Auth); optional for local use
 
 ### Quick Start
 
@@ -46,12 +47,12 @@ See the detailed documentation in [`chinese_chr_app/README.md`](chinese_chr_app/
 **Quick commands:**
 ```bash
 # Backend (Flask API)
-cd chinese_chr_app/backend
+cd chinese_chr_app/chinese_chr_app/backend
 pip3 install -r requirements.txt
 python3 app.py  # Runs on http://localhost:5001
 
 # Frontend (React)
-cd chinese_chr_app/frontend
+cd chinese_chr_app/chinese_chr_app/frontend
 npm install
 npm run dev  # Runs on http://localhost:3000
 ```

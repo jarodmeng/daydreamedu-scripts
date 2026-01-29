@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { useSearchParams, Link } from 'react-router-dom'
 import HanziWriter from 'hanzi-writer'
-import NavBar from '../NavBar'
 import '../App.css'
 
 // API base URL - use environment variable in production, empty string in development (uses proxy)
@@ -243,7 +242,6 @@ function Search() {
   return (
     <div className="app">
       <div className="container">
-        <NavBar />
         <form onSubmit={handleSearch} className="search-form">
           <input
             type="text"

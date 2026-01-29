@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import './App.css'
+import { useAuth } from './AuthContext'
 
 const SEGMENTATIONS = [
   { path: '/radicals', label: '部首' },
@@ -10,6 +11,7 @@ const SEGMENTATIONS = [
 function NavBar() {
   const location = useLocation()
   const [isOpen, setIsOpen] = useState(false)
+  const { isAuthConfigured, authLoading, user, signInWithGoogle, signOut } = useAuth()
 
   const isSearchActive = location.pathname === '/'
   const SEGMENTATION_PREFIXES = ['/radicals', '/stroke-counts']
@@ -31,41 +33,68 @@ function NavBar() {
 
   return (
     <div className="nav-links">
-      <Link
-        to="/"
-        className={`nav-link ${isSearchActive ? 'nav-link-active' : ''}`}
-        onClick={closeMenu}
-      >
-        搜索
-      </Link>
-
-      <div
-        className="nav-item-segmentation"
-        onMouseEnter={() => setIsOpen(true)}
-        onMouseLeave={() => setIsOpen(false)}
-      >
-        <button
-          type="button"
-          className={`nav-link nav-link-segmentation ${isSegmentationActive ? 'nav-link-active' : ''}`}
-          onClick={toggleMenu}
-          aria-haspopup="true"
-          aria-expanded={isOpen}
+      <div className="nav-left">
+        <Link
+          to="/"
+          className={`nav-link ${isSearchActive ? 'nav-link-active' : ''}`}
+          onClick={closeMenu}
         >
-          分类
-        </button>
+          搜索
+        </Link>
 
-        {isOpen && (
-          <div className="nav-dropdown" onClick={closeMenu}>
-            {SEGMENTATIONS.map((item) => (
-              <Link
-                key={item.path}
-                to={item.path}
-                className="nav-dropdown-item"
-              >
-                {item.label}
-              </Link>
-            ))}
-          </div>
+        <div
+          className="nav-item-segmentation"
+          onMouseEnter={() => setIsOpen(true)}
+          onMouseLeave={() => setIsOpen(false)}
+        >
+          <button
+            type="button"
+            className={`nav-link nav-link-segmentation ${isSegmentationActive ? 'nav-link-active' : ''}`}
+            onClick={toggleMenu}
+            aria-haspopup="true"
+            aria-expanded={isOpen}
+          >
+            分类
+          </button>
+
+          {isOpen && (
+            <div className="nav-dropdown" onClick={closeMenu}>
+              {SEGMENTATIONS.map((item) => (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className="nav-dropdown-item"
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="nav-right">
+        {!authLoading && user ? (
+          <button
+            type="button"
+            className="nav-link nav-link-secondary"
+            onClick={() => {
+              signOut().catch((e) => console.error(e))
+            }}
+          >
+            Sign out
+          </button>
+        ) : (
+          <button
+            type="button"
+            className="nav-link nav-link-secondary"
+            onClick={() => {
+              signInWithGoogle().catch((e) => console.error(e))
+            }}
+            disabled={authLoading || !isAuthConfigured}
+          >
+            Sign in with Google
+          </button>
         )}
       </div>
     </div>

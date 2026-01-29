@@ -79,21 +79,21 @@ docker build -t gcr.io/daydreamedu/chinese-chr-app -f Dockerfile ../../
 # Push to Container Registry
 docker push gcr.io/daydreamedu/chinese-chr-app
 
-# Deploy to Cloud Run
+# Deploy to Cloud Run (include Supabase vars if using Google login)
 gcloud run deploy chinese-chr-app \
   --image gcr.io/daydreamedu/chinese-chr-app \
   --region us-central1 \
   --platform managed \
   --allow-unauthenticated \
-  --set-env-vars CORS_ORIGINS=https://daydreamedu.org,GCS_BUCKET_NAME=chinese-chr-app-images
+  --set-env-vars CORS_ORIGINS=https://chinese-chr.daydreamedu.org,GCS_BUCKET_NAME=chinese-chr-app-images,SUPABASE_URL=https://YOUR_PROJECT_REF.supabase.co,SUPABASE_JWT_AUD=authenticated
 ```
 
-**Note:** Environment variables can be updated after deployment without redeploying the image:
+**Note:** Replace `YOUR_PROJECT_REF` with your Supabase project reference. Environment variables can be updated after deployment without redeploying the image:
 ```bash
 # Update environment variables
 gcloud run services update chinese-chr-app \
   --region us-central1 \
-  --update-env-vars CORS_ORIGINS=https://daydreamedu.org,https://www.daydreamedu.org,GCS_BUCKET_NAME=chinese-chr-app-images
+  --update-env-vars CORS_ORIGINS=https://chinese-chr.daydreamedu.org,GCS_BUCKET_NAME=chinese-chr-app-images,SUPABASE_URL=...,SUPABASE_JWT_AUD=authenticated
 
 # Or update a single variable
 gcloud run services update chinese-chr-app \
@@ -214,8 +214,13 @@ gcloud run services update chinese-chr-app \
 ```
 
 **Required variables:**
-- `CORS_ORIGINS`: Comma-separated list of allowed origins (e.g., `https://daydreamedu.org`)
+- `CORS_ORIGINS`: Comma-separated list of allowed origins (e.g., `https://chinese-chr.daydreamedu.org`)
 - `GCS_BUCKET_NAME`: GCS bucket name for images (e.g., `chinese-chr-app-images`)
+- `SUPABASE_URL`: Supabase project URL (e.g., `https://<project_ref>.supabase.co`) — for verifying auth JWTs
+- `SUPABASE_JWT_AUD`: JWT audience (use `authenticated`)
+
+**Optional (when using Supabase Postgres from the backend):**
+- `DATABASE_URL`: Supabase transaction pooler connection string
 
 **Note:** `DATA_DIR` is automatically detected - it defaults to `/app/data` in the container (where files are copied during Docker build) or to the relative path for local development. You only need to set it via environment variable if you want to override this behavior.
 
@@ -225,18 +230,30 @@ gcloud run services update chinese-chr-app \
 ### Frontend (Netlify)
 
 - `VITE_API_URL`: Backend API URL (e.g., `https://chinese-chr-app-xxxxx.run.app`)
+- `VITE_SUPABASE_URL`: Supabase project URL (e.g., `https://<project_ref>.supabase.co`)
+- `VITE_SUPABASE_ANON_KEY`: Supabase anon (public) key — required for Google login
+
+### Google Login (Supabase Auth)
+
+For "Sign in with Google" to work in production:
+
+1. **Supabase Dashboard** → your project → **Authentication** → **Providers** → enable **Google** and set Client ID / Client Secret (from Google Cloud Console).
+2. **Authentication** → **URL Configuration**: set **Site URL** to your frontend URL (e.g. `https://chinese-chr.daydreamedu.org`) and add the Supabase callback to **Redirect URLs** (e.g. `https://<project_ref>.supabase.co/auth/v1/callback`).
 
 ## Local Development
 
 ### Backend
 
-1. Create `.env.local` in `backend/` directory:
+1. Create `.env.local` in `backend/` directory (copy from `.env.local.example`):
 ```env
 PORT=5001
 DATA_DIR=../../data
 PNG_BASE_DIR=../../data/png
 GCS_BUCKET_NAME=
 CORS_ORIGINS=http://localhost:3000
+SUPABASE_URL=https://<project_ref>.supabase.co
+SUPABASE_JWT_AUD=authenticated
+# DATABASE_URL=...  # only when using Supabase Postgres
 LOGS_DIR=./logs
 ```
 
@@ -248,9 +265,11 @@ python app.py
 
 ### Frontend
 
-1. Create `.env.local` in `frontend/` directory:
+1. Create `.env.local` in `frontend/` directory (copy from `.env.example`):
 ```env
-VITE_API_URL=http://localhost:5001
+VITE_API_URL=   # empty = use Vite proxy to backend
+VITE_SUPABASE_URL=https://<project_ref>.supabase.co
+VITE_SUPABASE_ANON_KEY=<your_anon_key>
 ```
 
 2. Run:
@@ -270,6 +289,7 @@ npm run dev
 ### Frontend Issues
 
 - **API calls failing**: Check `VITE_API_URL` environment variable
+- **Sign in with Google not working**: Ensure `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` are set in Netlify (production) or `.env.local` (local). In Supabase, enable Google provider and set Site URL / Redirect URLs (see "Google Login" above).
 - **Routing issues**: Verify `BrowserRouter` in `App.jsx` has no `basename` and `base: '/'` in `vite.config.js`
 - **Build errors**: Ensure all dependencies are installed (`npm install`)
 

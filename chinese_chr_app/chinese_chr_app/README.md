@@ -10,23 +10,30 @@ Production deployment is live at:
 
 ## Project Structure
 
+Paths below are relative to the repo root. The app lives under `chinese_chr_app/chinese_chr_app/`.
+
 ```
 chinese_chr_app/
-├── backend/          # Flask backend API
-│   ├── app.py       # Main Flask application
-│   ├── requirements.txt
-│   └── logs/        # Character edit logs
-├── frontend/        # React frontend
-│   ├── src/
-│   │   ├── pages/   # Page components (Search, Radicals, RadicalDetail, StrokeCounts, StrokeCountDetail)
-│   │   ├── App.jsx  # Main router component
-│   │   └── App.css
-│   ├── e2e/         # Playwright E2E tests + fixtures
-│   ├── scripts/     # Helper scripts (e.g. start backend for E2E)
-│   ├── package.json
-│   ├── playwright.config.js
-│   └── vite.config.js
-└── data/            # Character and dictionary data (JSON)
+├── chinese_chr_app/     # Main app (this folder)
+│   ├── backend/         # Flask backend API
+│   │   ├── app.py       # Main Flask application
+│   │   ├── auth.py      # Supabase JWT verification
+│   │   ├── requirements.txt
+│   │   └── logs/        # Character edit logs
+│   └── frontend/        # React frontend
+│       ├── src/
+│       │   ├── pages/   # Page components (Search, Radicals, RadicalDetail, StrokeCounts, StrokeCountDetail)
+│       │   ├── App.jsx  # Main router + AuthProvider
+│       │   ├── NavBar.jsx
+│       │   ├── AuthContext.jsx  # Supabase Auth (Google login)
+│       │   ├── supabaseClient.js
+│       │   └── App.css
+│       ├── e2e/         # Playwright E2E tests + fixtures
+│       ├── scripts/     # Helper scripts (e.g. start backend for E2E)
+│       ├── package.json
+│       ├── playwright.config.js
+│       └── vite.config.js
+└── data/                # Character and dictionary data (JSON)
     ├── characters.json                   # Primary character metadata (from 冯氏早教识字卡, editable in app)
     ├── extracted_characters_hwxnet.json  # Dictionary data extracted from hwxnet (read-only in app)
     ├── level-1.json                      # Zibiao-style frequency list (top 3500)
@@ -55,9 +62,9 @@ chinese_chr_app/
 
 ### Backend Setup
 
-1. Navigate to the backend directory:
+1. Navigate to the backend directory (from repo root):
 ```bash
-cd chinese_chr_app/backend
+cd chinese_chr_app/chinese_chr_app/backend
 ```
 
 2. Create a virtual environment (recommended):
@@ -66,12 +73,14 @@ python3 -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 ```
 
-3. Install dependencies:
+3. (Optional) For the backend to verify Supabase JWTs (e.g. for future protected routes), create `.env.local` from `.env.local.example` in `backend/` and set `SUPABASE_URL` and `SUPABASE_JWT_AUD`. Not required for local search/radicals/stroke-counts.
+
+4. Install dependencies:
 ```bash
 pip3 install -r requirements.txt
 ```
 
-4. Run the Flask server:
+5. Run the Flask server:
 ```bash
 python3 app.py
 ```
@@ -86,9 +95,9 @@ FLASK_DEBUG=1 python3 app.py
 
 ### Frontend Setup
 
-1. Navigate to the frontend directory:
+1. Navigate to the frontend directory (from repo root):
 ```bash
-cd chinese_chr_app/frontend
+cd chinese_chr_app/chinese_chr_app/frontend
 ```
 
 2. Install dependencies:
@@ -96,14 +105,16 @@ cd chinese_chr_app/frontend
 npm install
 ```
 
-3. Start the development server:
+3. (Optional) For **Sign in with Google** to work locally, create `.env.local` from `.env.example` and set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` (from your Supabase project → Project Settings → API). Leave `VITE_API_URL` empty to use the Vite proxy to the backend.
+
+4. Start the development server:
 ```bash
 npm run dev
 ```
 
 The frontend will run on `http://localhost:3000`
 
-In production, the frontend is built with Vite and deployed to Netlify. API requests are sent to the Cloud Run backend using the `VITE_API_URL` environment variable set in the Netlify site settings.
+In production, the frontend is built with Vite and deployed to Netlify. Set `VITE_API_URL`, `VITE_SUPABASE_URL`, and `VITE_SUPABASE_ANON_KEY` in Netlify site environment variables. API requests use `VITE_API_URL` to reach the Cloud Run backend.
 
 ### E2E tests (Playwright)
 
@@ -112,7 +123,7 @@ Playwright end-to-end tests live under `frontend/e2e/` and cover core flows:
 - Search a dictionary-only character (2-panel view)
 - Navigate `/radicals` → a radical detail page → click a character back to search
 
-From `chinese_chr_app/frontend`:
+From `chinese_chr_app/chinese_chr_app/frontend`:
 
 ```bash
 npm install
@@ -122,7 +133,7 @@ npm run test:e2e
 
 Notes:
 - If you already have the backend running on `http://localhost:5001`, Playwright will **reuse** it.
-- If you don’t, Playwright will try to start it; make sure you’ve installed backend deps (from `chinese_chr_app/backend`: `pip3 install -r requirements.txt`) or have a backend venv at `backend/venv` / `backend/.venv`.
+- If you don’t, Playwright will try to start it; make sure you’ve installed backend deps (from `chinese_chr_app/chinese_chr_app/backend`: `pip3 install -r requirements.txt`) or have a backend venv at `backend/venv` / `backend/.venv`.
 
 ### Stroke animation (HanziWriter) notes
 
@@ -141,7 +152,8 @@ HW_STROKES_VERIFY_SSL=0 python3 app.py
 ## Usage
 
 1. Open your browser and go to `http://localhost:3000`
-2. **Search Page**: Enter a single simplified Chinese character in the search box
+2. **Sign in (optional)**: Use **Sign in with Google** in the top-right to sign in via Supabase Auth. Sign out when done.
+3. **Search Page**: Enter a single simplified Chinese character in the search box
    - Click "搜索" (Search) or press Enter
    - Layout is **two rows**:
      - Row 1: **笔顺动画** + **字典信息（hwxnet）**

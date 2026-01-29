@@ -25,6 +25,11 @@ test-results/
 .DS_Store
 Thumbs.db
 
+# Environment (do not commit secrets)
+.env
+.env.local
+.env.*.local
+
 # Logs
 logs/
 *.log

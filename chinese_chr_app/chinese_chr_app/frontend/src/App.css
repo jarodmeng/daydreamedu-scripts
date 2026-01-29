@@ -2,8 +2,8 @@
   width: 100%;
   min-height: 100vh;
   display: flex;
-  justify-content: center;
-  align-items: flex-start;
+  flex-direction: column;
+  align-items: center;
   padding: 40px 20px;
 }
 
@@ -221,8 +221,39 @@ h1 {
 .nav-links {
   display: flex;
   gap: 20px;
-  justify-content: center;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
   margin-bottom: 20px;
+  width: 100%;
+  max-width: 1200px;
+}
+
+.nav-left,
+.nav-right {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.nav-link-secondary {
+  background-color: #607D8B;
+}
+
+.nav-link-secondary:hover:not(:disabled) {
+  background-color: #546E7A;
+}
+
+button.nav-link {
+  border: 2px solid transparent;
+  cursor: pointer;
+  font: inherit;
+}
+
+button.nav-link:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .nav-link {

@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import NavBar from '../NavBar'
 import './Radicals.css'
 
 // API base URL - use environment variable in production, empty string in development (uses proxy)
@@ -43,8 +42,6 @@ function Radicals() {
   return (
     <div className="radicals-page">
       <div className="radicals-container">
-        <NavBar />
-        
         <h1>部首</h1>
         <p className="radicals-subtitle">
           点击部首查看该部首下的所有简体字

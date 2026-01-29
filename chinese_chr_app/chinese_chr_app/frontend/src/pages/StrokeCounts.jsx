@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import NavBar from '../NavBar'
 import './StrokeCounts.css'
 
 // API base URL - use environment variable in production, empty string in development (uses proxy)
@@ -43,8 +42,6 @@ function StrokeCounts() {
   return (
     <div className="stroke-counts-page">
       <div className="stroke-counts-container">
-        <NavBar />
-
         <h1>笔画</h1>
         <p className="stroke-counts-subtitle">
           点击笔画数查看对应简体字
