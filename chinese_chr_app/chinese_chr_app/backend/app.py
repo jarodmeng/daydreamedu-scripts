@@ -919,9 +919,11 @@ def _get_profile_user():
         import auth as auth_module
         token = auth_module.extract_bearer_token(request.headers.get("Authorization"))
         if not token:
+            print("[profile] No Bearer token in Authorization header", flush=True)
             return None
         return auth_module.verify_bearer_token(token)
-    except Exception:
+    except Exception as e:
+        print(f"[profile] Auth failed: {type(e).__name__}: {e}", flush=True)
         return None
 
 
