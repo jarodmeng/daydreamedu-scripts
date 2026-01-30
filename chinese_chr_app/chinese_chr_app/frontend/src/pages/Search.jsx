@@ -48,6 +48,10 @@ function Search() {
 
   const displayChar = character?.Character || dictionary?.character || searchedChar || ''
   const hasCharacterData = Boolean(character)
+  // 字卡 image index: API may return Index (capital) or index; ensure we never pass undefined to URL
+  const rawIndex = hasCharacterData ? (character?.Index ?? character?.index) : undefined
+  const cardImageIndex =
+    rawIndex != null && String(rawIndex).trim() !== '' ? String(rawIndex).trim() : null
 
   const fetchStrokeData = async (char, signal) => {
     const encoded = encodeURIComponent(char)
@@ -446,21 +450,29 @@ function Search() {
               <div className="search-row">
                 <div className="card">
                   <h3>字卡</h3>
-                  <img 
-                    src={`${API_BASE}/api/images/${character.Index ?? character.index}/page2`}
-                    alt={`${character.Character ?? character.character} 的字卡`}
-                    className="card-image"
-                    onError={() => setCardImageError(true)}
-                    style={cardImageError ? { display: 'none' } : undefined}
-                  />
-                  {cardImageError && (
-                    <div className="card-image-fallback" style={{ padding: '1rem', color: '#666', textAlign: 'center', fontSize: '0.9rem' }}>
-                      {character.Character ?? character.character} 的字卡图片暂不可用
-                      {import.meta.env.DEV && (
-                        <div style={{ marginTop: '0.5rem', wordBreak: 'break-all', fontSize: '0.8rem', color: '#999' }}>
-                          {`${API_BASE}/api/images/${character.Index ?? character.index}/page2`}
+                  {cardImageIndex ? (
+                    <>
+                      <img 
+                        src={`${API_BASE}/api/images/${cardImageIndex}/page2`}
+                        alt={`${character.Character ?? character.character} 的字卡`}
+                        className="card-image"
+                        onError={() => setCardImageError(true)}
+                        style={cardImageError ? { display: 'none' } : undefined}
+                      />
+                      {cardImageError && (
+                        <div className="card-image-fallback" style={{ padding: '1rem', color: '#666', textAlign: 'center', fontSize: '0.9rem' }}>
+                          {character.Character ?? character.character} 的字卡图片暂不可用
+                          {import.meta.env.DEV && (
+                            <div style={{ marginTop: '0.5rem', wordBreak: 'break-all', fontSize: '0.8rem', color: '#999' }}>
+                              {`${API_BASE}/api/images/${cardImageIndex}/page2`}
+                            </div>
+                          )}
                         </div>
                       )}
+                    </>
+                  ) : (
+                    <div className="card-image-fallback" style={{ padding: '1rem', color: '#666', textAlign: 'center', fontSize: '0.9rem' }}>
+                      {character.Character ?? character.character} 的字卡索引缺失，无法加载图片
                     </div>
                   )}
                 </div>

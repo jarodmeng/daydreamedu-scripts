@@ -1,6 +1,9 @@
 [build]
   publish = "dist"
   command = "npm run build"
+  # Supabase anon key is a public client key (baked into the bundle by Vite); allow it in build output
+  [build.environment]
+    SECRETS_SCAN_OMIT_KEYS = "VITE_SUPABASE_ANON_KEY"
 
   # Single Page Application: serve index.html for all routes
 [[redirects]]
