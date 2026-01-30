@@ -90,7 +90,7 @@ gcloud run deploy chinese-chr-app \
   --set-env-vars CORS_ORIGINS=https://chinese-chr.daydreamedu.org,GCS_BUCKET_NAME=chinese-chr-app-images,SUPABASE_URL=https://YOUR_PROJECT_REF.supabase.co,SUPABASE_JWT_AUD=authenticated
 ```
 
-**Note:** Replace `YOUR_PROJECT_REF` with your Supabase project reference. Environment variables can be updated after deployment without redeploying the image:
+**Note:** Replace `YOUR_PROJECT_REF` with your Supabase project reference. For database mode and character view logging, also set `USE_DATABASE=true` and `DATABASE_URL` (Supabase connection string) in Cloud Run → Variables & Secrets. Environment variables can be updated after deployment without redeploying the image:
 ```bash
 # Update environment variables
 gcloud run services update chinese-chr-app \
@@ -222,9 +222,10 @@ gcloud run services update chinese-chr-app \
 - `SUPABASE_JWT_AUD`: JWT audience (use `authenticated`)
 
 **Optional (when using Supabase Postgres from the backend):**
-- `DATABASE_URL`: Supabase transaction pooler connection string
+- `USE_DATABASE`: Set to `true` so the backend loads characters from the DB and enables character view logging. If unset, the backend uses JSON files and `/api/log-character-view` returns 503.
+- `DATABASE_URL`: Supabase transaction pooler connection string (required when `USE_DATABASE=true`).
 
-**Character view logging:** If you use the database and want to log which characters signed-in users view (Search result), create the `character_views` table once (same DB as feng_characters): from repo root, `cd chinese_chr_app/chinese_chr_app/backend && python scripts/create_character_views_table.py` (requires `DATABASE_URL` or `SUPABASE_DB_URL` in `.env.local` or environment).
+**Character view logging:** When `USE_DATABASE=true` and `DATABASE_URL` are set, signed-in users’ character views (Search result) are logged to the `character_views` table (user_id, character, viewed_at, display_name). Display name comes from the app profile or JWT metadata. Create the table once (same DB as feng_characters): from repo root, `cd chinese_chr_app/chinese_chr_app/backend && python scripts/create_character_views_table.py` (requires `DATABASE_URL` or `SUPABASE_DB_URL` in `.env.local` or environment). Cloud Build uses `--update-env-vars`, so `DATABASE_URL` and `USE_DATABASE` set in the Cloud Run Console (Variables & Secrets) are preserved on deploy.
 
 **Note:** `DATA_DIR` is automatically detected - it defaults to `/app/data` in the container (where files are copied during Docker build) or to the relative path for local development. You only need to set it via environment variable if you want to override this behavior.
 
@@ -303,6 +304,10 @@ If the 字卡 section shows a broken image or "字卡图片暂不可用":
 1. **Cloud Run**: Ensure `GCS_BUCKET_NAME` is set (e.g. `chinese-chr-app-images`). Without it, the backend tries the local filesystem and returns 404 in the container.
 2. **GCS bucket**: Upload PNGs so the structure is `gs://<bucket>/png/<index>/page1.png` and `page2.png` (e.g. `png/0071/page2.png` for 玉). From repo: `gsutil -m cp -r chinese_chr_app/data/png gs://chinese-chr-app-images/`.
 3. **Netlify**: Ensure `VITE_API_URL` is set to your Cloud Run URL so the frontend requests images from the correct API (e.g. `https://chinese-chr-app-xxx.run.app`).
+
+### Character view logging returns 503
+
+If the frontend calls `/api/log-character-view` and gets 503: the backend requires `USE_DATABASE=true` and `DATABASE_URL` on Cloud Run. Add both in Cloud Run → chinese-chr-app → Edit & deploy new revision → Variables & Secrets, then deploy. Ensure the `character_views` table exists (run `scripts/create_character_views_table.py` once).
 
 ### Frontend Issues
 

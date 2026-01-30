@@ -953,6 +953,25 @@ def put_profile():
     return jsonify({"profile": {"display_name": display_name}}), 200
 
 
+def _display_name_for_log(user, display_name_from_body: Optional[str] = None) -> str:
+    """Prefer body display_name, then in-memory profile, then JWT user_metadata."""
+    if display_name_from_body and display_name_from_body.strip():
+        return " ".join(display_name_from_body.strip().split())[:64]
+    if user and user.user_id:
+        in_mem = _profile_display_names.get(user.user_id)
+        if in_mem:
+            return in_mem
+    if user and user.user_metadata and isinstance(user.user_metadata, dict):
+        for key in ("name", "full_name", "preferred_username"):
+            val = user.user_metadata.get(key)
+            if val and isinstance(val, str) and val.strip():
+                return " ".join(val.strip().split())[:64]
+        email = user.user_metadata.get("email")
+        if email and isinstance(email, str) and email.strip():
+            return email.strip()[:64]
+    return ""
+
+
 @app.route('/api/log-character-view', methods=['POST'])
 def log_character_view():
     """Log that the current user viewed a character (Search result). Requires Bearer token and USE_DATABASE."""
@@ -965,9 +984,10 @@ def log_character_view():
     character = (data.get("character") or "").strip()
     if not character or len(character) != 1:
         return jsonify({"error": "character must be exactly one character"}), 400
+    display_name = _display_name_for_log(user, (data.get("display_name") or "").strip() or None)
     try:
         import database as db
-        db.log_character_view(user.user_id, character)
+        db.log_character_view(user.user_id, character, display_name or None)
     except Exception as e:
         print(f"[log-character-view] Failed to log: {e}", flush=True)
         return jsonify({"error": "Failed to log view"}), 500

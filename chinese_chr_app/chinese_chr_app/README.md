@@ -18,7 +18,7 @@ chinese_chr_app/
 │   ├── backend/         # Flask backend API
 │   │   ├── app.py       # Main Flask application
 │   │   ├── auth.py      # Supabase JWT verification
-│   │   ├── database.py  # Supabase/Postgres layer (feng_characters, hwxnet_characters)
+│   │   ├── database.py  # Supabase/Postgres layer (feng_characters, hwxnet_characters, character_views)
 │   │   ├── requirements.txt
 │   │   ├── MIGRATION_TO_DATABASE.md  # How to use DB instead of JSON
 │   │   └── logs/        # Character edit logs
@@ -184,6 +184,7 @@ The backend can read/write character data from Supabase tables instead of JSON f
 - Set **`USE_DATABASE=true`** and **`DATABASE_URL`** (Supabase Postgres connection string) in the backend environment.
 - Tables: **`feng_characters`** (3000 冯氏早教识字卡 entries) and **`hwxnet_characters`** (3664 dictionary entries).
 - Without these, the app uses `data/characters.json` and `data/extracted_characters_hwxnet.json` as before.
+- **Character view logging:** When using the DB, signed-in users’ character views (Search result) are logged to **`character_views`** (user_id, character, viewed_at, display_name). Display name is taken from the app profile or JWT. Create the table once from `backend/`: `python scripts/create_character_views_table.py`.
 - See **`backend/MIGRATION_TO_DATABASE.md`** for details and scripts to create/seed the tables.
 
 ### If you see "psycopg is required for database support"
@@ -219,6 +220,7 @@ Then keep using `USE_DATABASE=true` in `.env.local`; the backend will load from 
 - `GET /api/characters/search?q=<character>` - Search for a character
   - Returns `character: null` but `dictionary` present for dictionary-only characters
 - `PUT /api/characters/<index>/update` - Update character metadata
+- `POST /api/log-character-view` - Log that the signed-in user viewed a character (Search result). Body: `{ "character": "天", "display_name": "optional" }`. Requires `USE_DATABASE=true` and Bearer token. Logs user_id, character, viewed_at, and display_name (from body, profile, or JWT).
 
 ### Images
 - `GET /api/images/<index>/<page>` - Get character card images (page1 or page2)

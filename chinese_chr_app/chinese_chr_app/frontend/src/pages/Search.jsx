@@ -36,7 +36,7 @@ function Search() {
   const writerRef = useRef(null)
   const lastLoggedCharRef = useRef(null)
 
-  const { user, accessToken } = useAuth()
+  const { user, accessToken, profile } = useAuth()
 
   // Auto-search if query param is present
   useEffect(() => {
@@ -57,15 +57,16 @@ function Search() {
     if (!char || typeof char !== 'string' || char.length !== 1) return
     if (lastLoggedCharRef.current === char) return
     lastLoggedCharRef.current = char
+    const displayName = profile?.display_name?.trim() || ''
     fetch(`${API_BASE}/api/log-character-view`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${accessToken}`,
       },
-      body: JSON.stringify({ character: char }),
+      body: JSON.stringify({ character: char, ...(displayName && { display_name: displayName }) }),
     }).catch(() => {})
-  }, [character, user, accessToken])
+  }, [character, user, accessToken, profile])
 
   const displayChar = character?.Character || dictionary?.character || searchedChar || ''
   const hasCharacterData = Boolean(character)

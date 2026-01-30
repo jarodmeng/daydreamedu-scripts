@@ -18,6 +18,7 @@
 
 - **Single source of truth**: Supabase tables `feng_characters` and `hwxnet_characters`.
 - **Backend** reads/writes via `DATABASE_URL` (Psycopg 3: `psycopg[binary]>=3.1`); no dependency on JSON files for runtime data.
+- **Character view logging**: Table `character_views` (user_id, character, viewed_at) logs which characters signed-in users view on Search. Create with `scripts/create_character_views_table.py`; used when `USE_DATABASE=true`.
 - **Optional**: Keep JSON files as export/backup or remove them from the app’s data path after migration.
 
 ---

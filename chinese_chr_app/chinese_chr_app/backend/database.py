@@ -182,17 +182,17 @@ def update_feng_character(index: str, field: str, value: Any) -> Tuple[bool, Opt
         conn.close()
 
 
-def log_character_view(user_id: str, character: str) -> None:
+def log_character_view(user_id: str, character: str, display_name: Optional[str] = None) -> None:
     """
-    Insert a row into character_views (user_id, character, viewed_at).
+    Insert a row into character_views (user_id, character, viewed_at, display_name).
     Table must exist (run scripts/create_character_views_table.py once).
     """
     conn = _get_connection()
     try:
         with conn.cursor() as cur:
             cur.execute(
-                "INSERT INTO character_views (user_id, character) VALUES (%s, %s)",
-                (user_id.strip(), character.strip()),
+                "INSERT INTO character_views (user_id, character, display_name) VALUES (%s, %s, %s)",
+                (user_id.strip(), character.strip(), (display_name or "").strip() or None),
             )
         conn.commit()
     except Exception as e:
