@@ -4,11 +4,22 @@ steps:
   - name: 'gcr.io/cloud-builders/docker'
     args: ['build', '-t', 'gcr.io/$PROJECT_ID/chinese-chr-app', '-f', 'chinese_chr_app/chinese_chr_app/backend/Dockerfile', 'chinese_chr_app']
     dir: '.'
-  
+
   # Push the container image to Container Registry
   - name: 'gcr.io/cloud-builders/docker'
     args: ['push', 'gcr.io/$PROJECT_ID/chinese-chr-app']
-  
+
+  # Grant Cloud Run service account read access to GCS bucket (so 字卡 images can be served)
+  # PNGs are not in the repo (gitignored); upload once from local: gsutil -m cp -r chinese_chr_app/data/png gs://chinese-chr-app-images/
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: bash
+    args:
+      - '-c'
+      - |
+        PN=$$(gcloud projects describe $PROJECT_ID --format='value(projectNumber)')
+        gsutil iam ch serviceAccount:$${PN}-compute@developer.gserviceaccount.com:objectViewer gs://chinese-chr-app-images || true
+    id: 'grant-gcs-access'
+
   # Deploy container image to Cloud Run
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: gcloud

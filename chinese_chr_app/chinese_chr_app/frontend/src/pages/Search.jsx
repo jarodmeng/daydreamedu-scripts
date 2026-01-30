@@ -29,6 +29,7 @@ function Search() {
   const [loading, setLoading] = useState(false)
   const [strokeStatus, setStrokeStatus] = useState('idle') // idle | loading | ready | error
   const [strokeError, setStrokeError] = useState('')
+  const [cardImageError, setCardImageError] = useState(false) // 字卡 image failed to load
   const [isComposing, setIsComposing] = useState(false)
   const strokeContainerRef = useRef(null)
   const writerRef = useRef(null)
@@ -39,6 +40,11 @@ function Search() {
       performSearch(initialQuery)
     }
   }, []) // Only run on mount
+
+  // Reset 字卡 image error when character changes (new search)
+  useEffect(() => {
+    setCardImageError(false)
+  }, [character])
 
   const displayChar = character?.Character || dictionary?.character || searchedChar || ''
   const hasCharacterData = Boolean(character)
@@ -441,10 +447,22 @@ function Search() {
                 <div className="card">
                   <h3>字卡</h3>
                   <img 
-                    src={`${API_BASE}/api/images/${character.Index}/page2`}
-                    alt={`${character.Character} 的字卡`}
+                    src={`${API_BASE}/api/images/${character.Index ?? character.index}/page2`}
+                    alt={`${character.Character ?? character.character} 的字卡`}
                     className="card-image"
+                    onError={() => setCardImageError(true)}
+                    style={cardImageError ? { display: 'none' } : undefined}
                   />
+                  {cardImageError && (
+                    <div className="card-image-fallback" style={{ padding: '1rem', color: '#666', textAlign: 'center', fontSize: '0.9rem' }}>
+                      {character.Character ?? character.character} 的字卡图片暂不可用
+                      {import.meta.env.DEV && (
+                        <div style={{ marginTop: '0.5rem', wordBreak: 'break-all', fontSize: '0.8rem', color: '#999' }}>
+                          {`${API_BASE}/api/images/${character.Index ?? character.index}/page2`}
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
                 <div className="metadata-table">
                   <h3>字符信息（来源：冯氏早教识字卡）</h3>

@@ -549,32 +549,35 @@ def get_image(index, page):
     """Serve character card images from GCS or local filesystem"""
     if page not in ['page1', 'page2']:
         return jsonify({'error': 'Invalid page. Use page1 or page2'}), 400
-    
-    # Try GCS first if bucket is configured
+
+    blob_path = f"png/{index}/{page}.png"
+
+    # Try GCS first if bucket is configured (production)
     if GCS_BUCKET_NAME:
         try:
             from google.cloud import storage
             storage_client = storage.Client()
             bucket = storage_client.bucket(GCS_BUCKET_NAME)
-            # PNG files are organized under png/ folder in GCS bucket
-            blob_path = f"png/{index}/{page}.png"
             blob = bucket.blob(blob_path)
-            
             if blob.exists():
                 image_bytes = blob.download_as_bytes()
                 from io import BytesIO
                 return send_file(BytesIO(image_bytes), mimetype='image/png')
+            # GCS is configured but blob missing - don't fall back to local (container has no PNGs)
+            print(f"GCS blob not found: gs://{GCS_BUCKET_NAME}/{blob_path}", flush=True)
+            return jsonify({'error': 'Image not found in GCS', 'path': blob_path}), 404
         except ImportError:
-            print("Warning: google-cloud-storage not installed, falling back to local filesystem")
+            print("Warning: google-cloud-storage not installed, falling back to local filesystem", flush=True)
         except Exception as e:
-            print(f"Error loading from GCS: {e}, falling back to local filesystem")
-    
-    # Fallback to local filesystem
+            print(f"Error loading from GCS: {e}", flush=True)
+            import traceback
+            traceback.print_exc()
+            return jsonify({'error': 'Image storage unavailable', 'detail': str(e)}), 503
+
+    # Local filesystem (development)
     image_path = PNG_BASE_DIR / index / f"{page}.png"
-    
     if not image_path.exists():
-        return jsonify({'error': 'Image not found'}), 404
-    
+        return jsonify({'error': 'Image not found', 'path': str(image_path)}), 404
     return send_file(str(image_path), mimetype='image/png')
 
 

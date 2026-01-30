@@ -66,6 +66,8 @@ This will create the structure: `gs://chinese-chr-app-images/png/0001/page1.png`
 
 Note: The backend code expects PNG files to be under the `png/` prefix in the bucket.
 
+**Important:** The `chinese_chr_app/data/png/` directory is **not in the repo** (gitignored). So 字卡 images in production only work if you have run this upload at least once from a machine that has the PNG folder (e.g. your laptop or a one-off job). Cloud Build does **not** upload PNGs. After the first upload, re-run this command whenever you add or change character card images locally.
+
 ### 4. Build and Deploy Backend (Manual First Time)
 
 ```bash
@@ -285,6 +287,14 @@ npm run dev
 - **Images not loading**: Check GCS bucket permissions and `GCS_BUCKET_NAME` env var
 - **CORS errors**: Verify `CORS_ORIGINS` includes your frontend URL
 - **Data not found**: Ensure `DATA_DIR` points to the correct location in the container
+
+### 字卡 (character card) images not showing in production
+
+If the 字卡 section shows a broken image or "字卡图片暂不可用":
+
+1. **Cloud Run**: Ensure `GCS_BUCKET_NAME` is set (e.g. `chinese-chr-app-images`). Without it, the backend tries the local filesystem and returns 404 in the container.
+2. **GCS bucket**: Upload PNGs so the structure is `gs://<bucket>/png/<index>/page1.png` and `page2.png` (e.g. `png/0071/page2.png` for 玉). From repo: `gsutil -m cp -r chinese_chr_app/data/png gs://chinese-chr-app-images/`.
+3. **Netlify**: Ensure `VITE_API_URL` is set to your Cloud Run URL so the frontend requests images from the correct API (e.g. `https://chinese-chr-app-xxx.run.app`).
 
 ### Frontend Issues
 

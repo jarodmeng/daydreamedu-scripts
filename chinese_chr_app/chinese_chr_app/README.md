@@ -75,7 +75,9 @@ python3 -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 ```
 
-3. (Optional) For the backend to verify Supabase JWTs (e.g. for future protected routes), create `.env.local` from `.env.local.example` in `backend/` and set `SUPABASE_URL` and `SUPABASE_JWT_AUD`. Not required for local search/radicals/stroke-counts.
+3. (Optional) Create `.env.local` from `.env.local.example` in `backend/` and set:
+   - **Supabase**: `SUPABASE_URL`, `SUPABASE_JWT_AUD` (for JWT verification).
+   - **字卡 images**: Set `GCS_BUCKET_NAME=chinese-chr-app-images` so local 字卡 is served from GCS (same as prod). If unset, the backend uses local `data/png`. When using GCS locally, you must set up [Application Default Credentials](https://cloud.google.com/docs/authentication/external/set-up-adc): run `gcloud auth application-default login` once, then restart the backend.
 
 4. Install dependencies:
 ```bash
