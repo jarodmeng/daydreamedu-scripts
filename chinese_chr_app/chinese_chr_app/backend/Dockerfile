@@ -7,8 +7,10 @@ WORKDIR /app
 COPY chinese_chr_app/backend/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy application code
+# Copy application code (app.py imports auth and database)
 COPY chinese_chr_app/backend/app.py .
+COPY chinese_chr_app/backend/auth.py .
+COPY chinese_chr_app/backend/database.py .
 
 # Copy data files (JSON only) - maintain directory structure
 # Build context is chinese_chr_app/, so data/ is at data/
