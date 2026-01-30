@@ -224,6 +224,8 @@ gcloud run services update chinese-chr-app \
 **Optional (when using Supabase Postgres from the backend):**
 - `DATABASE_URL`: Supabase transaction pooler connection string
 
+**Character view logging:** If you use the database and want to log which characters signed-in users view (Search result), create the `character_views` table once (same DB as feng_characters): from repo root, `cd chinese_chr_app/chinese_chr_app/backend && python scripts/create_character_views_table.py` (requires `DATABASE_URL` or `SUPABASE_DB_URL` in `.env.local` or environment).
+
 **Note:** `DATA_DIR` is automatically detected - it defaults to `/app/data` in the container (where files are copied during Docker build) or to the relative path for local development. You only need to set it via environment variable if you want to override this behavior.
 
 **Automatic variables:**

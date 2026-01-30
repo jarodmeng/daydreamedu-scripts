@@ -953,6 +953,27 @@ def put_profile():
     return jsonify({"profile": {"display_name": display_name}}), 200
 
 
+@app.route('/api/log-character-view', methods=['POST'])
+def log_character_view():
+    """Log that the current user viewed a character (Search result). Requires Bearer token and USE_DATABASE."""
+    user = _get_profile_user()
+    if user is None:
+        return jsonify({"error": "Unauthorized"}), 401
+    if not USE_DATABASE:
+        return jsonify({"error": "Character view logging is only available when using the database"}), 503
+    data = request.get_json() or {}
+    character = (data.get("character") or "").strip()
+    if not character or len(character) != 1:
+        return jsonify({"error": "character must be exactly one character"}), 400
+    try:
+        import database as db
+        db.log_character_view(user.user_id, character)
+    except Exception as e:
+        print(f"[log-character-view] Failed to log: {e}", flush=True)
+        return jsonify({"error": "Failed to log view"}), 500
+    return "", 204
+
+
 @app.route('/api/health', methods=['GET'])
 def health():
     """Health check endpoint"""

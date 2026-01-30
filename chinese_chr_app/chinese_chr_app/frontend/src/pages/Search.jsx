@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { useSearchParams, Link } from 'react-router-dom'
 import HanziWriter from 'hanzi-writer'
+import { useAuth } from '../AuthContext'
 import '../App.css'
 
 // API base URL - use environment variable in production, empty string in development (uses proxy)
@@ -33,6 +34,9 @@ function Search() {
   const [isComposing, setIsComposing] = useState(false)
   const strokeContainerRef = useRef(null)
   const writerRef = useRef(null)
+  const lastLoggedCharRef = useRef(null)
+
+  const { user, accessToken } = useAuth()
 
   // Auto-search if query param is present
   useEffect(() => {
@@ -45,6 +49,23 @@ function Search() {
   useEffect(() => {
     setCardImageError(false)
   }, [character])
+
+  // Log character view for signed-in users (once per character view)
+  useEffect(() => {
+    if (!user || !accessToken || !character) return
+    const char = character.Character ?? character.character
+    if (!char || typeof char !== 'string' || char.length !== 1) return
+    if (lastLoggedCharRef.current === char) return
+    lastLoggedCharRef.current = char
+    fetch(`${API_BASE}/api/log-character-view`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({ character: char }),
+    }).catch(() => {})
+  }, [character, user, accessToken])
 
   const displayChar = character?.Character || dictionary?.character || searchedChar || ''
   const hasCharacterData = Boolean(character)
