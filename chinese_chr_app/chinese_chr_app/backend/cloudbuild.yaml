@@ -35,7 +35,7 @@ steps:
       - 'managed'
       - '--allow-unauthenticated'
       - '--set-env-vars'
-      - 'CORS_ORIGINS=https://chinese-chr.daydreamedu.org,GCS_BUCKET_NAME=chinese-chr-app-images'
+      - 'CORS_ORIGINS=https://chinese-chr.daydreamedu.org,GCS_BUCKET_NAME=chinese-chr-app-images,SUPABASE_URL=https://ersdawiangsdklbdxtts.supabase.co,SUPABASE_JWT_AUD=authenticated'
     env:
       - 'CLOUDSDK_RUN_REGION=us-central1'
 
