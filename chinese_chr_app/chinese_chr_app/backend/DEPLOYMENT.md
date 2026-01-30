@@ -240,7 +240,13 @@ gcloud run services update chinese-chr-app \
 For "Sign in with Google" to work in production:
 
 1. **Supabase Dashboard** → your project → **Authentication** → **Providers** → enable **Google** and set Client ID / Client Secret (from Google Cloud Console).
-2. **Authentication** → **URL Configuration**: set **Site URL** to your frontend URL (e.g. `https://chinese-chr.daydreamedu.org`) and add the Supabase callback to **Redirect URLs** (e.g. `https://<project_ref>.supabase.co/auth/v1/callback`).
+2. **Authentication** → **URL Configuration**:
+   - **Site URL**: set to your **production** frontend URL (e.g. `https://your-app.netlify.app` or `https://chinese-chr.daydreamedu.org`). This is the default redirect after login; if it stays `http://localhost:3000`, production sign-in will redirect to localhost and fail.
+   - **Redirect URLs**: add both your production URL and local dev URL so Supabase can redirect there after auth, e.g.:
+     - `https://your-app.netlify.app`
+     - `https://your-app.netlify.app/**`
+     - `http://localhost:3000`
+     - `http://localhost:3000/**`
 
 ## Local Development
 
@@ -300,6 +306,7 @@ If the 字卡 section shows a broken image or "字卡图片暂不可用":
 
 - **API calls failing**: Check `VITE_API_URL` environment variable
 - **Sign in with Google not working**: Ensure `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` are set in Netlify (production) or `.env.local` (local). In Supabase, enable Google provider and set Site URL / Redirect URLs (see "Google Login" above).
+- **"This site can't be reached" / redirect to localhost after Sign in with Google (prod)**: The OAuth callback is going to localhost because Supabase **Site URL** is still set to `http://localhost:3000`. In Supabase → **Authentication** → **URL Configuration**, set **Site URL** to your production frontend URL (e.g. `https://your-app.netlify.app`). Add that URL (and `https://your-app.netlify.app/**`) to **Redirect URLs** if not already there. Then try Sign in with Google again from the production site.
 - **Routing issues**: Verify `BrowserRouter` in `App.jsx` has no `basename` and `base: '/'` in `vite.config.js`
 - **Build errors**: Ensure all dependencies are installed (`npm install`)
 

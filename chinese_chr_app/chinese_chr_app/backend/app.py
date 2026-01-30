@@ -2,6 +2,7 @@ from flask import Flask, jsonify, send_file, request
 from flask_cors import CORS
 import json
 import logging
+import re
 import shutil
 import os
 import urllib.request
@@ -64,13 +65,15 @@ CORS_ORIGINS = [origin.strip() for origin in CORS_ORIGINS_RAW]
 
 # Use regex pattern to allow all netlify.app subdomains + explicit origins
 # Flask-CORS supports regex patterns in the origins list
-import re
 CORS_ORIGINS_WITH_WILDCARD = CORS_ORIGINS.copy()
 # Add regex pattern for netlify.app subdomains if not already present
 if not any('netlify.app' in o for o in CORS_ORIGINS):
     CORS_ORIGINS_WITH_WILDCARD.append(r'https://.*\.netlify\.app')
 
 CORS(app, origins=CORS_ORIGINS_WITH_WILDCARD, supports_credentials=True)
+
+# In-memory profile store (display_name by user_id). Resets on backend restart.
+_profile_display_names = {}
 
 # Load character data into memory
 characters_data = None
@@ -894,6 +897,59 @@ def get_stroke_count_detail(count: int):
         'total': 0,
         'error': f'No characters found for stroke count "{count}"'
     }), 404
+
+def _profile_display_name_from_metadata(metadata):
+    """Default display name from Supabase user_metadata."""
+    if not metadata or not isinstance(metadata, dict):
+        return "User"
+    name = (
+        metadata.get("name")
+        or metadata.get("full_name")
+        or metadata.get("preferred_username")
+        or ""
+    )
+    name = " ".join((name or "").strip().split())
+    name = "".join(c for c in name if c.isprintable())[:32]
+    return name or "User"
+
+
+def _get_profile_user():
+    """Return authenticated user or None; raise nothing."""
+    try:
+        import auth as auth_module
+        token = auth_module.extract_bearer_token(request.headers.get("Authorization"))
+        if not token:
+            return None
+        return auth_module.verify_bearer_token(token)
+    except Exception:
+        return None
+
+
+@app.route('/api/profile', methods=['GET'])
+def get_profile():
+    """Get current user's profile (display_name). Requires Bearer token."""
+    user = _get_profile_user()
+    if user is None:
+        return jsonify({"error": "Unauthorized"}), 401
+    display_name = _profile_display_names.get(user.user_id) or _profile_display_name_from_metadata(user.user_metadata)
+    return jsonify({"profile": {"display_name": display_name}}), 200
+
+
+@app.route('/api/profile', methods=['PUT'])
+def put_profile():
+    """Update current user's display_name. Requires Bearer token."""
+    user = _get_profile_user()
+    if user is None:
+        return jsonify({"error": "Unauthorized"}), 401
+    data = request.get_json() or {}
+    display_name = str(data.get("display_name") or "").strip()
+    display_name = " ".join(display_name.split())
+    display_name = "".join(c for c in display_name if c.isprintable())[:32]
+    if not display_name:
+        return jsonify({"error": "display_name is required"}), 400
+    _profile_display_names[user.user_id] = display_name
+    return jsonify({"profile": {"display_name": display_name}}), 200
+
 
 @app.route('/api/health', methods=['GET'])
 def health():
