@@ -65,12 +65,13 @@ USE_DATABASE = os.environ.get('USE_DATABASE', '').strip().lower() in ('1', 'true
 CORS_ORIGINS_RAW = os.getenv('CORS_ORIGINS', 'http://localhost:3000').split(',')
 CORS_ORIGINS = [origin.strip() for origin in CORS_ORIGINS_RAW]
 
-# Use regex pattern to allow all netlify.app subdomains + explicit origins
+# Use regex pattern for netlify.app and daydreamedu.org subdomains + explicit origins
 # Flask-CORS supports regex patterns in the origins list
 CORS_ORIGINS_WITH_WILDCARD = CORS_ORIGINS.copy()
-# Add regex pattern for netlify.app subdomains if not already present
 if not any('netlify.app' in o for o in CORS_ORIGINS):
     CORS_ORIGINS_WITH_WILDCARD.append(r'https://.*\.netlify\.app')
+if not any('daydreamedu.org' in o for o in CORS_ORIGINS):
+    CORS_ORIGINS_WITH_WILDCARD.append(r'https://.*\.daydreamedu\.org')
 
 CORS(app, origins=CORS_ORIGINS_WITH_WILDCARD, supports_credentials=True)
 
