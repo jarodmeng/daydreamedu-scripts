@@ -36,6 +36,14 @@ function NavBar() {
       <div className="nav-left">
         <Link
           to="/"
+          className="nav-logo"
+          onClick={closeMenu}
+          aria-label="学简体字 - 返回首页"
+        >
+          <img src="/icon-circle-64.png" alt="" className="nav-avatar" />
+        </Link>
+        <Link
+          to="/"
           className={`nav-link ${isSearchActive ? 'nav-link-active' : ''}`}
           onClick={closeMenu}
         >

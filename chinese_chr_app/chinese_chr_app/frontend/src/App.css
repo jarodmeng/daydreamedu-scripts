@@ -254,12 +254,33 @@ h1 {
   flex-wrap: wrap;
 }
 
-.nav-link-secondary {
-  background-color: #607D8B;
+.nav-logo {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  border-radius: 50%;
+  transition: transform 0.2s, box-shadow 0.2s;
 }
 
-.nav-link-secondary:hover:not(:disabled) {
-  background-color: #546E7A;
+.nav-logo:hover {
+  transform: scale(1.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.nav-avatar {
+  display: block;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  object-fit: contain;
+}
+
+.nav-link.nav-link-secondary {
+  background-color: #1a73e8;
+}
+
+.nav-link.nav-link-secondary:hover:not(:disabled) {
+  background-color: #1557b0;
 }
 
 button.nav-link {
@@ -280,6 +301,8 @@ button.nav-link:disabled {
   text-decoration: none;
   border-radius: 8px;
   font-weight: 500;
+  font-size: 1rem;
+  font-family: inherit;
   transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s;
   border: 2px solid rgba(0, 0, 0, 0.08);
 }
@@ -304,7 +327,8 @@ button.nav-link:disabled {
   align-items: center;
   gap: 6px;
   cursor: pointer;
-  font: inherit;
+  font-size: inherit;
+  font-family: inherit;
   padding: 10px 20px;
   background-color: #4CAF50;
   color: white;
@@ -423,21 +447,26 @@ button.nav-link:disabled {
   }
 
   .nav-links {
-    gap: 12px;
+    gap: 10px;
     margin-bottom: 16px;
-    flex-wrap: nowrap;
+    flex-wrap: wrap;
     justify-content: space-between;
   }
 
   .nav-left,
   .nav-right {
-    gap: 10px;
+    gap: 8px;
     flex-wrap: nowrap;
   }
 
+  .nav-avatar {
+    width: 52px;
+    height: 52px;
+  }
+
   .nav-link {
-    padding: 8px 14px;
-    font-size: 0.9rem;
+    padding: 8px 10px;
+    font-size: 0.8rem;
     white-space: nowrap;
   }
 
@@ -451,14 +480,14 @@ button.nav-link:disabled {
   .search-form .search-input {
     min-width: 0;
     flex: 1 1 auto;
-    font-size: 1rem;
-    padding: 12px 14px;
+    font-size: 0.9375rem;
+    padding: 10px 12px;
   }
 
   .search-form .search-button {
     flex: 0 0 auto;
-    padding: 12px 16px;
-    font-size: 0.95rem;
+    padding: 10px 14px;
+    font-size: 0.875rem;
   }
 
   .search-row {
@@ -521,8 +550,36 @@ button.nav-link:disabled {
     padding: 10px 12px;
   }
 
+  .nav-links {
+    gap: 8px;
+  }
+
+  .nav-left,
+  .nav-right {
+    gap: 6px;
+  }
+
+  .nav-avatar {
+    width: 44px;
+    height: 44px;
+  }
+
   .nav-link {
-    padding: 8px 10px;
-    font-size: 0.85rem;
+    padding: 6px 8px;
+    font-size: 0.75rem;
+  }
+
+  .search-form .search-input {
+    font-size: 0.875rem;
+    padding: 10px 12px;
+  }
+
+  .search-form .search-button {
+    padding: 10px 12px;
+    font-size: 0.8125rem;
+  }
+
+  h1 {
+    font-size: 1.5rem;
   }
 }
