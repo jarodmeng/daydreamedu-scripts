@@ -294,8 +294,15 @@ npm run dev
 ### Backend Issues
 
 - **Images not loading**: Check GCS bucket permissions and `GCS_BUCKET_NAME` env var
-- **CORS errors**: Verify `CORS_ORIGINS` includes your frontend URL
 - **Data not found**: Ensure `DATA_DIR` points to the correct location in the container
+
+### CORS + 503 in production ("blocked by CORS policy", "503 Service Unavailable")
+
+If the frontend at `https://chinese-chr.daydreamedu.org` sees CORS errors and/or 503 when calling the API:
+
+1. **503 often means the container failed to start.** Check Cloud Run → Logs: if you see `ModuleNotFoundError: No module named 'pinyin_search'` (or similar), the Dockerfile is missing that file. The repo Dockerfile must `COPY` all Python modules that `app.py` imports (e.g. `pinyin_search.py`). Rebuild and redeploy.
+2. **CORS:** The backend allows `https://*.daydreamedu.org` by default. Ensure `CORS_ORIGINS` in Cloud Run includes your frontend origin if needed (e.g. `https://chinese-chr.daydreamedu.org`). When the service returns 503 (e.g. crash), the response comes from Cloud Run, not Flask, so no CORS headers—fix the 503 first.
+3. **If using database:** When `USE_DATABASE=true`, set `DATABASE_URL` in Cloud Run (Variables & Secrets). Otherwise DB calls fail; pinyin search falls back to in-memory (empty if no JSON in container).
 
 ### 字卡 (character card) images not showing in production
 
