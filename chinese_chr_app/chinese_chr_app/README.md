@@ -20,11 +20,11 @@ chinese_chr_app/
 │   │   ├── auth.py      # Supabase JWT verification
 │   │   ├── database.py  # Supabase/Postgres layer (feng_characters, hwxnet_characters, character_views)
 │   │   ├── requirements.txt
-│   │   ├── MIGRATION_TO_DATABASE.md  # How to use DB instead of JSON
+│   │   ├── DATABASE.md  # DB schema, scripts, and data access
 │   │   └── logs/        # Character edit logs
 │   └── frontend/        # React frontend
 │       ├── src/
-│       │   ├── pages/   # Page components (Search, Radicals, RadicalDetail, StrokeCounts, StrokeCountDetail)
+│       │   ├── pages/   # Page components (Search, PinyinResults, Radicals, RadicalDetail, StrokeCounts, StrokeCountDetail)
 │       │   ├── App.jsx  # Main router + AuthProvider
 │       │   ├── NavBar.jsx
 │       │   ├── AuthContext.jsx  # Supabase Auth (Google login)
@@ -55,6 +55,7 @@ chinese_chr_app/
 
 ### Search behavior
 
+- **Search box** accepts a single Chinese character or pinyin (e.g. ke, wo3); pinyin shows a results page (`/pinyin/:query`) with characters ranked by stroke count.
 - For characters in **`characters.json`**: app can show **all 4 panels** (笔顺动画 / 字典信息 / 字卡 / 字符信息).
 - For “dictionary-only” characters (in `extracted_characters_hwxnet.json` but not `characters.json`): app shows only:
   - **笔顺动画**
@@ -185,7 +186,7 @@ The backend can read/write character data from Supabase tables instead of JSON f
 - Tables: **`feng_characters`** (3000 冯氏早教识字卡 entries) and **`hwxnet_characters`** (3664 dictionary entries).
 - Without these, the app uses `data/characters.json` and `data/extracted_characters_hwxnet.json` as before.
 - **Character view logging:** When using the DB, signed-in users’ character views (Search result) are logged to **`character_views`** (user_id, character, viewed_at, display_name). Display name is taken from the app profile or JWT. Create the table once from `backend/`: `python scripts/create_character_views_table.py`.
-- See **`backend/MIGRATION_TO_DATABASE.md`** for details and scripts to create/seed the tables.
+- See **`backend/DATABASE.md`** for schema, scripts, and data access.
 
 ### If you see "psycopg is required for database support"
 
@@ -218,6 +219,7 @@ Then keep using `USE_DATABASE=true` in `.env.local`; the backend will load from 
 
 ### Character Search
 - `GET /api/characters/search?q=<character>` - Search for a character
+- `GET /api/pinyin-search?q=<pinyin>` - Search by pinyin (e.g. ke, wo3); returns characters ranked by stroke count
   - Returns `character: null` but `dictionary` present for dictionary-only characters
 - `PUT /api/characters/<index>/update` - Update character metadata
 - `POST /api/log-character-view` - Log that the signed-in user viewed a character (Search result). Body: `{ "character": "天", "display_name": "optional" }`. Requires `USE_DATABASE=true` and Bearer token. Logs user_id, character, viewed_at, and display_name (from body, profile, or JWT).
