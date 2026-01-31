@@ -1,0 +1,25 @@
+---
+description: Use --trusted-host when pip fails with SSL certificate errors
+globs: **/requirements.txt,**/*.py
+alwaysApply: false
+---
+
+# Pip install when SSL verification fails
+
+If `pip install` or `pip3 install` fails with **SSLCertVerificationError** (e.g. `OSStatus -26276` or "problem confirming the ssl certificate"), install using trusted hosts so pip skips SSL verification for PyPI:
+
+```bash
+pip3 install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org <package>
+```
+
+**Example (psycopg):**
+```bash
+pip3 install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org 'psycopg[binary]>=3.1'
+```
+
+**Example (from requirements.txt):**
+```bash
+pip3 install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org -r requirements.txt
+```
+
+Use this when running installs in environments where system/cert store causes SSL verification to fail (e.g. some CI or sandbox environments).
