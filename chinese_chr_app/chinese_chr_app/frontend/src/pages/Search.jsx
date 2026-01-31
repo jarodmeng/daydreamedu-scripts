@@ -22,6 +22,11 @@ function isSingleCjkChar(s) {
   return typeof s === 'string' && s.length === 1 && /[\u4e00-\u9fff]/.test(s)
 }
 
+function getStrokeBoxSize() {
+  if (typeof window === 'undefined') return 420
+  return window.innerWidth <= 768 ? Math.min(300, Math.max(200, window.innerWidth - 48)) : 420
+}
+
 function Search() {
   const [searchParams, setSearchParams] = useSearchParams()
   const navigate = useNavigate()
@@ -37,11 +42,19 @@ function Search() {
   const [strokeError, setStrokeError] = useState('')
   const [cardImageError, setCardImageError] = useState(false) // 字卡 image failed to load
   const [isComposing, setIsComposing] = useState(false)
+  const [strokeBoxSize, setStrokeBoxSize] = useState(getStrokeBoxSize)
   const strokeContainerRef = useRef(null)
   const writerRef = useRef(null)
   const lastLoggedCharRef = useRef(null)
 
   const { user, accessToken, profile } = useAuth()
+
+  // Responsive stroke animation size
+  useEffect(() => {
+    const onResize = () => setStrokeBoxSize(getStrokeBoxSize())
+    window.addEventListener('resize', onResize)
+    return () => window.removeEventListener('resize', onResize)
+  }, [])
 
   // Auto-search if query param is present (single CJK = character search; else redirect to pinyin)
   useEffect(() => {
@@ -126,15 +139,15 @@ function Search() {
         const strokeData = await fetchStrokeData(displayChar, abortController.signal)
         if (cancelled || !strokeContainerRef.current) return
 
+        const size = strokeBoxSize
         const writer = HanziWriter.create(strokeContainerRef.current, displayChar, {
-          width: 420,
-          height: 420,
-          padding: 10,
+          width: size,
+          height: size,
+          padding: Math.max(6, Math.floor(size / 42)),
           showCharacter: true,
           showOutline: true,
           strokeAnimationSpeed: 1,
           delayBetweenStrokes: 300,
-          // Provide the already-fetched data synchronously to HanziWriter
           charDataLoader: () => strokeData
         })
 
@@ -157,7 +170,7 @@ function Search() {
       cancelled = true
       abortController.abort()
     }
-  }, [displayChar, loading])
+  }, [displayChar, loading, strokeBoxSize])
 
   const performSearch = async (query) => {
     setLoading(true)
@@ -324,6 +337,7 @@ function Search() {
                   <div
                     ref={strokeContainerRef}
                     className="stroke-container"
+                    style={{ width: strokeBoxSize, height: strokeBoxSize }}
                   />
                   {strokeStatus === 'loading' && (
                     <div style={{ marginTop: '10px', color: '#666' }}>加载笔顺数据中...</div>
