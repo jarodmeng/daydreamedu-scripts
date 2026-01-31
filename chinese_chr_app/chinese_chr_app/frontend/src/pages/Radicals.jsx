@@ -7,20 +7,25 @@ import './Radicals.css'
 const API_BASE = import.meta.env.VITE_API_URL || 
   (import.meta.env.DEV ? '' : 'https://chinese-chr-app-177544945895.us-central1.run.app')
 
+const SORT_CHARACTER_COUNT = 'character_count'
+const SORT_STROKE_COUNT = 'stroke_count'
+
 function Radicals() {
   const [radicals, setRadicals] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [sortBy, setSortBy] = useState(SORT_CHARACTER_COUNT)
   const navigate = useNavigate()
 
   useEffect(() => {
     fetchRadicals()
-  }, [])
+  }, [sortBy])
 
   const fetchRadicals = async () => {
     try {
       setLoading(true)
-      const response = await fetch(`${API_BASE}/api/radicals`)
+      const sortParam = sortBy === SORT_STROKE_COUNT ? SORT_STROKE_COUNT : SORT_CHARACTER_COUNT
+      const response = await fetch(`${API_BASE}/api/radicals?sort=${sortParam}`)
       if (!response.ok) {
         throw new Error('Failed to fetch radicals')
       }
@@ -39,6 +44,8 @@ function Radicals() {
     navigate(`/radicals/${encodeURIComponent(radical)}`)
   }
 
+  const showStrokeCount = sortBy === SORT_STROKE_COUNT
+
   return (
     <div className="radicals-page">
       <div className="radicals-container">
@@ -46,6 +53,27 @@ function Radicals() {
         <p className="radicals-subtitle">
           点击部首查看该部首下的所有简体字
         </p>
+
+        {!loading && !error && (
+          <div className="radicals-sort" role="group" aria-label="排序方式">
+            <button
+              type="button"
+              className={`radicals-sort-btn ${sortBy === SORT_CHARACTER_COUNT ? 'active' : ''}`}
+              onClick={() => setSortBy(SORT_CHARACTER_COUNT)}
+              data-testid="radicals-sort-character-count"
+            >
+              按字数
+            </button>
+            <button
+              type="button"
+              className={`radicals-sort-btn ${sortBy === SORT_STROKE_COUNT ? 'active' : ''}`}
+              onClick={() => setSortBy(SORT_STROKE_COUNT)}
+              data-testid="radicals-sort-stroke-count"
+            >
+              按部首笔画
+            </button>
+          </div>
+        )}
 
         {loading && (
           <div className="loading">
@@ -67,12 +95,17 @@ function Radicals() {
             <div className="radicals-grid">
               {radicals.map((item, index) => (
                 <div
-                  key={index}
+                  key={`${item.radical}-${index}`}
                   className="radical-box"
                   onClick={() => handleRadicalClick(item.radical)}
                 >
                   <div className="radical-character">{item.radical}</div>
                   <div className="radical-count">{item.character_count}字</div>
+                  {showStrokeCount && (
+                    <div className="radical-stroke-count">
+                      {item.radical_stroke_count != null ? `${item.radical_stroke_count}画` : '—'}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>

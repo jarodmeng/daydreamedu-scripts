@@ -24,6 +24,36 @@
   font-size: 1.1rem;
 }
 
+.radicals-sort {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.radicals-sort-btn {
+  padding: 8px 16px;
+  font-size: 0.95rem;
+  border: 2px solid #4CAF50;
+  background: white;
+  color: #333;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.radicals-sort-btn:hover {
+  background-color: #f0f8f0;
+  border-color: #45a049;
+}
+
+.radicals-sort-btn.active {
+  background-color: #4CAF50;
+  color: white;
+  border-color: #4CAF50;
+}
+
 .radicals-count {
   text-align: center;
   color: #555;
@@ -74,6 +104,12 @@
   font-size: 0.9rem;
   color: #666;
   margin-top: 5px;
+}
+
+.radical-stroke-count {
+  font-size: 0.85rem;
+  color: #888;
+  margin-top: 4px;
 }
 
 .loading {

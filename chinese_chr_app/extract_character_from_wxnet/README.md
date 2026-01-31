@@ -14,6 +14,7 @@ Where `<character>` is a single simplified Chinese character.
 - **`batch_extract_hwxnet.py`** - Batch extraction script with parallel processing support
 - **`test_extract_character_hwxnet.py`** - Unit tests for the extraction library
 - **`validate_extracted_data.py`** - Data quality validation script
+- **`extract_radical_stroke_counts.py`** - Extract radical → stroke count from [按部首查字](https://zd.hwxnet.com/bushou.html); writes `data/radical_stroke_counts.json` for the app’s Radicals page sort-by-stroke feature
 - **`extracted_characters_hwxnet.json`** - Output file containing extracted data for all characters (located in `data/` folder)
 
 ## Extracted Fields
@@ -76,6 +77,24 @@ python test_extract_character_hwxnet.py
 ```bash
 # Validate extracted data quality
 python validate_extracted_data.py
+```
+
+### Radical stroke counts (部首笔画)
+
+Build a mapping of each radical to its stroke count from [按部首查字](https://zd.hwxnet.com/bushou.html) for use by the app (e.g. sorting the Radicals page by radical stroke count):
+
+```bash
+# Write chinese_chr_app/data/radical_stroke_counts.json (default)
+python extract_radical_stroke_counts.py
+
+# Custom output path
+python extract_radical_stroke_counts.py --output /path/to/radical_stroke_counts.json
+
+# Only include radicals listed in a file (JSON array or one radical per line)
+python extract_radical_stroke_counts.py --filter-radicals radicals.txt
+
+# Dry run: print mapping to stdout, do not write file
+python extract_radical_stroke_counts.py --dry-run
 ```
 
 ## Output Format

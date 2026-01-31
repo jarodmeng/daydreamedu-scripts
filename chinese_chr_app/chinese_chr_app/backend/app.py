@@ -44,6 +44,7 @@ else:
     DATA_DIR = BASE_DIR / "data"
 CHARACTERS_JSON = DATA_DIR / "characters.json"
 HWXNET_JSON = DATA_DIR / "extracted_characters_hwxnet.json"
+RADICAL_STROKE_JSON = DATA_DIR / "radical_stroke_counts.json"
 BACKUP_DIR = DATA_DIR / "backups"
 HANZI_WRITER_CACHE_DIR = DATA_DIR / "temp" / "hanzi_writer"
 
@@ -85,6 +86,9 @@ character_lookup = {}  # Map character -> character data for fast lookup
 # Load radicals data into memory
 radicals_data = None  # Array of {radical, characters}
 radicals_lookup = {}  # Map radical -> {radical, characters} for fast lookup
+
+# Radical -> stroke count (for sort by radical stroke count). DB primary, JSON fallback.
+radical_stroke_counts_map = None
 
 # Load stroke-counts data into memory
 stroke_counts_data = None  # Array of {count, character_count}
@@ -822,6 +826,40 @@ def load_radicals():
         print(f"✓ Generated {len(radicals_data)} radicals from hwxnet dictionary ({len(hwx_lookup)} characters)")
     return radicals_data, radicals_lookup
 
+
+def load_radical_stroke_counts() -> Dict[str, int]:
+    """Load radical -> stroke_count. DB primary when USE_DATABASE; JSON fallback."""
+    global radical_stroke_counts_map
+    if radical_stroke_counts_map is not None:
+        return radical_stroke_counts_map
+    if USE_DATABASE:
+        try:
+            import database as db
+            radical_stroke_counts_map = db.get_radical_stroke_counts()
+            if radical_stroke_counts_map:
+                print(f"✓ Loaded {len(radical_stroke_counts_map)} radical stroke counts from database")
+            return radical_stroke_counts_map
+        except Exception as e:
+            logging.warning("Failed to load radical_stroke_counts from database: %s; falling back to JSON", e)
+            radical_stroke_counts_map = None  # allow JSON fallback below
+    # JSON fallback
+    if not RADICAL_STROKE_JSON.exists():
+        logging.warning("radical_stroke_counts.json not found at %s", RADICAL_STROKE_JSON)
+        radical_stroke_counts_map = {}
+        return radical_stroke_counts_map
+    try:
+        with open(RADICAL_STROKE_JSON, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        radical_stroke_counts_map = {str(k).strip(): int(v) for k, v in (data or {}).items() if k and str(k).strip() and isinstance(v, (int, float))}
+        if radical_stroke_counts_map:
+            print(f"✓ Loaded {len(radical_stroke_counts_map)} radical stroke counts from JSON")
+        return radical_stroke_counts_map
+    except Exception as e:
+        logging.warning("Failed to load radical_stroke_counts from JSON: %s", e)
+        radical_stroke_counts_map = {}
+        return radical_stroke_counts_map
+
+
 def generate_stroke_counts_data(hwxnet_lookup: Dict[str, Any]) -> Tuple[List[Dict[str, Any]], Dict[int, List[Dict[str, Any]]]]:
     """
     Generate stroke-counts data from HWXNet dictionary entries.
@@ -905,22 +943,35 @@ def load_stroke_counts():
 
 @app.route('/api/radicals', methods=['GET'])
 def get_radicals():
-    """Get all radicals sorted by number of characters"""
+    """Get all radicals; optional sort=character_count (default) or sort=stroke_count."""
     radicals_list, _ = load_radicals()
-    
-    # Convert to list with character count and sort by character count (descending)
-    radicals_with_count = [
-        {
-            'radical': entry['radical'],
-            'character_count': len(entry['characters'])
-        }
-        for entry in radicals_list
-    ]
-    radicals_with_count.sort(key=lambda x: x['character_count'], reverse=True)
-    
-    # Calculate total characters
+    sort_param = (request.args.get('sort') or 'character_count').strip().lower()
+    sort_by_stroke = sort_param == 'stroke_count'
+    stroke_map = load_radical_stroke_counts()
+
+    radicals_with_count = []
+    for entry in radicals_list:
+        radical = entry['radical']
+        count = len(entry['characters'])
+        stroke_count = stroke_map.get(radical) if stroke_map else None
+        radicals_with_count.append({
+            'radical': radical,
+            'character_count': count,
+            'radical_stroke_count': stroke_count
+        })
+
+    if sort_by_stroke:
+        # Ascending by radical_stroke_count; nulls last, then by character_count desc for stable order
+        radicals_with_count.sort(key=lambda x: (
+            x['radical_stroke_count'] is None,
+            x['radical_stroke_count'] if x['radical_stroke_count'] is not None else 999,
+            -x['character_count'],
+            x['radical']
+        ))
+    else:
+        radicals_with_count.sort(key=lambda x: x['character_count'], reverse=True)
+
     total_characters = sum(len(entry['characters']) for entry in radicals_list)
-    
     return jsonify({
         'radicals': radicals_with_count,
         'total_radicals': len(radicals_list),
@@ -1107,6 +1158,13 @@ if __name__ == '__main__':
         print(f"✓ Successfully generated {len(radicals_lookup)} radicals")
     except Exception as e:
         print(f"✗ Error generating radicals: {e}")
+        import traceback
+        traceback.print_exc()
+
+    try:
+        load_radical_stroke_counts()
+    except Exception as e:
+        print(f"✗ Error loading radical stroke counts: {e}")
         import traceback
         traceback.print_exc()
 

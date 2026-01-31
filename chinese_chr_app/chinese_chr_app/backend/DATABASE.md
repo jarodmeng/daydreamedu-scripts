@@ -81,6 +81,21 @@ Logs which characters signed-in users view on Search (user_id, character, viewed
 
 ---
 
+### 2.4 `radical_stroke_counts`
+
+Mapping of radical character to its stroke count (e.g. for sorting the Radicals page by radical stroke count). Source: [汉文学网 按部首查字](https://zd.hwxnet.com/bushou.html); JSON at `data/radical_stroke_counts.json`.
+
+| Column | Type | Notes |
+|--------|------|--------|
+| radical | text | NOT NULL; PK |
+| stroke_count | integer | NOT NULL |
+
+**Index:** `idx_radical_stroke_counts_stroke_count` on `stroke_count`.
+
+**Create and load:** `python scripts/create_radical_stroke_counts_table.py` (reads `data/radical_stroke_counts.json`). Use `--dry-run` to validate without connecting.
+
+---
+
 ## 3. Data access layer (`database.py`)
 
 Psycopg 3 (`psycopg[binary]>=3.1`). All functions return dict shapes compatible with the rest of the app (same as JSON-based responses).
@@ -134,6 +149,7 @@ API response shapes are unchanged; no frontend changes required for DB migration
 | `scripts/create_feng_characters_table.py` | Create `feng_characters`, optionally insert from `data/characters.json` (`--all` for full). |
 | `scripts/create_hwxnet_characters_table.py` | Create `hwxnet_characters`, optionally insert from `data/extracted_characters_hwxnet.json` (`--all` for full). |
 | `scripts/create_character_views_table.py` | Create `character_views`. |
+| `scripts/create_radical_stroke_counts_table.py` | Create `radical_stroke_counts`, insert from `data/radical_stroke_counts.json`. Options: `--dry-run`. |
 | `scripts/verify_feng_characters.py` | Verify row counts / sample from `feng_characters`. |
 | `scripts/verify_hwxnet_characters.py` | Verify row counts / sample from `hwxnet_characters`. |
 | `scripts/add_searchable_pinyin_column.py` | Add `searchable_pinyin` (jsonb) to `hwxnet_characters`, create GIN index, backfill from `pinyin`. Options: `--dry-run`, `--no-backup`, `--skip-filled`. |

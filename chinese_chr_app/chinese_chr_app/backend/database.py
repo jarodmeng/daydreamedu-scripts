@@ -224,6 +224,22 @@ def update_feng_character(index: str, field: str, value: Any) -> Tuple[bool, Opt
         conn.close()
 
 
+def get_radical_stroke_counts() -> Dict[str, int]:
+    """
+    Return radical -> stroke_count from radical_stroke_counts table.
+    Used for sorting the Radicals page by radical stroke count.
+    Raises on connection/query error so caller can fall back to JSON.
+    """
+    conn = _get_connection()
+    try:
+        with conn.cursor() as cur:
+            cur.execute("SELECT radical, stroke_count FROM radical_stroke_counts")
+            rows = cur.fetchall()
+        return {str(r["radical"]).strip(): int(r["stroke_count"]) for r in rows if r.get("radical")}
+    finally:
+        conn.close()
+
+
 def log_character_view(user_id: str, character: str, display_name: Optional[str] = None) -> None:
     """
     Insert a row into character_views (user_id, character, viewed_at, display_name).

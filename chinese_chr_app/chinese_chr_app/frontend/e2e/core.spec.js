@@ -60,6 +60,16 @@ test('core flows: search + dictionary-only + radicals', async ({ page }) => {
   await expect(page.getByRole('heading', { name: '部首' })).toBeVisible();
   await expect(page.getByText('共224个部首')).toBeVisible();
 
+  // Sort by radical stroke count: click "按部首笔画", list reorders and shows stroke count (e.g. 1画)
+  await page.getByTestId('radicals-sort-stroke-count').click();
+  await expect(page.getByTestId('radicals-sort-stroke-count')).toHaveAttribute('class', /active/);
+  await expect(page.getByText('共224个部首')).toBeVisible();
+  await expect(page.locator('.radical-stroke-count').first()).toContainText(/画/);
+
+  // Back to sort by character count
+  await page.getByTestId('radicals-sort-character-count').click();
+  await expect(page.getByTestId('radicals-sort-character-count')).toHaveAttribute('class', /active/);
+
   // Click radical "口"
   await page.locator('.radical-box').filter({ hasText: '口' }).first().click();
   await expect(page.getByText('部首: 口')).toBeVisible();

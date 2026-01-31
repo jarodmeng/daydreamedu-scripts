@@ -21,6 +21,7 @@ COPY chinese_chr_app/backend/pinyin_search.py .
 RUN mkdir -p ./data/backups
 COPY data/characters.json ./data/
 COPY data/extracted_characters_hwxnet.json ./data/
+COPY data/radical_stroke_counts.json ./data/
 # Note: characters_by_radicals.json is generated dynamically, so we don't need to copy it
 
 # Expose port (Cloud Run will set PORT env var)
