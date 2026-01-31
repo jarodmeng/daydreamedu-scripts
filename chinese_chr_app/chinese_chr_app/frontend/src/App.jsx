@@ -5,6 +5,7 @@ import Radicals from './pages/Radicals'
 import RadicalDetail from './pages/RadicalDetail'
 import StrokeCounts from './pages/StrokeCounts'
 import StrokeCountDetail from './pages/StrokeCountDetail'
+import PinyinResults from './pages/PinyinResults'
 import { AuthProvider } from './AuthContext'
 import './App.css'
 
@@ -20,6 +21,7 @@ function App() {
         <Route path="/radicals/:radical" element={<RadicalDetail />} />
         <Route path="/stroke-counts" element={<StrokeCounts />} />
         <Route path="/stroke-counts/:count" element={<StrokeCountDetail />} />
+        <Route path="/pinyin/:query" element={<PinyinResults />} />
         <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </div>

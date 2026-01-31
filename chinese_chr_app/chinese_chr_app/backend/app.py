@@ -14,6 +14,8 @@ from pathlib import Path
 from typing import Optional, Dict, Any, List, Tuple
 from collections import defaultdict
 
+from pinyin_search import parse_pinyin_query, compute_searchable_pinyin_for_entry
+
 # Load environment variables from .env file if it exists (for local development)
 try:
     from dotenv import load_dotenv
@@ -546,6 +548,87 @@ def search_character():
             'error': f'服务器错误: {str(e)}',
             'detail': str(e)
         }), 500
+
+
+def _pinyin_search_in_memory(search_keys: List[str]) -> List[Dict[str, Any]]:
+    """Look up characters by search keys using in-memory hwxnet_lookup (no DB)."""
+    _, hwx_lookup = load_hwxnet()
+    if not hwx_lookup:
+        return []
+    # Build index: search_key -> list of (character, entry)
+    key_to_entries: Dict[str, List[Tuple[str, Dict]]] = defaultdict(list)
+    for ch, entry in hwx_lookup.items():
+        if not isinstance(entry, dict):
+            continue
+        pinyin_list = entry.get('拼音') or []
+        if isinstance(pinyin_list, str):
+            pinyin_list = [pinyin_list]
+        for key in compute_searchable_pinyin_for_entry(pinyin_list):
+            key_to_entries[key].append((ch, entry))
+    # Collect all characters that match any key
+    seen = set()
+    candidates = []
+    for key in search_keys:
+        for ch, entry in key_to_entries.get(key, []):
+            if ch in seen:
+                continue
+            seen.add(ch)
+            strokes = entry.get('总笔画')
+            zibiao = entry.get('zibiao_index')
+            candidates.append({
+                'character': ch,
+                'radical': (entry.get('部首') or '').strip() or '',
+                'pinyin': entry.get('拼音') or [],
+                'strokes': strokes,
+                'zibiao_index': zibiao,
+                'index': entry.get('index'),
+            })
+    # Sort by 总笔画 ASC, then zibiao_index ASC
+    def _sort_key(x):
+        s = x.get('strokes')
+        z = x.get('zibiao_index')
+        strokes_val = s if isinstance(s, (int, float)) else (int(s) if s is not None and str(s).strip().isdigit() else 999)
+        zibiao_val = z if isinstance(z, (int, float)) else (999999 if z is None else z)
+        return (strokes_val, zibiao_val)
+    candidates.sort(key=_sort_key)
+    return candidates
+
+
+@app.route('/api/pinyin-search', methods=['GET'])
+def pinyin_search():
+    """Search characters by pinyin (e.g. ke3, ma, nǐ). Returns list sorted by stroke count, then zibiao_index."""
+    query = (request.args.get('q') or '').strip()
+    is_valid, err_msg, search_keys = parse_pinyin_query(query)
+    if not is_valid or search_keys is None:
+        return jsonify({'error': err_msg or '拼音输入格式错误'}), 400
+    try:
+        if USE_DATABASE:
+            try:
+                from database import get_characters_by_pinyin_search_keys
+                characters = get_characters_by_pinyin_search_keys(search_keys)
+            except Exception as e:
+                print(f"Pinyin search DB error: {e}", flush=True)
+                characters = _pinyin_search_in_memory(search_keys)
+        else:
+            characters = _pinyin_search_in_memory(search_keys)
+        if not characters:
+            return jsonify({
+                'found': False,
+                'query': query,
+                'error': '未找到该拼音的汉字',
+                'characters': [],
+            })
+        return jsonify({
+            'found': True,
+            'query': query,
+            'characters': characters,
+        })
+    except Exception as e:
+        print(f"Pinyin search error: {e}", flush=True)
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': f'服务器错误: {str(e)}', 'detail': str(e)}), 500
+
 
 @app.route('/api/images/<index>/<page>', methods=['GET'])
 def get_image(index, page):

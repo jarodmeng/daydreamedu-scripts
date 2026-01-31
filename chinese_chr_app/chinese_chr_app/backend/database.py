@@ -122,6 +122,48 @@ def get_hwxnet_lookup() -> Dict[str, Dict[str, Any]]:
         conn.close()
 
 
+def get_characters_by_pinyin_search_keys(search_keys: List[str]) -> List[Dict[str, Any]]:
+    """
+    Return characters whose searchable_pinyin contains any of the given keys.
+    Returns list of dicts with character, 部首 (radical), 拼音 (pinyin), 总笔画 (strokes), zibiao_index, index.
+    Sorted by 总笔画 ASC, then zibiao_index ASC. One entry per character (deduped).
+    """
+    if not search_keys:
+        return []
+    conn = _get_connection()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                SELECT character, zibiao_index, index, radical, strokes, pinyin
+                FROM hwxnet_characters
+                WHERE searchable_pinyin ?| %s
+                ORDER BY strokes ASC NULLS LAST, zibiao_index ASC NULLS LAST
+                """,
+                (search_keys,),
+            )
+            rows = cur.fetchall()
+        # Dedupe by character (keep first by sort order)
+        seen = set()
+        result = []
+        for r in rows:
+            ch = (r.get("character") or "").strip()
+            if not ch or ch in seen:
+                continue
+            seen.add(ch)
+            result.append({
+                "character": ch,
+                "radical": (r.get("radical") or "").strip() or "",
+                "pinyin": r.get("pinyin") or [],
+                "strokes": r.get("strokes"),
+                "zibiao_index": r.get("zibiao_index"),
+                "index": r.get("index"),
+            })
+        return result
+    finally:
+        conn.close()
+
+
 def _field_to_column(field: str) -> str:
     """Map API field name to DB column name."""
     mapping = {

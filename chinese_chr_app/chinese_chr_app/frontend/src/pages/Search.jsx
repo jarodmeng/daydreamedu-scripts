@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { useSearchParams, Link } from 'react-router-dom'
+import { useSearchParams, useNavigate, Link } from 'react-router-dom'
 import HanziWriter from 'hanzi-writer'
 import { useAuth } from '../AuthContext'
 import '../App.css'
@@ -18,8 +18,13 @@ if (!import.meta.env.DEV) {
   }
 }
 
+function isSingleCjkChar(s) {
+  return typeof s === 'string' && s.length === 1 && /[\u4e00-\u9fff]/.test(s)
+}
+
 function Search() {
   const [searchParams, setSearchParams] = useSearchParams()
+  const navigate = useNavigate()
   const initialQuery = searchParams.get('q') || ''
   
   const [searchTerm, setSearchTerm] = useState(initialQuery)
@@ -38,10 +43,13 @@ function Search() {
 
   const { user, accessToken, profile } = useAuth()
 
-  // Auto-search if query param is present
+  // Auto-search if query param is present (single CJK = character search; else redirect to pinyin)
   useEffect(() => {
-    if (initialQuery) {
+    if (!initialQuery) return
+    if (isSingleCjkChar(initialQuery)) {
       performSearch(initialQuery)
+    } else {
+      navigate(`/pinyin/${encodeURIComponent(initialQuery)}`)
     }
   }, []) // Only run on mount
 
@@ -196,23 +204,23 @@ function Search() {
 
   const handleSearch = async (e) => {
     e.preventDefault()
-    
-    // Validate input - only allow single Chinese character
+
     const trimmed = searchTerm.trim()
     if (trimmed.length === 0) {
-      setError('请输入一个简体字')
-      setCharacter(null)
-      return
-    }
-    
-    if (trimmed.length > 1) {
-      setError('请输入一个简体字')
+      setError('请输入一个简体字或拼音')
       setCharacter(null)
       return
     }
 
-    setSearchParams({ q: trimmed })
-    await performSearch(trimmed)
+    // Single CJK character -> character search (existing behavior)
+    if (isSingleCjkChar(trimmed)) {
+      setSearchParams({ q: trimmed })
+      await performSearch(trimmed)
+      return
+    }
+
+    // Otherwise treat as pinyin -> redirect to pinyin results page
+    navigate(`/pinyin/${encodeURIComponent(trimmed)}`)
   }
 
   const handleInputChange = (e) => {
@@ -281,7 +289,7 @@ function Search() {
             onChange={handleInputChange}
             onCompositionStart={handleCompositionStart}
             onCompositionEnd={handleCompositionEnd}
-            placeholder="输入一个简体字"
+            placeholder="输入汉字或拼音（如 ke 或 ke3）"
             className="search-input"
             disabled={loading}
           />
