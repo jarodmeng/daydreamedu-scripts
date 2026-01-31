@@ -294,16 +294,8 @@ npm run dev
 ### Backend Issues
 
 - **Images not loading**: Check GCS bucket permissions and `GCS_BUCKET_NAME` env var
+- **CORS errors**: Verify `CORS_ORIGINS` includes your frontend URL
 - **Data not found**: Ensure `DATA_DIR` points to the correct location in the container
-
-### CORS errors in production ("blocked by CORS policy", "No 'Access-Control-Allow-Origin' header")
-
-If the frontend at `https://chinese-chr.daydreamedu.org` gets CORS errors when calling the backend (e.g. `/api/profile`, `/api/pinyin-search`):
-
-1. **Immediate fix (no redeploy):** In Google Cloud Console → Cloud Run → chinese-chr-app → Edit & deploy new revision → Variables & Secrets, set **CORS_ORIGINS** to include the frontend origin, e.g. `https://chinese-chr.daydreamedu.org` (comma-separate multiple: `https://chinese-chr.daydreamedu.org,https://daydreamedu.org`). Save and deploy the new revision.
-2. **Or via gcloud:**  
-   `gcloud run services update chinese-chr-app --region us-central1 --update-env-vars CORS_ORIGINS=https://chinese-chr.daydreamedu.org`
-3. The backend also allows any `https://*.daydreamedu.org` origin by default (regex). After the next code deploy, production will work even if `CORS_ORIGINS` is unset, as long as the frontend is on a daydreamedu.org subdomain.
 
 ### 字卡 (character card) images not showing in production
 
