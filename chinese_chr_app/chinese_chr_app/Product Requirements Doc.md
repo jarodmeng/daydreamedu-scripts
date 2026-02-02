@@ -178,6 +178,6 @@ An item counts as “retained” if the learner answers it correctly on a check 
 
 A short daily practice session that implements guided retrieval + feedback + spacing. Uses existing Feng/HWXNet data, and can optionally include a micro-write step using stroke-order replay/tracing.
 
-### MVP 2: Graded Micro-Stories (read + optional listen + micro-checks)
+### MVP 2: Compound Builder (word formation)
 
-Very short leveled stories with tap-to-gloss and lightweight accountability. At least one retrieval prompt per story should feed into the Daily Micro-Session item schedule.
+Word-level practice focused on building vocabulary efficiently via common compounds/words (leveraging existing 词组 + dictionary examples). A lightweight “radical hint” prompt can be included sparingly to support transfer without becoming standalone radical trivia.

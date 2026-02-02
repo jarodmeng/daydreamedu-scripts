@@ -44,13 +44,13 @@ If we optimize for general proficiency (not a specific exam), an effective learn
 This is the “engine” we want the product to embody.
 
 ```mermaid
-flowchart TD
-  Diagnose[DiagnoseSkillsAndGaps] --> Select[SelectNextItems]
-  Select --> Practice[GuidedPractice]
-  Practice --> Feedback[ImmediateFeedback]
-  Feedback --> Schedule[ScheduleNextEncounter]
-  Schedule --> Measure[MeasureRetentionAndTransfer]
-  Measure --> Diagnose
+graph TD
+Diagnose["Diagnose skills & gaps"] --> Select["Select next items"]
+Select --> Practice["Guided practice"]
+Practice --> Feedback["Immediate feedback"]
+Feedback --> Schedule["Schedule next encounter"]
+Schedule --> Measure["Measure retention & transfer"]
+Measure --> Diagnose
 ```
 
 **Key idea**: learning functions should run as a loop. “Content” is necessary, but the loop is the product.
@@ -211,6 +211,14 @@ flowchart TD
 
 Each item includes: *what it trains*, *why it should work*, *risk*, *data prerequisites*.
 
+### Phase 1 focus: first 3 learning functions to build
+
+We will prioritize these three learning functions first:
+
+1. **A) Daily Micro-Session (5–8 minutes)** — the core learning loop (retrieval + feedback + spacing)
+2. **F) Compound Builder (word formation)** — vocabulary growth via morphology/compounding (word-level learning)
+3. **C) “Radical Detective” (semantic category inference)** — a lighter “strategy layer” to support transfer (used sparingly)
+
 ### A) Daily Micro-Session (5–8 minutes)
 
 - **Trains**: retention + recall; foundational character/word/sentence knowledge.
@@ -220,6 +228,26 @@ Each item includes: *what it trains*, *why it should work*, *risk*, *data prereq
   - items: characters, pinyin, English gloss, example words/sentences (already in dataset)
   - scheduling logic (even a simple one to start)
 
+### F) Compound Builder (word formation)
+
+- **Trains**: morphological awareness; vocabulary efficiency via composition.
+- **Why it should work**: morphological awareness supports reading (Marks et al., 2023).
+- **Risk**: needs careful pedagogical constraints to avoid nonsense compounds.
+- **Prereqs**:
+  - word lists (词组) + character meanings
+
+### C) “Radical Detective” (semantic category inference) (lightweight)
+
+- **Trains**: semantic radical awareness; transfer to unseen characters.
+- **Why it should work**: explicit instruction + transfer effect (Nguyen et al., 2017).
+- **Risk**: “radical trivia” if not tied to reading tasks; must connect to context.
+- **Prereqs**:
+  - radical mapping in HWXNet; sentence contexts (can be curated/generated)
+
+---
+
+### Later candidates (not Phase 1)
+
 ### B) Character Mastery Loop (recognize → understand → recall → write)
 
 - **Trains**: writing recall + orthographic precision + meaning/use.
@@ -228,14 +256,6 @@ Each item includes: *what it trains*, *why it should work*, *risk*, *data prereq
 - **Prereqs**:
   - stroke order animation (already available via HanziWriter proxy)
   - a writing surface (finger/stylus) and scoring heuristics
-
-### C) “Radical Detective” (semantic category inference)
-
-- **Trains**: semantic radical awareness; transfer to unseen characters.
-- **Why it should work**: explicit instruction + transfer effect (Nguyen et al., 2017).
-- **Risk**: “radical trivia” if not tied to reading tasks; must connect to context.
-- **Prereqs**:
-  - radical mapping in HWXNet; sentence contexts (can be curated/generated)
 
 ### D) Tone Ear Training (perception → production)
 
@@ -254,14 +274,6 @@ Each item includes: *what it trains*, *why it should work*, *risk*, *data prereq
 - **Prereqs**:
   - leveled story corpus + vocabulary control
   - micro-check questions
-
-### F) Compound Builder (word formation)
-
-- **Trains**: morphological awareness; vocabulary efficiency via composition.
-- **Why it should work**: morphological awareness supports reading (Marks et al., 2023).
-- **Risk**: needs careful pedagogical constraints to avoid nonsense compounds.
-- **Prereqs**:
-  - word lists (词组) + character meanings
 
 ## Recommendation: MVP learning slice (1–2 experiences)
 
@@ -339,39 +351,48 @@ For a target character, generate 3 distractors from:
 
 Log which distractor was chosen to build an error heatmap.
 
-### MVP 2: Graded Micro-Stories (input + accountability)
+### MVP 2: Compound Builder (word formation)
 
-**Reason**: It addresses the “exposure constraint” (Li et al., 2016) and builds motivation and comprehension via narrative, while staying research-aligned via accountability (Sangers et al., 2025).
+**Reason**: It matches the Phase 1 focus (A + F, with a bit of C), and builds vocabulary efficiently by leveraging Chinese compounding and morphological reuse. It also naturally connects to the Daily Micro-Session item scheduler (items discovered here become retrieval targets).
 
-**Structure**:
+**Core loop (example)**:
 
-- Very short story (80–200 characters) with:
-  - tap-to-gloss (English + pinyin)
-  - optional audio
-- 2–4 accountability items:
-  - “Who/What/Where” (literal)
-  - “Choose the best next sentence” (comprehension)
-  - one retrieval prompt that links to the Daily Micro-Session item bank
+- Pick a target character (from today’s queue or recent errors).
+- Show 4–8 high-value compounds/words containing it (from existing 词组 + dictionary examples).
+- Quick tasks (interleaved, guided):
+  - **Meaning match**: choose the right English gloss for a compound
+  - **Build-a-word**: choose another character to form a valid compound (constrained choices)
+  - **Use-in-sentence**: cloze with one of the compounds (light context)
 
-#### MVP 2 “v0 spec”
+#### MVP 2 “v0 spec” (implementation-ready)
 
-**Scope boundary**:
+**Scope boundary (v0)**:
 
-- Start with a tiny corpus (e.g., 20–50 stories) and a narrow leveling scheme (e.g., 3 levels).
-- Prefer curated content first; generate later if/when you can enforce vocabulary control.
+- Start with **character → words/compounds** only (no story corpus needed).
+- Use only words we already have:
+  - Feng 词组 (where available)
+  - HWXNet 例词 / dictionary examples (where available)
 
-**Leveling approach (v0)**:
+**Constraints (to avoid nonsense compounds)**:
 
-- Level by a controlled character/word set (e.g., only characters in a defined “known set + 5 new”).
-- Enforce “tap-to-gloss” so stories remain readable even when slightly above level.
+- Only offer answer choices from an allowed list (observed compounds in data).
+- Prefer high-frequency/common usage compounds when possible (we can approximate via dataset frequency later; v0 can be curated/heuristic).
 
-**Accountability (v0)**:
+**Personalization (v0)**:
 
-- Always include at least one retrieval prompt that reuses items from the Daily Micro-Session schedule.
+- Choose compounds based on:
+  - recent characters/items from the Daily Micro-Session
+  - user mistakes (e.g., wrong meaning for a character → show compounds clarifying usage)
+
+**Lightweight Radical Detective integration (the “bit C”)**:
+
+- For a subset of items, add a single prompt: “What does the radical suggest?” with 2–3 category choices.
+- Keep this sparse and contextual (avoid standalone radical trivia).
 
 **How MVP 1 and MVP 2 connect**:
 
-- Reading a story can “introduce” items (soft exposure), but the micro-session “locks it in”.
+- Compound Builder generates and reinforces word-level items.
+- The Daily Micro-Session schedules and tests them over time (retention + transfer).
 
 ## Measurement + logging plan (for iteration)
 
