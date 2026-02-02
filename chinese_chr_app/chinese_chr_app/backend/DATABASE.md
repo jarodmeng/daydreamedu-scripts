@@ -158,6 +158,50 @@ All scripts use `DATABASE_URL` or `SUPABASE_DB_URL` (and load `backend/.env.loca
 
 ---
 
+## 6. How to run ad‑hoc Supabase queries
+
+For quick one‑off checks (e.g. verifying pinyin for a single character) without
+leaving the repo, run a small inline Python script from `backend/`:
+
+```bash
+cd chinese_chr_app/chinese_chr_app/backend
+
+# Ensure .env.local has DATABASE_URL or SUPABASE_DB_URL set, then:
+python3 - << 'EOF'
+import os, json
+import psycopg
+from psycopg.rows import dict_row
+
+url = os.environ.get("DATABASE_URL") or os.environ.get("SUPABASE_DB_URL")
+if not url:
+    raise SystemExit("No DATABASE_URL / SUPABASE_DB_URL set")
+
+with psycopg.connect(url, row_factory=dict_row) as conn:
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            SELECT character, pinyin, searchable_pinyin
+            FROM hwxnet_characters
+            WHERE character = %s
+            ORDER BY zibiao_index
+            LIMIT 5
+            """,
+            ("悔",),
+        )
+        rows = cur.fetchall()
+
+print(json.dumps(rows, ensure_ascii=False, indent=2))
+EOF
+```
+
+Key points:
+
+- Use `psycopg.connect(url, row_factory=dict_row)` so rows come back as dicts.
+- Read `DATABASE_URL` / `SUPABASE_DB_URL` from `.env.local` (loaded automatically by scripts, or `source .env.local` before running).
+- Always parameterize (`WHERE character = %s, ("悔",)`) instead of string‑formatting SQL.
+
+---
+
 ## 6. Deployment and testing
 
 - **Production:** Set `DATABASE_URL` and `USE_DATABASE=true` in Cloud Run (or your host). See [DEPLOYMENT.md](DEPLOYMENT.md).
