@@ -79,6 +79,45 @@ def parse_chinese_number(num_str: str) -> int:
     return digits.get(num_str, 0)
 
 
+def _normalize_pinyin_syllable(p: str) -> str:
+    """
+    Normalize a single pinyin syllable for storage/display.
+
+    - Convert breve vowels (ă ĕ ĭ ŏ ŭ) to the standard 3rd‑tone caron forms (ǎ ě ǐ ǒ ǔ).
+    - Lowercase everything.
+
+    This keeps our JSON/DB pinyin consistent (e.g. 'huĭ' -> 'huǐ').
+    """
+    if not p:
+        return p
+    mapping = str.maketrans({
+        "ă": "ǎ",
+        "ĕ": "ě",
+        "ĭ": "ǐ",
+        "ŏ": "ǒ",
+        "ŭ": "ǔ",
+    })
+    return p.translate(mapping).lower()
+
+
+def _normalize_pinyin_list(pinyin_list: List[str]) -> List[str]:
+    """Normalize and deduplicate a list of pinyin strings."""
+    if not pinyin_list:
+        return []
+    seen = set()
+    out: List[str] = []
+    for raw in pinyin_list:
+        if not isinstance(raw, str):
+            continue
+        norm = _normalize_pinyin_syllable(raw.strip())
+        if not norm:
+            continue
+        if norm not in seen:
+            seen.add(norm)
+            out.append(norm)
+    return out
+
+
 def extract_character_info(character: str) -> Dict[str, Any]:
     """
     Extract character information from HWXNet.
@@ -218,7 +257,7 @@ def extract_character_info(character: str) -> Dict[str, Any]:
         
     # Extract pinyin text from the spans
     if pinyin_spans:
-        pinyin_list = []
+        pinyin_list: List[str] = []
         for span in pinyin_spans:
             # Get the text content of the span (this excludes the img tag)
             pinyin_text = span.get_text(strip=True)
@@ -263,15 +302,8 @@ def extract_character_info(character: str) -> Dict[str, Any]:
                     pinyin_list.append(pinyin_clean)
         
         if pinyin_list:
-            # Remove duplicates while preserving order
-            seen = set()
-            unique_pinyin = []
-            for p in pinyin_list:
-                p_lower = p.lower()
-                if p_lower not in seen:
-                    seen.add(p_lower)
-                    unique_pinyin.append(p)
-            result["拼音"] = unique_pinyin
+            # Normalize for storage/display (e.g. huĭ -> huǐ) and dedupe.
+            result["拼音"] = _normalize_pinyin_list(pinyin_list)
     
     # Extract 部首 (radical) using DOM structure
     # Strategy: Find div with class="introduce", then find div with "部首：" text,
@@ -464,6 +496,9 @@ def extract_meanings(soup: BeautifulSoup) -> List[Dict[str, Any]]:
                 
                 if not pronunciation:
                     continue
+
+                # Normalize pronunciation pinyin for storage/display as well
+                pronunciation = _normalize_pinyin_syllable(pronunciation)
                 
                 # Extract meanings (2nd level segments marked with "◎ " or "⊙ ")
                 shiyi_list = []

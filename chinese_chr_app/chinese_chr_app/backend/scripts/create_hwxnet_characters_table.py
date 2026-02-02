@@ -5,17 +5,21 @@ extracted_characters_hwxnet.json.
 
 By default inserts the first 10 records (for testing). Use --all to migrate all.
 
+Before updating rows, the script can create a backup table
+hwxnet_characters_backup_YYYYMMDD_HHMMSS (enabled by default; see --no-backup).
+
 Requires DATABASE_URL (or SUPABASE_DB_URL) in the environment.
 
 Run from backend/:
-  python scripts/create_hwxnet_characters_table.py          # first 10 only
-  python scripts/create_hwxnet_characters_table.py --all   # all entries
-  python scripts/create_hwxnet_characters_table.py --dry-run
+  python scripts/create_hwxnet_characters_table.py              # first 10 only (with backup)
+  python scripts/create_hwxnet_characters_table.py --all       # all entries (with backup)
+  python scripts/create_hwxnet_characters_table.py --dry-run   # no DB writes
 """
 
 import json
 import os
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 
 try:
@@ -73,8 +77,52 @@ def get_connection():
     return pg.connect(url)
 
 
+def _normalize_pinyin_syllable(p: str) -> str:
+    """
+    Normalize one stored pinyin syllable for DB insertion.
+
+    We mirror the scraper's behavior:
+    - Convert breve vowels (ă ĕ ĭ ŏ ŭ) to 3rd‑tone caron forms (ǎ ě ǐ ǒ ǔ)
+    - Lowercase
+    """
+    if not p:
+        return p
+    mapping = str.maketrans({
+        "ă": "ǎ",
+        "ĕ": "ě",
+        "ĭ": "ǐ",
+        "ŏ": "ǒ",
+        "ŭ": "ǔ",
+    })
+    return p.translate(mapping).lower()
+
+
+def _normalize_pinyin_list(p_list):
+    if not p_list:
+        return []
+    seen = set()
+    out = []
+    for raw in p_list:
+        if not isinstance(raw, str):
+            continue
+        norm = _normalize_pinyin_syllable(raw.strip())
+        if not norm:
+            continue
+        if norm not in seen:
+            seen.add(norm)
+            out.append(norm)
+    return out
+
+
 def row_from_entry(entry: dict):
-    """Convert one hwxnet entry to a row tuple. Psycopg 3 adapts list/dict to JSONB automatically."""
+    """
+    Convert one hwxnet entry to a row tuple.
+
+    JSON(B) columns are wrapped with psycopg's Json adapter so we don't rely on
+    implicit adaptation of dict/list values.
+    """
+    # Import here to avoid hard dependency at module import time if psycopg is missing
+    from psycopg.types.json import Json
     index_val = entry.get("index")
     if index_val is not None:
         index_val = str(index_val).strip() or None
@@ -90,17 +138,21 @@ def row_from_entry(entry: dict):
             strokes_val = int(strokes_val)
         except (TypeError, ValueError):
             strokes_val = None
+    # Normalize pinyin before inserting into DB so table and JSON stay consistent.
+    pinyin_list = entry.get("拼音") or []
+    pinyin_norm = _normalize_pinyin_list(pinyin_list)
+
     return (
         (entry.get("character") or "").strip(),
         zibiao,
         index_val,
         (entry.get("source_url") or "").strip() or None,
-        entry.get("分类") or [],
-        entry.get("拼音") or [],
+        Json(entry.get("分类") or []),
+        Json(pinyin_norm),
         (entry.get("部首") or "").strip() or None,
         strokes_val,
-        entry.get("基本字义解释") or [],
-        entry.get("英文翻译") or [],
+        Json(entry.get("基本字义解释") or []),
+        Json(entry.get("英文翻译") or []),
     )
 
 
@@ -118,6 +170,11 @@ def main():
         "--all",
         action="store_true",
         help="Migrate all entries (default: first 10 only).",
+    )
+    parser.add_argument(
+        "--no-backup",
+        action="store_true",
+        help="Do not create a backup table before modifying hwxnet_characters.",
     )
     args = parser.parse_args()
 
@@ -160,6 +217,14 @@ def main():
             cur.execute(CREATE_TABLE_SQL)
             conn.commit()
         print("Table hwxnet_characters created (or already exists).")
+
+        # Optional backup before upserting rows
+        if not args.no_backup:
+            backup_name = f"hwxnet_characters_backup_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}"
+            with conn.cursor() as cur:
+                cur.execute(f"CREATE TABLE {backup_name} AS SELECT * FROM hwxnet_characters")
+                conn.commit()
+            print(f"Backup table created: {backup_name}")
 
         batch_size = 500
         total = len(to_insert)
