@@ -89,6 +89,26 @@ if not any('daydreamedu.org' in o for o in CORS_ORIGINS):
 
 CORS(app, origins=CORS_ORIGINS_WITH_WILDCARD, supports_credentials=True)
 
+# Fallback: ensure CORS headers on every response (including OPTIONS and errors) so prod never gets blocked
+def _origin_allowed(origin: str) -> bool:
+    if not origin:
+        return False
+    if origin in (PRODUCTION_ORIGIN, 'http://localhost:3000'):
+        return True
+    if origin.startswith('https://') and origin.endswith('.daydreamedu.org'):
+        return True
+    return False
+
+
+@app.after_request
+def _cors_after_request(response):
+    origin = request.headers.get('Origin')
+    if origin and _origin_allowed(origin) and 'Access-Control-Allow-Origin' not in response.headers:
+        response.headers['Access-Control-Allow-Origin'] = origin
+        response.headers['Access-Control-Allow-Credentials'] = 'true'
+    return response
+
+
 # In-memory profile store (display_name by user_id). Resets on backend restart.
 _profile_display_names = {}
 
