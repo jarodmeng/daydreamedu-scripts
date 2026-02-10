@@ -304,9 +304,40 @@ npm run dev
 
 If the frontend at `https://chinese-chr.daydreamedu.org` sees CORS errors and/or 503 when calling the API:
 
-1. **503 often means the container failed to start.** Check Cloud Run → Logs: if you see `ModuleNotFoundError: No module named 'pinyin_search'` (or similar), the Dockerfile is missing that file. The repo Dockerfile must `COPY` all Python modules that `app.py` imports (e.g. `pinyin_search.py`). Rebuild and redeploy.
+1. **503 often means the container failed to start.** Check Cloud Run → Logs: if you see `ModuleNotFoundError: No module named 'pinyin_search'` or `'pinyin_recall'` (or similar), the Dockerfile is missing that file. The repo Dockerfile must `COPY` all Python modules that `app.py` imports (e.g. `pinyin_search.py`, `pinyin_recall.py`). Rebuild and redeploy.
 2. **CORS:** The backend allows `https://*.daydreamedu.org` by default. Ensure `CORS_ORIGINS` in Cloud Run includes your frontend origin if needed (e.g. `https://chinese-chr.daydreamedu.org`). When the service returns 503 (e.g. crash), the response comes from Cloud Run, not Flask, so no CORS headers—fix the 503 first.
 3. **If using database:** When `USE_DATABASE=true`, set `DATABASE_URL` in Cloud Run (Variables & Secrets). Otherwise DB calls fail; pinyin search falls back to in-memory (empty if no JSON in container).
+
+### Preventing 503 / CORS from missing modules next time
+
+The backend Dockerfile now **fails the image build** if `app` cannot be imported (e.g. a local module is missing). So:
+
+- **When you add a new local import in `app.py`** (e.g. `from some_module import ...` where `some_module` is a file in this repo), add a corresponding `COPY chinese_chr_app/backend/some_module.py .` line in the Dockerfile. If you forget, the next build will fail with the same `ModuleNotFoundError` you would have seen in production—fix it before the image is deployed.
+- **CI/Cloud Build:** No change needed; the existing build already runs the Dockerfile, so the import check runs automatically. A broken image will not be pushed.
+
+This way missing-module 503s (and the resulting CORS-looking errors) are caught at build time instead of in production.
+
+### Where to find Cloud Run logs (to debug CORS / 503)
+
+You can **fetch logs directly from the CLI** (no need to open the console):
+
+```bash
+gcloud run services logs read chinese-chr-app --region=us-central1 --limit=80
+```
+
+Adjust service name and region to match your setup; increase `--limit` for more lines.
+
+**Or use the console:**
+
+1. Open **Google Cloud Console**: [console.cloud.google.com](https://console.cloud.google.com).
+2. Select the project that hosts the backend.
+3. Go to **Cloud Run** (search "Cloud Run" in the top bar or use the hamburger menu → **Run**).
+4. Click the service name (e.g. **chinese-chr-app**).
+5. Open the **Logs** tab (or **LOGS** in the left sidebar). You can also use **Logging** (Logs Explorer) and filter by resource type `Cloud Run Revision` and service name.
+6. **What to look for:**
+   - **Container startup errors**: `ModuleNotFoundError`, `ImportError`, or tracebacks when the container starts. Fix the Dockerfile or dependencies and redeploy.
+   - **502 / 503 on request**: If you see HTTP 502 or 503 when a request hits the service, the container may be crashing on that request or failing health checks. Look for Python tracebacks or "Container failed to start" just before the 502/503.
+   - **No request logs at all**: If the browser shows CORS error but Cloud Run logs show no request to `/api/profile` or OPTIONS, the request may be blocked earlier (e.g. load balancer). If you *do* see the request and a 200 response, CORS headers may still be missing—check that the **revision** serving traffic is the latest (with the CORS fix). Under **Revisions**, ensure the top revision is the one from your latest deploy.
 
 ### 字卡 (character card) images not showing in production
 
