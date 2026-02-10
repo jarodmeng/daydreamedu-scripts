@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { useAuth } from '../AuthContext'
 import './PinyinRecall.css'
 
@@ -7,6 +7,8 @@ const API_BASE = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? '' : '')
 export default function PinyinRecall() {
   const { user, accessToken } = useAuth()
   const [loading, setLoading] = useState(false)
+  const [loadingStartMs, setLoadingStartMs] = useState(null)
+  const [elapsedSeconds, setElapsedSeconds] = useState(0)
   const [error, setError] = useState('')
   const [sessionId, setSessionId] = useState(null)
   const [items, setItems] = useState([])
@@ -25,6 +27,8 @@ export default function PinyinRecall() {
       return
     }
     setLoading(true)
+    setLoadingStartMs(Date.now())
+    setElapsedSeconds(0)
     setError('')
     try {
       const res = await fetch(`${API_BASE}/api/games/pinyin-recall/session`, {
@@ -61,6 +65,8 @@ export default function PinyinRecall() {
   const fetchNextBatch = useCallback(async () => {
     if (!accessToken) return
     setLoading(true)
+    setLoadingStartMs(Date.now())
+    setElapsedSeconds(0)
     setError('')
     try {
       const res = await fetch(`${API_BASE}/api/games/pinyin-recall/next-batch`, {
@@ -102,6 +108,8 @@ export default function PinyinRecall() {
       if (!item || !accessToken) return
       const startMs = Date.now()
       setLoading(true)
+      setLoadingStartMs(startMs)
+      setElapsedSeconds(0)
       setError('')
       try {
         const res = await fetch(`${API_BASE}/api/games/pinyin-recall/answer`, {
@@ -140,6 +148,20 @@ export default function PinyinRecall() {
     },
     [items, currentIndex, accessToken, sessionId]
   )
+
+  useEffect(() => {
+    if (!loading || loadingStartMs == null) {
+      return
+    }
+    const updateElapsed = () => {
+      setElapsedSeconds(Math.max(0, Math.floor((Date.now() - loadingStartMs) / 1000)))
+    }
+    updateElapsed()
+    const id = setInterval(updateElapsed, 1000)
+    return () => {
+      clearInterval(id)
+    }
+  }, [loading, loadingStartMs])
 
   const goNext = useCallback(() => {
     setFeedbackMissedItem(null)
@@ -188,7 +210,9 @@ export default function PinyinRecall() {
             onClick={fetchSession}
             disabled={loading}
           >
-            {loading ? '加载中…' : '开始练习'}
+            {loading
+              ? `加载中…${elapsedSeconds > 0 ? ` ${elapsedSeconds}s` : ''}`
+              : '开始练习'}
           </button>
         </div>
       </main>
@@ -361,7 +385,7 @@ export default function PinyinRecall() {
             disabled={loading}
           >
             {loading
-              ? '加载中…'
+              ? `加载中…${elapsedSeconds > 0 ? ` ${elapsedSeconds}s` : ''}`
               : currentIndex + 1 >= items.length
                 ? '下一批'
                 : '下一题'}
@@ -461,7 +485,11 @@ export default function PinyinRecall() {
   return (
     <main className="pinyin-recall-page">
       <div className="pinyin-recall-container">
-        <p className="pinyin-recall-subtitle">加载中…</p>
+        <p className="pinyin-recall-subtitle">
+          {loading
+            ? `加载中…${elapsedSeconds > 0 ? ` ${elapsedSeconds}s` : ''}`
+            : '加载中…'}
+        </p>
       </div>
     </main>
   )

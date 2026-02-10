@@ -19,6 +19,10 @@ MAX_STAGE = len(STAGE_INTERVAL_DAYS) - 1
 
 I_DONT_KNOW_LABEL = "我不知道"
 
+_PINYIN_INDEX_CACHE: Tuple[
+    Dict[Tuple[str, int], List[str]], List[str]
+] | None = None
+
 
 def get_stem_words(
     character: str,
@@ -95,6 +99,19 @@ def build_pinyin_index(hwxnet_lookup: Dict[str, Any]) -> Tuple[Dict[Tuple[str, i
                     t = 5
                 by_base_tone[(base, t)].append(py)
     return dict(by_base_tone), all_pinyin
+
+
+def get_or_build_pinyin_index(
+    hwxnet_lookup: Dict[str, Any],
+) -> Tuple[Dict[Tuple[str, int], List[str]], List[str]]:
+    """
+    Cached wrapper around build_pinyin_index so we only build the index once per
+    process (or until this module is reloaded).
+    """
+    global _PINYIN_INDEX_CACHE
+    if _PINYIN_INDEX_CACHE is None:
+        _PINYIN_INDEX_CACHE = build_pinyin_index(hwxnet_lookup)
+    return _PINYIN_INDEX_CACHE
 
 
 def build_distractors(
@@ -193,7 +210,7 @@ def build_session_queue(
     candidates.sort(key=lambda x: (x[1].get("zibiao_index"), x[0]))
     rng.shuffle(candidates)
 
-    pinyin_by_base_tone, all_pinyin = build_pinyin_index(hwxnet_lookup)
+    pinyin_by_base_tone, all_pinyin = get_or_build_pinyin_index(hwxnet_lookup)
 
     due_items: List[Tuple[str, Dict[str, Any]]] = []
     new_items: List[Tuple[str, Dict[str, Any]]] = []

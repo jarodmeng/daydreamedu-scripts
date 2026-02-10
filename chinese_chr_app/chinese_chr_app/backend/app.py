@@ -5,6 +5,7 @@ import logging
 import re
 import shutil
 import os
+import time
 import urllib.request
 import urllib.parse
 import ssl
@@ -68,6 +69,9 @@ PINYIN_RECALL_LOG_FILE = LOGS_DIR / "pinyin_recall.log"
 
 # Use Supabase tables instead of JSON files when set (e.g. USE_DATABASE=true)
 USE_DATABASE = os.environ.get('USE_DATABASE', '').strip().lower() in ('1', 'true', 'yes')
+
+# Enable detailed pinyin recall timing logs/headers when set (e.g. PINYIN_RECALL_PROFILE=true)
+PINYIN_RECALL_PROFILE = os.environ.get('PINYIN_RECALL_PROFILE', '').strip().lower() in ('1', 'true', 'yes')
 
 # CORS configuration - allow multiple origins
 # Explicit origins from env (e.g. http://localhost:3000, https://chinese-chr.daydreamedu.org)
@@ -1233,13 +1237,27 @@ def pinyin_recall_session():
     user = _get_profile_user() or _get_pinyin_recall_dev_user()
     if user is None:
         return jsonify({"error": "Unauthorized"}), 401
+    route_start = time.perf_counter()
+    timings = {}
     try:
+        t0 = time.perf_counter()
         load_characters()
+        t1 = time.perf_counter()
+        timings["load_characters_ms"] = int((t1 - t0) * 1000)
+
+        t2 = time.perf_counter()
         load_hwxnet()
+        t3 = time.perf_counter()
+        timings["load_hwxnet_ms"] = int((t3 - t2) * 1000)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    t4 = time.perf_counter()
     date_str = datetime.utcnow().strftime("%Y-%m-%d")
     learning_state = _get_pinyin_recall_learning_state(user.user_id)
+    t5 = time.perf_counter()
+    timings["load_learning_state_ms"] = int((t5 - t4) * 1000)
+
+    t6 = time.perf_counter()
     items = build_session_queue(
         user.user_id,
         date_str,
@@ -1248,12 +1266,37 @@ def pinyin_recall_session():
         character_lookup,
         total_target=20,
     )
+    t7 = time.perf_counter()
+    timings["build_session_queue_ms"] = int((t7 - t6) * 1000)
+
     session_id = str(uuid.uuid4())
+    t8 = time.perf_counter()
     _log_pinyin_recall_event("item_presented", items=items, user_id=user.user_id, session_id=session_id)
-    return jsonify({
+    t9 = time.perf_counter()
+    timings["log_event_ms"] = int((t9 - t8) * 1000)
+
+    total_ms = int((time.perf_counter() - route_start) * 1000)
+    timings["total_ms"] = total_ms
+
+    if PINYIN_RECALL_PROFILE:
+        try:
+            payload = {
+                "event": "pinyin_recall_session_timing",
+                "user_id": getattr(user, "user_id", None),
+                "timings": timings,
+            }
+            pinyin_recall_logger.info(json.dumps(payload, ensure_ascii=False))
+        except Exception:
+            # Timing logs should never break the endpoint
+            pass
+
+    response = jsonify({
         "session_id": session_id,
         "items": items,
     })
+    if PINYIN_RECALL_PROFILE:
+        response.headers["X-Pinyin-Recall-Session-Time-Ms"] = str(total_ms)
+    return response
 
 
 @app.route('/api/games/pinyin-recall/next-batch', methods=['POST'])
@@ -1262,15 +1305,30 @@ def pinyin_recall_next_batch():
     user = _get_profile_user() or _get_pinyin_recall_dev_user()
     if user is None:
         return jsonify({"error": "Unauthorized"}), 401
+    route_start = time.perf_counter()
+    timings = {}
     try:
+        t0 = time.perf_counter()
         load_characters()
+        t1 = time.perf_counter()
+        timings["load_characters_ms"] = int((t1 - t0) * 1000)
+
+        t2 = time.perf_counter()
         load_hwxnet()
+        t3 = time.perf_counter()
+        timings["load_hwxnet_ms"] = int((t3 - t2) * 1000)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     data = request.get_json() or {}
     session_id = (data.get("session_id") or "").strip() or str(uuid.uuid4())
+
+    t4 = time.perf_counter()
     date_str = datetime.utcnow().strftime("%Y-%m-%d")
     learning_state = _get_pinyin_recall_learning_state(user.user_id)
+    t5 = time.perf_counter()
+    timings["load_learning_state_ms"] = int((t5 - t4) * 1000)
+
+    t6 = time.perf_counter()
     items = build_session_queue(
         user.user_id,
         date_str,
@@ -1279,8 +1337,33 @@ def pinyin_recall_next_batch():
         character_lookup,
         total_target=20,
     )
+    t7 = time.perf_counter()
+    timings["build_session_queue_ms"] = int((t7 - t6) * 1000)
+
+    t8 = time.perf_counter()
     _log_pinyin_recall_event("item_presented", items=items, user_id=user.user_id, session_id=session_id)
-    return jsonify({"session_id": session_id, "items": items})
+    t9 = time.perf_counter()
+    timings["log_event_ms"] = int((t9 - t8) * 1000)
+
+    total_ms = int((time.perf_counter() - route_start) * 1000)
+    timings["total_ms"] = total_ms
+
+    if PINYIN_RECALL_PROFILE:
+        try:
+            payload = {
+                "event": "pinyin_recall_next_batch_timing",
+                "user_id": getattr(user, "user_id", None),
+                "timings": timings,
+            }
+            pinyin_recall_logger.info(json.dumps(payload, ensure_ascii=False))
+        except Exception:
+            # Timing logs should never break the endpoint
+            pass
+
+    response = jsonify({"session_id": session_id, "items": items})
+    if PINYIN_RECALL_PROFILE:
+        response.headers["X-Pinyin-Recall-Next-Batch-Time-Ms"] = str(total_ms)
+    return response
 
 
 @app.route('/api/games/pinyin-recall/answer', methods=['POST'])
