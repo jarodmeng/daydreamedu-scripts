@@ -8,9 +8,14 @@ const SEGMENTATIONS = [
   { path: '/stroke-counts', label: '笔画' },
 ]
 
+const GAMES = [
+  { path: '/games/pinyin-recall', label: '拼音记忆' },
+]
+
 function NavBar() {
   const location = useLocation()
   const [isOpen, setIsOpen] = useState(false)
+  const [isGamesOpen, setIsGamesOpen] = useState(false)
   const { isAuthConfigured, authLoading, user, signInWithGoogle, signOut } = useAuth()
 
   const isSearchActive = location.pathname === '/'
@@ -18,17 +23,26 @@ function NavBar() {
   const isSegmentationActive = SEGMENTATION_PREFIXES.some(prefix =>
     location.pathname.startsWith(prefix)
   )
+  const GAME_PREFIXES = ['/games/pinyin-recall']
+  const isGamesActive = GAME_PREFIXES.some(prefix =>
+    location.pathname.startsWith(prefix)
+  )
 
   const toggleMenu = (event) => {
-    // Prevent default navigation when using the button for toggling
-    if (event) {
-      event.preventDefault()
-    }
+    if (event) event.preventDefault()
+    setIsGamesOpen(false)
     setIsOpen((open) => !open)
+  }
+
+  const toggleGamesMenu = (event) => {
+    if (event) event.preventDefault()
+    setIsOpen(false)
+    setIsGamesOpen((open) => !open)
   }
 
   const closeMenu = () => {
     setIsOpen(false)
+    setIsGamesOpen(false)
   }
 
   return (
@@ -68,6 +82,36 @@ function NavBar() {
           {isOpen && (
             <div className="nav-dropdown" onClick={closeMenu}>
               {SEGMENTATIONS.map((item) => (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className="nav-dropdown-item"
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div
+          className="nav-item-segmentation"
+          onMouseEnter={() => { setIsOpen(false); setIsGamesOpen(true); }}
+          onMouseLeave={() => setIsGamesOpen(false)}
+        >
+          <button
+            type="button"
+            className={`nav-link nav-link-segmentation ${isGamesActive ? 'nav-link-active' : ''}`}
+            onClick={toggleGamesMenu}
+            aria-haspopup="true"
+            aria-expanded={isGamesOpen}
+          >
+            游戏
+          </button>
+
+          {isGamesOpen && (
+            <div className="nav-dropdown" onClick={closeMenu}>
+              {GAMES.map((item) => (
                 <Link
                   key={item.path}
                   to={item.path}
