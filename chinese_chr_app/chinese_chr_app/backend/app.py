@@ -70,17 +70,17 @@ PINYIN_RECALL_LOG_FILE = LOGS_DIR / "pinyin_recall.log"
 USE_DATABASE = os.environ.get('USE_DATABASE', '').strip().lower() in ('1', 'true', 'yes')
 
 # CORS configuration - allow multiple origins
-# Automatically allow all netlify.app subdomains
+# Explicit origins from env (e.g. http://localhost:3000, https://chinese-chr.daydreamedu.org)
 CORS_ORIGINS_RAW = os.getenv('CORS_ORIGINS', 'http://localhost:3000').split(',')
-CORS_ORIGINS = [origin.strip() for origin in CORS_ORIGINS_RAW]
+CORS_ORIGINS = [origin.strip() for origin in CORS_ORIGINS_RAW if origin.strip()]
 
-# Use regex pattern for netlify.app and daydreamedu.org subdomains + explicit origins
-# Flask-CORS supports regex patterns in the origins list
-CORS_ORIGINS_WITH_WILDCARD = CORS_ORIGINS.copy()
+# Add compiled regex for netlify.app and daydreamedu.org so prod (e.g. chinese-chr.daydreamedu.org) is allowed
+# Flask-CORS treats re.Pattern as regex; plain strings are exact match only
+CORS_ORIGINS_WITH_WILDCARD = list(CORS_ORIGINS)
 if not any('netlify.app' in o for o in CORS_ORIGINS):
-    CORS_ORIGINS_WITH_WILDCARD.append(r'https://.*\.netlify\.app')
+    CORS_ORIGINS_WITH_WILDCARD.append(re.compile(r'^https://[a-zA-Z0-9-]+\.netlify\.app$'))
 if not any('daydreamedu.org' in o for o in CORS_ORIGINS):
-    CORS_ORIGINS_WITH_WILDCARD.append(r'https://.*\.daydreamedu\.org')
+    CORS_ORIGINS_WITH_WILDCARD.append(re.compile(r'^https://[a-zA-Z0-9.-]+\.daydreamedu\.org$'))
 
 CORS(app, origins=CORS_ORIGINS_WITH_WILDCARD, supports_credentials=True)
 
