@@ -87,7 +87,13 @@ if not any('netlify.app' in o for o in CORS_ORIGINS):
 if not any('daydreamedu.org' in o for o in CORS_ORIGINS):
     CORS_ORIGINS_WITH_WILDCARD.append(re.compile(r'^https://[a-zA-Z0-9.-]+\.daydreamedu\.org$'))
 
-CORS(app, origins=CORS_ORIGINS_WITH_WILDCARD, supports_credentials=True)
+# Allow Authorization so frontend can send Bearer token (e.g. Supabase) on /api/profile etc.
+CORS(
+    app,
+    origins=CORS_ORIGINS_WITH_WILDCARD,
+    supports_credentials=True,
+    allow_headers=['Authorization', 'Content-Type'],
+)
 
 # Fallback: ensure CORS headers on every response (including OPTIONS and errors) so prod never gets blocked
 def _origin_allowed(origin: str) -> bool:
@@ -102,10 +108,12 @@ def _origin_allowed(origin: str) -> bool:
 
 @app.after_request
 def _cors_after_request(response):
+    # Always set CORS on API responses so game/session/log-character-view never miss headers (204, 401, etc.)
     origin = request.headers.get('Origin')
-    if origin and _origin_allowed(origin) and 'Access-Control-Allow-Origin' not in response.headers:
+    if origin and _origin_allowed(origin):
         response.headers['Access-Control-Allow-Origin'] = origin
         response.headers['Access-Control-Allow-Credentials'] = 'true'
+        response.headers['Access-Control-Allow-Headers'] = 'Authorization, Content-Type'
     return response
 
 
