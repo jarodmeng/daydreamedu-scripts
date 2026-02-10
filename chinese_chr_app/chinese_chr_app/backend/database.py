@@ -433,6 +433,119 @@ def insert_pinyin_recall_item_presented(payload: Dict[str, Any]) -> None:
         conn.close()
 
 
+def upsert_pinyin_recall_answer_and_log(
+    user_id: str,
+    character: str,
+    correct: bool,
+    i_dont_know: bool,
+    log_payload: Dict[str, Any],
+) -> Tuple[int, int]:
+    """
+    Do character-bank upsert and item_answered insert in one connection (faster: one round-trip).
+    Returns (score_before, score_after). Mutates log_payload with score_before/score_after.
+    """
+    import time as _time
+    user_id = user_id.strip()
+    character = character.strip()
+    now_ts = int(_time.time())
+
+    conn = _get_connection()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                SELECT score, stage, next_due_utc, total_correct, total_wrong, total_i_dont_know
+                FROM pinyin_recall_character_bank
+                WHERE user_id = %s AND character = %s
+                """,
+                (user_id, character),
+            )
+            row = cur.fetchone()
+
+        if row:
+            score_before = int(row.get("score") or 0)
+            stage = int(row.get("stage") or 0)
+            total_correct = int(row.get("total_correct") or 0)
+            total_wrong = int(row.get("total_wrong") or 0)
+            total_i_dont_know = int(row.get("total_i_dont_know") or 0)
+        else:
+            score_before = 0
+            stage = 0
+            total_correct = 0
+            total_wrong = 0
+            total_i_dont_know = 0
+
+        if correct:
+            total_correct += 1
+        elif i_dont_know:
+            total_i_dont_know += 1
+        else:
+            total_wrong += 1
+
+        if correct:
+            score_after = min(score_before + PINYIN_RECALL_SCORE_CORRECT_DELTA, PINYIN_RECALL_SCORE_MAX)
+        else:
+            score_after = max(score_before - PINYIN_RECALL_SCORE_WRONG_DELTA, PINYIN_RECALL_SCORE_MIN)
+
+        if i_dont_know or not correct:
+            stage = 0
+            next_due_utc = None
+        else:
+            stage = min(stage + 1, PINYIN_RECALL_MAX_STAGE)
+            days = PINYIN_RECALL_STAGE_INTERVAL_DAYS[stage]
+            if days == 0:
+                next_due_utc = now_ts + 60
+            else:
+                next_due_utc = now_ts + days * 86400
+
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                INSERT INTO pinyin_recall_character_bank (
+                    user_id, character, score, stage, next_due_utc,
+                    first_seen_at, last_answered_at, total_correct, total_wrong, total_i_dont_know
+                ) VALUES (%s, %s, %s, %s, %s, now(), now(), %s, %s, %s)
+                ON CONFLICT (user_id, character) DO UPDATE SET
+                    score = EXCLUDED.score,
+                    stage = EXCLUDED.stage,
+                    next_due_utc = EXCLUDED.next_due_utc,
+                    last_answered_at = now(),
+                    total_correct = EXCLUDED.total_correct,
+                    total_wrong = EXCLUDED.total_wrong,
+                    total_i_dont_know = EXCLUDED.total_i_dont_know
+                """,
+                (user_id, character, score_after, stage, next_due_utc, total_correct, total_wrong, total_i_dont_know),
+            )
+            cur.execute(
+                """
+                INSERT INTO pinyin_recall_item_answered (
+                    user_id, session_id, character, selected_choice, correct, latency_ms, i_dont_know, score_before, score_after
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                """,
+                (
+                    (log_payload.get("user_id") or "").strip(),
+                    (log_payload.get("session_id") or "").strip(),
+                    (log_payload.get("character") or "").strip(),
+                    (log_payload.get("selected_choice") or "").strip() if log_payload.get("selected_choice") is not None else None,
+                    bool(log_payload.get("correct") is True),
+                    log_payload.get("latency_ms"),
+                    bool(log_payload.get("i_dont_know") is True),
+                    score_before,
+                    score_after,
+                ),
+                prepare=False,
+            )
+        conn.commit()
+        log_payload["score_before"] = score_before
+        log_payload["score_after"] = score_after
+        return (score_before, score_after)
+    except Exception as e:
+        conn.rollback()
+        raise
+    finally:
+        conn.close()
+
+
 def insert_pinyin_recall_item_answered(payload: Dict[str, Any]) -> None:
     """
     Insert one item_answered event into pinyin_recall_item_answered.

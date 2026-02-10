@@ -1304,22 +1304,6 @@ def pinyin_recall_answer():
     latency_ms = data.get("latency_ms")
     score_before = None
     score_after = None
-    if USE_DATABASE:
-        try:
-            import database as db
-            score_before, score_after = db.upsert_pinyin_recall_character_bank(
-                user.user_id, character, correct=correct, i_dont_know=i_dont_know
-            )
-        except Exception as e:
-            print(f"[pinyin-recall] Failed to upsert character bank: {e}", flush=True)
-    else:
-        update_learning_state(
-            _learning_state_pinyin,
-            user.user_id,
-            character,
-            correct=correct,
-            i_dont_know=i_dont_know,
-        )
     log_payload = {
         "event": "item_answered",
         "user_id": user.user_id,
@@ -1330,10 +1314,23 @@ def pinyin_recall_answer():
         "latency_ms": latency_ms,
         "i_dont_know": i_dont_know,
     }
-    if score_before is not None and score_after is not None:
-        log_payload["score_before"] = score_before
-        log_payload["score_after"] = score_after
-    _log_pinyin_recall_event("item_answered", payload=log_payload)
+    if USE_DATABASE:
+        try:
+            import database as db
+            score_before, score_after = db.upsert_pinyin_recall_answer_and_log(
+                user.user_id, character, correct=correct, i_dont_know=i_dont_know, log_payload=log_payload
+            )
+        except Exception as e:
+            print(f"[pinyin-recall] Failed to upsert character bank / log: {e}", flush=True)
+    else:
+        update_learning_state(
+            _learning_state_pinyin,
+            user.user_id,
+            character,
+            correct=correct,
+            i_dont_know=i_dont_know,
+        )
+        _log_pinyin_recall_event("item_answered", payload=log_payload)
     missed_item = None
     if not correct:
         load_hwxnet()
