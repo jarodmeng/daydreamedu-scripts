@@ -89,7 +89,15 @@ def _is_valid_syllable_base(s: str) -> bool:
     return all(c.isalpha() and c.islower() for c in s)
 
 
-def _pinyin_to_base_and_tone(s: str) -> Tuple[Optional[str], Optional[int]]:
+def pinyin_to_base_and_tone(s: str) -> Tuple[Optional[str], Optional[int]]:
+    """
+    Normalize stored pinyin (e.g. 'bà') to (base, tone).
+    Returns (syllable_base, tone 1-4 or 0 for neutral). Used for search keys and distractor logic.
+    """
+    return _pinyin_to_base_and_tone_impl(s)
+
+
+def _pinyin_to_base_and_tone_impl(s: str) -> Tuple[Optional[str], Optional[int]]:
     """Normalize stored pinyin (e.g. 'bà') to (base, tone). Used for building searchable keys."""
     if not s or not s.strip():
         return None, None
@@ -111,7 +119,7 @@ def _pinyin_to_base_and_tone(s: str) -> Tuple[Optional[str], Optional[int]]:
 
 def pinyin_to_searchable_forms(pinyin_str: str) -> List[str]:
     """Convert one stored pinyin string (e.g. 'bà') to list of searchable keys."""
-    base, tone = _pinyin_to_base_and_tone(pinyin_str)
+    base, tone = _pinyin_to_base_and_tone_impl(pinyin_str)
     if base is None:
         return []
     out = [base]
