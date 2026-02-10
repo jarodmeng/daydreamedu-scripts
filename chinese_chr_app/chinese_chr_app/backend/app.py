@@ -15,6 +15,13 @@ from typing import Optional, Dict, Any, List, Tuple
 from collections import defaultdict
 
 from pinyin_search import parse_pinyin_query, compute_searchable_pinyin_for_entry
+from pinyin_recall import (
+    build_session_queue,
+    update_learning_state,
+    get_stem_words,
+    get_correct_pinyin,
+)
+import uuid
 
 # Load environment variables from .env file if it exists (for local development)
 try:
@@ -54,9 +61,10 @@ GCS_BUCKET_NAME = os.getenv('GCS_BUCKET_NAME', '')
 # Can be overridden via PNG_BASE_DIR environment variable
 PNG_BASE_DIR = Path(os.getenv('PNG_BASE_DIR', str(DATA_DIR / "png")))
 
-# Logs directory
+# Logs directory (local: chinese_chr_app/chinese_chr_app/backend/logs/; override with LOGS_DIR)
 LOGS_DIR = Path(os.getenv('LOGS_DIR', str(_backend_dir / "logs")))
 EDIT_LOG_FILE = LOGS_DIR / "character_edits.log"
+PINYIN_RECALL_LOG_FILE = LOGS_DIR / "pinyin_recall.log"
 
 # Use Supabase tables instead of JSON files when set (e.g. USE_DATABASE=true)
 USE_DATABASE = os.environ.get('USE_DATABASE', '').strip().lower() in ('1', 'true', 'yes')
@@ -107,6 +115,13 @@ if not edit_logger.handlers:
     file_handler = logging.FileHandler(EDIT_LOG_FILE, encoding='utf-8')
     file_handler.setFormatter(logging.Formatter('%(message)s'))
     edit_logger.addHandler(file_handler)
+
+pinyin_recall_logger = logging.getLogger('pinyin_recall')
+pinyin_recall_logger.setLevel(logging.INFO)
+if not pinyin_recall_logger.handlers:
+    pinyin_handler = logging.FileHandler(PINYIN_RECALL_LOG_FILE, encoding='utf-8')
+    pinyin_handler.setFormatter(logging.Formatter('%(message)s'))
+    pinyin_recall_logger.addHandler(pinyin_handler)
 
 def reload_characters():
     """Force reload characters from file (used after updates)"""
@@ -1062,6 +1077,17 @@ def _get_profile_user():
         return None
 
 
+def _get_pinyin_recall_dev_user():
+    """
+    For local testing only: if PINYIN_RECALL_DEV_USER is set, return a fake user with that user_id.
+    Allows testing 拼音记忆 without Supabase. Do not set in production.
+    """
+    dev_user_id = os.getenv("PINYIN_RECALL_DEV_USER", "").strip()
+    if not dev_user_id:
+        return None
+    return type("DevUser", (), {"user_id": dev_user_id, "user_metadata": None})()
+
+
 @app.route('/api/profile', methods=['GET'])
 def get_profile():
     """Get current user's profile (display_name). Requires Bearer token."""
@@ -1105,6 +1131,228 @@ def _display_name_for_log(user, display_name_from_body: Optional[str] = None) ->
         if email and isinstance(email, str) and email.strip():
             return email.strip()[:64]
     return ""
+
+
+# In-memory learning state for pinyin recall (MVP1): user_id -> character -> { stage, next_due_utc }
+# Resets on backend restart. Can be replaced with DB table later.
+_learning_state_pinyin: Dict[str, Dict[str, Dict[str, Any]]] = {}
+
+
+def _get_pinyin_recall_learning_state(user_id: str) -> Dict[str, Dict[str, Any]]:
+    """Learning state for queue building: from DB when USE_DATABASE, else in-memory."""
+    if USE_DATABASE:
+        try:
+            import database as db
+            char_state = db.get_pinyin_recall_learning_state(user_id)
+            return {user_id: char_state}
+        except Exception as e:
+            print(f"[pinyin-recall] Failed to load learning state from DB: {e}", flush=True)
+    return _learning_state_pinyin
+
+
+def _log_pinyin_recall_event(
+    event: str,
+    *,
+    items: Optional[List[Dict[str, Any]]] = None,
+    user_id: Optional[str] = None,
+    session_id: Optional[str] = None,
+    payload: Optional[Dict[str, Any]] = None,
+) -> None:
+    """Write pinyin recall event to Supabase (when USE_DATABASE) or to pinyin_recall.log."""
+    if USE_DATABASE:
+        try:
+            import database as db
+            if event == "item_presented" and items is not None and user_id and session_id:
+                for item in items:
+                    p = {
+                        "user_id": user_id,
+                        "session_id": session_id,
+                        "character": item.get("character"),
+                        "prompt_type": item.get("prompt_type"),
+                        "correct_choice": item.get("correct_pinyin"),
+                        "choices": item.get("choices"),
+                    }
+                    db.insert_pinyin_recall_item_presented(p)
+            elif event == "item_answered" and payload is not None:
+                db.insert_pinyin_recall_item_answered(payload)
+        except Exception as e:
+            print(f"[pinyin-recall] Failed to insert event: {e}", flush=True)
+    else:
+        if event == "item_presented" and items is not None and user_id and session_id:
+            for item in items:
+                p = {
+                    "event": "item_presented",
+                    "user_id": user_id,
+                    "session_id": session_id,
+                    "character": item.get("character"),
+                    "prompt_type": item.get("prompt_type"),
+                    "correct_choice": item.get("correct_pinyin"),
+                    "choices": item.get("choices"),
+                }
+                pinyin_recall_logger.info(json.dumps(p, ensure_ascii=False))
+        elif event == "item_answered" and payload is not None:
+            pinyin_recall_logger.info(json.dumps({**payload, "event": "item_answered"}, ensure_ascii=False))
+
+
+@app.route('/api/games/pinyin-recall/session', methods=['GET'])
+def pinyin_recall_session():
+    """Get session queue for pinyin recall. Requires Bearer token (or PINYIN_RECALL_DEV_USER for local testing)."""
+    user = _get_profile_user() or _get_pinyin_recall_dev_user()
+    if user is None:
+        return jsonify({"error": "Unauthorized"}), 401
+    try:
+        load_characters()
+        load_hwxnet()
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    date_str = datetime.utcnow().strftime("%Y-%m-%d")
+    learning_state = _get_pinyin_recall_learning_state(user.user_id)
+    items = build_session_queue(
+        user.user_id,
+        date_str,
+        learning_state,
+        hwxnet_lookup,
+        character_lookup,
+        total_target=20,
+    )
+    session_id = str(uuid.uuid4())
+    _log_pinyin_recall_event("item_presented", items=items, user_id=user.user_id, session_id=session_id)
+    return jsonify({
+        "session_id": session_id,
+        "items": items,
+    })
+
+
+@app.route('/api/games/pinyin-recall/next-batch', methods=['POST'])
+def pinyin_recall_next_batch():
+    """Get next batch of 20 items for open-ended play. Requires Bearer token (or PINYIN_RECALL_DEV_USER)."""
+    user = _get_profile_user() or _get_pinyin_recall_dev_user()
+    if user is None:
+        return jsonify({"error": "Unauthorized"}), 401
+    try:
+        load_characters()
+        load_hwxnet()
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    data = request.get_json() or {}
+    session_id = (data.get("session_id") or "").strip() or str(uuid.uuid4())
+    date_str = datetime.utcnow().strftime("%Y-%m-%d")
+    learning_state = _get_pinyin_recall_learning_state(user.user_id)
+    items = build_session_queue(
+        user.user_id,
+        date_str,
+        learning_state,
+        hwxnet_lookup,
+        character_lookup,
+        total_target=20,
+    )
+    _log_pinyin_recall_event("item_presented", items=items, user_id=user.user_id, session_id=session_id)
+    return jsonify({"session_id": session_id, "items": items})
+
+
+@app.route('/api/games/pinyin-recall/answer', methods=['POST'])
+def pinyin_recall_answer():
+    """Submit answer for one item. Requires Bearer token (or PINYIN_RECALL_DEV_USER for local testing)."""
+    user = _get_profile_user() or _get_pinyin_recall_dev_user()
+    if user is None:
+        return jsonify({"error": "Unauthorized"}), 401
+    data = request.get_json() or {}
+    character = (data.get("character") or "").strip()
+    if not character or len(character) != 1:
+        return jsonify({"error": "character must be exactly one character"}), 400
+    selected_choice = (data.get("selected_choice") or "").strip()
+    i_dont_know = bool(data.get("i_dont_know"))
+    correct_pinyin = (data.get("correct_pinyin") or "").strip()
+    if not correct_pinyin:
+        return jsonify({"error": "correct_pinyin is required"}), 400
+    correct = not i_dont_know and selected_choice.strip().lower() == correct_pinyin.strip().lower()
+    if i_dont_know:
+        correct = False
+    latency_ms = data.get("latency_ms")
+    score_before = None
+    score_after = None
+    if USE_DATABASE:
+        try:
+            import database as db
+            score_before, score_after = db.upsert_pinyin_recall_character_bank(
+                user.user_id, character, correct=correct, i_dont_know=i_dont_know
+            )
+        except Exception as e:
+            print(f"[pinyin-recall] Failed to upsert character bank: {e}", flush=True)
+    else:
+        update_learning_state(
+            _learning_state_pinyin,
+            user.user_id,
+            character,
+            correct=correct,
+            i_dont_know=i_dont_know,
+        )
+    log_payload = {
+        "event": "item_answered",
+        "user_id": user.user_id,
+        "session_id": data.get("session_id"),
+        "character": character,
+        "selected_choice": selected_choice,
+        "correct": correct,
+        "latency_ms": latency_ms,
+        "i_dont_know": i_dont_know,
+    }
+    if score_before is not None and score_after is not None:
+        log_payload["score_before"] = score_before
+        log_payload["score_after"] = score_after
+    _log_pinyin_recall_event("item_answered", payload=log_payload)
+    missed_item = None
+    if not correct:
+        load_hwxnet()
+        load_characters()
+        entry = (hwxnet_lookup or {}).get(character) if hwxnet_lookup else None
+        feng = (character_lookup or {}).get(character) if character_lookup else None
+        stem_words = get_stem_words(character, character_lookup or {}, hwxnet_lookup or {}, 3)
+        correct_pinyin_val = get_correct_pinyin(entry) if entry else correct_pinyin
+        # English meanings for learning screen (all 英文翻译 for English-speaking learners)
+        meanings = []
+        meaning_zh = None
+        if entry:
+            english = entry.get("英文翻译") or []
+            if isinstance(english, list):
+                meanings = [(e or "").strip() for e in english if (e or "").strip()]
+            if not meanings:
+                for sense in (entry.get("基本字义解释") or [])[:1]:
+                    for defn in (sense.get("释义") or [])[:1]:
+                        expl = (defn.get("解释") or "").strip()
+                        if expl:
+                            meaning_zh = expl
+                            break
+                    if meaning_zh:
+                        break
+        radical = ""
+        strokes = None
+        if entry:
+            radical = (entry.get("部首") or "").strip() or ""
+            strokes = entry.get("总笔画")
+        if feng:
+            if not radical:
+                radical = (feng.get("Radical") or "").strip().replace(" (dictionary)", "").strip() or ""
+            if strokes is None:
+                strokes = feng.get("Strokes")
+        structure = (feng.get("Structure") or "").strip() if feng else ""
+        sentence = (feng.get("Sentence") or "").strip() if feng else ""
+        missed_item = {
+            "character": character,
+            "stem_words": stem_words,
+            "correct_pinyin": correct_pinyin_val,
+            "meanings": meanings,
+            "meaning_zh": meaning_zh,
+            "radical": radical,
+            "strokes": strokes,
+            "structure": structure,
+            "sentence": sentence,
+        }
+    return jsonify({
+        "correct": correct,
+        "i_dont_know": i_dont_know,
+        "missed_item": missed_item,
+    })
 
 
 @app.route('/api/log-character-view', methods=['POST'])

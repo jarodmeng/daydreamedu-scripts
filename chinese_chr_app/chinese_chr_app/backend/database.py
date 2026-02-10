@@ -5,6 +5,7 @@ Returns dict shapes compatible with the rest of the app (same as JSON-based resp
 Uses Psycopg 3 (psycopg[binary]>=3.1) for Python 3.13+ compatibility.
 """
 
+import json
 import os
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -256,5 +257,276 @@ def log_character_view(user_id: str, character: str, display_name: Optional[str]
     except Exception as e:
         conn.rollback()
         raise e
+    finally:
+        conn.close()
+
+
+# --- Pinyin recall character bank (MVP1) ---
+# Score 0-100; higher = better understanding. Stage ladder same as pinyin_recall.py.
+PINYIN_RECALL_SCORE_CORRECT_DELTA = 10
+PINYIN_RECALL_SCORE_WRONG_DELTA = 15
+PINYIN_RECALL_SCORE_MIN = 0
+PINYIN_RECALL_SCORE_MAX = 100
+PINYIN_RECALL_STAGE_INTERVAL_DAYS = [0, 1, 3, 7, 14, 30]
+PINYIN_RECALL_MAX_STAGE = len(PINYIN_RECALL_STAGE_INTERVAL_DAYS) - 1
+
+
+def get_pinyin_recall_learning_state(user_id: str) -> Dict[str, Dict[str, Any]]:
+    """
+    Load learning state for pinyin recall for one user.
+    Returns dict: character -> { stage, next_due_utc, score }.
+    Used by build_session_queue. Table must exist (run create_pinyin_recall_character_bank_table.py once).
+    """
+    conn = _get_connection()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                SELECT character, score, stage, next_due_utc
+                FROM pinyin_recall_character_bank
+                WHERE user_id = %s
+                """,
+                (user_id.strip(),),
+            )
+            rows = cur.fetchall()
+        result: Dict[str, Dict[str, Any]] = {}
+        for r in rows:
+            ch = (r.get("character") or "").strip()
+            if not ch:
+                continue
+            result[ch] = {
+                "stage": int(r.get("stage") or 0),
+                "next_due_utc": r.get("next_due_utc"),
+                "score": int(r.get("score") or 0),
+            }
+        return result
+    finally:
+        conn.close()
+
+
+def upsert_pinyin_recall_character_bank(
+    user_id: str,
+    character: str,
+    correct: bool,
+    i_dont_know: bool,
+) -> Tuple[int, int]:
+    """
+    Update character bank after one answer. Creates row if missing.
+    Returns (score_before, score_after). Table must exist.
+    """
+    import time as _time
+    user_id = user_id.strip()
+    character = character.strip()
+    now_ts = int(_time.time())
+
+    conn = _get_connection()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                SELECT score, stage, next_due_utc, total_correct, total_wrong, total_i_dont_know
+                FROM pinyin_recall_character_bank
+                WHERE user_id = %s AND character = %s
+                """,
+                (user_id, character),
+            )
+            row = cur.fetchone()
+
+        if row:
+            score_before = int(row.get("score") or 0)
+            stage = int(row.get("stage") or 0)
+            total_correct = int(row.get("total_correct") or 0)
+            total_wrong = int(row.get("total_wrong") or 0)
+            total_i_dont_know = int(row.get("total_i_dont_know") or 0)
+        else:
+            score_before = 0
+            stage = 0
+            total_correct = 0
+            total_wrong = 0
+            total_i_dont_know = 0
+
+        # Update counts
+        if correct:
+            total_correct += 1
+        elif i_dont_know:
+            total_i_dont_know += 1
+        else:
+            total_wrong += 1
+
+        # Score: correct +10 (cap 100), wrong/我不知道 -15 (floor 0)
+        if correct:
+            score_after = min(score_before + PINYIN_RECALL_SCORE_CORRECT_DELTA, PINYIN_RECALL_SCORE_MAX)
+        else:
+            score_after = max(score_before - PINYIN_RECALL_SCORE_WRONG_DELTA, PINYIN_RECALL_SCORE_MIN)
+
+        # Stage and next_due: same logic as pinyin_recall.update_learning_state
+        if i_dont_know or not correct:
+            stage = 0
+            next_due_utc = None
+        else:
+            stage = min(stage + 1, PINYIN_RECALL_MAX_STAGE)
+            days = PINYIN_RECALL_STAGE_INTERVAL_DAYS[stage]
+            if days == 0:
+                next_due_utc = now_ts + 60
+            else:
+                next_due_utc = now_ts + days * 86400
+
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                INSERT INTO pinyin_recall_character_bank (
+                    user_id, character, score, stage, next_due_utc,
+                    first_seen_at, last_answered_at, total_correct, total_wrong, total_i_dont_know
+                ) VALUES (%s, %s, %s, %s, %s, now(), now(), %s, %s, %s)
+                ON CONFLICT (user_id, character) DO UPDATE SET
+                    score = EXCLUDED.score,
+                    stage = EXCLUDED.stage,
+                    next_due_utc = EXCLUDED.next_due_utc,
+                    last_answered_at = now(),
+                    total_correct = EXCLUDED.total_correct,
+                    total_wrong = EXCLUDED.total_wrong,
+                    total_i_dont_know = EXCLUDED.total_i_dont_know
+                """,
+                (user_id, character, score_after, stage, next_due_utc, total_correct, total_wrong, total_i_dont_know),
+            )
+        conn.commit()
+        return (score_before, score_after)
+    except Exception as e:
+        conn.rollback()
+        raise
+    finally:
+        conn.close()
+
+
+def insert_pinyin_recall_item_presented(payload: Dict[str, Any]) -> None:
+    """
+    Insert one item_presented event into pinyin_recall_item_presented.
+    payload: user_id, session_id, character, prompt_type, correct_choice, choices.
+    Table must exist (run scripts/create_pinyin_recall_log_tables.py once).
+    """
+    conn = _get_connection()
+    try:
+        choices = payload.get("choices")
+        choices_json = json.dumps(choices) if choices is not None else "[]"
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                INSERT INTO pinyin_recall_item_presented (
+                    user_id, session_id, character, prompt_type, correct_choice, choices
+                ) VALUES (%s, %s, %s, %s, %s, %s)
+                """,
+                (
+                    (payload.get("user_id") or "").strip(),
+                    (payload.get("session_id") or "").strip(),
+                    (payload.get("character") or "").strip(),
+                    (payload.get("prompt_type") or "").strip(),
+                    (payload.get("correct_choice") or "").strip(),
+                    choices_json,
+                ),
+                prepare=False,
+            )
+        conn.commit()
+    except Exception as e:
+        conn.rollback()
+        raise
+    finally:
+        conn.close()
+
+
+def insert_pinyin_recall_item_answered(payload: Dict[str, Any]) -> None:
+    """
+    Insert one item_answered event into pinyin_recall_item_answered.
+    payload: user_id, session_id, character, selected_choice, correct, latency_ms, i_dont_know, score_before?, score_after?.
+    Table must exist (run scripts/create_pinyin_recall_log_tables.py once).
+    """
+    conn = _get_connection()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                INSERT INTO pinyin_recall_item_answered (
+                    user_id, session_id, character, selected_choice, correct, latency_ms, i_dont_know, score_before, score_after
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                """,
+                (
+                    (payload.get("user_id") or "").strip(),
+                    (payload.get("session_id") or "").strip(),
+                    (payload.get("character") or "").strip(),
+                    (payload.get("selected_choice") or "").strip() if payload.get("selected_choice") is not None else None,
+                    bool(payload.get("correct") is True),
+                    payload.get("latency_ms"),
+                    bool(payload.get("i_dont_know") is True),
+                    payload.get("score_before"),
+                    payload.get("score_after"),
+                ),
+                prepare=False,
+            )
+        conn.commit()
+    except Exception as e:
+        conn.rollback()
+        raise
+    finally:
+        conn.close()
+
+
+def bulk_insert_pinyin_recall_item_presented(payloads: List[Dict[str, Any]]) -> int:
+    """Insert multiple item_presented rows in one connection. Returns count inserted."""
+    if not payloads:
+        return 0
+    conn = _get_connection()
+    sql = """
+        INSERT INTO pinyin_recall_item_presented (user_id, session_id, character, prompt_type, correct_choice, choices)
+        VALUES (%s, %s, %s, %s, %s, %s)
+    """
+    try:
+        with conn.cursor() as cur:
+            for p in payloads:
+                choices = p.get("choices")
+                choices_json = json.dumps(choices) if choices is not None else "[]"
+                cur.execute(sql, (
+                    (p.get("user_id") or "").strip(),
+                    (p.get("session_id") or "").strip(),
+                    (p.get("character") or "").strip(),
+                    (p.get("prompt_type") or "").strip(),
+                    (p.get("correct_choice") or "").strip(),
+                    choices_json,
+                ), prepare=False)
+        conn.commit()
+        return len(payloads)
+    except Exception as e:
+        conn.rollback()
+        raise
+    finally:
+        conn.close()
+
+
+def bulk_insert_pinyin_recall_item_answered(payloads: List[Dict[str, Any]]) -> int:
+    """Insert multiple item_answered rows in one connection. Returns count inserted."""
+    if not payloads:
+        return 0
+    conn = _get_connection()
+    sql = """
+        INSERT INTO pinyin_recall_item_answered (user_id, session_id, character, selected_choice, correct, latency_ms, i_dont_know, score_before, score_after)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+    """
+    try:
+        with conn.cursor() as cur:
+            for p in payloads:
+                cur.execute(sql, (
+                    (p.get("user_id") or "").strip(),
+                    (p.get("session_id") or "").strip(),
+                    (p.get("character") or "").strip(),
+                    (p.get("selected_choice") or "").strip() if p.get("selected_choice") is not None else None,
+                    bool(p.get("correct") is True),
+                    p.get("latency_ms"),
+                    bool(p.get("i_dont_know") is True),
+                    p.get("score_before"),
+                    p.get("score_after"),
+                ), prepare=False)
+        conn.commit()
+        return len(payloads)
+    except Exception as e:
+        conn.rollback()
+        raise
     finally:
         conn.close()
