@@ -74,7 +74,12 @@ USE_DATABASE = os.environ.get('USE_DATABASE', '').strip().lower() in ('1', 'true
 CORS_ORIGINS_RAW = os.getenv('CORS_ORIGINS', 'http://localhost:3000').split(',')
 CORS_ORIGINS = [origin.strip() for origin in CORS_ORIGINS_RAW if origin.strip()]
 
-# Add compiled regex for netlify.app and daydreamedu.org so prod (e.g. chinese-chr.daydreamedu.org) is allowed
+# Always allow production frontend (exact string so CORS works even if regex/env differ)
+PRODUCTION_ORIGIN = 'https://chinese-chr.daydreamedu.org'
+if PRODUCTION_ORIGIN not in CORS_ORIGINS:
+    CORS_ORIGINS.append(PRODUCTION_ORIGIN)
+
+# Add compiled regex for netlify.app and daydreamedu.org subdomains
 # Flask-CORS treats re.Pattern as regex; plain strings are exact match only
 CORS_ORIGINS_WITH_WILDCARD = list(CORS_ORIGINS)
 if not any('netlify.app' in o for o in CORS_ORIGINS):
