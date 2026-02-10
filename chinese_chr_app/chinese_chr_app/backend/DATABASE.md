@@ -81,7 +81,67 @@ Logs which characters signed-in users view on Search (user_id, character, viewed
 
 ---
 
-### 2.4 `radical_stroke_counts`
+### 2.4 `pinyin_recall_character_bank`
+
+Per-user, per-character state for MVP1 pinyin recall (score 0–100, stage, next_due_utc, counts). Used when `USE_DATABASE=true` for queue building and persistence across restarts.
+
+| Column | Type | Notes |
+|--------|------|--------|
+| user_id | text | NOT NULL; PK with character |
+| character | text | NOT NULL |
+| score | integer | NOT NULL, default 0 (0–100) |
+| stage | integer | NOT NULL, default 0 |
+| next_due_utc | bigint | unix ts or null |
+| first_seen_at | timestamptz | NOT NULL, default now() |
+| last_answered_at | timestamptz | NOT NULL, default now() |
+| total_correct | integer | NOT NULL, default 0 |
+| total_wrong | integer | NOT NULL, default 0 |
+| total_i_dont_know | integer | NOT NULL, default 0 |
+
+**Index:** `idx_pinyin_recall_bank_user_next_due` on `(user_id, next_due_utc)`.
+
+**Create:** `python scripts/create_pinyin_recall_character_bank_table.py`.
+
+---
+
+### 2.5 Pinyin recall event log (two tables)
+
+When `USE_DATABASE=true`, session events are written to Supabase (two-table design).
+
+**`pinyin_recall_item_presented`** — when a character is shown in a batch.
+
+| Column | Type | Notes |
+|--------|------|--------|
+| id | uuid | PK, default gen_random_uuid() |
+| user_id | text | NOT NULL |
+| session_id | text | NOT NULL |
+| character | text | NOT NULL |
+| prompt_type | text | NOT NULL |
+| correct_choice | text | NOT NULL |
+| choices | jsonb | NOT NULL |
+| created_at | timestamptz | NOT NULL, default now() |
+
+**`pinyin_recall_item_answered`** — when the user submits an answer.
+
+| Column | Type | Notes |
+|--------|------|--------|
+| id | uuid | PK, default gen_random_uuid() |
+| user_id | text | NOT NULL |
+| session_id | text | NOT NULL |
+| character | text | NOT NULL |
+| selected_choice | text | |
+| correct | boolean | NOT NULL |
+| latency_ms | integer | |
+| i_dont_know | boolean | NOT NULL |
+| score_before | integer | |
+| score_after | integer | |
+| created_at | timestamptz | NOT NULL, default now() |
+
+**Create:** `python scripts/create_pinyin_recall_log_tables.py`. **Upload local log:** `python scripts/upload_pinyin_recall_log_to_db.py` (reads `logs/pinyin_recall.log`). **Migrate from legacy single table:** `python scripts/migrate_pinyin_recall_events_to_two_tables.py` (if you had data in `pinyin_recall_events`).
+
+---
+
+### 2.6 `radical_stroke_counts`
 
 Mapping of radical character to its stroke count (e.g. for sorting the Radicals page by radical stroke count). Source: [汉文学网 按部首查字](https://zd.hwxnet.com/bushou.html); JSON at `data/radical_stroke_counts.json`.
 
@@ -126,6 +186,17 @@ Psycopg 3 (`psycopg[binary]>=3.1`). All functions return dict shapes compatible 
 |----------|--------|
 | `log_character_view(user_id, character, display_name=None)` | Insert one row into `character_views`. Table must exist (run create script once). |
 
+### Pinyin recall (character bank and event log)
+
+| Function | Purpose |
+|----------|--------|
+| `get_pinyin_recall_learning_state(user_id)` | Load learning state for queue building: `Dict[character, { stage, next_due_utc, score }]`. |
+| `upsert_pinyin_recall_character_bank(user_id, character, correct, i_dont_know)` | Update character bank after one answer. Returns `(score_before, score_after)`. |
+| `insert_pinyin_recall_item_presented(payload)` | Insert one row into `pinyin_recall_item_presented`. |
+| `insert_pinyin_recall_item_answered(payload)` | Insert one row into `pinyin_recall_item_answered`. |
+| `bulk_insert_pinyin_recall_item_presented(payloads)` | Bulk insert into `pinyin_recall_item_presented` (e.g. upload script). |
+| `bulk_insert_pinyin_recall_item_answered(payloads)` | Bulk insert into `pinyin_recall_item_answered` (e.g. upload script). |
+
 ---
 
 ## 4. Backend behavior (when `USE_DATABASE=true`)
@@ -137,6 +208,8 @@ Psycopg 3 (`psycopg[binary]>=3.1`). All functions return dict shapes compatible 
 - **Update** — `PUT /api/characters/<index>/update` calls `update_feng_character()`; optional file backup or rely on Supabase + edit log.
 - **Character view logging** — Search page logs views via `log_character_view()` when user is signed in.
 - **Radicals / stroke counts** — Same `generate_radicals_data` and `generate_stroke_counts_data`; inputs come from DB-backed loaders.
+- **Pinyin recall character bank** — Learning state (score, stage, next_due_utc) is loaded from `pinyin_recall_character_bank` and updated on each answer. Queue orders due items by score ascending.
+- **Pinyin recall event log** — `item_presented` and `item_answered` are written to `pinyin_recall_item_presented` and `pinyin_recall_item_answered` (two-table design). When `USE_DATABASE=false`, events are written to `logs/pinyin_recall.log` instead.
 
 API response shapes are unchanged; no frontend changes required for DB migration.
 
@@ -149,6 +222,10 @@ API response shapes are unchanged; no frontend changes required for DB migration
 | `scripts/create_feng_characters_table.py` | Create `feng_characters`, optionally insert from `data/characters.json` (`--all` for full). |
 | `scripts/create_hwxnet_characters_table.py` | Create `hwxnet_characters`, optionally insert from `data/extracted_characters_hwxnet.json` (`--all` for full). |
 | `scripts/create_character_views_table.py` | Create `character_views`. |
+| `scripts/create_pinyin_recall_character_bank_table.py` | Create `pinyin_recall_character_bank` (MVP1 pinyin recall state). |
+| `scripts/create_pinyin_recall_log_tables.py` | Create `pinyin_recall_item_presented` and `pinyin_recall_item_answered` (two-table event log). |
+| `scripts/upload_pinyin_recall_log_to_db.py` | One-off: upload `logs/pinyin_recall.log` into the two log tables. Options: `--dry-run`. |
+| `scripts/migrate_pinyin_recall_events_to_two_tables.py` | One-off: copy from legacy `pinyin_recall_events` into the two log tables. Options: `--dry-run`. |
 | `scripts/create_radical_stroke_counts_table.py` | Create `radical_stroke_counts`, insert from `data/radical_stroke_counts.json`. Options: `--dry-run`. |
 | `scripts/verify_feng_characters.py` | Verify row counts / sample from `feng_characters`. |
 | `scripts/verify_hwxnet_characters.py` | Verify row counts / sample from `hwxnet_characters`. |
@@ -213,7 +290,7 @@ Key points:
 
 | Area | Detail |
 |------|--------|
-| **Data source** | `feng_characters` and `hwxnet_characters` (and `character_views` for logging). |
+| **Data source** | `feng_characters`, `hwxnet_characters`, `character_views`, `pinyin_recall_character_bank`, `pinyin_recall_item_presented`, `pinyin_recall_item_answered`. |
 | **Backend** | `database.py`; load_characters/load_hwxnet and update_character_field use it; API shapes unchanged. |
 | **Pinyin search** | `hwxnet_characters.searchable_pinyin` (GIN index); backfill via `add_searchable_pinyin_column.py`. |
 | **Config** | `DATABASE_URL` required when using DB; `USE_DATABASE=true` to enable. |
