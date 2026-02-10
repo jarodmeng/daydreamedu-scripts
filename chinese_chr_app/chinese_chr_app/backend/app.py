@@ -1285,7 +1285,11 @@ def pinyin_recall_session():
                 "user_id": getattr(user, "user_id", None),
                 "timings": timings,
             }
-            pinyin_recall_logger.info(json.dumps(payload, ensure_ascii=False))
+            line = json.dumps(payload, ensure_ascii=False)
+            # Write to file-backed logger
+            pinyin_recall_logger.info(line)
+            # Also emit to stdout/stderr so Cloud Run logs capture it
+            app.logger.info(line)
         except Exception:
             # Timing logs should never break the endpoint
             pass
@@ -1355,7 +1359,11 @@ def pinyin_recall_next_batch():
                 "user_id": getattr(user, "user_id", None),
                 "timings": timings,
             }
-            pinyin_recall_logger.info(json.dumps(payload, ensure_ascii=False))
+            line = json.dumps(payload, ensure_ascii=False)
+            # Write to file-backed logger
+            pinyin_recall_logger.info(line)
+            # Also emit to stdout/stderr so Cloud Run logs capture it
+            app.logger.info(line)
         except Exception:
             # Timing logs should never break the endpoint
             pass
