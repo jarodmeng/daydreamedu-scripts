@@ -302,3 +302,246 @@
 .pinyin-recall-learn-actions {
   margin-top: 32px;
 }
+
+/* Compact layout for smaller laptop viewports (e.g. MacBook Air) - Issue #3 */
+@media (max-height: 900px) {
+  .pinyin-recall-page {
+    padding: 20px 16px;
+    min-height: 70vh;
+  }
+
+  .pinyin-recall-page h1,
+  .pinyin-recall-page h2 {
+    font-size: 1.6rem;
+    margin-bottom: 8px;
+  }
+
+  .pinyin-recall-subtitle {
+    margin-bottom: 16px;
+    font-size: 1rem;
+  }
+
+  .pinyin-recall-character {
+    font-size: 3rem;
+    margin: 12px 0;
+  }
+
+  .pinyin-recall-words {
+    font-size: 1.1rem;
+    margin-bottom: 16px;
+    padding: 10px 14px;
+  }
+
+  .pinyin-recall-words-label {
+    font-size: 1.05rem;
+    margin-bottom: 4px;
+  }
+
+  .pinyin-recall-progress {
+    margin-bottom: 16px;
+  }
+
+  .pinyin-recall-stem-label {
+    margin-bottom: 4px;
+  }
+
+  .pinyin-recall-choose {
+    margin-bottom: 12px;
+  }
+
+  .pinyin-recall-choices {
+    gap: 10px;
+    margin-top: 14px;
+  }
+
+  .pinyin-recall-choice {
+    padding: 12px 20px;
+    font-size: 1.15rem;
+  }
+
+  .pinyin-recall-choice-dont-know {
+    margin-top: 2px;
+  }
+
+  .pinyin-recall-question,
+  .pinyin-recall-feedback,
+  .pinyin-recall-learn {
+    padding: 14px 0;
+  }
+
+  .pinyin-recall-end-session {
+    margin: 12px auto 0;
+    padding: 6px 12px;
+  }
+
+  .pinyin-recall-btn {
+    padding: 10px 20px;
+    font-size: 1rem;
+  }
+
+  .pinyin-recall-correct-pinyin {
+    font-size: 1.3rem;
+    margin: 10px 0;
+  }
+
+  .pinyin-recall-feedback .pinyin-recall-btn {
+    margin-top: 16px;
+  }
+
+  .pinyin-recall-learning-moment {
+    margin-bottom: 14px;
+  }
+
+  .pinyin-recall-meaning {
+    margin: 10px 0;
+    padding: 8px 12px;
+    font-size: 1.05rem;
+  }
+
+  .pinyin-recall-form-cues,
+  .pinyin-recall-structure {
+    margin: 6px 0;
+  }
+
+  .pinyin-recall-sentence {
+    margin: 10px 0;
+    padding: 8px 12px;
+    font-size: 1rem;
+  }
+
+  .pinyin-recall-learn .pinyin-recall-character {
+    font-size: 3rem;
+  }
+
+  .pinyin-recall-learn h2 {
+    margin-bottom: 16px;
+  }
+
+  .pinyin-recall-learn-actions {
+    margin-top: 20px;
+  }
+}
+
+@media (max-height: 750px) {
+  .pinyin-recall-page {
+    padding: 12px 16px;
+    min-height: 65vh;
+  }
+
+  .pinyin-recall-page h1,
+  .pinyin-recall-page h2 {
+    font-size: 1.4rem;
+    margin-bottom: 6px;
+  }
+
+  .pinyin-recall-subtitle {
+    margin-bottom: 12px;
+    font-size: 0.95rem;
+  }
+
+  .pinyin-recall-character {
+    font-size: 2.5rem;
+    margin: 8px 0;
+  }
+
+  .pinyin-recall-words {
+    font-size: 1rem;
+    margin-bottom: 12px;
+    padding: 8px 12px;
+  }
+
+  .pinyin-recall-words-label {
+    font-size: 0.95rem;
+  }
+
+  .pinyin-recall-progress {
+    margin-bottom: 10px;
+    font-size: 0.9rem;
+  }
+
+  .pinyin-recall-stem-label {
+    margin-bottom: 2px;
+    font-size: 0.95rem;
+  }
+
+  .pinyin-recall-choose {
+    margin-bottom: 8px;
+    font-size: 0.95rem;
+  }
+
+  .pinyin-recall-choices {
+    gap: 8px;
+    margin-top: 10px;
+  }
+
+  .pinyin-recall-choice {
+    padding: 10px 16px;
+    font-size: 1.05rem;
+  }
+
+  .pinyin-recall-question,
+  .pinyin-recall-feedback,
+  .pinyin-recall-learn {
+    padding: 10px 0;
+  }
+
+  .pinyin-recall-end-session {
+    margin: 8px auto 0;
+    padding: 6px 10px;
+    font-size: 0.9rem;
+  }
+
+  .pinyin-recall-btn {
+    padding: 8px 16px;
+    font-size: 0.95rem;
+  }
+
+  .pinyin-recall-correct-pinyin {
+    font-size: 1.2rem;
+    margin: 8px 0;
+  }
+
+  .pinyin-recall-feedback-correct,
+  .pinyin-recall-feedback-wrong-label {
+    margin-bottom: 4px;
+    font-size: 1.1rem;
+  }
+
+  .pinyin-recall-feedback .pinyin-recall-btn {
+    margin-top: 12px;
+  }
+
+  .pinyin-recall-learning-moment {
+    margin-bottom: 10px;
+  }
+
+  .pinyin-recall-meaning {
+    margin: 8px 0;
+    padding: 6px 10px;
+    font-size: 0.95rem;
+  }
+
+  .pinyin-recall-form-cues,
+  .pinyin-recall-structure {
+    margin: 4px 0;
+    font-size: 0.95rem;
+  }
+
+  .pinyin-recall-sentence {
+    margin: 8px 0;
+    padding: 6px 10px;
+    font-size: 0.95rem;
+  }
+
+  .pinyin-recall-learn .pinyin-recall-character {
+    font-size: 2.5rem;
+  }
+
+  .pinyin-recall-learn h2 {
+    margin-bottom: 12px;
+  }
+
+  .pinyin-recall-learn-actions {
+    margin-top: 16px;
+  }
+}
