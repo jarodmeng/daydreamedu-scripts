@@ -172,7 +172,7 @@ export default function Profile() {
                   {progressPct > 0 && ` （${progressPct}%）`}
                 </p>
                 <p className="profile-proficiency-hint">
-                  掌握度根据拼音记忆游戏中答对的题目计算（得分 ≥ 30 视为掌握）
+                  掌握度根据拼音记忆游戏中答对的题目计算（得分 ≥ 10 视为掌握）
                 </p>
               </div>
             </section>

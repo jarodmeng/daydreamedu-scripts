@@ -263,7 +263,7 @@ def log_character_view(user_id: str, character: str, display_name: Optional[str]
 
 # --- Profile / progress (Issue #2) ---
 
-PROFILE_PROFICIENCY_MIN_SCORE = 30
+PROFILE_PROFICIENCY_MIN_SCORE = 10
 PROFILE_HWXNET_TOTAL = 3664
 
 
