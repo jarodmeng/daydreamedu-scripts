@@ -507,9 +507,7 @@
     ],
     "英文翻译": [
       "horse",
-      "surname",
-      "radical",
-      "kangxi"
+      "surname"
     ],
     "index": "0008",
     "zibiao_index": 72
@@ -2677,9 +2675,7 @@
     ],
     "英文翻译": [
       "fish",
-      "radical",
-      "surname",
-      "kangxi"
+      "surname"
     ],
     "index": "0041",
     "zibiao_index": 1194
@@ -2898,7 +2894,6 @@
     ],
     "英文翻译": [
       "ox",
-      "kangxi",
       "cow",
       "bull"
     ],
@@ -3459,9 +3454,7 @@
     ],
     "英文翻译": [
       "son",
-      "child",
-      "radical",
-      "kangxi"
+      "child"
     ],
     "index": "0050",
     "zibiao_index": 12
@@ -4443,10 +4436,8 @@
       }
     ],
     "英文翻译": [
-      "radical",
       "rain",
-      "rainy",
-      "kangxi"
+      "rainy"
     ],
     "index": "0068",
     "zibiao_index": 1041
@@ -5372,9 +5363,7 @@
     ],
     "英文翻译": [
       "goat",
-      "radical",
-      "sheep",
-      "kangxi"
+      "sheep"
     ],
     "index": "0086",
     "zibiao_index": 530
@@ -5409,9 +5398,7 @@
       }
     ],
     "英文翻译": [
-      "bird",
-      "radical",
-      "kangxi"
+      "bird"
     ],
     "index": "0087",
     "zibiao_index": 296
@@ -5513,10 +5500,8 @@
       }
     ],
     "英文翻译": [
-      "radical",
       "month",
-      "moon",
-      "kangxi"
+      "moon"
     ],
     "index": "0090",
     "zibiao_index": 150
@@ -7211,8 +7196,6 @@
       }
     ],
     "英文翻译": [
-      "kangxi",
-      "radical",
       "flute",
       "bamboo"
     ],
@@ -9519,9 +9502,7 @@
       }
     ],
     "英文翻译": [
-      "radical",
       "no",
-      "kangxi",
       "negative",
       "not"
     ],
@@ -16772,10 +16753,8 @@
       }
     ],
     "英文翻译": [
-      "radical",
       "rat",
-      "mouse",
-      "kangxi"
+      "mouse"
     ],
     "index": "0228",
     "zibiao_index": 2958
@@ -18511,8 +18490,7 @@
     "英文翻译": [
       "profession",
       "business",
-      "gb",
-      "radical"
+      "gb"
     ],
     "index": "0255",
     "zibiao_index": 231
@@ -18548,10 +18526,8 @@
       }
     ],
     "英文翻译": [
-      "radical",
       "number",
       "turban",
-      "kangxi",
       "kerchief",
       "towel"
     ],
@@ -33653,8 +33629,6 @@
       }
     ],
     "英文翻译": [
-      "radical",
-      "kangxi",
       "father"
     ],
     "index": "0468",
@@ -38887,8 +38861,6 @@
       }
     ],
     "英文翻译": [
-      "radical",
-      "kangxi",
       "vapor",
       "steam"
     ],
@@ -40944,10 +40916,8 @@
       }
     ],
     "英文翻译": [
-      "radical",
       "nose",
-      "first",
-      "kangxi"
+      "first"
     ],
     "index": "0580",
     "zibiao_index": 3128
@@ -40995,8 +40965,6 @@
       }
     ],
     "英文翻译": [
-      "radical",
-      "kangxi",
       "deer",
       "surname"
     ],
@@ -42875,10 +42843,8 @@
     ],
     "英文翻译": [
       "number",
-      "radical",
       "bow",
       "arched",
-      "kangxi",
       "curved"
     ],
     "index": "0608",
@@ -43363,9 +43329,7 @@
     ],
     "英文翻译": [
       "tongue",
-      "radical",
       "bell",
-      "kangxi",
       "clapper"
     ],
     "index": "0606",
@@ -43645,9 +43609,7 @@
       }
     ],
     "英文翻译": [
-      "kangxi",
       "net",
-      "radical",
       "network"
     ],
     "index": "0624",
@@ -46010,8 +45972,6 @@
       }
     ],
     "英文翻译": [
-      "radical",
-      "kangxi",
       "insects",
       "worms"
     ],
@@ -56149,7 +56109,6 @@
       }
     ],
     "英文翻译": [
-      "radical",
       "workshop",
       "factory"
     ],
@@ -69954,9 +69913,7 @@
       "deficient",
       "owe",
       "lack",
-      "number",
-      "radical",
-      "kangxi"
+      "number"
     ],
     "index": "1043",
     "zibiao_index": 153
@@ -75154,10 +75111,8 @@
     ],
     "英文翻译": [
       "tiny",
-      "radical",
       "inch",
-      "small",
-      "kangxi"
+      "small"
     ],
     "index": "1133",
     "zibiao_index": 31
@@ -79100,9 +79055,7 @@
       "shrewd",
       "keen",
       "number",
-      "kangxi",
       "catty",
-      "radical",
       "approximately",
       "axe"
     ],
@@ -83150,12 +83103,10 @@
       }
     ],
     "英文翻译": [
-      "radical",
       "food",
       "meal",
       "number",
-      "eat",
-      "kangxi"
+      "eat"
     ],
     "index": "1260",
     "zibiao_index": 1589
@@ -84787,9 +84738,7 @@
       }
     ],
     "英文翻译": [
-      "radical",
       "ship",
-      "kangxi",
       "boat"
     ],
     "index": "1282",
@@ -90340,9 +90289,7 @@
       }
     ],
     "英文翻译": [
-      "radical",
       "meat",
-      "kangxi",
       "flesh"
     ],
     "index": "1381",
@@ -100712,9 +100659,7 @@
     ],
     "英文翻译": [
       "number",
-      "radical",
       "form",
-      "kangxi",
       "age",
       "gears",
       "cogs",
@@ -118927,7 +118872,6 @@
     ],
     "英文翻译": [
       "number",
-      "radical",
       "blood"
     ],
     "index": "1907",
@@ -121419,10 +121363,8 @@
       }
     ],
     "英文翻译": [
-      "kangxi",
       "lance",
-      "spear",
-      "radical"
+      "spear"
     ],
     "index": "1951",
     "zibiao_index": 343
@@ -135948,8 +135890,6 @@
     "英文翻译": [
       "hole",
       "den",
-      "radical",
-      "kangxi",
       "cave"
     ],
     "index": "2241",
@@ -137008,8 +136948,6 @@
       "wheat",
       "barley",
       "number",
-      "radical",
-      "kangxi",
       "oats"
     ],
     "index": "2262",
@@ -158885,10 +158823,8 @@
       }
     ],
     "英文翻译": [
-      "kangxi",
       "servant",
-      "subservient",
-      "radical"
+      "subservient"
     ],
     "index": "2714",
     "zibiao_index": 1305
@@ -161204,8 +161140,6 @@
       "preside",
       "impersonate",
       "corpse",
-      "radical",
-      "kangxi",
       "dead"
     ],
     "index": "2764",
@@ -164930,8 +164864,6 @@
       }
     ],
     "英文翻译": [
-      "kangxi",
-      "radical",
       "say"
     ],
     "index": "2851",
@@ -172014,7 +171946,6 @@
     ],
     "英文翻译": [
       "number",
-      "radical",
       "dog"
     ],
     "zibiao_index": 92
@@ -173002,9 +172933,7 @@
       }
     ],
     "英文翻译": [
-      "radical",
       "profound",
-      "kangxi",
       "deep",
       "abstruse"
     ],
@@ -180971,8 +180900,7 @@
     ],
     "英文翻译": [
       "scallion",
-      "leek",
-      "radical"
+      "leek"
     ],
     "zibiao_index": 1466
   },
