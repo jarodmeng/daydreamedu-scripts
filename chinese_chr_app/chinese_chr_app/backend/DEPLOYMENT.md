@@ -84,7 +84,7 @@ docker push gcr.io/daydreamedu/chinese-chr-app
 # Deploy to Cloud Run (include Supabase vars if using Google login)
 gcloud run deploy chinese-chr-app \
   --image gcr.io/daydreamedu/chinese-chr-app \
-  --region us-central1 \
+  --region asia-south1 \
   --platform managed \
   --allow-unauthenticated \
   --set-env-vars CORS_ORIGINS=https://chinese-chr.daydreamedu.org,GCS_BUCKET_NAME=chinese-chr-app-images,SUPABASE_URL=https://YOUR_PROJECT_REF.supabase.co,SUPABASE_JWT_AUD=authenticated
@@ -94,12 +94,12 @@ gcloud run deploy chinese-chr-app \
 ```bash
 # Update environment variables
 gcloud run services update chinese-chr-app \
-  --region us-central1 \
+  --region asia-south1 \
   --update-env-vars CORS_ORIGINS=https://chinese-chr.daydreamedu.org,GCS_BUCKET_NAME=chinese-chr-app-images,SUPABASE_URL=...,SUPABASE_JWT_AUD=authenticated
 
 # Or update a single variable
 gcloud run services update chinese-chr-app \
-  --region us-central1 \
+  --region asia-south1 \
   --update-env-vars CORS_ORIGINS=https://daydreamedu.org
 ```
 
@@ -130,7 +130,7 @@ Before deploying, you need to set up the site in the Netlify portal:
 4. **Set Environment Variables**:
    - Click "New variable" and add:
      - **Key**: `VITE_API_URL`
-     - **Value**: `https://chinese-chr-app-177544945895.us-central1.run.app`
+     - **Value**: `https://chinese-chr-app-XXXXX-as.a.run.app` (asia-south1; get exact URL from Cloud Run console)
      - (Use your actual Cloud Run URL from Step 4)
 
 5. **Configure Site Name** (optional):
@@ -211,7 +211,7 @@ gcloud run deploy chinese-chr-app ... --set-env-vars KEY1=value1,KEY2=value2
 **Update after deployment:**
 ```bash
 gcloud run services update chinese-chr-app \
-  --region us-central1 \
+  --region asia-south1 \
   --update-env-vars KEY1=newvalue1,KEY2=newvalue2
 ```
 
@@ -330,7 +330,7 @@ This way missing-module 503s (and the resulting CORS-looking errors) are caught 
 You can **fetch logs directly from the CLI** (no need to open the console):
 
 ```bash
-gcloud run services logs read chinese-chr-app --region=us-central1 --limit=80
+gcloud run services logs read chinese-chr-app --region=asia-south1 --limit=80
 ```
 
 Adjust service name and region to match your setup; increase `--limit` for more lines.

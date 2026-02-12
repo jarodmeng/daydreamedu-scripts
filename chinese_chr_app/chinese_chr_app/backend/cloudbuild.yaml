@@ -30,14 +30,14 @@ steps:
       - '--image'
       - 'gcr.io/$PROJECT_ID/chinese-chr-app'
       - '--region'
-      - 'us-central1'
+      - 'asia-south1'
       - '--platform'
       - 'managed'
       - '--allow-unauthenticated'
       - '--update-env-vars'
       - 'CORS_ORIGINS=https://chinese-chr.daydreamedu.org,GCS_BUCKET_NAME=chinese-chr-app-images,SUPABASE_URL=https://ersdawiangsdklbdxtts.supabase.co,SUPABASE_JWT_AUD=authenticated,USE_DATABASE=true'
     env:
-      - 'CLOUDSDK_RUN_REGION=us-central1'
+      - 'CLOUDSDK_RUN_REGION=asia-south1'
 
 options:
   logging: CLOUD_LOGGING_ONLY
