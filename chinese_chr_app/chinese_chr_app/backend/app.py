@@ -109,7 +109,7 @@ def _origin_allowed(origin: str) -> bool:
     return False
 
 
-# Explicit preflight handler: OPTIONS must return 2xx for CORS to pass.
+# Explicit preflight handler: OPTIONS must return 2xx with full CORS headers.
 # Ensures preflight succeeds even for routes added in new deploys (avoids 404 on OPTIONS).
 @app.before_request
 def _handle_cors_preflight():
@@ -119,6 +119,7 @@ def _handle_cors_preflight():
             resp = app.make_default_options_response()
             resp.headers['Access-Control-Allow-Origin'] = origin
             resp.headers['Access-Control-Allow-Credentials'] = 'true'
+            resp.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
             resp.headers['Access-Control-Allow-Headers'] = 'Authorization, Content-Type'
             resp.headers['Access-Control-Max-Age'] = '86400'
             return resp
