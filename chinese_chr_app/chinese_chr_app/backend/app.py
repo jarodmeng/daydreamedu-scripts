@@ -99,7 +99,6 @@ CORS(
     allow_headers=['Authorization', 'Content-Type'],
 )
 
-# Fallback: ensure CORS headers on every response (including OPTIONS and errors) so prod never gets blocked
 def _origin_allowed(origin: str) -> bool:
     if not origin:
         return False
@@ -108,6 +107,22 @@ def _origin_allowed(origin: str) -> bool:
     if origin.startswith('https://') and origin.endswith('.daydreamedu.org'):
         return True
     return False
+
+
+# Explicit preflight handler: OPTIONS must return 2xx for CORS to pass.
+# Ensures preflight succeeds even for routes added in new deploys (avoids 404 on OPTIONS).
+@app.before_request
+def _handle_cors_preflight():
+    if request.method == 'OPTIONS':
+        origin = request.headers.get('Origin')
+        if origin and _origin_allowed(origin):
+            resp = app.make_default_options_response()
+            resp.headers['Access-Control-Allow-Origin'] = origin
+            resp.headers['Access-Control-Allow-Credentials'] = 'true'
+            resp.headers['Access-Control-Allow-Headers'] = 'Authorization, Content-Type'
+            resp.headers['Access-Control-Max-Age'] = '86400'
+            return resp
+    return None
 
 
 @app.after_request
