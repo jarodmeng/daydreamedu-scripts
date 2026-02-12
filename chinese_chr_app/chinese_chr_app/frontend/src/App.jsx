@@ -7,6 +7,7 @@ import StrokeCounts from './pages/StrokeCounts'
 import StrokeCountDetail from './pages/StrokeCountDetail'
 import PinyinResults from './pages/PinyinResults'
 import PinyinRecall from './pages/PinyinRecall'
+import Profile from './pages/Profile'
 import { AuthProvider } from './AuthContext'
 import './App.css'
 
@@ -24,6 +25,7 @@ function App() {
         <Route path="/stroke-counts/:count" element={<StrokeCountDetail />} />
         <Route path="/pinyin/:query" element={<PinyinResults />} />
         <Route path="/games/pinyin-recall" element={<PinyinRecall />} />
+        <Route path="/profile" element={<Profile />} />
         <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </div>

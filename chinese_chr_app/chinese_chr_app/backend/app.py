@@ -1151,6 +1151,38 @@ def put_profile():
     return jsonify({"profile": {"display_name": display_name}}), 200
 
 
+@app.route('/api/profile/progress', methods=['GET'])
+def get_profile_progress():
+    """Get current user's progress (Issue #2): viewed characters, daily stats, proficiency. Requires Bearer token and USE_DATABASE."""
+    user = _get_profile_user()
+    if user is None:
+        return jsonify({"error": "Unauthorized"}), 401
+    if not USE_DATABASE:
+        return jsonify({"error": "Progress is only available when using the database"}), 503
+    try:
+        import database as db
+        viewed_count = db.get_character_views_count_for_user(user.user_id)
+        viewed_recent = db.get_character_views_recent_for_user(user.user_id, limit=50)
+        daily_stats = db.get_pinyin_recall_daily_stats(user.user_id, days=30)
+        learned_count = db.get_proficient_character_count(user.user_id, db.PROFILE_PROFICIENCY_MIN_SCORE)
+        total_chars = db.PROFILE_HWXNET_TOTAL
+        return jsonify({
+            "viewed_characters_count": viewed_count,
+            "viewed_characters_recent": viewed_recent,
+            "proficiency": {
+                "learned_count": learned_count,
+                "total_characters": total_chars,
+                "description": f"{learned_count} / {total_chars}",
+            },
+            "daily_stats": daily_stats,
+        })
+    except Exception as e:
+        print(f"[profile/progress] Error: {e}", flush=True)
+        import traceback
+        traceback.print_exc()
+        return jsonify({"error": str(e)}), 500
+
+
 def _display_name_for_log(user, display_name_from_body: Optional[str] = None) -> str:
     """Prefer body display_name, then in-memory profile, then JWT user_metadata."""
     if display_name_from_body and display_name_from_body.strip():

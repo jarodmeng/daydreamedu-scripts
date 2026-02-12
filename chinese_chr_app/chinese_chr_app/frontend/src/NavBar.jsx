@@ -123,6 +123,16 @@ function NavBar() {
             </div>
           )}
         </div>
+
+        {!authLoading && user && (
+          <Link
+            to="/profile"
+            className={`nav-link ${location.pathname === '/profile' ? 'nav-link-active' : ''}`}
+            onClick={closeMenu}
+          >
+            我的
+          </Link>
+        )}
       </div>
 
       <div className="nav-right">

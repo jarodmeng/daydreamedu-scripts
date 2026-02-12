@@ -261,6 +261,103 @@ def log_character_view(user_id: str, character: str, display_name: Optional[str]
         conn.close()
 
 
+# --- Profile / progress (Issue #2) ---
+
+PROFILE_PROFICIENCY_MIN_SCORE = 30
+PROFILE_HWXNET_TOTAL = 3664
+
+
+def get_character_views_count_for_user(user_id: str) -> int:
+    """Return count of distinct characters viewed by user."""
+    conn = _get_connection()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                "SELECT COUNT(DISTINCT character) AS cnt FROM character_views WHERE user_id = %s",
+                (user_id.strip(),),
+            )
+            row = cur.fetchone()
+        return int(row.get("cnt") or 0)
+    finally:
+        conn.close()
+
+
+def get_character_views_recent_for_user(user_id: str, limit: int = 50) -> List[str]:
+    """Return recent viewed characters (most recent first), deduped by character (keeps latest view)."""
+    conn = _get_connection()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                SELECT character FROM (
+                    SELECT character, MAX(viewed_at) AS max_at
+                    FROM character_views
+                    WHERE user_id = %s
+                    GROUP BY character
+                ) sub
+                ORDER BY max_at DESC
+                LIMIT %s
+                """,
+                (user_id.strip(), limit),
+            )
+            rows = cur.fetchall()
+        return [(r.get("character") or "").strip() for r in rows if (r.get("character") or "").strip()]
+    finally:
+        conn.close()
+
+
+def get_pinyin_recall_daily_stats(user_id: str, days: int = 30) -> List[Dict[str, Any]]:
+    """Return daily stats: date, answered, correct. Ordered by date DESC (most recent first)."""
+    conn = _get_connection()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                SELECT
+                    DATE(created_at AT TIME ZONE 'UTC') AS day,
+                    COUNT(*) AS answered,
+                    SUM(CASE WHEN correct THEN 1 ELSE 0 END)::int AS correct
+                FROM pinyin_recall_item_answered
+                WHERE user_id = %s
+                  AND created_at >= (NOW() AT TIME ZONE 'UTC') - (%s || ' days')::interval
+                GROUP BY DATE(created_at AT TIME ZONE 'UTC')
+                ORDER BY day DESC
+                LIMIT %s
+                """,
+                (user_id.strip(), str(days), days),
+            )
+            rows = cur.fetchall()
+        return [
+            {
+                "date": str(r.get("day") or ""),
+                "answered": int(r.get("answered") or 0),
+                "correct": int(r.get("correct") or 0),
+            }
+            for r in rows
+        ]
+    finally:
+        conn.close()
+
+
+def get_proficient_character_count(user_id: str, min_score: int = PROFILE_PROFICIENCY_MIN_SCORE) -> int:
+    """Return count of characters with score >= min_score in pinyin_recall_character_bank."""
+    conn = _get_connection()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                SELECT COUNT(*) AS cnt
+                FROM pinyin_recall_character_bank
+                WHERE user_id = %s AND score >= %s
+                """,
+                (user_id.strip(), min_score),
+            )
+            row = cur.fetchone()
+        return int(row.get("cnt") or 0)
+    finally:
+        conn.close()
+
+
 # --- Pinyin recall character bank (MVP1) ---
 # Score 0-100; higher = better understanding. Stage ladder same as pinyin_recall.py.
 PINYIN_RECALL_SCORE_CORRECT_DELTA = 10

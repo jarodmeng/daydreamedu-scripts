@@ -1,0 +1,258 @@
+.profile-page {
+  width: 100%;
+  min-height: 80vh;
+  padding: 40px 20px;
+  background-color: #f5f5f5;
+}
+
+.profile-container {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.profile-page h1 {
+  font-size: 2rem;
+  color: #333;
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.profile-page h2 {
+  font-size: 1.25rem;
+  color: #333;
+  margin-bottom: 12px;
+}
+
+.profile-subtitle {
+  color: #666;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.profile-link {
+  display: inline-block;
+  color: #1a73e8;
+  text-decoration: underline;
+}
+
+.profile-link:hover {
+  color: #1557b0;
+}
+
+.profile-section {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+.profile-header {
+  margin-bottom: 20px;
+}
+
+.profile-name-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.profile-display-name {
+  font-size: 1.2rem;
+  font-weight: 500;
+  color: #333;
+}
+
+.profile-name-input {
+  flex: 1;
+  min-width: 120px;
+  padding: 10px 14px;
+  font-size: 1rem;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+}
+
+.profile-name-input:focus {
+  outline: none;
+  border-color: #4CAF50;
+}
+
+.profile-btn {
+  padding: 8px 16px;
+  font-size: 0.95rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  border: 2px solid transparent;
+  transition: background-color 0.2s, border-color 0.2s;
+}
+
+.profile-btn-primary {
+  background-color: #4CAF50;
+  color: white;
+  border-color: #4CAF50;
+}
+
+.profile-btn-primary:hover:not(:disabled) {
+  background-color: #45a049;
+  border-color: #45a049;
+}
+
+.profile-btn-secondary {
+  background: transparent;
+  color: #666;
+  border-color: #999;
+}
+
+.profile-btn-secondary:hover:not(:disabled) {
+  background-color: #f5f5f5;
+}
+
+.profile-btn-link {
+  background: transparent;
+  color: #1a73e8;
+  border: none;
+  text-decoration: underline;
+}
+
+.profile-btn-link:hover {
+  color: #1557b0;
+}
+
+.profile-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.profile-loading,
+.profile-error {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+}
+
+.profile-error {
+  color: #c62828;
+}
+
+.profile-proficiency {
+  margin-top: 8px;
+}
+
+.profile-proficiency-bar-wrap {
+  height: 12px;
+  background: #e0e0e0;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.profile-proficiency-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #4CAF50, #81C784);
+  border-radius: 6px;
+  transition: width 0.3s ease;
+}
+
+.profile-proficiency-text {
+  font-size: 1.1rem;
+  color: #333;
+  margin-bottom: 4px;
+}
+
+.profile-proficiency-hint {
+  font-size: 0.9rem;
+  color: #888;
+}
+
+.profile-characters-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.profile-char-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  background: rgba(76, 175, 80, 0.12);
+  border: 2px solid #4CAF50;
+  border-radius: 8px;
+  text-decoration: none;
+  font-family: "KaiTi", "楷体", "STKaiti", serif;
+  transition: background-color 0.2s, transform 0.2s;
+}
+
+.profile-char-link:hover {
+  background: rgba(76, 175, 80, 0.2);
+  transform: scale(1.05);
+}
+
+.profile-empty {
+  color: #888;
+  font-size: 0.95rem;
+  margin: 8px 0;
+}
+
+.profile-count-hint {
+  font-size: 0.9rem;
+  color: #666;
+  margin-top: 12px;
+}
+
+.profile-daily-table-wrap {
+  overflow-x: auto;
+}
+
+.profile-daily-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+.profile-daily-table th,
+.profile-daily-table td {
+  padding: 10px 12px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+.profile-daily-table th {
+  font-weight: 600;
+  color: #555;
+}
+
+.profile-daily-table td {
+  color: #333;
+}
+
+.profile-daily-table tbody tr:hover {
+  background: #f9f9f9;
+}
+
+/* Compact layout for smaller viewports */
+@media (max-height: 900px) {
+  .profile-page {
+    padding: 20px 16px;
+  }
+
+  .profile-section {
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+
+  .profile-page h1 {
+    font-size: 1.6rem;
+    margin-bottom: 16px;
+  }
+
+  .profile-page h2 {
+    font-size: 1.15rem;
+  }
+}
