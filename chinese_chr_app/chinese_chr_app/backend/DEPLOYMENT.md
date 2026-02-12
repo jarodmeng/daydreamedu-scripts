@@ -302,6 +302,14 @@ npm run dev
 
 ### CORS + 503 in production ("blocked by CORS policy", "503 Service Unavailable")
 
+**Profile/progress 404 or CORS preflight failure:** If the frontend (e.g. Profile page) gets "Failed to fetch" or CORS errors for `/api/profile/progress`:
+
+1. **Netlify `VITE_API_URL` must point to the same Cloud Run service that Cloud Build deploys to.** The URL format is `https://chinese-chr-app-PROJECTHASH-REGION.a.run.app`. If Netlify points to a different URL (e.g. different project or region), the frontend will hit a service that may not have the latest code.
+2. **Verify Cloud Build:** Cloud Console → Cloud Build → History. Ensure the latest build on `main` succeeded. If builds fail or the trigger isn't connected to this repo, the deployed service won't have new routes.
+3. **Verify deployed URL:** Cloud Run → chinese-chr-app → click the service URL. Copy that exact URL and set it as `VITE_API_URL` in Netlify (Site settings → Environment variables). Redeploy Netlify after changing env vars.
+
+---
+
 If the frontend at `https://chinese-chr.daydreamedu.org` sees CORS errors and/or 503 when calling the API:
 
 1. **503 often means the container failed to start.** Check Cloud Run → Logs: if you see `ModuleNotFoundError: No module named 'pinyin_search'` or `'pinyin_recall'` (or similar), the Dockerfile is missing that file. The repo Dockerfile must `COPY` all Python modules that `app.py` imports (e.g. `pinyin_search.py`, `pinyin_recall.py`). Rebuild and redeploy.
