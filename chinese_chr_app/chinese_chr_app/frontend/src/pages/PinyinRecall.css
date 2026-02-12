@@ -56,22 +56,31 @@
   cursor: not-allowed;
 }
 
+/* Game header: progress (left) + end session (right) - Issue #4 */
+.pinyin-recall-game-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
 .pinyin-recall-end-session {
-  display: block;
-  margin: 16px auto 0;
-  padding: 8px 16px;
-  font-size: 0.95rem;
+  flex-shrink: 0;
+  padding: 6px 12px;
+  font-size: 0.85rem;
   background: transparent;
-  color: #666;
-  border: 1px solid #999;
-  border-radius: 8px;
+  color: #888;
+  border: 1px solid #bbb;
+  border-radius: 6px;
   cursor: pointer;
-  transition: background-color 0.2s, color 0.2s;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
 }
 
 .pinyin-recall-end-session:hover {
   background-color: #f5f5f5;
-  color: #333;
+  color: #555;
+  border-color: #999;
 }
 
 /* Question */
@@ -82,7 +91,7 @@
 .pinyin-recall-progress {
   color: #666;
   font-size: 0.95rem;
-  margin-bottom: 24px;
+  margin: 0;
 }
 
 .pinyin-recall-stem-label {
@@ -337,7 +346,7 @@
     margin-bottom: 4px;
   }
 
-  .pinyin-recall-progress {
+  .pinyin-recall-game-header {
     margin-bottom: 16px;
   }
 
@@ -370,8 +379,8 @@
   }
 
   .pinyin-recall-end-session {
-    margin: 12px auto 0;
-    padding: 6px 12px;
+    padding: 5px 10px;
+    font-size: 0.8rem;
   }
 
   .pinyin-recall-btn {
@@ -454,8 +463,11 @@
     font-size: 0.95rem;
   }
 
+  .pinyin-recall-game-header {
+    margin-bottom: 12px;
+  }
+
   .pinyin-recall-progress {
-    margin-bottom: 10px;
     font-size: 0.9rem;
   }
 
@@ -486,9 +498,8 @@
   }
 
   .pinyin-recall-end-session {
-    margin: 8px auto 0;
-    padding: 6px 10px;
-    font-size: 0.9rem;
+    padding: 5px 8px;
+    font-size: 0.8rem;
   }
 
   .pinyin-recall-btn {

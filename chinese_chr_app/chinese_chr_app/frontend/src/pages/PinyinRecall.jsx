@@ -224,17 +224,19 @@ export default function PinyinRecall() {
     return (
       <main className="pinyin-recall-page">
         <div className="pinyin-recall-container pinyin-recall-question">
-          <p className="pinyin-recall-progress">
-            {currentIndex + 1} / {items.length}
-            {totalAnswered > 0 && ` · 本次已答 ${totalAnswered} 题`}
-          </p>
-          <button
-            type="button"
-            className="pinyin-recall-end-session"
-            onClick={endSession}
-          >
-            结束本局
-          </button>
+          <div className="pinyin-recall-game-header">
+            <p className="pinyin-recall-progress">
+              {currentIndex + 1} / {items.length}
+              {totalAnswered > 0 && ` · 本次已答 ${totalAnswered} 题`}
+            </p>
+            <button
+              type="button"
+              className="pinyin-recall-end-session"
+              onClick={endSession}
+            >
+              结束本局
+            </button>
+          </div>
           <p className="pinyin-recall-stem-label">看这个字：</p>
           <div className="pinyin-recall-character">{item.character}</div>
           {item.stem_words?.length > 0 && (
@@ -289,6 +291,16 @@ export default function PinyinRecall() {
     return (
       <main className="pinyin-recall-page">
         <div className="pinyin-recall-container pinyin-recall-feedback">
+          <div className="pinyin-recall-game-header">
+            <span />
+            <button
+              type="button"
+              className="pinyin-recall-end-session"
+              onClick={endSession}
+            >
+              结束本局
+            </button>
+          </div>
           {feedbackCorrect ? (
             <>
               <p className="pinyin-recall-feedback-correct">✓ 正确</p>
@@ -389,13 +401,6 @@ export default function PinyinRecall() {
               : currentIndex + 1 >= items.length
                 ? '下一批'
                 : '下一题'}
-          </button>
-          <button
-            type="button"
-            className="pinyin-recall-end-session"
-            onClick={endSession}
-          >
-            结束本局
           </button>
         </div>
       </main>
