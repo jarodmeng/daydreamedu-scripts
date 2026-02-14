@@ -19,6 +19,12 @@ MAX_STAGE = len(STAGE_INTERVAL_DAYS) - 1
 
 I_DONT_KNOW_LABEL = "我不知道"
 
+# Expand character pool as user progresses. Mastery = score >= 10 (matches profile "已学").
+# Every 200 mastered chars, add 500 more to zibiao_max. Prevents "bank run out" at 500 chars.
+ZIBIAO_EXPAND_MASTERED_STEP = 200
+ZIBIAO_EXPAND_POOL_STEP = 500
+PROFICIENCY_MIN_SCORE = 10
+
 _PINYIN_INDEX_CACHE: Tuple[
     Dict[Tuple[str, int], List[str]], List[str]
 ] | None = None
@@ -184,13 +190,38 @@ def build_session_queue(
     """
     Build ordered list of session items: due items first (up to due_first), then new (up to new_count),
     until total_target. Each item: { character, stem_words, correct_pinyin, choices, prompt_type }.
+
+    Character pool expands as user masters more: every 200 mastered (score >= 10), add 500 to zibiao_max.
+    Prevents "bank run out" when user has mastered the initial 500-character pool.
     """
     now_ts = int(time.time())
     user_state = learning_state.setdefault(user_id, {})
+
+    # Expand pool based on mastered count (score >= 10, matches profile "已学")
+    mastered_count = sum(
+        1 for s in user_state.values()
+        if isinstance(s, dict) and (s.get("score") or 0) >= PROFICIENCY_MIN_SCORE
+    )
+    max_zibiao_in_corpus = 0
+    for entry in (hwxnet_lookup or {}).values():
+        if isinstance(entry, dict):
+            zi = entry.get("zibiao_index")
+            if zi is not None:
+                try:
+                    max_zibiao_in_corpus = max(max_zibiao_in_corpus, int(zi))
+                except (TypeError, ValueError):
+                    pass
+    tier = mastered_count // ZIBIAO_EXPAND_MASTERED_STEP
+    zibiao_max_effective = min(
+        max_zibiao_in_corpus or 7000,
+        500 + tier * ZIBIAO_EXPAND_POOL_STEP,
+    )
+    zibiao_max_effective = max(zibiao_max, zibiao_max_effective)
+
     seed_str = f"{user_id}:{date_str}"
     rng = random.Random(hashlib.sha256(seed_str.encode()).hexdigest())
 
-    # Candidate pool: HWXNet chars with zibiao_index in [zibiao_min, zibiao_max]
+    # Candidate pool: HWXNet chars with zibiao_index in [zibiao_min, zibiao_max_effective]
     candidates: List[Tuple[str, Dict[str, Any]]] = []
     for ch, entry in (hwxnet_lookup or {}).items():
         if not isinstance(entry, dict):
@@ -202,7 +233,7 @@ def build_session_queue(
             zi_int = int(zi)
         except (TypeError, ValueError):
             continue
-        if not (zibiao_min <= zi_int <= zibiao_max):
+        if not (zibiao_min <= zi_int <= zibiao_max_effective):
             continue
         candidates.append((ch, entry))
 
