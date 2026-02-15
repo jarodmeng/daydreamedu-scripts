@@ -4,6 +4,17 @@ import './PinyinRecall.css'
 
 const API_BASE = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? '' : '')
 
+/** Returns tone number 1-5 from pinyin with diacritics, or null if unparseable. */
+function getPinyinTone(pinyin) {
+  if (!pinyin || typeof pinyin !== 'string') return null
+  const s = pinyin.normalize('NFC')
+  if (/[āēīōūǖ]/.test(s)) return 1
+  if (/[áéíóúǘ]/.test(s)) return 2
+  if (/[ǎěǐǒǔǚ]/.test(s)) return 3
+  if (/[àèìòùǜ]/.test(s)) return 4
+  return 5
+}
+
 export default function PinyinRecall() {
   const { user, accessToken } = useAuth()
   const [loading, setLoading] = useState(false)
@@ -263,17 +274,23 @@ export default function PinyinRecall() {
           )}
           <p className="pinyin-recall-choose">选择正确的拼音：</p>
           <div className="pinyin-recall-choices">
-            {item.choices?.map((choice) => (
-              <button
-                key={choice}
-                type="button"
-                className="pinyin-recall-choice"
-                onClick={() => submitAnswer(choice, false)}
-                disabled={loading}
-              >
-                {choice}
-              </button>
-            ))}
+            {item.choices?.map((choice) => {
+              const tone = getPinyinTone(choice)
+              return (
+                <button
+                  key={choice}
+                  type="button"
+                  className="pinyin-recall-choice"
+                  onClick={() => submitAnswer(choice, false)}
+                  disabled={loading}
+                >
+                  {choice}
+                  {tone != null && tone < 5 && (
+                    <span className="pinyin-recall-tone-hint"> ({tone})</span>
+                  )}
+                </button>
+              )
+            })}
             <button
               type="button"
               className="pinyin-recall-choice pinyin-recall-choice-dont-know"
