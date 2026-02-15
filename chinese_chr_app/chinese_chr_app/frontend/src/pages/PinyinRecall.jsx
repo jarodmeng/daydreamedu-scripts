@@ -228,6 +228,11 @@ export default function PinyinRecall() {
             <p className="pinyin-recall-progress">
               {currentIndex + 1} / {items.length}
               {totalAnswered > 0 && ` · 本次已答 ${totalAnswered} 题`}
+              {item.category && (
+                <span className={`pinyin-recall-category pinyin-recall-category-${item.category === '新字' ? 'new' : item.category === '巩固' ? 'confirm' : 'revise'}`}>
+                  {item.category}
+                </span>
+              )}
             </p>
             <button
               type="button"

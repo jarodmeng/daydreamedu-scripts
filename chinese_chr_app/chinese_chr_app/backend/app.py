@@ -83,13 +83,17 @@ PRODUCTION_ORIGIN = 'https://chinese-chr.daydreamedu.org'
 if PRODUCTION_ORIGIN not in CORS_ORIGINS:
     CORS_ORIGINS.append(PRODUCTION_ORIGIN)
 
+# Compiled regexes for wildcard origins (shared with _origin_allowed for consistency)
+_NETLIFY_ORIGIN_RE = re.compile(r'^https://[a-zA-Z0-9-]+\.netlify\.app$')
+_DAYDREAMEDU_ORIGIN_RE = re.compile(r'^https://[a-zA-Z0-9.-]+\.daydreamedu\.org$')
+
 # Add compiled regex for netlify.app and daydreamedu.org subdomains
 # Flask-CORS treats re.Pattern as regex; plain strings are exact match only
 CORS_ORIGINS_WITH_WILDCARD = list(CORS_ORIGINS)
 if not any('netlify.app' in o for o in CORS_ORIGINS):
-    CORS_ORIGINS_WITH_WILDCARD.append(re.compile(r'^https://[a-zA-Z0-9-]+\.netlify\.app$'))
+    CORS_ORIGINS_WITH_WILDCARD.append(_NETLIFY_ORIGIN_RE)
 if not any('daydreamedu.org' in o for o in CORS_ORIGINS):
-    CORS_ORIGINS_WITH_WILDCARD.append(re.compile(r'^https://[a-zA-Z0-9.-]+\.daydreamedu\.org$'))
+    CORS_ORIGINS_WITH_WILDCARD.append(_DAYDREAMEDU_ORIGIN_RE)
 
 # Allow Authorization so frontend can send Bearer token (e.g. Supabase) on /api/profile etc.
 CORS(
@@ -100,11 +104,16 @@ CORS(
 )
 
 def _origin_allowed(origin: str) -> bool:
+    """Must stay in sync with CORS_ORIGINS_WITH_WILDCARD for preflight and after_request."""
     if not origin:
         return False
-    if origin in (PRODUCTION_ORIGIN, 'http://localhost:3000'):
+    # Exact match from CORS_ORIGINS (includes PRODUCTION_ORIGIN, localhost, any env overrides)
+    if origin in CORS_ORIGINS:
         return True
-    if origin.startswith('https://') and origin.endswith('.daydreamedu.org'):
+    # Wildcard regexes (Netlify previews, daydreamedu subdomains)
+    if _NETLIFY_ORIGIN_RE.match(origin):
+        return True
+    if _DAYDREAMEDU_ORIGIN_RE.match(origin):
         return True
     return False
 

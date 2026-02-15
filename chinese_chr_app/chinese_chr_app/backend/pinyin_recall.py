@@ -19,6 +19,35 @@ MAX_STAGE = len(STAGE_INTERVAL_DAYS) - 1
 
 I_DONT_KNOW_LABEL = "我不知道"
 
+# Character categories for display (MECE): 新字, 巩固, 重测
+CATEGORY_NEW = "新字"
+CATEGORY_CONFIRM = "巩固"
+CATEGORY_REVISE = "重测"
+
+
+def _category_for_character(state: Dict[str, Any]) -> str:
+    """
+    Return category label for a character based on learning state.
+    New: never tested. Confirm: tested, all correct. Revise: tested, at least one wrong/我不知道.
+    Falls back to stage/next_due for legacy state without count fields.
+    """
+    if not state:
+        return CATEGORY_NEW
+    total_correct = state.get("total_correct") or 0
+    total_wrong = state.get("total_wrong") or 0
+    total_i_dont_know = state.get("total_i_dont_know") or 0
+    total_answered = total_correct + total_wrong + total_i_dont_know
+    if total_answered > 0:
+        if total_wrong + total_i_dont_know > 0:
+            return CATEGORY_REVISE
+        return CATEGORY_CONFIRM
+    # Legacy state: has state dict but no counts. Infer from stage/next_due.
+    # state exists => was tested. stage>0 or next_due set => last was correct => 巩固
+    if state.get("stage", 0) > 0 or state.get("next_due_utc") is not None:
+        return CATEGORY_CONFIRM
+    return CATEGORY_REVISE  # state exists, reset => was wrong
+
+
 # Expand character pool as user progresses. Mastery = score >= 10 (matches profile "已学").
 # Every 200 mastered chars, add 500 more to zibiao_max. Prevents "bank run out" at 500 chars.
 ZIBIAO_EXPAND_MASTERED_STEP = 200
@@ -284,12 +313,15 @@ def build_session_queue(
         choices = [correct] + distractors[:3]
         rng.shuffle(choices)
         stem_words = get_stem_words(ch, character_lookup or {}, hwxnet_lookup or {}, 3)
+        char_state = user_state.get(ch, {})
+        category = _category_for_character(char_state)
         items_out.append({
             "character": ch,
             "stem_words": stem_words,
             "correct_pinyin": correct,
             "choices": choices,
             "prompt_type": "hanzi_to_pinyin",
+            "category": category,
         })
     return items_out
 
@@ -304,10 +336,25 @@ def update_learning_state(
     """
     Treat wrong or 我不知道 as incorrect: do not advance stage (or reset to 0).
     On correct: advance stage (cap at MAX_STAGE) and set next_due_utc.
+    Tracks total_correct, total_wrong, total_i_dont_know for category (新字/巩固/重测).
     """
     import time as _time
     user_state = learning_state.setdefault(user_id, {})
-    char_state = user_state.setdefault(character, {"stage": 0, "next_due_utc": None})
+    char_state = user_state.setdefault(
+        character,
+        {"stage": 0, "next_due_utc": None, "total_correct": 0, "total_wrong": 0, "total_i_dont_know": 0},
+    )
+    # Ensure counts exist for older in-memory state
+    char_state.setdefault("total_correct", 0)
+    char_state.setdefault("total_wrong", 0)
+    char_state.setdefault("total_i_dont_know", 0)
+
+    if correct:
+        char_state["total_correct"] = char_state.get("total_correct", 0) + 1
+    elif i_dont_know:
+        char_state["total_i_dont_know"] = char_state.get("total_i_dont_know", 0) + 1
+    else:
+        char_state["total_wrong"] = char_state.get("total_wrong", 0) + 1
 
     if i_dont_know or not correct:
         char_state["stage"] = 0

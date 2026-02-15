@@ -94,6 +94,30 @@
   margin: 0;
 }
 
+.pinyin-recall-category {
+  display: inline-block;
+  margin-left: 10px;
+  padding: 2px 8px;
+  font-size: 0.8rem;
+  border-radius: 6px;
+  font-weight: 600;
+}
+
+.pinyin-recall-category-new {
+  background: #e3f2fd;
+  color: #1976d2;
+}
+
+.pinyin-recall-category-confirm {
+  background: #e8f5e9;
+  color: #388e3c;
+}
+
+.pinyin-recall-category-revise {
+  background: #fff3e0;
+  color: #e65100;
+}
+
 .pinyin-recall-stem-label {
   font-size: 1rem;
   color: #555;

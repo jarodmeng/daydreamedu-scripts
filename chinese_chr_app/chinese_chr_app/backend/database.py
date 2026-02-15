@@ -371,7 +371,7 @@ PINYIN_RECALL_MAX_STAGE = len(PINYIN_RECALL_STAGE_INTERVAL_DAYS) - 1
 def get_pinyin_recall_learning_state(user_id: str) -> Dict[str, Dict[str, Any]]:
     """
     Load learning state for pinyin recall for one user.
-    Returns dict: character -> { stage, next_due_utc, score }.
+    Returns dict: character -> { stage, next_due_utc, score, total_correct, total_wrong, total_i_dont_know }.
     Used by build_session_queue. Table must exist (run create_pinyin_recall_character_bank_table.py once).
     """
     conn = _get_connection()
@@ -379,7 +379,7 @@ def get_pinyin_recall_learning_state(user_id: str) -> Dict[str, Dict[str, Any]]:
         with conn.cursor() as cur:
             cur.execute(
                 """
-                SELECT character, score, stage, next_due_utc
+                SELECT character, score, stage, next_due_utc, total_correct, total_wrong, total_i_dont_know
                 FROM pinyin_recall_character_bank
                 WHERE user_id = %s
                 """,
@@ -395,6 +395,9 @@ def get_pinyin_recall_learning_state(user_id: str) -> Dict[str, Dict[str, Any]]:
                 "stage": int(r.get("stage") or 0),
                 "next_due_utc": r.get("next_due_utc"),
                 "score": int(r.get("score") or 0),
+                "total_correct": int(r.get("total_correct") or 0),
+                "total_wrong": int(r.get("total_wrong") or 0),
+                "total_i_dont_know": int(r.get("total_i_dont_know") or 0),
             }
         return result
     finally:
