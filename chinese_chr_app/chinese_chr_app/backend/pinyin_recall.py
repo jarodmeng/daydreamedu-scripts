@@ -213,12 +213,16 @@ def build_session_queue(
     zibiao_min: int = 1,
     zibiao_max: int = 500,
     due_first: int = 8,
+    due_confirm_min: int = 4,
     new_count: int = 4,
     total_target: int = 12,
 ) -> List[Dict[str, Any]]:
     """
     Build ordered list of session items: due items first (up to due_first), then new (up to new_count),
     until total_target. Each item: { character, stem_words, correct_pinyin, choices, prompt_type }.
+
+    Due-item selection is stratified: reserve up to due_confirm_min slots for 巩固 (consolidation)
+    so they are not crowded out by 重测 (retest) when many weak items are due. See MVP1 design doc.
 
     Character pool expands as user masters more: every 200 mastered (score >= 10), add 500 to zibiao_max.
     Prevents "bank run out" when user has mastered the initial 500-character pool.
@@ -285,12 +289,36 @@ def build_session_queue(
         else:
             new_items.append((ch, entry))
 
-    # Due items: sort by score ascending (weakest first), then shuffle among same score
-    due_items.sort(key=lambda x: user_state.get(x[0], {}).get("score", 0))
+    # Split due items into 重测 (revise) and 巩固 (confirm). Reserve slots for 巩固 so they
+    # are not crowded out when many weak 重测 items are due (see design doc).
+    revise_items: List[Tuple[str, Dict[str, Any]]] = []
+    confirm_items: List[Tuple[str, Dict[str, Any]]] = []
+    for ch, entry in due_items:
+        state = user_state.get(ch, {})
+        if _category_for_character(state) == CATEGORY_CONFIRM:
+            confirm_items.append((ch, entry))
+        else:
+            revise_items.append((ch, entry))
+
+    # 重测: weakest first (score ascending). 巩固: most overdue first (next_due ascending).
+    revise_items.sort(key=lambda x: user_state.get(x[0], {}).get("score", 0))
+    confirm_items.sort(
+        key=lambda x: user_state.get(x[0], {}).get("next_due_utc") or 0
+    )
     rng.shuffle(new_items)
 
-    # Take due first, then new, up to total_target
-    queue: List[Tuple[str, Dict[str, Any]]] = due_items[:due_first]
+    # Stratified due selection: reserve up to due_confirm_min for 巩固, rest for 重测.
+    # If one pool is exhausted, fill from the other.
+    confirm_slots = min(due_confirm_min, len(confirm_items))
+    revise_slots = due_first - confirm_slots
+    queue: List[Tuple[str, Dict[str, Any]]] = []
+    queue.extend(revise_items[:revise_slots])
+    queue.extend(confirm_items[:confirm_slots])
+    # If we took fewer than due_first, fill remaining from the larger pool
+    if len(queue) < due_first:
+        remaining = due_first - len(queue)
+        combined = revise_items[revise_slots:] + confirm_items[confirm_slots:]
+        queue.extend(combined[:remaining])
     need = total_target - len(queue)
     for ch, entry in new_items:
         if need <= 0:

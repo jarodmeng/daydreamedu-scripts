@@ -204,6 +204,16 @@ Concrete numbers (e.g. +10 correct, −15 wrong) and caps are tuning; the import
 
 So: **queue = due items (sorted by score ascending) + new items (random sample), up to batch size.**
 
+### 巩固 (consolidation) slot reservation (2026-02-16)
+
+**Finding:** When many 重测 (retest) items are due, the original "due items sorted by score ascending" logic caused 巩固 (consolidation) items to be crowded out entirely. 重测 items have lower scores (user got them wrong before), so they occupied all due slots; 巩固 items (higher scores, all-correct history) never appeared in the queue. User metrics showed 0 巩固 on consecutive days despite 巩固 items being due.
+
+**Categories (MECE):** 新字 = never tested; 巩固 = tested before, all correct; 重测 = tested before, at least one wrong/我不知道.
+
+**Design choice:** Stratified due selection. Reserve up to `due_confirm_min` (default 4) slots for 巩固. Split the due pool into revise (重测) and confirm (巩固). Take up to `due_first - confirm_slots` from 重测 (weakest first) and up to `due_confirm_min` from 巩固 (most overdue first). If one pool is exhausted, fill remaining slots from the other. This ensures 巩固 gets maintenance reviews and is not crowded out when many weak 重测 items are due.
+
+**Rationale:** Both 重测 (error correction) and 巩固 (spaced maintenance) are important. Without slot reservation, 巩固 can "snooze" indefinitely and previously-learned characters may be forgotten.
+
 ### Logging and idempotency (implemented)
 
 - **Event log:** When `USE_DATABASE=true`, `item_presented` → `pinyin_recall_item_presented`, `item_answered` → `pinyin_recall_item_answered` (two-table design). `item_answered` includes **score_before** and **score_after**. When `USE_DATABASE=false`, events go to `pinyin_recall.log`.
@@ -215,7 +225,7 @@ So: **queue = due items (sorted by score ascending) + new items (random sample),
 |-------|--------|
 | **Character bank table** | `pinyin_recall_character_bank`: user_id, character, score, stage, next_due_utc, timestamps, counts |
 | **Score update** | On every answer: correct +10 (cap 100), wrong/我不知道 −15 (floor 0) |
-| **Queue build** | Due first (ordered by score ascending), then new |
+| **Queue build** | Due first (stratified: reserve slots for 巩固), then new. 重测 weakest first, 巩固 most overdue first. |
 | **Logging** | Two tables: `pinyin_recall_item_presented`, `pinyin_recall_item_answered`; item_answered includes score_before, score_after |
 
 ---
