@@ -135,9 +135,10 @@ When `USE_DATABASE=true`, session events are written to Supabase (two-table desi
 | i_dont_know | boolean | NOT NULL |
 | score_before | integer | |
 | score_after | integer | |
+| category | text | 新字/巩固/重测 (at answer time); backfill via `scripts/backfill_pinyin_recall_category.py` |
 | created_at | timestamptz | NOT NULL, default now() |
 
-**Create:** `python scripts/create_pinyin_recall_log_tables.py`. **Upload local log:** `python scripts/upload_pinyin_recall_log_to_db.py` (reads `logs/pinyin_recall.log`). **Migrate from legacy single table:** `python scripts/migrate_pinyin_recall_events_to_two_tables.py` (if you had data in `pinyin_recall_events`).
+**Create:** `python scripts/create_pinyin_recall_log_tables.py`. **Add category column (existing deployments):** `python scripts/add_pinyin_recall_category_column.py`. **Backfill category:** `python scripts/backfill_pinyin_recall_category.py` (run after adding the column). **Upload local log:** `python scripts/upload_pinyin_recall_log_to_db.py` (reads `logs/pinyin_recall.log`). **Migrate from legacy single table:** `python scripts/migrate_pinyin_recall_events_to_two_tables.py` (if you had data in `pinyin_recall_events`).
 
 ---
 
@@ -224,6 +225,8 @@ API response shapes are unchanged; no frontend changes required for DB migration
 | `scripts/create_character_views_table.py` | Create `character_views`. |
 | `scripts/create_pinyin_recall_character_bank_table.py` | Create `pinyin_recall_character_bank` (MVP1 pinyin recall state). |
 | `scripts/create_pinyin_recall_log_tables.py` | Create `pinyin_recall_item_presented` and `pinyin_recall_item_answered` (two-table event log). |
+| `scripts/add_pinyin_recall_category_column.py` | Add `category` column to `pinyin_recall_item_answered` (for existing deployments). |
+| `scripts/backfill_pinyin_recall_category.py` | Backfill `category` from chronological answer history per (user_id, character). Options: `--dry-run`. |
 | `scripts/upload_pinyin_recall_log_to_db.py` | One-off: upload `logs/pinyin_recall.log` into the two log tables. Options: `--dry-run`. |
 | `scripts/migrate_pinyin_recall_events_to_two_tables.py` | One-off: copy from legacy `pinyin_recall_events` into the two log tables. Options: `--dry-run`. |
 | `scripts/create_radical_stroke_counts_table.py` | Create `radical_stroke_counts`, insert from `data/radical_stroke_counts.json`. Options: `--dry-run`. |

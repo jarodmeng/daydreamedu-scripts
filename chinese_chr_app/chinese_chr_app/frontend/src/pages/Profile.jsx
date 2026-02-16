@@ -214,6 +214,9 @@ export default function Profile() {
                         <th>答题数</th>
                         <th>正确数</th>
                         <th>正确率</th>
+                        <th>新字</th>
+                        <th>巩固</th>
+                        <th>重测</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -221,12 +224,18 @@ export default function Profile() {
                         const acc = row.answered > 0
                           ? Math.round((row.correct / row.answered) * 100)
                           : 0
+                        const bc = row.by_category || {}
+                        const fmt = (a, c) =>
+                          a > 0 ? `${c}/${a} ${Math.round((c / a) * 100)}%` : '–'
                         return (
                           <tr key={row.date}>
                             <td>{row.date}</td>
                             <td>{row.answered}</td>
                             <td>{row.correct}</td>
                             <td>{acc}%</td>
+                            <td className="profile-stat-category">{fmt(bc['新字']?.answered ?? 0, bc['新字']?.correct ?? 0)}</td>
+                            <td className="profile-stat-category">{fmt(bc['巩固']?.answered ?? 0, bc['巩固']?.correct ?? 0)}</td>
+                            <td className="profile-stat-category">{fmt(bc['重测']?.answered ?? 0, bc['重测']?.correct ?? 0)}</td>
                           </tr>
                         )
                       })}

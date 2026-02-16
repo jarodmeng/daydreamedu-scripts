@@ -226,6 +226,7 @@
 .profile-daily-table th {
   font-weight: 600;
   color: #555;
+  white-space: nowrap;
 }
 
 .profile-daily-table td {
@@ -234,6 +235,12 @@
 
 .profile-daily-table tbody tr:hover {
   background: #f9f9f9;
+}
+
+.profile-stat-category {
+  font-size: 0.9em;
+  color: #555;
+  white-space: nowrap;
 }
 
 /* Compact layout for smaller viewports */

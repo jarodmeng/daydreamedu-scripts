@@ -307,7 +307,7 @@ def get_character_views_recent_for_user(user_id: str, limit: int = 50) -> List[s
 
 
 def get_pinyin_recall_daily_stats(user_id: str, days: int = 30) -> List[Dict[str, Any]]:
-    """Return daily stats: date, answered, correct. Ordered by date DESC (most recent first)."""
+    """Return daily stats: date, answered, correct, by_category. Ordered by date DESC (most recent first)."""
     conn = _get_connection()
     try:
         with conn.cursor() as cur:
@@ -316,7 +316,13 @@ def get_pinyin_recall_daily_stats(user_id: str, days: int = 30) -> List[Dict[str
                 SELECT
                     DATE(created_at AT TIME ZONE 'UTC') AS day,
                     COUNT(*) AS answered,
-                    SUM(CASE WHEN correct THEN 1 ELSE 0 END)::int AS correct
+                    SUM(CASE WHEN correct THEN 1 ELSE 0 END)::int AS correct,
+                    COUNT(*) FILTER (WHERE category = %s) AS new_answered,
+                    COALESCE(SUM(CASE WHEN correct AND category = %s THEN 1 ELSE 0 END), 0)::int AS new_correct,
+                    COUNT(*) FILTER (WHERE category = %s) AS confirm_answered,
+                    COALESCE(SUM(CASE WHEN correct AND category = %s THEN 1 ELSE 0 END), 0)::int AS confirm_correct,
+                    COUNT(*) FILTER (WHERE category = %s) AS revise_answered,
+                    COALESCE(SUM(CASE WHEN correct AND category = %s THEN 1 ELSE 0 END), 0)::int AS revise_correct
                 FROM pinyin_recall_item_answered
                 WHERE user_id = %s
                   AND created_at >= (NOW() AT TIME ZONE 'UTC') - (%s || ' days')::interval
@@ -324,7 +330,12 @@ def get_pinyin_recall_daily_stats(user_id: str, days: int = 30) -> List[Dict[str
                 ORDER BY day DESC
                 LIMIT %s
                 """,
-                (user_id.strip(), str(days), days),
+                (
+                    PINYIN_RECALL_CATEGORY_NEW, PINYIN_RECALL_CATEGORY_NEW,
+                    PINYIN_RECALL_CATEGORY_CONFIRM, PINYIN_RECALL_CATEGORY_CONFIRM,
+                    PINYIN_RECALL_CATEGORY_REVISE, PINYIN_RECALL_CATEGORY_REVISE,
+                    user_id.strip(), str(days), days,
+                ),
             )
             rows = cur.fetchall()
         return [
@@ -332,6 +343,20 @@ def get_pinyin_recall_daily_stats(user_id: str, days: int = 30) -> List[Dict[str
                 "date": str(r.get("day") or ""),
                 "answered": int(r.get("answered") or 0),
                 "correct": int(r.get("correct") or 0),
+                "by_category": {
+                    PINYIN_RECALL_CATEGORY_NEW: {
+                        "answered": int(r.get("new_answered") or 0),
+                        "correct": int(r.get("new_correct") or 0),
+                    },
+                    PINYIN_RECALL_CATEGORY_CONFIRM: {
+                        "answered": int(r.get("confirm_answered") or 0),
+                        "correct": int(r.get("confirm_correct") or 0),
+                    },
+                    PINYIN_RECALL_CATEGORY_REVISE: {
+                        "answered": int(r.get("revise_answered") or 0),
+                        "correct": int(r.get("revise_correct") or 0),
+                    },
+                },
             }
             for r in rows
         ]
@@ -361,6 +386,28 @@ def get_proficient_character_count(user_id: str, min_score: int = PROFILE_PROFIC
 # --- Pinyin recall character bank (MVP1) ---
 # Score 0-100; higher = better understanding. Stage ladder same as pinyin_recall.py.
 PINYIN_RECALL_SCORE_CORRECT_DELTA = 10
+
+# Category labels for pinyin recall (新字, 巩固, 重测) - MECE.
+PINYIN_RECALL_CATEGORY_NEW = "新字"
+PINYIN_RECALL_CATEGORY_CONFIRM = "巩固"
+PINYIN_RECALL_CATEGORY_REVISE = "重测"
+
+
+def _category_from_bank_state(
+    total_correct: int,
+    total_wrong: int,
+    total_i_dont_know: int,
+) -> str:
+    """
+    Return category based on learning state before current answer.
+    New: never tested. Confirm: tested, all correct. Revise: tested, at least one wrong.
+    """
+    total_answered = total_correct + total_wrong + total_i_dont_know
+    if total_answered == 0:
+        return PINYIN_RECALL_CATEGORY_NEW
+    if total_wrong + total_i_dont_know > 0:
+        return PINYIN_RECALL_CATEGORY_REVISE
+    return PINYIN_RECALL_CATEGORY_CONFIRM
 PINYIN_RECALL_SCORE_WRONG_DELTA = 15
 PINYIN_RECALL_SCORE_MIN = 0
 PINYIN_RECALL_SCORE_MAX = 100
@@ -575,6 +622,8 @@ def upsert_pinyin_recall_answer_and_log(
             total_wrong = 0
             total_i_dont_know = 0
 
+        category = _category_from_bank_state(total_correct, total_wrong, total_i_dont_know)
+
         if correct:
             total_correct += 1
         elif i_dont_know:
@@ -619,8 +668,8 @@ def upsert_pinyin_recall_answer_and_log(
             cur.execute(
                 """
                 INSERT INTO pinyin_recall_item_answered (
-                    user_id, session_id, character, selected_choice, correct, latency_ms, i_dont_know, score_before, score_after
-                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    user_id, session_id, character, selected_choice, correct, latency_ms, i_dont_know, score_before, score_after, category
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 """,
                 (
                     (log_payload.get("user_id") or "").strip(),
@@ -632,12 +681,14 @@ def upsert_pinyin_recall_answer_and_log(
                     bool(log_payload.get("i_dont_know") is True),
                     score_before,
                     score_after,
+                    category,
                 ),
                 prepare=False,
             )
         conn.commit()
         log_payload["score_before"] = score_before
         log_payload["score_after"] = score_after
+        log_payload["category"] = category
         return (score_before, score_after)
     except Exception as e:
         conn.rollback()
@@ -649,7 +700,7 @@ def upsert_pinyin_recall_answer_and_log(
 def insert_pinyin_recall_item_answered(payload: Dict[str, Any]) -> None:
     """
     Insert one item_answered event into pinyin_recall_item_answered.
-    payload: user_id, session_id, character, selected_choice, correct, latency_ms, i_dont_know, score_before?, score_after?.
+    payload: user_id, session_id, character, selected_choice, correct, latency_ms, i_dont_know, score_before?, score_after?, category?.
     Table must exist (run scripts/create_pinyin_recall_log_tables.py once).
     """
     conn = _get_connection()
@@ -658,8 +709,8 @@ def insert_pinyin_recall_item_answered(payload: Dict[str, Any]) -> None:
             cur.execute(
                 """
                 INSERT INTO pinyin_recall_item_answered (
-                    user_id, session_id, character, selected_choice, correct, latency_ms, i_dont_know, score_before, score_after
-                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    user_id, session_id, character, selected_choice, correct, latency_ms, i_dont_know, score_before, score_after, category
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 """,
                 (
                     (payload.get("user_id") or "").strip(),
@@ -671,6 +722,7 @@ def insert_pinyin_recall_item_answered(payload: Dict[str, Any]) -> None:
                     bool(payload.get("i_dont_know") is True),
                     payload.get("score_before"),
                     payload.get("score_after"),
+                    payload.get("category"),
                 ),
                 prepare=False,
             )
@@ -719,8 +771,8 @@ def bulk_insert_pinyin_recall_item_answered(payloads: List[Dict[str, Any]]) -> i
         return 0
     conn = _get_connection()
     sql = """
-        INSERT INTO pinyin_recall_item_answered (user_id, session_id, character, selected_choice, correct, latency_ms, i_dont_know, score_before, score_after)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+        INSERT INTO pinyin_recall_item_answered (user_id, session_id, character, selected_choice, correct, latency_ms, i_dont_know, score_before, score_after, category)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
     """
     try:
         with conn.cursor() as cur:
@@ -735,6 +787,7 @@ def bulk_insert_pinyin_recall_item_answered(payloads: List[Dict[str, Any]]) -> i
                     bool(p.get("i_dont_know") is True),
                     p.get("score_before"),
                     p.get("score_after"),
+                    p.get("category"),
                 ), prepare=False)
         conn.commit()
         return len(payloads)

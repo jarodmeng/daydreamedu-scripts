@@ -1150,10 +1150,15 @@ def _get_pinyin_recall_dev_user():
     return type("DevUser", (), {"user_id": dev_user_id, "user_metadata": None})()
 
 
+def _get_profile_user_or_dev():
+    """Return authenticated user, or PINYIN_RECALL_DEV_USER for local testing."""
+    return _get_profile_user() or _get_pinyin_recall_dev_user()
+
+
 @app.route('/api/profile', methods=['GET'])
 def get_profile():
-    """Get current user's profile (display_name). Requires Bearer token."""
-    user = _get_profile_user()
+    """Get current user's profile (display_name). Requires Bearer token (or PINYIN_RECALL_DEV_USER for local)."""
+    user = _get_profile_user_or_dev()
     if user is None:
         return jsonify({"error": "Unauthorized"}), 401
     display_name = _profile_display_names.get(user.user_id) or _profile_display_name_from_metadata(user.user_metadata)
@@ -1162,8 +1167,8 @@ def get_profile():
 
 @app.route('/api/profile', methods=['PUT'])
 def put_profile():
-    """Update current user's display_name. Requires Bearer token."""
-    user = _get_profile_user()
+    """Update current user's display_name. Requires Bearer token (or PINYIN_RECALL_DEV_USER for local)."""
+    user = _get_profile_user_or_dev()
     if user is None:
         return jsonify({"error": "Unauthorized"}), 401
     data = request.get_json() or {}
@@ -1178,8 +1183,8 @@ def put_profile():
 
 @app.route('/api/profile/progress', methods=['GET'])
 def get_profile_progress():
-    """Get current user's progress (Issue #2): viewed characters, daily stats, proficiency. Requires Bearer token and USE_DATABASE."""
-    user = _get_profile_user()
+    """Get current user's progress (Issue #2): viewed characters, daily stats, proficiency. Requires Bearer token (or PINYIN_RECALL_DEV_USER for local) and USE_DATABASE."""
+    user = _get_profile_user_or_dev()
     if user is None:
         return jsonify({"error": "Unauthorized"}), 401
     if not USE_DATABASE:

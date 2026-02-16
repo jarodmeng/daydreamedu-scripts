@@ -52,6 +52,7 @@ CREATE TABLE IF NOT EXISTS pinyin_recall_item_answered (
     i_dont_know boolean NOT NULL,
     score_before integer,
     score_after integer,
+    category text,
     created_at timestamptz NOT NULL DEFAULT now()
 );
 
