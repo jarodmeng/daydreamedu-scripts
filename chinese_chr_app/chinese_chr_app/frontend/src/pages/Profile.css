@@ -208,20 +208,34 @@
 
 .profile-daily-table-wrap {
   overflow-x: auto;
+  max-width: 100%;
 }
 
 .profile-daily-table {
   width: 100%;
+  min-width: 0;
   border-collapse: collapse;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
+  table-layout: fixed;
 }
 
 .profile-daily-table th,
 .profile-daily-table td {
-  padding: 10px 12px;
+  padding: 8px 6px;
   text-align: left;
   border-bottom: 1px solid #eee;
 }
+
+.profile-daily-table th:nth-child(1) { width: 13%; }   /* 日期 */
+.profile-daily-table th:nth-child(2) { width: 10%; }   /* 答题数 */
+.profile-daily-table th:nth-child(3) { width: 10%; }   /* 正确数 */
+.profile-daily-table th:nth-child(4) { width: 10%; }   /* 正确率 */
+.profile-daily-table th:nth-child(5),
+.profile-daily-table th:nth-child(6),
+.profile-daily-table th:nth-child(7) { width: 15%; text-align: center; }
+.profile-daily-table td:nth-child(5),
+.profile-daily-table td:nth-child(6),
+.profile-daily-table td:nth-child(7) { text-align: center; }
 
 .profile-daily-table th {
   font-weight: 600;
@@ -238,9 +252,20 @@
 }
 
 .profile-stat-category {
-  font-size: 0.9em;
+  font-size: 0.85em;
   color: #555;
-  white-space: nowrap;
+}
+
+.profile-stat-category-ratio {
+  display: block;
+  font-size: 0.9em;
+  color: #888;
+}
+
+.profile-stat-category-pct {
+  display: block;
+  font-weight: 600;
+  color: #333;
 }
 
 /* Compact layout for smaller viewports */

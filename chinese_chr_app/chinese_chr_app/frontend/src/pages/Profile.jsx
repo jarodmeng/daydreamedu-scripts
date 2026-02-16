@@ -225,17 +225,30 @@ export default function Profile() {
                           ? Math.round((row.correct / row.answered) * 100)
                           : 0
                         const bc = row.by_category || {}
-                        const fmt = (a, c) =>
-                          a > 0 ? `${c}/${a} ${Math.round((c / a) * 100)}%` : '–'
+                        const fmt = (a, c) => {
+                          if (a <= 0) return null
+                          const pct = Math.round((c / a) * 100)
+                          return { ratio: `${c}/${a}`, pct }
+                        }
+                        const CatCell = ({ a, c }) => {
+                          const v = fmt(a, c)
+                          if (!v) return <td className="profile-stat-category">–</td>
+                          return (
+                            <td className="profile-stat-category" title={`${v.ratio} = ${v.pct}%`}>
+                              <span className="profile-stat-category-ratio">{v.ratio}</span>
+                              <span className="profile-stat-category-pct">{v.pct}%</span>
+                            </td>
+                          )
+                        }
                         return (
                           <tr key={row.date}>
                             <td>{row.date}</td>
                             <td>{row.answered}</td>
                             <td>{row.correct}</td>
                             <td>{acc}%</td>
-                            <td className="profile-stat-category">{fmt(bc['新字']?.answered ?? 0, bc['新字']?.correct ?? 0)}</td>
-                            <td className="profile-stat-category">{fmt(bc['巩固']?.answered ?? 0, bc['巩固']?.correct ?? 0)}</td>
-                            <td className="profile-stat-category">{fmt(bc['重测']?.answered ?? 0, bc['重测']?.correct ?? 0)}</td>
+                            <CatCell a={bc['新字']?.answered ?? 0} c={bc['新字']?.correct ?? 0} />
+                            <CatCell a={bc['巩固']?.answered ?? 0} c={bc['巩固']?.correct ?? 0} />
+                            <CatCell a={bc['重测']?.answered ?? 0} c={bc['重测']?.correct ?? 0} />
                           </tr>
                         )
                       })}
