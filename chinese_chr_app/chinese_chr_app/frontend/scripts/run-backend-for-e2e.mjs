@@ -55,6 +55,7 @@ const child = spawn(pythonExe, [appPath], {
     ...process.env,
     PORT: process.env.PORT || '5001',
     FLASK_DEBUG: process.env.FLASK_DEBUG || '0',
+    PINYIN_RECALL_DEV_USER: 'e2e-dev',
   },
 });
 

@@ -5,6 +5,13 @@ const API_URL = import.meta.env.VITE_API_URL || ''
 
 const AuthContext = createContext(null)
 
+/** E2E-only: fake session for testing auth-gated features. Set via VITE_E2E_AUTH_BYPASS=1 or ?e2e_auth=1 in URL. */
+const E2E_DEV_TOKEN = 'e2e-dev-token'
+const E2E_FAKE_SESSION = {
+  access_token: E2E_DEV_TOKEN,
+  user: { id: 'e2e-dev', user_metadata: null },
+}
+
 export function AuthProvider({ children }) {
   const [authLoading, setAuthLoading] = useState(true)
   const [session, setSession] = useState(null)
@@ -21,6 +28,16 @@ export function AuthProvider({ children }) {
     let isMounted = true
 
     async function init() {
+      const e2eBypass =
+        import.meta.env.VITE_E2E_AUTH_BYPASS === '1' ||
+        (typeof window !== 'undefined' && window.location.search.includes('e2e_auth=1'))
+      if (e2eBypass && !window.location.search.includes('e2e_guest=1')) {
+        if (isMounted) {
+          setSession(E2E_FAKE_SESSION)
+          setAuthLoading(false)
+        }
+        return
+      }
       if (!supabase) {
         if (isMounted) setAuthLoading(false)
         return

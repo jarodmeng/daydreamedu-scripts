@@ -10,6 +10,7 @@ export default defineConfig({
   timeout: 60_000,
   expect: { timeout: 15_000 },
   retries: isCI ? 2 : 0,
+  workers: isCI ? 4 : 2,
   reporter: isCI ? [['github'], ['html', { open: 'never' }]] : [['list'], ['html']],
   use: {
     baseURL: 'http://127.0.0.1:3000',
@@ -47,6 +48,7 @@ export default defineConfig({
       env: {
         ...process.env,
         NODE_ENV: 'development',
+        VITE_E2E_AUTH_BYPASS: '1',
       },
       stdout: 'ignore',
       stderr: 'pipe',
