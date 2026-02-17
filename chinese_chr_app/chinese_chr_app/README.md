@@ -24,7 +24,7 @@ chinese_chr_app/
 │   │   └── logs/        # Character edit logs
 │   └── frontend/        # React frontend
 │       ├── src/
-│       │   ├── pages/   # Page components (Search, PinyinResults, Radicals, RadicalDetail, StrokeCounts, StrokeCountDetail)
+│       │   ├── pages/   # Page components (Search, PinyinResults, Radicals, RadicalDetail, StrokeCounts, StrokeCountDetail, Profile, PinyinRecall)
 │       │   ├── App.jsx  # Main router + AuthProvider
 │       │   ├── NavBar.jsx
 │       │   ├── AuthContext.jsx  # Supabase Auth (Google login)
@@ -130,10 +130,14 @@ In production, the frontend is built with Vite and deployed to Netlify. Set `VIT
 
 ### E2E tests (Playwright)
 
-Playwright end-to-end tests live under `frontend/e2e/` and cover core flows:
-- Search a character that exists in `characters.json` (4-panel view)
-- Search a dictionary-only character (2-panel view)
-- Navigate `/radicals` → a radical detail page → click a character back to search
+Playwright end-to-end tests live under `frontend/e2e/` and cover:
+- **Search**: Character in `characters.json` (4-panel view), dictionary-only character (2-panel view), pinyin search redirect and results, placeholder
+- **Radicals**: List, sort by stroke/character count, radical detail, click character to search
+- **Stroke counts**: List, detail, click character to search
+- **Routing**: Unknown paths redirect to home, direct URLs to radical/stroke-count detail
+- **Navigation**: Logo, search link, 分类 and 游戏 dropdowns
+- **Profile** (unauthenticated): Login prompt and return link
+- **Pinyin Recall** (unauthenticated): Login prompt when not signed in
 
 From `chinese_chr_app/chinese_chr_app/frontend`:
 

@@ -386,6 +386,7 @@ Same testing approach as MVP 2, with extra coverage:
 
 - Distractor builder returns **tone and syllable**-based distractors
 - Polyphonic filter excludes ambiguous items (if Option A)
+- **E2E (Playwright):** Unauthenticated pinyin recall flow (login prompt when not signed in) is covered in `frontend/e2e/pinyin-recall.spec.js`
 
 ---
 
