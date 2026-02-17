@@ -1,0 +1,418 @@
+{
+  "丁": {
+    "hanzi": "丁",
+    "english_gloss": "male; adult; population; worker; fourth heavenly stem",
+    "primary_sense": "male",
+    "primary_pinyin": "dīng",
+    "alternative_senses": [
+      "adult",
+      "population",
+      "worker",
+      "fourth heavenly stem"
+    ],
+    "confidence_score": 0.9,
+    "qc_flags": {
+      "multi_sense": true,
+      "needs_human_review": true,
+      "review_reason": "Primary sense needs clarification due to multiple meanings."
+    }
+  },
+  "入": {
+    "hanzi": "入",
+    "english_gloss": "enter; suitable",
+    "primary_sense": "enter",
+    "primary_pinyin": "rù",
+    "alternative_senses": [
+      "suitable"
+    ],
+    "confidence_score": 1.0,
+    "qc_flags": {
+      "multi_sense": true,
+      "needs_human_review": false,
+      "review_reason": null
+    }
+  },
+  "乃": {
+    "hanzi": "乃",
+    "english_gloss": "thence; indeed; then; you; yours",
+    "primary_sense": "indeed",
+    "primary_pinyin": "nǎi",
+    "alternative_senses": [
+      "thence",
+      "then",
+      "you",
+      "yours"
+    ],
+    "confidence_score": 0.9,
+    "qc_flags": {
+      "multi_sense": true,
+      "needs_human_review": true,
+      "review_reason": "Multiple interpretations require verification for clarity and accuracy."
+    }
+  },
+  "也": {
+    "hanzi": "也",
+    "english_gloss": "also; likewise; even; either",
+    "primary_sense": "also",
+    "primary_pinyin": "yě",
+    "alternative_senses": [
+      "likewise",
+      "even",
+      "either"
+    ],
+    "confidence_score": 0.9,
+    "qc_flags": {
+      "multi_sense": true,
+      "needs_human_review": false,
+      "review_reason": null
+    }
+  },
+  "王": {
+    "hanzi": "王",
+    "english_gloss": "king; ruler; royal; surname",
+    "primary_sense": "king",
+    "primary_pinyin": "wáng",
+    "alternative_senses": [
+      "ruler",
+      "royal",
+      "surname"
+    ],
+    "confidence_score": 1.0,
+    "qc_flags": {
+      "multi_sense": true,
+      "needs_human_review": false,
+      "review_reason": null
+    }
+  },
+  "扎": {
+    "hanzi": "扎",
+    "english_gloss": "tie; pierce; camp",
+    "primary_sense": "tie",
+    "primary_pinyin": "zā",
+    "alternative_senses": [
+      "pierce",
+      "camp"
+    ],
+    "confidence_score": 0.9,
+    "qc_flags": {
+      "multi_sense": true,
+      "needs_human_review": true,
+      "review_reason": "Multiple readings and senses present, requires confirmation of primary usage."
+    }
+  },
+  "匀": {
+    "hanzi": "匀",
+    "english_gloss": "even; average; distribute",
+    "primary_sense": "even",
+    "primary_pinyin": "yún",
+    "alternative_senses": [
+      "average",
+      "distribute"
+    ],
+    "confidence_score": 0.9,
+    "qc_flags": {
+      "multi_sense": true,
+      "needs_human_review": false,
+      "review_reason": null
+    }
+  },
+  "六": {
+    "hanzi": "六",
+    "english_gloss": "number; six",
+    "primary_sense": "number",
+    "primary_pinyin": "liù",
+    "alternative_senses": [
+      "place name (Liu'an); place name (Liuhe)"
+    ],
+    "confidence_score": 1.0,
+    "qc_flags": {
+      "multi_sense": true,
+      "needs_human_review": false,
+      "review_reason": null
+    }
+  },
+  "平": {
+    "hanzi": "平",
+    "english_gloss": "flat; even; level; peaceful; fair; ordinary",
+    "primary_sense": "flat",
+    "primary_pinyin": "píng",
+    "alternative_senses": [
+      "even",
+      "level",
+      "peaceful",
+      "fair",
+      "ordinary"
+    ],
+    "confidence_score": 1.0,
+    "qc_flags": {
+      "multi_sense": true,
+      "needs_human_review": false,
+      "review_reason": null
+    }
+  },
+  "必": {
+    "hanzi": "必",
+    "english_gloss": "certain; must; necessarily",
+    "primary_sense": "certain",
+    "primary_pinyin": "bì",
+    "alternative_senses": [
+      "must",
+      "necessarily"
+    ],
+    "confidence_score": 0.9,
+    "qc_flags": {
+      "multi_sense": true,
+      "needs_human_review": false,
+      "review_reason": null
+    }
+  },
+  "丝": {
+    "hanzi": "丝",
+    "english_gloss": "silk; thread; wire; fine; string",
+    "primary_sense": "silk",
+    "primary_pinyin": "sī",
+    "alternative_senses": [
+      "thread",
+      "wire",
+      "fine",
+      "string"
+    ],
+    "confidence_score": 0.9,
+    "qc_flags": {
+      "multi_sense": true,
+      "needs_human_review": false,
+      "review_reason": null
+    }
+  },
+  "扣": {
+    "hanzi": "扣",
+    "english_gloss": "to fasten; to扣住; to button; to cover; to deduct; to knock",
+    "primary_sense": "to fasten",
+    "primary_pinyin": "kòu",
+    "alternative_senses": [
+      "to扣住",
+      "to button",
+      "to cover",
+      "to deduct",
+      "to knock"
+    ],
+    "confidence_score": 0.9,
+    "qc_flags": {
+      "multi_sense": true,
+      "needs_human_review": true,
+      "review_reason": "The current gloss includes multiple translations that could be streamlined."
+    }
+  },
+  "巩": {
+    "hanzi": "巩",
+    "english_gloss": "firm; strong; bind; secure",
+    "primary_sense": "firm",
+    "primary_pinyin": "gǒng",
+    "alternative_senses": [
+      "strong",
+      "bind",
+      "secure"
+    ],
+    "confidence_score": 1.0,
+    "qc_flags": {
+      "multi_sense": true,
+      "needs_human_review": false,
+      "review_reason": null
+    }
+  },
+  "吗": {
+    "hanzi": "吗",
+    "english_gloss": "question particle; final particle",
+    "primary_sense": "question particle",
+    "primary_pinyin": "ma",
+    "alternative_senses": [
+      "final particle"
+    ],
+    "confidence_score": 0.9,
+    "qc_flags": {
+      "multi_sense": true,
+      "needs_human_review": false,
+      "review_reason": null
+    }
+  },
+  "充": {
+    "hanzi": "充",
+    "english_gloss": "fill; full; sufficient; serve as; pretend",
+    "primary_sense": "fill",
+    "primary_pinyin": "chōng",
+    "alternative_senses": [
+      "full",
+      "sufficient",
+      "serve as",
+      "pretend"
+    ],
+    "confidence_score": 0.9,
+    "qc_flags": {
+      "multi_sense": true,
+      "needs_human_review": true,
+      "review_reason": "Ensure primary sense aligns with common usage and educational context."
+    }
+  },
+  "折": {
+    "hanzi": "折",
+    "english_gloss": "break; bend; turn back; reduce; suffer loss",
+    "primary_sense": "break",
+    "primary_pinyin": "zhé",
+    "alternative_senses": [
+      "bend",
+      "turn back",
+      "reduce",
+      "suffer loss"
+    ],
+    "confidence_score": 1.0,
+    "qc_flags": {
+      "multi_sense": true,
+      "needs_human_review": false,
+      "review_reason": null
+    }
+  },
+  "呀": {
+    "hanzi": "呀",
+    "english_gloss": "surprise; particle; sound",
+    "primary_sense": "surprise",
+    "primary_pinyin": "yā",
+    "alternative_senses": [
+      "particle",
+      "sound"
+    ],
+    "confidence_score": 0.9,
+    "qc_flags": {
+      "multi_sense": true,
+      "needs_human_review": false,
+      "review_reason": null
+    }
+  },
+  "吨": {
+    "hanzi": "吨",
+    "english_gloss": "ton; weight unit; cargo volume unit",
+    "primary_sense": "weight unit",
+    "primary_pinyin": "dūn",
+    "alternative_senses": [
+      "cargo volume unit"
+    ],
+    "confidence_score": 1.0,
+    "qc_flags": {
+      "multi_sense": true,
+      "needs_human_review": false,
+      "review_reason": null
+    }
+  },
+  "呐": {
+    "hanzi": "呐",
+    "english_gloss": "shout; loud call; cry",
+    "primary_sense": "shout",
+    "primary_pinyin": "nà",
+    "alternative_senses": [
+      "stammer; speak slowly"
+    ],
+    "confidence_score": 0.9,
+    "qc_flags": {
+      "multi_sense": true,
+      "needs_human_review": true,
+      "review_reason": "The current gloss includes many synonyms; needs focus on primary senses."
+    }
+  },
+  "何": {
+    "hanzi": "何",
+    "english_gloss": "what; why; where; how; which",
+    "primary_sense": "what",
+    "primary_pinyin": "hé",
+    "alternative_senses": [
+      "why",
+      "where",
+      "how",
+      "which"
+    ],
+    "confidence_score": 1.0,
+    "qc_flags": {
+      "multi_sense": true,
+      "needs_human_review": false,
+      "review_reason": null
+    }
+  },
+  "近": {
+    "hanzi": "近",
+    "english_gloss": "near; close; intimate; recent",
+    "primary_sense": "near",
+    "primary_pinyin": "jìn",
+    "alternative_senses": [
+      "recent",
+      "intimate",
+      "close"
+    ],
+    "confidence_score": 1.0,
+    "qc_flags": {
+      "multi_sense": true,
+      "needs_human_review": false,
+      "review_reason": null
+    }
+  },
+  "谷": {
+    "hanzi": "谷",
+    "english_gloss": "valley; grain; crops",
+    "primary_sense": "valley",
+    "primary_pinyin": "gǔ",
+    "alternative_senses": [
+      "grain; crops"
+    ],
+    "confidence_score": 0.9,
+    "qc_flags": {
+      "multi_sense": true,
+      "needs_human_review": false,
+      "review_reason": null
+    }
+  },
+  "阿": {
+    "hanzi": "阿",
+    "english_gloss": "prefix; used in names",
+    "primary_sense": "prefix; used in names",
+    "primary_pinyin": "ā",
+    "alternative_senses": [],
+    "confidence_score": 0.9,
+    "qc_flags": {
+      "multi_sense": false,
+      "needs_human_review": false,
+      "review_reason": null
+    }
+  },
+  "附": {
+    "hanzi": "附",
+    "english_gloss": "attach; agree; rely; nearby",
+    "primary_sense": "attach",
+    "primary_pinyin": "fù",
+    "alternative_senses": [
+      "agree",
+      "rely",
+      "nearby"
+    ],
+    "confidence_score": 0.9,
+    "qc_flags": {
+      "multi_sense": true,
+      "needs_human_review": false,
+      "review_reason": null
+    }
+  },
+  "拔": {
+    "hanzi": "拔",
+    "english_gloss": "pull; uproot; extract; select; elevate",
+    "primary_sense": "pull",
+    "primary_pinyin": "bá",
+    "alternative_senses": [
+      "uproot",
+      "extract",
+      "select",
+      "elevate"
+    ],
+    "confidence_score": 0.9,
+    "qc_flags": {
+      "multi_sense": true,
+      "needs_human_review": false,
+      "review_reason": null
+    }
+  }
+}
