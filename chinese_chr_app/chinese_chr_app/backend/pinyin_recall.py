@@ -28,11 +28,16 @@ CATEGORY_REVISE = "重测"
 def _category_for_character(state: Dict[str, Any]) -> str:
     """
     Return category label for a character based on learning state.
-    New: never tested. Confirm: tested, all correct. Revise: tested, at least one wrong/我不知道.
+    New: never tested. Confirm (巩固): tested, all correct, and 已学字 (score >= 10).
+    Revise (重测): tested but has wrong/我不知道, or score < 10 (not yet 已学字).
     Falls back to stage/next_due for legacy state without count fields.
     """
     if not state:
         return CATEGORY_NEW
+    try:
+        score = int(state.get("score") or 0)
+    except (TypeError, ValueError):
+        score = 0
     total_correct = state.get("total_correct") or 0
     total_wrong = state.get("total_wrong") or 0
     total_i_dont_know = state.get("total_i_dont_know") or 0
@@ -40,12 +45,14 @@ def _category_for_character(state: Dict[str, Any]) -> str:
     if total_answered > 0:
         if total_wrong + total_i_dont_know > 0:
             return CATEGORY_REVISE
+        # 巩固 only for 已学字 (score >= 10); before that, testing is 重测
+        if score >= PROFICIENCY_MIN_SCORE:
+            return CATEGORY_CONFIRM
+        return CATEGORY_REVISE
+    # Legacy state: has state dict but no counts. Infer from stage/next_due and score.
+    if (state.get("stage", 0) > 0 or state.get("next_due_utc") is not None) and score >= PROFICIENCY_MIN_SCORE:
         return CATEGORY_CONFIRM
-    # Legacy state: has state dict but no counts. Infer from stage/next_due.
-    # state exists => was tested. stage>0 or next_due set => last was correct => 巩固
-    if state.get("stage", 0) > 0 or state.get("next_due_utc") is not None:
-        return CATEGORY_CONFIRM
-    return CATEGORY_REVISE  # state exists, reset => was wrong
+    return CATEGORY_REVISE  # state exists, reset or not yet 已学字 => 重测
 
 
 # Expand character pool as user progresses. Mastery = score >= 10 (matches profile "已学").

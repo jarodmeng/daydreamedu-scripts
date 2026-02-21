@@ -204,11 +204,23 @@ Concrete numbers (e.g. +10 correct, −10 wrong) and caps are tuning; the import
 
 So: **queue = due items (sorted by score ascending) + new items (random sample), up to batch size.**
 
+### Character and answer categories (2026-02-21)
+
+Every character falls into one of three **broad categories** by learning status. When we log or show a question, we assign an **answer-time category** that matches that status:
+
+| Broad category (character status) | Definition | Answer-time category |
+|-----------------------------------|------------|----------------------|
+| **未学字** | Not tested yet (no row in character bank for this user) | **新字** — first time this character is tested |
+| **在学字** | Still learning: tested at least once, score &lt; 10 | **重测** — retest / practice |
+| **已学字** | Already learned: tested, score ≥ 10 | **巩固** — consolidation / maintenance review |
+
+The threshold **10** is `PROFICIENCY_MIN_SCORE` / `PINYIN_RECALL_PROFICIENCY_MIN_SCORE`. 巩固 is drawn only from 已学字; before a character reaches score ≥ 10, testing it counts as 重测. This keeps 巩固 as “maintenance of learned characters” and 重测 as “still learning or error correction.”
+
 ### 巩固 (consolidation) slot reservation (2026-02-16)
 
 **Finding:** When many 重测 (retest) items are due, the original "due items sorted by score ascending" logic caused 巩固 (consolidation) items to be crowded out entirely. 重测 items have lower scores (user got them wrong before), so they occupied all due slots; 巩固 items (higher scores, all-correct history) never appeared in the queue. User metrics showed 0 巩固 on consecutive days despite 巩固 items being due.
 
-**Categories (MECE):** 新字 = never tested; 巩固 = tested before, all correct; 重测 = tested before, at least one wrong/我不知道.
+**Categories (MECE):** See [Character and answer categories](#character-and-answer-categories-2026-02-21) above. In short: 新字 = 未学字; 重测 = 在学字 (score &lt; 10); 巩固 = 已学字 (score ≥ 10, and all correct so far).
 
 **Design choice:** Stratified due selection. Reserve up to `due_confirm_min` (default 4) slots for 巩固. Split the due pool into revise (重测) and confirm (巩固). Take up to `due_first - confirm_slots` from 重测 (weakest first) and up to `due_confirm_min` from 巩固 (most overdue first). If one pool is exhausted, fill remaining slots from the other. This ensures 巩固 gets maintenance reviews and is not crowded out when many weak 重测 items are due.
 

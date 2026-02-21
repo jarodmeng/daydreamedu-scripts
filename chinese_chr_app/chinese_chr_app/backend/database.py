@@ -393,21 +393,29 @@ PINYIN_RECALL_CATEGORY_CONFIRM = "巩固"
 PINYIN_RECALL_CATEGORY_REVISE = "重测"
 
 
+# 巩固 only for 已学字 (score >= 10); before that, testing is 重测
+PINYIN_RECALL_PROFICIENCY_MIN_SCORE = 10
+
+
 def _category_from_bank_state(
     total_correct: int,
     total_wrong: int,
     total_i_dont_know: int,
+    score_before: int = 0,
 ) -> str:
     """
     Return category based on learning state before current answer.
-    New: never tested. Confirm: tested, all correct. Revise: tested, at least one wrong.
+    New: never tested. Confirm (巩固): tested, all correct, and 已学字 (score_before >= 10).
+    Revise (重测): tested with at least one wrong, or score_before < 10.
     """
     total_answered = total_correct + total_wrong + total_i_dont_know
     if total_answered == 0:
         return PINYIN_RECALL_CATEGORY_NEW
     if total_wrong + total_i_dont_know > 0:
         return PINYIN_RECALL_CATEGORY_REVISE
-    return PINYIN_RECALL_CATEGORY_CONFIRM
+    if score_before >= PINYIN_RECALL_PROFICIENCY_MIN_SCORE:
+        return PINYIN_RECALL_CATEGORY_CONFIRM
+    return PINYIN_RECALL_CATEGORY_REVISE
 PINYIN_RECALL_SCORE_WRONG_DELTA = 10
 PINYIN_RECALL_SCORE_MIN = -50
 PINYIN_RECALL_SCORE_MAX = 100
@@ -625,7 +633,7 @@ def upsert_pinyin_recall_answer_and_log(
             total_wrong = 0
             total_i_dont_know = 0
 
-        category = _category_from_bank_state(total_correct, total_wrong, total_i_dont_know)
+        category = _category_from_bank_state(total_correct, total_wrong, total_i_dont_know, score_before)
 
         if correct:
             total_correct += 1
