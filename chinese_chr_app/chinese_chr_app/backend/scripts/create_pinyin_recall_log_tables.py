@@ -27,6 +27,7 @@ CREATE TABLE IF NOT EXISTS pinyin_recall_item_presented (
     id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id text NOT NULL,
     session_id text NOT NULL,
+    batch_id uuid,
     character text NOT NULL,
     prompt_type text NOT NULL,
     correct_choice text NOT NULL,
@@ -38,6 +39,9 @@ CREATE INDEX IF NOT EXISTS idx_pinyin_recall_item_presented_user_created
     ON pinyin_recall_item_presented (user_id, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_pinyin_recall_item_presented_session
     ON pinyin_recall_item_presented (session_id, created_at);
+CREATE INDEX IF NOT EXISTS idx_pinyin_recall_item_presented_batch_id
+    ON pinyin_recall_item_presented (batch_id)
+    WHERE batch_id IS NOT NULL;
 """
 
 CREATE_ITEM_ANSWERED_SQL = """

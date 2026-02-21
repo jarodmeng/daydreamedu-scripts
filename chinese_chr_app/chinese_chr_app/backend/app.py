@@ -1255,6 +1255,7 @@ def _log_pinyin_recall_event(
     items: Optional[List[Dict[str, Any]]] = None,
     user_id: Optional[str] = None,
     session_id: Optional[str] = None,
+    batch_id: Optional[str] = None,
     payload: Optional[Dict[str, Any]] = None,
 ) -> None:
     """Write pinyin recall event to Supabase (when USE_DATABASE) or to pinyin_recall.log."""
@@ -1266,6 +1267,7 @@ def _log_pinyin_recall_event(
                     p = {
                         "user_id": user_id,
                         "session_id": session_id,
+                        "batch_id": batch_id,
                         "character": item.get("character"),
                         "prompt_type": item.get("prompt_type"),
                         "correct_choice": item.get("correct_pinyin"),
@@ -1283,6 +1285,7 @@ def _log_pinyin_recall_event(
                     "event": "item_presented",
                     "user_id": user_id,
                     "session_id": session_id,
+                    "batch_id": batch_id,
                     "character": item.get("character"),
                     "prompt_type": item.get("prompt_type"),
                     "correct_choice": item.get("correct_pinyin"),
@@ -1332,8 +1335,9 @@ def pinyin_recall_session():
     timings["build_session_queue_ms"] = int((t7 - t6) * 1000)
 
     session_id = str(uuid.uuid4())
+    batch_id = str(uuid.uuid4())
     t8 = time.perf_counter()
-    _log_pinyin_recall_event("item_presented", items=items, user_id=user.user_id, session_id=session_id)
+    _log_pinyin_recall_event("item_presented", items=items, user_id=user.user_id, session_id=session_id, batch_id=batch_id)
     t9 = time.perf_counter()
     timings["log_event_ms"] = int((t9 - t8) * 1000)
 
@@ -1406,8 +1410,9 @@ def pinyin_recall_next_batch():
     t7 = time.perf_counter()
     timings["build_session_queue_ms"] = int((t7 - t6) * 1000)
 
+    batch_id = str(uuid.uuid4())
     t8 = time.perf_counter()
-    _log_pinyin_recall_event("item_presented", items=items, user_id=user.user_id, session_id=session_id)
+    _log_pinyin_recall_event("item_presented", items=items, user_id=user.user_id, session_id=session_id, batch_id=batch_id)
     t9 = time.perf_counter()
     timings["log_event_ms"] = int((t9 - t8) * 1000)
 

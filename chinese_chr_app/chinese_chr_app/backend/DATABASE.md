@@ -115,6 +115,7 @@ When `USE_DATABASE=true`, session events are written to Supabase (two-table desi
 | id | uuid | PK, default gen_random_uuid() |
 | user_id | text | NOT NULL |
 | session_id | text | NOT NULL |
+| batch_id | uuid | Identifies the batch (each session/next-batch call); NULL for rows before migration |
 | character | text | NOT NULL |
 | prompt_type | text | NOT NULL |
 | correct_choice | text | NOT NULL |
@@ -138,7 +139,7 @@ When `USE_DATABASE=true`, session events are written to Supabase (two-table desi
 | category | text | 新字/巩固/重测 (at answer time); backfill via `scripts/backfill_pinyin_recall_category.py` |
 | created_at | timestamptz | NOT NULL, default now() |
 
-**Create:** `python scripts/create_pinyin_recall_log_tables.py`. **Add category column (existing deployments):** `python scripts/add_pinyin_recall_category_column.py`. **Backfill category:** `python scripts/backfill_pinyin_recall_category.py` (run after adding the column). **Upload local log:** `python scripts/upload_pinyin_recall_log_to_db.py` (reads `logs/pinyin_recall.log`). **Migrate from legacy single table:** `python scripts/migrate_pinyin_recall_events_to_two_tables.py` (if you had data in `pinyin_recall_events`).
+**Create:** `python scripts/create_pinyin_recall_log_tables.py`. **Add batch_id column (existing deployments):** `python scripts/add_pinyin_recall_batch_id_column.py`. **Backfill batch_id:** `python scripts/backfill_pinyin_recall_batch_id.py` (clusters by created_at within session; options: `--dry-run`, `--gap 10`). **Add category column (existing deployments):** `python scripts/add_pinyin_recall_category_column.py`. **Backfill category:** `python scripts/backfill_pinyin_recall_category.py` (run after adding the column). **Upload local log:** `python scripts/upload_pinyin_recall_log_to_db.py` (reads `logs/pinyin_recall.log`). **Migrate from legacy single table:** `python scripts/migrate_pinyin_recall_events_to_two_tables.py` (if you had data in `pinyin_recall_events`).
 
 ---
 
@@ -225,6 +226,8 @@ API response shapes are unchanged; no frontend changes required for DB migration
 | `scripts/create_character_views_table.py` | Create `character_views`. |
 | `scripts/create_pinyin_recall_character_bank_table.py` | Create `pinyin_recall_character_bank` (MVP1 pinyin recall state). |
 | `scripts/create_pinyin_recall_log_tables.py` | Create `pinyin_recall_item_presented` and `pinyin_recall_item_answered` (two-table event log). |
+| `scripts/add_pinyin_recall_batch_id_column.py` | Add `batch_id` column to `pinyin_recall_item_presented` (for existing deployments). Options: `--dry-run`. |
+| `scripts/backfill_pinyin_recall_batch_id.py` | Backfill `batch_id` using created_at clustering per session. Creates backup table first. Options: `--dry-run`, `--gap N` (seconds), `--no-backup`. |
 | `scripts/add_pinyin_recall_category_column.py` | Add `category` column to `pinyin_recall_item_answered` (for existing deployments). |
 | `scripts/backfill_pinyin_recall_category.py` | Backfill `category` from chronological answer history per (user_id, character). Options: `--dry-run`. |
 | `scripts/upload_pinyin_recall_log_to_db.py` | One-off: upload `logs/pinyin_recall.log` into the two log tables. Options: `--dry-run`. |

@@ -548,19 +548,21 @@ def upsert_pinyin_recall_character_bank(
 def insert_pinyin_recall_item_presented(payload: Dict[str, Any]) -> None:
     """
     Insert one item_presented event into pinyin_recall_item_presented.
-    payload: user_id, session_id, character, prompt_type, correct_choice, choices.
+    payload: user_id, session_id, character, prompt_type, correct_choice, choices, batch_id?.
     Table must exist (run scripts/create_pinyin_recall_log_tables.py once).
+    batch_id (uuid) identifies the batch; run add_pinyin_recall_batch_id_column.py to add the column.
     """
     conn = _get_connection()
     try:
         choices = payload.get("choices")
         choices_json = json.dumps(choices) if choices is not None else "[]"
+        batch_id = payload.get("batch_id")
         with conn.cursor() as cur:
             cur.execute(
                 """
                 INSERT INTO pinyin_recall_item_presented (
-                    user_id, session_id, character, prompt_type, correct_choice, choices
-                ) VALUES (%s, %s, %s, %s, %s, %s)
+                    user_id, session_id, character, prompt_type, correct_choice, choices, batch_id
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s)
                 """,
                 (
                     (payload.get("user_id") or "").strip(),
@@ -569,6 +571,7 @@ def insert_pinyin_recall_item_presented(payload: Dict[str, Any]) -> None:
                     (payload.get("prompt_type") or "").strip(),
                     (payload.get("correct_choice") or "").strip(),
                     choices_json,
+                    batch_id,
                 ),
                 prepare=False,
             )
@@ -740,8 +743,8 @@ def bulk_insert_pinyin_recall_item_presented(payloads: List[Dict[str, Any]]) -> 
         return 0
     conn = _get_connection()
     sql = """
-        INSERT INTO pinyin_recall_item_presented (user_id, session_id, character, prompt_type, correct_choice, choices)
-        VALUES (%s, %s, %s, %s, %s, %s)
+        INSERT INTO pinyin_recall_item_presented (user_id, session_id, character, prompt_type, correct_choice, choices, batch_id)
+        VALUES (%s, %s, %s, %s, %s, %s, %s)
     """
     try:
         with conn.cursor() as cur:
@@ -755,6 +758,7 @@ def bulk_insert_pinyin_recall_item_presented(payloads: List[Dict[str, Any]]) -> 
                     (p.get("prompt_type") or "").strip(),
                     (p.get("correct_choice") or "").strip(),
                     choices_json,
+                    p.get("batch_id"),
                 ), prepare=False)
         conn.commit()
         return len(payloads)
