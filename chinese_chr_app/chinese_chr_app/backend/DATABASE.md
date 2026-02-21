@@ -83,13 +83,13 @@ Logs which characters signed-in users view on Search (user_id, character, viewed
 
 ### 2.4 `pinyin_recall_character_bank`
 
-Per-user, per-character state for MVP1 pinyin recall (score 0–100, stage, next_due_utc, counts). Score: correct +10 (cap 100), wrong/我不知道 −10 (floor 0). Used when `USE_DATABASE=true` for queue building and persistence across restarts.
+Per-user, per-character state for MVP1 pinyin recall (score −50–100, stage, next_due_utc, counts). Score: correct +10 (cap 100), wrong/我不知道 −10 (floor −50). Used when `USE_DATABASE=true` for queue building and persistence across restarts.
 
 | Column | Type | Notes |
 |--------|------|--------|
 | user_id | text | NOT NULL; PK with character |
 | character | text | NOT NULL |
-| score | integer | NOT NULL, default 0 (0–100) |
+| score | integer | NOT NULL, default 0 (−50–100) |
 | stage | integer | NOT NULL, default 0 |
 | next_due_utc | bigint | unix ts or null |
 | first_seen_at | timestamptz | NOT NULL, default now() |

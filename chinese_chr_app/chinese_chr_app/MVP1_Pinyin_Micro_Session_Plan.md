@@ -162,7 +162,7 @@ Same queue logic as MVP 2 (due items + small number of new items). **Candidate p
 
 **Current status:** Implemented when `USE_DATABASE=true`. The app has:
 
-- **Character bank:** Table `pinyin_recall_character_bank` stores per (user_id, character): score (0–100), stage, next_due_utc, first_seen_at, last_answered_at, total_correct, total_wrong, total_i_dont_know. Used for queue building and persistence across restarts.
+- **Character bank:** Table `pinyin_recall_character_bank` stores per (user_id, character): score (−50–100), stage, next_due_utc, first_seen_at, last_answered_at, total_correct, total_wrong, total_i_dont_know. Used for queue building and persistence across restarts.
 - **Event log:** Two tables: `pinyin_recall_item_presented` (when a character is shown) and `pinyin_recall_item_answered` (when the user submits; includes score_before, score_after). When `USE_DATABASE=false`, events go to `pinyin_recall.log` and learning state is in-memory only.
 
 The design below describes the **character bank** and **score** semantics (now implemented).
@@ -224,7 +224,7 @@ So: **queue = due items (sorted by score ascending) + new items (random sample),
 | Piece | Purpose |
 |-------|--------|
 | **Character bank table** | `pinyin_recall_character_bank`: user_id, character, score, stage, next_due_utc, timestamps, counts |
-| **Score update** | On every answer: correct +10 (cap 100), wrong/我不知道 −10 (floor 0) |
+| **Score update** | On every answer: correct +10 (cap 100), wrong/我不知道 −10 (floor −50) |
 | **Queue build** | Due first (stratified: reserve slots for 巩固), then new. 重测 weakest first, 巩固 most overdue first. |
 | **Logging** | Two tables: `pinyin_recall_item_presented`, `pinyin_recall_item_answered`; item_answered includes score_before, score_after |
 

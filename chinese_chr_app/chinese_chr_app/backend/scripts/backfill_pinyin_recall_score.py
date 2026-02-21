@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-Backfill pinyin recall scores using symmetric +10/−10 scheme.
+Backfill pinyin recall scores using symmetric +10/−10 scheme (floor −50).
 
 Replays pinyin_recall_item_answered per (user_id, character) in chronological order,
-recomputes score with correct +10 (cap 100), wrong/我不知道 −10 (floor 0).
+recomputes score with correct +10 (cap 100), wrong/我不知道 −10 (floor −50).
 Updates:
   1. pinyin_recall_character_bank.score
   2. pinyin_recall_item_answered.score_before, score_after
@@ -36,7 +36,7 @@ except ImportError:
 
 SCORE_CORRECT_DELTA = 10
 SCORE_WRONG_DELTA = 10
-SCORE_MIN = 0
+SCORE_MIN = -50
 SCORE_MAX = 100
 
 
@@ -127,8 +127,19 @@ def main():
             changed = len(changes)
             same = len(bank_updates) - changed
 
+            negative_count = sum(1 for s, _, _ in bank_updates if s < 0)
+            min_score = min(s for s, _, _ in bank_updates) if bank_updates else 0
+            floor_hits = [(uid, ch, cur_scores.get((uid, ch), "N/A")) for s, uid, ch in bank_updates if s == SCORE_MIN]
             print(f"[dry-run] Would update {len(bank_updates)} bank rows, {len(answered_updates)} item_answered rows")
             print(f"  Score changes: {changed} would change, {same} would stay same")
+            print(f"  Characters with negative score after backfill: {negative_count}")
+            print(f"  Lowest score after backfill: {min_score}")
+            if floor_hits:
+                print(f"  Characters at floor ({SCORE_MIN}): {len(floor_hits)}")
+                for uid, ch, old in floor_hits[:30]:
+                    print(f"    ({uid!r}, {ch!r}): {old} -> {SCORE_MIN}")
+                if len(floor_hits) > 30:
+                    print(f"    ... and {len(floor_hits) - 30} more")
             if exclude_user:
                 print(f"  (excluding user {exclude_user!r}: {len(changes_filtered)} changes)")
 
