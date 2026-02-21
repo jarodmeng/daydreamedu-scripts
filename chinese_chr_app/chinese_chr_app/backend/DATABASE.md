@@ -83,7 +83,7 @@ Logs which characters signed-in users view on Search (user_id, character, viewed
 
 ### 2.4 `pinyin_recall_character_bank`
 
-Per-user, per-character state for MVP1 pinyin recall (score 0–100, stage, next_due_utc, counts). Used when `USE_DATABASE=true` for queue building and persistence across restarts.
+Per-user, per-character state for MVP1 pinyin recall (score 0–100, stage, next_due_utc, counts). Score: correct +10 (cap 100), wrong/我不知道 −10 (floor 0). Used when `USE_DATABASE=true` for queue building and persistence across restarts.
 
 | Column | Type | Notes |
 |--------|------|--------|
@@ -139,7 +139,7 @@ When `USE_DATABASE=true`, session events are written to Supabase (two-table desi
 | category | text | 新字/巩固/重测 (at answer time); backfill via `scripts/backfill_pinyin_recall_category.py` |
 | created_at | timestamptz | NOT NULL, default now() |
 
-**Create:** `python scripts/create_pinyin_recall_log_tables.py`. **Add batch_id column (existing deployments):** `python scripts/add_pinyin_recall_batch_id_column.py`. **Backfill batch_id:** `python scripts/backfill_pinyin_recall_batch_id.py` (clusters by created_at within session; options: `--dry-run`, `--gap 10`). **Add category column (existing deployments):** `python scripts/add_pinyin_recall_category_column.py`. **Backfill category:** `python scripts/backfill_pinyin_recall_category.py` (run after adding the column). **Upload local log:** `python scripts/upload_pinyin_recall_log_to_db.py` (reads `logs/pinyin_recall.log`). **Migrate from legacy single table:** `python scripts/migrate_pinyin_recall_events_to_two_tables.py` (if you had data in `pinyin_recall_events`).
+**Create:** `python scripts/create_pinyin_recall_log_tables.py`. **Add batch_id column (existing deployments):** `python scripts/add_pinyin_recall_batch_id_column.py`. **Backfill batch_id:** `python scripts/backfill_pinyin_recall_batch_id.py` (clusters by created_at within session; options: `--dry-run`, `--gap 10`). **Add category column (existing deployments):** `python scripts/add_pinyin_recall_category_column.py`. **Backfill category:** `python scripts/backfill_pinyin_recall_category.py` (run after adding the column). **Backfill score (symmetric +10/−10):** `python scripts/backfill_pinyin_recall_score.py` (replays item_answered, updates bank + item_answered; creates backup tables first; `--dry-run`, `--no-backup`). **Upload local log:** `python scripts/upload_pinyin_recall_log_to_db.py` (reads `logs/pinyin_recall.log`). **Migrate from legacy single table:** `python scripts/migrate_pinyin_recall_events_to_two_tables.py` (if you had data in `pinyin_recall_events`).
 
 ---
 
@@ -230,8 +230,10 @@ API response shapes are unchanged; no frontend changes required for DB migration
 | `scripts/backfill_pinyin_recall_batch_id.py` | Backfill `batch_id` using created_at clustering per session. Creates backup table first. Options: `--dry-run`, `--gap N` (seconds), `--no-backup`. |
 | `scripts/add_pinyin_recall_category_column.py` | Add `category` column to `pinyin_recall_item_answered` (for existing deployments). |
 | `scripts/backfill_pinyin_recall_category.py` | Backfill `category` from chronological answer history per (user_id, character). Options: `--dry-run`. |
+| `scripts/backfill_pinyin_recall_score.py` | Backfill `score` in character_bank and `score_before`/`score_after` in item_answered using symmetric +10/−10. Replays item_answered per (user_id, character). Creates backup tables first. Options: `--dry-run`, `--no-backup`. |
 | `scripts/upload_pinyin_recall_log_to_db.py` | One-off: upload `logs/pinyin_recall.log` into the two log tables. Options: `--dry-run`. |
 | `scripts/migrate_pinyin_recall_events_to_two_tables.py` | One-off: copy from legacy `pinyin_recall_events` into the two log tables. Options: `--dry-run`. |
+| `scripts/delete_local_dev_rows.py` | Delete all rows where `user_id = 'local-dev'` from tables with user_id (character_views, pinyin_recall_*, pinyin_recall_events). Creates backup tables first. Options: `--dry-run`, `--no-backup`. |
 | `scripts/create_radical_stroke_counts_table.py` | Create `radical_stroke_counts`, insert from `data/radical_stroke_counts.json`. Options: `--dry-run`. |
 | `scripts/verify_feng_characters.py` | Verify row counts / sample from `feng_characters`. |
 | `scripts/verify_hwxnet_characters.py` | Verify row counts / sample from `hwxnet_characters`. |

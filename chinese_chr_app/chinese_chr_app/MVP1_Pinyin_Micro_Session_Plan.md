@@ -194,7 +194,7 @@ The design below describes the **character bank** and **score** semantics (now i
   - **我不知道:** Decrease score (e.g. same as wrong or slightly more) and set floor. Same as wrong for queue purposes.
 - **Optional:** Decay over time (e.g. score drifts down if not seen for a long time) — can be MVP 2.
 
-Concrete numbers (e.g. +10 correct, −15 wrong) and caps are tuning; the important part is that **every answer updates the stored score** for that (user, character).
+Concrete numbers (e.g. +10 correct, −10 wrong) and caps are tuning; the important part is that **every answer updates the stored score** for that (user, character).
 
 ### Proposed: queue logic using score
 
@@ -224,7 +224,7 @@ So: **queue = due items (sorted by score ascending) + new items (random sample),
 | Piece | Purpose |
 |-------|--------|
 | **Character bank table** | `pinyin_recall_character_bank`: user_id, character, score, stage, next_due_utc, timestamps, counts |
-| **Score update** | On every answer: correct +10 (cap 100), wrong/我不知道 −15 (floor 0) |
+| **Score update** | On every answer: correct +10 (cap 100), wrong/我不知道 −10 (floor 0) |
 | **Queue build** | Due first (stratified: reserve slots for 巩固), then new. 重测 weakest first, 巩固 most overdue first. |
 | **Logging** | Two tables: `pinyin_recall_item_presented`, `pinyin_recall_item_answered`; item_answered includes score_before, score_after |
 

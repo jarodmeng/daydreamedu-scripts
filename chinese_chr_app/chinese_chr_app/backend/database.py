@@ -408,7 +408,7 @@ def _category_from_bank_state(
     if total_wrong + total_i_dont_know > 0:
         return PINYIN_RECALL_CATEGORY_REVISE
     return PINYIN_RECALL_CATEGORY_CONFIRM
-PINYIN_RECALL_SCORE_WRONG_DELTA = 15
+PINYIN_RECALL_SCORE_WRONG_DELTA = 10
 PINYIN_RECALL_SCORE_MIN = 0
 PINYIN_RECALL_SCORE_MAX = 100
 PINYIN_RECALL_STAGE_INTERVAL_DAYS = [0, 1, 3, 7, 14, 30]
@@ -500,7 +500,7 @@ def upsert_pinyin_recall_character_bank(
         else:
             total_wrong += 1
 
-        # Score: correct +10 (cap 100), wrong/我不知道 -15 (floor 0)
+        # Score: correct +10 (cap 100), wrong/我不知道 -10 (floor 0)
         if correct:
             score_after = min(score_before + PINYIN_RECALL_SCORE_CORRECT_DELTA, PINYIN_RECALL_SCORE_MAX)
         else:
