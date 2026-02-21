@@ -1222,6 +1222,29 @@ def get_profile_progress():
         return jsonify({"error": str(e)}), 500
 
 
+# CORS: headers from after_request; OPTIONS preflight handled by before_request (all routes).
+@app.route('/api/profile/progress/category/<category>', methods=['GET'])
+def get_profile_progress_category(category: str):
+    """Get characters in a profile sub-category (learning_hard, learning_normal, learned_mastered, learned_normal), ordered by last tested (latest first). Requires Bearer token and USE_DATABASE."""
+    user = _get_profile_user_or_dev()
+    if user is None:
+        return jsonify({"error": "Unauthorized"}), 401
+    if not USE_DATABASE:
+        return jsonify({"error": "Category list is only available when using the database"}), 503
+    allowed = {"learning_hard", "learning_normal", "learned_mastered", "learned_normal"}
+    if category not in allowed:
+        return jsonify({"error": "Invalid category"}), 400
+    try:
+        import database as db
+        characters = db.get_pinyin_recall_characters_by_category(user.user_id, category)
+        return jsonify({"category": category, "characters": characters})
+    except Exception as e:
+        print(f"[profile/progress/category] Error: {e}", flush=True)
+        import traceback
+        traceback.print_exc()
+        return jsonify({"error": str(e)}), 500
+
+
 def _display_name_for_log(user, display_name_from_body: Optional[str] = None) -> str:
     """Prefer body display_name, then in-memory profile, then JWT user_metadata."""
     if display_name_from_body and display_name_from_body.strip():

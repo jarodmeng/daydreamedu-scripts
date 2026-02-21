@@ -302,6 +302,8 @@ npm run dev
 
 ### CORS + 503 in production ("blocked by CORS policy", "503 Service Unavailable")
 
+**New frontend pages calling new API routes:** All API routes (including new ones like `/api/profile/progress/category/<category>`) get CORS headers from the global `after_request` in `app.py`, and **all** `OPTIONS` requests are handled in `before_request` with full CORS headers. So new JSX pages that call new endpoints will not hit CORS in production **as long as the backend is deployed with those routes**. Deploy backend first (or together with frontend) when adding new profile/category or other API calls.
+
 **Profile/progress 404 or CORS preflight failure:** If the frontend (e.g. Profile page) gets "Failed to fetch" or CORS errors for `/api/profile/progress`:
 
 1. **Netlify `VITE_API_URL` must point to the same Cloud Run service that Cloud Build deploys to.** The URL format is `https://chinese-chr-app-PROJECTHASH-REGION.a.run.app`. If Netlify points to a different URL (e.g. different project or region), the frontend will hit a service that may not have the latest code.

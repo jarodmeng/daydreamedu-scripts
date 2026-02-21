@@ -440,6 +440,59 @@ def get_pinyin_recall_category_counts(user_id: str) -> Dict[str, int]:
         conn.close()
 
 
+# Profile sub-categories for character list (same thresholds as get_pinyin_recall_category_counts)
+PROFILE_CATEGORY_LEARNING_HARD = "learning_hard"
+PROFILE_CATEGORY_LEARNING_NORMAL = "learning_normal"
+PROFILE_CATEGORY_LEARNED_MASTERED = "learned_mastered"
+PROFILE_CATEGORY_LEARNED_NORMAL = "learned_normal"
+
+
+def get_pinyin_recall_characters_by_category(
+    user_id: str, category: str
+) -> List[Dict[str, Any]]:
+    """
+    Return characters in the given profile sub-category, ordered by last_answered_at DESC (latest first).
+    category: learning_hard | learning_normal | learned_mastered | learned_normal.
+    """
+    conn = _get_connection()
+    try:
+        if category == PROFILE_CATEGORY_LEARNING_HARD:
+            where = "user_id = %s AND score < %s AND score <= %s"
+            params = (user_id.strip(), PROFILE_PROFICIENCY_MIN_SCORE, PROFILE_LEARNING_HARD_MAX_SCORE)
+        elif category == PROFILE_CATEGORY_LEARNING_NORMAL:
+            where = "user_id = %s AND score < %s AND score > %s"
+            params = (user_id.strip(), PROFILE_PROFICIENCY_MIN_SCORE, PROFILE_LEARNING_HARD_MAX_SCORE)
+        elif category == PROFILE_CATEGORY_LEARNED_MASTERED:
+            where = "user_id = %s AND score >= %s"
+            params = (user_id.strip(), PROFILE_LEARNED_MASTERED_MIN_SCORE)
+        elif category == PROFILE_CATEGORY_LEARNED_NORMAL:
+            where = "user_id = %s AND score >= %s AND score < %s"
+            params = (user_id.strip(), PROFILE_PROFICIENCY_MIN_SCORE, PROFILE_LEARNED_MASTERED_MIN_SCORE)
+        else:
+            return []
+        with conn.cursor() as cur:
+            cur.execute(
+                f"""
+                SELECT character, score, last_answered_at
+                FROM pinyin_recall_character_bank
+                WHERE {where}
+                ORDER BY last_answered_at DESC NULLS LAST
+                """,
+                params,
+            )
+            rows = cur.fetchall()
+        return [
+            {
+                "character": r.get("character"),
+                "score": r.get("score"),
+                "last_answered_at": r.get("last_answered_at").isoformat() if r.get("last_answered_at") else None,
+            }
+            for r in rows
+        ]
+    finally:
+        conn.close()
+
+
 # --- Pinyin recall character bank (MVP1) ---
 # Score 0-100; higher = better understanding. Stage ladder same as pinyin_recall.py.
 PINYIN_RECALL_SCORE_CORRECT_DELTA = 10

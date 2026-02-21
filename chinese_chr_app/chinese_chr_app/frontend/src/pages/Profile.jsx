@@ -204,7 +204,7 @@ export default function Profile() {
                     </p>
                     <div className="profile-proficiency-sub">
                       <span className="profile-proficiency-sub-line">
-                        难字: <strong>{learningHard}</strong>（{pct(learningHard)}%）　普通: <strong>{learningNormal}</strong>（{pct(learningNormal)}%）
+                        <Link to="/profile/category/learning_hard" className="profile-link">难字</Link>: <strong>{learningHard}</strong>（{pct(learningHard)}%）　<Link to="/profile/category/learning_normal" className="profile-link">普通</Link>: <strong>{learningNormal}</strong>（{pct(learningNormal)}%）
                       </span>
                     </div>
                   </div>
@@ -215,7 +215,7 @@ export default function Profile() {
                     </p>
                     <div className="profile-proficiency-sub">
                       <span className="profile-proficiency-sub-line">
-                        掌握字: <strong>{learnedMastered}</strong>（{pct(learnedMastered)}%）　普通: <strong>{learnedNormal}</strong>（{pct(learnedNormal)}%）
+                        <Link to="/profile/category/learned_mastered" className="profile-link">掌握字</Link>: <strong>{learnedMastered}</strong>（{pct(learnedMastered)}%）　<Link to="/profile/category/learned_normal" className="profile-link">普通</Link>: <strong>{learnedNormal}</strong>（{pct(learnedNormal)}%）
                       </span>
                     </div>
                   </div>
