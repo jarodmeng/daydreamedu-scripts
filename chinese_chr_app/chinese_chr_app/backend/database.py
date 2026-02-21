@@ -383,6 +383,33 @@ def get_proficient_character_count(user_id: str, min_score: int = PROFILE_PROFIC
         conn.close()
 
 
+def get_pinyin_recall_category_counts(user_id: str) -> Dict[str, int]:
+    """
+    Return counts for 未学字 / 在学字 / 已学字 (not_tested, learning, learned).
+    learned = score >= 10, learning = score < 10, not_tested = PROFILE_HWXNET_TOTAL - (learned + learning).
+    """
+    conn = _get_connection()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                SELECT
+                    COUNT(*) FILTER (WHERE score >= %s) AS learned,
+                    COUNT(*) FILTER (WHERE score < %s) AS learning
+                FROM pinyin_recall_character_bank
+                WHERE user_id = %s
+                """,
+                (PROFILE_PROFICIENCY_MIN_SCORE, PROFILE_PROFICIENCY_MIN_SCORE, user_id.strip()),
+            )
+            row = cur.fetchone()
+        learned = int(row.get("learned") or 0)
+        learning = int(row.get("learning") or 0)
+        not_tested = max(0, PROFILE_HWXNET_TOTAL - learned - learning)
+        return {"learned": learned, "learning": learning, "not_tested": not_tested}
+    finally:
+        conn.close()
+
+
 # --- Pinyin recall character bank (MVP1) ---
 # Score 0-100; higher = better understanding. Stage ladder same as pinyin_recall.py.
 PINYIN_RECALL_SCORE_CORRECT_DELTA = 10

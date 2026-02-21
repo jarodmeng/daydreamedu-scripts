@@ -1194,13 +1194,18 @@ def get_profile_progress():
         viewed_count = db.get_character_views_count_for_user(user.user_id)
         viewed_recent = db.get_character_views_recent_for_user(user.user_id, limit=50)
         daily_stats = db.get_pinyin_recall_daily_stats(user.user_id, days=30)
-        learned_count = db.get_proficient_character_count(user.user_id, db.PROFILE_PROFICIENCY_MIN_SCORE)
+        category_counts = db.get_pinyin_recall_category_counts(user.user_id)
+        learned_count = category_counts["learned"]
+        learning_count = category_counts["learning"]
+        not_tested_count = category_counts["not_tested"]
         total_chars = db.PROFILE_HWXNET_TOTAL
         return jsonify({
             "viewed_characters_count": viewed_count,
             "viewed_characters_recent": viewed_recent,
             "proficiency": {
                 "learned_count": learned_count,
+                "learning_count": learning_count,
+                "not_tested_count": not_tested_count,
                 "total_characters": total_chars,
                 "description": f"{learned_count} / {total_chars}",
             },

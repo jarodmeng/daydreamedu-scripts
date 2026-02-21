@@ -93,7 +93,14 @@ export default function Profile() {
   const proficiency = progress?.proficiency
   const learnedCount = proficiency?.learned_count ?? 0
   const totalChars = proficiency?.total_characters ?? TOTAL_CHARACTERS
-  const progressPct = totalChars > 0 ? Math.round((learnedCount / totalChars) * 100) : 0
+  // Backend may omit learning_count/not_tested_count (e.g. old server); derive 未学字 so it's never wrong
+  const learningCount = proficiency?.learning_count ?? 0
+  const notTestedCount =
+    proficiency?.not_tested_count ??
+    Math.max(0, totalChars - learnedCount - (proficiency?.learning_count ?? 0))
+  const pctNotTested = totalChars > 0 ? (notTestedCount / totalChars) * 100 : 0
+  const pctLearning = totalChars > 0 ? (learningCount / totalChars) * 100 : 0
+  const pctLearned = totalChars > 0 ? (learnedCount / totalChars) * 100 : 0
 
   return (
     <main className="profile-page">
@@ -161,18 +168,36 @@ export default function Profile() {
             <section className="profile-section">
               <h2>汉字掌握度</h2>
               <div className="profile-proficiency">
-                <div className="profile-proficiency-bar-wrap">
+                <div className="profile-proficiency-bar-wrap profile-proficiency-stacked">
                   <div
-                    className="profile-proficiency-bar"
-                    style={{ width: `${progressPct}%` }}
+                    className="profile-proficiency-segment profile-proficiency-segment-not-tested"
+                    style={{ width: `${pctNotTested}%` }}
+                    title={`未学字 ${notTestedCount}`}
+                  />
+                  <div
+                    className="profile-proficiency-segment profile-proficiency-segment-learning"
+                    style={{ width: `${pctLearning}%` }}
+                    title={`在学字 ${learningCount}`}
+                  />
+                  <div
+                    className="profile-proficiency-segment profile-proficiency-segment-learned"
+                    style={{ width: `${pctLearned}%` }}
+                    title={`已学字 ${learnedCount}`}
                   />
                 </div>
-                <p className="profile-proficiency-text">
-                  已学 <strong>{learnedCount}</strong> / {totalChars} 字
-                  {progressPct > 0 && ` （${progressPct}%）`}
-                </p>
+                <div className="profile-proficiency-counts">
+                  <p className="profile-proficiency-text">
+                    未学字 <strong>{notTestedCount}</strong> / {totalChars} 字
+                  </p>
+                  <p className="profile-proficiency-text">
+                    在学字 <strong>{learningCount}</strong> / {totalChars} 字
+                  </p>
+                  <p className="profile-proficiency-text">
+                    已学字 <strong>{learnedCount}</strong> / {totalChars} 字
+                  </p>
+                </div>
                 <p className="profile-proficiency-hint">
-                  掌握度根据拼音记忆游戏中答对的题目计算（得分 ≥ 10 视为掌握）
+                  掌握度根据拼音记忆游戏计算（得分 ≥ 10 为已学字，&lt; 10 为在学字，未测试为未学字）
                 </p>
               </div>
             </section>
