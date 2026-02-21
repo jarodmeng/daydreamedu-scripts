@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import { useAuth } from '../AuthContext'
 import './PinyinRecall.css'
 
@@ -31,6 +31,7 @@ export default function PinyinRecall() {
   const [feedbackMissedItem, setFeedbackMissedItem] = useState(null) // full missed_item from API for learning screen
   const [learnIndex, setLearnIndex] = useState(0)
   const [totalAnswered, setTotalAnswered] = useState(0) // total items answered in this open-ended session
+  const questionShownAtRef = useRef(null) // ms when current question was first displayed (for latency_ms)
 
   const fetchSession = useCallback(async () => {
     if (!accessToken) {
@@ -117,9 +118,10 @@ export default function PinyinRecall() {
     async (selectedChoice, iDontKnow) => {
       const item = items[currentIndex]
       if (!item || !accessToken) return
-      const startMs = Date.now()
+      const latencyMs =
+        questionShownAtRef.current != null ? Date.now() - questionShownAtRef.current : null
       setLoading(true)
-      setLoadingStartMs(startMs)
+      setLoadingStartMs(Date.now())
       setElapsedSeconds(0)
       setError('')
       try {
@@ -135,7 +137,7 @@ export default function PinyinRecall() {
             selected_choice: selectedChoice,
             i_dont_know: iDontKnow,
             correct_pinyin: item.correct_pinyin,
-            latency_ms: Date.now() - startMs,
+            latency_ms: latencyMs,
           }),
         })
         if (!res.ok) {
@@ -159,6 +161,13 @@ export default function PinyinRecall() {
     },
     [items, currentIndex, accessToken, sessionId]
   )
+
+  // Record when current question is displayed (for latency_ms measurement)
+  useEffect(() => {
+    if (phase === 'question' && items.length > 0 && items[currentIndex]) {
+      questionShownAtRef.current = Date.now()
+    }
+  }, [phase, items, currentIndex])
 
   useEffect(() => {
     if (!loading || loadingStartMs == null) {
