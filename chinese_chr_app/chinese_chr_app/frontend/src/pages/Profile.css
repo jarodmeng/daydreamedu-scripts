@@ -159,6 +159,11 @@
   transition: width 0.3s ease;
 }
 
+/* Keep a visible sliver for non-zero segments when % is very small */
+.profile-proficiency-segment-nz {
+  min-width: 2px;
+}
+
 .profile-proficiency-stacked .profile-proficiency-segment:first-child {
   border-radius: 6px 0 0 6px;
 }
@@ -187,17 +192,41 @@
 }
 
 .profile-proficiency-counts {
-  margin-bottom: 4px;
+  margin-bottom: 0;
 }
 
-.profile-proficiency-counts .profile-proficiency-text {
-  margin-bottom: 2px;
+.profile-proficiency-row {
+  margin-bottom: 10px;
+}
+
+.profile-proficiency-row:last-child {
+  margin-bottom: 0;
 }
 
 .profile-proficiency-text {
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   color: #333;
-  margin-bottom: 4px;
+  margin: 0 0 4px 0;
+}
+
+.profile-proficiency-pct {
+  font-size: 0.95em;
+  color: #666;
+  font-weight: normal;
+}
+
+.profile-proficiency-sub {
+  margin-top: 2px;
+  margin-left: 0.25em;
+  padding-left: 0.75em;
+  border-left: 3px solid #e0e0e0;
+}
+
+.profile-proficiency-sub-line {
+  font-size: 0.8rem;
+  color: #555;
+  display: block;
+  line-height: 1.4;
 }
 
 .profile-proficiency-hint {

@@ -101,6 +101,11 @@ export default function Profile() {
   const pctNotTested = totalChars > 0 ? (notTestedCount / totalChars) * 100 : 0
   const pctLearning = totalChars > 0 ? (learningCount / totalChars) * 100 : 0
   const pctLearned = totalChars > 0 ? (learnedCount / totalChars) * 100 : 0
+  const learningHard = proficiency?.learning_hard ?? 0
+  const learningNormal = proficiency?.learning_normal ?? 0
+  const learnedMastered = proficiency?.learned_mastered ?? 0
+  const learnedNormal = proficiency?.learned_normal ?? 0
+  const pct = (n) => (totalChars > 0 ? Math.round((n / totalChars) * 100) : 0)
 
   return (
     <main className="profile-page">
@@ -170,31 +175,50 @@ export default function Profile() {
               <div className="profile-proficiency">
                 <div className="profile-proficiency-bar-wrap profile-proficiency-stacked">
                   <div
-                    className="profile-proficiency-segment profile-proficiency-segment-not-tested"
+                    className={`profile-proficiency-segment profile-proficiency-segment-not-tested${pctNotTested > 0 ? ' profile-proficiency-segment-nz' : ''}`}
                     style={{ width: `${pctNotTested}%` }}
                     title={`未学字 ${notTestedCount}`}
                   />
                   <div
-                    className="profile-proficiency-segment profile-proficiency-segment-learning"
+                    className={`profile-proficiency-segment profile-proficiency-segment-learning${pctLearning > 0 ? ' profile-proficiency-segment-nz' : ''}`}
                     style={{ width: `${pctLearning}%` }}
                     title={`在学字 ${learningCount}`}
                   />
                   <div
-                    className="profile-proficiency-segment profile-proficiency-segment-learned"
+                    className={`profile-proficiency-segment profile-proficiency-segment-learned${pctLearned > 0 ? ' profile-proficiency-segment-nz' : ''}`}
                     style={{ width: `${pctLearned}%` }}
                     title={`已学字 ${learnedCount}`}
                   />
                 </div>
                 <div className="profile-proficiency-counts">
-                  <p className="profile-proficiency-text">
-                    未学字 <strong>{notTestedCount}</strong> / {totalChars} 字
-                  </p>
-                  <p className="profile-proficiency-text">
-                    在学字 <strong>{learningCount}</strong> / {totalChars} 字
-                  </p>
-                  <p className="profile-proficiency-text">
-                    已学字 <strong>{learnedCount}</strong> / {totalChars} 字
-                  </p>
+                  <div className="profile-proficiency-row">
+                    <p className="profile-proficiency-text">
+                      未学字 <strong>{notTestedCount}</strong> / {totalChars} 字
+                      <span className="profile-proficiency-pct">{totalChars > 0 && `（${pct(notTestedCount)}%）`}</span>
+                    </p>
+                  </div>
+                  <div className="profile-proficiency-row">
+                    <p className="profile-proficiency-text">
+                      在学字 <strong>{learningCount}</strong> / {totalChars} 字
+                      <span className="profile-proficiency-pct">{totalChars > 0 && `（${pct(learningCount)}%）`}</span>
+                    </p>
+                    <div className="profile-proficiency-sub">
+                      <span className="profile-proficiency-sub-line">
+                        难字: <strong>{learningHard}</strong>（{pct(learningHard)}%）　普通: <strong>{learningNormal}</strong>（{pct(learningNormal)}%）
+                      </span>
+                    </div>
+                  </div>
+                  <div className="profile-proficiency-row">
+                    <p className="profile-proficiency-text">
+                      已学字 <strong>{learnedCount}</strong> / {totalChars} 字
+                      <span className="profile-proficiency-pct">{totalChars > 0 && `（${pct(learnedCount)}%）`}</span>
+                    </p>
+                    <div className="profile-proficiency-sub">
+                      <span className="profile-proficiency-sub-line">
+                        掌握字: <strong>{learnedMastered}</strong>（{pct(learnedMastered)}%）　普通: <strong>{learnedNormal}</strong>（{pct(learnedNormal)}%）
+                      </span>
+                    </div>
+                  </div>
                 </div>
                 <p className="profile-proficiency-hint">
                   掌握度根据拼音记忆游戏计算（得分 ≥ 10 为已学字，&lt; 10 为在学字，未测试为未学字）

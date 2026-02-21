@@ -1208,6 +1208,10 @@ def get_profile_progress():
                 "not_tested_count": not_tested_count,
                 "total_characters": total_chars,
                 "description": f"{learned_count} / {total_chars}",
+                "learning_hard": category_counts.get("learning_hard", 0),
+                "learning_normal": category_counts.get("learning_normal", 0),
+                "learned_mastered": category_counts.get("learned_mastered", 0),
+                "learned_normal": category_counts.get("learned_normal", 0),
             },
             "daily_stats": daily_stats,
         })

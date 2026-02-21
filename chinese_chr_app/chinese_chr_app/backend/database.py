@@ -383,10 +383,17 @@ def get_proficient_character_count(user_id: str, min_score: int = PROFILE_PROFIC
         conn.close()
 
 
+# Sub-category thresholds for profile display (在学字: 难字 <= -20; 已学字: 掌握字 >= 20)
+PROFILE_LEARNING_HARD_MAX_SCORE = -20   # 难字: score <= -20
+PROFILE_LEARNED_MASTERED_MIN_SCORE = 20  # 掌握字: score >= 20
+
+
 def get_pinyin_recall_category_counts(user_id: str) -> Dict[str, int]:
     """
-    Return counts for 未学字 / 在学字 / 已学字 (not_tested, learning, learned).
+    Return counts for 未学字 / 在学字 / 已学字 and sub-categories.
     learned = score >= 10, learning = score < 10, not_tested = PROFILE_HWXNET_TOTAL - (learned + learning).
+    Sub: learning_hard (score <= -20), learning_normal (-20 < score < 10),
+         learned_mastered (score >= 20), learned_normal (10 <= score < 20).
     """
     conn = _get_connection()
     try:
@@ -395,17 +402,40 @@ def get_pinyin_recall_category_counts(user_id: str) -> Dict[str, int]:
                 """
                 SELECT
                     COUNT(*) FILTER (WHERE score >= %s) AS learned,
-                    COUNT(*) FILTER (WHERE score < %s) AS learning
+                    COUNT(*) FILTER (WHERE score < %s) AS learning,
+                    COUNT(*) FILTER (WHERE score < %s AND score <= %s) AS learning_hard,
+                    COUNT(*) FILTER (WHERE score < %s AND score > %s) AS learning_normal,
+                    COUNT(*) FILTER (WHERE score >= %s) AS learned_mastered,
+                    COUNT(*) FILTER (WHERE score >= %s AND score < %s) AS learned_normal
                 FROM pinyin_recall_character_bank
                 WHERE user_id = %s
                 """,
-                (PROFILE_PROFICIENCY_MIN_SCORE, PROFILE_PROFICIENCY_MIN_SCORE, user_id.strip()),
+                (
+                    PROFILE_PROFICIENCY_MIN_SCORE,
+                    PROFILE_PROFICIENCY_MIN_SCORE,
+                    PROFILE_PROFICIENCY_MIN_SCORE,
+                    PROFILE_LEARNING_HARD_MAX_SCORE,
+                    PROFILE_PROFICIENCY_MIN_SCORE,
+                    PROFILE_LEARNING_HARD_MAX_SCORE,
+                    PROFILE_LEARNED_MASTERED_MIN_SCORE,
+                    PROFILE_PROFICIENCY_MIN_SCORE,
+                    PROFILE_LEARNED_MASTERED_MIN_SCORE,
+                    user_id.strip(),
+                ),
             )
             row = cur.fetchone()
         learned = int(row.get("learned") or 0)
         learning = int(row.get("learning") or 0)
         not_tested = max(0, PROFILE_HWXNET_TOTAL - learned - learning)
-        return {"learned": learned, "learning": learning, "not_tested": not_tested}
+        return {
+            "learned": learned,
+            "learning": learning,
+            "not_tested": not_tested,
+            "learning_hard": int(row.get("learning_hard") or 0),
+            "learning_normal": int(row.get("learning_normal") or 0),
+            "learned_mastered": int(row.get("learned_mastered") or 0),
+            "learned_normal": int(row.get("learned_normal") or 0),
+        }
     finally:
         conn.close()
 
