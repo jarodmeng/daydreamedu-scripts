@@ -320,13 +320,15 @@ def build_session_queue(
         combined = revise_items[revise_slots:] + confirm_items[confirm_slots:]
         queue.extend(combined[:remaining])
     need = total_target - len(queue)
+    new_cap = min(need, new_count)  # cap 新字 at new_count per session
+    added = 0
     for ch, entry in new_items:
-        if need <= 0:
+        if added >= new_cap:
             break
         if ch in {x[0] for x in queue}:
             continue
         queue.append((ch, entry))
-        need -= 1
+        added += 1
 
     # Build session items with stem, correct pinyin, choices (4 pinyin + 我不知道)
     items_out: List[Dict[str, Any]] = []

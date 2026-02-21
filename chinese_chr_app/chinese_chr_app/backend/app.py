@@ -1330,6 +1330,7 @@ def pinyin_recall_session():
         hwxnet_lookup,
         character_lookup,
         total_target=20,
+        new_count=8,
     )
     t7 = time.perf_counter()
     timings["build_session_queue_ms"] = int((t7 - t6) * 1000)
@@ -1406,6 +1407,7 @@ def pinyin_recall_next_batch():
         hwxnet_lookup,
         character_lookup,
         total_target=20,
+        new_count=8,
     )
     t7 = time.perf_counter()
     timings["build_session_queue_ms"] = int((t7 - t6) * 1000)
