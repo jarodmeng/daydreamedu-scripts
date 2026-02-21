@@ -5,16 +5,14 @@ import { useAuth } from '../AuthContext'
 import '../App.css'
 
 // API base URL - use environment variable in production, empty string in development (uses proxy)
-// In production, VITE_API_URL must be set, otherwise API calls will fail
-// Fallback to hardcoded URL if env var is not available (for debugging)
-const API_BASE = import.meta.env.VITE_API_URL || 
-  (import.meta.env.DEV ? '' : 'https://chinese-chr-app-177544945895.us-central1.run.app')
+// In production, VITE_API_URL must be set in Netlify, otherwise API calls will fail
+const API_BASE = import.meta.env.VITE_API_URL || ''
 // Debug: log API_BASE in production to help troubleshoot
 if (!import.meta.env.DEV) {
   console.log('[DEBUG] API_BASE:', API_BASE)
   console.log('[DEBUG] VITE_API_URL env var:', import.meta.env.VITE_API_URL)
   if (!import.meta.env.VITE_API_URL) {
-    console.warn('[WARNING] VITE_API_URL is not set! Using fallback URL.')
+    console.warn('[WARNING] VITE_API_URL is not set! API calls may fail.')
   }
 }
 

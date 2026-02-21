@@ -2,8 +2,9 @@ import { useEffect, useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import './PinyinResults.css'
 
-const API_BASE = import.meta.env.VITE_API_URL ||
-  (import.meta.env.DEV ? '' : 'https://chinese-chr-app-177544945895.us-central1.run.app')
+// API base URL - use environment variable in production, empty string in development (uses proxy)
+// In production, VITE_API_URL must be set in Netlify, otherwise API calls will fail
+const API_BASE = import.meta.env.VITE_API_URL || ''
 
 function PinyinResults() {
   const { query } = useParams()

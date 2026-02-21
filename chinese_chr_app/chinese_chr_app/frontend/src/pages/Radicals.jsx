@@ -3,9 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import './Radicals.css'
 
 // API base URL - use environment variable in production, empty string in development (uses proxy)
-// Fallback to hardcoded URL if env var is not available
-const API_BASE = import.meta.env.VITE_API_URL || 
-  (import.meta.env.DEV ? '' : 'https://chinese-chr-app-177544945895.us-central1.run.app')
+// In production, VITE_API_URL must be set in Netlify, otherwise API calls will fail
+const API_BASE = import.meta.env.VITE_API_URL || ''
 
 const SORT_CHARACTER_COUNT = 'character_count'
 const SORT_STROKE_COUNT = 'stroke_count'
