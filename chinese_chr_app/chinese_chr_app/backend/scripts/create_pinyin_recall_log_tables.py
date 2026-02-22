@@ -28,6 +28,8 @@ CREATE TABLE IF NOT EXISTS pinyin_recall_item_presented (
     user_id text NOT NULL,
     session_id text NOT NULL,
     batch_id uuid,
+    batch_mode text,
+    batch_character_category text,
     character text NOT NULL,
     prompt_type text NOT NULL,
     correct_choice text NOT NULL,

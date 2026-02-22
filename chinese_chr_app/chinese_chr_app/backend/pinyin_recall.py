@@ -55,11 +55,62 @@ def _category_for_character(state: Dict[str, Any]) -> str:
     return CATEGORY_REVISE  # state exists, reset or not yet 已学字 => 重测
 
 
+def _score_band(score: int) -> str:
+    """Return five-band label: hard, learning_normal, learned_normal, mastered. Used for queue allocation."""
+    if score <= HARD_MAX_SCORE:
+        return "hard"
+    if score <= 0:
+        return "learning_normal"
+    if score < MASTERED_MIN_SCORE:
+        return "learned_normal"
+    return "mastered"
+
+
+def _batch_category_for_character(state: Dict[str, Any]) -> str:
+    """Return five-band category at batch time: new, hard, learning_normal, learned_normal, mastered. For logging in item_presented."""
+    if not state:
+        return "new"
+    try:
+        score = int(state.get("score") or 0)
+    except (TypeError, ValueError):
+        score = 0
+    return _score_band(score)
+
+
+def _next_due_ts(state: Dict[str, Any], now_ts: int) -> Optional[int]:
+    """Return next_due_utc as int (epoch seconds) for comparison, or None if not due."""
+    nd = state.get("next_due_utc")
+    if nd is None:
+        return 0
+    if hasattr(nd, "timestamp"):
+        return int(nd.timestamp())
+    try:
+        return int(nd)
+    except (TypeError, ValueError):
+        return 0
+
+
 # Expand character pool as user progresses. Mastery = score >= 10 (matches profile "已学").
 # Every 200 mastered chars, add 500 more to zibiao_max. Prevents "bank run out" at 500 chars.
 ZIBIAO_EXPAND_MASTERED_STEP = 200
 ZIBIAO_EXPAND_POOL_STEP = 500
 PROFICIENCY_MIN_SCORE = 10
+
+# Five score bands for queue construction (Issue #12). Align with profile thresholds.
+HARD_MAX_SCORE = -20          # 难字: score <= -20
+MASTERED_MIN_SCORE = 20       # 掌握字: score >= 20
+# Active Load = count(难字) + count(普通在学字). Modes: Expansion (< 100), Consolidation (100-250), Rescue (> 250).
+ACTIVE_LOAD_EXPANSION_MAX = 99
+ACTIVE_LOAD_CONSOLIDATION_MAX = 250
+# Mode recipes (total_target=20): Rescue 4 掌握字 + 8 普通已学字 + 6 在学字 + 2 新字; Expansion 10 新字 + 10 review; Consolidation 5 新字 + 15 review.
+RESCUE_MASTERED = 4
+RESCUE_LEARNED_NORMAL = 8
+RESCUE_LEARNING = 6
+RESCUE_NEW = 2
+EXPANSION_NEW = 10
+EXPANSION_REVIEW = 10
+CONSOLIDATION_NEW = 5
+CONSOLIDATION_REVIEW = 15
 
 _PINYIN_INDEX_CACHE: Tuple[
     Dict[Tuple[str, int], List[str]], List[str]
@@ -222,22 +273,21 @@ def build_session_queue(
     due_first: int = 8,
     due_confirm_min: int = 4,
     new_count: int = 4,
-    total_target: int = 12,
-) -> List[Dict[str, Any]]:
+    total_target: int = 20,
+) -> Tuple[List[Dict[str, Any]], str]:
     """
-    Build ordered list of session items: due items first (up to due_first), then new (up to new_count),
-    until total_target. Each item: { character, stem_words, correct_pinyin, choices, prompt_type }.
+    Build ordered list of session items (20 per batch) using five score-based categories and
+    Active Load mode (Expansion / Consolidation / Rescue). See PROPOSAL_Queue_By_Five_Score_Categories.
 
-    Due-item selection is stratified: reserve up to due_confirm_min slots for 巩固 (consolidation)
-    so they are not crowded out by 重测 (retest) when many weak items are due. See MVP1 design doc.
-
-    Character pool expands as user masters more: every 200 mastered (score >= 10), add 500 to zibiao_max.
-    Prevents "bank run out" when user has mastered the initial 500-character pool.
+    Five bands: 难字 (score <= -20), 普通在学字 (-20 < score <= 0), 普通已学字 (0 < score < 20), 掌握字 (>= 20).
+    Active Load = count(难字) + count(普通在学字). Mode: Expansion (< 100), Consolidation (100-250), Rescue (> 250).
+    Rescue recipe: 4 掌握字 + 8 普通已学字 + 6 在学字 (难字 first) + 2 新字; confidence-first order.
+    Within 在学字 slots: 难字 first (score asc), then 普通在学字 — no cap on 难字.
     """
     now_ts = int(time.time())
     user_state = learning_state.setdefault(user_id, {})
 
-    # Expand pool based on mastered count (score >= 10, matches profile "已学")
+    # Expand pool based on mastered count (score >= 10)
     mastered_count = sum(
         1 for s in user_state.values()
         if isinstance(s, dict) and (s.get("score") or 0) >= PROFICIENCY_MIN_SCORE
@@ -277,67 +327,129 @@ def build_session_queue(
             continue
         candidates.append((ch, entry))
 
-    # Sort for deterministic order, then shuffle with seed
     candidates.sort(key=lambda x: (x[1].get("zibiao_index"), x[0]))
     rng.shuffle(candidates)
 
     pinyin_by_base_tone, all_pinyin = get_or_build_pinyin_index(hwxnet_lookup)
 
-    due_items: List[Tuple[str, Dict[str, Any]]] = []
+    def _is_due(state: Dict[str, Any]) -> bool:
+        nd = _next_due_ts(state, now_ts)
+        return nd == 0 or nd <= now_ts
+
+    due_hard: List[Tuple[str, Dict[str, Any]]] = []
+    due_learning_normal: List[Tuple[str, Dict[str, Any]]] = []
+    due_learned_normal: List[Tuple[str, Dict[str, Any]]] = []
+    due_mastered: List[Tuple[str, Dict[str, Any]]] = []
     new_items: List[Tuple[str, Dict[str, Any]]] = []
 
     for ch, entry in candidates:
         state = user_state.get(ch, {})
-        next_due = state.get("next_due_utc")
-        if next_due is not None and next_due > now_ts:
-            continue
-        if state and (next_due is None or next_due <= now_ts):
-            due_items.append((ch, entry))
-        else:
+        if not state:
             new_items.append((ch, entry))
-
-    # Split due items into 重测 (revise) and 巩固 (confirm). Reserve slots for 巩固 so they
-    # are not crowded out when many weak 重测 items are due (see design doc).
-    revise_items: List[Tuple[str, Dict[str, Any]]] = []
-    confirm_items: List[Tuple[str, Dict[str, Any]]] = []
-    for ch, entry in due_items:
-        state = user_state.get(ch, {})
-        if _category_for_character(state) == CATEGORY_CONFIRM:
-            confirm_items.append((ch, entry))
+            continue
+        if not _is_due(state):
+            continue
+        score = int(state.get("score") or 0)
+        band = _score_band(score)
+        if band == "hard":
+            due_hard.append((ch, entry))
+        elif band == "learning_normal":
+            due_learning_normal.append((ch, entry))
+        elif band == "learned_normal":
+            due_learned_normal.append((ch, entry))
         else:
-            revise_items.append((ch, entry))
+            due_mastered.append((ch, entry))
 
-    # 重测: weakest first (score ascending). 巩固: most overdue first (next_due ascending).
-    revise_items.sort(key=lambda x: user_state.get(x[0], {}).get("score", 0))
-    confirm_items.sort(
-        key=lambda x: user_state.get(x[0], {}).get("next_due_utc") or 0
-    )
+    active_load = 0
+    for state in user_state.values():
+        if not isinstance(state, dict):
+            continue
+        s = int(state.get("score") or 0)
+        if s <= HARD_MAX_SCORE or (HARD_MAX_SCORE < s <= 0):
+            active_load += 1
+
+    if active_load <= ACTIVE_LOAD_EXPANSION_MAX:
+        mode = "expansion"
+    elif active_load <= ACTIVE_LOAD_CONSOLIDATION_MAX:
+        mode = "consolidation"
+    else:
+        mode = "rescue"
+
+    def _score_key(x: Tuple[str, Dict[str, Any]]) -> int:
+        return user_state.get(x[0], {}).get("score", 0)
+
+    def _next_due_key(x: Tuple[str, Dict[str, Any]]) -> int:
+        return _next_due_ts(user_state.get(x[0], {}), now_ts) or 0
+
+    due_hard.sort(key=_score_key)
+    due_learning_normal.sort(key=_score_key)
+    due_learned_normal.sort(key=_next_due_key)
+    due_mastered.sort(key=_next_due_key)
     rng.shuffle(new_items)
 
-    # Stratified due selection: reserve up to due_confirm_min for 巩固, rest for 重测.
-    # If one pool is exhausted, fill from the other.
-    confirm_slots = min(due_confirm_min, len(confirm_items))
-    revise_slots = due_first - confirm_slots
-    queue: List[Tuple[str, Dict[str, Any]]] = []
-    queue.extend(revise_items[:revise_slots])
-    queue.extend(confirm_items[:confirm_slots])
-    # If we took fewer than due_first, fill remaining from the larger pool
-    if len(queue) < due_first:
-        remaining = due_first - len(queue)
-        combined = revise_items[revise_slots:] + confirm_items[confirm_slots:]
-        queue.extend(combined[:remaining])
-    need = total_target - len(queue)
-    new_cap = min(need, new_count)  # cap 新字 at new_count per session
-    added = 0
-    for ch, entry in new_items:
-        if added >= new_cap:
-            break
-        if ch in {x[0] for x in queue}:
-            continue
-        queue.append((ch, entry))
-        added += 1
+    n_mastered = len(due_mastered)
+    n_learned_normal = len(due_learned_normal)
+    n_learning = len(due_hard) + len(due_learning_normal)
+    n_new_avail = len(new_items)
 
-    # Build session items with stem, correct pinyin, choices (4 pinyin + 我不知道)
+    if mode == "rescue":
+        n_mastered_slots = min(RESCUE_MASTERED, n_mastered)
+        n_learned_normal_slots = min(RESCUE_LEARNED_NORMAL, n_learned_normal)
+        n_learning_slots = min(RESCUE_LEARNING, n_learning)
+        n_new_slots = min(RESCUE_NEW, n_new_avail)
+        spare = total_target - (n_mastered_slots + n_learned_normal_slots + n_learning_slots + n_new_slots)
+        while spare > 0 and (n_learned_normal_slots < n_learned_normal or n_learning_slots < n_learning or n_new_slots < n_new_avail):
+            if n_learned_normal_slots < n_learned_normal:
+                n_learned_normal_slots += 1
+                spare -= 1
+            elif n_learning_slots < n_learning:
+                n_learning_slots += 1
+                spare -= 1
+            elif n_new_slots < n_new_avail:
+                n_new_slots += 1
+                spare -= 1
+            else:
+                break
+    elif mode == "expansion":
+        n_new_slots = min(EXPANSION_NEW, n_new_avail, total_target)
+        review_slots = min(EXPANSION_REVIEW, total_target - n_new_slots)
+        n_learning_slots = min(review_slots, n_learning)
+        n_learned_normal_slots = min(review_slots - n_learning_slots, n_learned_normal)
+        n_mastered_slots = min(review_slots - n_learning_slots - n_learned_normal_slots, n_mastered)
+        if n_learning_slots + n_learned_normal_slots + n_mastered_slots < review_slots:
+            n_learned_normal_slots = min(n_learned_normal, review_slots - n_learning_slots - n_mastered_slots)
+            n_mastered_slots = min(n_mastered, review_slots - n_learning_slots - n_learned_normal_slots)
+    else:
+        n_new_slots = min(CONSOLIDATION_NEW, n_new_avail, total_target)
+        review_slots = min(CONSOLIDATION_REVIEW, total_target - n_new_slots)
+        n_learning_slots = min(review_slots, n_learning)
+        n_learned_normal_slots = min(review_slots - n_learning_slots, n_learned_normal)
+        n_mastered_slots = min(review_slots - n_learning_slots - n_learned_normal_slots, n_mastered)
+        if n_learning_slots + n_learned_normal_slots + n_mastered_slots < review_slots:
+            n_learned_normal_slots = min(n_learned_normal, review_slots - n_learning_slots - n_mastered_slots)
+            n_mastered_slots = min(n_mastered, review_slots - n_learning_slots - n_learned_normal_slots)
+
+    learning_pool: List[Tuple[str, Dict[str, Any]]] = list(due_hard) + list(due_learning_normal)
+    learning_pool = learning_pool[:n_learning_slots]
+
+    mastered_queue = due_mastered[:n_mastered_slots]
+    learned_normal_queue = due_learned_normal[:n_learned_normal_slots]
+    new_queue: List[Tuple[str, Dict[str, Any]]] = []
+    seen = {x[0] for x in mastered_queue + learned_normal_queue + learning_pool}
+    for ch, entry in new_items:
+        if len(new_queue) >= n_new_slots:
+            break
+        if ch in seen:
+            continue
+        new_queue.append((ch, entry))
+        seen.add(ch)
+
+    if mode == "rescue":
+        queue: List[Tuple[str, Dict[str, Any]]] = mastered_queue + learned_normal_queue + learning_pool + new_queue
+    else:
+        learned_queue = learned_normal_queue + mastered_queue
+        queue = learned_queue + learning_pool + new_queue
+
     items_out: List[Dict[str, Any]] = []
     for ch, entry in queue:
         correct = get_correct_pinyin(entry)
@@ -352,6 +464,7 @@ def build_session_queue(
         stem_words = get_stem_words(ch, character_lookup or {}, hwxnet_lookup or {}, 3)
         char_state = user_state.get(ch, {})
         category = _category_for_character(char_state)
+        batch_category = _batch_category_for_character(char_state)
         items_out.append({
             "character": ch,
             "stem_words": stem_words,
@@ -359,8 +472,9 @@ def build_session_queue(
             "choices": choices,
             "prompt_type": "hanzi_to_pinyin",
             "category": category,
+            "batch_category": batch_category,
         })
-    return items_out
+    return (items_out, mode)
 
 
 def update_learning_state(

@@ -85,13 +85,15 @@ Logs which characters signed-in users view on Search (user_id, character, viewed
 
 Per-user, per-character state for MVP1 pinyin recall (score −50–100, stage, next_due_utc, counts). Score: correct +10 (cap 100), wrong/我不知道 −10 (floor −50). Used when `USE_DATABASE=true` for queue building and persistence across restarts.
 
+**Queue construction (Issue #12):** Characters are partitioned into five score bands: 难字 (score ≤ −20), 普通在学字 (−20 &lt; score ≤ 0), 普通已学字 (0 &lt; score &lt; 20), 掌握字 (score ≥ 20). **Active Load** = count(难字) + count(普通在学字). Batch mode: **Expansion** (Active Load &lt; 100), **Consolidation** (100–250), **Rescue** (&gt; 250). Rescue recipe: 4 掌握字 + 8 普通已学字 + 6 在学字 (难字 first) + 2 新字; within 在学字 slots, 难字 first (score asc), no cap. **Cooling intervals** (next_due_utc after correct answer): 难字 0 days, 普通在学字 1 day, 普通已学字 5 days, 掌握字 22 days.
+
 | Column | Type | Notes |
 |--------|------|--------|
 | user_id | text | NOT NULL; PK with character |
 | character | text | NOT NULL |
 | score | integer | NOT NULL, default 0 (−50–100) |
-| stage | integer | NOT NULL, default 0 |
-| next_due_utc | bigint | unix ts or null |
+| stage | integer | NOT NULL, default 0 (band-based for analytics) |
+| next_due_utc | bigint | unix ts or null; set by band-based cooling |
 | first_seen_at | timestamptz | NOT NULL, default now() |
 | last_answered_at | timestamptz | NOT NULL, default now() |
 | total_correct | integer | NOT NULL, default 0 |
@@ -116,6 +118,8 @@ When `USE_DATABASE=true`, session events are written to Supabase (two-table desi
 | user_id | text | NOT NULL |
 | session_id | text | NOT NULL |
 | batch_id | uuid | Identifies the batch (each session/next-batch call); NULL for rows before migration |
+| batch_mode | text | Queue mode for the batch: expansion, consolidation, or rescue (Issue #12); NULL for rows before migration |
+| batch_character_category | text | Character's five-band category at batch creation: new, hard, learning_normal, learned_normal, mastered; NULL for rows before migration |
 | character | text | NOT NULL |
 | prompt_type | text | NOT NULL |
 | correct_choice | text | NOT NULL |
@@ -139,7 +143,7 @@ When `USE_DATABASE=true`, session events are written to Supabase (two-table desi
 | category | text | 新字/巩固/重测 (at answer time); backfill via `scripts/backfill_pinyin_recall_category.py` |
 | created_at | timestamptz | NOT NULL, default now() |
 
-**Create:** `python scripts/create_pinyin_recall_log_tables.py`. **Add batch_id column (existing deployments):** `python scripts/add_pinyin_recall_batch_id_column.py`. **Backfill batch_id:** `python scripts/backfill_pinyin_recall_batch_id.py` (clusters by created_at within session; options: `--dry-run`, `--gap 10`). **Add category column (existing deployments):** `python scripts/add_pinyin_recall_category_column.py`. **Backfill category:** `python scripts/backfill_pinyin_recall_category.py` (run after adding the column). **Backfill score (symmetric +10/−10):** `python scripts/backfill_pinyin_recall_score.py` (replays item_answered, updates bank + item_answered; creates backup tables first; `--dry-run`, `--no-backup`). **Upload local log:** `python scripts/upload_pinyin_recall_log_to_db.py` (reads `logs/pinyin_recall.log`). **Migrate from legacy single table:** `python scripts/migrate_pinyin_recall_events_to_two_tables.py` (if you had data in `pinyin_recall_events`).
+**Create:** `python scripts/create_pinyin_recall_log_tables.py`. **Add batch_id column (existing deployments):** `python scripts/add_pinyin_recall_batch_id_column.py`. **Add batch columns (existing deployments):** `python scripts/add_pinyin_recall_batch_columns.py` (adds batch_mode and batch_character_category). **Backfill batch_id:** `python scripts/backfill_pinyin_recall_batch_id.py` (clusters by created_at within session; options: `--dry-run`, `--gap 10`). **Add category column (existing deployments):** `python scripts/add_pinyin_recall_category_column.py`. **Backfill category:** `python scripts/backfill_pinyin_recall_category.py` (run after adding the column). **Backfill score (symmetric +10/−10):** `python scripts/backfill_pinyin_recall_score.py` (replays item_answered, updates bank + item_answered; creates backup tables first; `--dry-run`, `--no-backup`). **Upload local log:** `python scripts/upload_pinyin_recall_log_to_db.py` (reads `logs/pinyin_recall.log`). **Migrate from legacy single table:** `python scripts/migrate_pinyin_recall_events_to_two_tables.py` (if you had data in `pinyin_recall_events`).
 
 ---
 
@@ -238,6 +242,7 @@ API response shapes are unchanged; no frontend changes required for DB migration
 | `scripts/verify_feng_characters.py` | Verify row counts / sample from `feng_characters`. |
 | `scripts/verify_hwxnet_characters.py` | Verify row counts / sample from `hwxnet_characters`. |
 | `scripts/add_searchable_pinyin_column.py` | Add `searchable_pinyin` (jsonb) to `hwxnet_characters`, create GIN index, backfill from `pinyin`. Options: `--dry-run`, `--no-backup`, `--skip-filled`. |
+| `scripts/query_character_for_user.py` | Query Supabase for one character’s `pinyin_recall_character_bank` row and `pinyin_recall_item_answered` history for a user. **Options:** `--email "user@example.com"` or `--user-id "uuid"` (required), `--character 亚` (default). Resolves email via `auth.users`. Requires `DATABASE_URL` or `SUPABASE_DB_URL`. Run from `backend/`: `python scripts/query_character_for_user.py --user-id "uuid" --character 丐`. |
 
 All scripts use `DATABASE_URL` or `SUPABASE_DB_URL` (and load `backend/.env.local` if present). Run from `backend/`.
 

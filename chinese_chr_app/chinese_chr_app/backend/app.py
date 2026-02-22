@@ -1288,6 +1288,7 @@ def _log_pinyin_recall_event(
     user_id: Optional[str] = None,
     session_id: Optional[str] = None,
     batch_id: Optional[str] = None,
+    batch_mode: Optional[str] = None,
     payload: Optional[Dict[str, Any]] = None,
 ) -> None:
     """Write pinyin recall event to Supabase (when USE_DATABASE) or to pinyin_recall.log."""
@@ -1300,6 +1301,8 @@ def _log_pinyin_recall_event(
                         "user_id": user_id,
                         "session_id": session_id,
                         "batch_id": batch_id,
+                        "batch_mode": batch_mode,
+                        "batch_character_category": item.get("batch_category"),
                         "character": item.get("character"),
                         "prompt_type": item.get("prompt_type"),
                         "correct_choice": item.get("correct_pinyin"),
@@ -1318,6 +1321,8 @@ def _log_pinyin_recall_event(
                     "user_id": user_id,
                     "session_id": session_id,
                     "batch_id": batch_id,
+                    "batch_mode": batch_mode,
+                    "batch_character_category": item.get("batch_category"),
                     "character": item.get("character"),
                     "prompt_type": item.get("prompt_type"),
                     "correct_choice": item.get("correct_pinyin"),
@@ -1355,7 +1360,7 @@ def pinyin_recall_session():
     timings["load_learning_state_ms"] = int((t5 - t4) * 1000)
 
     t6 = time.perf_counter()
-    items = build_session_queue(
+    items, batch_mode = build_session_queue(
         user.user_id,
         date_str,
         learning_state,
@@ -1370,7 +1375,7 @@ def pinyin_recall_session():
     session_id = str(uuid.uuid4())
     batch_id = str(uuid.uuid4())
     t8 = time.perf_counter()
-    _log_pinyin_recall_event("item_presented", items=items, user_id=user.user_id, session_id=session_id, batch_id=batch_id)
+    _log_pinyin_recall_event("item_presented", items=items, user_id=user.user_id, session_id=session_id, batch_id=batch_id, batch_mode=batch_mode)
     t9 = time.perf_counter()
     timings["log_event_ms"] = int((t9 - t8) * 1000)
 
@@ -1432,7 +1437,7 @@ def pinyin_recall_next_batch():
     timings["load_learning_state_ms"] = int((t5 - t4) * 1000)
 
     t6 = time.perf_counter()
-    items = build_session_queue(
+    items, batch_mode = build_session_queue(
         user.user_id,
         date_str,
         learning_state,
@@ -1446,7 +1451,7 @@ def pinyin_recall_next_batch():
 
     batch_id = str(uuid.uuid4())
     t8 = time.perf_counter()
-    _log_pinyin_recall_event("item_presented", items=items, user_id=user.user_id, session_id=session_id, batch_id=batch_id)
+    _log_pinyin_recall_event("item_presented", items=items, user_id=user.user_id, session_id=session_id, batch_id=batch_id, batch_mode=batch_mode)
     t9 = time.perf_counter()
     timings["log_event_ms"] = int((t9 - t8) * 1000)
 

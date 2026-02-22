@@ -532,6 +532,23 @@ PINYIN_RECALL_SCORE_MAX = 100
 PINYIN_RECALL_STAGE_INTERVAL_DAYS = [0, 1, 3, 7, 14, 30]
 PINYIN_RECALL_MAX_STAGE = len(PINYIN_RECALL_STAGE_INTERVAL_DAYS) - 1
 
+# Cooling intervals by five-band (Issue #12): 难字 0d, 普通在学字 1d, 普通已学字 5d, 掌握字 22d
+PINYIN_RECALL_COOLING_DAYS_HARD = 0
+PINYIN_RECALL_COOLING_DAYS_LEARNING_NORMAL = 1
+PINYIN_RECALL_COOLING_DAYS_LEARNED_NORMAL = 5
+PINYIN_RECALL_COOLING_DAYS_MASTERED = 22
+
+
+def _cooling_days_for_score(score: int) -> int:
+    """Return cooling days for next_due_utc by score band (难字 0, 普通在学字 1, 普通已学字 5, 掌握字 22)."""
+    if score <= PROFILE_LEARNING_HARD_MAX_SCORE:
+        return PINYIN_RECALL_COOLING_DAYS_HARD
+    if score <= 0:
+        return PINYIN_RECALL_COOLING_DAYS_LEARNING_NORMAL
+    if score < PROFILE_LEARNED_MASTERED_MIN_SCORE:
+        return PINYIN_RECALL_COOLING_DAYS_LEARNED_NORMAL
+    return PINYIN_RECALL_COOLING_DAYS_MASTERED
+
 
 def get_pinyin_recall_learning_state(user_id: str) -> Dict[str, Dict[str, Any]]:
     """
@@ -624,17 +641,23 @@ def upsert_pinyin_recall_character_bank(
         else:
             score_after = max(score_before - PINYIN_RECALL_SCORE_WRONG_DELTA, PINYIN_RECALL_SCORE_MIN)
 
-        # Stage and next_due: same logic as pinyin_recall.update_learning_state
+        # next_due_utc by band-based cooling (Issue #12); stage kept for compatibility
         if i_dont_know or not correct:
             stage = 0
             next_due_utc = None
         else:
-            stage = min(stage + 1, PINYIN_RECALL_MAX_STAGE)
-            days = PINYIN_RECALL_STAGE_INTERVAL_DAYS[stage]
+            days = _cooling_days_for_score(score_after)
             if days == 0:
                 next_due_utc = now_ts + 60
             else:
                 next_due_utc = now_ts + days * 86400
+            # Map band to stage for analytics (0–3)
+            stage = min(
+                (3 if score_after >= PROFILE_LEARNED_MASTERED_MIN_SCORE else
+                 2 if score_after > 0 else
+                 1 if score_after > PROFILE_LEARNING_HARD_MAX_SCORE else 0),
+                PINYIN_RECALL_MAX_STAGE,
+            )
 
         with conn.cursor() as cur:
             cur.execute(
@@ -666,21 +689,23 @@ def upsert_pinyin_recall_character_bank(
 def insert_pinyin_recall_item_presented(payload: Dict[str, Any]) -> None:
     """
     Insert one item_presented event into pinyin_recall_item_presented.
-    payload: user_id, session_id, character, prompt_type, correct_choice, choices, batch_id?.
+    payload: user_id, session_id, character, prompt_type, correct_choice, choices, batch_id?, batch_mode?, batch_character_category?.
     Table must exist (run scripts/create_pinyin_recall_log_tables.py once).
-    batch_id (uuid) identifies the batch; run add_pinyin_recall_batch_id_column.py to add the column.
+    batch_character_category: five-band at batch time (new|hard|learning_normal|learned_normal|mastered).
     """
     conn = _get_connection()
     try:
         choices = payload.get("choices")
         choices_json = json.dumps(choices) if choices is not None else "[]"
         batch_id = payload.get("batch_id")
+        batch_mode = payload.get("batch_mode")
+        batch_character_category = payload.get("batch_character_category")
         with conn.cursor() as cur:
             cur.execute(
                 """
                 INSERT INTO pinyin_recall_item_presented (
-                    user_id, session_id, character, prompt_type, correct_choice, choices, batch_id
-                ) VALUES (%s, %s, %s, %s, %s, %s, %s)
+                    user_id, session_id, character, prompt_type, correct_choice, choices, batch_id, batch_mode, batch_character_category
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
                 """,
                 (
                     (payload.get("user_id") or "").strip(),
@@ -690,6 +715,8 @@ def insert_pinyin_recall_item_presented(payload: Dict[str, Any]) -> None:
                     (payload.get("correct_choice") or "").strip(),
                     choices_json,
                     batch_id,
+                    batch_mode,
+                    batch_character_category,
                 ),
                 prepare=False,
             )
@@ -761,12 +788,17 @@ def upsert_pinyin_recall_answer_and_log(
             stage = 0
             next_due_utc = None
         else:
-            stage = min(stage + 1, PINYIN_RECALL_MAX_STAGE)
-            days = PINYIN_RECALL_STAGE_INTERVAL_DAYS[stage]
+            days = _cooling_days_for_score(score_after)
             if days == 0:
                 next_due_utc = now_ts + 60
             else:
                 next_due_utc = now_ts + days * 86400
+            stage = min(
+                (3 if score_after >= PROFILE_LEARNED_MASTERED_MIN_SCORE else
+                 2 if score_after > 0 else
+                 1 if score_after > PROFILE_LEARNING_HARD_MAX_SCORE else 0),
+                PINYIN_RECALL_MAX_STAGE,
+            )
 
         with conn.cursor() as cur:
             cur.execute(
@@ -861,8 +893,8 @@ def bulk_insert_pinyin_recall_item_presented(payloads: List[Dict[str, Any]]) -> 
         return 0
     conn = _get_connection()
     sql = """
-        INSERT INTO pinyin_recall_item_presented (user_id, session_id, character, prompt_type, correct_choice, choices, batch_id)
-        VALUES (%s, %s, %s, %s, %s, %s, %s)
+        INSERT INTO pinyin_recall_item_presented (user_id, session_id, character, prompt_type, correct_choice, choices, batch_id, batch_mode, batch_character_category)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
     """
     try:
         with conn.cursor() as cur:
@@ -877,6 +909,8 @@ def bulk_insert_pinyin_recall_item_presented(payloads: List[Dict[str, Any]]) -> 
                     (p.get("correct_choice") or "").strip(),
                     choices_json,
                     p.get("batch_id"),
+                    p.get("batch_mode"),
+                    p.get("batch_character_category"),
                 ), prepare=False)
         conn.commit()
         return len(payloads)
