@@ -1,5 +1,6 @@
 # Proposal: 汉字掌握度 — show 未学字 / 在学字 / 已学字
 
+**Status:** Implemented  
 **Date:** 2026-02-21  
 **Context:** The 我的 (Profile) page currently shows only **已学字** (learned) in the “汉字掌握度” section. This proposal extends it to show all three character categories.
 
