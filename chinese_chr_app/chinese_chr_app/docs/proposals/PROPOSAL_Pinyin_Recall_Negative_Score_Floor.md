@@ -72,7 +72,7 @@ Update `backfill_pinyin_recall_score.py`:
 ### 4.4 Documentation
 
 - `DATABASE.md` — "Score: correct +10 (cap 100), wrong/我不知道 −10 (floor 0)" → "floor −50"
-- `MVP1_Pinyin_Micro_Session_Plan.md` — update score range description if present
+- `docs/plans/MVP1_Pinyin_Micro_Session_Plan.md` — update score range description if present
 
 ---
 

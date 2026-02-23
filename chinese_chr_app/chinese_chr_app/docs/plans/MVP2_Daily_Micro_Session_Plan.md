@@ -1,8 +1,8 @@
 # MVP 2 Plan: Daily Micro-Session (Meaning in Context)
 
 Date: 2026-02-08  
-Related doc: `Learning Functions Research & Brainstorming.md` (MVP notes + learning principles)  
-Prerequisite: **MVP 1** (Pinyin Recall) — see `MVP1_Pinyin_Micro_Session_Plan.md`
+Related doc: `docs/research/Learning_Functions_Research_and_Brainstorming.md` (MVP notes + learning principles)  
+Prerequisite: **MVP 1** (Pinyin Recall) — see `docs/plans/MVP1_Pinyin_Micro_Session_Plan.md`
 
 ---
 

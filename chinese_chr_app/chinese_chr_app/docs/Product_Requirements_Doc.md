@@ -147,7 +147,7 @@ This section captures the current direction of the product shift toward (2) Lear
 
 ## Research + brainstorming paper trail
 
-See: `chinese_chr_app/chinese_chr_app/Learning Functions Research & Brainstorming.md`
+See: `docs/research/Learning_Functions_Research_and_Brainstorming.md`
 
 ## Product vision (learning functions)
 

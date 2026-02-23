@@ -5,10 +5,10 @@
 **Context:** The character bank can be partitioned into five categories by **master score**. This proposal rethinks how we build a batch of 20 characters so the queue aligns with learning goals and research principles.
 
 **References:**  
-- `Learning Functions Research & Brainstorming.md` — retrieval practice, spacing, interleaving, diagnose→select→practice→feedback→schedule  
+- `docs/research/Learning_Functions_Research_and_Brainstorming.md` — retrieval practice, spacing, interleaving, diagnose→select→practice→feedback→schedule  
 - `README.md` — app goals, data model (3664 HWXNet pool)  
-- `MVP1_Pinyin_Micro_Session_Plan.md` — current queue: due first (stratified 巩固/重测), then new  
-- `notes/_Chinese Character Learning Algorithm Design .md` — adaptive valve by Active Load, Rescue/Consolidation/Expansion, cooling periods, confidence-first ordering
+- `docs/plans/MVP1_Pinyin_Micro_Session_Plan.md` — current queue: due first (stratified 巩固/重测), then new  
+- `docs/research/Chinese_Character_Learning_Algorithm_Design.md` — adaptive valve by Active Load, Rescue/Consolidation/Expansion, cooling periods, confidence-first ordering
 
 ---
 

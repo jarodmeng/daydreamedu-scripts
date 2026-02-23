@@ -1,8 +1,8 @@
 # MVP 1 Plan: Daily Micro-Session (Pinyin Recall)
 
 Date: 2026-02-08  
-Related doc: `Learning Functions Research & Brainstorming.md` (MVP notes + learning principles)  
-Follow-up: **MVP 2** (Meaning in Context) — see `MVP2_Daily_Micro_Session_Plan.md`
+Related doc: `docs/research/Learning_Functions_Research_and_Brainstorming.md` (MVP notes + learning principles)  
+Follow-up: **MVP 2** (Meaning in Context) — see `docs/plans/MVP2_Daily_Micro_Session_Plan.md`
 
 ---
 
@@ -79,7 +79,7 @@ If the backend has fewer than 20 due+new items available, it returns as many as 
 
 ## Key technical constraints / existing system integration
 
-Shared with MVP 2: auth, data sources, logging. Reuse the data model, APIs, and queue construction with new prompt types and distractor rules. See `MVP2_Daily_Micro_Session_Plan.md` for the same scaffolding.
+Shared with MVP 2: auth, data sources, logging. Reuse the data model, APIs, and queue construction with new prompt types and distractor rules. See `docs/plans/MVP2_Daily_Micro_Session_Plan.md` for the same scaffolding.
 
 ---
 

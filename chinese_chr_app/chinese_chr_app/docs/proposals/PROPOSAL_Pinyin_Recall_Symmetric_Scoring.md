@@ -49,7 +49,7 @@ Overall: slightly more forgiving near the “learned” threshold.
 
 1. **`database.py`** — Change `PINYIN_RECALL_SCORE_WRONG_DELTA` from `15` to `10`.
 2. **`pinyin_recall.py`** — Update in-memory scoring if used standalone.
-3. **Documentation** — Update `DATABASE.md` and `MVP1_Pinyin_Micro_Session_Plan.md` to describe +10/−10.
+3. **Documentation** — Update `backend/DATABASE.md` and `docs/plans/MVP1_Pinyin_Micro_Session_Plan.md` to describe +10/−10.
 
 ---
 
