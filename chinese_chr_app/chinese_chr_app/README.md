@@ -15,12 +15,23 @@ Paths below are relative to the repo root. The app lives under `chinese_chr_app/
 ```
 chinese_chr_app/
 ├── chinese_chr_app/     # Main app (this folder)
+│   ├── README.md        # This file
+│   ├── docs/            # All non-README documentation (see "File organization" below)
+│   │   ├── proposals/   # PROPOSAL_* design docs
+│   │   ├── plans/       # MVP / session plans
+│   │   ├── research/    # Notes and research (e.g. learning algorithm design)
+│   │   └── Product_Requirements_Doc.md
 │   ├── backend/         # Flask backend API
 │   │   ├── app.py       # Main Flask application
 │   │   ├── auth.py      # Supabase JWT verification
 │   │   ├── database.py  # Supabase/Postgres layer (feng_characters, hwxnet_characters, character_views)
 │   │   ├── requirements.txt
 │   │   ├── DATABASE.md  # DB schema, scripts, and data access
+│   │   ├── scripts/     # DB/migration scripts, grouped by domain (see "File organization" below)
+│   │   │   ├── pinyin_recall/  # Pinyin recall tables, backfills, migration, upload
+│   │   │   ├── characters/     # Feng/hwxnet/views tables, verify, searchable pinyin
+│   │   │   ├── radicals/       # Radical/stroke-count tables and checks
+│   │   │   └── utils/          # One-off/query/admin (query_character_for_user, delete_local_dev_rows, etc.)
 │   │   └── logs/        # Character edit logs
 │   └── frontend/        # React frontend
 │       ├── src/
@@ -42,6 +53,18 @@ chinese_chr_app/
     ├── level-2.json                      # Continuation list (3501-6500)
     └── level-3.json                      # Continuation list (6501-8105, includes some non-BMP chars)
 ```
+
+### File organization (where to put new files)
+
+- **New design/feature proposals** → `docs/proposals/` (e.g. `PROPOSAL_My_Feature.md`).
+- **New MVP or session plans** → `docs/plans/`.
+- **New research or algorithm notes** → `docs/research/`.
+- **New backend DB/migration scripts** → `backend/scripts/` in the right domain subfolder:
+  - Pinyin recall (tables, backfills, event log) → `backend/scripts/pinyin_recall/`.
+  - Character/hwxnet/views tables, verify, searchable pinyin → `backend/scripts/characters/`.
+  - Radical/stroke-count → `backend/scripts/radicals/`.
+  - One-off queries, admin, or generic utils → `backend/scripts/utils/`.
+- Run scripts from `backend/`: e.g. `python scripts/characters/create_feng_characters_table.py`. Update `backend/DATABASE.md` when adding or moving scripts.
 
 ## Data Model Notes (What We Learned)
 

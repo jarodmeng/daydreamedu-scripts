@@ -1,0 +1,35 @@
+---
+description: File organization and structure for chinese_chr_app
+globs: chinese_chr_app/chinese_chr_app/**
+alwaysApply: false
+---
+
+# Chinese Chr App: File Organization
+
+When adding or moving files under `chinese_chr_app/chinese_chr_app/`, follow this structure.
+
+## Documentation
+
+- **Proposals** (PROPOSAL_*, design docs) → `docs/proposals/`.
+- **Plans** (MVP, session plans) → `docs/plans/`.
+- **Research / algorithm notes** → `docs/research/`.
+- Keep only `README.md` at app root; other markdown lives under `docs/`.
+
+## Backend scripts (`backend/scripts/`)
+
+Scripts are grouped by domain. Put new scripts in the matching subfolder:
+
+| Subfolder | Use for |
+|-----------|--------|
+| `pinyin_recall/` | Pinyin recall tables, backfills, event log migration/upload, checks |
+| `characters/` | Feng/hwxnet/character_views tables, verify, searchable_pinyin, normalization |
+| `radicals/` | Radical/stroke-count tables and checks |
+| `utils/` | One-off queries, admin (e.g. query_character_for_user, delete_local_dev_rows), generic helpers |
+
+- Run scripts from `backend/`: `python scripts/<subfolder>/<script>.py`.
+- Scripts in subfolders use `Path(__file__).resolve().parent.parent.parent` for backend dir and `.env.local`.
+- After adding or moving scripts, update `backend/DATABASE.md` with the correct paths.
+
+## Frontend
+
+- No structural refactor: keep pages in `src/pages/`, shared UI at `src/` root (NavBar, AuthContext, etc.).
