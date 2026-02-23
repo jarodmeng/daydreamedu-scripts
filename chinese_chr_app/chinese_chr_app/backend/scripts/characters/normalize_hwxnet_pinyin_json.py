@@ -19,7 +19,7 @@ from typing import List
 
 
 SCRIPT_DIR = Path(__file__).resolve().parent
-BACKEND_DIR = SCRIPT_DIR.parent
+BACKEND_DIR = SCRIPT_DIR.parent.parent
 OUTER_APP_DIR = BACKEND_DIR.parent.parent
 DATA_DIR = OUTER_APP_DIR / "data"
 HWXNET_JSON = DATA_DIR / "extracted_characters_hwxnet.json"

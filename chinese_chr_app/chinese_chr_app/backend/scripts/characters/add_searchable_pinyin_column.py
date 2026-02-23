@@ -28,7 +28,7 @@ from typing import List, Optional, Tuple
 
 try:
     from dotenv import load_dotenv
-    env_file = Path(__file__).resolve().parent.parent / ".env.local"
+    env_file = Path(__file__).resolve().parent.parent.parent / ".env.local"
     if env_file.exists():
         load_dotenv(env_file)
 except ImportError:
@@ -166,8 +166,8 @@ def main():
     if args.dry_run:
         # Sample from HWXNet JSON to show normalization
         SCRIPT_DIR = Path(__file__).resolve().parent
-        BACKEND_DIR = SCRIPT_DIR.parent
-        OUTER_APP_DIR = BACKEND_DIR.parent.parent
+        BACKEND_DIR = SCRIPT_DIR.parent.parent
+        OUTER_APP_DIR = BACKEND_DIR.parent.parent.parent
         DATA_DIR = OUTER_APP_DIR / "data"
         HWXNET_JSON = DATA_DIR / "extracted_characters_hwxnet.json"
         if not HWXNET_JSON.exists():

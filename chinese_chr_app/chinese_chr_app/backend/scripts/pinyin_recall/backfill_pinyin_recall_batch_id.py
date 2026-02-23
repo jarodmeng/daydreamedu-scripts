@@ -27,7 +27,7 @@ from pathlib import Path
 
 try:
     from dotenv import load_dotenv
-    env_file = Path(__file__).resolve().parent.parent / ".env.local"
+    env_file = Path(__file__).resolve().parent.parent.parent / ".env.local"
     if env_file.exists():
         load_dotenv(env_file)
 except ImportError:

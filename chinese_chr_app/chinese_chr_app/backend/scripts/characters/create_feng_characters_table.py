@@ -21,7 +21,7 @@ from pathlib import Path
 # Load backend .env.local if present (so DATABASE_URL is available when run from backend/)
 try:
     from dotenv import load_dotenv
-    env_file = Path(__file__).resolve().parent.parent / ".env.local"
+    env_file = Path(__file__).resolve().parent.parent.parent / ".env.local"
     if env_file.exists():
         load_dotenv(env_file)
 except ImportError:
@@ -39,7 +39,7 @@ def _import_psycopg():
 
 # Path to characters.json: from backend/scripts/ go up to chinese_chr_app (outer) / data
 SCRIPT_DIR = Path(__file__).resolve().parent
-BACKEND_DIR = SCRIPT_DIR.parent
+BACKEND_DIR = SCRIPT_DIR.parent.parent
 OUTER_APP_DIR = BACKEND_DIR.parent.parent
 DATA_DIR = OUTER_APP_DIR / "data"
 CHARACTERS_JSON = DATA_DIR / "characters.json"

@@ -189,7 +189,7 @@ The backend can read/write character data from Supabase tables instead of JSON f
 - Set **`USE_DATABASE=true`** and **`DATABASE_URL`** (Supabase Postgres connection string) in the backend environment.
 - Tables: **`feng_characters`** (3000 冯氏早教识字卡 entries) and **`hwxnet_characters`** (3664 dictionary entries).
 - Without these, the app uses `data/characters.json` and `data/extracted_characters_hwxnet.json` as before.
-- **Character view logging:** When using the DB, signed-in users’ character views (Search result) are logged to **`character_views`** (user_id, character, viewed_at, display_name). Display name is taken from the app profile or JWT. Create the table once from `backend/`: `python scripts/create_character_views_table.py`.
+- **Character view logging:** When using the DB, signed-in users’ character views (Search result) are logged to **`character_views`** (user_id, character, viewed_at, display_name). Display name is taken from the app profile or JWT. Create the table once from `backend/`: `python scripts/characters/create_character_views_table.py`.
 - See **`backend/DATABASE.md`** for schema, scripts, and data access.
 
 ### If you see "psycopg is required for database support"

@@ -5,11 +5,11 @@ One-off: upload local pinyin_recall.log lines into the two log tables.
 Reads backend/logs/pinyin_recall.log (one JSON object per line), inserts
 item_presented into pinyin_recall_item_presented and item_answered into
 pinyin_recall_item_answered. Requires DATABASE_URL/SUPABASE_DB_URL.
-Run scripts/create_pinyin_recall_log_tables.py first.
+Run scripts/pinyin_recall/create_pinyin_recall_log_tables.py first.
 
 Run from backend/:
-  python scripts/upload_pinyin_recall_log_to_db.py
-  python scripts/upload_pinyin_recall_log_to_db.py --dry-run   # parse only, no insert
+  python scripts/pinyin_recall/upload_pinyin_recall_log_to_db.py
+  python scripts/pinyin_recall/upload_pinyin_recall_log_to_db.py --dry-run   # parse only, no insert
 """
 
 import json
@@ -18,13 +18,13 @@ import sys
 from pathlib import Path
 
 # Ensure backend/ is on path so "import database" works when run from backend/
-_backend_dir = Path(__file__).resolve().parent.parent
+_backend_dir = Path(__file__).resolve().parent.parent.parent
 if str(_backend_dir) not in sys.path:
     sys.path.insert(0, str(_backend_dir))
 
 try:
     from dotenv import load_dotenv
-    env_file = Path(__file__).resolve().parent.parent / ".env.local"
+    env_file = Path(__file__).resolve().parent.parent.parent / ".env.local"
     if env_file.exists():
         load_dotenv(env_file)
 except ImportError:

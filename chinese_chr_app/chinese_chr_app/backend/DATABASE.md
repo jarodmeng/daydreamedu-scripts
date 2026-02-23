@@ -35,7 +35,7 @@ See `.env.local.example` and [DEPLOYMENT.md](DEPLOYMENT.md) for production (e.g.
 
 **Indexes:** `idx_feng_characters_character`, `idx_feng_characters_zibiao_index` (partial).
 
-**Create:** `python scripts/create_feng_characters_table.py` (use `--all` for full migration). **Verify:** `python scripts/verify_feng_characters.py`.
+**Create:** `python scripts/characters/create_feng_characters_table.py` (use `--all` for full migration). **Verify:** `python scripts/characters/verify_feng_characters.py`.
 
 ---
 
@@ -55,11 +55,11 @@ See `.env.local.example` and [DEPLOYMENT.md](DEPLOYMENT.md) for production (e.g.
 | strokes | integer | |
 | basic_meanings | jsonb | |
 | english_translations | jsonb | |
-| **searchable_pinyin** | jsonb | Array of normalized pinyin keys for search (e.g. `["wo", "wo3"]`). Backfill: `scripts/add_searchable_pinyin_column.py`. |
+| **searchable_pinyin** | jsonb | Array of normalized pinyin keys for search (e.g. `["wo", "wo3"]`). Backfill: `scripts/characters/add_searchable_pinyin_column.py`. |
 
 **Indexes:** `idx_hwxnet_characters_character`, `idx_hwxnet_characters_index` (partial), **`idx_hwxnet_searchable_pinyin`** (GIN on `searchable_pinyin`).
 
-**Create:** `python scripts/create_hwxnet_characters_table.py` (use `--all` for full migration). **Verify:** `python scripts/verify_hwxnet_characters.py`. **Pinyin column:** `python scripts/add_searchable_pinyin_column.py` (options: `--dry-run`, `--no-backup`, `--skip-filled`).
+**Create:** `python scripts/characters/create_hwxnet_characters_table.py` (use `--all` for full migration). **Verify:** `python scripts/characters/verify_hwxnet_characters.py`. **Pinyin column:** `python scripts/characters/add_searchable_pinyin_column.py` (options: `--dry-run`, `--no-backup`, `--skip-filled`).
 
 ---
 
@@ -77,7 +77,7 @@ Logs which characters signed-in users view on Search (user_id, character, viewed
 
 **Index:** `idx_character_views_user_viewed` on `(user_id, viewed_at DESC)`.
 
-**Create:** `python scripts/create_character_views_table.py`.
+**Create:** `python scripts/characters/create_character_views_table.py`.
 
 ---
 
@@ -102,7 +102,7 @@ Per-user, per-character state for MVP1 pinyin recall (score −50–100, stage, 
 
 **Index:** `idx_pinyin_recall_bank_user_next_due` on `(user_id, next_due_utc)`.
 
-**Create:** `python scripts/create_pinyin_recall_character_bank_table.py`.
+**Create:** `python scripts/pinyin_recall/create_pinyin_recall_character_bank_table.py`.
 
 ---
 
@@ -140,10 +140,10 @@ When `USE_DATABASE=true`, session events are written to Supabase (two-table desi
 | i_dont_know | boolean | NOT NULL |
 | score_before | integer | |
 | score_after | integer | |
-| category | text | 新字/巩固/重测 (at answer time); backfill via `scripts/backfill_pinyin_recall_category.py` |
+| category | text | 新字/巩固/重测 (at answer time); backfill via `scripts/pinyin_recall/backfill_pinyin_recall_category.py` |
 | created_at | timestamptz | NOT NULL, default now() |
 
-**Create:** `python scripts/create_pinyin_recall_log_tables.py`. **Add batch_id column (existing deployments):** `python scripts/add_pinyin_recall_batch_id_column.py`. **Add batch columns (existing deployments):** `python scripts/add_pinyin_recall_batch_columns.py` (adds batch_mode and batch_character_category). **Backfill batch_id:** `python scripts/backfill_pinyin_recall_batch_id.py` (clusters by created_at within session; options: `--dry-run`, `--gap 10`). **Add category column (existing deployments):** `python scripts/add_pinyin_recall_category_column.py`. **Backfill category:** `python scripts/backfill_pinyin_recall_category.py` (run after adding the column). **Backfill score (symmetric +10/−10):** `python scripts/backfill_pinyin_recall_score.py` (replays item_answered, updates bank + item_answered; creates backup tables first; `--dry-run`, `--no-backup`). **Upload local log:** `python scripts/upload_pinyin_recall_log_to_db.py` (reads `logs/pinyin_recall.log`). **Migrate from legacy single table:** `python scripts/migrate_pinyin_recall_events_to_two_tables.py` (if you had data in `pinyin_recall_events`).
+**Create:** `python scripts/pinyin_recall/create_pinyin_recall_log_tables.py`. **Add batch_id column (existing deployments):** `python scripts/pinyin_recall/add_pinyin_recall_batch_id_column.py`. **Add batch columns (existing deployments):** `python scripts/pinyin_recall/add_pinyin_recall_batch_columns.py` (adds batch_mode and batch_character_category). **Backfill batch_id:** `python scripts/pinyin_recall/backfill_pinyin_recall_batch_id.py` (clusters by created_at within session; options: `--dry-run`, `--gap 10`). **Add category column (existing deployments):** `python scripts/pinyin_recall/add_pinyin_recall_category_column.py`. **Backfill category:** `python scripts/pinyin_recall/backfill_pinyin_recall_category.py` (run after adding the column). **Backfill score (symmetric +10/−10):** `python scripts/pinyin_recall/backfill_pinyin_recall_score.py` (replays item_answered, updates bank + item_answered; creates backup tables first; `--dry-run`, `--no-backup`). **Upload local log:** `python scripts/pinyin_recall/upload_pinyin_recall_log_to_db.py` (reads `logs/pinyin_recall.log`). **Migrate from legacy single table:** `python scripts/pinyin_recall/migrate_pinyin_recall_events_to_two_tables.py` (if you had data in `pinyin_recall_events`).
 
 ---
 
@@ -158,7 +158,7 @@ Mapping of radical character to its stroke count (e.g. for sorting the Radicals 
 
 **Index:** `idx_radical_stroke_counts_stroke_count` on `stroke_count`.
 
-**Create and load:** `python scripts/create_radical_stroke_counts_table.py` (reads `data/radical_stroke_counts.json`). Use `--dry-run` to validate without connecting.
+**Create and load:** `python scripts/radicals/create_radical_stroke_counts_table.py` (reads `data/radical_stroke_counts.json`). Use `--dry-run` to validate without connecting.
 
 ---
 
@@ -225,24 +225,24 @@ API response shapes are unchanged; no frontend changes required for DB migration
 
 | Script | Purpose |
 |--------|--------|
-| `scripts/create_feng_characters_table.py` | Create `feng_characters`, optionally insert from `data/characters.json` (`--all` for full). |
-| `scripts/create_hwxnet_characters_table.py` | Create `hwxnet_characters`, optionally insert from `data/extracted_characters_hwxnet.json` (`--all` for full). |
-| `scripts/create_character_views_table.py` | Create `character_views`. |
-| `scripts/create_pinyin_recall_character_bank_table.py` | Create `pinyin_recall_character_bank` (MVP1 pinyin recall state). |
-| `scripts/create_pinyin_recall_log_tables.py` | Create `pinyin_recall_item_presented` and `pinyin_recall_item_answered` (two-table event log). |
-| `scripts/add_pinyin_recall_batch_id_column.py` | Add `batch_id` column to `pinyin_recall_item_presented` (for existing deployments). Options: `--dry-run`. |
-| `scripts/backfill_pinyin_recall_batch_id.py` | Backfill `batch_id` using created_at clustering per session. Creates backup table first. Options: `--dry-run`, `--gap N` (seconds), `--no-backup`. |
-| `scripts/add_pinyin_recall_category_column.py` | Add `category` column to `pinyin_recall_item_answered` (for existing deployments). |
-| `scripts/backfill_pinyin_recall_category.py` | Backfill `category` from chronological answer history per (user_id, character). Options: `--dry-run`. |
-| `scripts/backfill_pinyin_recall_score.py` | Backfill `score` in character_bank and `score_before`/`score_after` in item_answered using symmetric +10/−10. Replays item_answered per (user_id, character). Creates backup tables first. Options: `--dry-run`, `--no-backup`. |
-| `scripts/upload_pinyin_recall_log_to_db.py` | One-off: upload `logs/pinyin_recall.log` into the two log tables. Options: `--dry-run`. |
-| `scripts/migrate_pinyin_recall_events_to_two_tables.py` | One-off: copy from legacy `pinyin_recall_events` into the two log tables. Options: `--dry-run`. |
-| `scripts/delete_local_dev_rows.py` | Delete all rows where `user_id = 'local-dev'` from tables with user_id (character_views, pinyin_recall_*, pinyin_recall_events). Creates backup tables first. Options: `--dry-run`, `--no-backup`. |
-| `scripts/create_radical_stroke_counts_table.py` | Create `radical_stroke_counts`, insert from `data/radical_stroke_counts.json`. Options: `--dry-run`. |
-| `scripts/verify_feng_characters.py` | Verify row counts / sample from `feng_characters`. |
-| `scripts/verify_hwxnet_characters.py` | Verify row counts / sample from `hwxnet_characters`. |
-| `scripts/add_searchable_pinyin_column.py` | Add `searchable_pinyin` (jsonb) to `hwxnet_characters`, create GIN index, backfill from `pinyin`. Options: `--dry-run`, `--no-backup`, `--skip-filled`. |
-| `scripts/query_character_for_user.py` | Query Supabase for one character’s `pinyin_recall_character_bank` row and `pinyin_recall_item_answered` history for a user. **Options:** `--email "user@example.com"` or `--user-id "uuid"` (required), `--character 亚` (default). Resolves email via `auth.users`. Requires `DATABASE_URL` or `SUPABASE_DB_URL`. Run from `backend/`: `python scripts/query_character_for_user.py --user-id "uuid" --character 丐`. |
+| `scripts/characters/create_feng_characters_table.py` | Create `feng_characters`, optionally insert from `data/characters.json` (`--all` for full). |
+| `scripts/characters/create_hwxnet_characters_table.py` | Create `hwxnet_characters`, optionally insert from `data/extracted_characters_hwxnet.json` (`--all` for full). |
+| `scripts/characters/create_character_views_table.py` | Create `character_views`. |
+| `scripts/pinyin_recall/create_pinyin_recall_character_bank_table.py` | Create `pinyin_recall_character_bank` (MVP1 pinyin recall state). |
+| `scripts/pinyin_recall/create_pinyin_recall_log_tables.py` | Create `pinyin_recall_item_presented` and `pinyin_recall_item_answered` (two-table event log). |
+| `scripts/pinyin_recall/add_pinyin_recall_batch_id_column.py` | Add `batch_id` column to `pinyin_recall_item_presented` (for existing deployments). Options: `--dry-run`. |
+| `scripts/pinyin_recall/backfill_pinyin_recall_batch_id.py` | Backfill `batch_id` using created_at clustering per session. Creates backup table first. Options: `--dry-run`, `--gap N` (seconds), `--no-backup`. |
+| `scripts/pinyin_recall/add_pinyin_recall_category_column.py` | Add `category` column to `pinyin_recall_item_answered` (for existing deployments). |
+| `scripts/pinyin_recall/backfill_pinyin_recall_category.py` | Backfill `category` from chronological answer history per (user_id, character). Options: `--dry-run`. |
+| `scripts/pinyin_recall/backfill_pinyin_recall_score.py` | Backfill `score` in character_bank and `score_before`/`score_after` in item_answered using symmetric +10/−10. Replays item_answered per (user_id, character). Creates backup tables first. Options: `--dry-run`, `--no-backup`. |
+| `scripts/pinyin_recall/upload_pinyin_recall_log_to_db.py` | One-off: upload `logs/pinyin_recall.log` into the two log tables. Options: `--dry-run`. |
+| `scripts/pinyin_recall/migrate_pinyin_recall_events_to_two_tables.py` | One-off: copy from legacy `pinyin_recall_events` into the two log tables. Options: `--dry-run`. |
+| `scripts/utils/delete_local_dev_rows.py` | Delete all rows where `user_id = 'local-dev'` from tables with user_id (character_views, pinyin_recall_*, pinyin_recall_events). Creates backup tables first. Options: `--dry-run`, `--no-backup`. |
+| `scripts/radicals/create_radical_stroke_counts_table.py` | Create `radical_stroke_counts`, insert from `data/radical_stroke_counts.json`. Options: `--dry-run`. |
+| `scripts/characters/verify_feng_characters.py` | Verify row counts / sample from `feng_characters`. |
+| `scripts/characters/verify_hwxnet_characters.py` | Verify row counts / sample from `hwxnet_characters`. |
+| `scripts/characters/add_searchable_pinyin_column.py` | Add `searchable_pinyin` (jsonb) to `hwxnet_characters`, create GIN index, backfill from `pinyin`. Options: `--dry-run`, `--no-backup`, `--skip-filled`. |
+| `scripts/utils/query_character_for_user.py` | Query Supabase for one character’s `pinyin_recall_character_bank` row and `pinyin_recall_item_answered` history for a user. **Options:** `--email "user@example.com"` or `--user-id "uuid"` (required), `--character 亚` (default). Resolves email via `auth.users`. Requires `DATABASE_URL` or `SUPABASE_DB_URL`. Run from `backend/`: `python scripts/utils/query_character_for_user.py --user-id "uuid" --character 丐`. |
 
 All scripts use `DATABASE_URL` or `SUPABASE_DB_URL` (and load `backend/.env.local` if present). Run from `backend/`.
 
