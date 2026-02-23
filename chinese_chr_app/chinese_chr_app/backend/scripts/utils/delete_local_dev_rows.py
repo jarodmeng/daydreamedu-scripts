@@ -9,9 +9,9 @@ Creates backup tables of the deleted rows (e.g. character_views_local_dev_backup
 before deleting. Use --no-backup to skip.
 
 Requires DATABASE_URL (or SUPABASE_DB_URL). Run from backend/:
-  python scripts/delete_local_dev_rows.py
-  python scripts/delete_local_dev_rows.py --dry-run
-  python scripts/delete_local_dev_rows.py --no-backup
+  python3 scripts/delete_local_dev_rows.py
+  python3 scripts/delete_local_dev_rows.py --dry-run
+  python3 scripts/delete_local_dev_rows.py --no-backup
 """
 
 import os
@@ -43,7 +43,7 @@ def main():
         import psycopg
         from psycopg.rows import dict_row
     except ImportError:
-        print("psycopg is required. Install with: pip install 'psycopg[binary]>=3.1'")
+        print("psycopg is required. Install with: pip3 install 'psycopg[binary]>=3.1'")
         sys.exit(1)
 
     dry_run = "--dry-run" in sys.argv

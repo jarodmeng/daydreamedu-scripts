@@ -46,7 +46,7 @@ def main():
     try:
         import psycopg
     except ImportError:
-        print("psycopg is required. Install with: pip install 'psycopg[binary]>=3.1'")
+        print("psycopg is required. Install with: pip3 install 'psycopg[binary]>=3.1'")
         sys.exit(1)
 
     url = os.environ.get("DATABASE_URL") or os.environ.get("SUPABASE_DB_URL")

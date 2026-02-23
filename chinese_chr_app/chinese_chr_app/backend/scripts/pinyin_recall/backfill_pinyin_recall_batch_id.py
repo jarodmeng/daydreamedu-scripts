@@ -13,10 +13,10 @@ modifying. Use --no-backup to skip.
 Requires batch_id column to exist. Run add_pinyin_recall_batch_id_column.py first.
 
 Requires DATABASE_URL (or SUPABASE_DB_URL). Run from backend/:
-  python scripts/backfill_pinyin_recall_batch_id.py
-  python scripts/backfill_pinyin_recall_batch_id.py --dry-run
-  python scripts/backfill_pinyin_recall_batch_id.py --gap 10   # seconds between batches
-  python scripts/backfill_pinyin_recall_batch_id.py --no-backup   # skip backup table
+  python3 scripts/backfill_pinyin_recall_batch_id.py
+  python3 scripts/backfill_pinyin_recall_batch_id.py --dry-run
+  python3 scripts/backfill_pinyin_recall_batch_id.py --gap 10   # seconds between batches
+  python3 scripts/backfill_pinyin_recall_batch_id.py --no-backup   # skip backup table
 """
 
 import os
@@ -41,7 +41,7 @@ def main():
         import psycopg
         from psycopg.rows import dict_row
     except ImportError:
-        print("psycopg required. Install with: pip install 'psycopg[binary]>=3.1'")
+        print("psycopg required. Install with: pip3 install 'psycopg[binary]>=3.1'")
         sys.exit(1)
 
     dry_run = "--dry-run" in sys.argv

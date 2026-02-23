@@ -14,10 +14,10 @@ Creates backup tables before modifying:
 Use --no-backup to skip.
 
 Requires DATABASE_URL (or SUPABASE_DB_URL). Run from backend/:
-  python scripts/backfill_pinyin_recall_score.py
-  python scripts/backfill_pinyin_recall_score.py --dry-run
-  python scripts/backfill_pinyin_recall_score.py --dry-run --exclude-user local-dev   # only non-local-dev changes
-  python scripts/backfill_pinyin_recall_score.py --no-backup
+  python3 scripts/backfill_pinyin_recall_score.py
+  python3 scripts/backfill_pinyin_recall_score.py --dry-run
+  python3 scripts/backfill_pinyin_recall_score.py --dry-run --exclude-user local-dev   # only non-local-dev changes
+  python3 scripts/backfill_pinyin_recall_score.py --no-backup
 """
 
 import os
@@ -45,7 +45,7 @@ def main():
         import psycopg
         from psycopg.rows import dict_row
     except ImportError:
-        print("psycopg is required. Install with: pip install 'psycopg[binary]>=3.1'")
+        print("psycopg is required. Install with: pip3 install 'psycopg[binary]>=3.1'")
         sys.exit(1)
 
     dry_run = "--dry-run" in sys.argv

@@ -18,7 +18,7 @@ def get_connection():
         import psycopg
         from psycopg.rows import dict_row
     except ImportError:
-        print("psycopg required: pip install 'psycopg[binary]>=3.1'")
+        print("psycopg required: pip3 install 'psycopg[binary]>=3.1'")
         sys.exit(1)
     url = os.environ.get("DATABASE_URL") or os.environ.get("SUPABASE_DB_URL")
     if not url:

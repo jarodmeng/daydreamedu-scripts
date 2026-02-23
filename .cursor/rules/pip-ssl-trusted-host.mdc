@@ -6,6 +6,8 @@ alwaysApply: false
 
 # Pip install when SSL verification fails
 
+Prefer `pip3` (or `python3 -m pip`) for installs so it matches the project standard.
+
 If `pip install` or `pip3 install` fails with **SSLCertVerificationError** (e.g. `OSStatus -26276` or "problem confirming the ssl certificate"), install using trusted hosts so pip skips SSL verification for PyPI:
 
 ```bash

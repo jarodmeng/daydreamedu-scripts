@@ -7,7 +7,7 @@ Requires DATABASE_URL (or SUPABASE_DB_URL) in the environment.
 Backend must have USE_DATABASE=true for the log endpoint to write to this table.
 
 Run from backend/:
-  python scripts/create_character_views_table.py
+  python3 scripts/create_character_views_table.py
 """
 
 import os
@@ -44,7 +44,7 @@ def main():
     try:
         import psycopg
     except ImportError:
-        print("psycopg is required. Install with: pip install 'psycopg[binary]>=3.1'")
+        print("psycopg is required. Install with: pip3 install 'psycopg[binary]>=3.1'")
         sys.exit(1)
 
     url = os.environ.get("DATABASE_URL") or os.environ.get("SUPABASE_DB_URL")

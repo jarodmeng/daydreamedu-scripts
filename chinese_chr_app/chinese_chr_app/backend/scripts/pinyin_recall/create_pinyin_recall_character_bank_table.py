@@ -6,7 +6,7 @@ Stores per-user, per-character: score (0-100), stage, next_due_utc, timestamps, 
 Used for queue building (due items ordered by score ascending) and persistence across restarts.
 
 Requires DATABASE_URL (or SUPABASE_DB_URL). Run from backend/:
-  python scripts/create_pinyin_recall_character_bank_table.py
+  python3 scripts/create_pinyin_recall_character_bank_table.py
 """
 
 import os
@@ -46,7 +46,7 @@ def main():
     try:
         import psycopg
     except ImportError:
-        print("psycopg is required. Install with: pip install 'psycopg[binary]>=3.1'")
+        print("psycopg is required. Install with: pip3 install 'psycopg[binary]>=3.1'")
         sys.exit(1)
 
     url = os.environ.get("DATABASE_URL") or os.environ.get("SUPABASE_DB_URL")

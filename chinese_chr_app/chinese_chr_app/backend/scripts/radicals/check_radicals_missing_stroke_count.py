@@ -27,7 +27,7 @@ def _import_psycopg():
         import psycopg
         return psycopg
     except ImportError:
-        print("psycopg is required. Install with: pip install 'psycopg[binary]>=3.1'")
+        print("psycopg is required. Install with: pip3 install 'psycopg[binary]>=3.1'")
         sys.exit(1)
 
 

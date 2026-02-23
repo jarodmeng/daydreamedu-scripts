@@ -8,8 +8,8 @@ Reorder 拼音 in extracted_characters_hwxnet.json based on 基本字义解释.
 
 Usage (run from backend/ directory):
 
-  python scripts/reorder_hwxnet_pinyin_from_basic.py --dry-run   # show sample diffs only
-  python scripts/reorder_hwxnet_pinyin_from_basic.py             # rewrite JSON with backup
+  python3 scripts/reorder_hwxnet_pinyin_from_basic.py --dry-run   # show sample diffs only
+  python3 scripts/reorder_hwxnet_pinyin_from_basic.py             # rewrite JSON with backup
 """
 
 import json

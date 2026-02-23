@@ -26,7 +26,7 @@ Scripts are grouped by domain. Put new scripts in the matching subfolder:
 | `radicals/` | Radical/stroke-count tables and checks |
 | `utils/` | One-off queries, admin (e.g. query_character_for_user, delete_local_dev_rows), generic helpers |
 
-- Run scripts from `backend/`: `python scripts/<subfolder>/<script>.py`.
+- Run scripts from `backend/`: `python3 scripts/<subfolder>/<script>.py`.
 - Scripts in subfolders use `Path(__file__).resolve().parent.parent.parent` for backend dir and `.env.local`.
 - After adding or moving scripts, update `backend/DATABASE.md` with the correct paths.
 

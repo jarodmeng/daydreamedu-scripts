@@ -64,7 +64,7 @@ chinese_chr_app/
   - Character/hwxnet/views tables, verify, searchable pinyin → `backend/scripts/characters/`.
   - Radical/stroke-count → `backend/scripts/radicals/`.
   - One-off queries, admin, or generic utils → `backend/scripts/utils/`.
-- Run scripts from `backend/`: e.g. `python scripts/characters/create_feng_characters_table.py`. Update `backend/DATABASE.md` when adding or moving scripts.
+- Run scripts from `backend/`: e.g. `python3 scripts/characters/create_feng_characters_table.py`. Update `backend/DATABASE.md` when adding or moving scripts.
 
 ## Data Model Notes (What We Learned)
 
@@ -105,7 +105,7 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 
 4. Install dependencies:
 ```bash
-pip install -r requirements.txt
+pip3 install -r requirements.txt
 ```
 
 5. Run the Flask server (with the venv activated from step 2, `python3` uses the venv and has psycopg for database mode):
@@ -172,7 +172,7 @@ npm run test:e2e
 
 Notes:
 - If you already have the backend running on `http://localhost:5001`, Playwright will **reuse** it.
-- If you don’t, Playwright will try to start it; make sure you’ve installed backend deps (from `chinese_chr_app/chinese_chr_app/backend`: `pip install -r requirements.txt`) and have a backend venv at `backend/venv` or `backend/.venv` (Playwright uses the venv’s Python so database/psycopg works).
+- If you don’t, Playwright will try to start it; make sure you’ve installed backend deps (from `chinese_chr_app/chinese_chr_app/backend`: `pip3 install -r requirements.txt`) and have a backend venv at `backend/venv` or `backend/.venv` (Playwright uses the venv’s Python so database/psycopg works).
 
 ### Stroke animation (HanziWriter) notes
 
@@ -212,7 +212,7 @@ The backend can read/write character data from Supabase tables instead of JSON f
 - Set **`USE_DATABASE=true`** and **`DATABASE_URL`** (Supabase Postgres connection string) in the backend environment.
 - Tables: **`feng_characters`** (3000 冯氏早教识字卡 entries) and **`hwxnet_characters`** (3664 dictionary entries).
 - Without these, the app uses `data/characters.json` and `data/extracted_characters_hwxnet.json` as before.
-- **Character view logging:** When using the DB, signed-in users’ character views (Search result) are logged to **`character_views`** (user_id, character, viewed_at, display_name). Display name is taken from the app profile or JWT. Create the table once from `backend/`: `python scripts/characters/create_character_views_table.py`.
+- **Character view logging:** When using the DB, signed-in users’ character views (Search result) are logged to **`character_views`** (user_id, character, viewed_at, display_name). Display name is taken from the app profile or JWT. Create the table once from `backend/`: `python3 scripts/characters/create_character_views_table.py`.
 - See **`backend/DATABASE.md`** for schema, scripts, and data access.
 
 ### If you see "psycopg is required for database support"
@@ -236,7 +236,7 @@ cd chinese_chr_app/chinese_chr_app/backend
 rm -rf venv
 python3.12 -m venv venv          # or: /usr/local/bin/python3.12 -m venv venv
 source venv/bin/activate
-pip install -r requirements.txt
+pip3 install -r requirements.txt
 python3 app.py
 ```
 

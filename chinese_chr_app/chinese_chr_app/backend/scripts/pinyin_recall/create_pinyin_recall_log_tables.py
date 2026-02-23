@@ -6,7 +6,7 @@ Create the two pinyin recall log tables in Supabase (two-table design).
 - pinyin_recall_item_answered: when user submits an answer (user_id, session_id, character, selected_choice, correct, latency_ms, i_dont_know, score_before, score_after)
 
 Requires DATABASE_URL (or SUPABASE_DB_URL). Run from backend/:
-  python scripts/create_pinyin_recall_log_tables.py
+  python3 scripts/create_pinyin_recall_log_tables.py
 """
 
 import os
@@ -73,7 +73,7 @@ def main():
     try:
         import psycopg
     except ImportError:
-        print("psycopg is required. Install with: pip install 'psycopg[binary]>=3.1'")
+        print("psycopg is required. Install with: pip3 install 'psycopg[binary]>=3.1'")
         sys.exit(1)
 
     url = os.environ.get("DATABASE_URL") or os.environ.get("SUPABASE_DB_URL")

@@ -11,9 +11,9 @@ hwxnet_characters_backup_YYYYMMDD_HHMMSS (enabled by default; see --no-backup).
 Requires DATABASE_URL (or SUPABASE_DB_URL) in the environment.
 
 Run from backend/:
-  python scripts/create_hwxnet_characters_table.py              # first 10 only (with backup)
-  python scripts/create_hwxnet_characters_table.py --all       # all entries (with backup)
-  python scripts/create_hwxnet_characters_table.py --dry-run   # no DB writes
+  python3 scripts/create_hwxnet_characters_table.py              # first 10 only (with backup)
+  python3 scripts/create_hwxnet_characters_table.py --all       # all entries (with backup)
+  python3 scripts/create_hwxnet_characters_table.py --dry-run   # no DB writes
 """
 
 import json
@@ -36,7 +36,7 @@ def _import_psycopg():
         import psycopg
         return psycopg
     except ImportError:
-        print("psycopg is required. Install with: pip install 'psycopg[binary]>=3.1'")
+        print("psycopg is required. Install with: pip3 install 'psycopg[binary]>=3.1'")
         sys.exit(1)
 
 

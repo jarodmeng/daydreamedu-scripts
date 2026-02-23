@@ -19,7 +19,7 @@ except ImportError:
 
 def _get_connection():
     if psycopg is None:
-        raise RuntimeError("psycopg is required for database support. Install with: pip install 'psycopg[binary]>=3.1'")
+        raise RuntimeError("psycopg is required for database support. Install with: pip3 install 'psycopg[binary]>=3.1'")
     url = os.environ.get("DATABASE_URL") or os.environ.get("SUPABASE_DB_URL")
     if not url:
         raise RuntimeError("DATABASE_URL or SUPABASE_DB_URL must be set when using database")

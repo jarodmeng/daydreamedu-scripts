@@ -3,8 +3,8 @@
 Query Supabase for a character's bank row and answer history for a given user.
 
 Usage (run from backend/):
-  python scripts/query_character_for_user.py --email "emma@example.com" [--character 亚]
-  python scripts/query_character_for_user.py --user-id "uuid-here" [--character 亚]
+  python3 scripts/query_character_for_user.py --email "emma@example.com" [--character 亚]
+  python3 scripts/query_character_for_user.py --user-id "uuid-here" [--character 亚]
 
 Requires DATABASE_URL or SUPABASE_DB_URL. Loads .env.local if present.
 Uses auth.users to resolve --email to user_id (Supabase Postgres).
@@ -53,7 +53,7 @@ def main():
         import psycopg
         from psycopg.rows import dict_row
     except ImportError:
-        print("psycopg is required. Install with: pip install 'psycopg[binary]>=3.1'")
+        print("psycopg is required. Install with: pip3 install 'psycopg[binary]>=3.1'")
         sys.exit(1)
 
     url = os.environ.get("DATABASE_URL") or os.environ.get("SUPABASE_DB_URL")

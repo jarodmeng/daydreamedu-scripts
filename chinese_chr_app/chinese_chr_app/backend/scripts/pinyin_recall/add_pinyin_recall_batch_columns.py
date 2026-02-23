@@ -8,8 +8,8 @@ Add batch_mode and batch_character_category columns to pinyin_recall_item_presen
 Existing rows get NULL for both. Safe to run multiple times (ADD COLUMN IF NOT EXISTS).
 
 Requires DATABASE_URL (or SUPABASE_DB_URL). Run from backend/:
-  python scripts/add_pinyin_recall_batch_columns.py
-  python scripts/add_pinyin_recall_batch_columns.py --dry-run
+  python3 scripts/add_pinyin_recall_batch_columns.py
+  python3 scripts/add_pinyin_recall_batch_columns.py --dry-run
 """
 
 import os
@@ -33,7 +33,7 @@ def main():
     try:
         import psycopg
     except ImportError:
-        print("psycopg required. Install with: pip install 'psycopg[binary]>=3.1'")
+        print("psycopg required. Install with: pip3 install 'psycopg[binary]>=3.1'")
         sys.exit(1)
 
     url = os.environ.get("DATABASE_URL") or os.environ.get("SUPABASE_DB_URL")

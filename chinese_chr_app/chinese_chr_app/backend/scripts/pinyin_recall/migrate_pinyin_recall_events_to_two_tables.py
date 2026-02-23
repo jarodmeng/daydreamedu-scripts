@@ -9,8 +9,8 @@ Run after create_pinyin_recall_log_tables.py. Copies:
 Then you can drop pinyin_recall_events if desired. Requires DATABASE_URL/SUPABASE_DB_URL.
 
 Run from backend/:
-  python scripts/migrate_pinyin_recall_events_to_two_tables.py
-  python scripts/migrate_pinyin_recall_events_to_two_tables.py --dry-run   # no writes
+  python3 scripts/migrate_pinyin_recall_events_to_two_tables.py
+  python3 scripts/migrate_pinyin_recall_events_to_two_tables.py --dry-run   # no writes
 """
 
 import os
@@ -49,7 +49,7 @@ def main():
     try:
         import psycopg
     except ImportError:
-        print("psycopg is required. Install with: pip install 'psycopg[binary]>=3.1'")
+        print("psycopg is required. Install with: pip3 install 'psycopg[binary]>=3.1'")
         sys.exit(1)
 
     url = os.environ.get("DATABASE_URL") or os.environ.get("SUPABASE_DB_URL")

@@ -13,10 +13,10 @@ Before modifying the table, the script creates a backup table
 hwxnet_characters_backup_YYYYMMDD_HHMMSS. Use --no-backup to skip.
 
 Requires DATABASE_URL (or SUPABASE_DB_URL). Run from backend/:
-  python scripts/add_searchable_pinyin_column.py
-  python scripts/add_searchable_pinyin_column.py --dry-run   # no DB writes, print sample
-  python scripts/add_searchable_pinyin_column.py --no-backup   # skip backup table
-  python scripts/add_searchable_pinyin_column.py --skip-filled   # only fill rows where searchable_pinyin IS NULL
+  python3 scripts/add_searchable_pinyin_column.py
+  python3 scripts/add_searchable_pinyin_column.py --dry-run   # no DB writes, print sample
+  python3 scripts/add_searchable_pinyin_column.py --no-backup   # skip backup table
+  python3 scripts/add_searchable_pinyin_column.py --skip-filled   # only fill rows where searchable_pinyin IS NULL
 """
 
 import json
@@ -40,7 +40,7 @@ def _import_psycopg():
         import psycopg
         return psycopg
     except ImportError:
-        print("psycopg is required. Install with: pip install 'psycopg[binary]>=3.1'")
+        print("psycopg is required. Install with: pip3 install 'psycopg[binary]>=3.1'")
         sys.exit(1)
 
 

@@ -8,8 +8,8 @@ Table: radical_stroke_counts (radical text PRIMARY KEY, stroke_count integer NOT
 Requires DATABASE_URL (or SUPABASE_DB_URL) in the environment.
 
 Run from backend/:
-  python scripts/create_radical_stroke_counts_table.py
-  python scripts/create_radical_stroke_counts_table.py --dry-run
+  python3 scripts/create_radical_stroke_counts_table.py
+  python3 scripts/create_radical_stroke_counts_table.py --dry-run
 """
 
 import json
@@ -31,7 +31,7 @@ def _import_psycopg():
         import psycopg
         return psycopg
     except ImportError:
-        print("psycopg is required. Install with: pip install 'psycopg[binary]>=3.1'")
+        print("psycopg is required. Install with: pip3 install 'psycopg[binary]>=3.1'")
         sys.exit(1)
 
 

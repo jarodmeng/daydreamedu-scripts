@@ -8,9 +8,9 @@ Requires DATABASE_URL (or SUPABASE_DB_URL) in the environment:
   postgresql://postgres.[ref]:[password]@...pooler.supabase.com:6543/postgres?sslmode=require
 
 Run from backend/:
-  python scripts/create_feng_characters_table.py          # first 10 only
-  python scripts/create_feng_characters_table.py --all    # all characters
-  python scripts/create_feng_characters_table.py --dry-run
+  python3 scripts/create_feng_characters_table.py          # first 10 only
+  python3 scripts/create_feng_characters_table.py --all    # all characters
+  python3 scripts/create_feng_characters_table.py --dry-run
 """
 
 import json
@@ -33,7 +33,7 @@ def _import_psycopg():
         import psycopg
         return psycopg
     except ImportError:
-        print("psycopg is required. Install with: pip install 'psycopg[binary]>=3.1'")
+        print("psycopg is required. Install with: pip3 install 'psycopg[binary]>=3.1'")
         sys.exit(1)
 
 

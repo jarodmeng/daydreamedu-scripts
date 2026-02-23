@@ -7,8 +7,8 @@ Normalize pinyin in extracted_characters_hwxnet.json in-place.
 - Deduplicates within each entry while preserving order
 
 Run from backend/:
-  python scripts/normalize_hwxnet_pinyin_json.py --dry-run   # just show sample diffs
-  python scripts/normalize_hwxnet_pinyin_json.py             # rewrite JSON with backup
+  python3 scripts/normalize_hwxnet_pinyin_json.py --dry-run   # just show sample diffs
+  python3 scripts/normalize_hwxnet_pinyin_json.py             # rewrite JSON with backup
 """
 
 import json

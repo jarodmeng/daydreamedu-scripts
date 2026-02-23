@@ -6,7 +6,7 @@ Reports whether batch_mode and batch_character_category exist (and lists all col
 Useful to verify migration (add_pinyin_recall_batch_columns.py) has been run.
 
 Requires DATABASE_URL (or SUPABASE_DB_URL). Run from backend/:
-  python scripts/check_pinyin_recall_item_presented_columns.py
+  python3 scripts/check_pinyin_recall_item_presented_columns.py
 """
 
 import os
@@ -27,7 +27,7 @@ def main():
         import psycopg
         from psycopg.rows import dict_row
     except ImportError:
-        print("psycopg required. Install with: pip install 'psycopg[binary]>=3.1'")
+        print("psycopg required. Install with: pip3 install 'psycopg[binary]>=3.1'")
         sys.exit(1)
 
     url = os.environ.get("DATABASE_URL") or os.environ.get("SUPABASE_DB_URL")
@@ -65,7 +65,7 @@ def main():
             for c in ("batch_mode", "batch_character_category"):
                 status = "✓ exists" if c in names else "✗ missing"
                 print(f"  {status}: {c}")
-            print("  → python scripts/add_pinyin_recall_batch_columns.py")
+            print("  → python3 scripts/add_pinyin_recall_batch_columns.py")
     finally:
         conn.close()
 

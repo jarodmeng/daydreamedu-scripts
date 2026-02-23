@@ -8,8 +8,8 @@ pinyin_recall_item_answered. Requires DATABASE_URL/SUPABASE_DB_URL.
 Run scripts/pinyin_recall/create_pinyin_recall_log_tables.py first.
 
 Run from backend/:
-  python scripts/pinyin_recall/upload_pinyin_recall_log_to_db.py
-  python scripts/pinyin_recall/upload_pinyin_recall_log_to_db.py --dry-run   # parse only, no insert
+  python3 scripts/pinyin_recall/upload_pinyin_recall_log_to_db.py
+  python3 scripts/pinyin_recall/upload_pinyin_recall_log_to_db.py --dry-run   # parse only, no insert
 """
 
 import json

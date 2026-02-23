@@ -8,7 +8,7 @@ upload script now use the two tables. This script remains for reference or if yo
 need to create the old table (e.g. before running migrate_pinyin_recall_events_to_two_tables.py).
 
 Requires DATABASE_URL (or SUPABASE_DB_URL). Run from backend/:
-  python scripts/create_pinyin_recall_events_table.py
+  python3 scripts/create_pinyin_recall_events_table.py
 """
 
 import os
@@ -54,7 +54,7 @@ def main():
     try:
         import psycopg
     except ImportError:
-        print("psycopg is required. Install with: pip install 'psycopg[binary]>=3.1'")
+        print("psycopg is required. Install with: pip3 install 'psycopg[binary]>=3.1'")
         sys.exit(1)
 
     url = os.environ.get("DATABASE_URL") or os.environ.get("SUPABASE_DB_URL")

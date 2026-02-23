@@ -61,7 +61,7 @@ The app uses two kinds of stroke-related data: (a) stroke **order** (笔顺) for
 * **Radical stroke counts (部首笔画数)**
     * Used to sort the Radicals page by radical stroke count (按部首笔画). Each radical is mapped to its stroke count (e.g. 一 → 1, 口 → 3).
     * **Stored:** In the app’s `data` folder as `radical_stroke_counts.json` (format: `{ "一": 1, "口": 3, ... }`). When `USE_DATABASE=true`, the backend uses the `radical_stroke_counts` table as primary source and falls back to this JSON if the DB read fails (e.g. table missing).
-    * **Source:** Extracted from 汉文学网 [按部首查字](https://zd.hwxnet.com/bushou.html) via `extract_character_from_wxnet/extract_radical_stroke_counts.py`. The script writes `chinese_chr_app/data/radical_stroke_counts.json`. For DB-backed deployment, create and populate the table once: `python scripts/create_radical_stroke_counts_table.py` (see backend [DATABASE.md](backend/DATABASE.md) and [DEPLOYMENT.md](backend/DEPLOYMENT.md)).
+    * **Source:** Extracted from 汉文学网 [按部首查字](https://zd.hwxnet.com/bushou.html) via `extract_character_from_wxnet/extract_radical_stroke_counts.py`. The script writes `chinese_chr_app/data/radical_stroke_counts.json`. For DB-backed deployment, create and populate the table once: `python3 scripts/create_radical_stroke_counts_table.py` (see backend [DATABASE.md](backend/DATABASE.md) and [DEPLOYMENT.md](backend/DEPLOYMENT.md)).
 
 * **Per-character stroke count (笔画数)** — The **number** of strokes for a character (e.g. 8, 6) comes from Feng data (**Strokes**) and HWXNet (**总笔画**), and is used in dictionary display, the 笔画 (stroke-counts) segmentation, and sorting. That is documented in sections 1 and 2 above; no separate stroke-count data store is used.
 

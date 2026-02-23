@@ -5,7 +5,7 @@ WORKDIR /app
 # Copy requirements and install dependencies
 # Build context is chinese_chr_app/, so backend files are at chinese_chr_app/backend/
 COPY chinese_chr_app/backend/requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip3 install --no-cache-dir -r requirements.txt
 
 # Copy application code. When adding a new module imported by app.py, add it here.
 # Current app.py local imports: auth, database, pinyin_search, pinyin_recall
@@ -26,7 +26,7 @@ COPY data/radical_stroke_counts.json ./data/
 # Note: characters_by_radicals.json is generated dynamically, so we don't need to copy it
 
 # Fail the build if app cannot be imported (e.g. missing local module). Prevents 503 in prod.
-RUN python -c "import app"
+RUN python3 -c "import app"
 
 # Expose port (Cloud Run will set PORT env var)
 ENV PORT=8080
