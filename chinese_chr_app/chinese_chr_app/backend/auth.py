@@ -1,7 +1,9 @@
 import os
+import ssl
 from dataclasses import dataclass
 from typing import Any
 
+import certifi
 import jwt
 from jwt import PyJWKClient
 
@@ -42,7 +44,8 @@ def _get_expected_audience() -> str:
 def _get_jwks_client() -> PyJWKClient:
     global _jwks_client
     if _jwks_client is None:
-        _jwks_client = PyJWKClient(_get_jwks_url())
+        ssl_ctx = ssl.create_default_context(cafile=certifi.where())
+        _jwks_client = PyJWKClient(_get_jwks_url(), ssl_context=ssl_ctx)
     return _jwks_client
 
 
