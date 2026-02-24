@@ -22,6 +22,7 @@ export default function PinyinRecall() {
   const [elapsedSeconds, setElapsedSeconds] = useState(0)
   const [error, setError] = useState('')
   const [sessionId, setSessionId] = useState(null)
+  const [batchId, setBatchId] = useState(null)
   const [items, setItems] = useState([])
   const [currentIndex, setCurrentIndex] = useState(0)
   const [missedItems, setMissedItems] = useState([])
@@ -31,6 +32,7 @@ export default function PinyinRecall() {
   const [feedbackMissedItem, setFeedbackMissedItem] = useState(null) // full missed_item from API for learning screen
   const [learnIndex, setLearnIndex] = useState(0)
   const [totalAnswered, setTotalAnswered] = useState(0) // total items answered in this open-ended session
+  const [reportSubmitted, setReportSubmitted] = useState(false) // brief "已提交" after clicking 报错
   const questionShownAtRef = useRef(null) // ms when current question was first displayed (for latency_ms)
 
   const fetchSession = useCallback(async () => {
@@ -60,6 +62,7 @@ export default function PinyinRecall() {
       }
       const data = await res.json()
       setSessionId(data.session_id)
+      setBatchId(data.batch_id ?? null)
       setItems(data.items || [])
       setCurrentIndex(0)
       setMissedItems([])
@@ -97,6 +100,7 @@ export default function PinyinRecall() {
       const data = await res.json()
       const nextItems = data.items || []
       if (data.session_id) setSessionId(data.session_id)
+      if (data.batch_id != null) setBatchId(data.batch_id)
       if (nextItems.length > 0) {
         setItems(nextItems)
         setCurrentIndex(0)
@@ -161,6 +165,43 @@ export default function PinyinRecall() {
     },
     [items, currentIndex, accessToken, sessionId]
   )
+
+  const reportError = useCallback(
+    async (page) => {
+      const item = items[currentIndex]
+      if (!item || !accessToken) return
+      try {
+        const res = await fetch(`${API_BASE}/api/games/pinyin-recall/report-error`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${accessToken}`,
+          },
+          body: JSON.stringify({
+            session_id: sessionId,
+            batch_id: batchId ?? undefined,
+            character: item.character,
+            page,
+          }),
+        })
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}))
+          setError(data?.error || '提交失败')
+          return
+        }
+        setReportSubmitted(true)
+        setError('')
+      } catch (e) {
+        setError(e?.message || '提交失败')
+      }
+    },
+    [items, currentIndex, accessToken, sessionId, batchId]
+  )
+
+  // Clear "已提交" when moving to next question
+  useEffect(() => {
+    setReportSubmitted(false)
+  }, [currentIndex])
 
   // Record when current question is displayed (for latency_ms measurement)
   useEffect(() => {
@@ -254,13 +295,24 @@ export default function PinyinRecall() {
                 </span>
               )}
             </p>
-            <button
-              type="button"
-              className="pinyin-recall-end-session"
-              onClick={endSession}
-            >
-              结束本局
-            </button>
+            <div className="pinyin-recall-game-header-actions">
+              <button
+                type="button"
+                className="pinyin-recall-report-error"
+                onClick={() => reportError('question')}
+                disabled={loading}
+              >
+                报错
+              </button>
+              {reportSubmitted && <span className="pinyin-recall-report-confirm">已提交</span>}
+              <button
+                type="button"
+                className="pinyin-recall-end-session"
+                onClick={endSession}
+              >
+                结束本局
+              </button>
+            </div>
           </div>
           <p className="pinyin-recall-stem-label">看这个字：</p>
           <div className="pinyin-recall-character">{item.character}</div>
@@ -324,13 +376,24 @@ export default function PinyinRecall() {
         <div className="pinyin-recall-container pinyin-recall-feedback">
           <div className="pinyin-recall-game-header">
             <span />
-            <button
-              type="button"
-              className="pinyin-recall-end-session"
-              onClick={endSession}
-            >
-              结束本局
-            </button>
+            <div className="pinyin-recall-game-header-actions">
+              <button
+                type="button"
+                className="pinyin-recall-report-error"
+                onClick={() => reportError(feedbackCorrect ? 'correct' : 'wrong')}
+                disabled={loading}
+              >
+                报错
+              </button>
+              {reportSubmitted && <span className="pinyin-recall-report-confirm">已提交</span>}
+              <button
+                type="button"
+                className="pinyin-recall-end-session"
+                onClick={endSession}
+              >
+                结束本局
+              </button>
+            </div>
           </div>
           {feedbackCorrect ? (
             <>

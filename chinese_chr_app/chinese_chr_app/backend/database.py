@@ -728,6 +728,43 @@ def insert_pinyin_recall_item_presented(payload: Dict[str, Any]) -> None:
         conn.close()
 
 
+def insert_pinyin_recall_report_error(
+    user_id: str,
+    session_id: str,
+    batch_id: Optional[str],
+    character: str,
+    page: Optional[str] = None,
+) -> None:
+    """
+    Insert one report-error row into pinyin_recall_report_error.
+    reported_at is set by DB default (now()). page: question, wrong, or correct.
+    Table must exist.
+    """
+    conn = _get_connection()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                INSERT INTO pinyin_recall_report_error (user_id, session_id, batch_id, character, page)
+                VALUES (%s, %s, %s, %s, %s)
+                """,
+                (
+                    (user_id or "").strip(),
+                    (session_id or "").strip(),
+                    (batch_id or "").strip() or None,
+                    (character or "").strip(),
+                    (page or "").strip() or None,
+                ),
+                prepare=False,
+            )
+        conn.commit()
+    except Exception as e:
+        conn.rollback()
+        raise
+    finally:
+        conn.close()
+
+
 def upsert_pinyin_recall_answer_and_log(
     user_id: str,
     character: str,

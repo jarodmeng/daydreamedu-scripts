@@ -1400,6 +1400,7 @@ def pinyin_recall_session():
 
     response = jsonify({
         "session_id": session_id,
+        "batch_id": batch_id,
         "items": items,
     })
     if PINYIN_RECALL_PROFILE:
@@ -1474,7 +1475,7 @@ def pinyin_recall_next_batch():
             # Timing logs should never break the endpoint
             pass
 
-    response = jsonify({"session_id": session_id, "items": items})
+    response = jsonify({"session_id": session_id, "batch_id": batch_id, "items": items})
     if PINYIN_RECALL_PROFILE:
         response.headers["X-Pinyin-Recall-Next-Batch-Time-Ms"] = str(total_ms)
     return response
@@ -1580,6 +1581,47 @@ def pinyin_recall_answer():
         "i_dont_know": i_dont_know,
         "missed_item": missed_item,
     })
+
+
+@app.route('/api/games/pinyin-recall/report-error', methods=['POST'])
+def pinyin_recall_report_error():
+    """Record a user report that character data is wrong (报错). Requires Bearer token (or PINYIN_RECALL_DEV_USER)."""
+    user = _get_profile_user() or _get_pinyin_recall_dev_user()
+    if user is None:
+        return jsonify({"error": "Unauthorized"}), 401
+    data = request.get_json() or {}
+    session_id = (data.get("session_id") or "").strip()
+    batch_id = (data.get("batch_id") or "").strip() or None
+    character = (data.get("character") or "").strip()
+    page = (data.get("page") or "").strip() or None
+    if not character or len(character) != 1:
+        return jsonify({"error": "character must be exactly one character"}), 400
+    if page is not None and page not in ("question", "wrong", "correct"):
+        return jsonify({"error": "page must be question, wrong, or correct"}), 400
+    if USE_DATABASE:
+        try:
+            import database as db
+            db.insert_pinyin_recall_report_error(
+                user_id=user.user_id,
+                session_id=session_id,
+                batch_id=batch_id,
+                character=character,
+                page=page,
+            )
+        except Exception as e:
+            print(f"[pinyin-recall] Failed to insert report_error: {e}", flush=True)
+            return jsonify({"error": "Failed to record report"}), 500
+    else:
+        p = {
+            "event": "report_error",
+            "user_id": user.user_id,
+            "session_id": session_id,
+            "batch_id": batch_id,
+            "character": character,
+            "page": page,
+        }
+        pinyin_recall_logger.info(json.dumps(p, ensure_ascii=False))
+    return jsonify({"ok": True})
 
 
 @app.route('/api/log-character-view', methods=['POST'])
