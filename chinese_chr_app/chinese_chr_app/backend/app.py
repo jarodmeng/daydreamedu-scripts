@@ -10,7 +10,7 @@ import urllib.request
 import urllib.parse
 import ssl
 import certifi
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional, Dict, Any, List, Tuple
 from collections import defaultdict
@@ -1354,7 +1354,7 @@ def pinyin_recall_session():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     t4 = time.perf_counter()
-    date_str = datetime.utcnow().strftime("%Y-%m-%d")
+    date_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     learning_state = _get_pinyin_recall_learning_state(user.user_id)
     t5 = time.perf_counter()
     timings["load_learning_state_ms"] = int((t5 - t4) * 1000)
@@ -1432,7 +1432,7 @@ def pinyin_recall_next_batch():
     session_id = (data.get("session_id") or "").strip() or str(uuid.uuid4())
 
     t4 = time.perf_counter()
-    date_str = datetime.utcnow().strftime("%Y-%m-%d")
+    date_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     learning_state = _get_pinyin_recall_learning_state(user.user_id)
     t5 = time.perf_counter()
     timings["load_learning_state_ms"] = int((t5 - t4) * 1000)
