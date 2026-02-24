@@ -163,6 +163,27 @@ def get_other_pronunciations(hwxnet_entry: Dict[str, Any]) -> List[str]:
     return [p.strip() for p in pinyin_list[1:] if p and p.strip()]
 
 
+def _first_basic_meaning_zh(entry: Dict[str, Any]) -> Optional[str]:
+    """First 解释 from 基本字义解释 (for correct-answer screen 基本解释)."""
+    for sense in entry.get("基本字义解释") or []:
+        for defn in (sense.get("释义") or [])[:1]:
+            expl = (defn.get("解释") or "").strip()
+            if expl:
+                return expl
+    return None
+
+
+def _all_pinyin_list(entry: Dict[str, Any], fallback_primary: str = "") -> List[str]:
+    """Normalized list of all 拼音; if missing/empty, return [fallback_primary] when given."""
+    pinyin_list = entry.get("拼音") or []
+    if isinstance(pinyin_list, str):
+        pinyin_list = [pinyin_list]
+    out = [p.strip() for p in pinyin_list if p and p.strip()]
+    if not out and fallback_primary:
+        return [fallback_primary]
+    return out
+
+
 def build_pinyin_index(hwxnet_lookup: Dict[str, Any]) -> Tuple[Dict[Tuple[str, int], List[str]], List[str]]:
     """
     Build (base, tone) -> list of pinyin strings, and flat list of all pinyin.
@@ -465,6 +486,14 @@ def build_session_queue(
         char_state = user_state.get(ch, {})
         category = _category_for_character(char_state)
         batch_category = _batch_category_for_character(char_state)
+        # For correct-answer screen (Issue #7): all pinyin, English meaning, 基本解释
+        all_pinyin = _all_pinyin_list(entry, fallback_primary=correct)
+        english = entry.get("英文翻译") or []
+        if isinstance(english, list):
+            meanings = [(e or "").strip() for e in english if (e or "").strip()]
+        else:
+            meanings = []
+        meaning_zh = _first_basic_meaning_zh(entry)
         items_out.append({
             "character": ch,
             "stem_words": stem_words,
@@ -473,6 +502,9 @@ def build_session_queue(
             "prompt_type": "hanzi_to_pinyin",
             "category": category,
             "batch_category": batch_category,
+            "all_pinyin": all_pinyin,
+            "meanings": meanings,
+            "meaning_zh": meaning_zh,
         })
     return (items_out, mode)
 

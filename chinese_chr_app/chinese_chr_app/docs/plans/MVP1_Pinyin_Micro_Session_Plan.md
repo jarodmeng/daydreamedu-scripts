@@ -363,10 +363,10 @@ When the user selects a wrong pinyin or **我不知道**, they are either confus
 - Primary action: **下一题** at the bottom. Secondary: **结束本局**.  
 - Typography: character in KaiTi; labels (意思, 部首, 常见词组, etc.) slightly emphasized so the page scans clearly.
 
-**Correct-answer screen (unchanged in spirit):**
+**Correct-answer screen (Issue #7):**
 
-- "✓ 正确", character (KaiTi), pinyin, optional short phrase list.  
-- No meaning, radical, structure, or sentence—keep it brief so correct answers stay fast.
+- "✓ 正确", character (KaiTi), **all pinyin** (primary/correct reading in bold, others listed), **English meaning** when available (英文翻译), **基本解释** when available (first 解释 from 基本字义解释), optional short phrase list.
+- No radical, structure, or sentence on this screen—keep it focused so correct answers stay readable.
 
 **Backend / API:**
 

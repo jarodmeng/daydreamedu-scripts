@@ -336,7 +336,31 @@ export default function PinyinRecall() {
             <>
               <p className="pinyin-recall-feedback-correct">✓ 正确</p>
               <div className="pinyin-recall-character">{item.character}</div>
-              <p className="pinyin-recall-correct-pinyin">{item.correct_pinyin}</p>
+              <p className="pinyin-recall-correct-pinyin pinyin-recall-all-pinyin">
+                {item.all_pinyin?.length > 0
+                  ? item.all_pinyin.map((py, pi) => {
+                      const isPrimary = (py || '').trim().toLowerCase() === (item.correct_pinyin || '').trim().toLowerCase()
+                      return (
+                        <span key={pi}>
+                          {isPrimary ? <strong>{py}</strong> : py}
+                          {pi < item.all_pinyin.length - 1 ? ' / ' : null}
+                        </span>
+                      )
+                    })
+                  : item.correct_pinyin}
+              </p>
+              {item.meanings?.length > 0 && (
+                <p className="pinyin-recall-meaning">
+                  <span className="pinyin-recall-meaning-label">Meaning: </span>
+                  {item.meanings.join(', ')}
+                </p>
+              )}
+              {item.meaning_zh && (
+                <p className="pinyin-recall-meaning">
+                  <span className="pinyin-recall-meaning-label">基本解释：</span>
+                  {item.meaning_zh}
+                </p>
+              )}
               {item.stem_words?.length > 0 && (
                 <p className="pinyin-recall-words">
                   {item.stem_words.map((word, wi) => (

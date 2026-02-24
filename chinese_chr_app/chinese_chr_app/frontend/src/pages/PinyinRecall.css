@@ -254,6 +254,12 @@
   margin: 12px 0;
 }
 
+/* All pinyin line on correct-answer screen (Issue #7): allow wrap, primary in bold */
+.pinyin-recall-all-pinyin {
+  line-height: 1.5;
+  word-spacing: 0.05em;
+}
+
 .pinyin-recall-feedback .pinyin-recall-btn {
   margin-top: 24px;
 }
