@@ -48,13 +48,19 @@ const pythonExe = pickPythonExecutable();
 console.log(`[e2e-backend] Using python: ${pythonExe}`);
 console.log(`[e2e-backend] Starting: ${appPath}`);
 
+// Enable database when Supabase URL is available in the environment.
+// When neither is set, the backend's own load_dotenv('.env.local') may still
+// pick them up — so we only inject these vars when we have explicit values,
+// to avoid overriding the backend's .env.local with empty strings.
 const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
-const useDatabase = supabaseUrl ? 'true' : '';
 
-if (useDatabase) {
-  console.log('[e2e-backend] Supabase URL detected — starting with USE_DATABASE=true');
+const extraEnv = {};
+if (supabaseUrl) {
+  extraEnv.USE_DATABASE = 'true';
+  extraEnv.SUPABASE_URL = supabaseUrl;
+  console.log('[e2e-backend] Supabase URL detected in env — starting with USE_DATABASE=true');
 } else {
-  console.log('[e2e-backend] No Supabase URL — starting without database');
+  console.log('[e2e-backend] No Supabase URL in env — backend will use .env.local if present');
 }
 
 const child = spawn(pythonExe, [appPath], {
@@ -65,8 +71,7 @@ const child = spawn(pythonExe, [appPath], {
     PORT: process.env.PORT || '5001',
     FLASK_DEBUG: process.env.FLASK_DEBUG || '0',
     PINYIN_RECALL_DEV_USER: 'e2e-dev',
-    USE_DATABASE: useDatabase,
-    SUPABASE_URL: supabaseUrl,
+    ...extraEnv,
   },
 });
 
