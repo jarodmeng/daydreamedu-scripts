@@ -1161,7 +1161,17 @@ def get_profile():
     user = _get_profile_user_or_dev()
     if user is None:
         return jsonify({"error": "Unauthorized"}), 401
-    display_name = _profile_display_names.get(user.user_id) or _profile_display_name_from_metadata(user.user_metadata)
+    display_name = None
+    if USE_DATABASE and getattr(user, "user_id", None):
+        try:
+            import database as db  # type: ignore[import-not-found]
+            db_name = db.get_profile_display_name(user.user_id)
+            if db_name:
+                display_name = db_name
+        except Exception as e:
+            print(f"[profile] Failed to load display_name from DB: {e}", flush=True)
+    if not display_name:
+        display_name = _profile_display_names.get(user.user_id) or _profile_display_name_from_metadata(user.user_metadata)
     return jsonify({"profile": {"display_name": display_name}}), 200
 
 
@@ -1178,6 +1188,13 @@ def put_profile():
     if not display_name:
         return jsonify({"error": "display_name is required"}), 400
     _profile_display_names[user.user_id] = display_name
+    if USE_DATABASE and getattr(user, "user_id", None):
+        try:
+            import database as db  # type: ignore[import-not-found]
+            db.upsert_profile_display_name(user.user_id, display_name)
+        except Exception as e:
+            print(f"[profile] Failed to persist display_name to DB: {e}", flush=True)
+            return jsonify({"error": "Failed to update profile"}), 500
     return jsonify({"profile": {"display_name": display_name}}), 200
 
 
@@ -1246,9 +1263,17 @@ def get_profile_progress_category(category: str):
 
 
 def _display_name_for_log(user, display_name_from_body: Optional[str] = None) -> str:
-    """Prefer body display_name, then in-memory profile, then JWT user_metadata."""
+    """Prefer body display_name, then DB/in-memory profile, then JWT user_metadata."""
     if display_name_from_body and display_name_from_body.strip():
         return " ".join(display_name_from_body.strip().split())[:64]
+    if USE_DATABASE and user and getattr(user, "user_id", None):
+        try:
+            import database as db  # type: ignore[import-not-found]
+            db_name = db.get_profile_display_name(user.user_id)
+            if db_name:
+                return db_name
+        except Exception as e:
+            print(f"[log-character-view] Failed to load display_name from DB: {e}", flush=True)
     if user and user.user_id:
         in_mem = _profile_display_names.get(user.user_id)
         if in_mem:

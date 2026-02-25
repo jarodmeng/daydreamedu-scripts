@@ -261,6 +261,61 @@ def log_character_view(user_id: str, character: str, display_name: Optional[str]
         conn.close()
 
 
+# --- Profile / progress (Issue #2, user_profiles) ---
+
+
+def get_profile_display_name(user_id: str) -> Optional[str]:
+    """
+    Return the display_name for the given user_id from user_profiles, or None if not set.
+    """
+    user_id = (user_id or "").strip()
+    if not user_id:
+        return None
+    conn = _get_connection()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                "SELECT display_name FROM user_profiles WHERE user_id = %s",
+                (user_id,),
+            )
+            row = cur.fetchone()
+        if not row:
+            return None
+        val = row.get("display_name")
+        if val is None:
+            return None
+        val_str = str(val).strip()
+        return val_str or None
+    finally:
+        conn.close()
+
+
+def upsert_profile_display_name(user_id: str, display_name: str) -> None:
+    """
+    Insert or update the display_name for the given user_id in user_profiles.
+    """
+    user_id = (user_id or "").strip()
+    display_name = (display_name or "").strip()
+    if not user_id or not display_name:
+        return
+    conn = _get_connection()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                INSERT INTO user_profiles (user_id, display_name)
+                VALUES (%s, %s)
+                ON CONFLICT (user_id) DO UPDATE SET
+                    display_name = EXCLUDED.display_name,
+                    updated_at = now()
+                """,
+                (user_id, display_name),
+            )
+        conn.commit()
+    finally:
+        conn.close()
+
+
 # --- Profile / progress (Issue #2) ---
 
 PROFILE_PROFICIENCY_MIN_SCORE = 10

@@ -81,7 +81,22 @@ Logs which characters signed-in users view on Search (user_id, character, viewed
 
 ---
 
-### 2.4 `pinyin_recall_character_bank`
+### 2.4 `user_profiles`
+
+Per-user profile data for the Chinese character app (currently only the profile display name shown on the 我的 page). Used only when `USE_DATABASE=true`.
+
+| Column | Type | Notes |
+|--------|------|--------|
+| user_id | text | PRIMARY KEY; Supabase auth user ID |
+| display_name | text | NOT NULL; sanitized, max 32 chars; same value returned by `/api/profile` |
+| created_at | timestamptz | NOT NULL, default `now()` |
+| updated_at | timestamptz | NOT NULL, default `now()` |
+
+**Create:** `python3 scripts/users/create_user_profiles_table.py`.
+
+---
+
+### 2.5 `pinyin_recall_character_bank`
 
 Per-user, per-character state for MVP1 pinyin recall (score −50–100, stage, next_due_utc, counts). Score: correct +10 (cap 100), wrong/我不知道 −10 (floor −50). Used when `USE_DATABASE=true` for queue building and persistence across restarts.
 
@@ -106,7 +121,7 @@ Per-user, per-character state for MVP1 pinyin recall (score −50–100, stage, 
 
 ---
 
-### 2.5 Pinyin recall event log (two tables)
+### 2.6 Pinyin recall event log (two tables)
 
 When `USE_DATABASE=true`, session events are written to Supabase (two-table design).
 
@@ -163,7 +178,7 @@ When `USE_DATABASE=true`, session events are written to Supabase (two-table desi
 
 ---
 
-### 2.6 `radical_stroke_counts`
+### 2.7 `radical_stroke_counts`
 
 Mapping of radical character to its stroke count (e.g. for sorting the Radicals page by radical stroke count). Source: [汉文学网 按部首查字](https://zd.hwxnet.com/bushou.html); JSON at `data/radical_stroke_counts.json`.
 
@@ -207,6 +222,13 @@ Psycopg 3 (`psycopg[binary]>=3.1`). All functions return dict shapes compatible 
 | Function | Purpose |
 |----------|--------|
 | `log_character_view(user_id, character, display_name=None)` | Insert one row into `character_views`. Table must exist (run create script once). |
+
+### Profile
+
+| Function | Purpose |
+|----------|--------|
+| `get_profile_display_name(user_id)` | Return `display_name` from `user_profiles` for the given user, or `None` if not set. |
+| `upsert_profile_display_name(user_id, display_name)` | Insert or update the `display_name` for the given user in `user_profiles`. |
 
 ### Pinyin recall (character bank and event log)
 
