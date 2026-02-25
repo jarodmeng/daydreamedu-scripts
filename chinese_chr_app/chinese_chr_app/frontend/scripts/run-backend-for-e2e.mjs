@@ -48,6 +48,15 @@ const pythonExe = pickPythonExecutable();
 console.log(`[e2e-backend] Using python: ${pythonExe}`);
 console.log(`[e2e-backend] Starting: ${appPath}`);
 
+const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
+const useDatabase = supabaseUrl ? 'true' : '';
+
+if (useDatabase) {
+  console.log('[e2e-backend] Supabase URL detected — starting with USE_DATABASE=true');
+} else {
+  console.log('[e2e-backend] No Supabase URL — starting without database');
+}
+
 const child = spawn(pythonExe, [appPath], {
   stdio: 'inherit',
   cwd: backendDir,
@@ -56,6 +65,8 @@ const child = spawn(pythonExe, [appPath], {
     PORT: process.env.PORT || '5001',
     FLASK_DEBUG: process.env.FLASK_DEBUG || '0',
     PINYIN_RECALL_DEV_USER: 'e2e-dev',
+    USE_DATABASE: useDatabase,
+    SUPABASE_URL: supabaseUrl,
   },
 });
 
