@@ -40,9 +40,16 @@ Maintain strict boundaries between these files:
 ## 2. Versioning Protocol (SemVer-Lite)
 The current version lives in **README.md**; when bumping, update README and CHANGELOG. Manage every session bump:
 
-1. **Patch (+0.0.1):** Bug fixes, UI tweaks, or doc fixes. (e.g. v0.2.6 -> v0.2.7)
-2. **Minor (+0.1.0):** New features or major architectural changes. (e.g. v0.2.x -> v0.3.0)
+1. **Patch (+0.0.1):** Bug fixes, behavior-correcting changes, UI tweaks, or doc-only updates. Examples:
+   - Fixing a feature that was already part of the product promise (e.g. profile name not persisting across sessions).
+   - Adding a missing DB column/table + migration so an existing endpoint behaves as originally specified.
+   - Pure documentation or styling changes.
+2. **Minor (+0.1.0):** New user-facing features or cross-cutting architectural changes that noticeably expand capabilities or touch multiple flows/files. Examples:
+   - Introducing a new game mode or major page.
+   - Adding a new area of the data model that surfaces in the UI and APIs.
 3. **Major (+1.0.0):** Complete product pivots or 1.0 release. (e.g. v0.3.12 -> v1.0.0)
+
+**When in doubt between minor and patch, default to a patch** unless the change clearly adds a new capability or significantly reshapes the system.
 
 ---
 
