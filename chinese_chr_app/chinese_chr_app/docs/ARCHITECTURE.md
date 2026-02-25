@@ -1,0 +1,148 @@
+# ARCHITECTURE — Technical Specs and System Flow
+
+This document describes the current technical implementation. For product strategy see [VISION.md](VISION.md). For release history see [CHANGELOG.md](CHANGELOG.md). For full database schema and scripts see [backend/DATABASE.md](../backend/DATABASE.md).
+
+---
+
+## 1. System Overview
+
+- **Frontend:** React (Vite), deployed to Netlify. Routes: Search (`/`), Radicals, Stroke counts, Pinyin results (`/pinyin/:query`), Pinyin Recall game (`/games/pinyin-recall`), Profile and profile-by-category.
+- **Backend:** Flask API on port **5001** (to avoid conflict with macOS AirPlay on 5000). Deployed to Google Cloud Run.
+- **Auth:** Supabase Auth (Google login). Bearer token required for profile and pinyin-recall APIs; optional for search/radicals/stroke-counts.
+- **Data:** Character and dictionary data from JSON files under `data/`, or from Supabase/Postgres when `USE_DATABASE=true` and `DATABASE_URL` are set. Images: local `data/png` or Google Cloud Storage bucket `chinese-chr-app-images`.
+
+---
+
+## 2. Project Structure
+
+Paths are relative to the repo root. The app lives under `chinese_chr_app/chinese_chr_app/`.
+
+- **`backend/`** — Flask app (`app.py`), auth (`auth.py`), database layer (`database.py`), pinyin recall logic (`pinyin_recall.py`), pinyin search parsing (`pinyin_search.py`). Scripts under `backend/scripts/` by domain: `characters/`, `pinyin_recall/`, `radicals/`, `utils/`. Schema and scripts are documented in [backend/DATABASE.md](../backend/DATABASE.md).
+- **`frontend/`** — Vite + React. Pages under `src/pages/` (Search, PinyinResults, Radicals, RadicalDetail, StrokeCounts, StrokeCountDetail, Profile, ProfileCategory, PinyinRecall). Shared: `App.jsx`, `NavBar.jsx`, `AuthContext.jsx`, `supabaseClient.js`. E2E under `e2e/`.
+- **`data/`** — JSON: `characters.json` (Feng 3000), `extracted_characters_hwxnet.json` (HWXNet ~3664), `level-1/2/3.json` (Zibiao-style lists), `radical_stroke_counts.json`. Optional local PNGs under `data/png/`.
+
+---
+
+## 3. Data Model (high-level)
+
+- **Feng (3000 characters):** Primary curriculum set with card images and editable metadata (拼音, 部首, 笔画, 例句, 词组, 结构). Stored in `characters.json` or Supabase table `feng_characters`.
+- **HWXNet (~3664 characters):** Dictionary source for display, radicals, stroke-counts, and pinyin search. Union of Feng and level-1 commonly used characters. Stored in `extracted_characters_hwxnet.json` or Supabase table `hwxnet_characters`. Includes `searchable_pinyin` for pinyin search.
+- **Stroke order:** Fetched on demand from HanziWriter-compatible CDN; backend proxies and may cache under `data/temp/hanzi_writer/`.
+- **Radical stroke counts:** Used to sort the Radicals page by 按部首笔画. Stored in `radical_stroke_counts.json` or Supabase table `radical_stroke_counts`.
+
+Full schema, indexes, and creation/backfill scripts are in [backend/DATABASE.md](../backend/DATABASE.md).
+
+---
+
+## 4. Search Behavior
+
+- **Input:** One Chinese character or one pinyin syllable (e.g. `ke`, `wo3`). Single CJK character → character search; otherwise → pinyin search.
+- **Character search:** If the character is in the Feng set, the Search page shows four panels: 笔顺动画, 字典信息（hwxnet）, 字卡, 字符信息（冯氏早教识字卡）. If the character is only in HWXNet (dictionary-only), the page shows 笔顺动画 and 字典信息 only. Metadata for Feng entries is editable.
+- **Pinyin search:** Results page at `/pinyin/:query` lists characters matching that reading, ranked by stroke count (ascending). Clicking a result opens the character detail (Search) view.
+
+---
+
+## 5. API Endpoints
+
+All under `/api/`. Base URL in development: `http://localhost:5001`.
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| GET | `/api/characters/search?q=<character>` | Character search; returns card + dictionary data or dictionary-only. |
+| GET | `/api/pinyin-search?q=<pinyin>` | Pinyin search; returns characters ranked by stroke count. |
+| PUT | `/api/characters/<index>/update` | Update Feng character metadata. |
+| POST | `/api/log-character-view` | Log signed-in user’s character view (body: `character`, optional `display_name`). Requires Bearer token and `USE_DATABASE=true`. |
+| GET | `/api/images/<index>/<page>` | Character card images (page1 or page2). |
+| GET | `/api/strokes?char=<character>` | Proxy/cached stroke JSON for HanziWriter. |
+| GET | `/api/radicals` | All radicals sorted by character count. |
+| GET | `/api/radicals/<radical>` | Characters for one radical. |
+| GET | `/api/stroke-counts` | Stroke counts that have at least one character. |
+| GET | `/api/stroke-counts/<count>` | Characters with that stroke count. |
+| GET | `/api/profile` | Current user profile (display name). Requires Bearer token. |
+| PUT | `/api/profile` | Update display name. Requires Bearer token. |
+| GET | `/api/profile/progress` | Progress summary: viewed characters, daily stats, proficiency (未学字/在学字/已学字). Requires Bearer token and `USE_DATABASE=true`. |
+| GET | `/api/profile/progress/category/<category>` | Characters in a given category (e.g. learning_hard, learned_normal). Requires Bearer token. |
+| GET | `/api/games/pinyin-recall/session` | First batch of pinyin-recall items (20). Requires Bearer token. |
+| POST | `/api/games/pinyin-recall/next-batch` | Next batch of 20 items. Optional body: `session_id`. Requires Bearer token. |
+| POST | `/api/games/pinyin-recall/answer` | Submit one answer. Requires Bearer token. |
+| POST | `/api/games/pinyin-recall/report-error` | Log 报错 (wrong data report). Requires Bearer token. |
+| GET | `/api/health` | Health check. |
+
+---
+
+## 6. Database (Supabase / Postgres)
+
+When `USE_DATABASE=true` and `DATABASE_URL` (or `SUPABASE_DB_URL`) are set:
+
+- Character and dictionary data are read/written from Supabase tables `feng_characters` and `hwxnet_characters` instead of JSON files.
+- Signed-in users’ character views (Search) are logged to `character_views`.
+- Pinyin recall state and events use `pinyin_recall_character_bank`, `pinyin_recall_item_presented`, `pinyin_recall_item_answered`, and `pinyin_recall_report_error`. Radical stroke counts can be served from table `radical_stroke_counts`.
+
+Schema, configuration, data-access layer, and all migration/backfill scripts are documented in [backend/DATABASE.md](../backend/DATABASE.md).
+
+---
+
+## 7. Pinyin Recall (learning game)
+
+### 7.1 Session and queue
+
+- **Session:** User gets a first batch of 20 items from `GET /api/games/pinyin-recall/session`. After finishing a batch, `POST /api/games/pinyin-recall/next-batch` returns the next 20. Session is open-ended until the user ends it.
+- **Batch size:** 20 items per batch. `new_count` cap per batch is 8 (at most 8 新字 per batch).
+- **Queue construction:** Active Load = count(难字) + count(普通在学字). Three modes:
+  - **Expansion** (Active Load < 100): 10 新字 + 10 review.
+  - **Consolidation** (100 ≤ Active Load ≤ 250): 5 新字 + 15 review.
+  - **Rescue** (Active Load > 250): 4 掌握字 + 8 普通已学字 + 6 在学字 (难字 first) + 2 新字; within 在学字 slots, 难字 first (score ascending), no cap.
+- **Slot reservation:** Up to 4 slots per batch are reserved for 巩固 (已学字, score ≥ 10); the rest are filled with 重测 (score < 10) and 新字.
+
+### 7.2 Score and categories
+
+- **Score range:** −50 to 100. Correct: +10 (cap 100). Wrong or 我不知道: −10 (floor −50).
+- **Proficiency threshold:** score ≥ 10 = 已学字 (learned). Used for profile 汉字掌握度 and for 巩固 vs 重测.
+- **Five bands (for queue selection):** 难字 (score ≤ −20), 普通在学字 (−20 < score ≤ 0), 普通已学字 (0 < score < 20), 掌握字 (score ≥ 20). 未学字 = not yet in bank.
+- **Display categories (three):** 新字 (first time), 重测 (retest / still learning), 巩固 (consolidation / maintenance).
+
+### 7.3 Cooling (next_due_utc)
+
+After a correct answer, `next_due_utc` is set by band:
+
+- 难字: 0 days  
+- 普通在学字: 1 day  
+- 普通已学字: 5 days  
+- 掌握字: 22 days  
+
+Only due items (and new items within cap) are eligible for the next batch.
+
+### 7.4 Prompt and distractors
+
+- **Prompt:** Hanzi → pinyin-with-tone (MCQ). Stem shows the character and 1–3 example words/phrases (from Feng words or HWXNet 例词). 我不知道 is always offered.
+- **Distractors:** Same syllable different tone, same tone different syllable, tone confusions; polyphonic characters use first pinyin as correct and exclude other readings from distractors.
+- **Logging:** When `USE_DATABASE=true`, events are written to `pinyin_recall_item_presented` (with `batch_id`, `batch_mode`, `batch_character_category`) and `pinyin_recall_item_answered` (with `score_before`, `score_after`, `category`). When `USE_DATABASE=false`, events go to `logs/pinyin_recall.log`.
+
+---
+
+## 8. Stroke Animation (HanziWriter)
+
+- **Endpoint:** `GET /api/strokes?char=<character>` proxies stroke-order JSON from jsDelivr/unpkg (hanzi-writer-data). Backend may cache under `data/temp/hanzi_writer/`.
+- **SSL:** Backend uses the `certifi` CA bundle. To disable SSL verification for CDN fetches (e.g. dev/CI): `HW_STROKES_VERIFY_SSL=0` when starting the backend.
+
+---
+
+## 9. Frontend Routes and Navigation
+
+- **Routes:** `/` (Search), `/radicals`, `/radicals/:radical`, `/stroke-counts`, `/stroke-counts/:count`, `/pinyin/:query`, `/games/pinyin-recall`, `/profile`, `/profile/category/:category`. Unknown paths redirect to `/`.
+- **Nav bar:** Search (link to `/`), 分类 dropdown (部首, 笔画), 游戏 dropdown (拼音记忆). Active tab is indicated by style (e.g. Search or 分类 when on a segmentation page).
+
+---
+
+## 10. Testing (E2E)
+
+Playwright tests under `frontend/e2e/` cover:
+
+- **Core:** Character search (4-panel and dictionary-only), radicals list/detail, click-through to search.
+- **Pinyin search:** Redirect on pinyin input, results page, no match / invalid format, placeholder.
+- **Routing:** Unknown path → home; direct URLs to radical and stroke-count detail.
+- **Navigation:** Logo, search link, 分类 and 游戏 dropdowns.
+- **Profile:** Unauthenticated → login prompt and return link.
+- **Pinyin Recall:** Unauthenticated → login prompt.
+
+Run from `frontend/`: `npm run test:e2e`. Backend should be on port 5001 (or Playwright will try to start it).

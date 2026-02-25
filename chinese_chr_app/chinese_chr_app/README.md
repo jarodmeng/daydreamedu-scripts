@@ -1,267 +1,59 @@
 # Chinese Character Learning App
 
-A web application to help primary school students learn simplified Chinese characters.
+A web application to help primary school students learn simplified Chinese characters. It combines utility features (character search, radicals, stroke counts, pinyin search) with learning features (personalized pinyin-recall practice) and is data-driven and customized per logged-in user.
 
-Production deployment is live at:
+**Current version: v0.2.5**
 
-- **Frontend**: `https://chinese-chr.daydreamedu.org/`
-- **Backend API**: Google Cloud Run service (e.g. `https://chinese-chr-app-xxxxx-uc.a.run.app`)
-- **Images**: Google Cloud Storage bucket `chinese-chr-app-images`
+---
 
-## Project Structure
+## Production
 
-Paths below are relative to the repo root. The app lives under `chinese_chr_app/chinese_chr_app/`.
+- **Frontend:** [https://chinese-chr.daydreamedu.org/](https://chinese-chr.daydreamedu.org/)
+- **Backend API:** Google Cloud Run (e.g. `https://chinese-chr-app-xxxxx-uc.a.run.app`)
+- **Images:** Google Cloud Storage bucket `chinese-chr-app-images`
 
-```
-chinese_chr_app/
-├── chinese_chr_app/     # Main app (this folder)
-│   ├── README.md        # This file
-│   ├── docs/            # All non-README documentation (see "File organization" below)
-│   │   ├── proposals/   # PROPOSAL_* design docs
-│   │   ├── plans/       # MVP / session plans
-│   │   ├── research/    # Notes and research (e.g. learning algorithm design)
-│   │   └── Product_Requirements_Doc.md
-│   ├── backend/         # Flask backend API
-│   │   ├── app.py       # Main Flask application
-│   │   ├── auth.py      # Supabase JWT verification
-│   │   ├── database.py  # Supabase/Postgres layer (feng_characters, hwxnet_characters, character_views)
-│   │   ├── requirements.txt
-│   │   ├── DATABASE.md  # DB schema, scripts, and data access
-│   │   ├── scripts/     # DB/migration scripts, grouped by domain (see "File organization" below)
-│   │   │   ├── pinyin_recall/  # Pinyin recall tables, backfills, migration, upload
-│   │   │   ├── characters/     # Feng/hwxnet/views tables, verify, searchable pinyin
-│   │   │   ├── radicals/       # Radical/stroke-count tables and checks
-│   │   │   └── utils/          # One-off/query/admin (query_character_for_user, delete_local_dev_rows, etc.)
-│   │   └── logs/        # Character edit logs
-│   └── frontend/        # React frontend
-│       ├── src/
-│       │   ├── pages/   # Page components (Search, PinyinResults, Radicals, RadicalDetail, StrokeCounts, StrokeCountDetail, Profile, PinyinRecall)
-│       │   ├── App.jsx  # Main router + AuthProvider
-│       │   ├── NavBar.jsx
-│       │   ├── AuthContext.jsx  # Supabase Auth (Google login)
-│       │   ├── supabaseClient.js
-│       │   └── App.css
-│       ├── e2e/         # Playwright E2E tests + fixtures
-│       ├── scripts/     # Helper scripts (e.g. start backend for E2E)
-│       ├── package.json
-│       ├── playwright.config.js
-│       └── vite.config.js
-└── data/                # Character and dictionary data (JSON)
-    ├── characters.json                   # Primary character metadata (from 冯氏早教识字卡, editable in app)
-    ├── extracted_characters_hwxnet.json  # Dictionary data extracted from hwxnet (read-only in app)
-    ├── level-1.json                      # Zibiao-style frequency list (top 3500)
-    ├── level-2.json                      # Continuation list (3501-6500)
-    └── level-3.json                      # Continuation list (6501-8105, includes some non-BMP chars)
-```
+---
 
-### File organization (where to put new files)
+## Table of Contents
 
-- **New design/feature proposals** → `docs/proposals/` (e.g. `PROPOSAL_My_Feature.md`).
-- **New MVP or session plans** → `docs/plans/`.
-- **New research or algorithm notes** → `docs/research/`.
-- **New backend DB/migration scripts** → `backend/scripts/` in the right domain subfolder:
-  - Pinyin recall (tables, backfills, event log) → `backend/scripts/pinyin_recall/`.
-  - Character/hwxnet/views tables, verify, searchable pinyin → `backend/scripts/characters/`.
-  - Radical/stroke-count → `backend/scripts/radicals/`.
-  - One-off queries, admin, or generic utils → `backend/scripts/utils/`.
-- Run scripts from `backend/`: e.g. `python3 scripts/characters/create_feng_characters_table.py`. Update `backend/DATABASE.md` when adding or moving scripts.
+| Doc | Purpose |
+|-----|---------|
+| [VISION.md](docs/VISION.md) | Product strategy, goals, user stories, and future direction |
+| [ARCHITECTURE.md](docs/ARCHITECTURE.md) | Technical specs, APIs, data model, and system flow |
+| [CHANGELOG.md](docs/CHANGELOG.md) | Version history and release notes |
 
-## Data Model Notes (What We Learned)
+---
 
-- **`characters.json` (3000 chars)**: “primary curriculum” dataset with images + editable metadata.
-  - Each entry now includes **`zibiao_index`**: the character’s index in the `level-*.json` lists.
-- **`extracted_characters_hwxnet.json` (dictionary)**: keyed by character, contains HWXNet dictionary extraction.
-  - After extending extraction, this file contains **3664 entries**:
-    - **3000** characters from `characters.json` (have both `index` and `zibiao_index`)
-    - **664** additional characters (have `zibiao_index` but **no** `index`, because `index` comes from `characters.json`)
-- **`level-1/2/3.json` union**: **8105** unique characters; includes **196 non‑BMP** characters (some may not render with common fonts).
+## Setup (Quick Start)
 
-### Search behavior
+### Backend
 
-- **Search box** accepts a single Chinese character or pinyin (e.g. ke, wo3); pinyin shows a results page (`/pinyin/:query`) with characters ranked by stroke count.
-- For characters in **`characters.json`**: app can show **all 4 panels** (笔顺动画 / 字典信息 / 字卡 / 字符信息).
-- For “dictionary-only” characters (in `extracted_characters_hwxnet.json` but not `characters.json`): app shows only:
-  - **笔顺动画**
-  - **字典信息（hwxnet）**
+1. From repo root: `cd chinese_chr_app/chinese_chr_app/backend`
+2. Create and activate a virtual environment: `python3 -m venv venv` then `source venv/bin/activate` (Windows: `venv\Scripts\activate`)
+3. (Optional) Copy `.env.local.example` to `.env.local` and set Supabase and/or GCS variables. For DB mode set `USE_DATABASE=true` and `DATABASE_URL`.
+4. Install and run: `pip3 install -r requirements.txt` then `python3 app.py`
 
-## Setup Instructions
+Backend runs at **http://localhost:5001**.
 
-### Backend Setup
+### Frontend
 
-1. Navigate to the backend directory (from repo root):
-```bash
-cd chinese_chr_app/chinese_chr_app/backend
-```
+1. From repo root: `cd chinese_chr_app/chinese_chr_app/frontend`
+2. Install and run: `npm install` then `npm run dev`
+3. (Optional) For Sign in with Google, create `.env.local` from `.env.example` and set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`.
 
-2. Create a virtual environment (recommended):
-```bash
-python3 -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-```
-
-3. (Optional) Create `.env.local` from `.env.local.example` in `backend/` and set:
-   - **Supabase**: `SUPABASE_URL`, `SUPABASE_JWT_AUD` (for JWT verification).
-   - **字卡 images**: Set `GCS_BUCKET_NAME=chinese-chr-app-images` so local 字卡 is served from GCS (same as prod). If unset, the backend uses local `data/png`. When using GCS locally, you must set up [Application Default Credentials](https://cloud.google.com/docs/authentication/external/set-up-adc): run `gcloud auth application-default login` once, then restart the backend.
-
-4. Install dependencies:
-```bash
-pip3 install -r requirements.txt
-```
-
-5. Run the Flask server (with the venv activated from step 2, `python3` uses the venv and has psycopg for database mode):
-```bash
-source venv/bin/activate   # if not already activated from step 2
-python3 app.py
-```
-
-Or in one line from `backend/`:
-```bash
-./venv/bin/python3 app.py
-```
-
-The backend will run on `http://localhost:5001`
-
-**Local gotcha (Werkzeug debugger crash):** on some macOS/Python setups, enabling Flask debug can crash due to `_ctypes` import issues. Debug is **off by default**; enable explicitly with:
-
-```bash
-source venv/bin/activate
-FLASK_DEBUG=1 python3 app.py
-```
-
-### Frontend Setup
-
-1. Navigate to the frontend directory (from repo root):
-```bash
-cd chinese_chr_app/chinese_chr_app/frontend
-```
-
-2. Install dependencies:
-```bash
-npm install
-```
-
-3. (Optional) For **Sign in with Google** to work locally, create `.env.local` from `.env.example` and set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` (from your Supabase project → Project Settings → API). Leave `VITE_API_URL` empty to use the Vite proxy to the backend.
-
-4. Start the development server:
-```bash
-npm run dev
-```
-
-The frontend will run on `http://localhost:3000`
-
-In production, the frontend is built with Vite and deployed to Netlify. Set `VITE_API_URL`, `VITE_SUPABASE_URL`, and `VITE_SUPABASE_ANON_KEY` in Netlify site environment variables. API requests use `VITE_API_URL` to reach the Cloud Run backend.
+Frontend runs at **http://localhost:3000**.
 
 ### E2E tests (Playwright)
 
-Playwright end-to-end tests live under `frontend/e2e/` and cover:
-- **Search**: Character in `characters.json` (4-panel view), dictionary-only character (2-panel view), pinyin search redirect and results, placeholder
-- **Radicals**: List, sort by stroke/character count, radical detail, click character to search
-- **Stroke counts**: List, detail, click character to search
-- **Routing**: Unknown paths redirect to home, direct URLs to radical/stroke-count detail
-- **Navigation**: Logo, search link, 分类 and 游戏 dropdowns
-- **Profile** (unauthenticated): Login prompt and return link
-- **Pinyin Recall** (unauthenticated): Login prompt when not signed in
+From `chinese_chr_app/chinese_chr_app/frontend`: `npm install`, `npx playwright install`, `npm run test:e2e`. The backend should be running on port 5001 (or Playwright will attempt to start it).
 
-From `chinese_chr_app/chinese_chr_app/frontend`:
+---
 
-```bash
-npm install
-npx playwright install
-npm run test:e2e
-```
+## Troubleshooting
 
-Notes:
-- If you already have the backend running on `http://localhost:5001`, Playwright will **reuse** it.
-- If you don’t, Playwright will try to start it; make sure you’ve installed backend deps (from `chinese_chr_app/chinese_chr_app/backend`: `pip3 install -r requirements.txt`) and have a backend venv at `backend/venv` or `backend/.venv` (Playwright uses the venv’s Python so database/psycopg works).
+- **"psycopg is required for database support"** — Run the backend with the venv activated (`source venv/bin/activate` then `python3 app.py`), or use `./venv/bin/python3 app.py` from `backend/`. In an IDE, set the run configuration to use `backend/venv/bin/python3`.
+- **macOS Python 3.13 and broken _ctypes** — If psycopg fails to import even inside the venv, use Python 3.12 for the backend: `rm -rf venv`, `python3.12 -m venv venv`, `source venv/bin/activate`, `pip3 install -r requirements.txt`, then `python3 app.py`.
+- **Flask debug crash (Werkzeug/_ctypes)** — Debug is off by default. If you enable `FLASK_DEBUG=1` and see crashes on some macOS/Python setups, run without debug.
+- **HanziWriter CDN / SSL** — If stroke data fails to load, the backend proxies and caches it. As a last resort set `HW_STROKES_VERIFY_SSL=0` when starting the backend.
 
-### Stroke animation (HanziWriter) notes
-
-HanziWriter loads per-character stroke data from `hanzi-writer-data`. In some environments, direct CDN fetches can be blocked; the backend provides a proxy + cache:
-
-- `GET /api/strokes?char=<character>`
-  - fetches from jsDelivr/unpkg
-  - caches locally under `data/temp/hanzi_writer/`
-
-If the backend cannot verify TLS certificates when fetching CDNs, it uses the `certifi` CA bundle. As a last resort, SSL verification can be disabled:
-
-```bash
-source venv/bin/activate
-HW_STROKES_VERIFY_SSL=0 python3 app.py
-```
-
-## Usage
-
-1. Open your browser and go to `http://localhost:3000`
-2. **Sign in (optional)**: Use **Sign in with Google** in the top-right to sign in via Supabase Auth. Sign out when done.
-3. **Search Page**: Enter a single simplified Chinese character in the search box
-   - Click "搜索" (Search) or press Enter
-   - Layout is **two rows**:
-     - Row 1: **笔顺动画** + **字典信息（hwxnet）**
-     - Row 2: **字卡** + **字符信息（冯氏早教识字卡）** *(only for characters in `characters.json`)*
-   - View and edit character metadata (拼音, 部首, 笔画, 例句, 词组, 结构) for `characters.json` entries
-3. **Radicals Page**: Click "部首 (Radicals)" in the navigation to browse characters by radical
-   - View all radicals sorted by the number of associated characters
-   - Click on a radical to see all characters with that radical
-   - Characters are sorted by strokes (ascending), then by pinyin
-   - Click on any character to search for it
-
-## Using the database (Supabase)
-
-The backend can read/write character data from Supabase tables instead of JSON files.
-
-- Set **`USE_DATABASE=true`** and **`DATABASE_URL`** (Supabase Postgres connection string) in the backend environment.
-- Tables: **`feng_characters`** (3000 冯氏早教识字卡 entries) and **`hwxnet_characters`** (3664 dictionary entries).
-- Without these, the app uses `data/characters.json` and `data/extracted_characters_hwxnet.json` as before.
-- **Character view logging:** When using the DB, signed-in users’ character views (Search result) are logged to **`character_views`** (user_id, character, viewed_at, display_name). Display name is taken from the app profile or JWT. Create the table once from `backend/`: `python3 scripts/characters/create_character_views_table.py`.
-- See **`backend/DATABASE.md`** for schema, scripts, and data access.
-
-### If you see "psycopg is required for database support"
-
-**1. Wrong Python / venv not used**  
-If the backend is started without the venv (e.g. IDE using system Python), start it with the venv:
-
-```bash
-cd chinese_chr_app/chinese_chr_app/backend
-source venv/bin/activate
-python3 app.py
-```
-
-Or: `./venv/bin/python3 app.py`. In an IDE, set the run configuration to use `backend/venv/bin/python3`.
-
-**2. macOS: Python 3.13 and broken _ctypes**  
-On some macOS setups, Python 3.13 has a broken `_ctypes` (e.g. `symbol not found: __PyErr_SetLocaleString`), so `psycopg` fails to import even inside the venv. Use **Python 3.12** for the backend venv instead:
-
-```bash
-cd chinese_chr_app/chinese_chr_app/backend
-rm -rf venv
-python3.12 -m venv venv          # or: /usr/local/bin/python3.12 -m venv venv
-source venv/bin/activate
-pip3 install -r requirements.txt
-python3 app.py
-```
-
-Then keep using `USE_DATABASE=true` in `.env.local`; the backend will load from Supabase.
-
-## API Endpoints
-
-### Character Search
-- `GET /api/characters/search?q=<character>` - Search for a character
-- `GET /api/pinyin-search?q=<pinyin>` - Search by pinyin (e.g. ke, wo3); returns characters ranked by stroke count
-  - Returns `character: null` but `dictionary` present for dictionary-only characters
-- `PUT /api/characters/<index>/update` - Update character metadata
-- `POST /api/log-character-view` - Log that the signed-in user viewed a character (Search result). Body: `{ "character": "天", "display_name": "optional" }`. Requires `USE_DATABASE=true` and Bearer token. Logs user_id, character, viewed_at, and display_name (from body, profile, or JWT).
-
-### Images
-- `GET /api/images/<index>/<page>` - Get character card images (page1 or page2)
-
-### Stroke data (HanziWriter)
-- `GET /api/strokes?char=<character>` - Proxy/cached stroke JSON for HanziWriter
-
-### Radicals
-- `GET /api/radicals` - Get all radicals sorted by character count
-- `GET /api/radicals/<radical>` - Get all characters for a specific radical
-
-### System
-- `GET /api/health` - Health check endpoint
-
-**Note:** The backend uses port 5001 instead of 5000 to avoid conflicts with macOS AirPlay Receiver.
+For full API, data model, and deployment details see [ARCHITECTURE.md](docs/ARCHITECTURE.md) and `backend/DATABASE.md`.

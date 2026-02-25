@@ -1,6 +1,6 @@
 # Proposal: Queue construction by five score-based categories
 
-**Status:** Draft  
+**Status:** Implemented (2026-02; commit 21372eb — queue by five score-based categories, batch logging; batch_mode/batch_character_category in pinyin_recall_item_presented)  
 **Date:** 2026-02-21  
 **Context:** The character bank can be partitioned into five categories by **master score**. This proposal rethinks how we build a batch of 20 characters so the queue aligns with learning goals and research principles.
 

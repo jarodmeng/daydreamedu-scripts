@@ -92,8 +92,8 @@ Scheduled unit is a **character**. We need:
 - `pinyin_no_tone` (for syllable grouping)
 - `tone` (1–5; 5 = neutral)
 - **words/phrases (词组)** for stem context (primary source for MVP 1):
-  - from Feng `characters.json` / `feng_characters.Words`
-  - from HWXNet `extracted_characters_hwxnet.json` / `hwxnet_characters.基本字义解释[].释义[].例词`
+  - from Supabase `feng_characters.words` (冯氏早教识字卡)
+  - from Supabase `hwxnet_characters.basic_meanings` (例词 at 基本字义解释[].释义[].例词)
 - optional example sentence (only if words are insufficient)
 
 ### Stem content (MVP 1)
@@ -123,7 +123,7 @@ Rules:
 
 - Allow polyphonic characters **only if** the stem includes a word/phrase that clearly fixes the reading.
 - If no disambiguating word is available, exclude the character from MVP 1 (treat as single-pronunciation-only).
-- **Correct answer**: For characters with multiple pronunciations, use the **first** entry in the `拼音` (pinyin) field from `extracted_characters_hwxnet.json` as the correct answer. Other pronunciations of the same character must **not** appear as distractors (see Distractor generation).
+- **Correct answer**: For characters with multiple pronunciations, use the **first** entry in the `pinyin` field from Supabase `hwxnet_characters` as the correct answer. Other pronunciations of the same character must **not** appear as distractors (see Distractor generation).
 
   **Examples:** 和 — correct answer hé (he2); hè (he4) must not be in distractors. 好 — correct answer hǎo (hao3); hào (hao4) must not be in distractors.
 
@@ -321,8 +321,8 @@ When the user selects a wrong pinyin or **我不知道**, they are either confus
 
 **Data available (per character):**
 
-- **HWXNet** (`extracted_characters_hwxnet.json`): 拼音, 部首, 总笔画, 基本字义解释 (释义 with 解释 + 例词), 英文翻译.
-- **Feng** (`characters.json`): Pinyin, Radical, Strokes, Structure (e.g. 左右结构), Sentence, Words.
+- **HWXNet** (Supabase `hwxnet_characters`): pinyin, radical, strokes, basic_meanings (释义 with 解释 + 例词), english_translations.
+- **Feng** (Supabase `feng_characters`): pinyin, radical, strokes, structure (e.g. 左右结构), sentence, words.
 
 **Proposed content for the wrong-answer / 我不知道 learning screen (in order):**
 
