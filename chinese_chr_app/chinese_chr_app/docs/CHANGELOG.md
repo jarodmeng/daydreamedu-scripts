@@ -6,6 +6,14 @@ Release history and version notes. Newest releases are at the top.
 
 ---
 
+## [v0.2.7]
+
+- **Profile name persistence (#18):** Persist user profile display name in the `user_profiles` table when `USE_DATABASE=true`, and have `/api/profile` read from it so names survive backend restarts and Cloud Run instance changes.
+- **Logging alignment:** Character view logging (`character_views.display_name`) now prefers the same persisted profile name used on the 我的 page.
+- **Ops:** New script `scripts/users/create_user_profiles_table.py` must be run once per DB-backed environment to create `user_profiles`.
+
+---
+
 ## [v0.2.6]
 
 - **Documentation refactor:** Modular docs (README as receptionist, VISION, ARCHITECTURE, CHANGELOG). PRD, plans, proposals, research and content-mapping plan moved to `docs/archive/`.
