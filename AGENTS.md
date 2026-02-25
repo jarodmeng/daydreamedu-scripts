@@ -13,15 +13,31 @@ Both apps share ports 5001/3000 — only one can run at a time.
 
 ### Running the Chinese chr app
 
-See the skill file at `.cursor/skills/start-local-servers/SKILL.md` for step-by-step instructions. In brief:
+See the skill file at `.cursor/skills/start-local-servers/SKILL.md` for basic instructions. For the full setup with real Supabase DB and GCS images:
 
-```
-# Backend (background)
-cd chinese_chr_app/chinese_chr_app/backend && python3 app.py
+```bash
+# Write GCP credentials (if GOOGLE_APPLICATION_CREDENTIALS_JSON secret is set)
+mkdir -p ~/.config/gcloud
+echo "$GOOGLE_APPLICATION_CREDENTIALS_JSON" > ~/.config/gcloud/sa-key.json
+chmod 600 ~/.config/gcloud/sa-key.json
 
-# Frontend (background)
-cd chinese_chr_app/chinese_chr_app/frontend && npm run dev
+# Backend (background) — with real DB + GCS + dev user bypass
+cd chinese_chr_app/chinese_chr_app/backend && \
+  USE_DATABASE=true \
+  SUPABASE_URL="$VITE_SUPABASE_URL" \
+  PINYIN_RECALL_DEV_USER=local-dev \
+  GCS_BUCKET_NAME=chinese-chr-app-images \
+  GOOGLE_APPLICATION_CREDENTIALS=~/.config/gcloud/sa-key.json \
+  GOOGLE_CLOUD_PROJECT=daydreamedu \
+  python3 app.py
+
+# Frontend (background) — with auth bypass, unset Supabase vars to avoid conflict
+cd chinese_chr_app/chinese_chr_app/frontend && \
+  env -u VITE_SUPABASE_URL -u VITE_SUPABASE_ANON_KEY \
+  VITE_E2E_AUTH_BYPASS=1 npm run dev
 ```
+
+Without the secrets, the app still works: omit `USE_DATABASE`/`GCS_BUCKET_NAME` and the backend uses local JSON files and local PNG directory instead.
 
 The Vite dev server proxies `/api` to `http://localhost:5001` automatically.
 
