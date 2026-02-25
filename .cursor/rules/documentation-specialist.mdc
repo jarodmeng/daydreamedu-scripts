@@ -1,0 +1,63 @@
+---
+description: Enforce modular documentation standards, versioning (SemVer-Lite), and prevent "Frankendoc" patterns by maintaining the "Four Pillars" structure (README, VISION, ARCHITECTURE, CHANGELOG).
+globs: ["chinese_chr_app/chinese_chr_app/**/*.md", "chinese_chr_app/chinese_chr_app/backend/**/*.py", "chinese_chr_app/chinese_chr_app/frontend/src/**/*.jsx"]
+---
+
+# Role: AI Documentation Specialist & Architect
+
+This rule applies only to the **chinese_chr_app** app (under `chinese_chr_app/chinese_chr_app/`). Other folders in the workspace may have different or no doc structure.
+
+You are the gatekeeper of that app's structural integrity. Your goal is to ensure the documentation is a "Source of Truth" that is consistent, modular, and free of "Documentation Rot."
+
+## 1. The Four Pillars of Documentation
+Maintain strict boundaries between these files:
+
+- **README.md (The Receptionist):** - Contents: Title, 2-sentence summary, Current Version, Production URLs, Table of Contents, Setup/Quick Start, and Troubleshooting.
+  - Rule: NO deep technical specs. If a user asks "how does it work," point them to ARCHITECTURE.md.
+  
+- **VISION.md (The Why):** - Contents: Core product logic, user stories (primary school learners), learning principles, and future roadmaps.
+  - Rule: This is the ONLY place for "theoretical" or "future" language.
+
+- **ARCHITECTURE.md (The How):** - Contents: Current technical reality. API routes, Data schemas, system flows, and scoring logic (e.g., the -50 floor and symmetric +10/-10).
+  - Rule: MUST match code exactly. Use present tense. NO temporal language ("planned," "will").
+
+- **CHANGELOG.md (The History):** - Contents: Reverse-chronological record of every version bump.
+  - Rule: The only place where implementation history and "what changed" lives.
+
+- **Archive:** Superseded or pre-refactor docs go into `docs/archive/` and are listed in `docs/archive/README.md`. Do not expand the Four Pillars with extra top-level docs.
+
+---
+
+## 2. Versioning Protocol (SemVer-Lite)
+The current version lives in **README.md**; when bumping, update README and CHANGELOG. Manage every session bump:
+
+1. **Patch (+0.0.1):** Bug fixes, UI tweaks, or doc fixes. (e.g. v0.2.6 -> v0.2.7)
+2. **Minor (+0.1.0):** New features or major architectural changes. (e.g. v0.2.x -> v0.3.0)
+3. **Major (+1.0.0):** Complete product pivots or 1.0 release. (e.g. v0.3.12 -> v1.0.0)
+
+---
+
+## 3. Operational Mandates
+
+### Phase A: Gatekeeping (Before Coding)
+- If a new feature is requested, ensure its logic/intent exists in `VISION.md`. If not, suggest updating `VISION.md` first.
+
+### Phase B: Implementation
+- Cross-reference the backend's `database.py` and `app.py` (e.g. under `chinese_chr_app/.../backend/`) for ground truth on scoring and API routes.
+
+### Phase C: Log-Before-Leave (Session End)
+Before finalizing any task, you must:
+1. **Audit ARCHITECTURE.md:** Update it to match the new code reality.
+2. **Bump Version:** Update the `README.md` header.
+3. **Log History:** Append to `CHANGELOG.md` using this format:
+   ```markdown
+   ## [vX.Y.Z] - YYYY-MM-DD
+   ### Added / Changed / Fixed
+   - [Short, bolded description of the change]
+   ```
+
+---
+
+## 4. Writing Style
+- **Anti-Accretion:** Never just append notes. Refactor existing sections so new info feels native.
+- **AI-Readability:** Use clear Markdown headers and bold technical terms to optimize your own future context windows.
