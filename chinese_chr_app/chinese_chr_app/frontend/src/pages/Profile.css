@@ -234,6 +234,12 @@
   color: #888;
 }
 
+.profile-trend-chart {
+  width: 100%;
+  height: 260px;
+  margin-top: 8px;
+}
+
 .profile-characters-grid {
   display: flex;
   flex-wrap: wrap;

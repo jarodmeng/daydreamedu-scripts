@@ -7,6 +7,7 @@ Uses Psycopg 3 (psycopg[binary]>=3.1) for Python 3.13+ compatibility.
 
 import json
 import os
+from datetime import date, timedelta
 from typing import Any, Dict, List, Optional, Tuple
 
 try:
@@ -415,6 +416,128 @@ def get_pinyin_recall_daily_stats(user_id: str, days: int = 30) -> List[Dict[str
             }
             for r in rows
         ]
+    finally:
+        conn.close()
+
+
+def get_pinyin_recall_category_daily_trend(
+    user_id: str,
+    days: int = 60,
+) -> List[Dict[str, Any]]:
+    """
+    Return daily counts of characters in the four profile bands for a user:
+
+    - hard (难字)
+    - learning_normal (普通在学字)
+    - learned_normal (普通已学字)
+    - mastered (掌握字)
+
+    Counts reflect band membership at end-of-day. Derived at runtime from
+    pinyin_recall_item_answered.score_after, without additional logging.
+    """
+    if days <= 0:
+        return []
+
+    conn = _get_connection()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                SELECT character, score_after, created_at
+                FROM pinyin_recall_item_answered
+                WHERE user_id = %s
+                ORDER BY created_at ASC
+                """,
+                (user_id.strip(),),
+            )
+            rows = cur.fetchall()
+
+        # No activity for this user.
+        if not rows:
+            return []
+
+        # Track current band per character and global band counts.
+        band_keys = ["难字", "普通在学字", "普通已学字", "掌握字"]
+        band_counts: Dict[str, int] = {k: 0 for k in band_keys}
+        per_char_band: Dict[str, str] = {}
+
+        # Snapshots for days that had at least one event.
+        daily_snapshots: Dict[date, Dict[str, int]] = {}
+        current_day: Optional[date] = None
+
+        for r in rows:
+            ch = (r.get("character") or "").strip()
+            score_after = r.get("score_after")
+            created_at = r.get("created_at")
+            if not ch or score_after is None or created_at is None:
+                continue
+
+            ev_day = created_at.date()
+            if current_day is None:
+                current_day = ev_day
+            elif ev_day != current_day:
+                # Snapshot counts at end of previous day before moving on.
+                daily_snapshots[current_day] = dict(band_counts)
+                current_day = ev_day
+
+            prev_band = per_char_band.get(ch)
+            score_val = int(score_after)
+            if score_val <= PROFILE_LEARNING_HARD_MAX_SCORE:
+                new_band = "难字"
+            elif score_val <= 0:
+                new_band = "普通在学字"
+            elif score_val < PROFILE_LEARNED_MASTERED_MIN_SCORE:
+                new_band = "普通已学字"
+            else:
+                new_band = "掌握字"
+
+            if prev_band == new_band:
+                continue
+
+            if prev_band is not None:
+                band_counts[prev_band] = max(0, band_counts.get(prev_band, 0) - 1)
+            band_counts[new_band] = band_counts.get(new_band, 0) + 1
+            per_char_band[ch] = new_band
+
+        # Snapshot the final day.
+        if current_day is not None and current_day not in daily_snapshots:
+            daily_snapshots[current_day] = dict(band_counts)
+
+        if not daily_snapshots:
+            return []
+
+        all_days_sorted = sorted(daily_snapshots.keys())
+        start = all_days_sorted[0]
+        end = all_days_sorted[-1]
+
+        # Fill gaps for days without events by carrying forward the last known counts.
+        filled: Dict[date, Dict[str, int]] = {}
+        last_counts: Dict[str, int] = {k: 0 for k in band_keys}
+        d = start
+        while d <= end:
+            if d in daily_snapshots:
+                last_counts = daily_snapshots[d]
+            filled[d] = dict(last_counts)
+            d += timedelta(days=1)
+
+        # Restrict to the last `days` days relative to `end`.
+        cutoff = end - timedelta(days=days - 1)
+        output: List[Dict[str, Any]] = []
+        for day_key in sorted(filled.keys()):
+            if day_key < cutoff:
+                continue
+            counts = filled[day_key]
+            output.append(
+                {
+                    "date": day_key.isoformat(),
+                    "hard": counts.get("难字", 0),
+                    "learning_normal": counts.get("普通在学字", 0),
+                    "learned_normal": counts.get("普通已学字", 0),
+                    "mastered": counts.get("掌握字", 0),
+                }
+            )
+
+        return output
     finally:
         conn.close()
 

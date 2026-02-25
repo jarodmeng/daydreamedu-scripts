@@ -1,5 +1,14 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import {
+  Area,
+  AreaChart,
+  Legend,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts'
 import { useAuth } from '../AuthContext'
 import './Profile.css'
 
@@ -106,6 +115,7 @@ export default function Profile() {
   const learnedMastered = proficiency?.learned_mastered ?? 0
   const learnedNormal = proficiency?.learned_normal ?? 0
   const pct = (n) => (totalChars > 0 ? Math.round((n / totalChars) * 100) : 0)
+  const categoryTrend = progress?.category_trend ?? []
 
   return (
     <main className="profile-page">
@@ -225,6 +235,58 @@ export default function Profile() {
                 </p>
               </div>
             </section>
+
+            {/* Daily category trend chart (four bands, excluding 未学字) */}
+            {categoryTrend.length >= 5 && (
+              <section className="profile-section">
+                <h2>掌握度每日趋势</h2>
+                <div className="profile-trend-chart">
+                  <ResponsiveContainer width="100%" height={260}>
+                    <AreaChart data={categoryTrend} margin={{ top: 10, right: 16, bottom: 0, left: -4 }}>
+                      <XAxis dataKey="date" />
+                      <YAxis allowDecimals={false} />
+                      <Tooltip />
+                      <Legend />
+                      <Area
+                        type="monotone"
+                        dataKey="hard"
+                        stackId="1"
+                        name="难字"
+                        stroke="#d32f2f"
+                        fill="#ef9a9a"
+                      />
+                      <Area
+                        type="monotone"
+                        dataKey="learning_normal"
+                        stackId="1"
+                        name="普通在学字"
+                        stroke="#f9a825"
+                        fill="#ffe082"
+                      />
+                      <Area
+                        type="monotone"
+                        dataKey="learned_normal"
+                        stackId="1"
+                        name="普通已学字"
+                        stroke="#29b6f6"
+                        fill="#81d4fa"
+                      />
+                      <Area
+                        type="monotone"
+                        dataKey="mastered"
+                        stackId="1"
+                        name="掌握字"
+                        stroke="#2e7d32"
+                        fill="#a5d6a7"
+                      />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </div>
+                <p className="profile-proficiency-hint">
+                  每日结束时各类字数，根据拼音记忆游戏中的得分区间动态计算（不包含未学字）。
+                </p>
+              </section>
+            )}
 
             {/* Recently viewed characters */}
             <section className="profile-section">
