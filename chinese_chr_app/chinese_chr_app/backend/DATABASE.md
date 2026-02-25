@@ -241,6 +241,7 @@ Psycopg 3 (`psycopg[binary]>=3.1`). All functions return dict shapes compatible 
 | `insert_pinyin_recall_report_error(user_id, session_id, batch_id, character, page=None)` | Insert one row into `pinyin_recall_report_error`. `batch_id` may be None. `page`: question, wrong, or correct. |
 | `bulk_insert_pinyin_recall_item_presented(payloads)` | Bulk insert into `pinyin_recall_item_presented` (e.g. upload script). |
 | `bulk_insert_pinyin_recall_item_answered(payloads)` | Bulk insert into `pinyin_recall_item_answered` (e.g. upload script). |
+| `get_pinyin_recall_category_daily_trend(user_id, days=60)` | Return daily end-of-day counts for the four bands (难字, 普通在学字, 普通已学字, 掌握字) by replaying `pinyin_recall_item_answered` for the user. No new table; used by `GET /api/profile/progress` for the 掌握度每日趋势 chart. |
 
 ---
 

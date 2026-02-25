@@ -60,7 +60,7 @@ All under `/api/`. Base URL in development: `http://localhost:5001`.
 | GET | `/api/stroke-counts/<count>` | Characters with that stroke count. |
 | GET | `/api/profile` | Current user profile (display name). Requires Bearer token. |
 | PUT | `/api/profile` | Update display name. Requires Bearer token. |
-| GET | `/api/profile/progress` | Progress summary: viewed characters, daily stats, proficiency (未学字/在学字/已学字). Requires Bearer token and `USE_DATABASE=true`. |
+| GET | `/api/profile/progress` | Progress summary: viewed characters, daily stats, proficiency (未学字/在学字/已学字), and `category_trend` (daily counts for 难字/普通在学字/普通已学字/掌握字, runtime-computed from `pinyin_recall_item_answered`). Requires Bearer token and `USE_DATABASE=true`. |
 | GET | `/api/profile/progress/category/<category>` | Characters in a given category (e.g. learning_hard, learned_normal). Requires Bearer token. |
 | GET | `/api/games/pinyin-recall/session` | First batch of pinyin-recall items (20). Requires Bearer token. |
 | POST | `/api/games/pinyin-recall/next-batch` | Next batch of 20 items. Optional body: `session_id`. Requires Bearer token. |

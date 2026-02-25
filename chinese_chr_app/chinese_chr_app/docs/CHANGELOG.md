@@ -6,6 +6,12 @@ Release history and version notes. Newest releases are at the top.
 
 ---
 
+## [v0.2.8]
+
+- **Profile 掌握度每日趋势 (#19):** Daily trend of the four character bands (难字 / 普通在学字 / 普通已学字 / 掌握字) on the 我的 page. Runtime-computed from `pinyin_recall_item_answered` (no schema change). Chart shown when user has ≥5 days of data. API `GET /api/profile/progress` returns `category_trend`. Script `user_daily_category_counts.py` for ad-hoc verification.
+
+---
+
 ## [v0.2.7]
 
 - **Profile name persistence (#18):** Persist user profile display name in the `user_profiles` table when `USE_DATABASE=true`, and have `/api/profile` read from it so names survive backend restarts and Cloud Run instance changes.
