@@ -39,6 +39,17 @@ If the backend and frontend are already running, Playwright reuses them (`reuseE
 
 Both frontends use `npm run build` (Vite). No lint command is configured in `package.json` — the build itself serves as the primary code quality check.
 
+### Testing signed-in user flows (no real credentials needed)
+
+The codebase has built-in dev auth bypass mechanisms:
+
+- **Frontend**: Start with `VITE_E2E_AUTH_BYPASS=1 npm run dev` (or append `?e2e_auth=1` to any URL). The UI creates a fake session so it behaves as if a user is signed in.
+- **Backend**: Start with `PINYIN_RECALL_DEV_USER=local-dev python3 app.py`. All auth-gated endpoints (`/api/profile`, `/api/games/pinyin-recall/*`, `/api/profile/progress`) accept the dev user as a fallback when no valid Bearer token is present.
+
+Combined, these allow full testing of Profile, Pinyin Recall game, and progress — without Supabase credentials or Google OAuth.
+
+The only endpoint that does **not** support the dev user fallback is `/api/log-character-view` (requires a real Supabase JWT).
+
 ### Gotchas
 
 - The Chinese chr app Vite config only enables the `/api` proxy when `NODE_ENV === 'development'`. Running `npm run dev` sets this automatically.
