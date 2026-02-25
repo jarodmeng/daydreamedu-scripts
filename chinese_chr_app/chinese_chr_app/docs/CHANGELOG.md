@@ -6,6 +6,12 @@ Release history and version notes. Newest releases are at the top.
 
 ---
 
+## [v0.2.6]
+
+- **Documentation refactor:** Modular docs (README as receptionist, VISION, ARCHITECTURE, CHANGELOG). PRD, plans, proposals, research and content-mapping plan moved to `docs/archive/`.
+
+---
+
 ## [v0.2.5]
 
 - **Auth/backend fixes:** Use certifi SSL context for PyJWKClient (auth). Use `datetime.now(timezone.utc)` instead of deprecated `utcnow()` in backend.
