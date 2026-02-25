@@ -1,0 +1,20 @@
+---
+description: Use shell mv for moving files; do not copy-then-delete or write to new path
+alwaysApply: true
+---
+
+# Moving Files
+
+When the user asks to **move** a file (or folder) from one path to another:
+
+1. **Use the `mv` command** in the shell. Run `mv <source> <dest>` with absolute or correct relative paths. Do not "move" by writing content to the new path and then deleting the source; that is error-prone and can leave duplicates if the delete is blocked or the source is recreated.
+2. **Do not** achieve a move by: copying content to the new path (Write/StrReplace) and then deleting the original, unless the user explicitly asks for that pattern.
+3. **Order of operations:** If you must edit the file before moving (e.g. add a header), edit first, then run `mv`. Avoid editing the file at the *old* path after the move, or the editor/IDE may recreate the file at the old path.
+
+Example (from repo root or appropriate cwd):
+
+```bash
+mv chinese_chr_app/chinese_chr_app/docs/foo.md chinese_chr_app/chinese_chr_app/docs/archive/
+```
+
+After `mv`, the file exists only at the destination.
