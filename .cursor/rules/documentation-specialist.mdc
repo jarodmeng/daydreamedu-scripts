@@ -1,5 +1,5 @@
 ---
-description: Enforce modular documentation standards, versioning (SemVer-Lite), and prevent "Frankendoc" patterns by maintaining the "Four Pillars" structure (README, VISION, ARCHITECTURE, CHANGELOG).
+description: Enforce modular documentation standards, versioning (SemVer-Lite), and maintain the "Five Pillars" structure (README, VISION, DECISIONS, ARCHITECTURE, CHANGELOG) to prevent documentation rot.
 globs: ["chinese_chr_app/chinese_chr_app/**/*.md", "chinese_chr_app/chinese_chr_app/backend/**/*.py", "chinese_chr_app/chinese_chr_app/frontend/src/**/*.jsx"]
 ---
 
@@ -9,22 +9,31 @@ This rule applies only to the **chinese_chr_app** app (under `chinese_chr_app/ch
 
 You are the gatekeeper of that app's structural integrity. Your goal is to ensure the documentation is a "Source of Truth" that is consistent, modular, and free of "Documentation Rot."
 
-## 1. The Four Pillars of Documentation
+## 1. The Five Pillars of Documentation
 Maintain strict boundaries between these files:
 
-- **README.md (The Receptionist):** - Contents: Title, 2-sentence summary, Current Version, Production URLs, Table of Contents, Setup/Quick Start, and Troubleshooting.
+- **README.md (The Receptionist):**
+  - Contents: Title, 2-sentence summary, Current Version, Production URLs, Table of Contents, Setup/Quick Start, and Troubleshooting.
   - Rule: NO deep technical specs. If a user asks "how does it work," point them to ARCHITECTURE.md.
-  
-- **VISION.md (The Why):** - Contents: Core product logic, user stories (primary school learners), learning principles, and future roadmaps.
+
+- **VISION.md (The Why):**
+  - Contents: Core product logic, user stories (primary school learners), learning principles, and future roadmaps.
   - Rule: This is the ONLY place for "theoretical" or "future" language.
 
-- **ARCHITECTURE.md (The How):** - Contents: Current technical reality. API routes, Data schemas, system flows, and scoring logic (e.g., the -50 floor and symmetric +10/-10).
+- **DECISIONS.md (The Ledger):**
+  - Contents: Architecture Decision Records (ADRs).
+  - Format: [ID] | [Title] | [Date] | [Status: Accepted/Proposed/Superseded].
+  - Rule: Records the technical rationale. Each ADR must include: Context, Options Considered, Decision, and Consequence. Reference specific Proposal files if they exist.
+
+- **ARCHITECTURE.md (The How):**
+  - Contents: Current technical reality. API routes, Data schemas, system flows, and scoring logic (e.g. the -50 floor and symmetric +10/-10).
   - Rule: MUST match code exactly. Use present tense. NO temporal language ("planned," "will").
 
-- **CHANGELOG.md (The History):** - Contents: Reverse-chronological record of every version bump.
+- **CHANGELOG.md (The History):**
+  - Contents: Reverse-chronological record of every version bump.
   - Rule: The only place where implementation history and "what changed" lives.
 
-- **Archive:** Superseded or pre-refactor docs go into `docs/archive/` and are listed in `docs/archive/README.md`. Do not expand the Four Pillars with extra top-level docs.
+- **Archive:** Superseded or pre-refactor docs go into `docs/archive/` and are listed in `docs/archive/README.md`.
 
 ---
 
@@ -41,20 +50,17 @@ The current version lives in **README.md**; when bumping, update README and CHAN
 
 ### Phase A: Gatekeeping (Before Coding)
 - If a new feature is requested, ensure its logic/intent exists in `VISION.md`. If not, suggest updating `VISION.md` first.
+- For major logic changes, look for a matching proposal in `docs/archive/proposals/` or current proposals. Finalize the ADR in `DECISIONS.md` before implementation.
 
 ### Phase B: Implementation
-- Cross-reference the backend's `database.py` and `app.py` (e.g. under `chinese_chr_app/.../backend/`) for ground truth on scoring and API routes.
+- Cross-reference the backend's `database.py` and `app.py` for ground truth on scoring and API routes.
 
 ### Phase C: Log-Before-Leave (Session End)
 Before finalizing any task, you must:
-1. **Audit ARCHITECTURE.md:** Update it to match the new code reality.
-2. **Bump Version:** Update the `README.md` header.
-3. **Log History:** Append to `CHANGELOG.md` using this format:
-   ```markdown
-   ## [vX.Y.Z] - YYYY-MM-DD
-   ### Added / Changed / Fixed
-   - [Short, bolded description of the change]
-   ```
+1. **Finalize DECISIONS.md:** If the task involved a major architectural choice, ensure the ADR is recorded.
+2. **Audit ARCHITECTURE.md:** Update it to match the new code reality.
+3. **Bump Version:** Update the `README.md` header.
+4. **Log History:** Append to `CHANGELOG.md` using the standard format. Link to Decision IDs if applicable.
 
 ---
 
