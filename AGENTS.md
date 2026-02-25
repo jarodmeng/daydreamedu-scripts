@@ -48,6 +48,12 @@ The codebase has built-in dev auth bypass mechanisms:
 
 Combined, these allow full testing of Profile, Pinyin Recall game, and progress — without Supabase credentials or Google OAuth.
 
+**Gotcha**: `VITE_E2E_AUTH_BYPASS=1` conflicts with real Supabase credentials on the frontend. When both `VITE_SUPABASE_URL`/`VITE_SUPABASE_ANON_KEY` and `VITE_E2E_AUTH_BYPASS=1` are set, Supabase's `onAuthStateChange` fires and overrides the fake session with `null`. To use the E2E bypass, either:
+- Don't pass `VITE_SUPABASE_URL`/`VITE_SUPABASE_ANON_KEY` to the frontend: `env -u VITE_SUPABASE_URL -u VITE_SUPABASE_ANON_KEY VITE_E2E_AUTH_BYPASS=1 npm run dev`
+- Or pass them to the backend only (the backend reads `DATABASE_URL` and `SUPABASE_URL` independently of the frontend)
+
+The backend can still read real Supabase tables even when the frontend doesn't have Supabase vars — the `/api` proxy connects directly.
+
 The only endpoint that does **not** support the dev user fallback is `/api/log-character-view` (requires a real Supabase JWT).
 
 ### Gotchas
