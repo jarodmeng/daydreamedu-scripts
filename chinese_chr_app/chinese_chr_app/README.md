@@ -20,6 +20,7 @@ A web application to help primary school students learn simplified Chinese chara
 |-----|---------|
 | [VISION.md](docs/VISION.md) | Product strategy, goals, user stories, and future direction |
 | [ARCHITECTURE.md](docs/ARCHITECTURE.md) | Technical specs, APIs, data model, and system flow |
+| [DECISIONS.md](docs/DECISIONS.md) | Architecture decision records and technical rationale |
 | [CHANGELOG.md](docs/CHANGELOG.md) | Version history and release notes |
 
 ---
