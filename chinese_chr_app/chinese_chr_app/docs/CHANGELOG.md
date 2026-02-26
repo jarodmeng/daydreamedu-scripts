@@ -6,6 +6,13 @@ Release history and version notes. Newest releases are at the top.
 
 ---
 
+## [v0.2.11]
+
+- **Cloud Build smoke tests:** Allow Chinese chr app Cloud Build import smoke tests to run without DB env so basic import smoke still passes when database variables are missing.
+- **CI e2e workflows:** Wire e2e DB env and secret preflight correctly in CI, add a manual `workflow_dispatch` trigger for Playwright e2e, and skip secretless PR runs to avoid noisy failures.
+
+---
+
 ## [v0.2.10]
 
 - **Log-character-view dev fallback:** `/api/log-character-view` now accepts the E2E/dev user fallback (same as profile and pinyin-recall endpoints), so E2E and local dev no longer see 401s or console errors when viewing characters. Backend suppresses expected fake-token JWT parse noise in logs before falling back to `PINYIN_RECALL_DEV_USER`.
