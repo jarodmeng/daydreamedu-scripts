@@ -44,10 +44,38 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
 
+      - name: Preflight E2E env
+        shell: bash
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL || secrets.VITE_SUPABASE_URL }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL || secrets.SUPABASE_DB_URL }}
+        run: |
+          missing=0
+          if [ -n "${SUPABASE_URL:-}" ]; then
+            echo "SUPABASE_URL: present"
+          else
+            echo "::error::Missing SUPABASE_URL (or VITE_SUPABASE_URL secret)"
+            missing=1
+          fi
+          if [ -n "${DATABASE_URL:-}" ]; then
+            echo "DATABASE_URL: present"
+          else
+            echo "::error::Missing DATABASE_URL (or SUPABASE_DB_URL secret)"
+            missing=1
+          fi
+          if [ "$missing" -ne 0 ]; then
+            exit 1
+          fi
+
       - name: Run E2E tests
         run: npx playwright test --project=chromium
         env:
           E2E_PYTHON: python3
+          # Backend is DB-only at startup; pass CI secrets through to Playwright webServer.
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL || secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL || secrets.SUPABASE_URL }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL || secrets.SUPABASE_DB_URL }}
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL || secrets.DATABASE_URL }}
 
       - name: Upload Playwright report (on failure)
         if: failure()
@@ -55,4 +83,3 @@ jobs:
         with:
           name: playwright-report
           path: chinese_chr_app/chinese_chr_app/frontend/playwright-report
-
