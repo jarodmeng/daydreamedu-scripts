@@ -26,7 +26,8 @@ COPY data/radical_stroke_counts.json ./data/
 # Note: characters_by_radicals.json is generated dynamically, so we don't need to copy it
 
 # Fail the build if app cannot be imported (e.g. missing local module). Prevents 503 in prod.
-RUN python3 -c "import app"
+# Skip DB startup validation here because Cloud Build doesn't inject runtime env vars during image build.
+RUN IMPORT_SMOKE_TEST=1 python3 -c "import app"
 
 # Expose port (Cloud Run will set PORT env var)
 ENV PORT=8080

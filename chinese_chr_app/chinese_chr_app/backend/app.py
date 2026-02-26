@@ -194,7 +194,8 @@ def _require_database_startup() -> None:
         raise RuntimeError(f"Database startup check failed: {e}") from e
 
 
-_require_database_startup()
+if os.getenv("IMPORT_SMOKE_TEST") != "1":
+    _require_database_startup()
 
 def reload_characters():
     """Force reload characters from database (used after updates)."""
