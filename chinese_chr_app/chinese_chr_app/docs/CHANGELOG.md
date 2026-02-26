@@ -6,6 +6,14 @@ Release history and version notes. Newest releases are at the top.
 
 ---
 
+## [v0.2.10]
+
+- **Log-character-view dev fallback:** `/api/log-character-view` now accepts the E2E/dev user fallback (same as profile and pinyin-recall endpoints), so E2E and local dev no longer see 401s or console errors when viewing characters. Backend suppresses expected fake-token JWT parse noise in logs before falling back to `PINYIN_RECALL_DEV_USER`.
+- **E2E coverage:** New specs for profile category page (guest, invalid/valid category, click-through), search error states (backend error, stroke loading fallback), profile interactions (display name edit/cancel/save, category links), and pinyin recall edge paths (session/answer error surfacing).
+- **Docs:** Added [TESTING.md](TESTING.md) (testing philosophy, mock-vs-real E2E guidance, coverage priorities) and linked it from the app README ToC.
+
+---
+
 ## [v0.2.9]
 
 - **Backend DB-only runtime (#22):** Removed `USE_DATABASE` branching and local JSON fallback; backend now requires `DATABASE_URL` (or `SUPABASE_URL`/`SUPABASE_DB_URL`) and uses the database exclusively. Local JSON files remain as backups only, not used at runtime.
