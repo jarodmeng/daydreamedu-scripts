@@ -23,6 +23,7 @@ A web application to help primary school students learn simplified Chinese chara
 | [DECISIONS.md](docs/DECISIONS.md) | Architecture decision records and technical rationale |
 | [CHANGELOG.md](docs/CHANGELOG.md) | Version history and release notes |
 | [AUTHENTICATION.md](docs/AUTHENTICATION.md) | Auth flows (Supabase, JWT, dev/E2E bypass), backend profile resolution, and security notes |
+| [TESTING.md](docs/TESTING.md) | Testing philosophy, mock-vs-real E2E guidance, and coverage priorities |
 | [AGENTS.md](../../AGENTS.md) | Cursor cloud agent instructions for the monorepo (run, test, auth bypass, gotchas) |
 
 ---
