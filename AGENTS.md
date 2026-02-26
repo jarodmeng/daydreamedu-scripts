@@ -59,7 +59,7 @@ Both frontends use `npm run build` (Vite). No lint command is configured in `pac
 The codebase has built-in dev auth bypass mechanisms:
 
 - **Frontend**: Start with `VITE_E2E_AUTH_BYPASS=1 npm run dev` (or append `?e2e_auth=1` to any URL). The UI creates a fake session so it behaves as if a user is signed in.
-- **Backend**: Start with `PINYIN_RECALL_DEV_USER=local-dev python3 app.py`. All auth-gated endpoints (`/api/profile`, `/api/games/pinyin-recall/*`, `/api/profile/progress`) accept the dev user as a fallback when no valid Bearer token is present.
+- **Backend**: Start with `PINYIN_RECALL_DEV_USER=local-dev python3 app.py`. Auth-gated learning/profile endpoints (including `/api/profile`, `/api/profile/progress*`, `/api/games/pinyin-recall/*`, and `/api/log-character-view`) accept the dev user as a fallback when no valid Bearer token is present.
 
 Combined, these allow full testing of Profile, Pinyin Recall game, and progress without Google OAuth. Supabase DB credentials are still required because the backend is DB-only.
 
@@ -69,8 +69,6 @@ Combined, these allow full testing of Profile, Pinyin Recall game, and progress 
 
 The backend can still read real Supabase tables even when the frontend doesn't have Supabase vars — the `/api` proxy connects directly.
 
-The only endpoint that does **not** support the dev user fallback is `/api/log-character-view` (requires a real Supabase JWT).
-
 ### Gotchas
 
 - The Chinese chr app Vite config only enables the `/api` proxy when `NODE_ENV === 'development'`. Running `npm run dev` sets this automatically.
@@ -78,4 +76,4 @@ The only endpoint that does **not** support the dev user fallback is `/api/log-c
 - Python packages install to user site-packages (`~/.local/lib/python3.12`). No virtualenv is needed in this cloud environment; `python3` picks them up directly.
 - If `pip3 install` hits SSL errors, use `--trusted-host pypi.org --trusted-host files.pythonhosted.org` (see `.cursor/rules/pip-ssl-trusted-host.mdc`).
 - **GCS images**: Character card images (字卡) are served from GCS when `GCS_BUCKET_NAME=chinese-chr-app-images` is set. The `GOOGLE_APPLICATION_CREDENTIALS_JSON` secret contains authorized_user ADC credentials; the agent writes them to `~/.config/gcloud/sa-key.json` and sets `GOOGLE_APPLICATION_CREDENTIALS` to that path. Since the ADC credentials lack a `project_id`, also pass `GOOGLE_CLOUD_PROJECT=daydreamedu`.
-- **Remaining console error**: `/api/log-character-view` returns 401 with the E2E dev token because this endpoint uses `_get_profile_user()` only (no dev-user fallback). This is by design — it only logs views for real authenticated users. The frontend's `.catch(() => {})` silences the JS error but the browser still shows it in the console.
+- **Auth bypass logging note**: In E2E/dev-user mode, expected fake-token JWT parse failures (for example `DecodeError`) are suppressed before the backend falls back to `PINYIN_RECALL_DEV_USER`, so local logs are less noisy. Unexpected auth failures may still be logged.

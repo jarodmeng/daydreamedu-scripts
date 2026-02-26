@@ -1014,6 +1014,12 @@ def _get_profile_user():
             return None
         return auth_module.verify_bearer_token(token)
     except Exception as e:
+        # In local/E2E dev-fallback mode, fake tokens (e.g. e2e bypass) are expected to fail JWT
+        # verification before the caller falls back to PINYIN_RECALL_DEV_USER. Suppress those noisy
+        # parse/validation logs, but keep unexpected auth failures visible.
+        dev_fallback_enabled = bool(os.getenv("PINYIN_RECALL_DEV_USER", "").strip())
+        if dev_fallback_enabled and type(e).__name__ in {"DecodeError", "JWTError", "InvalidTokenError"}:
+            return None
         print(f"[profile] Auth failed: {type(e).__name__}: {e}", flush=True)
         return None
 
@@ -1478,8 +1484,8 @@ def pinyin_recall_report_error():
 
 @app.route('/api/log-character-view', methods=['POST'])
 def log_character_view():
-    """Log that the current user viewed a character (Search result). Requires Bearer token."""
-    user = _get_profile_user()
+    """Log that the current user viewed a character (Search result). Requires Bearer token (or dev fallback for local testing)."""
+    user = _get_profile_user_or_dev()
     if user is None:
         return jsonify({"error": "Unauthorized"}), 401
     data = request.get_json() or {}

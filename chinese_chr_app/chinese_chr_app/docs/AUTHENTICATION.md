@@ -151,11 +151,11 @@ Routes that accept real JWT OR dev fallback:
 - `/api/games/pinyin-recall/next-batch` (`backend/app.py:1438`)
 - `/api/games/pinyin-recall/answer` (`backend/app.py:1511`)
 - `/api/games/pinyin-recall/report-error` (`backend/app.py:1613`)
+- `/api/log-character-view` (`backend/app.py`)
 
-Route that requires real JWT only (no dev fallback):
-- `/api/log-character-view` (`backend/app.py:1654`)
-
-This is expected and explains the known 401 in auth-bypass mode for search view logging.
+Notes:
+- Backend still attempts real JWT verification first.
+- In dev fallback mode, expected fake-token parse/validation errors (for example `DecodeError`) are suppressed before fallback succeeds.
 
 ## Data Source and Logging Behavior (DB-only Runtime)
 
@@ -277,7 +277,7 @@ This test depends on both:
   - `backend/auth.py:39`
 
 - `PINYIN_RECALL_DEV_USER`
-  - Enables backend dev fallback user for auth-gated routes (except `/api/log-character-view`)
+  - Enables backend dev fallback user for auth-gated learning/profile routes, including `/api/log-character-view` in local testing
   - `backend/app.py:1147`
 
 - `DATABASE_URL` / `SUPABASE_DB_URL`
@@ -383,18 +383,19 @@ Practical symptom (before fix):
 
 ## Non-obvious but Important Behaviors
 
-### `/api/log-character-view` is intentionally stricter
+### `/api/log-character-view` now follows the dev fallback pattern
 
-`/api/log-character-view` requires real JWT. It does not use dev fallback.
+`/api/log-character-view` uses the same local-testing dev fallback pattern as Profile / Pinyin Recall:
 
-Reference: `backend/app.py:1654`
+- It first attempts real Bearer token verification
+- If auth fails and `PINYIN_RECALL_DEV_USER` is set, it falls back to the dev user
 
-This means in bypass/dev-user test mode:
-- Search page logging may return 401 in the browser console
-- Frontend catches and ignores the error (`.catch(() => {})`)
-- `frontend/src/pages/Search.jsx:80`
+Implications in bypass/dev-user test mode:
+- Search-page view logging can succeed without a real Supabase JWT
+- The previous expected `401` on `/api/log-character-view` should no longer occur in local dev fallback mode
+- Expected fake-token JWT parse failures (for example `DecodeError`) are suppressed when dev fallback is enabled
 
-This is expected with the current design.
+Frontend still safely ignores logging failures (`.catch(() => {})`) in `frontend/src/pages/Search.jsx`.
 
 ### E2E bypass status (current)
 
