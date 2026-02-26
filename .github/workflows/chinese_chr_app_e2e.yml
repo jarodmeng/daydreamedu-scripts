@@ -1,6 +1,7 @@
 name: chinese-chr-app e2e
 
 on:
+  workflow_dispatch:
   pull_request:
     paths:
       - "chinese_chr_app/chinese_chr_app/**"
@@ -35,39 +36,59 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install backend deps
-        run: python3 -m pip install -r ../backend/requirements.txt
-
-      - name: Install frontend deps
-        run: npm ci
-
-      - name: Install Playwright browsers
-        run: npx playwright install --with-deps chromium
-
       - name: Preflight E2E env
+        id: preflight
         shell: bash
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL || secrets.VITE_SUPABASE_URL }}
           DATABASE_URL: ${{ secrets.DATABASE_URL || secrets.SUPABASE_DB_URL }}
         run: |
-          missing=0
+          missing=()
           if [ -n "${SUPABASE_URL:-}" ]; then
             echo "SUPABASE_URL: present"
           else
-            echo "::error::Missing SUPABASE_URL (or VITE_SUPABASE_URL secret)"
-            missing=1
+            missing+=("SUPABASE_URL (or VITE_SUPABASE_URL secret)")
           fi
           if [ -n "${DATABASE_URL:-}" ]; then
             echo "DATABASE_URL: present"
           else
-            echo "::error::Missing DATABASE_URL (or SUPABASE_DB_URL secret)"
-            missing=1
+            missing+=("DATABASE_URL (or SUPABASE_DB_URL secret)")
           fi
-          if [ "$missing" -ne 0 ]; then
-            exit 1
+          if [ "${#missing[@]}" -eq 0 ]; then
+            echo "can_run=true" >> "$GITHUB_OUTPUT"
+            exit 0
           fi
+          if [ "${GITHUB_EVENT_NAME}" = "pull_request" ]; then
+            for item in "${missing[@]}"; do
+              echo "::warning::Missing ${item}"
+            done
+            echo "::warning::Skipping E2E on pull_request because required repo secrets are unavailable. Use workflow_dispatch after secrets are configured."
+            echo "can_run=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          for item in "${missing[@]}"; do
+            echo "::error::Missing ${item}"
+          done
+          echo "can_run=false" >> "$GITHUB_OUTPUT"
+          exit 1
+      - name: Skip E2E (PR without secrets)
+        if: steps.preflight.outputs.can_run != 'true'
+        run: echo "E2E skipped for this pull_request run. Use workflow_dispatch to run after secrets are available."
+
+      - name: Install backend deps
+        if: steps.preflight.outputs.can_run == 'true'
+        run: python3 -m pip install -r ../backend/requirements.txt
+
+      - name: Install frontend deps
+        if: steps.preflight.outputs.can_run == 'true'
+        run: npm ci
+
+      - name: Install Playwright browsers
+        if: steps.preflight.outputs.can_run == 'true'
+        run: npx playwright install --with-deps chromium
 
       - name: Run E2E tests
+        if: steps.preflight.outputs.can_run == 'true'
         run: npx playwright test --project=chromium
         env:
           E2E_PYTHON: python3
