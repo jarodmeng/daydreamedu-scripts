@@ -6,6 +6,13 @@ Release history and version notes. Newest releases are at the top.
 
 ---
 
+## [v0.2.9]
+
+- **Backend DB-only runtime (#22):** Removed `USE_DATABASE` branching and local JSON fallback; backend now requires `DATABASE_URL` (or `SUPABASE_URL`/`SUPABASE_DB_URL`) and uses the database exclusively. Local JSON files remain as backups only, not used at runtime.
+- **E2E auth bypass:** Playwright e2e tests use the auth-bypass path as the authoritative flow; backend dev-user fallback and frontend E2E bypass are aligned for profile and pinyin-recall specs.
+
+---
+
 ## [v0.2.8]
 
 - **Profile 掌握度每日趋势 (#19):** Daily trend of the four character bands (难字 / 普通在学字 / 普通已学字 / 掌握字) on the 我的 page. Runtime-computed from `pinyin_recall_item_answered` (no schema change). Chart shown when user has ≥5 days of data. API `GET /api/profile/progress` returns `category_trend`. Script `user_daily_category_counts.py` for ad-hoc verification.

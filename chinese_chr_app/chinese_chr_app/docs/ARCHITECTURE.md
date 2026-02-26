@@ -70,7 +70,16 @@ All under `/api/`. Base URL in development: `http://localhost:5001`.
 
 ---
 
-## 6. Database (Supabase / Postgres)
+## 6. Auth
+
+- **Production:** Supabase Auth (Google login). Frontend sends Bearer JWT; backend verifies it against Supabase JWKS (`SUPABASE_URL`). UI treats `useAuth().user` as the authenticated state (Profile and Pinyin Recall show login prompts when `!user`).
+- **Dev/E2E:** Backend accepts an optional dev user when `PINYIN_RECALL_DEV_USER` is set (real JWT takes precedence). Frontend can use E2E bypass (`VITE_E2E_AUTH_BYPASS=1` or `?e2e_auth=1`); when bypass is active, the fake session is authoritative (Supabase `onAuthStateChange` is not subscribed). `?e2e_guest=1` forces unauthenticated UI for guest tests.
+- **Stricter route:** `POST /api/log-character-view` requires a real JWT only (no dev fallback); other auth-gated routes accept real user or dev user.
+- Full flows, env matrix, and troubleshooting: [AUTHENTICATION.md](AUTHENTICATION.md).
+
+---
+
+## 7. Database (Supabase / Postgres)
 
 The backend runtime is DB-only and requires `DATABASE_URL` (or `SUPABASE_DB_URL`):
 
@@ -82,9 +91,9 @@ Schema, configuration, data-access layer, and all migration/backfill scripts are
 
 ---
 
-## 7. Pinyin Recall (learning game)
+## 8. Pinyin Recall (learning game)
 
-### 7.1 Session and queue
+### 8.1 Session and queue
 
 - **Session:** User gets a first batch of 20 items from `GET /api/games/pinyin-recall/session`. After finishing a batch, `POST /api/games/pinyin-recall/next-batch` returns the next 20. Session is open-ended until the user ends it.
 - **Batch size:** 20 items per batch. `new_count` cap per batch is 8 (at most 8 新字 per batch).
@@ -94,14 +103,14 @@ Schema, configuration, data-access layer, and all migration/backfill scripts are
   - **Rescue** (Active Load > 250): 4 掌握字 + 8 普通已学字 + 6 在学字 (难字 first) + 2 新字; within 在学字 slots, 难字 first (score ascending), no cap.
 - **Slot reservation:** Up to 4 slots per batch are reserved for 巩固 (已学字, score ≥ 10); the rest are filled with 重测 (score < 10) and 新字.
 
-### 7.2 Score and categories
+### 8.2 Score and categories
 
 - **Score range:** −50 to 100. Correct: +10 (cap 100). Wrong or 我不知道: −10 (floor −50).
 - **Proficiency threshold:** score ≥ 10 = 已学字 (learned). Used for profile 汉字掌握度 and for 巩固 vs 重测.
 - **Five bands (for queue selection):** 难字 (score ≤ −20), 普通在学字 (−20 < score ≤ 0), 普通已学字 (0 < score < 20), 掌握字 (score ≥ 20). 未学字 = not yet in bank.
 - **Display categories (three):** 新字 (first time), 重测 (retest / still learning), 巩固 (consolidation / maintenance).
 
-### 7.3 Cooling (next_due_utc)
+### 8.3 Cooling (next_due_utc)
 
 After a correct answer, `next_due_utc` is set by band:
 
@@ -112,7 +121,7 @@ After a correct answer, `next_due_utc` is set by band:
 
 Only due items (and new items within cap) are eligible for the next batch.
 
-### 7.4 Prompt and distractors
+### 8.4 Prompt and distractors
 
 - **Prompt:** Hanzi → pinyin-with-tone (MCQ). Stem shows the character and 1–3 example words/phrases (from Feng words or HWXNet 例词). 我不知道 is always offered.
 - **Distractors:** Same syllable different tone, same tone different syllable, tone confusions; polyphonic characters use first pinyin as correct and exclude other readings from distractors.
@@ -120,21 +129,21 @@ Only due items (and new items within cap) are eligible for the next batch.
 
 ---
 
-## 8. Stroke Animation (HanziWriter)
+## 9. Stroke Animation (HanziWriter)
 
 - **Endpoint:** `GET /api/strokes?char=<character>` proxies stroke-order JSON from jsDelivr/unpkg (hanzi-writer-data). Backend may cache under `data/temp/hanzi_writer/`.
 - **SSL:** Backend uses the `certifi` CA bundle. To disable SSL verification for CDN fetches (e.g. dev/CI): `HW_STROKES_VERIFY_SSL=0` when starting the backend.
 
 ---
 
-## 9. Frontend Routes and Navigation
+## 10. Frontend Routes and Navigation
 
 - **Routes:** `/` (Search), `/radicals`, `/radicals/:radical`, `/stroke-counts`, `/stroke-counts/:count`, `/pinyin/:query`, `/games/pinyin-recall`, `/profile`, `/profile/category/:category`. Unknown paths redirect to `/`.
 - **Nav bar:** Search (link to `/`), 分类 dropdown (部首, 笔画), 游戏 dropdown (拼音记忆). Active tab is indicated by style (e.g. Search or 分类 when on a segmentation page).
 
 ---
 
-## 10. Testing (E2E)
+## 11. Testing (E2E)
 
 Playwright tests under `frontend/e2e/` cover:
 

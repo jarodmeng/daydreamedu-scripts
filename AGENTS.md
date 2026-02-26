@@ -30,7 +30,7 @@ cd chinese_chr_app/chinese_chr_app/backend && \
   GOOGLE_CLOUD_PROJECT=daydreamedu \
   python3 app.py
 
-# Frontend (background) — with auth bypass, unset Supabase vars to avoid conflict
+# Frontend (background) — with auth bypass (unsetting Supabase vars is optional defense-in-depth)
 cd chinese_chr_app/chinese_chr_app/frontend && \
   env -u VITE_SUPABASE_URL -u VITE_SUPABASE_ANON_KEY \
   VITE_E2E_AUTH_BYPASS=1 npm run dev
@@ -63,8 +63,8 @@ The codebase has built-in dev auth bypass mechanisms:
 
 Combined, these allow full testing of Profile, Pinyin Recall game, and progress without Google OAuth. Supabase DB credentials are still required because the backend is DB-only.
 
-**Gotcha**: `VITE_E2E_AUTH_BYPASS=1` conflicts with real Supabase credentials on the frontend. When both `VITE_SUPABASE_URL`/`VITE_SUPABASE_ANON_KEY` and `VITE_E2E_AUTH_BYPASS=1` are set, Supabase's `onAuthStateChange` fires and overrides the fake session with `null`. To use the E2E bypass, either:
-- Don't pass `VITE_SUPABASE_URL`/`VITE_SUPABASE_ANON_KEY` to the frontend: `env -u VITE_SUPABASE_URL -u VITE_SUPABASE_ANON_KEY VITE_E2E_AUTH_BYPASS=1 npm run dev`
+**Note (updated):** The frontend E2E auth bypass is now authoritative (the fake session is not overwritten by Supabase `onAuthStateChange`). You can still unset frontend Supabase vars as defense-in-depth / to reduce confusion in local testing:
+- Optional hardening: don't pass `VITE_SUPABASE_URL`/`VITE_SUPABASE_ANON_KEY` to the frontend: `env -u VITE_SUPABASE_URL -u VITE_SUPABASE_ANON_KEY VITE_E2E_AUTH_BYPASS=1 npm run dev`
 - Or pass them to the backend only (the backend reads `DATABASE_URL` and `SUPABASE_URL` independently of the frontend)
 
 The backend can still read real Supabase tables even when the frontend doesn't have Supabase vars — the `/api` proxy connects directly.

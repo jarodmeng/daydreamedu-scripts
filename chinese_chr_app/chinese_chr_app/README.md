@@ -2,7 +2,7 @@
 
 A web application to help primary school students learn simplified Chinese characters. It combines utility features (character search, radicals, stroke counts, pinyin search) with learning features (personalized pinyin-recall practice) and is data-driven and customized per logged-in user.
 
-**Current version: v0.2.8**
+**Current version: v0.2.9**
 
 ---
 
@@ -22,6 +22,8 @@ A web application to help primary school students learn simplified Chinese chara
 | [ARCHITECTURE.md](docs/ARCHITECTURE.md) | Technical specs, APIs, data model, and system flow |
 | [DECISIONS.md](docs/DECISIONS.md) | Architecture decision records and technical rationale |
 | [CHANGELOG.md](docs/CHANGELOG.md) | Version history and release notes |
+| [AUTHENTICATION.md](docs/AUTHENTICATION.md) | Auth flows (Supabase, JWT, dev/E2E bypass), backend profile resolution, and security notes |
+| [AGENTS.md](../../AGENTS.md) | Cursor cloud agent instructions for the monorepo (run, test, auth bypass, gotchas) |
 
 ---
 
