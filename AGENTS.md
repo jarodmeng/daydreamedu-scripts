@@ -6,7 +6,7 @@ This is a monorepo with two full-stack web apps and several utility/script proje
 
 | App | Backend | Frontend | DB required? |
 |-----|---------|----------|-------------|
-| **Chinese chr app** (`chinese_chr_app/chinese_chr_app/`) | Flask :5001 | React+Vite :3000 | No (uses JSON files by default) |
+| **Chinese chr app** (`chinese_chr_app/chinese_chr_app/`) | Flask :5001 | React+Vite :3000 | Yes (`DATABASE_URL`/`SUPABASE_URL` required; DB-only runtime) |
 | **Math multiplication** (`math_multiplication/`) | Flask :5001 | React+Vite :3000 | Yes (`DATABASE_URL` required) |
 
 Both apps share ports 5001/3000 — only one can run at a time.
@@ -23,7 +23,6 @@ chmod 600 ~/.config/gcloud/sa-key.json
 
 # Backend (background) — with real DB + GCS + dev user bypass
 cd chinese_chr_app/chinese_chr_app/backend && \
-  USE_DATABASE=true \
   SUPABASE_URL="$VITE_SUPABASE_URL" \
   PINYIN_RECALL_DEV_USER=local-dev \
   GCS_BUCKET_NAME=chinese-chr-app-images \
@@ -37,7 +36,7 @@ cd chinese_chr_app/chinese_chr_app/frontend && \
   VITE_E2E_AUTH_BYPASS=1 npm run dev
 ```
 
-Without the secrets, the app still works: omit `USE_DATABASE`/`GCS_BUCKET_NAME` and the backend uses local JSON files and local PNG directory instead.
+Without DB credentials, the backend will now fail on startup (DB-only runtime). `GCS_BUCKET_NAME` is still optional; without it the backend serves local PNGs.
 
 The Vite dev server proxies `/api` to `http://localhost:5001` automatically.
 
@@ -62,7 +61,7 @@ The codebase has built-in dev auth bypass mechanisms:
 - **Frontend**: Start with `VITE_E2E_AUTH_BYPASS=1 npm run dev` (or append `?e2e_auth=1` to any URL). The UI creates a fake session so it behaves as if a user is signed in.
 - **Backend**: Start with `PINYIN_RECALL_DEV_USER=local-dev python3 app.py`. All auth-gated endpoints (`/api/profile`, `/api/games/pinyin-recall/*`, `/api/profile/progress`) accept the dev user as a fallback when no valid Bearer token is present.
 
-Combined, these allow full testing of Profile, Pinyin Recall game, and progress — without Supabase credentials or Google OAuth.
+Combined, these allow full testing of Profile, Pinyin Recall game, and progress without Google OAuth. Supabase DB credentials are still required because the backend is DB-only.
 
 **Gotcha**: `VITE_E2E_AUTH_BYPASS=1` conflicts with real Supabase credentials on the frontend. When both `VITE_SUPABASE_URL`/`VITE_SUPABASE_ANON_KEY` and `VITE_E2E_AUTH_BYPASS=1` are set, Supabase's `onAuthStateChange` fires and overrides the fake session with `null`. To use the E2E bypass, either:
 - Don't pass `VITE_SUPABASE_URL`/`VITE_SUPABASE_ANON_KEY` to the frontend: `env -u VITE_SUPABASE_URL -u VITE_SUPABASE_ANON_KEY VITE_E2E_AUTH_BYPASS=1 npm run dev`

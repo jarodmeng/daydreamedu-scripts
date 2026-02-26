@@ -90,7 +90,7 @@ gcloud run deploy chinese-chr-app \
   --set-env-vars CORS_ORIGINS=https://chinese-chr.daydreamedu.org,GCS_BUCKET_NAME=chinese-chr-app-images,SUPABASE_URL=https://YOUR_PROJECT_REF.supabase.co,SUPABASE_JWT_AUD=authenticated
 ```
 
-**Note:** Replace `YOUR_PROJECT_REF` with your Supabase project reference. For database mode and character view logging, also set `USE_DATABASE=true` and `DATABASE_URL` (Supabase connection string) in Cloud Run → Variables & Secrets. Environment variables can be updated after deployment without redeploying the image:
+**Note:** Replace `YOUR_PROJECT_REF` with your Supabase project reference. Also set `DATABASE_URL` (Supabase connection string) in Cloud Run → Variables & Secrets. The backend now runs in DB-only mode. Environment variables can be updated after deployment without redeploying the image:
 ```bash
 # Update environment variables
 gcloud run services update chinese-chr-app \
@@ -221,15 +221,14 @@ gcloud run services update chinese-chr-app \
 - `SUPABASE_URL`: Supabase project URL (e.g., `https://<project_ref>.supabase.co`) — for verifying auth JWTs
 - `SUPABASE_JWT_AUD`: JWT audience (use `authenticated`)
 
-**Optional (when using Supabase Postgres from the backend):**
-- `USE_DATABASE`: Set to `true` so the backend loads characters from the DB and enables character view logging. If unset, the backend uses JSON files and `/api/log-character-view` returns 503.
-- `DATABASE_URL`: Supabase transaction pooler connection string (required when `USE_DATABASE=true`).
+**Required (Supabase Postgres backend runtime):**
+- `DATABASE_URL`: Supabase transaction pooler connection string (required).
 
-**Character view logging:** When `USE_DATABASE=true` and `DATABASE_URL` are set, signed-in users’ character views (Search result) are logged to the `character_views` table (user_id, character, viewed_at, display_name). Display name comes from the app profile or JWT metadata. Create the table once (same DB as feng_characters): from repo root, `cd chinese_chr_app/chinese_chr_app/backend && python3 scripts/create_character_views_table.py` (requires `DATABASE_URL` or `SUPABASE_DB_URL` in `.env.local` or environment). Cloud Build uses `--update-env-vars`, so `DATABASE_URL` and `USE_DATABASE` set in the Cloud Run Console (Variables & Secrets) are preserved on deploy.
+**Character view logging:** With `DATABASE_URL` set, signed-in users’ character views (Search result) are logged to the `character_views` table (user_id, character, viewed_at, display_name). Display name comes from the app profile or JWT metadata. Create the table once (same DB as feng_characters): from repo root, `cd chinese_chr_app/chinese_chr_app/backend && python3 scripts/create_character_views_table.py` (requires `DATABASE_URL` or `SUPABASE_DB_URL` in `.env.local` or environment). Cloud Build uses `--update-env-vars`, so `DATABASE_URL` set in the Cloud Run Console (Variables & Secrets) is preserved on deploy.
 
-**Pinyin recall (character bank and event log):** When `USE_DATABASE=true`, the pinyin recall game uses `pinyin_recall_character_bank` (per-user, per-character score and schedule) and writes events to `pinyin_recall_item_presented` and `pinyin_recall_item_answered`. Create the tables once: `python3 scripts/create_pinyin_recall_character_bank_table.py` and `python3 scripts/create_pinyin_recall_log_tables.py`. See [DATABASE.md](DATABASE.md) for details.
+**Pinyin recall (character bank and event log):** The pinyin recall game uses `pinyin_recall_character_bank` (per-user, per-character score and schedule) and writes events to `pinyin_recall_item_presented` and `pinyin_recall_item_answered`. Create the tables once: `python3 scripts/create_pinyin_recall_character_bank_table.py` and `python3 scripts/create_pinyin_recall_log_tables.py`. See [DATABASE.md](DATABASE.md) for details.
 
-**Radicals sort by stroke count:** The Radicals page can sort by radical stroke count (按部首笔画). When `USE_DATABASE=true`, the backend reads from the `radical_stroke_counts` table; if that fails or the table is missing, it falls back to `data/radical_stroke_counts.json` (bundled in the Docker image). For DB-backed sort, create and populate the table once: `python3 scripts/create_radical_stroke_counts_table.py` (reads `data/radical_stroke_counts.json`). No new env vars required.
+**Radicals sort by stroke count:** The Radicals page can sort by radical stroke count (按部首笔画). The backend reads from the `radical_stroke_counts` table and now expects it to exist. Create and populate the table once: `python3 scripts/create_radical_stroke_counts_table.py` (reads `data/radical_stroke_counts.json`). No new env vars required.
 
 **Note:** `DATA_DIR` is automatically detected - it defaults to `/app/data` in the container (where files are copied during Docker build) or to the relative path for local development. You only need to set it via environment variable if you want to override this behavior.
 
@@ -316,7 +315,7 @@ If the frontend at `https://chinese-chr.daydreamedu.org` sees CORS errors and/or
 
 1. **503 often means the container failed to start.** Check Cloud Run → Logs: if you see `ModuleNotFoundError: No module named 'pinyin_search'` or `'pinyin_recall'` (or similar), the Dockerfile is missing that file. The repo Dockerfile must `COPY` all Python modules that `app.py` imports (e.g. `pinyin_search.py`, `pinyin_recall.py`). Rebuild and redeploy.
 2. **CORS:** The backend allows `https://*.daydreamedu.org` by default. Ensure `CORS_ORIGINS` in Cloud Run includes your frontend origin if needed (e.g. `https://chinese-chr.daydreamedu.org`). When the service returns 503 (e.g. crash), the response comes from Cloud Run, not Flask, so no CORS headers—fix the 503 first.
-3. **If using database:** When `USE_DATABASE=true`, set `DATABASE_URL` in Cloud Run (Variables & Secrets). Otherwise DB calls fail; pinyin search falls back to in-memory (empty if no JSON in container).
+3. **Database config:** Set `DATABASE_URL` in Cloud Run (Variables & Secrets). The backend is DB-only and will fail startup if DB config is missing or unreachable.
 
 ### Preventing 503 / CORS from missing modules next time
 
@@ -357,9 +356,9 @@ If the 字卡 section shows a broken image or "字卡图片暂不可用":
 2. **GCS bucket**: Upload PNGs so the structure is `gs://<bucket>/png/<index>/page1.png` and `page2.png` (e.g. `png/0071/page2.png` for 玉). From repo: `gsutil -m cp -r chinese_chr_app/data/png gs://chinese-chr-app-images/`.
 3. **Netlify**: Ensure `VITE_API_URL` is set to your Cloud Run URL so the frontend requests images from the correct API (e.g. `https://chinese-chr-app-xxx.run.app`).
 
-### Character view logging returns 503
+### Character view logging errors
 
-If the frontend calls `/api/log-character-view` and gets 503: the backend requires `USE_DATABASE=true` and `DATABASE_URL` on Cloud Run. Add both in Cloud Run → chinese-chr-app → Edit & deploy new revision → Variables & Secrets, then deploy. Ensure the `character_views` table exists (run `scripts/create_character_views_table.py` once).
+If the frontend calls `/api/log-character-view` and gets a server error, ensure `DATABASE_URL` is set on Cloud Run and the `character_views` table exists (run `scripts/create_character_views_table.py` once). The endpoint still returns 401 for requests without a real Supabase JWT.
 
 ### Frontend Issues
 

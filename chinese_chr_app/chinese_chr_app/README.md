@@ -31,7 +31,7 @@ A web application to help primary school students learn simplified Chinese chara
 
 1. From repo root: `cd chinese_chr_app/chinese_chr_app/backend`
 2. Create and activate a virtual environment: `python3 -m venv venv` then `source venv/bin/activate` (Windows: `venv\Scripts\activate`)
-3. (Optional) Copy `.env.local.example` to `.env.local` and set Supabase and/or GCS variables. For DB mode set `USE_DATABASE=true` and `DATABASE_URL`.
+3. (Optional) Copy `.env.local.example` to `.env.local` and set Supabase and/or GCS variables. The backend now runs in DB-only mode, so set `DATABASE_URL` (or `SUPABASE_DB_URL`) and `SUPABASE_URL`.
 4. Install and run: `pip3 install -r requirements.txt` then `python3 app.py`
 
 Backend runs at **http://localhost:5001**.

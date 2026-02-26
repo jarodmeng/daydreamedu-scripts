@@ -48,19 +48,17 @@ const pythonExe = pickPythonExecutable();
 console.log(`[e2e-backend] Using python: ${pythonExe}`);
 console.log(`[e2e-backend] Starting: ${appPath}`);
 
-// Enable database when Supabase URL is available in the environment.
-// When neither is set, the backend's own load_dotenv('.env.local') may still
-// pick them up — so we only inject these vars when we have explicit values,
-// to avoid overriding the backend's .env.local with empty strings.
+// DB-only backend runtime: pass SUPABASE_URL through when available so backend JWT
+// verification works even if only VITE_SUPABASE_URL is set in the environment.
+// The backend will hard-fail on startup if required DB vars are still missing.
 const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
 
 const extraEnv = {};
 if (supabaseUrl) {
-  extraEnv.USE_DATABASE = 'true';
   extraEnv.SUPABASE_URL = supabaseUrl;
-  console.log('[e2e-backend] Supabase URL detected in env — starting with USE_DATABASE=true');
+  console.log('[e2e-backend] Supabase URL detected in env');
 } else {
-  console.log('[e2e-backend] No Supabase URL in env — backend will use .env.local if present');
+  console.log('[e2e-backend] No Supabase URL in env — backend will rely on .env.local / inherited env');
 }
 
 const child = spawn(pythonExe, [appPath], {
@@ -85,4 +83,3 @@ child.on('exit', (code, signal) => {
 
 process.on('SIGTERM', () => child.kill('SIGTERM'));
 process.on('SIGINT', () => child.kill('SIGINT'));
-

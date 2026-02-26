@@ -4,7 +4,7 @@ Create the character_views table in Supabase for logging which characters
 logged-in users view on the Search page (user_id, character, viewed_at, display_name).
 
 Requires DATABASE_URL (or SUPABASE_DB_URL) in the environment.
-Backend must have USE_DATABASE=true for the log endpoint to write to this table.
+Backend runs in DB-only mode; this table must exist for the log endpoint to write successfully.
 
 Run from backend/:
   python3 scripts/create_character_views_table.py

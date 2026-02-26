@@ -3,7 +3,6 @@ from flask_cors import CORS
 import json
 import logging
 import re
-import shutil
 import os
 import time
 import urllib.request
@@ -18,7 +17,6 @@ from collections import defaultdict
 from pinyin_search import parse_pinyin_query, compute_searchable_pinyin_for_entry
 from pinyin_recall import (
     build_session_queue,
-    update_learning_state,
     get_stem_words,
     get_correct_pinyin,
 )
@@ -35,7 +33,6 @@ app = Flask(__name__)
 
 # Paths configuration - use environment variables with fallbacks
 # Backend is at: chinese_chr_app/chinese_chr_app/backend/app.py
-# JSON is at: chinese_chr_app/data/characters.json
 _backend_dir = Path(__file__).resolve().parent
 BASE_DIR = _backend_dir.parent.parent  # Go up to chinese_chr_app level
 
@@ -50,9 +47,6 @@ elif Path('/app/data').exists():
 else:
     # Local development - data is relative to BASE_DIR
     DATA_DIR = BASE_DIR / "data"
-CHARACTERS_JSON = DATA_DIR / "characters.json"
-HWXNET_JSON = DATA_DIR / "extracted_characters_hwxnet.json"
-RADICAL_STROKE_JSON = DATA_DIR / "radical_stroke_counts.json"
 BACKUP_DIR = DATA_DIR / "backups"
 HANZI_WRITER_CACHE_DIR = DATA_DIR / "temp" / "hanzi_writer"
 
@@ -66,9 +60,6 @@ PNG_BASE_DIR = Path(os.getenv('PNG_BASE_DIR', str(DATA_DIR / "png")))
 LOGS_DIR = Path(os.getenv('LOGS_DIR', str(_backend_dir / "logs")))
 EDIT_LOG_FILE = LOGS_DIR / "character_edits.log"
 PINYIN_RECALL_LOG_FILE = LOGS_DIR / "pinyin_recall.log"
-
-# Use Supabase tables instead of JSON files when set (e.g. USE_DATABASE=true)
-USE_DATABASE = os.environ.get('USE_DATABASE', '').strip().lower() in ('1', 'true', 'yes')
 
 # Enable detailed pinyin recall timing logs/headers when set (e.g. PINYIN_RECALL_PROFILE=true)
 PINYIN_RECALL_PROFILE = os.environ.get('PINYIN_RECALL_PROFILE', '').strip().lower() in ('1', 'true', 'yes')
@@ -157,7 +148,7 @@ character_lookup = {}  # Map character -> character data for fast lookup
 radicals_data = None  # Array of {radical, characters}
 radicals_lookup = {}  # Map radical -> {radical, characters} for fast lookup
 
-# Radical -> stroke count (for sort by radical stroke count). DB primary, JSON fallback.
+# Radical -> stroke count (for sort by radical stroke count), loaded from database.
 radical_stroke_counts_map = None
 
 # Load stroke-counts data into memory
@@ -185,95 +176,61 @@ if not pinyin_recall_logger.handlers:
     pinyin_handler.setFormatter(logging.Formatter('%(message)s'))
     pinyin_recall_logger.addHandler(pinyin_handler)
 
+
+def _require_database_startup() -> None:
+    """Hard-fail app startup unless DB-backed runtime config is present and reachable."""
+    supabase_url = (os.getenv("SUPABASE_URL") or "").strip()
+    if not supabase_url:
+        raise RuntimeError("SUPABASE_URL is required at startup (DB-only runtime)")
+    db_url = (os.getenv("DATABASE_URL") or os.getenv("SUPABASE_DB_URL") or "").strip()
+    if not db_url:
+        raise RuntimeError("DATABASE_URL or SUPABASE_DB_URL is required at startup (DB-only runtime)")
+
+    try:
+        import database as db
+        conn = db._get_connection()  # noqa: SLF001 - startup health check
+        conn.close()
+    except Exception as e:
+        raise RuntimeError(f"Database startup check failed: {e}") from e
+
+
+_require_database_startup()
+
 def reload_characters():
-    """Force reload characters from file (used after updates)"""
+    """Force reload characters from database (used after updates)."""
     global characters_data, character_lookup
     characters_data = None
     character_lookup = {}
     load_characters()
 
 def load_hwxnet():
-    """Load hwxnet dictionary data from JSON file or Supabase (when USE_DATABASE)."""
+    """Load hwxnet dictionary data from Supabase/Postgres."""
     global hwxnet_data, hwxnet_lookup
     if hwxnet_data is None:
-        if USE_DATABASE:
-            try:
-                import database as db
-                hwxnet_lookup = db.get_hwxnet_lookup()
-                hwxnet_data = hwxnet_lookup
-                print(f"Loaded hwxnet entries for {len(hwxnet_lookup)} characters (from database)")
-            except Exception as e:
-                print(f"Warning: Failed to load hwxnet from database: {e}")
-                hwxnet_data = {}
-                hwxnet_lookup = {}
-            return hwxnet_data, hwxnet_lookup
-        print(f"Loading hwxnet dictionary data from: {HWXNET_JSON}")
-        print(f"File exists: {HWXNET_JSON.exists()}")
-        if not HWXNET_JSON.exists():
-            print(f"Warning: hwxnet data file not found at: {HWXNET_JSON}")
-            hwxnet_data = {}
-            hwxnet_lookup = {}
-            return hwxnet_data, hwxnet_lookup
-        with open(HWXNET_JSON, 'r', encoding='utf-8') as f:
-            hwxnet_data = json.load(f)
-        # hwxnet JSON is expected to be a dict keyed by character
-        if isinstance(hwxnet_data, dict):
-            hwxnet_lookup = hwxnet_data
-        else:
-            # Fallback: build lookup if data is a list
-            hwxnet_lookup = {}
-            for entry in hwxnet_data:
-                char = entry.get('character') or entry.get('Character')
-                if char:
-                    hwxnet_lookup[char] = entry
-        print(f"Loaded hwxnet entries for {len(hwxnet_lookup)} characters")
+        import database as db
+        hwxnet_lookup = db.get_hwxnet_lookup()
+        hwxnet_data = hwxnet_lookup
+        print(f"Loaded hwxnet entries for {len(hwxnet_lookup)} characters (from database)")
     return hwxnet_data, hwxnet_lookup
 
 def load_characters():
-    """Load character data from JSON file or Supabase (when USE_DATABASE)."""
+    """Load character data from Supabase/Postgres."""
     global characters_data, character_lookup
     if characters_data is None:
-        if USE_DATABASE:
-            try:
-                import database as db
-                characters_data = db.get_feng_characters()
-                character_lookup = {}
-                for char in characters_data:
-                    char_key = char.get('Character', '').strip()
-                    if char_key:
-                        character_lookup[char_key] = char
-                print(f"Loaded {len(characters_data)} characters (from database)")
-                print(f"Lookup dictionary has {len(character_lookup)} entries")
-                if '爸' in character_lookup:
-                    print(f"✓ Character '爸' found in lookup: {character_lookup['爸']['Index']}")
-            except Exception as e:
-                raise FileNotFoundError(f"Failed to load characters from database: {e}") from e
-            return characters_data, character_lookup
-        print(f"Loading characters from: {CHARACTERS_JSON}")
-        print(f"File exists: {CHARACTERS_JSON.exists()}")
-        if not CHARACTERS_JSON.exists():
-            raise FileNotFoundError(f"Character data file not found at: {CHARACTERS_JSON}")
-        with open(CHARACTERS_JSON, 'r', encoding='utf-8') as f:
-            characters_data = json.load(f)
-        # Create lookup dictionary for fast search
-        # Handle potential duplicate characters by keeping the last one
-        # (This ensures we get the correct entry when there are data extraction errors)
+        try:
+            import database as db
+            characters_data = db.get_feng_characters()
+        except Exception as e:
+            raise FileNotFoundError(f"Failed to load characters from database: {e}") from e
         character_lookup = {}
         for char in characters_data:
             char_key = char.get('Character', '').strip()
             if char_key:
-                # Always update to keep the last occurrence (handles duplicates)
                 character_lookup[char_key] = char
-        print(f"Loaded {len(characters_data)} characters")
+        print(f"Loaded {len(characters_data)} characters (from database)")
         print(f"Lookup dictionary has {len(character_lookup)} entries")
-        # Check for 爸 specifically
         if '爸' in character_lookup:
             print(f"✓ Character '爸' found in lookup: {character_lookup['爸']['Index']}")
-        else:
-            print("✗ Character '爸' NOT found in lookup")
-            # Show first few characters for debugging
-            sample_chars = list(character_lookup.keys())[:10]
-            print(f"Sample characters in lookup: {sample_chars}")
     return characters_data, character_lookup
 
 def validate_field_value(field: str, value: Any) -> Tuple[bool, Optional[str]]:
@@ -337,20 +294,13 @@ def log_character_edit(index: str, field: str, old_value: Any, new_value: Any):
     """Log a character edit to the log file"""
     try:
         character_name = "unknown"
-        if USE_DATABASE:
-            try:
-                import database as db
-                row = db.get_feng_character_by_index(index)
-                if row:
-                    character_name = row.get('Character', 'unknown')
-            except Exception:
-                pass
-        else:
-            _, _lookup = load_characters()
-            for char_data in (characters_data or []):
-                if char_data.get('Index') == index:
-                    character_name = char_data.get('Character', 'unknown')
-                    break
+        try:
+            import database as db
+            row = db.get_feng_character_by_index(index)
+            if row:
+                character_name = row.get('Character', 'unknown')
+        except Exception:
+            pass
         
         # Get client IP if available
         client_ip = request.remote_addr if request else "unknown"
@@ -417,24 +367,17 @@ def cleanup_old_backups(max_backups: int = 200):
 def backup_character_files(max_backups: int = 200) -> Tuple[bool, Optional[str]]:
     """
     Create timestamped backup of character data before editing.
-    When USE_DATABASE: export feng_characters from DB to JSON.
-    Otherwise: copy characters.json.
+    Export feng_characters from DB to JSON.
     """
     try:
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         json_backup = BACKUP_DIR / f"characters_{timestamp}.json"
 
-        if USE_DATABASE:
-            import database as db
-            rows = db.get_feng_characters()
-            with open(json_backup, 'w', encoding='utf-8') as f:
-                json.dump(rows, f, ensure_ascii=False, indent=2)
-            print(f"✓ Backed up feng_characters to: {json_backup}")
-        else:
-            if not CHARACTERS_JSON.exists():
-                return False, f"Source JSON file not found: {CHARACTERS_JSON}"
-            shutil.copy2(CHARACTERS_JSON, json_backup)
-            print(f"✓ Backed up JSON to: {json_backup}")
+        import database as db
+        rows = db.get_feng_characters()
+        with open(json_backup, 'w', encoding='utf-8') as f:
+            json.dump(rows, f, ensure_ascii=False, indent=2)
+        print(f"✓ Backed up feng_characters to: {json_backup}")
 
         cleanup_old_backups(max_backups)
         return True, str(BACKUP_DIR)
@@ -445,69 +388,30 @@ def backup_character_files(max_backups: int = 200) -> Tuple[bool, Optional[str]]
 
 def update_character_field(index: str, field: str, new_value: Any) -> Tuple[bool, Optional[str], Optional[Dict]]:
     """
-    Update a character field (in JSON file or Supabase when USE_DATABASE).
+    Update a character field in Supabase/Postgres.
     Returns (success, error_message, updated_character)
     """
     global characters_data
-
-    if USE_DATABASE:
-        try:
-            import database as db
-            current = db.get_feng_character_by_index(index)
-            if not current:
-                return False, f"Character with index {index} not found", None
-            old_value = current.get(field)
-            is_valid, error_msg = validate_field_value(field, new_value)
-            if not is_valid:
-                return False, error_msg, None
-            backup_success, backup_result = backup_character_files()
-            if not backup_success:
-                return False, f"Cannot proceed without backup: {backup_result}", None
-            success, err, updated = db.update_feng_character(index, field, new_value)
-            if not success:
-                return False, err or "Update failed", None
-            log_character_edit(index, field, old_value, new_value)
-            reload_characters()
-            reload_radicals()
-            reload_structures()
-            return True, None, updated
-        except Exception as e:
-            return False, f"Error updating character: {str(e)}", None
-
     try:
-        data, lookup = load_characters()
-        character = None
-        char_index = None
-        for i, char in enumerate(data):
-            if char.get('Index') == index:
-                character = char
-                char_index = i
-                break
-        if not character:
+        import database as db
+        current = db.get_feng_character_by_index(index)
+        if not current:
             return False, f"Character with index {index} not found", None
-        old_value = character.get(field)
+        old_value = current.get(field)
         is_valid, error_msg = validate_field_value(field, new_value)
         if not is_valid:
             return False, error_msg, None
         backup_success, backup_result = backup_character_files()
         if not backup_success:
             return False, f"Cannot proceed without backup: {backup_result}", None
-        character[field] = new_value
-        data[char_index] = character
-        characters_data = data
-        if field == 'Character':
-            old_char_key = character.get('Character', '').strip()
-            if old_char_key and old_char_key in character_lookup:
-                del character_lookup[old_char_key]
-            char_key = new_value.strip()
-            if char_key:
-                character_lookup[char_key] = character
-        with open(CHARACTERS_JSON, 'w', encoding='utf-8') as f:
-            json.dump(data, f, ensure_ascii=False, indent=2)
+        success, err, updated = db.update_feng_character(index, field, new_value)
+        if not success:
+            return False, err or "Update failed", None
         log_character_edit(index, field, old_value, new_value)
+        reload_characters()
         reload_radicals()
         reload_structures()
-        return True, None, character
+        return True, None, updated
     except Exception as e:
         return False, f"Error updating character: {str(e)}", None
 
@@ -684,15 +588,8 @@ def pinyin_search():
     if not is_valid or search_keys is None:
         return jsonify({'error': err_msg or '拼音输入格式错误'}), 400
     try:
-        if USE_DATABASE:
-            try:
-                from database import get_characters_by_pinyin_search_keys
-                characters = get_characters_by_pinyin_search_keys(search_keys)
-            except Exception as e:
-                print(f"Pinyin search DB error: {e}", flush=True)
-                characters = _pinyin_search_in_memory(search_keys)
-        else:
-            characters = _pinyin_search_in_memory(search_keys)
+        from database import get_characters_by_pinyin_search_keys
+        characters = get_characters_by_pinyin_search_keys(search_keys)
         if not characters:
             return jsonify({
                 'found': False,
@@ -814,7 +711,7 @@ def generate_radicals_data(characters_data: List[Dict], hwxnet_lookup: Optional[
     Generate radicals data for the Radicals pages.
 
     Preferred source: HWXNet dictionary data (covers 3664 characters).
-    Fallback: characters.json (covers 3000 characters).
+    Fallback: Feng character entries passed in `characters_data` (covers 3000 characters).
 
     Returns:
         List of {radical, characters} dictionaries where each character entry has:
@@ -899,42 +796,24 @@ def load_radicals():
         radicals_data = generate_radicals_data(characters, hwxnet_lookup=hwx_lookup)
         # Create lookup dictionary for fast search
         radicals_lookup = {entry['radical']: entry for entry in radicals_data}
-        # Note: hwxnet_lookup includes 3664 chars; characters.json includes 3000
+        # Note: hwxnet_lookup includes 3664 chars; Feng set includes 3000
         print(f"✓ Generated {len(radicals_data)} radicals from hwxnet dictionary ({len(hwx_lookup)} characters)")
     return radicals_data, radicals_lookup
 
 
 def load_radical_stroke_counts() -> Dict[str, int]:
-    """Load radical -> stroke_count. DB primary when USE_DATABASE; JSON fallback."""
+    """Load radical -> stroke_count from Supabase/Postgres."""
     global radical_stroke_counts_map
     if radical_stroke_counts_map is not None:
         return radical_stroke_counts_map
-    if USE_DATABASE:
-        try:
-            import database as db
-            radical_stroke_counts_map = db.get_radical_stroke_counts()
-            if radical_stroke_counts_map:
-                print(f"✓ Loaded {len(radical_stroke_counts_map)} radical stroke counts from database")
-            return radical_stroke_counts_map
-        except Exception as e:
-            logging.warning("Failed to load radical_stroke_counts from database: %s; falling back to JSON", e)
-            radical_stroke_counts_map = None  # allow JSON fallback below
-    # JSON fallback
-    if not RADICAL_STROKE_JSON.exists():
-        logging.warning("radical_stroke_counts.json not found at %s", RADICAL_STROKE_JSON)
-        radical_stroke_counts_map = {}
-        return radical_stroke_counts_map
     try:
-        with open(RADICAL_STROKE_JSON, 'r', encoding='utf-8') as f:
-            data = json.load(f)
-        radical_stroke_counts_map = {str(k).strip(): int(v) for k, v in (data or {}).items() if k and str(k).strip() and isinstance(v, (int, float))}
+        import database as db
+        radical_stroke_counts_map = db.get_radical_stroke_counts()
         if radical_stroke_counts_map:
-            print(f"✓ Loaded {len(radical_stroke_counts_map)} radical stroke counts from JSON")
+            print(f"✓ Loaded {len(radical_stroke_counts_map)} radical stroke counts from database")
         return radical_stroke_counts_map
     except Exception as e:
-        logging.warning("Failed to load radical_stroke_counts from JSON: %s", e)
-        radical_stroke_counts_map = {}
-        return radical_stroke_counts_map
+        raise RuntimeError(f"Failed to load radical_stroke_counts from database: {e}") from e
 
 
 def generate_stroke_counts_data(hwxnet_lookup: Dict[str, Any]) -> Tuple[List[Dict[str, Any]], Dict[int, List[Dict[str, Any]]]]:
@@ -1162,7 +1041,7 @@ def get_profile():
     if user is None:
         return jsonify({"error": "Unauthorized"}), 401
     display_name = None
-    if USE_DATABASE and getattr(user, "user_id", None):
+    if getattr(user, "user_id", None):
         try:
             import database as db  # type: ignore[import-not-found]
             db_name = db.get_profile_display_name(user.user_id)
@@ -1188,7 +1067,7 @@ def put_profile():
     if not display_name:
         return jsonify({"error": "display_name is required"}), 400
     _profile_display_names[user.user_id] = display_name
-    if USE_DATABASE and getattr(user, "user_id", None):
+    if getattr(user, "user_id", None):
         try:
             import database as db  # type: ignore[import-not-found]
             db.upsert_profile_display_name(user.user_id, display_name)
@@ -1200,12 +1079,10 @@ def put_profile():
 
 @app.route('/api/profile/progress', methods=['GET'])
 def get_profile_progress():
-    """Get current user's progress (Issue #2): viewed characters, daily stats, proficiency. Requires Bearer token (or PINYIN_RECALL_DEV_USER for local) and USE_DATABASE."""
+    """Get current user's progress (Issue #2): viewed characters, daily stats, proficiency. Requires Bearer token (or PINYIN_RECALL_DEV_USER for local)."""
     user = _get_profile_user_or_dev()
     if user is None:
         return jsonify({"error": "Unauthorized"}), 401
-    if not USE_DATABASE:
-        return jsonify({"error": "Progress is only available when using the database"}), 503
     try:
         import database as db
         viewed_count = db.get_character_views_count_for_user(user.user_id)
@@ -1244,12 +1121,10 @@ def get_profile_progress():
 # CORS: headers from after_request; OPTIONS preflight handled by before_request (all routes).
 @app.route('/api/profile/progress/category/<category>', methods=['GET'])
 def get_profile_progress_category(category: str):
-    """Get characters in a profile sub-category (learning_hard, learning_normal, learned_mastered, learned_normal), ordered by last tested (latest first). Requires Bearer token and USE_DATABASE."""
+    """Get characters in a profile sub-category (learning_hard, learning_normal, learned_mastered, learned_normal), ordered by last tested (latest first). Requires Bearer token."""
     user = _get_profile_user_or_dev()
     if user is None:
         return jsonify({"error": "Unauthorized"}), 401
-    if not USE_DATABASE:
-        return jsonify({"error": "Category list is only available when using the database"}), 503
     allowed = {"learning_hard", "learning_normal", "learned_mastered", "learned_normal"}
     if category not in allowed:
         return jsonify({"error": "Invalid category"}), 400
@@ -1268,7 +1143,7 @@ def _display_name_for_log(user, display_name_from_body: Optional[str] = None) ->
     """Prefer body display_name, then DB/in-memory profile, then JWT user_metadata."""
     if display_name_from_body and display_name_from_body.strip():
         return " ".join(display_name_from_body.strip().split())[:64]
-    if USE_DATABASE and user and getattr(user, "user_id", None):
+    if user and getattr(user, "user_id", None):
         try:
             import database as db  # type: ignore[import-not-found]
             db_name = db.get_profile_display_name(user.user_id)
@@ -1291,21 +1166,11 @@ def _display_name_for_log(user, display_name_from_body: Optional[str] = None) ->
     return ""
 
 
-# In-memory learning state for pinyin recall (MVP1): user_id -> character -> { stage, next_due_utc }
-# Resets on backend restart. Can be replaced with DB table later.
-_learning_state_pinyin: Dict[str, Dict[str, Dict[str, Any]]] = {}
-
-
 def _get_pinyin_recall_learning_state(user_id: str) -> Dict[str, Dict[str, Any]]:
-    """Learning state for queue building: from DB when USE_DATABASE, else in-memory."""
-    if USE_DATABASE:
-        try:
-            import database as db
-            char_state = db.get_pinyin_recall_learning_state(user_id)
-            return {user_id: char_state}
-        except Exception as e:
-            print(f"[pinyin-recall] Failed to load learning state from DB: {e}", flush=True)
-    return _learning_state_pinyin
+    """Learning state for queue building from Supabase/Postgres."""
+    import database as db
+    char_state = db.get_pinyin_recall_learning_state(user_id)
+    return {user_id: char_state}
 
 
 def _log_pinyin_recall_event(
@@ -1318,33 +1183,12 @@ def _log_pinyin_recall_event(
     batch_mode: Optional[str] = None,
     payload: Optional[Dict[str, Any]] = None,
 ) -> None:
-    """Write pinyin recall event to Supabase (when USE_DATABASE) or to pinyin_recall.log."""
-    if USE_DATABASE:
-        try:
-            import database as db
-            if event == "item_presented" and items is not None and user_id and session_id:
-                for item in items:
-                    p = {
-                        "user_id": user_id,
-                        "session_id": session_id,
-                        "batch_id": batch_id,
-                        "batch_mode": batch_mode,
-                        "batch_character_category": item.get("batch_category"),
-                        "character": item.get("character"),
-                        "prompt_type": item.get("prompt_type"),
-                        "correct_choice": item.get("correct_pinyin"),
-                        "choices": item.get("choices"),
-                    }
-                    db.insert_pinyin_recall_item_presented(p)
-            elif event == "item_answered" and payload is not None:
-                db.insert_pinyin_recall_item_answered(payload)
-        except Exception as e:
-            print(f"[pinyin-recall] Failed to insert event: {e}", flush=True)
-    else:
+    """Write pinyin recall event to Supabase/Postgres."""
+    try:
+        import database as db
         if event == "item_presented" and items is not None and user_id and session_id:
             for item in items:
                 p = {
-                    "event": "item_presented",
                     "user_id": user_id,
                     "session_id": session_id,
                     "batch_id": batch_id,
@@ -1355,9 +1199,11 @@ def _log_pinyin_recall_event(
                     "correct_choice": item.get("correct_pinyin"),
                     "choices": item.get("choices"),
                 }
-                pinyin_recall_logger.info(json.dumps(p, ensure_ascii=False))
+                db.insert_pinyin_recall_item_presented(p)
         elif event == "item_answered" and payload is not None:
-            pinyin_recall_logger.info(json.dumps({**payload, "event": "item_answered"}, ensure_ascii=False))
+            db.insert_pinyin_recall_item_answered(payload)
+    except Exception as e:
+        print(f"[pinyin-recall] Failed to insert event: {e}", flush=True)
 
 
 @app.route('/api/games/pinyin-recall/session', methods=['GET'])
@@ -1539,23 +1385,13 @@ def pinyin_recall_answer():
         "latency_ms": latency_ms,
         "i_dont_know": i_dont_know,
     }
-    if USE_DATABASE:
-        try:
-            import database as db
-            score_before, score_after = db.upsert_pinyin_recall_answer_and_log(
-                user.user_id, character, correct=correct, i_dont_know=i_dont_know, log_payload=log_payload
-            )
-        except Exception as e:
-            print(f"[pinyin-recall] Failed to upsert character bank / log: {e}", flush=True)
-    else:
-        update_learning_state(
-            _learning_state_pinyin,
-            user.user_id,
-            character,
-            correct=correct,
-            i_dont_know=i_dont_know,
+    try:
+        import database as db
+        score_before, score_after = db.upsert_pinyin_recall_answer_and_log(
+            user.user_id, character, correct=correct, i_dont_know=i_dont_know, log_payload=log_payload
         )
-        _log_pinyin_recall_event("item_answered", payload=log_payload)
+    except Exception as e:
+        print(f"[pinyin-recall] Failed to upsert character bank / log: {e}", flush=True)
     missed_item = None
     if not correct:
         load_hwxnet()
@@ -1625,40 +1461,27 @@ def pinyin_recall_report_error():
         return jsonify({"error": "character must be exactly one character"}), 400
     if page is not None and page not in ("question", "wrong", "correct"):
         return jsonify({"error": "page must be question, wrong, or correct"}), 400
-    if USE_DATABASE:
-        try:
-            import database as db
-            db.insert_pinyin_recall_report_error(
-                user_id=user.user_id,
-                session_id=session_id,
-                batch_id=batch_id,
-                character=character,
-                page=page,
-            )
-        except Exception as e:
-            print(f"[pinyin-recall] Failed to insert report_error: {e}", flush=True)
-            return jsonify({"error": "Failed to record report"}), 500
-    else:
-        p = {
-            "event": "report_error",
-            "user_id": user.user_id,
-            "session_id": session_id,
-            "batch_id": batch_id,
-            "character": character,
-            "page": page,
-        }
-        pinyin_recall_logger.info(json.dumps(p, ensure_ascii=False))
+    try:
+        import database as db
+        db.insert_pinyin_recall_report_error(
+            user_id=user.user_id,
+            session_id=session_id,
+            batch_id=batch_id,
+            character=character,
+            page=page,
+        )
+    except Exception as e:
+        print(f"[pinyin-recall] Failed to insert report_error: {e}", flush=True)
+        return jsonify({"error": "Failed to record report"}), 500
     return jsonify({"ok": True})
 
 
 @app.route('/api/log-character-view', methods=['POST'])
 def log_character_view():
-    """Log that the current user viewed a character (Search result). Requires Bearer token and USE_DATABASE."""
+    """Log that the current user viewed a character (Search result). Requires Bearer token."""
     user = _get_profile_user()
     if user is None:
         return jsonify({"error": "Unauthorized"}), 401
-    if not USE_DATABASE:
-        return jsonify({"error": "Character view logging is only available when using the database"}), 503
     data = request.get_json() or {}
     character = (data.get("character") or "").strip()
     if not character or len(character) != 1:

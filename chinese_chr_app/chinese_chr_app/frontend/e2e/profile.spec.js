@@ -14,12 +14,6 @@ test.describe('Profile page', () => {
   });
 
   test('authenticated: play pinyin recall then view progress snapshot', async ({ page }) => {
-    // Skip when the backend has no database
-    const healthCheck = await page.request.fetch('/api/profile/progress', {
-      headers: { Authorization: 'Bearer e2e-dev-token' },
-    });
-    test.skip(healthCheck.status() === 503, 'Backend has no database — skipping real-DB test');
-
     // ── Step 1: Play pinyin recall — answer at least 3 questions ──
     await page.goto('/games/pinyin-recall');
     await expect(page.getByRole('heading', { name: '拼音记忆' })).toBeVisible();
