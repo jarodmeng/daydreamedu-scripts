@@ -23,15 +23,24 @@ export function AuthProvider({ children }) {
 
   const accessToken = session?.access_token || null
   const user = session?.user || null
+  const e2eBypassEnabled =
+    import.meta.env.VITE_E2E_AUTH_BYPASS === '1' ||
+    (typeof window !== 'undefined' && window.location.search.includes('e2e_auth=1'))
+  const e2eGuestMode =
+    typeof window !== 'undefined' && window.location.search.includes('e2e_guest=1')
 
   useEffect(() => {
     let isMounted = true
 
     async function init() {
-      const e2eBypass =
-        import.meta.env.VITE_E2E_AUTH_BYPASS === '1' ||
-        (typeof window !== 'undefined' && window.location.search.includes('e2e_auth=1'))
-      if (e2eBypass && !window.location.search.includes('e2e_guest=1')) {
+      if (e2eBypassEnabled && e2eGuestMode) {
+        if (isMounted) {
+          setSession(null)
+          setAuthLoading(false)
+        }
+        return
+      }
+      if (e2eBypassEnabled && !e2eGuestMode) {
         if (isMounted) {
           setSession(E2E_FAKE_SESSION)
           setAuthLoading(false)
@@ -55,7 +64,9 @@ export function AuthProvider({ children }) {
 
     init()
 
-    if (!supabase) return () => {}
+    // In E2E bypass mode, do not subscribe to Supabase auth state changes,
+    // otherwise a real or null Supabase session can overwrite the fake session.
+    if (!supabase || e2eBypassEnabled) return () => {}
 
     const { data: sub } = supabase.auth.onAuthStateChange((_event, newSession) => {
       setSession(newSession ?? null)
@@ -65,7 +76,7 @@ export function AuthProvider({ children }) {
       isMounted = false
       sub?.subscription?.unsubscribe()
     }
-  }, [])
+  }, [e2eBypassEnabled, e2eGuestMode])
 
   const refreshProfile = async () => {
     if (!accessToken) {
