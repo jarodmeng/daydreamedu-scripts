@@ -1407,22 +1407,21 @@ def pinyin_recall_answer():
         feng = (character_lookup or {}).get(character) if character_lookup else None
         stem_words = get_stem_words(character, character_lookup or {}, hwxnet_lookup or {}, 3)
         correct_pinyin_val = get_correct_pinyin(entry) if entry else correct_pinyin
-        # English meanings for learning screen (all 英文翻译 for English-speaking learners)
+        # English meanings and 基本解释 for learning screen (show both when available)
         meanings = []
         meaning_zh = None
         if entry:
             english = entry.get("英文翻译") or []
             if isinstance(english, list):
                 meanings = [(e or "").strip() for e in english if (e or "").strip()]
-            if not meanings:
-                for sense in (entry.get("基本字义解释") or [])[:1]:
-                    for defn in (sense.get("释义") or [])[:1]:
-                        expl = (defn.get("解释") or "").strip()
-                        if expl:
-                            meaning_zh = expl
-                            break
-                    if meaning_zh:
+            for sense in (entry.get("基本字义解释") or [])[:1]:
+                for defn in (sense.get("释义") or [])[:1]:
+                    expl = (defn.get("解释") or "").strip()
+                    if expl:
+                        meaning_zh = expl
                         break
+                if meaning_zh:
+                    break
         radical = ""
         strokes = None
         if entry:

@@ -452,14 +452,16 @@ export default function PinyinRecall() {
               <p className="pinyin-recall-feedback-correct-label">正确答案：</p>
               <div className="pinyin-recall-character">{learn.character}</div>
               <p className="pinyin-recall-correct-pinyin">{learn.correct_pinyin}</p>
-              {((learn.meanings && learn.meanings.length > 0) || learn.meaning_zh) && (
+              {learn.meanings?.length > 0 && (
                 <p className="pinyin-recall-meaning">
-                  <span className="pinyin-recall-meaning-label">
-                    {learn.meanings?.length > 0 ? 'Meaning: ' : '意思：'}
-                  </span>
-                  {learn.meanings?.length > 0
-                    ? learn.meanings.join(', ')
-                    : learn.meaning_zh}
+                  <span className="pinyin-recall-meaning-label">Meaning: </span>
+                  {learn.meanings.join(', ')}
+                </p>
+              )}
+              {learn.meaning_zh && (
+                <p className="pinyin-recall-meaning">
+                  <span className="pinyin-recall-meaning-label">基本解释：</span>
+                  {learn.meaning_zh}
                 </p>
               )}
               {(learn.radical || learn.strokes != null) && (
@@ -536,14 +538,16 @@ export default function PinyinRecall() {
           </p>
           <div className="pinyin-recall-character">{m?.character}</div>
           <p className="pinyin-recall-correct-pinyin">{m?.correct_pinyin}</p>
-          {((m?.meanings && m.meanings.length > 0) || m?.meaning_zh) && (
+          {m?.meanings?.length > 0 && (
             <p className="pinyin-recall-meaning">
-              <span className="pinyin-recall-meaning-label">
-                {m.meanings?.length > 0 ? 'Meaning: ' : '意思：'}
-              </span>
-              {m.meanings?.length > 0
-                ? m.meanings.join(', ')
-                : m.meaning_zh}
+              <span className="pinyin-recall-meaning-label">Meaning: </span>
+              {m.meanings.join(', ')}
+            </p>
+          )}
+          {m?.meaning_zh && (
+            <p className="pinyin-recall-meaning">
+              <span className="pinyin-recall-meaning-label">基本解释：</span>
+              {m.meaning_zh}
             </p>
           )}
           {m?.stem_words?.length > 0 && (

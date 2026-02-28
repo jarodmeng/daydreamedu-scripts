@@ -6,6 +6,12 @@ Release history and version notes. Newest releases are at the top.
 
 ---
 
+## [v0.2.12]
+
+- **Pinyin Recall (#24):** Show 基本解释 (Chinese meaning) on wrong-answer and final-review screens so both English meaning and 基本解释 appear when available, matching the correct-answer screen. Backend now always includes 基本解释 in `missed_item` when present in HWXNet (previously it was only sent when English meanings were missing).
+
+---
+
 ## [v0.2.11]
 
 - **Cloud Build smoke tests:** Allow Chinese chr app Cloud Build import smoke tests to run without DB env so basic import smoke still passes when database variables are missing.

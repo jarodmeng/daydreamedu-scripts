@@ -127,6 +127,12 @@ Only due items (and new items within cap) are eligible for the next batch.
 - **Distractors:** Same syllable different tone, same tone different syllable, tone confusions; polyphonic characters use first pinyin as correct and exclude other readings from distractors.
 - **Logging:** Events are written to `pinyin_recall_item_presented` (with `batch_id`, `batch_mode`, `batch_character_category`) and `pinyin_recall_item_answered` (with `score_before`, `score_after`, `category`).
 
+### 8.5 Feedback and review UI
+
+- **Correct-answer screen:** Character, all pinyin (primary in bold), English meaning (英文翻译) when available, 基本解释 when available, stem words.
+- **Wrong-answer / 我不知道 screen:** 答错了 (and 你选了: …), correct character and pinyin, then a learning block: English meaning and 基本解释 when available (same two blocks as correct screen), plus 部首/笔画, 结构, 常见词组, 例句 when present in `missed_item`.
+- **Final review (复习这些字):** For each missed character, same content as wrong-answer learning block: character, pinyin, Meaning + 基本解释 when available, stem words.
+
 ---
 
 ## 9. Stroke Animation (HanziWriter)

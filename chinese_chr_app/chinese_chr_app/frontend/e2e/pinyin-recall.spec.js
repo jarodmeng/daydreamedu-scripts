@@ -61,6 +61,7 @@ test.describe('Pinyin Recall', () => {
             character: '学',
             correct_pinyin: 'xué',
             meanings: ['study'],
+            meaning_zh: '学习；模仿。',
             stem_words: ['学生'],
           },
         }),
@@ -88,11 +89,14 @@ test.describe('Pinyin Recall', () => {
     await expect(page.locator('.pinyin-recall-feedback-wrong-label')).toBeVisible();
     await expect(page.getByText('你选了：我不知道')).toBeVisible();
     await expect(page.getByText('正确答案：')).toBeVisible();
+    await expect(page.getByText('基本解释：')).toBeVisible();
+    await expect(page.getByText('学习；模仿。')).toBeVisible();
     await expect(page.getByRole('button', { name: '下一批' })).toBeVisible();
     await page.getByRole('button', { name: '下一批' }).click();
 
     await expect(page.getByRole('heading', { name: '复习这些字' })).toBeVisible();
     await expect(page.locator('.pinyin-recall-character')).toContainText('学');
+    await expect(page.getByText('基本解释：')).toBeVisible();
     await expect(page.getByRole('button', { name: '完成' })).toBeVisible();
     await page.getByRole('button', { name: '完成' }).click();
 
