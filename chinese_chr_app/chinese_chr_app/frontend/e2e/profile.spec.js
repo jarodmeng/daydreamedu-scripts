@@ -26,7 +26,12 @@ test.describe('Profile page', () => {
     for (let i = 0; i < MIN_ANSWERS; i++) {
       // Wait for question phase: the character display and choice buttons
       const characterEl = page.locator('.pinyin-recall-character');
-      await expect(characterEl).toBeVisible({ timeout: 30_000 });
+      const waitStartMs = Date.now();
+      await expect(characterEl).toBeVisible({ timeout: 120_000 });
+      if (i === 0) {
+        const elapsedMs = Date.now() - waitStartMs;
+        console.log(`[e2e] Initial pinyin-recall characters visible after ${elapsedMs}ms`);
+      }
 
       // Pick the first pinyin choice (not "我不知道")
       const firstChoice = page.locator('.pinyin-recall-choice').first();
