@@ -6,6 +6,12 @@ Release history and version notes. Newest releases are at the top.
 
 ---
 
+## [v0.2.13]
+
+- **Pinyin Recall (#25):** Display a 多音字 (polyphonic character) tag next to the category tag (新字/巩固/重测) in the pinyin recall question header when the character has multiple pronunciations. Backend adds `is_polyphonic` to session items; frontend shows a distinct pill-style tag (purple) for 多音字.
+
+---
+
 ## [v0.2.12]
 
 - **Pinyin Recall (#24):** Show 基本解释 (Chinese meaning) on wrong-answer and final-review screens so both English meaning and 基本解释 appear when available, matching the correct-answer screen. Backend now always includes 基本解释 in `missed_item` when present in HWXNet (previously it was only sent when English meanings were missing).

@@ -153,6 +153,11 @@
   color: #e65100;
 }
 
+.pinyin-recall-tag-polyphonic {
+  background: #f3e5f5;
+  color: #7b1fa2;
+}
+
 .pinyin-recall-stem-label {
   font-size: 1rem;
   color: #555;

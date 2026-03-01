@@ -108,7 +108,7 @@ Schema, configuration, data-access layer, and all migration/backfill scripts are
 - **Score range:** −50 to 100. Correct: +10 (cap 100). Wrong or 我不知道: −10 (floor −50).
 - **Proficiency threshold:** score ≥ 10 = 已学字 (learned). Used for profile 汉字掌握度 and for 巩固 vs 重测.
 - **Five bands (for queue selection):** 难字 (score ≤ −20), 普通在学字 (−20 < score ≤ 0), 普通已学字 (0 < score < 20), 掌握字 (score ≥ 20). 未学字 = not yet in bank.
-- **Display categories (three):** 新字 (first time), 重测 (retest / still learning), 巩固 (consolidation / maintenance).
+- **Display categories (three):** 新字 (first time), 重测 (retest / still learning), 巩固 (consolidation / maintenance). Session items include `is_polyphonic`; when true, a 多音字 tag is shown next to the category in the question header.
 
 ### 8.3 Cooling (next_due_utc)
 

@@ -488,6 +488,7 @@ def build_session_queue(
         batch_category = _batch_category_for_character(char_state)
         # For correct-answer screen (Issue #7): all pinyin, English meaning, 基本解释
         all_pinyin = _all_pinyin_list(entry, fallback_primary=correct)
+        is_polyphonic = len(all_pinyin) > 1
         english = entry.get("英文翻译") or []
         if isinstance(english, list):
             meanings = [(e or "").strip() for e in english if (e or "").strip()]
@@ -503,6 +504,7 @@ def build_session_queue(
             "category": category,
             "batch_category": batch_category,
             "all_pinyin": all_pinyin,
+            "is_polyphonic": is_polyphonic,
             "meanings": meanings,
             "meaning_zh": meaning_zh,
         })

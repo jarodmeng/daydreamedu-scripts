@@ -294,6 +294,9 @@ export default function PinyinRecall() {
                   {item.category}
                 </span>
               )}
+              {item.is_polyphonic && (
+                <span className="pinyin-recall-category pinyin-recall-tag-polyphonic">多音字</span>
+              )}
             </p>
             <div className="pinyin-recall-game-header-actions">
               <button
