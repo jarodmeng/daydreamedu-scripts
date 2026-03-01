@@ -80,6 +80,8 @@ An item counts as “retained” if the learner answers it correctly on a check 
 
 ## 7. Design Principles (from research)
 
+A foundational insight from Csikszentmihalyi’s flow research is that people report peak happiness and engagement not during passive or relaxing times, but during **structured, challenging activities with clear goals and tight feedback loops**. Flow — the state of complete absorption that produces both peak performance and intrinsic motivation — occurs in a narrow channel where challenge just exceeds current skill. Below that channel lies boredom; above it, anxiety. This maps directly onto the learning loop in Section 4: the loop exists to keep each learner in their personal flow channel by continuously diagnosing skill level, selecting appropriately-sized challenges, delivering immediate feedback, and rescheduling based on outcome.
+
 These principles guide learning-feature design:
 
 1. **Make retrieval the default** — Quizzing drives learning; avoid “read more” as the primary action.
@@ -89,8 +91,9 @@ These principles guide learning-feature design:
 5. **Interleave for discrimination** — Mix related types where discrimination matters (e.g. tone pairs, visually similar characters).
 6. **Prioritize time-on-task** — Low-friction sessions; motivation is designed in, not assumed.
 7. **Instrument everything** — Events and outcomes so the system can be iterated.
+8. **Calibrate challenge to skill (flow channel)** — Use outcome data to select items that sit just above each learner’s current level. Rote-easy reviews and overwhelming new content are equally counterproductive. The spaced-repetition score bands and cooling schedules serve this calibration function; surface metrics like items-per-session should be interpreted alongside difficulty distribution.
 
-Research implications used here include: retrieval practice and spacing (Carpenter et al.; Latimier et al.); semantic radicals and transfer (Nguyen et al.); morphological awareness and compounding (Marks et al.); tone training and English-dominant learners (Cao et al.); home language environment and “low Mandarin outside the app” (Li, Tan, & Goh); extensive reading and accountability (Sangers et al.). Detailed notes and references are in `docs/archive/research/Learning_Functions_Research_and_Brainstorming.md`.
+Research implications used here include: flow and intrinsic motivation in structured practice (Csikszentmihalyi, *Flow*, 1990); retrieval practice and spacing (Carpenter et al.; Latimier et al.); semantic radicals and transfer (Nguyen et al.); morphological awareness and compounding (Marks et al.); tone training and English-dominant learners (Cao et al.); home language environment and “low Mandarin outside the app” (Li, Tan, & Goh); extensive reading and accountability (Sangers et al.). Detailed notes and references are in `docs/archive/research/Learning_Functions_Research_and_Brainstorming.md`.
 
 ---
 
