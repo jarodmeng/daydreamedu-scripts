@@ -1,0 +1,20 @@
+---
+description: How to delete files; use rm if Delete tool fails
+alwaysApply: true
+---
+
+# Deleting Files
+
+When the user asks to **delete** or **remove** a file (or you need to remove a file as part of a task):
+
+1. **Prefer the Delete tool** first with the file’s absolute or correct path.
+2. **If the Delete tool fails** (e.g. returns "Aborted", an error, or the file is still present): **use the shell** and run `rm <path>`. Use an absolute path or the correct path from the workspace root. Do not stop after a failed delete; retry with `rm`.
+3. **Confirm the file is gone** (e.g. `ls <path>` should show "No such file or directory", or the file no longer appears in listings).
+
+Example (from repo root or appropriate cwd):
+
+```bash
+rm chinese_chr_app/extract_character_from_wxnet/incremental_664.txt
+```
+
+After a successful delete, the file must not exist on disk. If the first method fails, switch to the other; do not report success without verifying the file was removed.
