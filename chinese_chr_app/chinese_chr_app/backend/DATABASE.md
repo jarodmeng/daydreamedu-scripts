@@ -55,10 +55,11 @@ See `.env.local.example` and [DEPLOYMENT.md](DEPLOYMENT.md) for production (e.g.
 | basic_meanings | jsonb | |
 | english_translations | jsonb | |
 | **searchable_pinyin** | jsonb | Array of normalized pinyin keys for search (e.g. `["wo", "wo3"]`). Backfill: `scripts/characters/add_searchable_pinyin_column.py`. |
+| **common_phrases** | jsonb | Array of 常用词组 (common phrases) from HWXNet. Backfill: `scripts/characters/add_common_phrases_column.py`. |
 
 **Indexes:** `idx_hwxnet_characters_character`, `idx_hwxnet_characters_index` (partial), **`idx_hwxnet_searchable_pinyin`** (GIN on `searchable_pinyin`).
 
-**Create:** `python3 scripts/characters/create_hwxnet_characters_table.py` (use `--all` for full migration). **Verify:** `python3 scripts/characters/verify_hwxnet_characters.py`. **Pinyin column:** `python3 scripts/characters/add_searchable_pinyin_column.py` (options: `--dry-run`, `--no-backup`, `--skip-filled`).
+**Create:** `python3 scripts/characters/create_hwxnet_characters_table.py` (use `--all` for full migration). **Verify:** `python3 scripts/characters/verify_hwxnet_characters.py`. **Pinyin column:** `python3 scripts/characters/add_searchable_pinyin_column.py` (options: `--dry-run`, `--no-backup`, `--skip-filled`). **Common phrases:** `python3 scripts/characters/add_common_phrases_column.py` (options: `--dry-run`, `--no-backup`). **Verify common_phrases:** `python3 scripts/characters/verify_common_phrases.py` (optional `--limit N`).
 
 ---
 
