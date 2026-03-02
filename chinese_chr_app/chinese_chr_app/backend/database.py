@@ -57,6 +57,7 @@ def _row_to_hwxnet_dict(row: Dict[str, Any]) -> Dict[str, Any]:
         "基本字义解释": row.get("basic_meanings") or [],
         "英文翻译": row.get("english_translations") or [],
         "分类": row.get("classification") or [],
+        "常用词组": row.get("common_phrases") or [],
     }
 
 
@@ -110,7 +111,7 @@ def get_hwxnet_lookup() -> Dict[str, Dict[str, Any]]:
     try:
         with conn.cursor() as cur:
             cur.execute(
-                "SELECT character, zibiao_index, index, source_url, classification, pinyin, radical, strokes, basic_meanings, english_translations FROM hwxnet_characters"
+                "SELECT character, zibiao_index, index, source_url, classification, pinyin, radical, strokes, basic_meanings, english_translations, common_phrases FROM hwxnet_characters"
             )
             rows = cur.fetchall()
         result = {}

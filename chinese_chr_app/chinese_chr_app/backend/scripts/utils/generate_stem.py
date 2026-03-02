@@ -24,13 +24,27 @@ def load_hwxnet_words(character: str) -> List[str]:
     if not entry:
         return []
 
-    words = []
+    words: List[str] = []
+    # Primary: 例词 from 基本字义解释
     for sense in entry.get("基本字义解释", []) or []:
         for definition in sense.get("释义", []) or []:
             for ex in definition.get("例词", []) or []:
                 if ex and ex not in words:
                     words.append(ex)
-    return words
+
+    if words:
+        return words
+
+    # Backup: 常用词组 (common_phrases) when there are no 例词
+    common_phrases = entry.get("常用词组") or []
+    if isinstance(common_phrases, list):
+        result: List[str] = []
+        for phrase in common_phrases:
+            if phrase and phrase not in result:
+                result.append(phrase)
+        return result
+
+    return []
 
 
 def pick_words(

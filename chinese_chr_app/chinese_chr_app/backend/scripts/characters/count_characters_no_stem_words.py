@@ -47,6 +47,16 @@ def has_hwxnet_example_words(basic_meanings) -> bool:
     return False
 
 
+def has_common_phrases(common_phrases) -> bool:
+    """True if any 常用词组 exists (used as backup when there are no 例词)."""
+    if not common_phrases or not isinstance(common_phrases, list):
+        return False
+    for phrase in common_phrases:
+        if phrase and (str(phrase).strip() if isinstance(phrase, str) else phrase):
+            return True
+    return False
+
+
 def main():
     conn = psycopg.connect(url, row_factory=dict_row)
     try:
@@ -66,9 +76,10 @@ def main():
                 if ch not in feng_by_char:
                     feng_by_char[ch] = words
 
-            # HWXNet: one row per character (first by zibiao_index), character + basic_meanings
+            # HWXNet: one row per character (first by zibiao_index),
+            # character + basic_meanings + common_phrases
             cur.execute("""
-                SELECT DISTINCT ON (character) character, basic_meanings
+                SELECT DISTINCT ON (character) character, basic_meanings, common_phrases
                 FROM hwxnet_characters
                 ORDER BY character, zibiao_index
             """)
@@ -78,7 +89,10 @@ def main():
                 if not ch:
                     continue
                 if ch not in hwxnet_by_char:
-                    hwxnet_by_char[ch] = row.get("basic_meanings")
+                    hwxnet_by_char[ch] = {
+                        "basic_meanings": row.get("basic_meanings"),
+                        "common_phrases": row.get("common_phrases"),
+                    }
 
         # Universe: all characters that can appear in pinyin recall (from hwxnet)
         all_chars = set(hwxnet_by_char.keys())
@@ -90,7 +104,13 @@ def main():
                 and isinstance(feng_words, list)
                 and any(w and (str(w).strip() if w else False) for w in feng_words)
             )
-            has_hwxnet = has_hwxnet_example_words(hwxnet_by_char.get(ch))
+            hwxnet_entry = hwxnet_by_char.get(ch) or {}
+            basic_meanings = hwxnet_entry.get("basic_meanings")
+            common_phrases = hwxnet_entry.get("common_phrases")
+            has_lici = has_hwxnet_example_words(basic_meanings)
+            has_common = has_common_phrases(common_phrases)
+            # Primary: 例词; backup: 常用词组 only when 例词 are empty.
+            has_hwxnet = has_lici or (not has_lici and has_common)
             if not has_feng and not has_hwxnet:
                 no_stem_words.append(ch)
 
@@ -99,7 +119,7 @@ def main():
         # Of those with no stem words, how many are in the Feng list at all?
         no_stem_in_feng = [ch for ch in no_stem_words if ch in feng_by_char]
         no_stem_not_in_feng = [ch for ch in no_stem_words if ch not in feng_by_char]
-        print("Pinyin recall — 常见词组 (stem words: Feng Words + HWXNet 例词)")
+        print("Pinyin recall — 常见词组 (stem words: Feng Words + HWXNet 例词, 常用词组 as backup)")
         print("=" * 60)
         print(f"  Characters with no example words (词组): {missing:,} / {total:,}")
         print(f"  Of these, in Feng list (empty Words):     {len(no_stem_in_feng):,}")

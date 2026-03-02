@@ -9,7 +9,7 @@ import hashlib
 import random
 import time
 from collections import defaultdict
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, Iterable, List, Optional, Set, Tuple
 
 from pinyin_search import pinyin_to_base_and_tone
 
@@ -117,6 +117,14 @@ _PINYIN_INDEX_CACHE: Tuple[
 ] | None = None
 
 
+DEPRIORITIZED_STEM_WORDS: Set[str] = {
+    # Archaic / citation-only phrases that should almost never be shown
+    "卢弓一",
+    "卢矢百",
+    "为榆沈",
+}
+
+
 def get_stem_words(
     character: str,
     character_lookup: Dict[str, Any],
@@ -124,24 +132,114 @@ def get_stem_words(
     max_words: int = 3,
 ) -> List[str]:
     """
-    Prefer Feng Words first, then HWXNet 例词. Dedupe, cap to max_words, shortest first.
+    Build stem words for the pinyin recall game.
+
+    Priority:
+    1) Feng Words
+    2) HWXNet 例词
+    3) HWXNet 常用词组 (backup when 例词 are insufficient)
+
+    Within each HWXNet tier, phrases in DEPRIORITIZED_STEM_WORDS are only used
+    after all normal candidates have been exhausted.
     """
+    if max_words <= 0:
+        return []
+
+    combined: List[str] = []
+
+    # Tier 1: Feng Words
     feng_words: List[str] = []
     if character_lookup and character in character_lookup:
         feng_words = list(character_lookup[character].get("Words") or [])
-    hwxnet_words: List[str] = []
-    if hwxnet_lookup and character in hwxnet_lookup:
-        entry = hwxnet_lookup[character]
-        for sense in entry.get("基本字义解释") or []:
-            for definition in sense.get("释义") or []:
-                for ex in definition.get("例词") or []:
-                    if ex and ex not in hwxnet_words:
-                        hwxnet_words.append(ex)
-    combined = list(feng_words)
-    for w in hwxnet_words:
+    for w in sorted({w for w in feng_words if w}, key=len):
+        if len(combined) >= max_words:
+            break
         if w not in combined:
             combined.append(w)
-    combined = sorted(combined, key=len)[:max_words]
+
+    # Nothing more to do if we've already filled all slots from Feng words.
+    if len(combined) >= max_words:
+        return combined
+
+    # Helper to split words into normal vs. deprioritized, and ensure they contain the character.
+    def _partition_words(words: Iterable[str]) -> Tuple[List[str], List[str]]:
+        normal: List[str] = []
+        deprioritized: List[str] = []
+        for w in words:
+            if not isinstance(w, str):
+                continue
+            w_stripped = w.strip()
+            if not w_stripped:
+                continue
+            if character and character not in w_stripped:
+                continue
+            if w_stripped in DEPRIORITIZED_STEM_WORDS:
+                deprioritized.append(w_stripped)
+            else:
+                normal.append(w_stripped)
+        # Sort by length (shortest first) for deterministic ordering
+        normal_sorted = sorted(dict.fromkeys(normal), key=len)
+        deprioritized_sorted = sorted(dict.fromkeys(deprioritized), key=len)
+        return normal_sorted, deprioritized_sorted
+
+    entry: Dict[str, Any] = {}
+    if hwxnet_lookup and character in hwxnet_lookup:
+        entry = hwxnet_lookup[character] or {}
+
+    # Collect HWXNet 例词
+    lici_all: List[str] = []
+    for sense in entry.get("基本字义解释") or []:
+        for definition in sense.get("释义") or []:
+            for ex in definition.get("例词") or []:
+                if ex and ex not in lici_all:
+                    lici_all.append(ex)
+
+    # Collect HWXNet 常用词组 (common_phrases)
+    common_all: List[str] = []
+    common_field = entry.get("常用词组")
+    if isinstance(common_field, list):
+        common_all = list(common_field)
+
+    lici_normal, lici_deprioritized = _partition_words(lici_all)
+    common_normal, common_deprioritized = _partition_words(common_all)
+
+    # Tier 2: HWXNet 例词 (normal first)
+    for w in lici_normal:
+        if len(combined) >= max_words:
+            break
+        if w not in combined:
+            combined.append(w)
+
+    if len(combined) >= max_words:
+        return combined
+
+    # Tier 3: HWXNet 常用词组 (normal first)
+    for w in common_normal:
+        if len(combined) >= max_words:
+            break
+        if w not in combined:
+            combined.append(w)
+
+    if len(combined) >= max_words:
+        return combined
+
+    # Fallback: deprioritized 例词
+    for w in lici_deprioritized:
+        if len(combined) >= max_words:
+            break
+        if w not in combined:
+            combined.append(w)
+
+    if len(combined) >= max_words:
+        return combined
+
+    # Last resort: deprioritized 常用词组
+    for w in common_deprioritized:
+        if len(combined) >= max_words:
+            break
+        if w not in combined:
+            combined.append(w)
+
     return combined
 
 
