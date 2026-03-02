@@ -34,7 +34,7 @@ LEVEL_JSON_FILES = [
 
 
 def load_characters(limit: int = None) -> List[str]:
-    """Load characters from characters.json."""
+    """Load characters from characters.json (Feng set, ~3000)."""
     if not CHARACTERS_JSON.exists():
         raise FileNotFoundError(f"Characters file not found: {CHARACTERS_JSON}")
     
@@ -53,6 +53,27 @@ def load_characters(limit: int = None) -> List[str]:
     if limit:
         characters = characters[:limit]
     
+    return characters
+
+
+def load_characters_full(limit: int = None) -> List[str]:
+    """
+    Load full character set: union of characters.json (Feng) and level-1.json.
+    Yields 3664 characters (HWXNet/app character bank).
+    """
+    characters = load_characters()  # Feng first, order preserved
+    seen = set(characters)
+    level1 = LEVEL_JSON_FILES[0]  # level-1.json
+    if level1.exists():
+        with open(level1, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        for item in data:
+            ch = (item.get('char') or '').strip()
+            if ch and ch not in seen:
+                characters.append(ch)
+                seen.add(ch)
+    if limit:
+        characters = characters[:limit]
     return characters
 
 
@@ -802,6 +823,8 @@ def main():
                        help='Reprocess and overwrite existing entries')
     parser.add_argument('--characters-file', type=str, default=None,
                        help='Path to a text file (one character per line) to process instead of characters.json (relative paths are resolved from this script directory)')
+    parser.add_argument('--full', action='store_true',
+                       help='Use full character bank (union of characters.json + level-1.json, 3664 characters)')
     
     args = parser.parse_args()
     
@@ -812,6 +835,9 @@ def main():
             characters_file_path = SCRIPT_DIR / characters_file_path
         print(f"Loading characters from: {characters_file_path} ...")
         characters = load_characters_from_txt(characters_file_path, limit=args.limit)
+    elif args.full:
+        print("Loading full character bank (characters.json + level-1.json)...")
+        characters = load_characters_full(limit=args.limit)
     else:
         print("Loading characters from characters.json...")
         characters = load_characters(limit=args.limit)
@@ -853,7 +879,7 @@ def main():
             print(f"Retry statistics:")
             print(f"  Total retries: {retry_stats['total_retries']}")
             print(f"  Successfully retried: {retry_stats['retried_successfully']}")
-    if stats['timing']['characters_processed'] > 0:
+    if stats.get('timing') and stats['timing'].get('characters_processed', 0) > 0:
         print()
         print("Timing Statistics:")
         print(f"  Total time: {stats['timing']['total_time_formatted']}")
@@ -862,15 +888,16 @@ def main():
         print(f"  Max time: {stats['timing']['max_time']:.2f} seconds")
         print()
         
-        # Estimate for full 3000 characters
+        # Estimate for full run (all characters in list)
         if args.test:
+            total_chars = len(characters)
             avg = stats['timing']['average_time_per_character']
             rate_limit = args.rate_limit
             total_time_per_char = avg + rate_limit
-            estimated_total = total_time_per_char * 3000
+            estimated_total = total_time_per_char * total_chars
             estimated_hours = estimated_total / 3600
             
-            print("Estimated time for all 3000 characters:")
+            print(f"Estimated time for all {total_chars} characters:")
             print(f"  Per character (avg + rate limit): {total_time_per_char:.2f} seconds")
             print(f"  Total estimated time: {timedelta(seconds=int(estimated_total))}")
             print(f"  Total estimated hours: {estimated_hours:.1f} hours")

@@ -162,6 +162,20 @@ def test_character(char, expected):
         field_results["英文翻译"] = {"match": False, "count": 0}
         all_passed = False
     
+    # 常用词组: must be present and a list (may be empty for characters without the section)
+    common_phrases = result.get("常用词组", None)
+    if common_phrases is None:
+        print(f"  常用词组: ✗ Missing (expected key)")
+        field_results["常用词组"] = {"match": False, "message": "key missing"}
+        all_passed = False
+    elif not isinstance(common_phrases, list):
+        print(f"  常用词组: ✗ Not a list: {type(common_phrases)}")
+        field_results["常用词组"] = {"match": False, "message": f"not a list: {type(common_phrases)}"}
+        all_passed = False
+    else:
+        print(f"  常用词组: ✓ Present, {len(common_phrases)} phrase(s)")
+        field_results["常用词组"] = {"match": True, "count": len(common_phrases)}
+    
     if all_passed:
         print(f"\n  ✓✓✓ ALL TESTS PASSED for {char} ✓✓✓")
     else:
@@ -204,6 +218,30 @@ def main():
     print(f"Total characters tested: {len(EXPECTED_RESULTS)}")
     print(f"Passed: {total_passed}")
     print(f"Failed: {total_failed}")
+    
+    # Test 卢 for 常用词组 (section present on HWXNet)
+    print(f"\n{'='*70}")
+    print("EXTRA: 常用词组 test for 卢 (expect non-empty, contains 卢比, 卢布)")
+    print(f"{'='*70}")
+    try:
+        lu_result = extract_character_info("卢")
+        phrases = lu_result.get("常用词组", [])
+        if not isinstance(phrases, list):
+            print(f"  ✗ 卢 常用词组 is not a list: {type(phrases)}")
+            total_failed += 1
+        elif len(phrases) == 0:
+            print(f"  ✗ 卢 常用词组 is empty (expected phrases)")
+            total_failed += 1
+        elif "卢比" not in phrases or "卢布" not in phrases:
+            print(f"  ✗ 卢 常用词组 missing expected: got {phrases[:10]}")
+            total_failed += 1
+        else:
+            print(f"  ✓ 卢 常用词组: {len(phrases)} phrases, includes 卢比, 卢布")
+    except Exception as e:
+        print(f"  ✗ 卢 extraction failed: {e}")
+        import traceback
+        traceback.print_exc()
+        total_failed += 1
     
     if total_failed == 0:
         print(f"\n✓✓✓ ALL TESTS PASSED! ✓✓✓")

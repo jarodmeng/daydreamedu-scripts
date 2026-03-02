@@ -206,6 +206,20 @@ def validate_character_entry(char: str, entry: Dict[str, Any], result: Validatio
         if not is_valid:
             result.add_error(f"{char}: 基本字义解释 validation failed: {error_msg}")
     
+    # Validate 常用词组 (optional): if present, must be list of non-empty strings
+    if "常用词组" in entry:
+        phrases = entry["常用词组"]
+        if not isinstance(phrases, list):
+            result.add_error(f"{char}: 常用词组 is not a list: {type(phrases)}")
+        else:
+            for i, phrase in enumerate(phrases):
+                if not isinstance(phrase, str):
+                    result.add_error(f"{char}: 常用词组[{i}] is not a string: {type(phrase)}")
+                elif not phrase.strip():
+                    result.add_warning(f"{char}: 常用词组[{i}] is empty")
+                elif not re.match(r"^[\u4e00-\u9fff]+$", phrase):
+                    result.add_warning(f"{char}: 常用词组[{i}] contains non-Chinese: {phrase!r}")
+    
     # Validate 英文翻译
     if "英文翻译" in entry:
         english = entry["英文翻译"]

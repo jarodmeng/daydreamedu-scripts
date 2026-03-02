@@ -157,6 +157,7 @@ def extract_character_info(character: str) -> Dict[str, Any]:
         "部首": "",
         "总笔画": 0,
         "基本字义解释": [],
+        "常用词组": [],
         "英文翻译": []
     }
     
@@ -373,6 +374,7 @@ def extract_character_info(character: str) -> Dict[str, Any]:
     # Within con_basic: "● " = top level (pronunciation), "◎ " = 2nd level (meaning)
     # Each bullet: explanation and example words separated by "："
     result["基本字义解释"] = extract_meanings(soup)
+    result["常用词组"] = extract_common_phrases(soup)
     # 
     #     # Extract 英文翻译 (English translation) using DOM structure
     # The translation is in a div with class="con_english"
@@ -567,3 +569,47 @@ def extract_meanings(soup: BeautifulSoup) -> List[Dict[str, Any]]:
                     })
     
     return meanings
+
+
+def extract_common_phrases(soup: BeautifulSoup) -> List[str]:
+    """
+    Extract 常用词组 (common phrases) from the HWXNet page when present.
+
+    DOM: The 常用词组 heading is in <h1> inside <div class="sub_label">. The content
+    is in the next sibling of that div: <div class="view_con clearfix">. Entries
+    are marked with "◎ "; each line starts with the phrase (Chinese), then optional pinyin.
+
+    Returns a list of phrase strings (e.g. ["卢比", "卢布", "卢沟桥"]). Returns [] if
+    the section is missing (many characters do not have 常用词组).
+    """
+    h1 = soup.find('h1', string=re.compile(r'常用词组'))
+    if not h1:
+        return []
+
+    parent = h1.parent
+    if not parent:
+        return []
+
+    content_div = None
+    for sib in parent.next_siblings:
+        if hasattr(sib, 'name') and sib.name == 'div':
+            content_div = sib
+            break
+
+    if not content_div:
+        return []
+
+    text = content_div.get_text()
+    phrases: List[str] = []
+    for part in re.split(r'[◎]\s+', text):
+        part = part.strip()
+        if not part:
+            continue
+        first_line = part.split('\n')[0].strip()
+        match = re.match(r'([\u4e00-\u9fff]+)', first_line)
+        if match:
+            phrase = match.group(1)
+            if phrase and phrase not in phrases:
+                phrases.append(phrase)
+
+    return phrases

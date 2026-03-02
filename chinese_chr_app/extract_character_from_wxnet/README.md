@@ -26,8 +26,9 @@ The script extracts the following information for each character:
 3. **部首** (Radical) - The radical component
 4. **总笔画** (Total strokes) - Total number of strokes
 5. **基本字义解释** (Basic meaning/explanation) - Detailed meanings with pronunciations, explanations, and example words
-6. **英文翻译** (English translation) - English translation words
-7. **index** - Character index from characters.json
+6. **常用词组** (Common phrases) - List of phrases from the 常用词组 section when present (e.g. 卢比, 卢布, 卢沟桥); empty list when the section is absent
+7. **英文翻译** (English translation) - English translation words
+8. **index** - Character index from characters.json
 
 ## Usage
 
@@ -122,6 +123,7 @@ The function returns a dictionary with the following structure:
     },
     ...
   ],
+  "常用词组": ["和美", "和睦", "和谐"],
   "英文翻译": ["peaceful", "calm", "peace", "harmony"],
   "index": "0042"
 }
@@ -136,6 +138,7 @@ The script uses DOM-based extraction for accuracy:
   - Uses "● " markers for pronunciations
   - Uses "◎ " or "⊙ " markers for meanings
   - Example words separated by "。"
+- **常用词组**: Extracted from the section headed 常用词组: `<h1>常用词组</h1>` is inside `<div class="sub_label">`; the content is in that div’s next sibling `<div class="view_con clearfix">`. Entries are "◎ " bullets; the leading Chinese characters on each line form the phrase list.
 - **英文翻译**: Extracted from `<div class="con_english">`
 
 ## Features
