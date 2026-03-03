@@ -6,6 +6,13 @@ Release history and version notes. Newest releases are at the top.
 
 ---
 
+## [v0.2.14]
+
+- **HWXNet 常用词组 + stem words:** Extract 常用词组 (common phrases) from HWXNet into `extracted_characters_hwxnet.json`, add a `common_phrases` jsonb column to the `hwxnet_characters` table, and backfill it from JSON. Pinyin recall stem-word selection now uses HWXNet 常用词组 plus a deprioritized list, so stems better reflect real usage for each character.
+- **例词 segmentation + 均读轻声 cleanup (#28, #29):** Update the HWXNet extractor to (a) strip all parentheticals from 例词 text, (b) split by sentence and comma with character-anchored grouping so phrases always contain the character, and (c) remove meta-comments like “均读轻声” from example phrases. Re-extract and merge 基本字义解释 for 417 affected characters into the main HWXNet JSON and backfill `basic_meanings` in Supabase so DB and JSON stay aligned. See `data/CHARACTERS_ARCHITECTURE.md` and `data/CHARACTERS_CHANGELOG.md` for details.
+
+---
+
 ## [v0.2.13]
 
 - **Pinyin Recall (#25):** Display a 多音字 (polyphonic character) tag next to the category tag (新字/巩固/重测) in the pinyin recall question header when the character has multiple pronunciations. Backend adds `is_polyphonic` to session items; frontend shows a distinct pill-style tag (purple) for 多音字.
