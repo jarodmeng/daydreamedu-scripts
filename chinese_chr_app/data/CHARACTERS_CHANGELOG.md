@@ -4,6 +4,13 @@ This file records changes to the character bank (character set, source data, and
 
 **Format:** Start each entry with a short heading and date (YYYY-MM-DD) if known. Include what changed, which files/scripts were involved, and any follow-up required (e.g. re-run backfill, update DB).
 
+## 2026-03-03 — 挣 primary pinyin fix
+
+- **What:** For 挣, set learner-oriented primary pinyin:
+  - In `extracted_characters_hwxnet.json`, reordered `"拼音"` to `["zhēng", "zhèng"]` so the `挣扎` / `挣脱` reading comes first, while still keeping the `挣钱` (zhèng) sense.
+- **DB:** Added a one-off script `chinese_chr_app/backend/scripts/characters/_update_hwxnet_character_zheng_primary.py` that reads the 挣 entry from `extracted_characters_hwxnet.json`, computes `searchable_pinyin` using the same normalization as `add_searchable_pinyin_column.py`, and updates the `hwxnet_characters` row (`pinyin`, `english_translations`, `searchable_pinyin`) so Supabase stays in sync with the JSON.
+- **Why:** The AI gloss merge had set `primary_pinyin` to zhèng (“earn”), which made the app present zhèng as the only “correct” reading, even though both 挣扎 (zhēng) and 挣钱 (zhèng) are frequent in the teaching list. This change aligns primary pinyin with the Feng list and learner expectations.
+
 ---
 
 ## 2026-03-03 — 铛 primary pinyin and gloss fix
