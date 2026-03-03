@@ -2,7 +2,19 @@
 
 This file records changes to the character bank (character set, source data, and processing steps). When you change how `extracted_characters_hwxnet.json` is produced or how it is loaded into `hwxnet_characters`, add an entry below in reverse chronological order.
 
-**Format:** Start each entry with a short heading and date (YYYY-MM-DD) if known. Include what changed, which files/scripts were involved, and any follow-up required (e.g. re-run backfill, update DB).
+**Format:** Start each entry with a short heading and date (YYYY-MM-DD) if known. Include what changed, which files/scripts were involved, and any follow-up required (e.g. re-run backfill, update DB). Newest entries go directly below this section.
+
+---
+
+## 2026-03-03 — 洁/姜 Feng words fix
+
+- **What:** Corrected Feng `Words` lists for 洁 and 姜 so that all example phrases either contain the character or are full idioms as printed on the original cards:
+  - 洁: `清洁, 整洁, 纯洁, 洁具, 洁癖, 廉洁, 洁白, 洁净, 冰清玉洁, 洁身自好` (previously had split `冰清`, `玉洁`, `洁身`, `自好`).
+  - 姜: `姜汤, 生姜, 姜太公钓鱼，愿者上钩` (previously split the idiom into `姜太公钓鱼` and `愿者上钩`).
+- **DB:** Added a one-off script `chinese_chr_app/backend/scripts/characters/_update_feng_words_jie_jiang.py` that reads the canonical `Words` from `data/characters.json` and updates the `feng_characters.words` column for 洁 and 姜 so Supabase stays in sync with the JSON.
+- **Why:** Emma’s error reports exposed that some Pinyin Recall “常见词组” did not actually contain the target character (e.g. 冰清, 自好, 愿者上钩). This change realigns the app’s words with the Feng source cards and the intent that each example either includes the character or is a complete idiom anchored on it.
+
+---
 
 ## 2026-03-03 — 挣 primary pinyin fix
 
