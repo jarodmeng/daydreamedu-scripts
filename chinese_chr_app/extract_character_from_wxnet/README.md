@@ -12,10 +12,12 @@ Where `<character>` is a single simplified Chinese character.
 
 - **`extract_character_hwxnet.py`** - Core library for extracting information for a single character
 - **`batch_extract_hwxnet.py`** - Batch extraction script with parallel processing support
-- **`test_extract_character_hwxnet.py`** - Unit tests for the extraction library
+- **`test_extract_character_hwxnet.py`** - Unit tests: 例词 extraction (minimal HTML, no network) plus full extraction tests (core fields, 常用词组, 例词 segmentation checks)
 - **`validate_extracted_data.py`** - Data quality validation script
 - **`extract_radical_stroke_counts.py`** - Extract radical → stroke count from [按部首查字](https://zd.hwxnet.com/bushou.html); writes `data/radical_stroke_counts.json` for the app’s Radicals page sort-by-stroke feature
-- **`extracted_characters_hwxnet.json`** - Output file containing extracted data for all characters (located in `data/` folder)
+- **`merge_resegmented_into_main_hwxnet.py`** - Merges 基本字义解释 from a resegmented JSON (e.g. `data/extracted_characters_hwxnet.resegmented_affected.json`) into `data/extracted_characters_hwxnet.json` with timestamped backup
+- **`extracted_characters_hwxnet.json`** - Main output file containing extracted data for all characters (in `data/`)
+- **`extracted_characters_hwxnet.resegmented_affected.json`** - Optional resegmented subset (e.g. 417 characters) used as input to the merge script
 
 ## Extracted Fields
 
@@ -69,7 +71,7 @@ python batch_extract_hwxnet.py --test
 ### Running Tests
 
 ```bash
-# Run unit tests
+# Run all tests: 例词 unit tests (minimal HTML) then full extraction tests (requires network)
 python test_extract_character_hwxnet.py
 ```
 
@@ -78,6 +80,15 @@ python test_extract_character_hwxnet.py
 ```bash
 # Validate extracted data quality
 python validate_extracted_data.py
+```
+
+### Merging resegmented 基本字义解释
+
+After re-running extraction for a subset of characters (e.g. to fix 例词 segmentation), merge their 基本字义解释 into the main JSON with backup:
+
+```bash
+# Backs up data/extracted_characters_hwxnet.json to data/backups/, then merges from data/extracted_characters_hwxnet.resegmented_affected.json
+python merge_resegmented_into_main_hwxnet.py
 ```
 
 ### Radical stroke counts (部首笔画)
@@ -185,8 +196,7 @@ pip install -r requirements.txt
 
 - The script uses the original keyword URL (not the resolved redirect URL)
 - Pinyin extraction automatically filters out "Image" tokens
-- Example words are extracted by splitting on "。" (Chinese period)
-- Parenthetical explanations in example words are automatically removed
+- **例词 (example words)** in 基本字义解释: extracted by splitting on "。" (Chinese period); only phrases that contain the target character are stored. **All** parentheticals "（...）" and "(...)" are removed from the example-words text before splitting.
 - Chinese numbers (一, 二, 三, etc.) are automatically converted to integers for stroke counts
 - The script handles both caron (ǎ, ě, ǒ, ǐ, ǔ) and breve (ă, ĕ, ŏ, ĭ, ŭ) variants for third-tone pinyin
 

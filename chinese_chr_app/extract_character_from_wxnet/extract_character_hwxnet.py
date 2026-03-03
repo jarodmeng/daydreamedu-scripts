@@ -373,7 +373,7 @@ def extract_character_info(character: str) -> Dict[str, Any]:
     # Structure: <h1>基本字义解释</h1> followed by <div class="con_basic">
     # Within con_basic: "● " = top level (pronunciation), "◎ " = 2nd level (meaning)
     # Each bullet: explanation and example words separated by "："
-    result["基本字义解释"] = extract_meanings(soup)
+    result["基本字义解释"] = extract_meanings(soup, character)
     result["常用词组"] = extract_common_phrases(soup)
     # 
     #     # Extract 英文翻译 (English translation) using DOM structure
@@ -397,7 +397,7 @@ def extract_character_info(character: str) -> Dict[str, Any]:
     return result
 
 
-def extract_meanings(soup: BeautifulSoup) -> List[Dict[str, Any]]:
+def extract_meanings(soup: BeautifulSoup, character: str) -> List[Dict[str, Any]]:
     """
     Extract meanings and pronunciations from HTML content using DOM structure.
     
@@ -527,34 +527,88 @@ def extract_meanings(soup: BeautifulSoup) -> List[Dict[str, Any]]:
                         explanation = bullet
                         example_words_text = ""
                     
-                    # Extract example words (split by "。" which separates entries)
-                    example_words = []
+                    # Extract example words (例词) using sentence + comma + character-anchored grouping.
+                    example_words: List[str] = []
                     if example_words_text:
-                        # Split by "。" (Chinese period) which separates entries
-                        entries = example_words_text.split('。')
-                        for entry in entries:
-                            entry = entry.strip()
-                            if not entry:
-                                continue
-                            
-                            # Remove parenthetical explanations (e.g., "和合 (a.和谐 - harmony; b.古代神话...)")
-                            # Keep only the main word/phrase before the parenthesis
-                            if '（' in entry or '(' in entry:
-                                # Find the first parenthesis and take text before it
-                                paren_pos = len(entry)
-                                for paren in ['（', '(']:
-                                    pos = entry.find(paren)
-                                    if pos != -1 and pos < paren_pos:
-                                        paren_pos = pos
-                                entry = entry[:paren_pos].strip()
-                            
-                            # Extract Chinese words/phrases from the entry
-                            # Look for sequences of Chinese characters (at least 2 chars)
-                            chinese_words = re.findall(r'[\u4e00-\u9fff]{2,}', entry)
-                            for word in chinese_words:
-                                word = word.strip()
-                                if word and word not in example_words:
-                                    example_words.append(word)
+                        # Before stripping: if first paren ends with "。X" and segment before paren contains
+                        # the character (e.g. 尧舜（...。后泛指圣人）), add "SegmentBefore，X".
+                        first_paren = re.search(r'（[^）]*）', example_words_text)
+                        if first_paren and character:
+                            inner = first_paren.group(0)[1:-1]  # content inside （）
+                            if '。' in inner:
+                                tail = inner.split('。')[-1].strip()
+                                if tail and character not in tail:
+                                    before_paren = example_words_text[: first_paren.start()].strip()
+                                    if before_paren and character in before_paren:
+                                        before_segments = [s.strip() for s in re.split(r'[。]+', before_paren) if s.strip()]
+                                        if before_segments:
+                                            combined = before_segments[-1] + '，' + tail
+                                            if combined not in example_words:
+                                                example_words.append(combined)
+                        # Strip parenthetical comments so explanatory notes never become standalone 例词.
+                        # Remove each （...） or (...) and any space immediately before the opening paren.
+                        cleaned = re.sub(r'\s*（[^）]*）', '', example_words_text)
+                        cleaned = re.sub(r'\s*\([^)]*\)', '', cleaned)
+                        cleaned = cleaned.strip()
+                        if cleaned:
+                            # Split into sentences on Chinese period "。"
+                            raw_sentences = [s.strip() for s in re.split(r'[。]+', cleaned) if s.strip()]
+                            # Strip surrounding quote chars so e.g. "爷娘闻女来，出郭相扶将" stays one phrase
+                            quote_chars = '"\'"\u201c\u201d\u2018\u2019'
+                            sentences = [s.strip(quote_chars).strip() for s in raw_sentences if s.strip(quote_chars).strip()]
+                            for sentence in sentences:
+                                # Split into comma clauses (Chinese and ASCII comma)
+                                clauses = [c.strip().strip(quote_chars).strip() for c in re.split(r'[，,]', sentence) if c.strip()]
+                                if not clauses:
+                                    continue
+                                # Track which clauses contain the target character
+                                contains_char = [
+                                    (character in clause) if character else False
+                                    for clause in clauses
+                                ]
+                                if not any(contains_char):
+                                    # No clause mentions the character at all; skip this sentence.
+                                    continue
+                                # Character-anchored grouping: only cut at a comma if both sides
+                                # would still contain the character.
+                                try:
+                                    start = next(
+                                        idx for idx, has_char in enumerate(contains_char) if has_char
+                                    )
+                                except StopIteration:
+                                    continue
+                                groups: List[str] = []
+                                n = len(clauses)
+                                i = start
+                                while i < n - 1:
+                                    left_has_char = any(contains_char[start : i + 1])
+                                    right_has_char = any(contains_char[i + 1 :])
+                                    if left_has_char and right_has_char:
+                                        phrase = '，'.join(clauses[start : i + 1]).strip()
+                                        if phrase:
+                                            groups.append(phrase)
+                                        start = i + 1
+                                    i += 1
+                                # Final group: if we never cut and start > 0, keep the whole sentence
+                                # so e.g. "爷娘闻女来，出郭相扶将" stays one phrase (HWXNet often quotes such lines).
+                                if not groups and start > 0:
+                                    phrase = '，'.join(clauses).strip()
+                                else:
+                                    phrase = '，'.join(clauses[start:]).strip()
+                                if phrase:
+                                    groups.append(phrase)
+
+                                for phrase in groups:
+                                    phrase_clean = phrase.strip().strip(quote_chars).strip().strip('，,。；;').strip()
+                                    if not phrase_clean:
+                                        continue
+                                    if character and character not in phrase_clean:
+                                        continue
+                                    # Skip if we already have a longer phrase that starts with this (e.g. 尧舜 when 尧舜，后泛指圣人 exists)
+                                    if any(existing.startswith(phrase_clean + '，') for existing in example_words):
+                                        continue
+                                    if phrase_clean not in example_words:
+                                        example_words.append(phrase_clean)
                     
                     if explanation:
                         shiyi_list.append({
