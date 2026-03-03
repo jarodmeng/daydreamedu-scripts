@@ -81,7 +81,8 @@ test.describe('Profile page', () => {
     await expect(page.getByRole('heading', { name: '我的' })).toBeVisible();
 
     // Wait for progress to load (no loading spinner, no error)
-    await expect(page.locator('.profile-loading')).toHaveCount(0, { timeout: 30_000 });
+    // 45s timeout: profile progress replays pinyin_recall_item_answered; e2e-dev can accumulate many rows across CI runs
+    await expect(page.locator('.profile-loading')).toHaveCount(0, { timeout: 45_000 });
     await expect(page.locator('.profile-error')).toHaveCount(0);
 
     // Proficiency section
