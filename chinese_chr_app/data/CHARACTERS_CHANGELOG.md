@@ -35,6 +35,15 @@ This file records changes to the character bank (character set, source data, and
 
 ---
 
+## 2026-03-03 — 窄 polyphonic flag fix (#27)
+
+- **What:** For 窄, removed the spurious secondary reading `zé` so the character is treated as monophonic:
+  - In `extracted_characters_hwxnet.json`, updated `"拼音"` to `["zhǎi"]` to match the AI gloss primary pinyin and typical learner expectations.
+- **DB:** Added a one-off script `chinese_chr_app/backend/scripts/characters/_update_hwxnet_character_zai_primary.py` that reads the 窄 entry from `extracted_characters_hwxnet.json`, recomputes `searchable_pinyin` using the same normalization as `add_searchable_pinyin_column.py`, and updates the `hwxnet_characters` row (`pinyin`, `searchable_pinyin`) so Supabase stays in sync with the JSON.
+- **Why:** Issue [#27](https://github.com/jarodmeng/daydreamedu-scripts/issues/27) reported that 窄 was incorrectly marked as polyphonic in the app UI, despite the AI gloss data and real-world usage treating it as `zhǎi` only. Removing `zé` keeps the data consistent and avoids confusing learners.
+
+---
+
 ## 2026-03-02 — 例词 resegmentation and 均读轻声 cleanup (#28, #29)
 
 - **What:** Updated the HWXNet extractor's 例词 logic so that:
