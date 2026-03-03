@@ -825,6 +825,8 @@ def main():
                        help='Path to a text file (one character per line) to process instead of characters.json (relative paths are resolved from this script directory)')
     parser.add_argument('--full', action='store_true',
                        help='Use full character bank (union of characters.json + level-1.json, 3664 characters)')
+    parser.add_argument('--output-json', type=str, default=None,
+                       help='Override default output JSON filename (relative to DATA_DIR unless absolute)')
     
     args = parser.parse_args()
     
@@ -843,6 +845,19 @@ def main():
         characters = load_characters(limit=args.limit)
     print(f"Loaded {len(characters)} characters")
     print()
+
+    # Optional: override OUTPUT_JSON (and progress file) when a custom output path is provided.
+    if args.output_json:
+        global OUTPUT_JSON, PROGRESS_JSON
+        out_path = Path(args.output_json)
+        if not out_path.is_absolute():
+            out_path = DATA_DIR / out_path
+        OUTPUT_JSON = out_path
+        # Use a separate progress file for this run to avoid clobbering the default.
+        PROGRESS_JSON = SCRIPT_DIR / f"extraction_progress_{out_path.stem}.json"
+        print(f"Output JSON overridden to: {OUTPUT_JSON}")
+        print(f"Progress JSON for this run: {PROGRESS_JSON}")
+        print()
     
     # Run extraction (parallel or sequential)
     if args.parallel:
