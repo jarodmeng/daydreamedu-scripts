@@ -1,0 +1,14 @@
+---
+description: Use _*.py naming for one-off Python scripts so they are distinguishable from permanent scripts
+alwaysApply: true
+---
+
+# One-off Python script naming
+
+When creating a **one-off** or **throwaway** Python script (e.g. a fetch script, a one-time migration, a temporary helper that is not part of the long-term codebase), name it with a **leading underscore**: `_<name>.py`.
+
+**Examples:**
+- One-off: `_fetch_lici_source.py`, `_backfill_example.py`
+- Permanent: `extract_character_hwxnet.py`, `merge_resegmented_into_main_hwxnet.py`, `batch_extract_hwxnet.py`
+
+This makes it easy to see at a glance which scripts are safe to remove later and which are part of the supported tooling.
