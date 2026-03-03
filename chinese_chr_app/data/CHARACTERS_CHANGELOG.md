@@ -6,6 +6,16 @@ This file records changes to the character bank (character set, source data, and
 
 ---
 
+## 2026-03-03 — 铛 primary pinyin and gloss fix
+
+- **What:** For 铛, set learner-oriented primary pinyin and clarify the English gloss:
+  - In `extracted_characters_hwxnet.json`, reordered `"拼音"` to `["dāng", "chēng"]` so the common 铃铛 / 铛铛 reading comes first.
+  - Updated `"英文翻译"` to emphasize both the metal clanging / shackle sense and the utensil sense: `["metal clanging sound; shackle", "frying pan; warmed vessel; cooking utensil"]`.
+- **DB:** Added a one-off script `chinese_chr_app/backend/scripts/characters/_update_hwxnet_character_dang_cheng.py` that reads the 铛 entry from `extracted_characters_hwxnet.json`, computes `searchable_pinyin` using the same normalization as `add_searchable_pinyin_column.py`, and updates the `hwxnet_characters` row (`pinyin`, `english_translations`, `searchable_pinyin`) so Supabase stays in sync with the JSON.
+- **Why:** User-facing reports (e.g. from Emma) showed that the app treated the utensil reading `chēng` as primary, even though learners most often encounter 铛 as `dāng` in words like 铃铛 / 铛铛. This change keeps the utensil meaning but makes the high-frequency `dāng` reading primary for teaching and search.
+
+---
+
 ## 2026-03-02 — 例词 resegmentation and 均读轻声 cleanup (#28, #29)
 
 - **What:** Updated the HWXNet extractor's 例词 logic so that:
