@@ -6,6 +6,18 @@ This file records changes to the character bank (character set, source data, and
 
 ---
 
+## 2026-03-02 — 例词 resegmentation and 均读轻声 cleanup (#28, #29)
+
+- **What:** Updated the HWXNet extractor's 例词 logic so that:
+  - Example phrases are segmented using sentence + comma + **character-anchored grouping** (only segments containing the character are kept; e.g. 郭: `城郭, 爷娘闻女来, 出郭相扶将` → `["城郭", "爷娘闻女来，出郭相扶将"]`).
+  - All parenthetical comments `（…）` / `(...)` are stripped from the 例词 text before segmentation.
+  - Meta-comments like `均读轻声` are removed (no standalone `"均读轻声"` 例词, no trailing `，…均读轻声` suffixes in phrases).
+- **Data:** Re-ran extraction for **417 affected characters** and wrote their updated `基本字义解释` (with cleaned 例词) to `extracted_characters_hwxnet.resegmented_affected.json`, then merged **only** `基本字义解释` for those characters back into `extracted_characters_hwxnet.json` via `extract_character_from_wxnet/merge_resegmented_into_main_hwxnet.py`.
+- **Backup:** Before merging, backed up `extracted_characters_hwxnet.json` to `data/backups/` (timestamped). The resegmented subset file was then moved to `data/backups/extracted_characters_hwxnet.resegmented_affected.json` and is no longer tracked by git (kept only as a reproducibility artifact).
+- **Result:** For the 417 characters, `基本字义解释` now has correctly segmented 例词 which always contain the character and no leaked `均读轻声` comments. Other fields and characters in the main JSON are unchanged.
+
+---
+
 ## 2026-03-02 — Restore AI-merged fields, keep 常用词组
 
 - **What:** The full batch re-run (2026-03-01) had overwritten **英文翻译** and **拼音** (and 分类, etc.) with raw HWXNet data, undoing the earlier AI gloss merge. We restored all fields **except 常用词组** from `backups/extracted_characters_hwxnet.20260301-184220.json` into `extracted_characters_hwxnet.json`, keeping **常用词组** from the current file (the new extraction).
