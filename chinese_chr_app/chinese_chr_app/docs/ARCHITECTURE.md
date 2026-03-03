@@ -97,11 +97,11 @@ Schema, configuration, data-access layer, and all migration/backfill scripts are
 
 - **Session:** User gets a first batch of 20 items from `GET /api/games/pinyin-recall/session`. After finishing a batch, `POST /api/games/pinyin-recall/next-batch` returns the next 20. Session is open-ended until the user ends it.
 - **Batch size:** 20 items per batch. `new_count` cap per batch is 8 (at most 8 新字 per batch).
-- **Queue construction:** Active Load = count(难字) + count(普通在学字). Three modes:
-  - **Expansion** (Active Load < 100): 10 新字 + 10 review.
-  - **Consolidation** (100 ≤ Active Load ≤ 250): 5 新字 + 15 review.
-  - **Rescue** (Active Load > 250): 4 掌握字 + 8 普通已学字 + 6 在学字 (难字 first) + 2 新字; within 在学字 slots, 难字 first (score ascending), no cap.
-- **Slot reservation:** Up to 4 slots per batch are reserved for 巩固 (已学字, score ≥ 10); the rest are filled with 重测 (score < 10) and 新字.
+- **Queue construction:** Total Load = count(难字) + count(普通在学字) + 0.3×count(普通已学字). Three modes:
+  - **Expansion** (Total Load < 100): 10 新字 + 10 review; reserve 4 slots for 巩固 before 在学字.
+  - **Consolidation** (100 ≤ Total Load ≤ 250): 5 新字 + 15 review; reserve 6 slots for 巩固 before 在学字.
+  - **Rescue** (Total Load > 250): 4 掌握字 + 8 普通已学字 + 6 在学字 (难字 first) + 2 新字; within 在学字 slots, 难字 first (score ascending), no cap.
+- **Slot reservation:** In Expansion/Consolidation, reserve slots for 巩固 (普通已学字 + 掌握字) before allocating to 在学字, so 巩固 is never crowded out.
 
 ### 8.2 Score and categories
 

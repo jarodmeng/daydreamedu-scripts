@@ -77,3 +77,20 @@ Backend: one DB function returning (learned, learning, not_tested); API: extend 
 **Source:** [archive/proposals/PROPOSAL_Queue_By_Five_Score_Categories.md](archive/proposals/PROPOSAL_Queue_By_Five_Score_Categories.md). Research context: [archive/research/Learning_Functions_Research_and_Brainstorming.md](archive/research/Learning_Functions_Research_and_Brainstorming.md), [archive/research/Chinese_Character_Learning_Algorithm_Design.md](archive/research/Chinese_Character_Learning_Algorithm_Design.md).
 
 **Status:** Accepted
+
+---
+
+## ADR-005: Queue Total Load and 巩固 Slot Reserve
+
+**Context:** User data showed accumulated 普通已学字 with no 巩固 tests for consecutive days, and excessive 新字 despite learning debt. Root cause: (1) Active Load excluded 普通已学字, so users with many 已学字 but fewer 在学字 stayed in Expansion; (2) in Expansion/Consolidation, 在学字 took all review slots first, crowding out 巩固.
+
+**Decision:** Extend the queue logic (ADR-004) with two changes:
+
+- **Total Load** replaces Active Load for mode selection: Total Load = count(难字) + count(普通在学字) + 0.3×count(普通已学字). Same thresholds (Expansion &lt; 100, Consolidation 100–250, Rescue &gt; 250). Users with large 普通已学字 backlogs transition to Consolidation/Rescue earlier.
+- **Consolidation slot reserve:** In Expansion and Consolidation, reserve 4 or 6 slots for 巩固 (普通已学字 + 掌握字) **before** allocating to 在学字. Expansion: 4 reserved; Consolidation: 6 reserved. Remaining review slots go to 在学字.
+
+**Rationale:** Including 普通已学字 in load prevents the case where a user accumulates hundreds of 已学字 but stays in Expansion (10 新字/batch) because 在学字 count is low. Reserving 巩固 slots ensures maintenance reviews are never crowded out when many 在学字 are due.
+
+**Source:** [archive/proposals/PROPOSAL_Queue_巩固_Slot_Reserve_And_Total_Load.md](archive/proposals/PROPOSAL_Queue_巩固_Slot_Reserve_And_Total_Load.md)
+
+**Status:** Accepted

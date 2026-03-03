@@ -99,9 +99,13 @@ PROFICIENCY_MIN_SCORE = 10
 # Five score bands for queue construction (Issue #12). Align with profile thresholds.
 HARD_MAX_SCORE = -20          # 难字: score <= -20
 MASTERED_MIN_SCORE = 20       # 掌握字: score >= 20
-# Active Load = count(难字) + count(普通在学字). Modes: Expansion (< 100), Consolidation (100-250), Rescue (> 250).
+# Total Load = count(难字) + count(普通在学字) + α×count(普通已学字). Modes: Expansion (< 100), Consolidation (100-250), Rescue (> 250).
 ACTIVE_LOAD_EXPANSION_MAX = 99
 ACTIVE_LOAD_CONSOLIDATION_MAX = 250
+LEARNED_NORMAL_LOAD_WEIGHT = 0.3  # α in Total Load; users with large 普通已学字 backlog transition to Consolidation/Rescue earlier
+# Consolidation slot reserve: reserve slots for 巩固 (普通已学字 + 掌握字) before 在学字 in Expansion/Consolidation
+CONSOLIDATION_RESERVE_EXPANSION = 4
+CONSOLIDATION_RESERVE_CONSOLIDATION = 6
 # Mode recipes (total_target=20): Rescue 4 掌握字 + 8 普通已学字 + 6 在学字 + 2 新字; Expansion 10 新字 + 10 review; Consolidation 5 新字 + 15 review.
 RESCUE_MASTERED = 4
 RESCUE_LEARNED_NORMAL = 8
@@ -399,7 +403,8 @@ def build_session_queue(
     Active Load mode (Expansion / Consolidation / Rescue). See PROPOSAL_Queue_By_Five_Score_Categories.
 
     Five bands: 难字 (score <= -20), 普通在学字 (-20 < score <= 0), 普通已学字 (0 < score < 20), 掌握字 (>= 20).
-    Active Load = count(难字) + count(普通在学字). Mode: Expansion (< 100), Consolidation (100-250), Rescue (> 250).
+    Total Load = count(难字) + count(普通在学字) + α×count(普通已学字). Mode: Expansion (< 100), Consolidation (100-250), Rescue (> 250).
+    In Expansion/Consolidation: reserve slots for 巩固 (普通已学字 + 掌握字) before 在学字.
     Rescue recipe: 4 掌握字 + 8 普通已学字 + 6 在学字 (难字 first) + 2 新字; confidence-first order.
     Within 在学字 slots: 难字 first (score asc), then 普通在学字 — no cap on 难字.
     """
@@ -480,16 +485,20 @@ def build_session_queue(
             due_mastered.append((ch, entry))
 
     active_load = 0
+    n_learned_normal_bank = 0
     for state in user_state.values():
         if not isinstance(state, dict):
             continue
         s = int(state.get("score") or 0)
         if s <= HARD_MAX_SCORE or (HARD_MAX_SCORE < s <= 0):
             active_load += 1
+        elif 0 < s < MASTERED_MIN_SCORE:
+            n_learned_normal_bank += 1
 
-    if active_load <= ACTIVE_LOAD_EXPANSION_MAX:
+    total_load = active_load + LEARNED_NORMAL_LOAD_WEIGHT * n_learned_normal_bank
+    if total_load <= ACTIVE_LOAD_EXPANSION_MAX:
         mode = "expansion"
-    elif active_load <= ACTIVE_LOAD_CONSOLIDATION_MAX:
+    elif total_load <= ACTIVE_LOAD_CONSOLIDATION_MAX:
         mode = "consolidation"
     else:
         mode = "rescue"
@@ -532,21 +541,23 @@ def build_session_queue(
     elif mode == "expansion":
         n_new_slots = min(EXPANSION_NEW, n_new_avail, total_target)
         review_slots = min(EXPANSION_REVIEW, total_target - n_new_slots)
-        n_learning_slots = min(review_slots, n_learning)
-        n_learned_normal_slots = min(review_slots - n_learning_slots, n_learned_normal)
-        n_mastered_slots = min(review_slots - n_learning_slots - n_learned_normal_slots, n_mastered)
-        if n_learning_slots + n_learned_normal_slots + n_mastered_slots < review_slots:
-            n_learned_normal_slots = min(n_learned_normal, review_slots - n_learning_slots - n_mastered_slots)
-            n_mastered_slots = min(n_mastered, review_slots - n_learning_slots - n_learned_normal_slots)
+        n_consolidation = min(CONSOLIDATION_RESERVE_EXPANSION, n_learned_normal + n_mastered)
+        n_learned_normal_slots = min(n_consolidation, n_learned_normal)
+        n_mastered_slots = min(n_consolidation - n_learned_normal_slots, n_mastered)
+        n_learning_slots = min(review_slots - n_consolidation, n_learning)
+        spare = review_slots - (n_learning_slots + n_learned_normal_slots + n_mastered_slots)
+        if spare > 0:
+            n_learning_slots = min(n_learning, n_learning_slots + spare)
     else:
         n_new_slots = min(CONSOLIDATION_NEW, n_new_avail, total_target)
         review_slots = min(CONSOLIDATION_REVIEW, total_target - n_new_slots)
-        n_learning_slots = min(review_slots, n_learning)
-        n_learned_normal_slots = min(review_slots - n_learning_slots, n_learned_normal)
-        n_mastered_slots = min(review_slots - n_learning_slots - n_learned_normal_slots, n_mastered)
-        if n_learning_slots + n_learned_normal_slots + n_mastered_slots < review_slots:
-            n_learned_normal_slots = min(n_learned_normal, review_slots - n_learning_slots - n_mastered_slots)
-            n_mastered_slots = min(n_mastered, review_slots - n_learning_slots - n_learned_normal_slots)
+        n_consolidation = min(CONSOLIDATION_RESERVE_CONSOLIDATION, n_learned_normal + n_mastered)
+        n_learned_normal_slots = min(n_consolidation, n_learned_normal)
+        n_mastered_slots = min(n_consolidation - n_learned_normal_slots, n_mastered)
+        n_learning_slots = min(review_slots - n_consolidation, n_learning)
+        spare = review_slots - (n_learning_slots + n_learned_normal_slots + n_mastered_slots)
+        if spare > 0:
+            n_learning_slots = min(n_learning, n_learning_slots + spare)
 
     learning_pool: List[Tuple[str, Dict[str, Any]]] = list(due_hard) + list(due_learning_normal)
     learning_pool = learning_pool[:n_learning_slots]

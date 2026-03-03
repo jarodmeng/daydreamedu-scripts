@@ -100,7 +100,7 @@ Per-user profile data for the Chinese character app (currently only the profile 
 
 Per-user, per-character state for MVP1 pinyin recall (score −50–100, stage, next_due_utc, counts). Score: correct +10 (cap 100), wrong/我不知道 −10 (floor −50). Used for queue building and persistence across restarts.
 
-**Queue construction (Issue #12):** Characters are partitioned into five score bands: 难字 (score ≤ −20), 普通在学字 (−20 &lt; score ≤ 0), 普通已学字 (0 &lt; score &lt; 20), 掌握字 (score ≥ 20). **Active Load** = count(难字) + count(普通在学字). Batch mode: **Expansion** (Active Load &lt; 100), **Consolidation** (100–250), **Rescue** (&gt; 250). Rescue recipe: 4 掌握字 + 8 普通已学字 + 6 在学字 (难字 first) + 2 新字; within 在学字 slots, 难字 first (score asc), no cap. **Cooling intervals** (next_due_utc after correct answer): 难字 0 days, 普通在学字 1 day, 普通已学字 5 days, 掌握字 22 days.
+**Queue construction (Issue #12):** Characters are partitioned into five score bands: 难字 (score ≤ −20), 普通在学字 (−20 &lt; score ≤ 0), 普通已学字 (0 &lt; score &lt; 20), 掌握字 (score ≥ 20). **Total Load** = count(难字) + count(普通在学字) + 0.3×count(普通已学字). Batch mode: **Expansion** (Total Load &lt; 100), **Consolidation** (100–250), **Rescue** (&gt; 250). In Expansion/Consolidation, reserve 4–6 slots for 巩固 before 在学字. Rescue recipe: 4 掌握字 + 8 普通已学字 + 6 在学字 (难字 first) + 2 新字; within 在学字 slots, 难字 first (score asc), no cap. **Cooling intervals** (next_due_utc after correct answer): 难字 0 days, 普通在学字 1 day, 普通已学字 5 days, 掌握字 22 days.
 
 | Column | Type | Notes |
 |--------|------|--------|

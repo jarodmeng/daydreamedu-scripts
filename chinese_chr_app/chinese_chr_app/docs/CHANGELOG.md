@@ -6,6 +6,12 @@ Release history and version notes. Newest releases are at the top.
 
 ---
 
+## [v0.2.15]
+
+- **Pinyin Recall queue: Total Load + 巩固 slot reserve:** Replace Active Load with **Total Load** (count(难字) + count(普通在学字) + 0.3×count(普通已学字)) for mode selection, so users with large 普通已学字 backlogs transition to Consolidation/Rescue earlier. In Expansion and Consolidation modes, reserve 4–6 slots for 巩固 (普通已学字 + 掌握字) before allocating to 在学字, so 巩固 is never crowded out. See [PROPOSAL_Queue_巩固_Slot_Reserve_And_Total_Load](archive/proposals/PROPOSAL_Queue_巩固_Slot_Reserve_And_Total_Load.md).
+
+---
+
 ## [v0.2.14]
 
 - **HWXNet 常用词组 + stem words:** Extract 常用词组 (common phrases) from HWXNet into `extracted_characters_hwxnet.json`, add a `common_phrases` jsonb column to the `hwxnet_characters` table, and backfill it from JSON. Pinyin recall stem-word selection now uses HWXNet 常用词组 plus a deprioritized list, so stems better reflect real usage for each character.
