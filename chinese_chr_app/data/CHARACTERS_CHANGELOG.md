@@ -6,6 +6,15 @@ This file records changes to the character bank (character set, source data, and
 
 ---
 
+## 2026-03-04 — 占 primary pinyin fix
+
+- **What:** For 占, set learner-oriented primary pinyin:
+  - In `extracted_characters_hwxnet.json`, reordered `"拼音"` to `["zhàn", "zhān"]` so the high-frequency “occupy / take up” reading comes first, while still keeping the `zhān` (“divine; tell fortunes”) sense.
+- **DB:** Added a one-off script `chinese_chr_app/backend/scripts/characters/_update_hwxnet_character_zhan_primary.py` that reads the 占 entry from `extracted_characters_hwxnet.json`, recomputes `searchable_pinyin` using a normalization compatible with `add_searchable_pinyin_column.py`, and updates the `hwxnet_characters` row (`pinyin`, `searchable_pinyin`) so Supabase stays in sync with the JSON.
+- **Why:** User reports and in-app usage (e.g. example phrases like 占据, 霸占, 占优势) show that learners primarily encounter 占 as `zhàn` (“occupy / take”), not `zhān` (“divine”). Flipping the primary pinyin ensures pinyin recall treats zhàn as the main answer while still surfacing zhān as an additional reading.
+
+---
+
 ## 2026-03-03 — 洁/姜 Feng words fix
 
 - **What:** Corrected Feng `Words` lists for 洁 and 姜 so that all example phrases either contain the character or are full idioms as printed on the original cards:
