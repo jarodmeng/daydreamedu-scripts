@@ -6,6 +6,12 @@ Release history and version notes. Newest releases are at the top.
 
 ---
 
+## [v0.2.16]
+
+- **Pinyin Recall (#30):** Make multi‑pinyin handling consistent across correct-answer, wrong-answer, and review screens. Backend `missed_item` now includes `all_pinyin` and `is_polyphonic`, and the frontend reuses a shared display so polyphonic characters (e.g. 占, 中) always show all readings with the primary one highlighted.
+
+---
+
 ## [v0.2.15]
 
 - **Pinyin Recall queue: Total Load + 巩固 slot reserve:** Replace Active Load with **Total Load** (count(难字) + count(普通在学字) + 0.3×count(普通已学字)) for mode selection, so users with large 普通已学字 backlogs transition to Consolidation/Rescue earlier. In Expansion and Consolidation modes, reserve 4–6 slots for 巩固 (普通已学字 + 掌握字) before allocating to 在学字, so 巩固 is never crowded out. See [PROPOSAL_Queue_巩固_Slot_Reserve_And_Total_Load](archive/proposals/PROPOSAL_Queue_巩固_Slot_Reserve_And_Total_Load.md).

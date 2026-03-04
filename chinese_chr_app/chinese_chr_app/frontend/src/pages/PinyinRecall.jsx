@@ -15,6 +15,27 @@ function getPinyinTone(pinyin) {
   return 5
 }
 
+function PinyinDisplay({ allPinyin, primary, className = '' }) {
+  const normalizedPrimary = (primary || '').trim().toLowerCase()
+  const list = Array.isArray(allPinyin) ? allPinyin.filter((py) => (py || '').trim() !== '') : []
+  if (list.length === 0) {
+    return <p className={className}>{primary}</p>
+  }
+  return (
+    <p className={className}>
+      {list.map((py, index) => {
+        const isPrimary = (py || '').trim().toLowerCase() === normalizedPrimary
+        return (
+          <span key={index}>
+            {isPrimary ? <strong>{py}</strong> : py}
+            {index < list.length - 1 ? ' / ' : null}
+          </span>
+        )
+      })}
+    </p>
+  )
+}
+
 export default function PinyinRecall() {
   const { user, accessToken } = useAuth()
   const [loading, setLoading] = useState(false)
@@ -402,19 +423,11 @@ export default function PinyinRecall() {
             <>
               <p className="pinyin-recall-feedback-correct">✓ 正确</p>
               <div className="pinyin-recall-character">{item.character}</div>
-              <p className="pinyin-recall-correct-pinyin pinyin-recall-all-pinyin">
-                {item.all_pinyin?.length > 0
-                  ? item.all_pinyin.map((py, pi) => {
-                      const isPrimary = (py || '').trim().toLowerCase() === (item.correct_pinyin || '').trim().toLowerCase()
-                      return (
-                        <span key={pi}>
-                          {isPrimary ? <strong>{py}</strong> : py}
-                          {pi < item.all_pinyin.length - 1 ? ' / ' : null}
-                        </span>
-                      )
-                    })
-                  : item.correct_pinyin}
-              </p>
+              <PinyinDisplay
+                allPinyin={item.all_pinyin}
+                primary={item.correct_pinyin}
+                className="pinyin-recall-correct-pinyin pinyin-recall-all-pinyin"
+              />
               {item.meanings?.length > 0 && (
                 <p className="pinyin-recall-meaning">
                   <span className="pinyin-recall-meaning-label">Meaning: </span>
@@ -454,7 +467,11 @@ export default function PinyinRecall() {
               )}
               <p className="pinyin-recall-feedback-correct-label">正确答案：</p>
               <div className="pinyin-recall-character">{learn.character}</div>
-              <p className="pinyin-recall-correct-pinyin">{learn.correct_pinyin}</p>
+              <PinyinDisplay
+                allPinyin={learn.all_pinyin}
+                primary={learn.correct_pinyin}
+                className="pinyin-recall-correct-pinyin pinyin-recall-all-pinyin"
+              />
               {learn.meanings?.length > 0 && (
                 <p className="pinyin-recall-meaning">
                   <span className="pinyin-recall-meaning-label">Meaning: </span>
@@ -540,7 +557,11 @@ export default function PinyinRecall() {
             {learnIndex + 1} / {missedItems.length}
           </p>
           <div className="pinyin-recall-character">{m?.character}</div>
-          <p className="pinyin-recall-correct-pinyin">{m?.correct_pinyin}</p>
+          <PinyinDisplay
+            allPinyin={m?.all_pinyin}
+            primary={m?.correct_pinyin}
+            className="pinyin-recall-correct-pinyin pinyin-recall-all-pinyin"
+          />
           {m?.meanings?.length > 0 && (
             <p className="pinyin-recall-meaning">
               <span className="pinyin-recall-meaning-label">Meaning: </span>

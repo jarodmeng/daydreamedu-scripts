@@ -19,6 +19,7 @@ from pinyin_recall import (
     build_session_queue,
     get_stem_words,
     get_correct_pinyin,
+    _all_pinyin_list,
 )
 import uuid
 
@@ -1407,6 +1408,8 @@ def pinyin_recall_answer():
         feng = (character_lookup or {}).get(character) if character_lookup else None
         stem_words = get_stem_words(character, character_lookup or {}, hwxnet_lookup or {}, 3)
         correct_pinyin_val = get_correct_pinyin(entry) if entry else correct_pinyin
+        all_pinyin = _all_pinyin_list(entry, fallback_primary=correct_pinyin_val) if entry else [correct_pinyin_val]
+        is_polyphonic = len(all_pinyin) > 1
         # English meanings and 基本解释 for learning screen (show both when available)
         meanings = []
         meaning_zh = None
@@ -1438,6 +1441,8 @@ def pinyin_recall_answer():
             "character": character,
             "stem_words": stem_words,
             "correct_pinyin": correct_pinyin_val,
+            "all_pinyin": all_pinyin,
+            "is_polyphonic": is_polyphonic,
             "meanings": meanings,
             "meaning_zh": meaning_zh,
             "radical": radical,

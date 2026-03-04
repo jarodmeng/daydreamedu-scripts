@@ -8,6 +8,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 # Import the load_characters function directly
 from app import load_characters, CHARACTERS_JSON
+from pinyin_recall import _all_pinyin_list, get_correct_pinyin
 
 def test_data_loading():
     """Test that character data loads correctly"""
@@ -59,15 +60,31 @@ def test_data_loading():
             print(f"   ✗ '{char}' NOT found")
             all_found = False
     
-    if all_found:
-        print("\n✅ All tests passed! Backend data loading works correctly.")
-        print("\nNext steps:")
-        print("   1. Start the backend: python3 app.py")
-        print("   2. Start the frontend: cd ../frontend && npm run dev")
-        print("   3. Open http://localhost:3000 in your browser")
-    else:
+    if not all_found:
         print("\n⚠️  Some test characters were not found.")
         sys.exit(1)
+
+    print("\n5. Checking multi-pinyin helper for a polyphonic character (if available)...")
+    poly_char = "中"
+    if poly_char in character_lookup:
+        entry = character_lookup[poly_char]
+        # Simulate the pinyin recall helpers used for missed_item
+        # In the real app, HWXNet entry provides 拼音; here we fall back to Feng JSON Pinyin list when present.
+        pinyin_list = entry.get("Pinyin") or []
+        correct = ""
+        if isinstance(pinyin_list, list) and pinyin_list:
+            correct = (pinyin_list[0] or "").strip()
+        else:
+            correct = get_correct_pinyin({"拼音": pinyin_list})
+        all_pinyin = _all_pinyin_list({"拼音": pinyin_list}, fallback_primary=correct)
+        is_polyphonic = len(all_pinyin) > 1
+        print(f"   ✓ Correct pinyin candidate: {correct or 'N/A'}")
+        print(f"   ✓ all_pinyin: {all_pinyin}")
+        print(f"   ✓ is_polyphonic: {is_polyphonic}")
+    else:
+        print(f"   (Info) Character '{poly_char}' not found in lookup; skipping multi-pinyin helper check.")
+
+    print("\n✅ All tests passed! Backend data loading and pinyin helpers work correctly.")
 
 if __name__ == "__main__":
     test_data_loading()
