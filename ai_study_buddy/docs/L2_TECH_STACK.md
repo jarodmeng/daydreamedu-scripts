@@ -164,6 +164,18 @@ For a "Google-native" setup (since PDFs are already in Drive):
 
 ---
 
+## Deployment Options
+
+(From ChatGPT.)
+
+| Option | Description | Trade-offs |
+|--------|-------------|------------|
+| **Fast + practical** (recommended start) | Postgres + pgvector, GCS, Cloud Run, hosted multimodal LLM, simple web UI | Fastest to MVP; some cloud dependency |
+| **Max privacy / self-host** | Local OCR + local embedding + local LLM, own server/NAS | Full control; quality may be lower, more ops burden |
+| **Hybrid** | All data local; send only minimal de-identified snippets to cloud LLM; cache aggressively | Good balance; more complex to build |
+
+---
+
 ## Open Questions
 
 1. **Next.js vs separate backend?** Next.js gives fastest MVP (shared frontend/backend); a separate Fastify/NestJS service gives cleaner boundaries if the backend grows complex.

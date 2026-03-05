@@ -49,7 +49,7 @@ Every interaction should produce structured logs so that improvement comes from 
 
 ### 5. Gamification
 
-The children respond strongly to game-like elements — progress tracking, streaks, challenges, rewards. Gamification should be a first-class design concern, not an afterthought. (See [GAMIFICATION.md](./GAMIFICATION.md) for detailed design.)
+The children respond strongly to game-like elements — progress tracking, streaks, challenges, rewards. Gamification should be a first-class design concern, not an afterthought. (See [GAMIFICATION.md](./L3_GAMIFICATION.md) for detailed design.)
 
 ---
 

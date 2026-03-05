@@ -8,14 +8,14 @@
 
 ## What "AI Agent" Means Here
 
-An agent = **LLM + state + tool-calling + policies**.
+An agent = **LLM + state + tool-calling + policies** — though not all agents need all four in equal measure.
 
-- **LLM:** Understands the child's request, explains, asks good questions, adapts tone/level.
-- **State:** Knows who (Winston/Emma/Abigail), current quest, current question, hint level, time spent.
+- **LLM:** Understands input, generates output (explanations, narratives, extraction decisions).
+- **State:** Session context — who the user is, what's been done so far, what comes next.
 - **Tools:** Calls backend services (retrieve chunks, fetch mastery profile, log attempts, generate plans, etc.).
 - **Policies/guardrails:** "No direct answers for Abigail," "require teach-back," "don't reveal mark schemes."
 
-The agent is the **"coach brain"** that orchestrates everything else. It's not "the whole system" — it's the decision-making layer that sits on top of deterministic services and uses them as tools.
+Agents range in complexity. The **Tutor Agent** is the most complex: multi-turn, stateful, iterative tool-calling in a feedback loop. The **Parent Coach** is the simplest: a one-shot LLM call that turns structured analytics data into a readable narrative. All are tracked as agents because each involves LLM-generated content that needs prompt management, quality monitoring, and cost tracking.
 
 ---
 
@@ -68,15 +68,18 @@ The agent makes it a study buddy, not a PDF chatbot.
 
 **Note:** This agent is invoked by the Python pipeline, not by kids.
 
-### 4. Parent Coach Agent
+### 4. Parent Coach Agent (simplest agent)
 
-**Purpose:** Summarize progress, flag risks, suggest interventions.
+**Purpose:** Generate a weekly progress narrative per child — what they worked on, where they improved, and what to watch for.
 
-**Tools it uses:**
+**Inputs (structured data, not tool-calling):**
 - `analytics_summary(child_id, timeframe)`
 - `top_errors(child_id)`
 - `upcoming_assessments(child_id)`
-- Generates a short weekly narrative + next steps
+
+Unlike the other agents, this is a one-shot LLM call: structured analytics data in, readable narrative out. No multi-turn interaction, no session state.
+
+**Future upgrade path:** The parent-facing service could evolve into a conversational agent where parents ask follow-up questions ("Why did Winston's math score drop?", "Should we focus more on English?").
 
 ---
 
