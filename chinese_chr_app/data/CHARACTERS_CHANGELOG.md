@@ -6,6 +6,21 @@ This file records changes to the character bank (character set, source data, and
 
 ---
 
+## 2026-03-05 — Feng Words 180-character re-extraction
+
+- **What:** Tightened the Feng `Words` (词组) data for 180 characters in `characters.json` so that every sample word/phrase either contains the character or is a full idiom anchored on it (no split halves). Re-extracted those 180 cards from the original PNGs using the improved prompt (`extract_characters_using_ai/chinese_character_extraction_prompt.md`) that enforces:
+  - Every `Words` item must contain the `Character` somewhere in the string.
+  - Multi-part idioms printed with spaces/commas are kept as a single item (e.g. 冬 → 秋收冬藏, 寒冬腊月; 藏 → 暗藏杀机; 彩 → 缤纷多彩, 张灯结彩; 秀 → 山清水秀; 朗 → 吊儿郎当 as the one allowed association that does not contain 朗).
+  - 180-character batch was run via the Responses Batch API, with a direct follow-up call for 蒸 (1324) after one batch request failed with a server error. The merged results live in `/tmp/improved_180_results.json`.
+- **Data:** Updated `data/characters.json` by overwriting **only** the `Words` field for these 180 indices, except for two indices whose batch outputs had wrong-character contamination in an earlier run:
+  - 0656 非
+  - 2328 谴  
+  For those two, `Words` remain the hand-curated originals from git.
+- **DB:** Ran a one-off Supabase update so `feng_characters.words` stays in sync with `characters.json` for this set: for the same 180 indices (skipping 0656/2328), `words` in `feng_characters` was updated from `/tmp/improved_180_results.json` while leaving all other columns untouched. Before the update, the full table was backed up to JSON via a temporary helper script. That helper and its local backups were intentionally removed afterwards; this entry is the long-term record of the change.
+- **Why:** Pinyin Recall and the character search view were surfacing fragmented or misleading words (e.g. 光明 without 大, 冰清 / 玉洁 without 洁, halves of idioms like 来日 / 方长). This pass re-aligns Feng sample words with the source cards and the invariant that words shown in the app are complete phrases that (almost always) contain the teaching character.
+
+---
+
 ## 2026-03-04 — 占 primary pinyin fix
 
 - **What:** For 占, set learner-oriented primary pinyin:
