@@ -51,6 +51,14 @@ For each required page, extract:
   - `["他们","他乡","他人","吉他","他日","他家","他山之石","异地他乡"]`
 - Do not invent missing words. If a word is unclear, leave it out rather than guessing.
 
+> **Words invariants (VERY IMPORTANT):**  
+> - Sample words are often 2- or 4-character words/idioms. Some expressions are printed as multiple visible chunks (with spaces or a comma), but together they form one fixed phrase.  
+> - Every **final word/phrase string in the `Words` JSON array must contain the main Character at least once IN THE WHOLE STRING.** A single word/phrase item may be longer than 2 or 4 characters and may contain internal spaces or a comma (，) if that is how the phrase is printed.  
+> - You MUST NOT output any separate `Words` item whose string does not contain the Character.  
+> - When one idiom or fixed phrase is printed as multiple chunks, you must treat the **entire printed expression as ONE `Words` item**, even if it is visually split or contains a comma, and keep **all parts** of the expression inside that one string, as long as the whole phrase contains the Character at least once. Do **NOT** output the sub‑chunks as separate words.  
+> - **Do NOT split an idiom and then drop parts:** If the Character appears **anywhere** in a multi-character idiom on the card (e.g. 秋收**冬**藏, 寒**冬**腊月), you MUST output the **whole idiom as one** Words item. Do NOT split it into segments and then omit the segments that don’t contain the Character — that would wrongly turn 秋收冬藏 into 冬藏 and 寒冬腊月 into 寒冬. Always preserve the full idiom.  
+> - Examples that you MUST follow: 来 (Index 0132) → `["来去","回来","过来","来历","来生","来访","来年","来此","来日方长","人来人往"]`; 又 (Index 0266) printed as `一波未平，一波又起` → one item `"一波未平，一波又起"`; 清 (Index 0301) printed as `冰清　玉洁` → one item `"冰清玉洁"`; 新 (Index 0682) printed as `标新　立异` → one item `"标新立异"`; 冬 (Index 0144) → include `"秋收冬藏"` and `"寒冬腊月"` as **single items** (not 冬藏 and 寒冬 alone); 公 (Index 0231) includes `"大公无私","公平合理"`; 利 (Index 1011) includes `"大吉大利"`; 官 (Index 0739) includes `"高官厚禄"`; 思 (Index 1158) includes `"朝思暮想"`; 件 (Index 1372) includes `"事在人为"`; 朗 (Index 1562) includes `"吊儿郎当"`; 杖 (Index 2270) includes `"明火执仗"`.
+
 ---
 
 ## Extraction Rules (VERY IMPORTANT)
@@ -82,9 +90,9 @@ After extracting from the page, you are allowed to correct values **ONLY for**:
 **BEFORE you output the final table, you MUST perform this verification:**
 
 1. **Check Sentence (例句)**: The extracted Character **MUST appear** in the Sentence field.
-2. **Check Words (词组)**: The extracted Character **MUST appear** in at least some of the Words.
+2. **Check Words (词组)**: The extracted Character **MUST appear in EVERY word/phrase** in the `Words` JSON array.
 
-**If the character does NOT appear in the Sentence or Words:**
+**If the character does NOT appear in the Sentence or in EVERY Words item:**
 - **STOP IMMEDIATELY** - This indicates a definite OCR error.
 - **DO NOT OUTPUT** the incorrect character.
 - **Re-examine the image very carefully** to identify the correct character.
@@ -125,7 +133,7 @@ Some rare 2-character compound words are especially error-prone because **BOTH c
 - The character you extract MUST be the correct one from that compound word
 - Pay extra attention to stroke counts and radicals to distinguish between the characters
 
-**REMEMBER: If your extracted character doesn't appear in the sentence/words, you have made an error. Fix it before outputting.**
+**REMEMBER: If your extracted character doesn't appear in the sentence or in EVERY word/phrase in `Words`, you have made an error. Fix it before outputting.**
 
 ---
 
