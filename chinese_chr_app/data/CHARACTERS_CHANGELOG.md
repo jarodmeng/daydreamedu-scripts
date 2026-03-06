@@ -6,6 +6,14 @@ This file records changes to the character bank (character set, source data, and
 
 ---
 
+## 2026-03-06 — 囤 primary pinyin fix
+
+- **What:** For 囤, set learner-oriented primary pinyin to tún (tun2):
+  - In `extracted_characters_hwxnet.json`, reordered `"拼音"` to `["tún", "dùn"]` so the “store / hoard” reading (囤积, 囤聚) comes first, while keeping the “granary” reading dùn (粮囤).
+- **Why:** User report from Pinyin Recall (报错 on 囤) indicated the app was treating dùn as primary; learners more often encounter 囤 as tún in 囤积, 囤积居奇, etc.
+
+---
+
 ## 2026-03-05 — Feng Words 180-character re-extraction
 
 - **What:** Tightened the Feng `Words` (词组) data for 180 characters in `characters.json` so that every sample word/phrase either contains the character or is a full idiom anchored on it (no split halves). Re-extracted those 180 cards from the original PNGs using the improved prompt (`extract_characters_using_ai/chinese_character_extraction_prompt.md`) that enforces:
