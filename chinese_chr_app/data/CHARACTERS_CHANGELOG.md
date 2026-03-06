@@ -6,6 +6,13 @@ This file records changes to the character bank (character set, source data, and
 
 ---
 
+## 2026-03-06 — 耙 primary pinyin fix
+
+- **What:** For 耙, set learner-oriented primary pinyin to pá (pa2). In `extracted_characters_hwxnet.json`, reordered `"拼音"` to `["pá", "bà"]` so the “rake / gather” reading (耙子, 钉耙) comes first; the “harrow” reading bà remains as secondary.
+- **Why:** Primary pinyin should be pa2 for learners (耙 as rake/gather is more common than the bà “harrow” sense).
+
+---
+
 ## 2026-03-06 — 囤 primary pinyin fix
 
 - **What:** For 囤, set learner-oriented primary pinyin to tún (tun2):
