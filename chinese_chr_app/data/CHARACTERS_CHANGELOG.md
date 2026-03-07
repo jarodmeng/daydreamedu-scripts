@@ -6,6 +6,13 @@ This file records changes to the character bank (character set, source data, and
 
 ---
 
+## 2026-03-08 — 胆 English translation fix
+
+- **What:** In `extracted_characters_hwxnet.json`, updated 胆’s `"英文翻译"` from "gall" to "gallbladder" for the organ sense (胆囊). Synced to `hwxnet_characters` via one-off script `_update_dan_english_translations.py`.
+- **Why:** "Gallbladder" is the precise name for the organ; "gall" alone usually refers to the bile.
+
+---
+
 ## 2026-03-08 — 呵 pinyin prune
 
 - **What:** For 呵, pruned to single reading: in `extracted_characters_hwxnet.json`, set `"拼音"` to `["hē"]` only (removed kē, ā, á, ǎ, à, a). List was pruned to the single learner-oriented reading hē (he1).
