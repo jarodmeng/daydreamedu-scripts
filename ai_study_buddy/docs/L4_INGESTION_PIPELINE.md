@@ -611,3 +611,22 @@ Winston has ~4,000 pages of historical worksheets. Ingesting all of them manuall
 
 - ~~**Do Chinese papers use OAS?**~~ **Yes.** Regular Chinese uses OAS for Q1–Q25 (25 MCQ). The OAS is page 9 of the Answer Booklet PDF. **Higher Chinese does not use OAS** — all answers are written.
 - ~~**Does Higher Chinese follow the same structure as regular Chinese?**~~ **No.** HC has no MCQ, no OAS, fewer total marks (100 vs 130), fewer pages (26 vs 35), and fundamentally different question types (word-bank cloze, error correction, synonym matching, table comparison, phrase explanation).
+
+---
+
+## Utilities
+
+Pre-processing utilities that prepare raw PDFs for ingestion. Each utility lives in its own subfolder under `utils/` and has a detailed `SPEC.md` there.
+
+### Utility 1: PDF Compressor
+
+**Location:** [`utils/compress_pdf/`](../utils/compress_pdf/) — `compress_pdf.py` + [`SPEC.md`](../utils/compress_pdf/SPEC.md)
+
+**Purpose:** Reduce storage size of raw scanned PDFs before ingestion. Raw scans from mobile scanning apps can be 5–25 MB per paper. Targets 150 DPI / JPEG quality 72 (matching Ghostscript `/ebook`), preserving RGB color for teacher annotation layers.
+
+**Benchmarks:** Science 5.6 MB → 1.5 MB (3.6×) · English 23.4 MB → 2.9 MB (8.1×)
+
+```bash
+python compress_pdf.py abc.pdf              # → _c_abc.pdf next to input
+python compress_pdf.py --batch /path/       # → compress all PDFs in directory
+```
