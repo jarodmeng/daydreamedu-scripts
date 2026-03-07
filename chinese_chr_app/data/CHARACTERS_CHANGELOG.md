@@ -6,6 +6,13 @@ This file records changes to the character bank (character set, source data, and
 
 ---
 
+## 2026-03-08 — 呵 pinyin unified (Feng + hwxnet)
+
+- **What:** 呵 was showing different pinyin in different places: dictionary (hwxnet) had been pruned to hē only; 冯氏 (Feng) card still had Pinyin ["hē", "hè"]. Updated `data/characters.json` for 呵 to `Pinyin: ["hē"]` only and synced to `feng_characters` via `_update_feng_he_pinyin.py`. Backend now has `reload_hwxnet()` so dictionary cache can be refreshed after hwxnet_characters updates without full restart.
+- **Why:** Single pinyin list for 呵 everywhere (Search 字典信息 and 字符信息 冯氏).
+
+---
+
 ## 2026-03-08 — 胆 English translation fix
 
 - **What:** In `extracted_characters_hwxnet.json`, updated 胆’s `"英文翻译"` from "gall" to "gallbladder" for the organ sense (胆囊). Synced to `hwxnet_characters` via one-off script `_update_dan_english_translations.py`.

@@ -206,7 +206,7 @@ def reload_characters():
     load_characters()
 
 def load_hwxnet():
-    """Load hwxnet dictionary data from Supabase/Postgres."""
+    """Load hwxnet dictionary data from Supabase/Postgres. Cached at first use."""
     global hwxnet_data, hwxnet_lookup
     if hwxnet_data is None:
         import database as db
@@ -214,6 +214,14 @@ def load_hwxnet():
         hwxnet_data = hwxnet_lookup
         print(f"Loaded hwxnet entries for {len(hwxnet_lookup)} characters (from database)")
     return hwxnet_data, hwxnet_lookup
+
+
+def reload_hwxnet():
+    """Force reload hwxnet dictionary from DB (e.g. after updating hwxnet_characters 拼音)."""
+    global hwxnet_data, hwxnet_lookup
+    hwxnet_data = None
+    hwxnet_lookup = {}
+    load_hwxnet()
 
 def load_characters():
     """Load character data from Supabase/Postgres."""
