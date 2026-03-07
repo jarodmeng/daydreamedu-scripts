@@ -1,17 +1,18 @@
 ---
 name: primary-pinyin-update
-description: Standardizes the HWXNet primary pinyin update procedure for the Chinese chr app. Use when the user asks to set or change primary pinyin for a character (e.g. "primary pinyin should be tun2", "fix pinyin for 囤"), or to run the primary pinyin update protocol.
+description: Standardizes the HWXNet primary pinyin update procedure for the Chinese chr app. Use when the user asks to set or change primary pinyin for a character (e.g. "primary pinyin should be tun2", "fix pinyin for 囤"), to prune incorrect readings from a character's pinyin list (e.g. "拙 should only have zhuo1, not zhuo2"), or to run the primary pinyin update protocol.
 ---
 
 # Primary pinyin update (Chinese chr app)
 
-When changing which pinyin reading is "primary" for a character (so Pinyin Recall and search treat it as the main answer), follow this protocol in order.
+When changing a character's pinyin list (reordering which reading is primary, or pruning incorrect readings so Pinyin Recall and search only show the correct ones), follow this protocol in order.
 
 ## 1. Update the JSON
 
 - **File:** `chinese_chr_app/data/extracted_characters_hwxnet.json`
-- **Change:** Find the character entry (key = single Hanzi). Set `"拼音"` to an array with the **desired primary reading first**, then other readings. Use accented pinyin (e.g. `tún`, `zhàn`).
-- Example: for 囤 with primary tún, use `["tún", "dùn"]` (not `["dùn", "tún"]`).
+- **Change:** Find the character entry (key = single Hanzi). Set `"拼音"` to an array of **only the correct readings**, with the **desired primary reading first**. Use accented pinyin (e.g. `tún`, `zhàn`).
+- **Reordering (primary first):** e.g. for 囤 with primary tún, use `["tún", "dùn"]` (not `["dùn", "tún"]`).
+- **Pruning (remove wrong readings):** e.g. 拙 currently has zhuō and zhuó but should only have zhuō → set `"拼音"` to `["zhuō"]` (remove `zhuó`). If multiple readings remain, keep primary first.
 
 ## 2. Update Supabase
 
@@ -26,14 +27,14 @@ When changing which pinyin reading is "primary" for a character (so Pinyin Recal
 - **File:** `chinese_chr_app/data/CHARACTERS_CHANGELOG.md`
 - **Where:** New entry at the top, directly under the first `---` (reverse chronological order).
 - **Format:**
-  - Heading: `## YYYY-MM-DD — 字 primary pinyin fix`
-  - **What:** For 字, set learner-oriented primary pinyin to X (e.g. tún / tun2). In `extracted_characters_hwxnet.json`, reordered `"拼音"` to `["primary", "other", ...]` and briefly say which reading/sense is first and which remains.
-  - **Why:** One line (e.g. user report from 报错, or learner-frequency rationale).
+  - Heading: `## YYYY-MM-DD — 字 primary pinyin fix` (or `… pinyin prune` when only removing readings).
+  - **What:** For 字, set learner-oriented primary pinyin to X (e.g. tún / tun2), and/or prune incorrect readings. In `extracted_characters_hwxnet.json`, reordered `"拼音"` to `["primary", "other", ...]` and/or removed readings that should not be listed; briefly say which reading is first and which remain (or that the list was pruned to a single reading).
+  - **Why:** One line (e.g. user report from 报错, or learner-frequency rationale, or “remove incorrect reading zhuó”).
 - **Do not** add a **DB:** bullet in the changelog.
 
 ## 4. Verify
 
-- **JSON:** In `extracted_characters_hwxnet.json`, confirm the character’s `"拼音"` array has the **intended primary reading first**. If not, fix it and re-run the update script (step 2).
+- **JSON:** In `extracted_characters_hwxnet.json`, confirm the character’s `"拼音"` array contains **only the intended readings** and the **intended primary reading is first**. If not, fix it and re-run the update script (step 2).
 - **Supabase:** Run the verification script from backend:  
   `python3 scripts/characters/verify_hwxnet_pinyin.py <character>`  
   Example: `python3 scripts/characters/verify_hwxnet_pinyin.py 囤`  
