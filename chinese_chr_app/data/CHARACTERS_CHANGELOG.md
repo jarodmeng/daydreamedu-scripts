@@ -6,6 +6,20 @@ This file records changes to the character bank (character set, source data, and
 
 ---
 
+## 2026-03-08 — 呵 pinyin prune
+
+- **What:** For 呵, pruned to single reading: in `extracted_characters_hwxnet.json`, set `"拼音"` to `["hē"]` only (removed kē, ā, á, ǎ, à, a). List was pruned to the single learner-oriented reading hē (he1).
+- **Why:** Prune to only he1; 呵 as exclamation/breath (呵气, 呵责) is the primary reading for learners.
+
+---
+
+## 2026-03-08 — 拙 pinyin prune
+
+- **What:** For 拙, pruned incorrect reading: in `extracted_characters_hwxnet.json`, set `"拼音"` to `["zhuō"]` only (removed zhuó). List was pruned to the single correct reading zhuō (zhuo1).
+- **Why:** Remove incorrect reading zhuó; 拙 is only read zhuō in standard usage.
+
+---
+
 ## 2026-03-06 — 耙 primary pinyin fix
 
 - **What:** For 耙, set learner-oriented primary pinyin to pá (pa2). In `extracted_characters_hwxnet.json`, reordered `"拼音"` to `["pá", "bà"]` so the “rake / gather” reading (耙子, 钉耙) comes first; the “harrow” reading bà remains as secondary.
