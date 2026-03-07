@@ -616,9 +616,9 @@ Winston has ~4,000 pages of historical worksheets. Ingesting all of them manuall
 
 ## Utilities
 
-Pre-processing utilities that prepare raw PDFs for ingestion. Each utility lives in its own subfolder under `utils/` and has a detailed `SPEC.md` there.
+Pre-processing utilities that prepare raw PDFs for ingestion. Each utility lives in its own subfolder under `ai_study_buddy/utils/` and has a `SPEC.md` (and for pdf_file_manager, a full doc set) there.
 
-### Utility 1: PDF Compressor
+### Utility 1: PDF Compressor (`compress_pdf`)
 
 **Location:** [`utils/compress_pdf/`](../utils/compress_pdf/) — `compress_pdf.py` + [`SPEC.md`](../utils/compress_pdf/SPEC.md)
 
@@ -630,3 +630,16 @@ Pre-processing utilities that prepare raw PDFs for ingestion. Each utility lives
 python compress_pdf.py abc.pdf              # → _c_abc.pdf next to input
 python compress_pdf.py --batch /path/       # → compress all PDFs in directory
 ```
+
+### Utility 2: PDF File Manager (`pdf_file_manager`)
+
+**Location:** [`utils/pdf_file_manager/`](../utils/pdf_file_manager/) — `pdf_file_manager.py` + [`README.md`](../utils/pdf_file_manager/README.md), [`SPEC.md`](../utils/pdf_file_manager/SPEC.md), and supporting docs (ARCHITECTURE, TESTING, DECISIONS, CHANGELOG).
+
+**Purpose:** Keeps a SQLite registry of PDF files in the study archive. Tracks exams, worksheets, book exercises, activities, notes, and templates (with optional completed variants); keeps on-disk paths and database records in sync. Supports scan roots (e.g. Google Drive folders), **scan** (discover and optionally compress new PDFs via compress_pdf), **classify** (doc_type, subject, metadata), **suggest-groups** for exams, and linking templates to completions. Only `main` files are ingested by the pipeline; `_raw_` archives are kept for traceability. All changes are recorded in an append-only operation log.
+
+```bash
+python pdf_file_manager.py --db /path/to/registry.db scan /path/to/archive/   # discover/register PDFs
+python pdf_file_manager.py --db /path/to/registry.db log --limit 20            # show recent operations
+```
+
+See the [README](../utils/pdf_file_manager/README.md) and [SPEC](../utils/pdf_file_manager/SPEC.md) for full CLI, schema, and workflow.
