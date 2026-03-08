@@ -172,10 +172,11 @@ Both directions for raw↔main and template↔completed are written as separate 
 | Prefix | `file_type` | Role |
 |--------|-------------|------|
 | `_raw_` | `raw` | Archived original scan. Kept for traceability. Never ingested. |
-| *(none)* | `main` | Primary file ready for ingestion. |
+| `_c_` | `main` | Compressed file ready for ingestion. When scan finds a `_c_*.pdf`, it registers as main only (no compress step). |
+| *(none)* | `main` | Possible when compression was skipped (original kept); or legacy. |
 | *(none, not yet processed)* | `unknown` | Newly registered, awaiting `compress_and_register`. |
 
-`compress_and_register` passes an explicit `output_name` to `compress_pdf`, writing the compressed output directly to the desired destination path. No intermediate `_c_` renaming step is needed.
+`compress_and_register` moves the original to `_raw_<name>`, then calls `compress_pdf` with `output_name=_c_<name>`, so the compressed file is written as `_c_<name>`. If savings are below threshold, the original is restored at `<name>` and the row is updated to `file_type='main'` (no `_c_` prefix).
 
 ---
 

@@ -356,7 +356,12 @@ class PdfFileManager:
             raise FileNotFoundError(f"Path not found: {path}")
         name = path.name
         if file_type is None:
-            file_type = "raw" if name.startswith("_raw_") else "unknown"
+            if name.startswith("_raw_"):
+                file_type = "raw"
+            elif name.startswith("_c_"):
+                file_type = "main"
+            else:
+                file_type = "unknown"
         conn = self._get_connection()
         existing = conn.execute("SELECT id FROM pdf_files WHERE path = ?", (str(path),)).fetchone()
         if existing:
@@ -418,10 +423,12 @@ class PdfFileManager:
         if raw_path.exists():
             raise ValueError(f"Destination already exists: {raw_path}")
         shutil.move(str(file_path), str(raw_path))
+        main_name = f"_c_{name}"
+        main_path = dir_path / main_name
         try:
             result = _do_compress(
                 str(raw_path),
-                output_name=name,
+                output_name=main_name,
                 **compress_kwargs,
             )
             savings = result.savings_pct
@@ -438,7 +445,7 @@ class PdfFileManager:
                     size_bytes, page_count, has_raw, metadata, added_at, updated_at, notes
                 ) VALUES (?, ?, ?, 'main', ?, ?, ?, ?, ?, ?, 1, ?, ?, ?, ?)""",
                 (
-                    main_id, name, str(file_path), row["doc_type"], row["student_id"], row["subject"],
+                    main_id, main_name, str(main_path), row["doc_type"], row["student_id"], row["subject"],
                     1 if row["is_template"] else 0,
                     result.compressed_size, result.pages,
                     row["metadata"], now, now, row["notes"],
@@ -467,7 +474,7 @@ class PdfFileManager:
             self._log_operation("link", file_id=main_id)
             return CompressResult(main_file_id=main_id, compressed=True, raw_archive_id=raw_id)
         else:
-            shutil.move(str(raw_path), str(file_path))
+            shutil.move(str(raw_path), str(file_path))  # restore original at <name>
             now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
             conn.execute(
                 "UPDATE pdf_files SET file_type = 'main', page_count = ?, updated_at = ? WHERE id = ?",
@@ -558,10 +565,12 @@ class PdfFileManager:
                         continue
                     self.register_file(pdf_path)
                     main_name = name[5:]
-                    main_path = str((pdf_path.parent / main_name).resolve())
+                    parent = pdf_path.parent
+                    main_path_plain = str((parent / main_name).resolve())
+                    main_path_c = str((parent / f"_c_{main_name}").resolve())
                     main_row = conn.execute(
-                        "SELECT id FROM pdf_files WHERE path = ?",
-                        (main_path,),
+                        "SELECT id FROM pdf_files WHERE path IN (?, ?)",
+                        (main_path_plain, main_path_c),
                     ).fetchone()
                     if main_row:
                         raw_id = conn.execute("SELECT id FROM pdf_files WHERE path = ?", (path_str,)).fetchone()[0]
@@ -573,6 +582,30 @@ class PdfFileManager:
                             )
                         conn.execute("UPDATE pdf_files SET has_raw = 1 WHERE id = ?", (main_row["id"],))
                         conn.commit()
+                    continue
+                if name.startswith("_c_"):
+                    if dry_run:
+                        results.append(ScanResult(
+                            file=PdfFile(id="", name=name, path=path_str, file_type="main", doc_type="unknown", student_id=root_student_id, subject=None, is_template=False, size_bytes=None, page_count=None, has_raw=False, metadata=None, added_at="", updated_at="", notes=None),
+                            raw_archive=None,
+                            compressed=False,
+                        ))
+                        continue
+                    reg = self.register_file(pdf_path)
+                    registered_paths.add(path_str)
+                    if root_student_id:
+                        conn.execute("UPDATE pdf_files SET student_id = ? WHERE id = ?", (root_student_id, reg.id))
+                        conn.commit()
+                    inferred = self._infer_from_path(pdf_path)
+                    if inferred:
+                        kwargs = {k: v for k, v in inferred.items() if k != "metadata" and v is not None}
+                        if inferred.get("metadata"):
+                            kwargs["metadata"] = inferred["metadata"]
+                        if kwargs:
+                            self.update_metadata(reg.id, **kwargs)
+                    main_file = self.get_file(reg.id)
+                    if main_file:
+                        results.append(ScanResult(file=main_file, raw_archive=None, compressed=False))
                     continue
                 if dry_run:
                     results.append(ScanResult(

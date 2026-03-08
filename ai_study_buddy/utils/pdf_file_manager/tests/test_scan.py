@@ -61,6 +61,39 @@ def test_scan_without_dry_run_registers_and_compresses():
             Path(db_path).unlink(missing_ok=True)
 
 
+def test_scan_c_prefix_registers_without_compressing():
+    """When scan finds a _c_*.pdf file, it registers as main only (no compress, no _raw_ created)."""
+    if not fixture_has_pdfs():
+        pytest.skip("Fixture PDFs not present")
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmpdir = Path(tmpdir)
+        shutil.copytree(FIXTURE_ROOT, tmpdir / "fixture", dirs_exist_ok=True)
+        pdfs = list((tmpdir / "fixture").rglob("*.pdf"))
+        src = pdfs[0]
+        c_name = "_c_" + src.name
+        c_path = tmpdir / c_name
+        shutil.copy2(src, c_path)
+        root = str(tmpdir)
+        with tempfile.NamedTemporaryFile(suffix=".db", delete=False, dir=tmpdir) as f:
+            db_path = f.name
+        try:
+            mgr = PdfFileManager(db_path=db_path)
+            mgr.add_scan_root(root)
+            results = mgr.scan_for_new_files(dry_run=False)
+            conn = sqlite3.connect(db_path)
+            main_rows = conn.execute(
+                "SELECT id, name, path, has_raw FROM pdf_files WHERE file_type = 'main'"
+            ).fetchall()
+            conn.close()
+            assert len(main_rows) >= 1
+            c_main = [r for r in main_rows if r[1].startswith("_c_")]
+            assert len(c_main) >= 1
+            assert c_main[0][3] == 0
+            assert c_path.exists()
+        finally:
+            Path(db_path).unlink(missing_ok=True)
+
+
 def test_scan_with_no_roots_raises():
     with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as f:
         tmp = f.name

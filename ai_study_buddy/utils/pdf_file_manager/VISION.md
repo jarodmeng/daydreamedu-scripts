@@ -30,19 +30,14 @@ Every file has two independent type attributes:
 The file manager's primary workflow on discovering a new PDF is **scan → compress → archive**:
 
 1. `scan_for_new_files` discovers an unregistered PDF (e.g., `math_wa1.pdf`).
-2. `compress_and_register` is called automatically:
+2. For an unregistered PDF **without** a `_c_` prefix, `compress_and_register` is called automatically:
+   - Renames the original to `_raw_math_wa1.pdf` (the raw archive).
    - Attempts compression via the `compress_pdf` utility.
    - **If compression is worthwhile** (savings ≥ `min_savings_pct`, default 10%):
-     - Renames the original to `_raw_math_wa1.pdf` (the raw archive).
-     - Moves the compressed output to `math_wa1.pdf` (the main file).
-     - Registers both; links them with `raw_source` / `main_version` relations.
-     - Populates `page_count` from the compressed file (already opened for compression — no extra cost).
-   - **If compression is not worthwhile** (file already at target DPI/quality, or savings < threshold):
-     - The original stays as `math_wa1.pdf` and becomes the main file directly.
-     - No `_raw_` archive is created; `has_raw = False`.
-     - Populates `page_count` from the file.
-3. The resulting main file (`file_type='main'`) is what the ingestion pipeline operates on.
-
-`_raw_` files are kept purely for traceability — to recover the original scan if needed. They are not ingested.
+     - Writes the compressed output as `_c_math_wa1.pdf` (main file; `_c_` prefix = compressed).
+     - Registers both; links them with `raw_source` / `main_version` relations; populates `page_count`.
+   - **If compression is not worthwhile**: restores the original at `math_wa1.pdf` as main (no `_c_`), no `_raw_`; `has_raw = False`.
+3. For an unregistered PDF **with** a `_c_` prefix, the file is registered as `main` only (no compress step).
+4. The resulting main file (`file_type='main'`) is what the ingestion pipeline operates on. `_raw_` files are kept for traceability only; they are not ingested.
 
 **`page_count` value:** Captured during compress at no extra cost (PyMuPDF is already invoked). Used for: list-view display, sanity-checking scans (e.g., flagging a 2-page file where 16 pages were expected), and pipeline cost estimation (LLM call count scales with page count).

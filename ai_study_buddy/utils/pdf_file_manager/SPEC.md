@@ -18,13 +18,16 @@ This document specifies the **operations** (Python API and CLI), **operation typ
 
 Walk configured scan roots (or override list), find every `*.pdf`, compare against registry, and process any that are new. If `dry_run=True`, no disk or database changes are made; the return value describes what would have been done for each would-be-processed file.
 
-**For each unregistered file without `_raw_` prefix:**
+**For each unregistered file with `_c_` prefix:**
+1. Register as `file_type='main'` (no compress). Apply scan root `student_id` and path-based inference. Skip compress step.
+
+**For each unregistered file without `_raw_` or `_c_` prefix:**
 1. Call `compress_and_register(path, ...)` (see below). When the path is not yet in the registry, `compress_and_register` registers it first, then compresses.
 2. Populate `student_id` from the scan root's `student_id` if set (on the resulting main file).
 
 **For each unregistered file with `_raw_` prefix:**
 1. Register as `file_type='raw'`.
-2. Look for the corresponding main file (strip `_raw_` prefix from name) — if found in registry, create `raw_source` / `main_version` relations and set `has_raw=True` on the main file.
+2. Look for the corresponding main file (path `<name>` or `_c_<name>` after stripping `_raw_`) — if found in registry, create `raw_source` / `main_version` relations and set `has_raw=True` on the main file.
 
 **Already registered files** (matched by absolute path) are skipped.
 
@@ -32,7 +35,7 @@ Each newly processed file produces `register` and (where applicable) `compress` 
 
 #### `register_file(path, file_type=None, doc_type='unknown', student_id=None, subject=None, is_template=False, metadata=None, notes=None) -> PdfFile`
 
-Manually register a single file without compression. Infers `file_type` from filename unless overridden. Raises `FileNotFoundError` if path absent. Raises `AlreadyRegisteredError` if already registered. Writes a `register` log entry.
+Manually register a single file without compression. Infers `file_type` from filename unless overridden: `_raw_` → `raw`, `_c_` → `main`, else `unknown`. Raises `FileNotFoundError` if path absent. Raises `AlreadyRegisteredError` if already registered. Writes a `register` log entry.
 
 #### `compress_and_register(file_id_or_path, force=False, min_savings_pct=10, **compress_kwargs) -> CompressResult`
 
@@ -41,10 +44,10 @@ Composite: register (if needed) then compress. When given a **path** that is not
 1. **Resolve to a record:** If `file_id_or_path` is a path with no matching registry row, call `register_file(path)` (creating `file_type='unknown'`), then use that record. Otherwise look up by file_id or path; raise `NotFoundError` if absent.
 2. Validate `file_type == 'unknown'` (not yet processed); raise `ValueError` if already `main` or `raw`.
 3. Run `mv <name> _raw_<name>` (archive original before compression).
-4. Call `compress_pdf.compress_pdf(input_path="_raw_<name>", output_name="<name>", ...)`.
-   The compressed file is written directly to `<name>` — no intermediate renaming needed.
+4. Call `compress_pdf.compress_pdf(input_path="_raw_<name>", output_name="_c_<name>", ...)`.
+   The compressed file is written as `_c_<name>` so it is immediately clear the file is compressed.
 5. **If savings ≥ `min_savings_pct`:**
-   - Register `<name>` as `file_type='main'`; populate `page_count`. Write `compress` log entry.
+   - Register `_c_<name>` as `file_type='main'`; populate `page_count`. Write `compress` log entry.
    - Register `_raw_<name>` as `file_type='raw'`; inherit `student_id`, `doc_type`, `metadata`. Write `register` log entry.
    - Create `raw_source` and `main_version` relations; set `has_raw=True` on main file. Write `link` log entry.
 6. **If savings < `min_savings_pct`:**

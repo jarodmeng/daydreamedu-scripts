@@ -80,6 +80,8 @@ These tests give confidence that Phase 2 (Config & file lifecycle) is complete. 
 | **2.6** | **register_file missing path** | `register_file("/nonexistent/file.pdf")` raises `FileNotFoundError`. Proves: guard rail. |
 | **2.7** | **register_file duplicate path** | Register same path twice; second call raises `AlreadyRegisteredError`. Proves: no duplicate registrations. |
 | **2.8** | **register_file infers file_type raw** | Temp file named `_raw_foo.pdf`; after `register_file(path)`, `pdf_files` row has `file_type='raw'`. Proves: filename inference. |
+| **2.8b** | **register_file infers file_type main for _c_** | Temp file named `_c_foo.pdf`; after `register_file(path)`, `pdf_files` row has `file_type='main'`. Proves: _c_ prefix = main (no compress). |
+| **2.12b** | **scan _c_ prefix registers without compressing** | Put only a `_c_*.pdf` in scan root; run scan. Assert one main row, no compress step (file still at _c_ path, has_raw=0). Proves: _c_ files are register-only. |
 | **2.9** | **register_file accepts optional args** | `register_file(path, doc_type="exam", student_id="w", subject="math")`; row has those values. Proves: optional params stored. |
 
 ### compress_and_register

@@ -51,8 +51,9 @@ def test_compress_and_register_already_main_raises():
             db_path = f.name
         try:
             mgr = PdfFileManager(db_path=db_path)
-            mgr.compress_and_register(path, min_savings_pct=0)
+            result = mgr.compress_and_register(path, min_savings_pct=0)
+            main_file = mgr.get_file(result.main_file_id)
             with pytest.raises(ValueError):
-                mgr.compress_and_register(path)
+                mgr.compress_and_register(main_file.path)
         finally:
             Path(db_path).unlink(missing_ok=True)

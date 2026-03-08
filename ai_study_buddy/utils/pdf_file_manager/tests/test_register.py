@@ -93,6 +93,30 @@ def test_register_file_infers_file_type_raw():
             Path(db_path).unlink(missing_ok=True)
 
 
+def test_register_file_infers_file_type_main_for_c_prefix():
+    """Files with _c_ prefix are inferred as file_type='main' (compressed, no compress step)."""
+    if not fixture_has_pdfs():
+        pytest.skip("Fixture PDFs not present")
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmpdir = Path(tmpdir)
+        shutil.copytree(FIXTURE_ROOT, tmpdir / "fixture", dirs_exist_ok=True)
+        pdfs = list((tmpdir / "fixture").rglob("*.pdf"))
+        src = pdfs[0]
+        c_path = src.parent / ("_c_" + src.name)
+        shutil.copy2(src, c_path)
+        with tempfile.NamedTemporaryFile(suffix=".db", delete=False, dir=tmpdir) as f:
+            db_path = f.name
+        try:
+            mgr = PdfFileManager(db_path=db_path)
+            mgr.register_file(c_path)
+            conn = sqlite3.connect(db_path)
+            row = conn.execute("SELECT file_type FROM pdf_files WHERE path = ?", (str(c_path.resolve()),)).fetchone()
+            assert row[0] == "main"
+            conn.close()
+        finally:
+            Path(db_path).unlink(missing_ok=True)
+
+
 def test_register_file_accepts_optional_args():
     if not fixture_has_pdfs():
         pytest.skip("Fixture PDFs not present")
