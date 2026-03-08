@@ -298,6 +298,15 @@ class PdfFileManager:
             return None
         return self._row_to_pdf_file(row)
 
+    def get_file_by_path(self, path: str | Path) -> PdfFile | None:
+        path = str(Path(path).resolve())
+        row = self._get_connection().execute(
+            "SELECT * FROM pdf_files WHERE path = ?", (path,)
+        ).fetchone()
+        if not row:
+            return None
+        return self._row_to_pdf_file(row)
+
     def find_files(
         self,
         query: str | None = None,
@@ -452,12 +461,13 @@ class PdfFileManager:
                 ),
             )
             raw_id = str(uuid.uuid4())
+            raw_size = raw_path.stat().st_size if raw_path.exists() else None
             conn.execute(
                 """INSERT INTO pdf_files (
                     id, name, path, file_type, doc_type, student_id, subject, is_template,
                     size_bytes, page_count, has_raw, metadata, added_at, updated_at, notes
                 ) VALUES (?, ?, ?, 'raw', ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?)""",
-                (raw_id, raw_name, str(raw_path), row["doc_type"], row["student_id"], row["subject"], 1 if row["is_template"] else 0, None, result.pages, row["metadata"], now, now, row["notes"]),
+                (raw_id, raw_name, str(raw_path), row["doc_type"], row["student_id"], row["subject"], 1 if row["is_template"] else 0, raw_size, result.pages, row["metadata"], now, now, row["notes"]),
             )
             rel_id1, rel_id2 = str(uuid.uuid4()), str(uuid.uuid4())
             conn.execute(
@@ -569,7 +579,7 @@ class PdfFileManager:
                     main_path_plain = str((parent / main_name).resolve())
                     main_path_c = str((parent / f"_c_{main_name}").resolve())
                     main_row = conn.execute(
-                        "SELECT id FROM pdf_files WHERE path IN (?, ?)",
+                        "SELECT id, student_id, subject, doc_type, metadata FROM pdf_files WHERE path IN (?, ?)",
                         (main_path_plain, main_path_c),
                     ).fetchone()
                     if main_row:
@@ -581,6 +591,11 @@ class PdfFileManager:
                                 (str(uuid.uuid4()), src, tgt, rel_type, now),
                             )
                         conn.execute("UPDATE pdf_files SET has_raw = 1 WHERE id = ?", (main_row["id"],))
+                        raw_size = pdf_path.stat().st_size if pdf_path.exists() else None
+                        conn.execute(
+                            "UPDATE pdf_files SET student_id = ?, subject = ?, doc_type = ?, metadata = ?, size_bytes = ? WHERE id = ?",
+                            (main_row["student_id"], main_row["subject"], main_row["doc_type"], main_row["metadata"], raw_size, raw_id),
+                        )
                         conn.commit()
                     continue
                 if name.startswith("_c_"):
@@ -619,6 +634,8 @@ class PdfFileManager:
                 result = self.compress_and_register(pdf_path, min_savings_pct=min_savings_pct)
                 if root_student_id:
                     conn.execute("UPDATE pdf_files SET student_id = ? WHERE id = ?", (root_student_id, result.main_file_id))
+                    if result.raw_archive_id:
+                        conn.execute("UPDATE pdf_files SET student_id = ? WHERE id = ?", (root_student_id, result.raw_archive_id))
                     conn.commit()
                 inferred = self._infer_from_path(pdf_path)
                 if inferred:
@@ -627,6 +644,8 @@ class PdfFileManager:
                         kwargs["metadata"] = inferred["metadata"]
                     if kwargs:
                         self.update_metadata(result.main_file_id, **kwargs)
+                        if result.raw_archive_id:
+                            self.update_metadata(result.raw_archive_id, **kwargs)
                 main_file = self.get_file(result.main_file_id)
                 raw_file = self.get_file(result.raw_archive_id) if result.raw_archive_id else None
                 if main_file:
@@ -708,6 +727,16 @@ class PdfFileManager:
         if new_path == old_path:
             return self.get_file(file_id)
         conn = self._get_connection()
+        if new_path.exists() and not old_path.exists():
+            # File was moved externally; sync DB to new path/name
+            now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+            conn.execute(
+                "UPDATE pdf_files SET name = ?, path = ?, updated_at = ? WHERE id = ?",
+                (new_name, str(new_path.resolve()), now, file_id),
+            )
+            conn.commit()
+            self._log_operation("rename", file_id=file_id, before_state=json.dumps({"path": file_path}), after_state=json.dumps({"path": str(new_path.resolve()), "name": new_name}))
+            return self.get_file(file_id)
         if new_path.exists():
             raise ValueError(f"Destination already exists: {new_path}")
         existing = conn.execute("SELECT id FROM pdf_files WHERE path = ?", (str(new_path.resolve()),)).fetchone()
