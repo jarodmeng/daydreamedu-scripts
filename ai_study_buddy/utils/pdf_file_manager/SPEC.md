@@ -2,7 +2,7 @@
 
 > API, CLI, operation contract, and implementation status.
 >
-> See [VISION.md](./VISION.md) for purpose and workflow; [ARCHITECTURE.md](./ARCHITECTURE.md) for schema, data model, and integrations.
+> See [README.md](./README.md) for overview; [ARCHITECTURE.md](./ARCHITECTURE.md) for schema, data model, and integrations.
 >
 > Decision log: [DECISIONS.md](./DECISIONS.md)
 

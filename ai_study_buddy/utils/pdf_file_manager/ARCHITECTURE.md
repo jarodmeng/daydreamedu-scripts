@@ -2,7 +2,7 @@
 
 > Schema, data model, source layout, and integrations.
 >
-> See [VISION.md](./VISION.md) for purpose and workflow; [SPEC.md](./SPEC.md) for API and CLI contract.
+> See [README.md](./README.md) for overview; [SPEC.md](./SPEC.md) for API and CLI contract.
 
 ---
 
