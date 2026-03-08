@@ -8,7 +8,7 @@ Tests are defined at the **utility level**: one test suite for the pdf_file_mana
 
 | Level | What | Examples |
 |-------|------|----------|
-| **Unit** | Pure logic and small helpers with minimal or mocked I/O | Path → subject/student inference; metadata merge; validation (e.g. `subject` allowed values); `operation_log` payload shape. Use an in-memory SQLite DB or mocks where needed. |
+| **Unit** | Pure logic and small helpers with minimal or mocked I/O | Path → subject, student, is_template inference (`_infer_from_path`); metadata merge; validation (e.g. `subject` allowed values); `operation_log` payload shape. Use an in-memory SQLite DB or mocks where needed. |
 | **Integration** | `PdfFileManager` methods against a real SQLite DB and real (temp) files on disk | Schema creation and migrations; `register_file` then `get_file`; `scan_for_new_files` on a temp dir with a few PDFs; `compress_and_register` with a temp PDF using the real `compress_pdf`; `update_metadata`, `find_files` filters; file groups and relations; `get_operation_log` after a few operations. |
 
 **Out of scope:** Tests that touch the real registry path or real scan roots (e.g. `~/.../DaydreamEdu`). Manual or one-off scripts against real data are not part of this plan.

@@ -500,9 +500,18 @@ class PdfFileManager:
 
     @staticmethod
     def _infer_from_path(path: Path) -> dict:
-        """Infer subject, doc_type, and metadata from path segments (DaydreamEdu layout)."""
+        """Infer subject, doc_type, is_template, and metadata from path segments (DaydreamEdu layout).
+        is_template: True when under general-scope (e.g. P3/P4/P5/P6/PSLE/Archive, no student email in path);
+        False when path contains an email-like segment (student-specific folder).
+        """
         out: dict = {}
         parts = path.parts
+        has_email_segment = any("@" in p for p in parts)
+        has_grade_scope = any(p in ("P3", "P4", "P5", "P6", "PSLE", "Archive") for p in parts)
+        if has_email_segment:
+            out["is_template"] = False
+        elif has_grade_scope:
+            out["is_template"] = True
         for p in parts:
             lower = p.lower()
             if "science" in lower:

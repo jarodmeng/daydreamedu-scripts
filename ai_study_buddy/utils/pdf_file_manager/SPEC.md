@@ -19,7 +19,7 @@ This document specifies the **operations** (Python API and CLI), **operation typ
 Walk configured scan roots (or override list), find every `*.pdf`, compare against registry, and process any that are new. If `dry_run=True`, no disk or database changes are made; the return value describes what would have been done for each would-be-processed file.
 
 **For each unregistered file with `_c_` prefix:**
-1. Register as `file_type='main'` (no compress). Apply scan root `student_id` and path-based inference. Skip compress step.
+1. Register as `file_type='main'` (no compress). Apply scan root `student_id` and path-based inference (subject, doc_type, metadata, **is_template**: path with no email segment and a grade/scope segment → `True`; path with email segment → `False`). Skip compress step.
 
 **For each unregistered file without `_raw_` or `_c_` prefix:**
 1. Call `compress_and_register(path, ...)` (see below). When the path is not yet in the registry, `compress_and_register` registers it first, then compresses.

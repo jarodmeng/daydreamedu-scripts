@@ -4,6 +4,12 @@ All notable changes to the pdf_file_manager utility are documented here.
 
 ---
 
+## Unreleased
+
+- **Path-based is_template inference:** `_infer_from_path` now sets `is_template` from the path: `False` when any path segment contains `@` (student folder); `True` when the path has a grade/scope segment (P3, P4, P5, P6, PSLE, Archive) and no email segment (general scope). Scan applies this inference to main and raw rows via `update_metadata`. See ARCHITECTURE § Folder-based inference; tests in `test_inference.py`.
+
+---
+
 ## [v0.1.0] — 5-phase build and test plan
 
 First working version: SQLite registry, manager, operation log, config and file lifecycle, read/update/delete, relations and groups, audit log query, and minimal CLI. Delivered via a 5-phase build and test plan; all phase tests pass.
