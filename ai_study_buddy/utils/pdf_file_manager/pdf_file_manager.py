@@ -478,6 +478,52 @@ class PdfFileManager:
             return CompressResult(main_file_id=file_id, compressed=False, raw_archive_id=None)
 
     # ---------------------------------------------------------------------------
+    # Path-based inference (L1 → subject, L3 → doc_type, L2 → grade_or_scope)
+    # ---------------------------------------------------------------------------
+
+    @staticmethod
+    def _infer_from_path(path: Path) -> dict:
+        """Infer subject, doc_type, and metadata from path segments (DaydreamEdu layout)."""
+        out: dict = {}
+        parts = path.parts
+        for p in parts:
+            lower = p.lower()
+            if "science" in lower:
+                out["subject"] = "science"
+                break
+            if "english" in lower:
+                out["subject"] = "english"
+                break
+            if "math" in lower:
+                out["subject"] = "math"
+                break
+            if "chinese" in lower:
+                out["subject"] = "chinese"
+                break
+        for p in parts:
+            if p == "Exam":
+                out["doc_type"] = "exam"
+                out.setdefault("metadata", {})["content_folder"] = "Exam"
+                break
+            if p == "Exercise":
+                out["doc_type"] = "worksheet"
+                out.setdefault("metadata", {})["content_folder"] = "Exercise"
+                break
+            if p == "Activity":
+                out["doc_type"] = "activity"
+                out.setdefault("metadata", {})["content_folder"] = "Activity"
+                break
+            if p == "Note":
+                out["doc_type"] = "notes"
+                out.setdefault("metadata", {})["content_folder"] = "Note"
+                break
+        for p in parts:
+            if p in ("P3", "P4", "P5", "P6", "PSLE", "Archive"):
+                out.setdefault("metadata", {})["grade_or_scope"] = p
+                break
+        return out
+
+    # ---------------------------------------------------------------------------
     # scan_for_new_files
     # ---------------------------------------------------------------------------
 
@@ -541,6 +587,13 @@ class PdfFileManager:
                 if root_student_id:
                     conn.execute("UPDATE pdf_files SET student_id = ? WHERE id = ?", (root_student_id, result.main_file_id))
                     conn.commit()
+                inferred = self._infer_from_path(pdf_path)
+                if inferred:
+                    kwargs = {k: v for k, v in inferred.items() if k != "metadata" and v is not None}
+                    if inferred.get("metadata"):
+                        kwargs["metadata"] = inferred["metadata"]
+                    if kwargs:
+                        self.update_metadata(result.main_file_id, **kwargs)
                 main_file = self.get_file(result.main_file_id)
                 raw_file = self.get_file(result.raw_archive_id) if result.raw_archive_id else None
                 if main_file:
