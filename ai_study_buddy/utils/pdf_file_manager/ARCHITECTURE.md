@@ -59,6 +59,15 @@ The following reflects the actual structure under the shared DaydreamEdu root (a
 - **Scale:** Hundreds of PDFs under the root. First full scan will register and optionally compress all unregistered PDFs; use `dry_run=True` to preview, and consider running scan in batches or register-only then compress later if needed.
 - **No `_raw_` files yet:** The drive currently has no `_raw_`-prefixed archives; the first run will treat every PDF as a new file and run the register+compress workflow (or register-only if not using scan).
 
+**P5/P6 Math Exam filename convention:** Under `Singapore Primary Math/…/P5/Exam` (and similarly P6), files follow `p5.math.0xx.<exam name>.pdf` (or `p6.math.0xx.…`). Two optional parenthetical tags are used:
+
+| Tag | Meaning | Registry usage |
+|-----|--------|-----------------|
+| ** (Paper 1)** / **(Paper 2)** | Same exam, different paper (e.g. Paper 1 + Paper 2 = one exam). | Create an **exam group** with label = exam name (strip the " (Paper 1)" / " (Paper 2)" suffix). Add both files to the group; set anchor to Paper 1 (or as desired). |
+| ** (empty)** | Blank/template version (workings and markings removed). | Set **is_template=True** on the `(empty)` file; **link_to_template(completed_id, template_id)** so the non-empty file points to it. |
+
+Examples: `p5.math.022.Mathematics Practice Paper Set 1 (Paper 1).pdf` and `p5.math.023.Mathematics Practice Paper Set 1 (Paper 2).pdf` → one exam group "Mathematics Practice Paper Set 1". `p5.math.022.Mathematics Practice Paper Set 1 (Paper 1) (empty).pdf` is the template for `p5.math.022.Mathematics Practice Paper Set 1 (Paper 1).pdf`. The same base name without ` (empty)` is the completed counterpart.
+
 ---
 
 ## Database
