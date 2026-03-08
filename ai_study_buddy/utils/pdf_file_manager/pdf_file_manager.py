@@ -9,6 +9,7 @@ import sqlite3
 import subprocess
 import sys
 import uuid
+from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -485,6 +486,7 @@ class PdfFileManager:
         roots: list[str | Path] | None = None,
         min_savings_pct: float = 10,
         dry_run: bool = False,
+        on_file_start: Callable[[Path], None] | None = None,
     ) -> list[ScanResult]:
         conn = self._get_connection()
         if roots is not None:
@@ -533,6 +535,8 @@ class PdfFileManager:
                         compressed=False,
                     ))
                     continue
+                if on_file_start is not None:
+                    on_file_start(pdf_path)
                 result = self.compress_and_register(pdf_path, min_savings_pct=min_savings_pct)
                 if root_student_id:
                     conn.execute("UPDATE pdf_files SET student_id = ? WHERE id = ?", (root_student_id, result.main_file_id))
