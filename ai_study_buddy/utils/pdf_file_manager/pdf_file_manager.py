@@ -501,14 +501,20 @@ class PdfFileManager:
     @staticmethod
     def _infer_from_path(path: Path) -> dict:
         """Infer subject, doc_type, is_template, and metadata from path segments (DaydreamEdu layout).
-        is_template: True when under general-scope (e.g. P3/P4/P5/P6/PSLE/Archive, no student email in path);
-        False when path contains an email-like segment (student-specific folder).
+        is_template: True when path has a grade/scope segment (P3–P6, PSLE, Archive) and no *student folder*
+        (a segment containing @ immediately followed by a grade/scope segment). False when such a student folder exists.
+        So Drive paths like .../GoogleDrive-user@gmail.com/.../P6/Exam yield is_template=True;
+        .../user@mail.com/P5/Exam yields is_template=False.
         """
         out: dict = {}
-        parts = path.parts
-        has_email_segment = any("@" in p for p in parts)
-        has_grade_scope = any(p in ("P3", "P4", "P5", "P6", "PSLE", "Archive") for p in parts)
-        if has_email_segment:
+        parts = path.resolve().parts
+        grade_scope = ("P3", "P4", "P5", "P6", "PSLE", "Archive")
+        has_student_folder = any(
+            "@" in parts[i] and i + 1 < len(parts) and parts[i + 1] in grade_scope
+            for i in range(len(parts))
+        )
+        has_grade_scope = any(p in grade_scope for p in parts)
+        if has_student_folder:
             out["is_template"] = False
         elif has_grade_scope:
             out["is_template"] = True

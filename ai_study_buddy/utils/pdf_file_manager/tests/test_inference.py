@@ -90,6 +90,17 @@ def test_infer_from_path_is_template_false_when_student_email_in_path():
     assert out.get("is_template") is False
 
 
+def test_infer_from_path_is_template_true_when_at_in_drive_segment_only():
+    """Path with @ in a non-student segment (e.g. GoogleDrive-user@gmail.com) and P6 in path → is_template=True.
+    Student folder = @ segment immediately followed by grade/scope (P3–P6, PSLE, Archive)."""
+    path = Path(
+        "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Math/P6/Exam/paper.pdf"
+    )
+    out = PdfFileManager._infer_from_path(path)
+    assert out.get("is_template") is True
+    assert out.get("metadata", {}).get("grade_or_scope") == "P6"
+
+
 def test_scan_applies_inference_to_new_files():
     """After scan (without dry_run), main files under DaydreamEdu/Science/.../Exam get subject and doc_type set."""
     if not fixture_has_pdfs():
