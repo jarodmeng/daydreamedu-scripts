@@ -7,6 +7,7 @@ All notable changes to the pdf_file_manager utility are documented here.
 ## Unreleased
 
 - **Path-based is_template inference:** `_infer_from_path` now sets `is_template` from the path: `False` when any path segment contains `@` (student folder); `True` when the path has a grade/scope segment (P3, P4, P5, P6, PSLE, Archive) and no email segment (general scope). Scan applies this inference to main and raw rows via `update_metadata`. See ARCHITECTURE § Folder-based inference; tests in `test_inference.py`.
+- **Chinese exam variant inference:** For `subject='chinese'` and `doc_type='exam'`, `_infer_from_path` now infers `metadata.chinese_variant` from the filename: `higher` when the name contains `高华` or `.hc.`, `foundation` when it contains `华文` or `.chinese.`. Other Chinese files (non-exams) are unchanged. Documented in ARCHITECTURE § Metadata schemas; covered by new tests in `test_inference.py`.
 
 ---
 

@@ -101,6 +101,42 @@ def test_infer_from_path_is_template_true_when_at_in_drive_segment_only():
     assert out.get("metadata", {}).get("grade_or_scope") == "P6"
 
 
+def test_infer_from_path_sets_chinese_variant_foundation_for_chinese_exam():
+    """Chinese exam filename with 华文/.chinese. sets metadata.chinese_variant='foundation'."""
+    path = Path(
+        "/fake/DaydreamEdu/Singapore Primary Chinese/P6/Exam/华文 期末考试 (题目).p5.chinese.013.pdf"
+    )
+    out = PdfFileManager._infer_from_path(path)
+    assert out.get("subject") == "chinese"
+    assert out.get("doc_type") == "exam"
+    meta = out.get("metadata") or {}
+    assert meta.get("chinese_variant") == "foundation"
+
+
+def test_infer_from_path_sets_chinese_variant_higher_for_chinese_exam():
+    """Chinese exam filename with 高华/.hc. sets metadata.chinese_variant='higher'."""
+    path = Path(
+        "/fake/DaydreamEdu/Singapore Primary Chinese/P6/Exam/高华 期末考试 (题目).p5.chinese.044.pdf"
+    )
+    out = PdfFileManager._infer_from_path(path)
+    assert out.get("subject") == "chinese"
+    assert out.get("doc_type") == "exam"
+    meta = out.get("metadata") or {}
+    assert meta.get("chinese_variant") == "higher"
+
+
+def test_infer_from_path_does_not_set_chinese_variant_for_non_exam():
+    """Chinese non-exam (e.g. Exercise) should not set chinese_variant even if name has 华文/高华."""
+    path = Path(
+        "/fake/DaydreamEdu/Singapore Primary Chinese/P6/Exercise/华文 补充练习一.p5.chinese.001.pdf"
+    )
+    out = PdfFileManager._infer_from_path(path)
+    assert out.get("subject") == "chinese"
+    assert out.get("doc_type") == "worksheet"
+    meta = out.get("metadata") or {}
+    assert "chinese_variant" not in meta
+
+
 def test_scan_applies_inference_to_new_files():
     """After scan (without dry_run), main files under DaydreamEdu/Science/.../Exam get subject and doc_type set."""
     if not fixture_has_pdfs():

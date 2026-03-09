@@ -217,7 +217,7 @@ A **template** is a blank or master version of a document — no student content
 
 The `metadata` column stores a JSON object. `student_id` and `subject` are first-class columns on `pdf_files` and are **not** duplicated in `metadata`.
 
-**Chinese subject only:** For `subject='chinese'`, use the optional `metadata.chinese_variant` to distinguish foundation vs. higher: `'foundation'` (default, 华文) or `'higher'` (高华). There is no separate subject value for Higher Chinese — it is a metadata variant of Chinese.
+**Chinese subject only:** For `subject='chinese'`, use the optional `metadata.chinese_variant` to distinguish foundation vs. higher: `'foundation'` (default, 华文) or `'higher'` (高华). There is no separate subject value for Higher Chinese — it is a metadata variant of Chinese. For **Chinese exam files** (`doc_type='exam'`), `_infer_from_path` auto-sets `chinese_variant` from the filename: names containing **`高华`** or **`.hc.`** → `'higher'`; names containing **`华文`** or **`.chinese.`** → `'foundation'`. Other Chinese files (e.g. worksheets, activities) do not get `chinese_variant` from inference and should be set during classification if needed.
 
 ### `exam`
 

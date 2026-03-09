@@ -507,7 +507,8 @@ class PdfFileManager:
         .../user@mail.com/P5/Exam yields is_template=False.
         """
         out: dict = {}
-        parts = path.resolve().parts
+        resolved = path.resolve()
+        parts = resolved.parts
         grade_scope = ("P3", "P4", "P5", "P6", "PSLE", "Archive")
         has_student_folder = any(
             "@" in parts[i] and i + 1 < len(parts) and parts[i + 1] in grade_scope
@@ -553,6 +554,18 @@ class PdfFileManager:
             if p in ("P3", "P4", "P5", "P6", "PSLE", "Archive"):
                 out.setdefault("metadata", {})["grade_or_scope"] = p
                 break
+        # Chinese exam variant (foundation vs higher) from filename.
+        # Applies only when subject is chinese and doc_type is exam.
+        if out.get("subject") == "chinese" and out.get("doc_type") == "exam":
+            name = resolved.name
+            lower = name.lower()
+            variant: str | None = None
+            if "高华" in name or ".hc." in lower:
+                variant = "higher"
+            elif "华文" in name or ".chinese." in lower:
+                variant = "foundation"
+            if variant:
+                out.setdefault("metadata", {})["chinese_variant"] = variant
         return out
 
     # ---------------------------------------------------------------------------
