@@ -20,8 +20,13 @@ import argparse
 import os
 import shutil
 import sys
+from datetime import datetime
 from pathlib import Path
-from datetime import datetime, timezone
+from typing import Optional
+from zoneinfo import ZoneInfo
+
+
+SINGAPORE_TZ = ZoneInfo("Asia/Singapore")
 
 
 def repo_root() -> Path:
@@ -33,7 +38,7 @@ def default_db_path() -> Path:
     return repo_root() / "ai_study_buddy" / "db" / "pdf_registry.db"
 
 
-def _last_backup_file(dest_path: Path, timestamped: bool) -> Path | None:
+def _last_backup_file(dest_path: Path, timestamped: bool) -> Optional[Path]:
     """Path to the most recent backup we'd compare against, or None."""
     if timestamped:
         candidates = sorted(dest_path.glob("pdf_registry_*.db"), key=lambda p: p.stat().st_mtime, reverse=True)
@@ -45,7 +50,7 @@ def _last_backup_file(dest_path: Path, timestamped: bool) -> Path | None:
 def _log_event(dest_path: Path, message: str) -> None:
     """Append one line to pdf_registry_backup.log in the backup directory."""
     log_file = dest_path / "pdf_registry_backup.log"
-    ts = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    ts = datetime.now(SINGAPORE_TZ).strftime("%Y-%m-%dT%H:%M:%S%z")
     with open(log_file, "a", encoding="utf-8") as f:
         f.write(f"{ts} {message}\n")
 
@@ -101,7 +106,7 @@ def main() -> int:
                 return 0
 
     if args.timestamp:
-        stamp = datetime.now(timezone.utc).strftime("%Y-%m-%d_%H-%M-%SZ")
+        stamp = datetime.now(SINGAPORE_TZ).strftime("%Y-%m-%d_%H-%M-%S%z")
         dest_file = dest_path / f"pdf_registry_{stamp}.db"
     else:
         dest_file = dest_path / "pdf_registry.db"

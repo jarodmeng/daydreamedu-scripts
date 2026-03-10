@@ -61,7 +61,7 @@ The registry DB (`ai_study_buddy/db/pdf_registry.db`) is gitignored. To back it 
    ```bash
    python3 ai_study_buddy/utils/pdf_file_manager/scripts/backup_pdf_registry.py
    ```
-   Use `--timestamp` to keep dated copies (e.g. `pdf_registry_2025-03-10_14-30-00.db`) instead of overwriting.
+   Use `--timestamp` to keep dated copies (e.g. `pdf_registry_2025-03-10_14-30-00+0800.db`) instead of overwriting. Backup log entries and timestamped filenames use Singapore time.
 
 Once the file is inside your Google Drive folder, it will sync to the cloud automatically.
 
