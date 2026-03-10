@@ -4,10 +4,16 @@ All notable changes to the pdf_file_manager utility are documented here.
 
 ---
 
-## Unreleased
+## [v0.1.1] — Inference improvements + proposals 1–4
 
-- **Path-based is_template inference:** `_infer_from_path` now sets `is_template` from the path: `False` when any path segment contains `@` (student folder); `True` when the path has a grade/scope segment (P3, P4, P5, P6, PSLE, Archive) and no email segment (general scope). Scan applies this inference to main and raw rows via `update_metadata`. See ARCHITECTURE § Folder-based inference; tests in `test_inference.py`.
-- **Chinese exam variant inference:** For `subject='chinese'` and `doc_type='exam'`, `_infer_from_path` now infers `metadata.chinese_variant` from the filename: `higher` when the name contains `高华` or `.hc.`, `foundation` when it contains `华文` or `.chinese.`. Other Chinese files (non-exams) are unchanged. Documented in ARCHITECTURE § Metadata schemas; covered by new tests in `test_inference.py`.
+Merges all prior **Unreleased** changes (inference) and implements the four API/CLI proposals from `docs/learnings/LEARNING_FROM_FIRST_RUN.md` and `docs/proposals/`.
+
+- **Path-based is_template inference:** `_infer_from_path` sets `is_template` from the path (student folder vs grade/scope). Scan applies this via `update_metadata`. See ARCHITECTURE § Folder-based inference; tests in `test_inference.py`.
+- **Chinese exam variant inference:** For `subject='chinese'` and `doc_type='exam'`, `_infer_from_path` infers `metadata.chinese_variant` from the filename (`higher` / `foundation`). Documented in ARCHITECTURE § Metadata schemas; tests in `test_inference.py`.
+- **Proposal 1 — Ensure students and scan roots:** `ensure_student(student_id, name, email=None)` and `ensure_scan_root(path, student_id=None)`; idempotent helpers. Tests in `test_config.py`.
+- **Proposal 2 — Scan CLI:** `pdf_file_manager scan [--root PATH ...] [--dry-run] [--min-savings-pct N] [--progress]`; uses configured scan roots when `--root` omitted; `ConfigError` when no roots. Tests in `test_cli.py`.
+- **Proposal 3 — Coverage / read‑only registry paths:** `find_leaf_dirs(base)` (static), `report_coverage(base_path=None, from_registry=False)` returning `CoverageReport`; `coverage` CLI with `--base` and `--from-registry`. Tests in `test_coverage.py` and `test_cli.py`.
+- **Proposal 4 — Template linking by path:** `link_template_by_paths(completed_path, template_path, inherit_metadata=True)`; `link-template` CLI with `--template`, `--completed`, `--no-inherit-metadata`. Tests in `test_relations.py` and `test_cli.py`.
 
 ---
 
