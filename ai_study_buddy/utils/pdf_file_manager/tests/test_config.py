@@ -60,3 +60,59 @@ def test_remove_scan_root():
         assert mgr.list_scan_roots() == []
     finally:
         Path(tmp).unlink(missing_ok=True)
+
+
+# ---------------------------------------------------------------------------
+# ensure_student / ensure_scan_root (Proposal 1)
+# ---------------------------------------------------------------------------
+
+def test_ensure_student_creates_when_missing():
+    with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as f:
+        tmp = f.name
+    try:
+        mgr = PdfFileManager(db_path=tmp)
+        s = mgr.ensure_student("w", "Winston", email="w@x.com")
+        assert s.id == "w" and s.name == "Winston" and s.email == "w@x.com"
+        assert mgr.get_student("w") is not None
+    finally:
+        Path(tmp).unlink(missing_ok=True)
+
+
+def test_ensure_student_idempotent_returns_existing():
+    with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as f:
+        tmp = f.name
+    try:
+        mgr = PdfFileManager(db_path=tmp)
+        mgr.add_student("w", "Winston", email="w@x.com")
+        s = mgr.ensure_student("w", "Other", email="other@x.com")
+        assert s.id == "w" and s.name == "Winston" and s.email == "w@x.com"
+        assert len(mgr.list_students()) == 1
+    finally:
+        Path(tmp).unlink(missing_ok=True)
+
+
+def test_ensure_scan_root_creates_when_missing():
+    with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as f:
+        tmp = f.name
+    try:
+        mgr = PdfFileManager(db_path=tmp)
+        r = mgr.ensure_scan_root("/tmp/foo", student_id="w")
+        assert r.path.endswith("foo") or "foo" in r.path
+        assert r.student_id == "w"
+        assert len(mgr.list_scan_roots()) == 1
+    finally:
+        Path(tmp).unlink(missing_ok=True)
+
+
+def test_ensure_scan_root_idempotent_returns_existing():
+    with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as f:
+        tmp = f.name
+    try:
+        mgr = PdfFileManager(db_path=tmp)
+        mgr.add_scan_root("/tmp/foo", student_id="w")
+        r = mgr.ensure_scan_root("/tmp/foo", student_id=None)
+        assert r.path.endswith("foo") or "foo" in r.path
+        assert r.student_id == "w"  # unchanged
+        assert len(mgr.list_scan_roots()) == 1
+    finally:
+        Path(tmp).unlink(missing_ok=True)

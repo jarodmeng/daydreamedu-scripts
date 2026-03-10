@@ -11,7 +11,7 @@ _tests_dir = Path(__file__).resolve().parent
 if str(_tests_dir) not in sys.path:
     sys.path.insert(0, str(_tests_dir))
 from conftest import FIXTURE_ROOT, fixture_has_pdfs
-from pdf_file_manager import PdfFileManager
+from pdf_file_manager import PdfFileManager, NotFoundError
 
 
 def test_get_related_files_after_compress():
@@ -180,5 +180,73 @@ def test_link_to_template_validation():
             mgr.update_metadata(m2, is_template=True)
             with pytest.raises(ValueError):
                 mgr.link_to_template(m2, m1)
+        finally:
+            Path(db_path).unlink(missing_ok=True)
+
+
+# ---------------------------------------------------------------------------
+# link_template_by_paths (Proposal 4)
+# ---------------------------------------------------------------------------
+
+def test_link_template_by_paths_success():
+    if not fixture_has_pdfs():
+        pytest.skip("Fixture PDFs not present")
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmpdir = Path(tmpdir)
+        shutil.copytree(FIXTURE_ROOT, tmpdir / "fixture", dirs_exist_ok=True)
+        pdfs = list((tmpdir / "fixture").rglob("*.pdf"))
+        assert len(pdfs) >= 2
+        with tempfile.NamedTemporaryFile(suffix=".db", delete=False, dir=tmpdir) as f:
+            db_path = f.name
+        try:
+            mgr = PdfFileManager(db_path=db_path)
+            m1 = mgr.compress_and_register(pdfs[0], min_savings_pct=0).main_file_id
+            m2 = mgr.compress_and_register(pdfs[1], min_savings_pct=0).main_file_id
+            p1 = mgr.get_file(m1).path
+            p2 = mgr.get_file(m2).path
+            rel = mgr.link_template_by_paths(p2, p1, inherit_metadata=True)
+            assert rel.relation_type == "template_for"
+            assert mgr.get_template(m2) is not None and mgr.get_template(m2).id == m1
+        finally:
+            Path(db_path).unlink(missing_ok=True)
+
+
+def test_link_template_by_paths_template_missing_raises():
+    with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as f:
+        tmp = f.name
+    try:
+        mgr = PdfFileManager(db_path=tmp)
+        with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as f2:
+            completed_path = f2.name
+        try:
+            with pytest.raises(NotFoundError) as exc:
+                mgr.link_template_by_paths(completed_path, "/nonexistent/template.pdf")
+            assert "Template" in str(exc.value) or "template" in str(exc.value).lower()
+        finally:
+            Path(completed_path).unlink(missing_ok=True)
+    finally:
+        Path(tmp).unlink(missing_ok=True)
+
+
+def test_link_template_by_paths_already_linked_raises():
+    if not fixture_has_pdfs():
+        pytest.skip("Fixture PDFs not present")
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmpdir = Path(tmpdir)
+        shutil.copytree(FIXTURE_ROOT, tmpdir / "fixture", dirs_exist_ok=True)
+        pdfs = list((tmpdir / "fixture").rglob("*.pdf"))
+        assert len(pdfs) >= 2
+        with tempfile.NamedTemporaryFile(suffix=".db", delete=False, dir=tmpdir) as f:
+            db_path = f.name
+        try:
+            mgr = PdfFileManager(db_path=db_path)
+            m1 = mgr.compress_and_register(pdfs[0], min_savings_pct=0).main_file_id
+            m2 = mgr.compress_and_register(pdfs[1], min_savings_pct=0).main_file_id
+            p1 = mgr.get_file(m1).path
+            p2 = mgr.get_file(m2).path
+            mgr.link_template_by_paths(p2, p1)
+            with pytest.raises(ValueError) as exc:
+                mgr.link_template_by_paths(p2, p1)
+            assert "already linked" in str(exc.value).lower()
         finally:
             Path(db_path).unlink(missing_ok=True)

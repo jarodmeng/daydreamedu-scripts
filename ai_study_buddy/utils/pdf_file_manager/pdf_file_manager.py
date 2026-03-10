@@ -127,6 +127,14 @@ class SuggestedGroup:
     candidate_files: list[PdfFile]
     match_basis: dict
 
+@dataclass
+class CoverageReport:
+    """Result of report_coverage: leaf dirs (from FS or registry) vs scan_roots."""
+    leaf_dirs: set[str]
+    scan_roots: set[str]
+    leaf_not_in_roots: set[str]
+    roots_without_leaf_pdfs: set[str]
+
 # Default registry path: ai_study_buddy/db/pdf_registry.db relative to repo root.
 # Repo root = directory that contains "ai_study_buddy" (found by walking up from this file).
 def _repo_root() -> Path:
@@ -285,6 +293,73 @@ class PdfFileManager:
             ScanRoot(id=r["id"], path=r["path"], student_id=r["student_id"], added_at=r["added_at"])
             for r in rows
         ]
+
+    def ensure_student(self, student_id: str, name: str, email: str | None = None) -> Student:
+        """Return existing student or add and return. Idempotent."""
+        existing = self.get_student(student_id)
+        if existing is not None:
+            return existing
+        return self.add_student(student_id, name, email)
+
+    def ensure_scan_root(self, path: str | Path, student_id: str | None = None) -> ScanRoot:
+        """Return existing scan root for path or add and return. Idempotent. Path is resolved."""
+        path_str = str(Path(path).resolve())
+        for r in self.list_scan_roots():
+            if r.path == path_str:
+                return r
+        return self.add_scan_root(path_str, student_id=student_id)
+
+    # ---------------------------------------------------------------------------
+    # Coverage (find_leaf_dirs, report_coverage)
+    # ---------------------------------------------------------------------------
+
+    @staticmethod
+    def find_leaf_dirs(base: Path) -> list[Path]:
+        """Return sorted list of directories under base that have no subdirectories (leaf dirs). Includes base if it has no subdirs."""
+        out: list[Path] = []
+        base = base.resolve()
+        if not base.is_dir():
+            return []
+        try:
+            base_subs = [x for x in base.iterdir() if x.is_dir()]
+        except OSError:
+            return []
+        if not base_subs:
+            return [base]
+        for p in sorted(base.rglob("*")):
+            if not p.is_dir():
+                continue
+            try:
+                subs = [x for x in p.iterdir() if x.is_dir()]
+            except OSError:
+                continue
+            if not subs:
+                out.append(p)
+        return sorted(out)
+
+    def report_coverage(
+        self,
+        base_path: Path | None = None,
+        from_registry: bool = False,
+    ) -> CoverageReport:
+        """Compare leaf dirs (from filesystem or from pdf_files.path parents) to scan_roots."""
+        scan_roots_set = {r.path for r in self.list_scan_roots()}
+        if from_registry:
+            conn = self._get_connection()
+            rows = conn.execute("SELECT path FROM pdf_files").fetchall()
+            leaf_dirs_set = {str(Path(r[0]).parent) for r in rows}
+        elif base_path is not None:
+            leaf_dirs_set = {str(p.resolve()) for p in self.find_leaf_dirs(Path(base_path))}
+        else:
+            leaf_dirs_set = set()
+        leaf_not_in_roots = leaf_dirs_set - scan_roots_set
+        roots_without_leaf_pdfs = scan_roots_set - leaf_dirs_set
+        return CoverageReport(
+            leaf_dirs=leaf_dirs_set,
+            scan_roots=scan_roots_set,
+            leaf_not_in_roots=leaf_not_in_roots,
+            roots_without_leaf_pdfs=roots_without_leaf_pdfs,
+        )
 
     # ---------------------------------------------------------------------------
     # Read (get_file used by register_file return and callers)
@@ -1028,6 +1103,25 @@ class PdfFileManager:
                 out.append(f)
         return out
 
+    def link_template_by_paths(
+        self,
+        completed_path: str | Path,
+        template_path: str | Path,
+        inherit_metadata: bool = True,
+    ) -> FileRelation:
+        """Find both files by path, set is_template flags, and link. Raises NotFoundError if either path missing; ValueError if completed already linked."""
+        template_file = self.get_file_by_path(template_path)
+        completed_file = self.get_file_by_path(completed_path)
+        if template_file is None:
+            raise NotFoundError(f"Template file not found: {template_path}")
+        if completed_file is None:
+            raise NotFoundError(f"Completed file not found: {completed_path}")
+        if self.get_template(completed_file.id) is not None:
+            raise ValueError("Completed file is already linked to a template")
+        self.update_metadata(template_file.id, is_template=True)
+        self.update_metadata(completed_file.id, is_template=False)
+        return self.link_to_template(completed_file.id, template_file.id, inherit_metadata=inherit_metadata)
+
     def create_file_group(self, label: str, group_type: str = "collection", anchor_id: str | None = None, notes: str | None = None) -> FileGroup:
         if group_type not in ("exam", "book_exercise", "collection"):
             raise ValueError(f"group_type must be exam, book_exercise, or collection; got {group_type!r}")
@@ -1233,18 +1327,36 @@ def _cli_main() -> None:
     )
     parser.add_argument("--db", help="Path to SQLite registry DB (default: env PDF_REGISTRY_PATH or repo-relative)")
     subparsers = parser.add_subparsers(dest="command", help="Commands")
+
     log_p = subparsers.add_parser("log", help="Query operation log")
     log_p.add_argument("--file", metavar="ID|PATH", help="Filter by file id or path")
     log_p.add_argument("--group", metavar="GROUP_ID", help="Filter by group id")
     log_p.add_argument("--operation", help="Filter by operation name")
     log_p.add_argument("--since", help="Filter entries on or after this ISO datetime")
     log_p.add_argument("--id", dest="log_id", metavar="LOG_ID", help="Return at most one entry by log id")
+
+    scan_p = subparsers.add_parser("scan", help="Scan for new PDFs, register and optionally compress")
+    scan_p.add_argument("--root", dest="roots", action="append", metavar="PATH", help="Scan only these paths (repeatable); if omitted, use all configured scan roots")
+    scan_p.add_argument("--dry-run", action="store_true", help="Only list what would be processed")
+    scan_p.add_argument("--min-savings-pct", type=float, default=10, metavar="N", help="Minimum compression savings %% to keep compressed (default: 10)")
+    scan_p.add_argument("--progress", action="store_true", help="Print per-file progress when scanning")
+
+    coverage_p = subparsers.add_parser("coverage", help="Report leaf dirs vs scan roots (coverage)")
+    coverage_p.add_argument("--base", metavar="PATH", help="Enumerate leaf dirs under this path (filesystem)")
+    coverage_p.add_argument("--from-registry", action="store_true", help="Use leaf dirs from registered pdf_files.path instead of --base")
+
+    link_tmpl_p = subparsers.add_parser("link-template", help="Link a completed file to its template by path")
+    link_tmpl_p.add_argument("--template", required=True, metavar="PATH", help="Path to template (blank) file")
+    link_tmpl_p.add_argument("--completed", required=True, metavar="PATH", help="Path to completed (filled) file")
+    link_tmpl_p.add_argument("--no-inherit-metadata", action="store_true", help="Do not inherit metadata from template to completed")
+
     args = parser.parse_args()
     if args.command is None:
         parser.print_help()
         return
     db_path = getattr(args, "db", None)
     mgr = PdfFileManager(db_path=db_path)
+
     if args.command == "log":
         log_args = argparse.Namespace(
             file=getattr(args, "file", None),
@@ -1262,6 +1374,90 @@ def _cli_main() -> None:
         )
         for e in entries:
             print(f"{e.performed_at} | {e.operation} | file_id={e.file_id} | group_id={e.group_id}")
+
+    elif args.command == "scan":
+        roots_raw = getattr(args, "roots", None)
+        roots = None
+        if roots_raw:
+            roots = [str(Path(p).resolve()) for p in roots_raw]
+        dry_run = getattr(args, "dry_run", False)
+        min_savings_pct = getattr(args, "min_savings_pct", 10)
+        progress = getattr(args, "progress", False)
+        try:
+            if dry_run:
+                results = mgr.scan_for_new_files(roots=roots, dry_run=True, min_savings_pct=min_savings_pct)
+                for r in results:
+                    print(f"would process: {r.file.path}")
+                if not results:
+                    print("No new PDFs to register.")
+            else:
+                if progress:
+                    dry_first = mgr.scan_for_new_files(roots=roots, dry_run=True, min_savings_pct=min_savings_pct)
+                    total = len(dry_first)
+                    n = [0]
+
+                    def on_file_start(p: Path) -> None:
+                        n[0] += 1
+                        print(f"  [{n[0]}/{total}] {p.name} ...")
+
+                    results = mgr.scan_for_new_files(
+                        roots=roots,
+                        dry_run=False,
+                        min_savings_pct=min_savings_pct,
+                        on_file_start=on_file_start,
+                    )
+                else:
+                    results = mgr.scan_for_new_files(roots=roots, dry_run=False, min_savings_pct=min_savings_pct)
+                for r in results:
+                    print(f"  -> {r.file.name} (compressed={r.compressed})")
+                print(f"Done. {len(results)} file(s) processed.")
+        except ConfigError as e:
+            print(f"Error: {e}", file=sys.stderr)
+            sys.exit(1)
+
+    elif args.command == "coverage":
+        base_path = getattr(args, "base", None)
+        from_registry = getattr(args, "from_registry", False)
+        if base_path is not None:
+            base_path = Path(base_path).resolve()
+            if not base_path.is_dir():
+                print(f"Error: --base path is not a directory: {base_path}", file=sys.stderr)
+                sys.exit(1)
+        if base_path is None and not from_registry:
+            from_registry = True  # default: report from registry
+        report = mgr.report_coverage(base_path=base_path, from_registry=from_registry)
+        n_leaf = len(report.leaf_dirs)
+        n_roots = len(report.scan_roots)
+        n_intersect = len(report.leaf_dirs & report.scan_roots)
+        n_leaf_not = len(report.leaf_not_in_roots)
+        n_roots_without = len(report.roots_without_leaf_pdfs)
+        print(f"Leaf dirs: {n_leaf}")
+        print(f"Scan roots: {n_roots}")
+        print(f"Leaf dirs that are scan roots: {n_intersect}")
+        print(f"Leaf dirs NOT in scan_roots: {n_leaf_not}")
+        print(f"Scan roots with no PDFs in leaf set: {n_roots_without}")
+        if report.leaf_not_in_roots:
+            print("\nLeaf dirs not in scan_roots:")
+            for p in sorted(report.leaf_not_in_roots):
+                print(f"  {p}")
+        if report.roots_without_leaf_pdfs:
+            print("\nScan roots without PDFs in leaf set:")
+            for p in sorted(report.roots_without_leaf_pdfs):
+                print(f"  {p}")
+
+    elif args.command == "link-template":
+        template_path = getattr(args, "template", None)
+        completed_path = getattr(args, "completed", None)
+        inherit = not getattr(args, "no_inherit_metadata", False)
+        try:
+            rel = mgr.link_template_by_paths(completed_path, template_path, inherit_metadata=inherit)
+            print(f"Linked: {completed_path} (completed) -> {template_path} (template)")
+        except NotFoundError as e:
+            print(f"Error: {e}", file=sys.stderr)
+            sys.exit(1)
+        except ValueError as e:
+            print(f"Error: {e}", file=sys.stderr)
+            sys.exit(1)
 
 
 if __name__ == "__main__":
