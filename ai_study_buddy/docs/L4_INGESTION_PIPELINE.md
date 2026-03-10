@@ -635,11 +635,16 @@ python compress_pdf.py --batch /path/       # → compress all PDFs in directory
 
 **Location:** [`utils/pdf_file_manager/`](../utils/pdf_file_manager/) — `pdf_file_manager.py` + [`README.md`](../utils/pdf_file_manager/README.md), [`SPEC.md`](../utils/pdf_file_manager/SPEC.md), and supporting docs (ARCHITECTURE, TESTING, DECISIONS, CHANGELOG).
 
-**Purpose:** Keeps a SQLite registry of PDF files in the study archive. Tracks exams, worksheets, book exercises, activities, notes, and templates (with optional completed variants); keeps on-disk paths and database records in sync. Supports scan roots (e.g. Google Drive folders), **scan** (discover and optionally compress new PDFs via compress_pdf), **classify** (doc_type, subject, metadata), **suggest-groups** for exams, and linking templates to completions. Only `main` files are ingested by the pipeline; `_raw_` archives are kept for traceability. All changes are recorded in an append-only operation log.
+**Purpose:** Keeps a SQLite registry of PDF files in the study archive. Tracks exams, worksheets, book exercises, activities, notes, and templates (with optional completed variants); keeps on-disk paths and database records in sync. Supports scan roots (e.g. Google Drive folders), scan/discovery, optional compression via `compress_pdf`, classification (`doc_type`, `subject`, metadata), exam grouping, and template/completion linking. Only `main` files are ingested by the pipeline; `_raw_` archives are kept for traceability. All changes are recorded in an append-only operation log.
+
+**Machine interface:** Prefer the Python API and MCP server over the old CLI. The MCP layer is implemented in [`utils/pdf_file_manager/pdf_file_manager_mcp.py`](../utils/pdf_file_manager/pdf_file_manager_mcp.py) with a FastMCP entrypoint in [`utils/pdf_file_manager/pdf_file_manager_mcp_server.py`](../utils/pdf_file_manager/pdf_file_manager_mcp_server.py). This is the intended structured interface for agents and automations.
+
+**CLI status:** The built-in CLI has been removed. Use the Python API directly or the MCP server.
+
+Run the MCP server with:
 
 ```bash
-python pdf_file_manager.py --db /path/to/registry.db scan /path/to/archive/   # discover/register PDFs
-python pdf_file_manager.py --db /path/to/registry.db log --limit 20            # show recent operations
+python utils/pdf_file_manager/pdf_file_manager_mcp_server.py --db /path/to/registry.db
 ```
 
-See the [README](../utils/pdf_file_manager/README.md) and [SPEC](../utils/pdf_file_manager/SPEC.md) for full CLI, schema, and workflow.
+See the [README](../utils/pdf_file_manager/README.md) and [SPEC](../utils/pdf_file_manager/SPEC.md) for the current Python and MCP contracts.

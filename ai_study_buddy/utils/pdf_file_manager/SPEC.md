@@ -1,12 +1,12 @@
 # pdf_file_manager — Specification
 
-> API, CLI, operation contract, and implementation status.
+> API, MCP contract, operation contract, and implementation status.
 >
 > See [README.md](./README.md) for overview; [ARCHITECTURE.md](./ARCHITECTURE.md) for schema, data model, and integrations.
 >
 > Decision log: [DECISIONS.md](./DECISIONS.md)
 
-This document specifies the **operations** (Python API and CLI), **operation types** (for the audit log), **data classes**, **edge cases**, and **implementation status**. All schema and metadata details are in ARCHITECTURE.md.
+This document specifies the **operations** (Python API and MCP tool layer), **operation types** (for the audit log), **data classes**, **edge cases**, and **implementation status**. All schema and metadata details are in ARCHITECTURE.md.
 
 ---
 
@@ -376,85 +376,73 @@ class ScanResult:
 
 ---
 
-## CLI interface
+## MCP interface
+
+The preferred machine-facing interface is the MCP wrapper:
+
+- Tool layer: [`pdf_file_manager_mcp.py`](./pdf_file_manager_mcp.py)
+- FastMCP entrypoint: [`pdf_file_manager_mcp_server.py`](./pdf_file_manager_mcp_server.py)
+
+### Read-only MCP tools
+
+```text
+pdf_get_file
+pdf_find_files
+pdf_get_file_by_path
+pdf_list_students
+pdf_list_scan_roots
+pdf_get_related_files
+pdf_get_template
+pdf_get_completions
+pdf_get_file_group
+pdf_list_file_groups
+pdf_get_file_group_membership
+pdf_suggest_groups
+pdf_get_operation_log
+pdf_report_coverage
+```
+
+### Safe mutation MCP tools
+
+```text
+pdf_add_student
+pdf_add_scan_root
+pdf_remove_scan_root
+pdf_update_metadata
+pdf_create_file_group
+pdf_add_to_file_group
+pdf_remove_from_file_group
+pdf_set_file_group_anchor
+pdf_link_to_template
+pdf_unlink_template
+pdf_link_files
+pdf_unlink_files
+```
+
+### File-system mutation MCP tools
+
+```text
+pdf_scan_for_new_files
+pdf_register_file
+pdf_compress_and_register
+pdf_rename_file
+pdf_move_file
+pdf_delete_file
+pdf_open_file
+pdf_open_file_group
+```
+
+### MCP behavior notes
+
+- The MCP layer instantiates `PdfFileManager` per tool call.
+- Return values are normalized to JSON-safe dictionaries/lists.
+- Structured errors are returned for `AlreadyRegisteredError`, `NotFoundError`, `ConfigError`, `ValueError`, and `FileNotFoundError`.
+- The MCP server currently registers all three tool groups by default.
+
+Run it with:
 
 ```bash
-# --- Student management ---
-python pdf_file_manager.py student add winston "Winston Meng" --email winston.ry.meng@gmail.com
-python pdf_file_manager.py student list
-
-# --- Config ---
-python pdf_file_manager.py config add-root /path/to/drive --student-id winston
-python pdf_file_manager.py config remove-root /path/to/drive
-python pdf_file_manager.py config list-roots
-
-# --- Scan ---
-python pdf_file_manager.py scan                    # discovers, compresses, and archives new files
-python pdf_file_manager.py scan --dry-run          # show what would happen without writing
-python pdf_file_manager.py scan --roots /path/to/drive
-python pdf_file_manager.py scan --suggest-groups   # after scan, print grouping suggestions
-
-# --- Register (manual, no compression) ---
-python pdf_file_manager.py register /path/to/file.pdf [--doc-type exam] [--student-id winston] [--subject math] [--is-template]
-
-# --- Compress (manual, single file) ---
-python pdf_file_manager.py compress <id|path> [--force] [--min-savings 10]
-
-# --- Classify / update metadata ---
-python pdf_file_manager.py classify <id|path> --doc-type exam --student-id winston \
-    --subject math --metadata '{"paper_type":"wa","exam_date":"2025-09-15"}'
-python pdf_file_manager.py classify <id|path> --is-template
-python pdf_file_manager.py classify <id|path> --notes "scored by teacher"
-
-# --- List / Show ---
-python pdf_file_manager.py list
-python pdf_file_manager.py list --student winston
-python pdf_file_manager.py list --subject math
-python pdf_file_manager.py list --templates          # is_template=True only
-python pdf_file_manager.py list --doc-type exam
-python pdf_file_manager.py list --doc-type unknown          # unclassified
-python pdf_file_manager.py list --type main --no-raw        # main files without a raw archive
-python pdf_file_manager.py list --query "math"
-python pdf_file_manager.py list --grouped
-python pdf_file_manager.py show <id|path>
-
-# --- Open ---
-python pdf_file_manager.py open <id|path>                   # opens in Preview
-
-# --- Rename / Move ---
-python pdf_file_manager.py rename <id|path> <new_name.pdf>
-python pdf_file_manager.py mv <id|path> /new/directory/
-
-# --- Delete ---
-python pdf_file_manager.py rm <id|path> [--keep-related] [--notes "reason"]
-
-# --- Template link (completed → template) ---
-python pdf_file_manager.py template link <completed_id|path> <template_id|path> [--no-inherit]
-python pdf_file_manager.py template unlink <completed_id|path>
-
-# --- File groups ---
-python pdf_file_manager.py group create "Chinese EoY P6 2025" --type exam
-python pdf_file_manager.py group create "Math 6A Ch3 Exercise 3A" --type book_exercise
-python pdf_file_manager.py group add <group_id> <file_id|path> [--role paper2_answers]
-python pdf_file_manager.py group remove <group_id> <file_id|path>
-python pdf_file_manager.py group anchor <group_id> <file_id|path>
-python pdf_file_manager.py group show <group_id>
-python pdf_file_manager.py group list [--type exam]
-python pdf_file_manager.py group open <group_id>
-python pdf_file_manager.py group delete <group_id>
-python pdf_file_manager.py group suggest               # suggest groups based on metadata overlap
-
-# --- Operation log ---
-python pdf_file_manager.py log
-python pdf_file_manager.py log --file <id|path>
-python pdf_file_manager.py log --group <group_id>
-python pdf_file_manager.py log --operation delete
-python pdf_file_manager.py log --since 2025-01-01
-python pdf_file_manager.py log --id <log_entry_uuid>
-
-# --- Global flags ---
-python pdf_file_manager.py --db /custom/path/registry.db <command>
-python pdf_file_manager.py --verbose <command>
+python3 ai_study_buddy/utils/pdf_file_manager/pdf_file_manager_mcp_server.py --db /path/to/pdf_registry.db
 ```
 
 ---
@@ -469,7 +457,7 @@ python pdf_file_manager.py --verbose <command>
 | `compress_and_register` and the `_raw_` rename destination already exists | Raise `ValueError`; abort; no changes |
 | `delete_file` and file already absent from disk | Log warning; proceed with registry removal and `delete` log entry |
 | `mv` / `rename` and destination path already exists | Raise `ValueError`; no changes; no log entry |
-| `scan_for_new_files` with no scan roots configured | Raise `ConfigError` pointing to `config add-root` |
+| `scan_for_new_files` with no scan roots configured | Raise `ConfigError` pointing to adding a scan root programmatically or via the MCP/config layer |
 | `_raw_` file found during scan but main file not registered | Register as `file_type='raw'`; skip auto-link; warn to run `link` manually |
 | Two files have the same `name` but different `path` | Both are valid distinct entries |
 | Database file does not exist at startup | Auto-created with schema on first use |
@@ -492,22 +480,23 @@ python pdf_file_manager.py --verbose <command>
 
 | Step | Status |
 |------|--------|
-| Database schema + auto-creation (incl. `students` table) | ⬜ Not started |
-| `PdfFileManager` class | ⬜ Not started |
-| Student management (`add_student`, `list_students`) | ⬜ Not started |
-| Scan root management (with `student_id`) | ⬜ Not started |
-| `scan_for_new_files` (auto-compress + archive) | ⬜ Not started |
-| `register_file` | ⬜ Not started |
-| `compress_and_register` (compress → rename → archive) | ⬜ Not started |
-| `find_files` / `get_file` (with `student_id`, `doc_type`, `subject` filters) | ⬜ Not started |
-| `open_file` | ⬜ Not started |
-| `rename_file` / `move_file` | ⬜ Not started |
-| `update_metadata` | ⬜ Not started |
-| `delete_file` | ⬜ Not started |
-| Raw ↔ main relations (`link_files`, `unlink_files`) | ⬜ Not started |
-| Template relations (`link_to_template`, `unlink_template`, `get_template`, `get_completions`) | ⬜ Not started |
-| File group operations | ⬜ Not started |
-| `suggest_groups` | ⬜ Not started |
-| `operation_log` writes on all C/U/D operations | ⬜ Not started |
-| `get_operation_log` query | ⬜ Not started |
-| CLI | ⬜ Not started |
+| Database schema + auto-creation (incl. `students` table) | ✅ Implemented |
+| `PdfFileManager` class | ✅ Implemented |
+| Student management (`add_student`, `get_student`, `list_students`) | ✅ Implemented |
+| Scan root management (with `student_id`) | ✅ Implemented |
+| `scan_for_new_files` (auto-compress + archive) | ✅ Implemented |
+| `register_file` | ✅ Implemented |
+| `compress_and_register` (compress → rename → archive) | ✅ Implemented |
+| `find_files` / `get_file` / `get_file_by_path` | ✅ Implemented |
+| `open_file` | ✅ Implemented |
+| `rename_file` / `move_file` | ✅ Implemented |
+| `update_metadata` | ✅ Implemented |
+| `delete_file` | ✅ Implemented |
+| Raw ↔ main relations (`link_files`, `unlink_files`) | ✅ Implemented |
+| Template relations (`link_to_template`, `unlink_template`, `get_template`, `get_completions`) | ✅ Implemented |
+| File group operations | ✅ Implemented |
+| `suggest_groups` | ✅ Implemented |
+| `operation_log` writes on all C/U/D operations | ✅ Implemented |
+| `get_operation_log` query | ✅ Implemented |
+| MCP wrapper and FastMCP entrypoint | ✅ Implemented |
+| Built-in CLI layer | ❌ Removed |

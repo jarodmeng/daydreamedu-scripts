@@ -4,6 +4,36 @@ Decisions that shaped the design of this utility. Each entry records what was de
 
 ---
 
+## D-010 — Prefer MCP over a built-in CLI; remove the partial CLI layer
+
+**Date:** 2026-03-10
+**Status:** Decided
+**Affects:** `SPEC.md`, `README.md`, `TESTING.md`, `CHANGELOG.md`, MCP wrapper/server modules, `pdf_file_manager.py`
+
+### Context
+
+The Python library had grown into the real contract for the utility, while the built-in CLI remained a partial surface. That created maintenance debt: every new capability either had to be duplicated in argparse handlers and human-oriented output, or left out of the CLI entirely. The new MCP layer provides a structured machine interface with JSON-safe returns, explicit error mapping, and a better fit for agent use than shelling out to a text CLI.
+
+### Decision
+
+1. **Treat the Python API plus MCP server as the supported interfaces.**  
+   `PdfFileManager` remains the source of truth for business logic. The MCP wrapper and FastMCP server are the preferred machine-facing contract.
+
+2. **Remove the built-in CLI layer from `pdf_file_manager.py`.**  
+   The CLI offered limited benefit relative to its upkeep cost and duplicated a weaker form of the machine interface.
+
+3. **Record MCP-specific tests as the interface-level verification.**  
+   Wrapper and server-registration tests are now part of the supported testing story.
+
+### Consequences
+
+- The argparse entrypoint and CLI smoke tests are removed.
+- Current-facing docs describe Python + MCP as the present contract.
+- Machine-interface validation now focuses on `test_mcp_tools.py` and `test_mcp_server.py` in addition to the manager integration tests.
+- If a human-facing CLI is needed again later, it should be justified as a separate product surface rather than maintained by accident.
+
+---
+
 ## D-009 — Consolidated folder layout, `activity` doc_type, folder inference, book prefixes, Answers files
 
 **Date:** 2026-03-06

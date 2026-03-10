@@ -4,6 +4,16 @@ All notable changes to the pdf_file_manager utility are documented here.
 
 ---
 
+## [v0.2.0] — MCP interface, server hardening, and CLI removal
+
+- Added the MCP machine interface: wrapper/tool contract in `pdf_file_manager_mcp.py` and FastMCP binding/entrypoint in `pdf_file_manager_mcp_server.py`.
+- Added MCP-focused tests in `tests/test_mcp_tools.py` and `tests/test_mcp_server.py`.
+- Added FastMCP tool metadata, readonly-only server mode, connection docs in `MCP.md`, and a real `FastMCP` registration test.
+- Updated current-facing docs to prefer Python API + MCP as the supported interfaces.
+- Removed the legacy built-in CLI layer from `pdf_file_manager.py` and deleted the CLI smoke tests to avoid maintaining a second, partial machine interface.
+
+---
+
 ## [v0.1.1] — Inference improvements + proposals 1–4
 
 Merges all prior **Unreleased** changes (inference) and implements the four API/CLI proposals from `docs/learnings/LEARNING_FROM_FIRST_RUN.md` and `docs/proposals/`.
