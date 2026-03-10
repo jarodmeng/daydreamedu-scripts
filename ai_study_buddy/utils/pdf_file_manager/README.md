@@ -25,3 +25,29 @@ Every file has two independent attributes: **file_type** (main vs raw vs unknown
 | [CHANGELOG.md](./CHANGELOG.md) | Version history |
 
 Parent: [L4_INGESTION_PIPELINE](../../docs/L4_INGESTION_PIPELINE.md) — Utilities section.
+
+---
+
+## Database backup
+
+The registry DB (`ai_study_buddy/db/pdf_registry.db`) is gitignored. To back it up to the cloud **without** committing it to GitHub, copy it into a folder that syncs to the cloud (e.g. Google Drive on your Mac):
+
+1. **Default backup location:** `~/genrong.meng@gmail.com - Google Drive/My Drive/DaydreamEdu/db`. No setup needed unless you want a different destination (set `PDF_REGISTRY_BACKUP_DIR` or use `--dest`).
+
+2. **Run the backup script** from the repo root or from `ai_study_buddy/`:
+   ```bash
+   python3 ai_study_buddy/utils/pdf_file_manager/scripts/backup_pdf_registry.py
+   ```
+   Use `--timestamp` to keep dated copies (e.g. `pdf_registry_2025-03-10_14-30-00.db`) instead of overwriting.
+
+Once the file is inside your Google Drive folder, it will sync to the cloud automatically.
+
+**Run backup on wake (optional)**  
+To back up automatically when the Mac wakes from sleep (only if the DB changed), use [sleepwatcher](https://formulae.brew.sh/formula/sleepwatcher):
+
+```bash
+brew install sleepwatcher
+./ai_study_buddy/utils/pdf_file_manager/scripts/install_run_on_wake.sh
+```
+
+This installs a user LaunchAgent that runs the backup after each wake. The backup script still skips when unchanged. To remove: `launchctl unload ~/Library/LaunchAgents/com.daydreamedu.pdf-registry-backup-on-wake.plist` and edit or remove `~/.wakeup`.
