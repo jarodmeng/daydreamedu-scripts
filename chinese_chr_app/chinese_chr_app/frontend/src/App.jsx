@@ -16,7 +16,10 @@ function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
-        <div className="app">
+        <div
+          className="app"
+          onContextMenu={(e) => e.preventDefault()}
+        >
           <NavBar />
           <Routes>
         <Route path="/" element={<Search />} />
