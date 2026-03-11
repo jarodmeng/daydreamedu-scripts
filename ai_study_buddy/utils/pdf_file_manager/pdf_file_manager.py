@@ -146,6 +146,10 @@ class GoodNotesTemplateLinkOutcome:
     dry_run: bool
     message: str | None
 
+
+def _looks_like_compressed_main_name(name: str) -> bool:
+    return name.startswith("_c_") or name.startswith("c_")
+
 # Default registry path: ai_study_buddy/db/pdf_registry.db relative to repo root.
 # Repo root = directory that contains "ai_study_buddy" (found by walking up from this file).
 def _repo_root() -> Path:
@@ -453,7 +457,7 @@ class PdfFileManager:
         if file_type is None:
             if name.startswith("_raw_"):
                 file_type = "raw"
-            elif name.startswith("_c_"):
+            elif _looks_like_compressed_main_name(name):
                 file_type = "main"
             else:
                 file_type = "unknown"
@@ -756,7 +760,7 @@ class PdfFileManager:
                         )
                         conn.commit()
                     continue
-                if name.startswith("_c_"):
+                if _looks_like_compressed_main_name(name):
                     if dry_run:
                         results.append(ScanResult(
                             file=PdfFile(id="", name=name, path=path_str, file_type="main", doc_type="unknown", student_id=root_student_id, subject=None, is_template=False, size_bytes=None, page_count=None, has_raw=False, metadata=None, added_at="", updated_at="", notes=None),

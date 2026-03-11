@@ -94,6 +94,39 @@ def test_scan_c_prefix_registers_without_compressing():
             Path(db_path).unlink(missing_ok=True)
 
 
+def test_scan_drive_c_prefix_registers_without_compressing():
+    """When scan finds a c_*.pdf file, it registers as main only for GoodNotes/Drive compatibility."""
+    if not fixture_has_pdfs():
+        pytest.skip("Fixture PDFs not present")
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmpdir = Path(tmpdir)
+        shutil.copytree(FIXTURE_ROOT, tmpdir / "fixture", dirs_exist_ok=True)
+        pdfs = list((tmpdir / "fixture").rglob("*.pdf"))
+        src = pdfs[0]
+        c_path = tmpdir / ("c_" + src.name)
+        shutil.copy2(src, c_path)
+        root = str(tmpdir)
+        with tempfile.NamedTemporaryFile(suffix=".db", delete=False, dir=tmpdir) as f:
+            db_path = f.name
+        try:
+            mgr = PdfFileManager(db_path=db_path)
+            mgr.add_scan_root(root)
+            results = mgr.scan_for_new_files(dry_run=False)
+            conn = sqlite3.connect(db_path)
+            main_rows = conn.execute(
+                "SELECT id, name, path, has_raw FROM pdf_files WHERE file_type = 'main'"
+            ).fetchall()
+            conn.close()
+            assert len(main_rows) >= 1
+            c_main = [r for r in main_rows if Path(r[2]).name.startswith("c_")]
+            assert len(c_main) >= 1
+            assert c_main[0][3] == 0
+            assert c_path.exists()
+            assert all(result.raw_archive is None for result in results if result.file.path == str(c_path.resolve()))
+        finally:
+            Path(db_path).unlink(missing_ok=True)
+
+
 def test_scan_for_new_files_goodnotes_uses_preserve_input(monkeypatch):
     """scan_for_new_files should treat GoodNotes paths as preserve_input=True (no rename/move of originals)."""
     with tempfile.TemporaryDirectory() as tmpdir:
