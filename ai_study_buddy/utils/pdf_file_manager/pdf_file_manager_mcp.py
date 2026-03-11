@@ -316,13 +316,19 @@ class PdfFileManagerMcpTools:
         file_id_or_path: str,
         force: bool = False,
         min_savings_pct: float = 10,
+        preserve_input: bool = False,
     ) -> dict[str, Any]:
         return self._call(
             self._manager().compress_and_register,
             file_id_or_path,
             force=force,
             min_savings_pct=min_savings_pct,
+            preserve_input=preserve_input,
         )
+
+    def pdf_resolve_goodnotes_template(self, *, main_path: str) -> dict[str, Any]:
+        """Resolve a GoodNotes main file path to its DaydreamEdu _c_ template/source path."""
+        return self._call(self._manager().resolve_goodnotes_template_path, main_path)
 
     def pdf_rename_file(self, *, file_id_or_path: str, new_name: str) -> dict[str, Any]:
         return self._call(self._manager().rename_file, file_id_or_path, new_name=new_name)
@@ -368,6 +374,7 @@ READONLY_TOOL_NAMES = [
     "pdf_suggest_groups",
     "pdf_get_operation_log",
     "pdf_report_coverage",
+    "pdf_resolve_goodnotes_template",
 ]
 
 SAFE_MUTATION_TOOL_NAMES = [

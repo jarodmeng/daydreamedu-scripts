@@ -480,6 +480,7 @@ class PdfFileManager:
         file_id_or_path,
         force: bool = False,
         min_savings_pct: float = 10,
+        preserve_input: bool = False,
         **compress_kwargs,
     ) -> CompressResult:
         from compress_pdf.compress_pdf import compress_pdf as _do_compress
@@ -502,13 +503,23 @@ class PdfFileManager:
             raise ValueError(f"compress_and_register requires file_type='unknown'; got {row['file_type']!r}")
         dir_path = Path(file_path).parent
         name = row["name"]
-        raw_name = f"_raw_{name}"
-        raw_path = dir_path / raw_name
-        if raw_path.exists():
-            raise ValueError(f"Destination already exists: {raw_path}")
-        shutil.move(str(file_path), str(raw_path))
-        main_name = f"_c_{name}"
-        main_path = dir_path / main_name
+        # GoodNotes-safe variant: preserve the original input file and create a
+        # new compressed copy alongside it, treating the original as raw.
+        if preserve_input:
+            raw_path = Path(file_path)
+            raw_name = name
+            main_name = f"_c_{name}"
+            main_path = dir_path / main_name
+            if main_path.exists():
+                raise ValueError(f"Destination already exists: {main_path}")
+        else:
+            raw_name = f"_raw_{name}"
+            raw_path = dir_path / raw_name
+            if raw_path.exists():
+                raise ValueError(f"Destination already exists: {raw_path}")
+            shutil.move(str(file_path), str(raw_path))
+            main_name = f"_c_{name}"
+            main_path = dir_path / main_name
         try:
             result = _do_compress(
                 str(raw_path),
@@ -517,12 +528,38 @@ class PdfFileManager:
             )
             savings = result.savings_pct
         except Exception:
-            shutil.move(str(raw_path), str(file_path))
+            # On failure, restore original location when we moved it.
+            if not preserve_input:
+                shutil.move(str(raw_path), str(file_path))
             raise
         if savings >= min_savings_pct and not result.skipped:
             now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
             main_id = str(uuid.uuid4())
-            conn.execute("DELETE FROM pdf_files WHERE id = ?", (file_id,))
+            # When preserving input, the original row becomes the raw file; when
+            # not preserving, we delete the original row and insert both main
+            # and raw anew.
+            if preserve_input:
+                # Update existing row to represent the raw source at <file_path>
+                conn.execute(
+                    "UPDATE pdf_files SET file_type = 'raw', page_count = ?, updated_at = ? WHERE id = ?",
+                    (result.pages, now, file_id),
+                )
+                raw_id = file_id
+            else:
+                conn.execute("DELETE FROM pdf_files WHERE id = ?", (file_id,))
+                raw_id = str(uuid.uuid4())
+                raw_size = raw_path.stat().st_size if raw_path.exists() else None
+                conn.execute(
+                    """INSERT INTO pdf_files (
+                        id, name, path, file_type, doc_type, student_id, subject, is_template,
+                        size_bytes, page_count, has_raw, metadata, added_at, updated_at, notes
+                    ) VALUES (?, ?, ?, 'raw', ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?)""",
+                    (
+                        raw_id, raw_name, str(raw_path), row["doc_type"], row["student_id"], row["subject"],
+                        1 if row["is_template"] else 0,
+                        raw_size, result.pages, row["metadata"], now, now, row["notes"],
+                    ),
+                )
             conn.execute(
                 """INSERT INTO pdf_files (
                     id, name, path, file_type, doc_type, student_id, subject, is_template,
@@ -535,15 +572,6 @@ class PdfFileManager:
                     row["metadata"], now, now, row["notes"],
                 ),
             )
-            raw_id = str(uuid.uuid4())
-            raw_size = raw_path.stat().st_size if raw_path.exists() else None
-            conn.execute(
-                """INSERT INTO pdf_files (
-                    id, name, path, file_type, doc_type, student_id, subject, is_template,
-                    size_bytes, page_count, has_raw, metadata, added_at, updated_at, notes
-                ) VALUES (?, ?, ?, 'raw', ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?)""",
-                (raw_id, raw_name, str(raw_path), row["doc_type"], row["student_id"], row["subject"], 1 if row["is_template"] else 0, raw_size, result.pages, row["metadata"], now, now, row["notes"]),
-            )
             rel_id1, rel_id2 = str(uuid.uuid4()), str(uuid.uuid4())
             conn.execute(
                 "INSERT INTO file_relations (id, source_id, target_id, relation_type, created_at) VALUES (?, ?, ?, 'raw_source', ?)",
@@ -555,19 +583,35 @@ class PdfFileManager:
             )
             conn.commit()
             self._log_operation("compress", file_id=main_id, after_state=json.dumps({"savings_pct": savings}))
-            self._log_operation("register", file_id=raw_id)
+            if not preserve_input:
+                self._log_operation("register", file_id=raw_id)
             self._log_operation("link", file_id=main_id)
             return CompressResult(main_file_id=main_id, compressed=True, raw_archive_id=raw_id)
         else:
-            shutil.move(str(raw_path), str(file_path))  # restore original at <name>
             now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-            conn.execute(
-                "UPDATE pdf_files SET file_type = 'main', page_count = ?, updated_at = ? WHERE id = ?",
-                (result.pages, now, file_id),
-            )
+            if preserve_input:
+                # Compression not worthwhile; keep original row as main at <file_path>.
+                conn.execute(
+                    "UPDATE pdf_files SET file_type = 'main', page_count = ?, updated_at = ? WHERE id = ?",
+                    (result.pages, now, file_id),
+                )
+                # Clean up any temporary _c_ file if it was written.
+                try:
+                    if main_path.exists():
+                        main_path.unlink()
+                except OSError:
+                    pass
+                main_id, raw_id = file_id, None
+            else:
+                shutil.move(str(raw_path), str(file_path))  # restore original at <name>
+                conn.execute(
+                    "UPDATE pdf_files SET file_type = 'main', page_count = ?, updated_at = ? WHERE id = ?",
+                    (result.pages, now, file_id),
+                )
+                main_id, raw_id = file_id, None
             conn.commit()
-            self._log_operation("compress", file_id=file_id, notes="skipped=True")
-            return CompressResult(main_file_id=file_id, compressed=False, raw_archive_id=None)
+            self._log_operation("compress", file_id=main_id, notes="skipped=True")
+            return CompressResult(main_file_id=main_id, compressed=False, raw_archive_id=raw_id)
 
     # ---------------------------------------------------------------------------
     # Path-based inference (L1 → subject, L3 → doc_type, L2 → grade_or_scope)
@@ -734,7 +778,13 @@ class PdfFileManager:
                     continue
                 if on_file_start is not None:
                     on_file_start(pdf_path)
-                result = self.compress_and_register(pdf_path, min_savings_pct=min_savings_pct)
+                # For GoodNotes trees, prefer preserve_input=True so originals
+                # are never renamed or moved; elsewhere keep existing behaviour.
+                is_goodnotes = "GoodNotes" in pdf_path.parts
+                if is_goodnotes:
+                    result = self.compress_and_register(pdf_path, min_savings_pct=min_savings_pct, preserve_input=True)
+                else:
+                    result = self.compress_and_register(pdf_path, min_savings_pct=min_savings_pct)
                 if root_student_id:
                     conn.execute("UPDATE pdf_files SET student_id = ? WHERE id = ?", (root_student_id, result.main_file_id))
                     if result.raw_archive_id:

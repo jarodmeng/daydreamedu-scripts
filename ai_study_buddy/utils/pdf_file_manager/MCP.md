@@ -82,3 +82,5 @@ Example `stdio` style MCP client command:
 - The MCP wrapper instantiates `PdfFileManager` per tool call.
 - Tool responses are JSON-safe and use structured error payloads.
 - Filesystem mutation tools are higher risk and should only be exposed when the client genuinely needs them.
+- For GoodNotes folders (any path containing a `GoodNotes/` segment), `scan_for_new_files` and `compress_and_register` use `preserve_input=True` so originals are never renamed or moved; `_c_` mains are created alongside and linked as raw↔main. Use the `preserve_input` argument on `pdf_compress_and_register` when calling the tool directly.
+- The readonly tool `pdf_resolve_goodnotes_template` resolves a GoodNotes main path to the corresponding DaydreamEdu `_c_` template/source path, following the naming rules in `docs/proposals/05-goodnotes-exam-registration.md`.

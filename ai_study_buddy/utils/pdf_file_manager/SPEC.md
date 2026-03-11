@@ -37,23 +37,34 @@ Each newly processed file produces `register` and (where applicable) `compress` 
 
 Manually register a single file without compression. Infers `file_type` from filename unless overridden: `_raw_` → `raw`, `_c_` → `main`, else `unknown`. Raises `FileNotFoundError` if path absent. Raises `AlreadyRegisteredError` if already registered. Writes a `register` log entry.
 
-#### `compress_and_register(file_id_or_path, force=False, min_savings_pct=10, **compress_kwargs) -> CompressResult`
+#### `compress_and_register(file_id_or_path, force=False, min_savings_pct=10, preserve_input=False, **compress_kwargs) -> CompressResult`
 
 Composite: register (if needed) then compress. When given a **path** that is not yet in the registry, the file is registered first as `file_type='unknown'`, then the steps below run. When given a **file_id** or a path that is already registered, the existing record is used.
 
 1. **Resolve to a record:** If `file_id_or_path` is a path with no matching registry row, call `register_file(path)` (creating `file_type='unknown'`), then use that record. Otherwise look up by file_id or path; raise `NotFoundError` if absent.
 2. Validate `file_type == 'unknown'` (not yet processed); raise `ValueError` if already `main` or `raw`.
-3. Run `mv <name> _raw_<name>` (archive original before compression).
-4. Call `compress_pdf.compress_pdf(input_path="_raw_<name>", output_name="_c_<name>", ...)`.
-   The compressed file is written as `_c_<name>` so it is immediately clear the file is compressed.
-5. **If savings ≥ `min_savings_pct`:**
-   - Register `_c_<name>` as `file_type='main'`; populate `page_count`. Write `compress` log entry.
-   - Register `_raw_<name>` as `file_type='raw'`; inherit `student_id`, `doc_type`, `metadata`. Write `register` log entry.
-   - Create `raw_source` and `main_version` relations; set `has_raw=True` on main file. Write `link` log entry.
-6. **If savings < `min_savings_pct`:**
-   - Run `mv _raw_<name> <name>` (restore original; compression not worthwhile).
-   - Update file's `file_type` to `'main'`; populate `page_count`. `has_raw` remains `False`.
-   - Write `compress` log entry with `skipped=True` note.
+3. If `preserve_input=False` (default, DaydreamEdu mode):
+   - Run `mv <name> _raw_<name>` (archive original before compression).
+   - Call `compress_pdf.compress_pdf(input_path="_raw_<name>", output_name="_c_<name>", ...)`.
+     The compressed file is written as `_c_<name>` so it is immediately clear the file is compressed.
+   - **If savings ≥ `min_savings_pct`:**
+     - Register `_c_<name>` as `file_type='main'`; populate `page_count`. Write `compress` log entry.
+     - Register `_raw_<name>` as `file_type='raw'`; inherit `student_id`, `doc_type`, `metadata`. Write `register` log entry.
+     - Create `raw_source` and `main_version` relations; set `has_raw=True` on main file. Write `link` log entry.
+   - **If savings < `min_savings_pct`:**
+     - Run `mv _raw_<name> <name>` (restore original; compression not worthwhile).
+     - Update file's `file_type` to `'main'`; populate `page_count`. `has_raw` remains `False`.
+     - Write `compress` log entry with `skipped=True` note.
+4. If `preserve_input=True` (GoodNotes-safe mode):
+   - Treat `<name>` as the raw source; do **not** rename or move it.
+   - Call `compress_pdf.compress_pdf(input_path="<name>", output_name="_c_<name>", ...)` to create a sibling `_c_<name>` main.
+   - **If savings ≥ `min_savings_pct`:**
+     - Update the existing row for `<name>` to `file_type='raw'` (or insert a new raw row if the input was only ever scanned by path).
+     - Register `_c_<name>` as `file_type='main'`; inherit `student_id`, `doc_type`, `metadata`; set `has_raw=True`.
+     - Create `raw_source` and `main_version` relations between `<name>` and `_c_<name>`. Write `compress` and `link` log entries.
+   - **If savings < `min_savings_pct`:**
+     - Keep `<name>` as `file_type='main'`; do not create a persistent `_c_` file (any temporary copy is removed).
+     - Write `compress` log entry with `skipped=True` note.
 7. Return `CompressResult` augmented with the main file's UUID.
 
 ---

@@ -185,7 +185,9 @@ Both directions for raw↔main and template↔completed are written as separate 
 | *(none)* | `main` | Possible when compression was skipped (original kept); or legacy. |
 | *(none, not yet processed)* | `unknown` | Newly registered, awaiting `compress_and_register`. |
 
-`compress_and_register` moves the original to `_raw_<name>`, then calls `compress_pdf` with `output_name=_c_<name>`, so the compressed file is written as `_c_<name>`. If savings are below threshold, the original is restored at `<name>` and the row is updated to `file_type='main'` (no `_c_` prefix).
+`compress_and_register` has two modes:
+- Default (`preserve_input=False`): moves the original to `_raw_<name>`, then calls `compress_pdf` with `output_name=_c_<name>`, so the compressed file is written as `_c_<name>`. If savings are below threshold, the original is restored at `<name>` and the row is updated to `file_type='main'` (no `_c_` prefix).
+- GoodNotes-safe (`preserve_input=True`): treats the original as the raw source at `<name>`, writes a new `_c_<name>` main alongside it, and links them via `raw_source` / `main_version` without renaming or moving the original. This is used for any path under a `GoodNotes/` segment so GoodNotes’ one-way backup behaviour is preserved.
 
 ---
 

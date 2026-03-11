@@ -57,3 +57,41 @@ def test_compress_and_register_already_main_raises():
                 mgr.compress_and_register(main_file.path)
         finally:
             Path(db_path).unlink(missing_ok=True)
+
+
+def test_compress_and_register_preserve_input_creates_raw_and_main():
+    """preserve_input=True should keep the original as raw and create a new _c_ main without renaming/moving the source file."""
+    if not fixture_has_pdfs():
+        pytest.skip("Fixture PDFs not present")
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmpdir = Path(tmpdir)
+        shutil.copytree(FIXTURE_ROOT, tmpdir / "fixture", dirs_exist_ok=True)
+        pdfs = list((tmpdir / "fixture").rglob("*.pdf"))
+        path = pdfs[0]
+        with tempfile.NamedTemporaryFile(suffix=".db", delete=False, dir=tmpdir) as f:
+            db_path = f.name
+        try:
+            mgr = PdfFileManager(db_path=db_path)
+            # Register as unknown first (normal scanned state)
+            reg = mgr.register_file(path)
+            assert reg.file_type == "unknown"
+            # Run GoodNotes-safe variant
+            result = mgr.compress_and_register(path, min_savings_pct=0, preserve_input=True)
+            main_file = mgr.get_file(result.main_file_id)
+            raw_file = mgr.get_file(result.raw_archive_id) if result.raw_archive_id else None
+            # Original path should still exist on disk and be the raw record
+            assert path.exists()
+            assert raw_file is not None
+            assert Path(raw_file.path).resolve() == path.resolve()
+            assert raw_file.file_type == "raw"
+            # Main file should be the new _c_ copy
+            assert main_file is not None
+            assert main_file.file_type == "main"
+            assert main_file.has_raw
+            assert main_file.name.startswith("_c_")
+            # Relations should link raw and main
+            related = mgr.get_related_files(main_file.id)
+            rel_types = {rel_type for _, rel_type in related}
+            assert "raw_source" in rel_types or "main_version" in rel_types
+        finally:
+            Path(db_path).unlink(missing_ok=True)

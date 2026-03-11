@@ -387,7 +387,7 @@ def test_filesystem_mutation_tools_compress_and_register():
             shutil.copytree(FIXTURE_ROOT, copied, dirs_exist_ok=True)
             pdf_path = next(copied.rglob("*.pdf"))
             tools = PdfFileManagerMcpTools(db_path=db_path)
-            compressed = tools.pdf_compress_and_register(file_id_or_path=str(pdf_path), min_savings_pct=0)
+            compressed = tools.pdf_compress_and_register(file_id_or_path=str(pdf_path), min_savings_pct=0, preserve_input=False)
             assert compressed["ok"] is True
             assert compressed["result"]["main_file_id"] is not None
     finally:

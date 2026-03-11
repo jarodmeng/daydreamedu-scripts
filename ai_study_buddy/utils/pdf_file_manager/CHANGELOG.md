@@ -4,6 +4,13 @@ All notable changes to the pdf_file_manager utility are documented here.
 
 ---
 
+## [v0.2.1] — GoodNotes-safe compression and template resolution
+
+- Added `preserve_input` flag to `compress_and_register` to support GoodNotes-safe compression: originals remain at their paths and `_c_` mains are created alongside and linked as raw↔main.
+- Updated `scan_for_new_files` to detect `GoodNotes/` paths and automatically use `preserve_input=True` so GoodNotes backups are never renamed or moved.
+- Implemented `resolve_goodnotes_template_path` and exposed it via the MCP tool `pdf_resolve_goodnotes_template` to resolve GoodNotes main paths to DaydreamEdu `_c_` templates based on folder mirroring and naming conventions.
+- Extended MCP `pdf_compress_and_register` schema to accept `preserve_input`, and documented GoodNotes behaviour in `MCP.md`, `ARCHITECTURE.md`, `SPEC.md`, and `README.md`.
+
 ## [v0.2.0] — MCP interface, server hardening, and CLI removal
 
 - Added the MCP machine interface: wrapper/tool contract in `pdf_file_manager_mcp.py` and FastMCP binding/entrypoint in `pdf_file_manager_mcp_server.py`.

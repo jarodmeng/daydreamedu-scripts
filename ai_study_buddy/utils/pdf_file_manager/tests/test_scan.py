@@ -12,7 +12,7 @@ _tests_dir = Path(__file__).resolve().parent
 if str(_tests_dir) not in sys.path:
     sys.path.insert(0, str(_tests_dir))
 from conftest import FIXTURE_ROOT, fixture_has_pdfs
-from pdf_file_manager import PdfFileManager, ConfigError
+from pdf_file_manager import PdfFileManager, ConfigError, CompressResult
 
 
 def test_scan_dry_run_does_not_write():
@@ -92,6 +92,38 @@ def test_scan_c_prefix_registers_without_compressing():
             assert c_path.exists()
         finally:
             Path(db_path).unlink(missing_ok=True)
+
+
+def test_scan_for_new_files_goodnotes_uses_preserve_input(monkeypatch):
+    """scan_for_new_files should treat GoodNotes paths as preserve_input=True (no rename/move of originals)."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmpdir = Path(tmpdir)
+        goodnotes_root = tmpdir / "GoodNotes" / "Singapore Primary Math" / "winston.ry.meng@gmail.com" / "P6" / "Exam"
+        goodnotes_root.mkdir(parents=True, exist_ok=True)
+        pdf_path = goodnotes_root / "P6 WA1 practice paper 1 (empty) (attempt).pdf"
+        pdf_path.write_bytes(b"pdf")
+        db_path = tmpdir / "registry.db"
+        mgr = PdfFileManager(db_path=str(db_path))
+
+        calls: dict = {}
+
+        def _spy(file_id_or_path, *args, **kwargs):
+            # Record kwargs and short-circuit before real compression so we
+            # don't need a valid PDF for this behavioural test.
+            calls["kwargs"] = kwargs.copy()
+            # Minimal result: pretend we created a main id; we won't look it up.
+            return CompressResult(main_file_id="dummy", compressed=False, raw_archive_id=None)
+
+        # Avoid update_metadata trying to resolve the dummy id in the DB.
+        monkeypatch.setattr(mgr, "compress_and_register", _spy)
+        monkeypatch.setattr(mgr, "update_metadata", lambda *a, **k: None)
+
+        results = mgr.scan_for_new_files(roots=[goodnotes_root], min_savings_pct=0)
+        assert isinstance(results, list)
+        # Original GoodNotes file should still exist at the same path
+        assert pdf_path.exists()
+        # compress_and_register should have been called with preserve_input=True
+        assert calls.get("kwargs", {}).get("preserve_input") is True
 
 
 def test_scan_with_no_roots_raises():
