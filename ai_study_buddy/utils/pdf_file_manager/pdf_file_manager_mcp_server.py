@@ -4,15 +4,26 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Any, Literal
 
-from pdf_file_manager import PdfFileManager
-from pdf_file_manager_mcp import (
-    get_filesystem_mutation_tool_handlers,
-    get_readonly_tool_handlers,
-    get_safe_mutation_tool_handlers,
-    list_filesystem_mutation_tool_names,
-    list_readonly_tool_names,
-    list_safe_mutation_tool_names,
-)
+try:
+    from .pdf_file_manager import PdfFileManager
+    from .pdf_file_manager_mcp import (
+        get_filesystem_mutation_tool_handlers,
+        get_readonly_tool_handlers,
+        get_safe_mutation_tool_handlers,
+        list_filesystem_mutation_tool_names,
+        list_readonly_tool_names,
+        list_safe_mutation_tool_names,
+    )
+except ImportError:
+    from pdf_file_manager import PdfFileManager
+    from pdf_file_manager_mcp import (
+        get_filesystem_mutation_tool_handlers,
+        get_readonly_tool_handlers,
+        get_safe_mutation_tool_handlers,
+        list_filesystem_mutation_tool_names,
+        list_readonly_tool_names,
+        list_safe_mutation_tool_names,
+    )
 
 DEFAULT_SERVER_NAME = "pdf-file-manager"
 ToolMode = Literal["readonly", "default"]

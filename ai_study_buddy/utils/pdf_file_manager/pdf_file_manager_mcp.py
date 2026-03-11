@@ -5,7 +5,28 @@ from dataclasses import asdict, is_dataclass
 from pathlib import Path
 from typing import Any
 
-from pdf_file_manager import AlreadyRegisteredError, ConfigError, CoverageReport, FileGroup, FileGroupMember, NotFoundError, PdfFile, PdfFileManager
+try:
+    from .pdf_file_manager import (
+        AlreadyRegisteredError,
+        ConfigError,
+        CoverageReport,
+        FileGroup,
+        FileGroupMember,
+        NotFoundError,
+        PdfFile,
+        PdfFileManager,
+    )
+except ImportError:
+    from pdf_file_manager import (
+        AlreadyRegisteredError,
+        ConfigError,
+        CoverageReport,
+        FileGroup,
+        FileGroupMember,
+        NotFoundError,
+        PdfFile,
+        PdfFileManager,
+    )
 
 ErrorType = (
     AlreadyRegisteredError
