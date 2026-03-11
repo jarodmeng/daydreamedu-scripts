@@ -1103,6 +1103,95 @@ class PdfFileManager:
                 out.append(f)
         return out
 
+    # -----------------------------------------------------------------------
+    # GoodNotes helper: resolve DaydreamEdu template/source path for a
+    # GoodNotes main file according to the naming rules in
+    # docs/proposals/05-goodnotes-exam-registration.md §4.
+    # -----------------------------------------------------------------------
+
+    @staticmethod
+    def resolve_goodnotes_template_path(main_path: str | Path) -> Path:
+        """
+        Given the path to a GoodNotes *main* file (usually under a .../GoodNotes/...
+        tree), return the corresponding DaydreamEdu template/source path by
+        applying the general naming principles from 05-goodnotes-exam-registration.md:
+
+        - Strip a leading `_c_` or `c_` from the basename (GoodNotes/Drive may
+          drop the underscore).
+        - Repeatedly strip trailing ` (attempt)` / ` (reviewed)` tags to get the
+          **base name**.
+        - Construct candidate DaydreamEdu `_c_` basenames from that base name,
+          and search both:
+          * the student-scoped DaydreamEdu folder that mirrors the GoodNotes
+            hierarchy, and
+          * the general-scope DaydreamEdu folder (subject/grade/content_folder
+            without the student email segment).
+
+        Raises ValueError if:
+        - the path does not contain a `GoodNotes` segment, or
+        - no matching `_c_*.pdf` file is found in any candidate DaydreamEdu folder.
+        """
+        p = Path(main_path)
+        name = p.name
+
+        # Strip leading _c_ or c_ for normalised matching
+        core = name
+        if core.startswith("_c_"):
+            core = core[3:]
+        elif core.startswith("c_"):
+            core = core[2:]
+
+        # Strip trailing attempt/reviewed tags repeatedly to get the base name
+        for suffix in (" (attempt).pdf", " (reviewed).pdf"):
+            while core.endswith(suffix):
+                core = core[: -len(suffix)] + ".pdf"
+
+        if not core.lower().endswith(".pdf"):
+            raise ValueError(f"GoodNotes filename does not look like a PDF: {name}")
+
+        base_stem = core[:-4]  # drop '.pdf'
+
+        # Candidate basenames to try in order
+        candidate_basenames = [
+            f"_c_{base_stem}.pdf",
+            f"_c_{base_stem} (empty).pdf",
+        ]
+
+        parts = list(p.parts)
+        try:
+            idx = parts.index("GoodNotes")
+        except ValueError as exc:
+            raise ValueError(f"Path does not contain a 'GoodNotes' segment: {p}") from exc
+
+        # Student-scoped DaydreamEdu directory: replace GoodNotes with DaydreamEdu
+        daydream_parts = parts.copy()
+        daydream_parts[idx] = "DaydreamEdu"
+        student_dir = Path(*daydream_parts[:-1])
+
+        # General-scope DaydreamEdu directory: drop the student email segment
+        general_dir: Path | None = None
+        if len(daydream_parts) >= idx + 3:
+            # Heuristic: the first segment after subject that contains '@' is the student
+            for j in range(idx + 2, len(daydream_parts) - 1):
+                if "@" in daydream_parts[j]:
+                    general_parts = daydream_parts.copy()
+                    general_parts.pop(j)
+                    general_dir = Path(*general_parts[:-1])
+                    break
+
+        search_dirs = [student_dir]
+        if general_dir is not None and general_dir != student_dir:
+            search_dirs.append(general_dir)
+
+        # Try each candidate basename in each candidate directory
+        for d in search_dirs:
+            for bn in candidate_basenames:
+                candidate = d / bn
+                if candidate.exists():
+                    return candidate
+
+        raise ValueError(f"Could not resolve GoodNotes template for {name}: no matching _c_ file found in DaydreamEdu")
+
     def link_template_by_paths(
         self,
         completed_path: str | Path,
