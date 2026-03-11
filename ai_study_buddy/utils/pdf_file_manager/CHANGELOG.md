@@ -10,6 +10,7 @@ All notable changes to the pdf_file_manager utility are documented here.
 - Updated `scan_for_new_files` to detect `GoodNotes/` paths and automatically use `preserve_input=True` so GoodNotes backups are never renamed or moved.
 - Implemented `resolve_goodnotes_template_path` and exposed it via the MCP tool `pdf_resolve_goodnotes_template` to resolve GoodNotes main paths to DaydreamEdu `_c_` templates based on folder mirroring and naming conventions.
 - Extended MCP `pdf_compress_and_register` schema to accept `preserve_input`, and documented GoodNotes behaviour in `MCP.md`, `ARCHITECTURE.md`, `SPEC.md`, and `README.md`.
+- Added `link_goodnotes_template_for_file` / `link_goodnotes_templates_for_root` and MCP tools to wrap GoodNotes template resolution plus linking with strict registry defaults.
 
 ## [v0.2.0] — MCP interface, server hardening, and CLI removal
 

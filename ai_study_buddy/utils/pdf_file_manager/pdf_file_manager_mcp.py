@@ -351,6 +351,36 @@ class PdfFileManagerMcpTools:
         """Resolve a GoodNotes main file path to its DaydreamEdu _c_ template/source path."""
         return self._call(self._manager().resolve_goodnotes_template_path, main_path)
 
+    def pdf_link_goodnotes_template_for_file(
+        self,
+        *,
+        main_path: str,
+        auto_fix_template: bool = True,
+        inherit_metadata: bool = True,
+    ) -> dict[str, Any]:
+        return self._call(
+            self._manager().link_goodnotes_template_for_file,
+            main_path,
+            auto_fix_template=auto_fix_template,
+            inherit_metadata=inherit_metadata,
+        )
+
+    def pdf_link_goodnotes_templates_for_root(
+        self,
+        *,
+        root: str,
+        dry_run: bool = False,
+        auto_fix_template: bool = True,
+        inherit_metadata: bool = True,
+    ) -> dict[str, Any]:
+        return self._call(
+            self._manager().link_goodnotes_templates_for_root,
+            root,
+            dry_run=dry_run,
+            auto_fix_template=auto_fix_template,
+            inherit_metadata=inherit_metadata,
+        )
+
     def pdf_rename_file(self, *, file_id_or_path: str, new_name: str) -> dict[str, Any]:
         return self._call(self._manager().rename_file, file_id_or_path, new_name=new_name)
 
@@ -408,6 +438,8 @@ SAFE_MUTATION_TOOL_NAMES = [
     "pdf_remove_from_file_group",
     "pdf_set_file_group_anchor",
     "pdf_link_to_template",
+    "pdf_link_goodnotes_template_for_file",
+    "pdf_link_goodnotes_templates_for_root",
     "pdf_unlink_template",
     "pdf_link_files",
     "pdf_unlink_files",

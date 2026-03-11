@@ -52,6 +52,8 @@ TOOL_METADATA: dict[str, dict[str, Any]] = {
     "pdf_remove_from_file_group": {"description": "Remove a file from a file group.", "tags": {"mutation", "groups"}},
     "pdf_set_file_group_anchor": {"description": "Set the anchor file for a file group.", "tags": {"mutation", "groups"}},
     "pdf_link_to_template": {"description": "Link a completed file to a template file.", "tags": {"mutation", "relations", "templates"}},
+    "pdf_link_goodnotes_template_for_file": {"description": "Resolve and link the DaydreamEdu template for one GoodNotes main file.", "tags": {"mutation", "relations", "templates", "goodnotes"}},
+    "pdf_link_goodnotes_templates_for_root": {"description": "Resolve and link DaydreamEdu templates for registered GoodNotes main files under a root.", "tags": {"mutation", "relations", "templates", "goodnotes"}},
     "pdf_unlink_template": {"description": "Remove the template link for a completed file.", "tags": {"mutation", "relations", "templates"}},
     "pdf_link_files": {"description": "Link files with a raw/main relation.", "tags": {"mutation", "relations"}},
     "pdf_unlink_files": {"description": "Remove a raw/main relation between files.", "tags": {"mutation", "relations"}},

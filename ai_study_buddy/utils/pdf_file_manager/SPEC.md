@@ -200,6 +200,14 @@ Link a completed file to its template. Creates `template_for` (template → comp
 
 Remove the completed↔template relation for this file. Writes an `unlink_template` log entry.
 
+#### `link_goodnotes_template_for_file(main_path, auto_fix_template=True, inherit_metadata=True) -> GoodNotesTemplateLinkOutcome`
+
+Resolve the matching DaydreamEdu `_c_` template path for one registered GoodNotes main file, optionally auto-fix `is_template=True` on that already-registered resolved target, then call `link_to_template`. Raises `NotFoundError` if the completion is not registered or if the resolved template exists on disk but is not registered. Raises `ValueError` if the path is not under `GoodNotes/`, if the completion is not a non-template `main`, if the resolved template is not a `main`, or if the completion is already linked to a different template.
+
+#### `link_goodnotes_templates_for_root(root, dry_run=False, auto_fix_template=True, inherit_metadata=True) -> list[GoodNotesTemplateLinkOutcome]`
+
+Iterate over registered GoodNotes main files under a root and apply the single-file helper. In `dry_run=True` mode, return per-file outcomes/messages without mutating the registry.
+
 ---
 
 ### Student Management
@@ -425,6 +433,8 @@ pdf_add_to_file_group
 pdf_remove_from_file_group
 pdf_set_file_group_anchor
 pdf_link_to_template
+pdf_link_goodnotes_template_for_file
+pdf_link_goodnotes_templates_for_root
 pdf_unlink_template
 pdf_link_files
 pdf_unlink_files

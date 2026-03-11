@@ -301,6 +301,35 @@ def test_safe_mutation_group_and_relation_tools():
         Path(db_path).unlink(missing_ok=True)
 
 
+def test_safe_mutation_goodnotes_template_tools():
+    with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as f:
+        db_path = f.name
+    try:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            goodnotes_root = root / "GoodNotes" / "Singapore Primary Chinese" / "winston.ry.meng@gmail.com" / "P6" / "Exam"
+            daydream_root = root / "DaydreamEdu" / "Singapore Primary Chinese" / "P6" / "Exam"
+            goodnotes_root.mkdir(parents=True, exist_ok=True)
+            daydream_root.mkdir(parents=True, exist_ok=True)
+            completed_path = _make_pdf(goodnotes_root / "_c_p6.chinese.wa1.1 (attempt).pdf")
+            template_path = _make_pdf(daydream_root / "_c_p6.chinese.wa1.1.pdf")
+            mgr = PdfFileManager(db_path=db_path)
+            mgr.register_file(completed_path, file_type="main", doc_type="exam", subject="chinese")
+            mgr.register_file(template_path, file_type="main", doc_type="exam", subject="chinese", is_template=False)
+            tools = PdfFileManagerMcpTools(db_path=db_path)
+
+            single = tools.pdf_link_goodnotes_template_for_file(main_path=str(completed_path))
+            batch = tools.pdf_link_goodnotes_templates_for_root(root=str(goodnotes_root), dry_run=True)
+
+            assert single["ok"] is True
+            assert single["result"]["linked"] is True
+            assert single["result"]["auto_fixed_template"] is True
+            assert batch["ok"] is True
+            assert batch["result"][0]["already_linked"] is True
+    finally:
+        Path(db_path).unlink(missing_ok=True)
+
+
 def test_safe_mutation_tools_map_validation_errors():
     with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as f:
         db_path = f.name

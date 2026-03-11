@@ -135,6 +135,17 @@ class CoverageReport:
     leaf_not_in_roots: set[str]
     roots_without_leaf_pdfs: set[str]
 
+
+@dataclass
+class GoodNotesTemplateLinkOutcome:
+    main_path: str
+    template_path: str | None
+    linked: bool
+    already_linked: bool
+    auto_fixed_template: bool
+    dry_run: bool
+    message: str | None
+
 # Default registry path: ai_study_buddy/db/pdf_registry.db relative to repo root.
 # Repo root = directory that contains "ai_study_buddy" (found by walking up from this file).
 def _repo_root() -> Path:
@@ -1261,6 +1272,151 @@ class PdfFileManager:
         self.update_metadata(completed_file.id, is_template=False)
         return self.link_to_template(completed_file.id, template_file.id, inherit_metadata=inherit_metadata)
 
+    def link_goodnotes_template_for_file(
+        self,
+        main_path: str | Path,
+        *,
+        auto_fix_template: bool = True,
+        inherit_metadata: bool = True,
+    ) -> GoodNotesTemplateLinkOutcome:
+        completed_path = Path(main_path).resolve()
+        if "GoodNotes" not in completed_path.parts:
+            raise ValueError(f"Path does not contain a 'GoodNotes' segment: {completed_path}")
+
+        completed_file = self.get_file_by_path(completed_path)
+        if completed_file is None:
+            raise NotFoundError(f"Completed file not found in registry: {completed_path}")
+        if completed_file.file_type != "main":
+            raise ValueError("GoodNotes template linking requires file_type='main'")
+        if completed_file.is_template:
+            raise ValueError("GoodNotes completion file must have is_template=False")
+
+        resolved_template_path = self.resolve_goodnotes_template_path(completed_path)
+        template_file = self.get_file_by_path(resolved_template_path)
+        if template_file is None:
+            if resolved_template_path.exists():
+                raise NotFoundError(
+                    f"Resolved GoodNotes template exists on disk but is not registered: {resolved_template_path}"
+                )
+            raise NotFoundError(f"Resolved GoodNotes template not found in registry: {resolved_template_path}")
+        if template_file.file_type != "main":
+            raise ValueError("Resolved GoodNotes template must have file_type='main'")
+
+        existing_template = self.get_template(completed_file.id)
+        if existing_template is not None:
+            if Path(existing_template.path).resolve() == resolved_template_path:
+                return GoodNotesTemplateLinkOutcome(
+                    main_path=str(completed_path),
+                    template_path=str(resolved_template_path),
+                    linked=False,
+                    already_linked=True,
+                    auto_fixed_template=False,
+                    dry_run=False,
+                    message="Completed file is already linked to the resolved template",
+                )
+            raise ValueError("Completed file is already linked to a different template")
+
+        auto_fixed = False
+        if not template_file.is_template:
+            if not auto_fix_template:
+                raise ValueError("Resolved GoodNotes template is registered but is_template=False")
+            template_file = self.update_metadata(template_file.id, is_template=True)
+            auto_fixed = True
+
+        self.link_to_template(completed_file.id, template_file.id, inherit_metadata=inherit_metadata)
+        return GoodNotesTemplateLinkOutcome(
+            main_path=str(completed_path),
+            template_path=str(resolved_template_path),
+            linked=True,
+            already_linked=False,
+            auto_fixed_template=auto_fixed,
+            dry_run=False,
+            message=None,
+        )
+
+    def link_goodnotes_templates_for_root(
+        self,
+        root: str | Path,
+        *,
+        dry_run: bool = False,
+        auto_fix_template: bool = True,
+        inherit_metadata: bool = True,
+    ) -> list[GoodNotesTemplateLinkOutcome]:
+        root_path = Path(root).resolve()
+        if not root_path.is_dir():
+            raise ValueError(f"Root is not a directory: {root_path}")
+        if "GoodNotes" not in root_path.parts:
+            raise ValueError(f"Root does not contain a 'GoodNotes' segment: {root_path}")
+
+        conn = self._get_connection()
+        like_pattern = f"{root_path}%"
+        rows = conn.execute(
+            """SELECT path FROM pdf_files
+               WHERE file_type = 'main' AND path LIKE ?
+               ORDER BY path""",
+            (like_pattern,),
+        ).fetchall()
+
+        outcomes: list[GoodNotesTemplateLinkOutcome] = []
+        for row in rows:
+            main_path = Path(row["path"]).resolve()
+            if "GoodNotes" not in main_path.parts:
+                continue
+
+            completed_file = self.get_file_by_path(main_path)
+            if completed_file is None or completed_file.is_template:
+                continue
+
+            resolved_template_path = self.resolve_goodnotes_template_path(main_path)
+            template_file = self.get_file_by_path(resolved_template_path)
+            auto_fix_needed = template_file is not None and not template_file.is_template
+            existing_template = self.get_template(completed_file.id)
+            if dry_run:
+                message = None
+                already_linked = False
+                if existing_template is not None:
+                    if Path(existing_template.path).resolve() == resolved_template_path:
+                        already_linked = True
+                        message = "Already linked to the resolved template"
+                    else:
+                        message = "Already linked to a different template"
+                elif template_file is None:
+                    if resolved_template_path.exists():
+                        message = "Resolved template exists on disk but is not registered"
+                    else:
+                        message = "Resolved template path not found on disk or in registry"
+                elif template_file.file_type != "main":
+                    message = "Resolved template is registered but is not a main file"
+                elif auto_fix_needed and not auto_fix_template:
+                    message = "Resolved template is registered but is_template=False"
+                elif auto_fix_needed:
+                    message = "Would auto-fix resolved template is_template and link"
+                else:
+                    message = "Would link resolved template"
+
+                outcomes.append(
+                    GoodNotesTemplateLinkOutcome(
+                        main_path=str(main_path),
+                        template_path=str(resolved_template_path),
+                        linked=False,
+                        already_linked=already_linked,
+                        auto_fixed_template=False,
+                        dry_run=True,
+                        message=message,
+                    )
+                )
+                continue
+
+            outcomes.append(
+                self.link_goodnotes_template_for_file(
+                    main_path,
+                    auto_fix_template=auto_fix_template,
+                    inherit_metadata=inherit_metadata,
+                )
+            )
+
+        return outcomes
+
     def create_file_group(self, label: str, group_type: str = "collection", anchor_id: str | None = None, notes: str | None = None) -> FileGroup:
         if group_type not in ("exam", "book_exercise", "collection"):
             raise ValueError(f"group_type must be exam, book_exercise, or collection; got {group_type!r}")
@@ -1452,4 +1608,3 @@ class PdfFileManager:
                 )
             )
         return out
-

@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from pdf_file_manager import PdfFileManager
+from pdf_file_manager import NotFoundError, PdfFileManager
 
 
 def _touch(path: Path) -> None:
@@ -156,3 +156,179 @@ def test_resolve_goodnotes_template_raises_when_no_match():
             PdfFileManager.resolve_goodnotes_template_path(gn_path)
         assert "no matching _c_ file found" in str(exc.value)
 
+
+def test_link_goodnotes_template_for_file_links_registered_template():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        base = Path(tmpdir)
+        db_path = base / "registry.db"
+        mgr = PdfFileManager(db_path=str(db_path))
+
+        goodnotes_main = (
+            base
+            / "GoodNotes"
+            / "Singapore Primary Chinese"
+            / "winston.ry.meng@gmail.com"
+            / "P6"
+            / "Exam"
+            / "_c_p6.chinese.wa1.1 (attempt).pdf"
+        )
+        template_path = (
+            base
+            / "DaydreamEdu"
+            / "Singapore Primary Chinese"
+            / "P6"
+            / "Exam"
+            / "_c_p6.chinese.wa1.1.pdf"
+        )
+        _touch(goodnotes_main)
+        _touch(template_path)
+
+        completed = mgr.register_file(goodnotes_main, file_type="main", doc_type="exam", subject="chinese")
+        template = mgr.register_file(template_path, file_type="main", doc_type="exam", subject="chinese", is_template=True)
+
+        outcome = mgr.link_goodnotes_template_for_file(goodnotes_main)
+
+        assert outcome.linked is True
+        assert outcome.already_linked is False
+        assert outcome.template_path == str(template_path.resolve())
+        linked_template = mgr.get_template(completed.id)
+        assert linked_template is not None
+        assert linked_template.id == template.id
+
+
+def test_link_goodnotes_template_for_file_can_auto_fix_template_flag():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        base = Path(tmpdir)
+        db_path = base / "registry.db"
+        mgr = PdfFileManager(db_path=str(db_path))
+
+        goodnotes_main = (
+            base
+            / "GoodNotes"
+            / "Singapore Primary English"
+            / "winston.ry.meng@gmail.com"
+            / "P6"
+            / "Exam"
+            / "_c_P6 English Term 1 Weighted Review (reviewed).pdf"
+        )
+        template_path = (
+            base
+            / "DaydreamEdu"
+            / "Singapore Primary English"
+            / "winston.ry.meng@gmail.com"
+            / "P6"
+            / "Exam"
+            / "_c_P6 English Term 1 Weighted Review.pdf"
+        )
+        _touch(goodnotes_main)
+        _touch(template_path)
+
+        mgr.register_file(goodnotes_main, file_type="main", doc_type="exam", subject="english")
+        template = mgr.register_file(template_path, file_type="main", doc_type="exam", subject="english", is_template=False)
+
+        outcome = mgr.link_goodnotes_template_for_file(goodnotes_main, auto_fix_template=True)
+
+        assert outcome.linked is True
+        assert outcome.auto_fixed_template is True
+        assert mgr.get_file(template.id).is_template is True
+
+
+def test_link_goodnotes_template_for_file_fails_when_resolved_template_not_registered():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        base = Path(tmpdir)
+        db_path = base / "registry.db"
+        mgr = PdfFileManager(db_path=str(db_path))
+
+        goodnotes_main = (
+            base
+            / "GoodNotes"
+            / "Singapore Primary Math"
+            / "winston.ry.meng@gmail.com"
+            / "P6"
+            / "Exam"
+            / "_c_p6.math.wa1.1 (attempt).pdf"
+        )
+        template_path = (
+            base
+            / "DaydreamEdu"
+            / "Singapore Primary Math"
+            / "P6"
+            / "Exam"
+            / "_c_p6.math.wa1.1.pdf"
+        )
+        _touch(goodnotes_main)
+        _touch(template_path)
+
+        mgr.register_file(goodnotes_main, file_type="main", doc_type="exam", subject="math")
+
+        with pytest.raises(NotFoundError) as exc:
+            mgr.link_goodnotes_template_for_file(goodnotes_main)
+        assert "exists on disk but is not registered" in str(exc.value)
+
+
+def test_link_goodnotes_template_for_file_is_idempotent_for_same_template():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        base = Path(tmpdir)
+        db_path = base / "registry.db"
+        mgr = PdfFileManager(db_path=str(db_path))
+
+        goodnotes_main = (
+            base
+            / "GoodNotes"
+            / "Singapore Primary Science"
+            / "winston.ry.meng@gmail.com"
+            / "P6"
+            / "Exam"
+            / "_c_P6 Science Weighted Review 1 (reviewed).pdf"
+        )
+        template_path = (
+            base
+            / "DaydreamEdu"
+            / "Singapore Primary Science"
+            / "winston.ry.meng@gmail.com"
+            / "P6"
+            / "Exam"
+            / "_c_P6 Science Weighted Review 1.pdf"
+        )
+        _touch(goodnotes_main)
+        _touch(template_path)
+
+        completed = mgr.register_file(goodnotes_main, file_type="main", doc_type="exam", subject="science")
+        template = mgr.register_file(template_path, file_type="main", doc_type="exam", subject="science", is_template=True)
+        mgr.link_to_template(completed.id, template.id)
+
+        outcome = mgr.link_goodnotes_template_for_file(goodnotes_main)
+
+        assert outcome.linked is False
+        assert outcome.already_linked is True
+        assert "already linked" in (outcome.message or "")
+
+
+def test_link_goodnotes_templates_for_root_dry_run_reports_actions():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        base = Path(tmpdir)
+        db_path = base / "registry.db"
+        mgr = PdfFileManager(db_path=str(db_path))
+
+        root = base / "GoodNotes" / "Singapore Primary Chinese" / "winston.ry.meng@gmail.com" / "P6" / "Exam"
+        goodnotes_main = root / "_c_p6.chinese.wa1.1 (attempt).pdf"
+        template_path = (
+            base
+            / "DaydreamEdu"
+            / "Singapore Primary Chinese"
+            / "P6"
+            / "Exam"
+            / "_c_p6.chinese.wa1.1.pdf"
+        )
+        _touch(goodnotes_main)
+        _touch(template_path)
+
+        mgr.register_file(goodnotes_main, file_type="main", doc_type="exam", subject="chinese")
+        mgr.register_file(template_path, file_type="main", doc_type="exam", subject="chinese", is_template=False)
+
+        outcomes = mgr.link_goodnotes_templates_for_root(root, dry_run=True)
+
+        assert len(outcomes) == 1
+        assert outcomes[0].dry_run is True
+        assert outcomes[0].linked is False
+        assert outcomes[0].message == "Would auto-fix resolved template is_template and link"

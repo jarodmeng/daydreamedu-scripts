@@ -42,7 +42,7 @@ The full implemented surface lives in [`pdf_file_manager.py`](./pdf_file_manager
 The MCP layer currently exposes:
 
 - Read-only tools: `pdf_get_file`, `pdf_find_files`, `pdf_get_file_by_path`, `pdf_list_students`, `pdf_list_scan_roots`, `pdf_get_related_files`, `pdf_get_template`, `pdf_get_completions`, `pdf_get_file_group`, `pdf_list_file_groups`, `pdf_get_file_group_membership`, `pdf_suggest_groups`, `pdf_get_operation_log`, `pdf_report_coverage`
-- Safe mutations: `pdf_add_student`, `pdf_add_scan_root`, `pdf_remove_scan_root`, `pdf_update_metadata`, `pdf_create_file_group`, `pdf_add_to_file_group`, `pdf_remove_from_file_group`, `pdf_set_file_group_anchor`, `pdf_link_to_template`, `pdf_unlink_template`, `pdf_link_files`, `pdf_unlink_files`
+- Safe mutations: `pdf_add_student`, `pdf_add_scan_root`, `pdf_remove_scan_root`, `pdf_update_metadata`, `pdf_create_file_group`, `pdf_add_to_file_group`, `pdf_remove_from_file_group`, `pdf_set_file_group_anchor`, `pdf_link_to_template`, `pdf_link_goodnotes_template_for_file`, `pdf_link_goodnotes_templates_for_root`, `pdf_unlink_template`, `pdf_link_files`, `pdf_unlink_files`
 - File-system mutations: `pdf_scan_for_new_files`, `pdf_register_file`, `pdf_compress_and_register`, `pdf_rename_file`, `pdf_move_file`, `pdf_delete_file`, `pdf_open_file`, `pdf_open_file_group`
 
 GoodNotes-specific support:
@@ -50,6 +50,7 @@ GoodNotes-specific support:
 - `compress_and_register(..., preserve_input=True)` allows GoodNotes-safe compression by keeping originals untouched and creating `_c_` mains alongside them, linked as raw↔main.
 - `scan_for_new_files` automatically uses `preserve_input=True` for any path under a `GoodNotes/` segment.
 - `resolve_goodnotes_template_path` (and the MCP tool `pdf_resolve_goodnotes_template`) resolve GoodNotes main paths to the corresponding DaydreamEdu `_c_` template/source paths based on folder mirroring and naming conventions.
+- `link_goodnotes_template_for_file` and `link_goodnotes_templates_for_root` resolve and link DaydreamEdu templates for registered GoodNotes mains. They do not auto-register missing resolved templates; they fail clearly instead.
 
 Run the MCP server with:
 
