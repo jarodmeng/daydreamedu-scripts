@@ -121,6 +121,25 @@ def _color_fraction(img_rgb: Image.Image) -> float:
     return float(colored) / (w * h)
 
 
+def _estimated_page_dpi(page: pymupdf.Page, doc: pymupdf.Document, target_dpi: int) -> tuple[int, int]:
+    """Estimate current page DPI and the total embedded-image bytes on the page."""
+    images = page.get_images(full=True)
+    if not images:
+        return target_dpi, 0
+
+    total_bytes = 0
+    curr_dpi = target_dpi
+    for index, image in enumerate(images):
+        xref = image[0]
+        info = doc.extract_image(xref)
+        total_bytes += len(info["image"])
+        if index == 0:
+            page_w_pts = page.rect.width
+            if page_w_pts > 0:
+                curr_dpi = round(info["width"] / (page_w_pts / 72))
+    return curr_dpi, total_bytes
+
+
 def _compress_page(
     page: pymupdf.Page,
     doc: pymupdf.Document,
@@ -133,7 +152,6 @@ def _compress_page(
     """
     page_num = page.number + 1
     images = page.get_images(full=True)
-
     if not images:
         return b"", PageStat(
             page=page_num, image_type="no_image",
@@ -141,64 +159,30 @@ def _compress_page(
             original_dpi=0, output_dpi=0, color_fraction=0.0,
         )
 
-    # Extract the primary embedded image (scanned PDFs have exactly 1 per page)
-    if len(images) > 1:
-        print(f"  Warning: page {page_num} has {len(images)} embedded images; using the first.",
-              file=sys.stderr)
+    curr_dpi, original_bytes = _estimated_page_dpi(page, doc, target_dpi)
+    output_dpi = min(curr_dpi, target_dpi) if curr_dpi > 0 else target_dpi
+    render_scale = output_dpi / 72
+    pix = page.get_pixmap(matrix=pymupdf.Matrix(render_scale, render_scale), alpha=False)
+    img = Image.frombytes("RGB", (pix.width, pix.height), pix.samples)
 
-    xref = images[0][0]
-    info = doc.extract_image(xref)
-    orig_bytes = info["image"]
-    orig_w, orig_h = info["width"], info["height"]
-    is_bilevel = info["bpc"] == 1
-    is_rgb = info["colorspace"] == 3
-
-    # Compute current DPI from page dimensions (1 pt = 1/72 inch)
-    page_w_pts = page.rect.width
-    curr_dpi = round(orig_w / (page_w_pts / 72)) if page_w_pts > 0 else target_dpi
-
-    img = Image.open(io.BytesIO(orig_bytes))
-
-    # --- Downsample if above target DPI ---
-    output_dpi = curr_dpi
-    if curr_dpi > target_dpi:
-        scale = target_dpi / curr_dpi
-        new_w = round(orig_w * scale)
-        new_h = round(orig_h * scale)
-        resample = Image.NEAREST if is_bilevel else Image.LANCZOS
-        img = img.resize((new_w, new_h), resample)
-        output_dpi = target_dpi
-
-    # --- Determine color fraction (diagnostic; does not affect output format) ---
-    col_frac = 0.0
-    if is_rgb:
-        col_frac = _color_fraction(img.convert("RGB"))
-
-    # --- Re-encode ---
+    # Flattened full-page rendering preserves text, vector ink, and annotations
+    # that are lost when compressing only the first embedded image stream.
+    col_frac = _color_fraction(img)
     buf = io.BytesIO()
-    if is_bilevel:
-        img.convert("1").save(buf, format="PNG", optimize=True)
-        image_type = "bilevel_png"
-    elif is_rgb:
-        # Always keep RGB — color encodes semantic layer information
+    if col_frac > 0:
         img.convert("RGB").save(buf, format="JPEG", quality=jpeg_quality,
                                 optimize=True, subsampling=2)
-        image_type = "rgb_jpeg"
+        image_type = "rendered_rgb_jpeg"
     else:
         img.convert("L").save(buf, format="JPEG", quality=jpeg_quality, optimize=True)
-        image_type = "gray_jpeg"
+        image_type = "rendered_gray_jpeg"
 
     compressed = buf.getvalue()
-
-    # Guard: if compression made it larger, keep original bytes (already optimal)
-    if len(compressed) > len(orig_bytes):
-        compressed = orig_bytes
-        image_type += "_kept_original"
 
     stat = PageStat(
         page=page_num,
         image_type=image_type,
-        original_kb=len(orig_bytes) // 1024,
+        original_kb=original_bytes // 1024,
         compressed_kb=len(compressed) // 1024,
         original_dpi=curr_dpi,
         output_dpi=output_dpi,
