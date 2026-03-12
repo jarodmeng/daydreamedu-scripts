@@ -294,6 +294,9 @@ def compress_pdf(
         compressed_bytes, stat = _compress_page(page, doc, target_dpi, jpeg_quality)
         page_stats.append(stat)
 
+        # page.get_pixmap() renders in display orientation, so rebuild pages in
+        # display-space geometry rather than carrying forward raw MediaBox/Rotate
+        # combinations from scanner-produced PDFs.
         new_page = out_doc.new_page(width=page.rect.width, height=page.rect.height)
         if compressed_bytes:
             new_page.insert_image(new_page.rect, stream=compressed_bytes)
