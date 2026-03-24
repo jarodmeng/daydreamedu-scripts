@@ -1,0 +1,9 @@
+{
+  "name": "download-minecraft-education-files",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "download:minecraft-files": "node scripts/download_minecraft_supporting_files.mjs"
+  }
+}
