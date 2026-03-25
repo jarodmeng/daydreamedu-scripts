@@ -38,7 +38,7 @@ Full schema, indexes, and creation/backfill scripts are in [backend/DATABASE.md]
 
 - **Input:** One Chinese character or one pinyin syllable (e.g. `ke`, `wo3`). Single CJK character → character search; otherwise → pinyin search.
 - **Character search:** If the character is in the Feng set, the Search page shows four panels: 笔顺动画, 字典信息（hwxnet）, 字卡, 字符信息（冯氏早教识字卡）. If the character is only in HWXNet (dictionary-only), the page shows 笔顺动画 and 字典信息 only. Metadata for Feng entries is editable.
-- **Pinyin search:** Results page at `/pinyin/:query` lists characters matching that reading, ranked by stroke count (ascending). Clicking a result opens the character detail (Search) view.
+- **Pinyin search:** Results page at `/pinyin/:query` lists characters matching that reading, ranked by stroke count (ascending). Clicking a result opens the character detail (Search) view. The backend primarily uses `hwxnet_characters.searchable_pinyin`, but also recomputes normalized keys from `pinyin` at read time as a safety net if legacy rows contain stale or malformed search keys.
 
 ---
 

@@ -10,6 +10,8 @@ import os
 from datetime import date, timedelta
 from typing import Any, Dict, List, Optional, Tuple
 
+from pinyin_search import compute_searchable_pinyin_for_entry
+
 try:
     import psycopg
     from psycopg.rows import dict_row
@@ -128,6 +130,12 @@ def get_hwxnet_lookup() -> Dict[str, Dict[str, Any]]:
 def get_characters_by_pinyin_search_keys(search_keys: List[str]) -> List[Dict[str, Any]]:
     """
     Return characters whose searchable_pinyin contains any of the given keys.
+
+    Some production rows were backfilled with accented/tone-less searchable_pinyin
+    values (e.g. ["zhèng", "zhèng0", "zhèng5"]) instead of normalized keys like
+    ["zheng", "zheng4"]. To keep search working while the data is repaired, we
+    recompute normalized keys from the stored pinyin column on read.
+
     Returns list of dicts with character, 部首 (radical), 拼音 (pinyin), 总笔画 (strokes), zibiao_index, index.
     Sorted by 总笔画 ASC, then zibiao_index ASC. One entry per character (deduped).
     """
@@ -138,20 +146,23 @@ def get_characters_by_pinyin_search_keys(search_keys: List[str]) -> List[Dict[st
         with conn.cursor() as cur:
             cur.execute(
                 """
-                SELECT character, zibiao_index, index, radical, strokes, pinyin
+                SELECT character, zibiao_index, index, radical, strokes, pinyin, searchable_pinyin
                 FROM hwxnet_characters
-                WHERE searchable_pinyin ?| %s
-                ORDER BY strokes ASC NULLS LAST, zibiao_index ASC NULLS LAST
                 """,
-                (search_keys,),
             )
             rows = cur.fetchall()
-        # Dedupe by character (keep first by sort order)
+        # Dedupe by character after filtering in Python so we can tolerate legacy
+        # malformed searchable_pinyin values in the DB.
+        search_key_set = set(search_keys)
         seen = set()
         result = []
         for r in rows:
             ch = (r.get("character") or "").strip()
             if not ch or ch in seen:
+                continue
+            normalized_keys = set(compute_searchable_pinyin_for_entry(r.get("pinyin") or []))
+            stored_keys = set(r.get("searchable_pinyin") or [])
+            if not (search_key_set & normalized_keys or search_key_set & stored_keys):
                 continue
             seen.add(ch)
             result.append({
@@ -162,6 +173,12 @@ def get_characters_by_pinyin_search_keys(search_keys: List[str]) -> List[Dict[st
                 "zibiao_index": r.get("zibiao_index"),
                 "index": r.get("index"),
             })
+        result.sort(
+            key=lambda r: (
+                r.get("strokes") if isinstance(r.get("strokes"), (int, float)) else float("inf"),
+                r.get("zibiao_index") if isinstance(r.get("zibiao_index"), (int, float)) else float("inf"),
+            )
+        )
         return result
     finally:
         conn.close()

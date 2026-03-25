@@ -6,6 +6,12 @@ Release history and version notes. Newest releases are at the top.
 
 ---
 
+## [v0.2.17]
+
+- **Pinyin search resilience:** Fix HWXNet pinyin search when `searchable_pinyin` rows are stale or malformed in Supabase. Backend now recomputes normalized keys from the stored `pinyin` column at query time as a safety net, and the `add_searchable_pinyin_column.py` backfill script remains the canonical repair path for the indexed DB data. Added regression coverage for legacy accented-key rows (for example `zhèng`/`dāng` stored instead of `zheng4`/`dang1`).
+
+---
+
 ## [v0.2.16]
 
 - **Pinyin Recall (#30):** Make multi‑pinyin handling consistent across correct-answer, wrong-answer, and review screens. Backend `missed_item` now includes `all_pinyin` and `is_polyphonic`, and the frontend reuses a shared display so polyphonic characters (e.g. 占, 中) always show all readings with the primary one highlighted.
