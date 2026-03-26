@@ -6,6 +6,21 @@ This file records changes to the character bank (character set, source data, and
 
 ---
 
+## 2026-03-27 — 嗯 manual normalization + DB sync
+
+- **What:** Reworked `嗯` as a fully curated special-case row in `extracted_characters_hwxnet.json`.
+- **JSON changes:**
+  - normalized top-level `拼音` from numbered placeholder forms (`ng4`, `ng2`, `ng3`, `n2`, `n3`, `n4`) to tone-mark form: `["ǹg", "ńg", "ňg"]`
+  - replaced empty `基本字义解释` with 3 reading-specific buckets:
+    - `ǹg`: `叹词，表示应允或肯定。`; `表示叹惜，或语气上的间歇。`
+    - `ńg`: `叹词。表示疑问。` with example `嗯！你怎么还没去？`
+    - `ňg`: `叹词。表示出乎意外或不以为然。`
+- **Why:** After the extra-reading cleanup, `嗯` remained the one polyphonic row with no structured `basic_meanings` coverage. The raw row also used placeholder numbered pinyin and was not suitable for reading-aware downstream use.
+- **DB backup:** Before syncing the change, created:
+  - `hwxnet_characters_backup_20260326_173620`
+- **DB sync:** Re-ran `chinese_chr_app/backend/scripts/characters/create_hwxnet_characters_table.py --all` so the live `hwxnet_characters` row for `嗯` now matches the curated JSON.
+- **Verification:** Direct live DB read confirmed `嗯` now stores `["ǹg", "ńg", "ňg"]` plus the 3 structured `basic_meanings` buckets above.
+
 ## 2026-03-27 — HWXNet `basic_meanings` extra-reading review + DB sync
 
 - **What:** Reviewed every `基本字义解释[].读音` that appeared in `basic_meanings` but not in the top-level `拼音` list, then applied those decisions into `extracted_characters_hwxnet.json` and synced the live `hwxnet_characters` table from the cleaned JSON.
@@ -17,7 +32,6 @@ This file records changes to the character bank (character set, source data, and
 - **Scripts / artifacts:**
   - `chinese_chr_app/backend/scripts/characters/review_extra_basic_meanings_pinyin.py`
   - `data/hwxnet_extra_basic_meanings_pinyin_decisions.json`
-  - temporary reviewed output: `data/extracted_characters_hwxnet.basic_meanings_pinyin_reviewed.json`
 - **JSON backup:** Before overwriting the main JSON, created a local backup and then moved it into `data/backups/` with a descriptive name:
   - `data/backups/extracted_characters_hwxnet.20260327-basic-meanings-extra-pinyin-review-backup.json`
 - **DB backup:** Before the live upsert, created:
