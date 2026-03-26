@@ -6,6 +6,25 @@ This file records changes to the character bank (character set, source data, and
 
 ---
 
+## 2026-03-27 — HWXNet `basic_meanings` extra-reading review + DB sync
+
+- **What:** Reviewed every `基本字义解释[].读音` that appeared in `basic_meanings` but not in the top-level `拼音` list, then applied those decisions into `extracted_characters_hwxnet.json` and synced the live `hwxnet_characters` table from the cleaned JSON.
+- **Scope:** `141` reviewed extra-reading candidates total.
+  - `125` extra `basic_meanings` senses removed
+  - `16` `读音` values corrected in place
+  - `128` characters changed overall
+- **Typical cleanup types:** archaic-only readings that should not stay in the learner-facing corpus, malformed neutral-tone placeholders (`er`, `guo`, `d`, `mb`), and typo-level fixes where the `basic_meanings` reading should match the formal `拼音` list.
+- **Scripts / artifacts:**
+  - `chinese_chr_app/backend/scripts/characters/review_extra_basic_meanings_pinyin.py`
+  - `data/hwxnet_extra_basic_meanings_pinyin_decisions.json`
+  - temporary reviewed output: `data/extracted_characters_hwxnet.basic_meanings_pinyin_reviewed.json`
+- **JSON backup:** Before overwriting the main JSON, created a local backup and then moved it into `data/backups/` with a descriptive name:
+  - `data/backups/extracted_characters_hwxnet.20260327-basic-meanings-extra-pinyin-review-backup.json`
+- **DB backup:** Before the live upsert, created:
+  - `hwxnet_characters_backup_20260326_172405`
+- **DB sync:** Re-ran `chinese_chr_app/backend/scripts/characters/create_hwxnet_characters_table.py --all` so `hwxnet_characters.basic_meanings` now matches the reviewed JSON.
+- **Verification note:** The existing `verify_hwxnet_characters.py` script currently gives false mismatches on this dataset because it expects each JSON row to contain an embedded `character` field. Direct live spot checks on changed rows confirmed the DB matches the cleaned JSON.
+
 ## 2026-03-26 — HWXNet 常用词组按拼音 DB backfill
 
 - **What:** Added `common_phrases_by_pinyin` to the live `hwxnet_characters` table and backfilled it from `extracted_characters_hwxnet.json`.

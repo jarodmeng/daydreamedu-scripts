@@ -1,0 +1,727 @@
+{
+  "version": 1,
+  "description": "Review decisions for extra HWXNet 基本字义解释 readings not present in top-level 拼音.",
+  "decisions": [
+    {
+      "character": "么",
+      "reading": "m",
+      "action": "modify",
+      "replacement_reading": "ma"
+    },
+    {
+      "character": "么",
+      "reading": "mó",
+      "action": "remove"
+    },
+    {
+      "character": "些",
+      "reading": "suò",
+      "action": "remove"
+    },
+    {
+      "character": "从",
+      "reading": "zòng",
+      "action": "remove"
+    },
+    {
+      "character": "仰",
+      "reading": "áng",
+      "action": "remove"
+    },
+    {
+      "character": "份",
+      "reading": "bīn",
+      "action": "remove"
+    },
+    {
+      "character": "休",
+      "reading": "xù",
+      "action": "remove"
+    },
+    {
+      "character": "何",
+      "reading": "hē",
+      "action": "remove"
+    },
+    {
+      "character": "佛",
+      "reading": "bì",
+      "action": "remove"
+    },
+    {
+      "character": "佛",
+      "reading": "bó",
+      "action": "remove"
+    },
+    {
+      "character": "俏",
+      "reading": "xiào",
+      "action": "remove"
+    },
+    {
+      "character": "倭",
+      "reading": "wēi",
+      "action": "remove"
+    },
+    {
+      "character": "儿",
+      "reading": "er",
+      "action": "remove"
+    },
+    {
+      "character": "兑",
+      "reading": "ruì",
+      "action": "remove"
+    },
+    {
+      "character": "兑",
+      "reading": "yuè",
+      "action": "remove"
+    },
+    {
+      "character": "内",
+      "reading": "nà",
+      "action": "remove"
+    },
+    {
+      "character": "净",
+      "reading": "chēng",
+      "action": "remove"
+    },
+    {
+      "character": "副",
+      "reading": "pì",
+      "action": "remove"
+    },
+    {
+      "character": "助",
+      "reading": "chú",
+      "action": "remove"
+    },
+    {
+      "character": "勃",
+      "reading": "bèi",
+      "action": "remove"
+    },
+    {
+      "character": "北",
+      "reading": "bèi",
+      "action": "remove"
+    },
+    {
+      "character": "厂",
+      "reading": "hàn",
+      "action": "modify",
+      "replacement_reading": "hǎn"
+    },
+    {
+      "character": "县",
+      "reading": "xuán",
+      "action": "remove"
+    },
+    {
+      "character": "参",
+      "reading": "sān",
+      "action": "remove"
+    },
+    {
+      "character": "吗",
+      "reading": "mb",
+      "action": "modify",
+      "replacement_reading": "ma"
+    },
+    {
+      "character": "吧",
+      "reading": "b",
+      "action": "modify",
+      "replacement_reading": "ba"
+    },
+    {
+      "character": "吾",
+      "reading": "yù",
+      "action": "remove"
+    },
+    {
+      "character": "呀",
+      "reading": "yb",
+      "action": "modify",
+      "replacement_reading": "ya"
+    },
+    {
+      "character": "呕",
+      "reading": "ōu",
+      "action": "remove"
+    },
+    {
+      "character": "呵",
+      "reading": "kē",
+      "action": "remove"
+    },
+    {
+      "character": "咧",
+      "reading": "lié",
+      "action": "remove"
+    },
+    {
+      "character": "咱",
+      "reading": "zbn",
+      "action": "modify",
+      "replacement_reading": "zan"
+    },
+    {
+      "character": "哇",
+      "reading": "wb",
+      "action": "modify",
+      "replacement_reading": "wa"
+    },
+    {
+      "character": "哪",
+      "reading": "nb",
+      "action": "modify",
+      "replacement_reading": "na"
+    },
+    {
+      "character": "哼",
+      "reading": "hng",
+      "action": "remove"
+    },
+    {
+      "character": "啦",
+      "reading": "lb",
+      "action": "modify",
+      "replacement_reading": "la"
+    },
+    {
+      "character": "啦",
+      "reading": "lá",
+      "action": "remove"
+    },
+    {
+      "character": "啰",
+      "reading": "luo",
+      "action": "remove"
+    },
+    {
+      "character": "啰",
+      "reading": "luó",
+      "action": "remove"
+    },
+    {
+      "character": "喝",
+      "reading": "yè",
+      "action": "remove"
+    },
+    {
+      "character": "嗦",
+      "reading": "suo",
+      "action": "remove"
+    },
+    {
+      "character": "坏",
+      "reading": "péi",
+      "action": "remove"
+    },
+    {
+      "character": "填",
+      "reading": "zhèn",
+      "action": "remove"
+    },
+    {
+      "character": "大",
+      "reading": "tài",
+      "action": "remove"
+    },
+    {
+      "character": "头",
+      "reading": "tou",
+      "action": "remove"
+    },
+    {
+      "character": "夸",
+      "reading": "kuà",
+      "action": "remove"
+    },
+    {
+      "character": "夹",
+      "reading": "xiá",
+      "action": "remove"
+    },
+    {
+      "character": "奥",
+      "reading": "yù",
+      "action": "remove"
+    },
+    {
+      "character": "她",
+      "reading": "jiě",
+      "action": "remove"
+    },
+    {
+      "character": "妃",
+      "reading": "pèi",
+      "action": "remove"
+    },
+    {
+      "character": "媪",
+      "reading": "wò",
+      "action": "remove"
+    },
+    {
+      "character": "媪",
+      "reading": "yùn",
+      "action": "remove"
+    },
+    {
+      "character": "孙",
+      "reading": "xùn",
+      "action": "remove"
+    },
+    {
+      "character": "家",
+      "reading": "jib",
+      "action": "modify",
+      "replacement_reading": "jia"
+    },
+    {
+      "character": "射",
+      "reading": "yì",
+      "action": "remove"
+    },
+    {
+      "character": "岂",
+      "reading": "kǎi",
+      "action": "remove"
+    },
+    {
+      "character": "岭",
+      "reading": "líng",
+      "action": "remove"
+    },
+    {
+      "character": "崭",
+      "reading": "chán",
+      "action": "remove"
+    },
+    {
+      "character": "弟",
+      "reading": "tuí",
+      "action": "remove"
+    },
+    {
+      "character": "弟",
+      "reading": "tì",
+      "action": "remove"
+    },
+    {
+      "character": "弥",
+      "reading": "mǐ",
+      "action": "remove"
+    },
+    {
+      "character": "当",
+      "reading": "d",
+      "action": "remove"
+    },
+    {
+      "character": "彭",
+      "reading": "bāng",
+      "action": "remove"
+    },
+    {
+      "character": "愉",
+      "reading": "tōu",
+      "action": "remove"
+    },
+    {
+      "character": "抢",
+      "reading": "chēng",
+      "action": "remove"
+    },
+    {
+      "character": "拌",
+      "reading": "pàn",
+      "action": "remove"
+    },
+    {
+      "character": "拓",
+      "reading": "zhí",
+      "action": "remove"
+    },
+    {
+      "character": "拘",
+      "reading": "gōu",
+      "action": "remove"
+    },
+    {
+      "character": "拮",
+      "reading": "jiá",
+      "action": "remove"
+    },
+    {
+      "character": "挎",
+      "reading": "kū",
+      "action": "remove"
+    },
+    {
+      "character": "捻",
+      "reading": "niē",
+      "action": "remove"
+    },
+    {
+      "character": "掠",
+      "reading": "è",
+      "action": "modify",
+      "replacement_reading": "lüè"
+    },
+    {
+      "character": "掺",
+      "reading": "xiān",
+      "action": "remove"
+    },
+    {
+      "character": "提",
+      "reading": "dǐ",
+      "action": "remove"
+    },
+    {
+      "character": "揣",
+      "reading": "tuán",
+      "action": "remove"
+    },
+    {
+      "character": "揣",
+      "reading": "zhuī",
+      "action": "remove"
+    },
+    {
+      "character": "揭",
+      "reading": "qì",
+      "action": "remove"
+    },
+    {
+      "character": "摄",
+      "reading": "niè",
+      "action": "remove"
+    },
+    {
+      "character": "术",
+      "reading": "shú",
+      "action": "remove"
+    },
+    {
+      "character": "朱",
+      "reading": "shú",
+      "action": "remove"
+    },
+    {
+      "character": "条",
+      "reading": "tiāo",
+      "action": "remove"
+    },
+    {
+      "character": "栅",
+      "reading": "cè",
+      "action": "remove"
+    },
+    {
+      "character": "栅",
+      "reading": "shi",
+      "action": "remove"
+    },
+    {
+      "character": "棍",
+      "reading": "hùn",
+      "action": "remove"
+    },
+    {
+      "character": "榜",
+      "reading": "bàng",
+      "action": "remove"
+    },
+    {
+      "character": "毒",
+      "reading": "dài",
+      "action": "remove"
+    },
+    {
+      "character": "泄",
+      "reading": "yì",
+      "action": "remove"
+    },
+    {
+      "character": "泽",
+      "reading": "shì",
+      "action": "remove"
+    },
+    {
+      "character": "洒",
+      "reading": "xǐ",
+      "action": "remove"
+    },
+    {
+      "character": "淌",
+      "reading": "chǎng",
+      "action": "remove"
+    },
+    {
+      "character": "淳",
+      "reading": "zhūn",
+      "action": "remove"
+    },
+    {
+      "character": "渠",
+      "reading": "jù",
+      "action": "remove"
+    },
+    {
+      "character": "港",
+      "reading": "jiǎng",
+      "action": "remove"
+    },
+    {
+      "character": "甸",
+      "reading": "shèng",
+      "action": "remove"
+    },
+    {
+      "character": "甸",
+      "reading": "tián",
+      "action": "remove"
+    },
+    {
+      "character": "略",
+      "reading": "è",
+      "action": "modify",
+      "replacement_reading": "lüè"
+    },
+    {
+      "character": "疆",
+      "reading": "qiáng",
+      "action": "remove"
+    },
+    {
+      "character": "疑",
+      "reading": "nǐ",
+      "action": "remove"
+    },
+    {
+      "character": "疙",
+      "reading": "yì",
+      "action": "remove"
+    },
+    {
+      "character": "瘩",
+      "reading": "db",
+      "action": "modify",
+      "replacement_reading": "da"
+    },
+    {
+      "character": "盖",
+      "reading": "hé",
+      "action": "remove"
+    },
+    {
+      "character": "瞒",
+      "reading": "mén",
+      "action": "remove"
+    },
+    {
+      "character": "硕",
+      "reading": "shí",
+      "action": "remove"
+    },
+    {
+      "character": "票",
+      "reading": "piāo",
+      "action": "remove"
+    },
+    {
+      "character": "空",
+      "reading": "kǒng",
+      "action": "remove"
+    },
+    {
+      "character": "簿",
+      "reading": "bó",
+      "action": "remove"
+    },
+    {
+      "character": "纵",
+      "reading": "zǒng",
+      "action": "remove"
+    },
+    {
+      "character": "织",
+      "reading": "zhì",
+      "action": "remove"
+    },
+    {
+      "character": "罢",
+      "reading": "b",
+      "action": "modify",
+      "replacement_reading": "ba"
+    },
+    {
+      "character": "罢",
+      "reading": "pí",
+      "action": "remove"
+    },
+    {
+      "character": "羊",
+      "reading": "xiáng",
+      "action": "remove"
+    },
+    {
+      "character": "胖",
+      "reading": "pàn",
+      "action": "remove"
+    },
+    {
+      "character": "能",
+      "reading": "nài",
+      "action": "remove"
+    },
+    {
+      "character": "苏",
+      "reading": "sù",
+      "action": "remove"
+    },
+    {
+      "character": "苛",
+      "reading": "hē",
+      "action": "remove"
+    },
+    {
+      "character": "苹",
+      "reading": "pēng",
+      "action": "remove"
+    },
+    {
+      "character": "莫",
+      "reading": "mù",
+      "action": "remove"
+    },
+    {
+      "character": "虐",
+      "reading": "è",
+      "action": "remove"
+    },
+    {
+      "character": "蚣",
+      "reading": "zhōng",
+      "action": "remove"
+    },
+    {
+      "character": "蟆",
+      "reading": "mb",
+      "action": "modify",
+      "replacement_reading": "ma"
+    },
+    {
+      "character": "蟒",
+      "reading": "měng",
+      "action": "remove"
+    },
+    {
+      "character": "裳",
+      "reading": "sh",
+      "action": "modify",
+      "replacement_reading": "shang"
+    },
+    {
+      "character": "许",
+      "reading": "hǔ",
+      "action": "remove"
+    },
+    {
+      "character": "详",
+      "reading": "yáng",
+      "action": "remove"
+    },
+    {
+      "character": "趋",
+      "reading": "cù",
+      "action": "remove"
+    },
+    {
+      "character": "跳",
+      "reading": "táo",
+      "action": "remove"
+    },
+    {
+      "character": "辗",
+      "reading": "niǎn",
+      "action": "remove"
+    },
+    {
+      "character": "过",
+      "reading": "guo",
+      "action": "remove"
+    },
+    {
+      "character": "远",
+      "reading": "yuàn",
+      "action": "remove"
+    },
+    {
+      "character": "追",
+      "reading": "duī",
+      "action": "remove"
+    },
+    {
+      "character": "邪",
+      "reading": "xú",
+      "action": "remove"
+    },
+    {
+      "character": "邪",
+      "reading": "yá",
+      "action": "remove"
+    },
+    {
+      "character": "邪",
+      "reading": "yú",
+      "action": "remove"
+    },
+    {
+      "character": "隋",
+      "reading": "duò",
+      "action": "remove"
+    },
+    {
+      "character": "隐",
+      "reading": "yìn",
+      "action": "remove"
+    },
+    {
+      "character": "隶",
+      "reading": "dài",
+      "action": "remove"
+    },
+    {
+      "character": "难",
+      "reading": "nuó",
+      "action": "remove"
+    },
+    {
+      "character": "频",
+      "reading": "bīn",
+      "action": "remove"
+    },
+    {
+      "character": "风",
+      "reading": "fěng",
+      "action": "remove"
+    },
+    {
+      "character": "骚",
+      "reading": "sǎo",
+      "action": "remove"
+    },
+    {
+      "character": "鳃",
+      "reading": "xǐ",
+      "action": "remove"
+    }
+  ]
+}
