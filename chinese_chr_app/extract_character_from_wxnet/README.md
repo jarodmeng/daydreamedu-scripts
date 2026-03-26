@@ -12,6 +12,11 @@ Where `<character>` is a single simplified Chinese character.
 
 - **`extract_character_hwxnet.py`** - Core library for extracting information for a single character
 - **`batch_extract_hwxnet.py`** - Batch extraction script with parallel processing support
+- **`extract_common_phrase_character_readings.py`** - Derive the target-character reading tag for each 常用词组 phrase on a character's HWXNet page
+- **`build_common_phrase_duplicate_review.py`** - Build a self-contained HTML reviewer for duplicated common-phrase readings
+- **`apply_common_phrase_duplicate_decisions.py`** - Apply exported duplicate-review decisions to the extracted common-phrase reading artifact
+- **`build_common_phrases_by_pinyin_transition.py`** - Convert the reviewed phrase-reading artifact into the bucketed `常用词组按拼音` transition shape
+- **`merge_common_phrases_by_pinyin_into_main_hwxnet.py`** - Back up and merge `常用词组按拼音` into `data/extracted_characters_hwxnet.json`
 - **`test_extract_character_hwxnet.py`** - Unit tests: 例词 extraction (minimal HTML, no network) plus full extraction tests (core fields, 常用词组, 例词 segmentation checks)
 - **`validate_extracted_data.py`** - Data quality validation script
 - **`extract_radical_stroke_counts.py`** - Extract radical → stroke count from [按部首查字](https://zd.hwxnet.com/bushou.html); writes `data/radical_stroke_counts.json` for the app’s Radicals page sort-by-stroke feature
@@ -67,6 +72,63 @@ python batch_extract_hwxnet.py --resume
 # Test mode (limit to 10 characters)
 python batch_extract_hwxnet.py --test
 ```
+
+### 常用词组 target-character reading tags
+
+```bash
+# Derive the reading of the target character within each 常用词组 phrase
+python extract_common_phrase_character_readings.py 行 --pretty
+```
+
+This script is intentionally narrow:
+
+- it reads the 常用词组 section for one character
+- it uses the displayed phrase pinyin on the HWXNet page
+- it derives the reading of the target character in each phrase
+- it does not try to build a full phrase-pronunciation dataset as the main artifact
+
+### Duplicate reading review UI
+
+```bash
+# Build a self-contained browser review page for duplicated phrase/readings
+python build_common_phrase_duplicate_review.py
+```
+
+This writes:
+
+- `review_common_phrase_duplicates.html` - local review UI with embedded duplicate cases
+
+In the browser UI you can:
+
+- choose one reading
+- keep both readings
+- add notes
+- export decisions as JSON
+- import a previously exported decision file
+
+After review, apply the exported decisions to the main artifact:
+
+```bash
+python apply_common_phrase_duplicate_decisions.py \
+  --decisions /path/to/common_phrase_duplicate_decisions.json
+```
+
+### 常用词组按拼音 transition field
+
+```bash
+# Build the bucketed transition payload from the reviewed artifact
+python build_common_phrases_by_pinyin_transition.py --output /tmp/hwxnet_common_phrases_by_pinyin.json
+
+# Back up extracted_characters_hwxnet.json and merge the new field in place
+python merge_common_phrases_by_pinyin_into_main_hwxnet.py
+```
+
+Rules:
+
+- `常用词组` stays unchanged as compatibility data
+- `常用词组按拼音` uses the same bucket shape as Feng `WordsByPinyin`
+- polyphonic buckets come from the reviewed artifact
+- monophonic buckets are generated mechanically from the flat `常用词组` list
 
 ### Running Tests
 

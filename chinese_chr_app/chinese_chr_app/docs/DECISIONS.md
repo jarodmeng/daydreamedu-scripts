@@ -127,3 +127,36 @@ Polyphonic buckets are derived from the reviewed Feng artifact; monophonic bucke
 **Consequences:** Consumers should migrate toward `WordsByPinyin` as the preferred structured field, flattening only when current flat behavior must be preserved. Legacy `Words` remains temporary compatibility data and should be deprecated only after consumer migration is complete.
 
 **Status:** Accepted
+
+---
+
+## ADR-007: HWXNet 常用词组按拼音 Transition Field
+
+**Context:** HWXNet common phrases were historically stored as a flat `常用词组` / `common_phrases` list, which was sufficient for generic display and fallback stem-word use but not for future reading-aware handling of polyphonic characters. A completed reviewed artifact now maps each HWXNet phrase to a target-character reading for the covered polyphonic rows, and we wanted to land that structure without breaking current consumers or losing provenance.
+
+**Decision:** Introduce a transition field:
+
+- JSON: `常用词组按拼音`
+- Supabase: `common_phrases_by_pinyin`
+
+Shape:
+
+| Field | Type | Meaning |
+|------|------|---------|
+| `Pinyin` | string | One HWXNet reading from the row’s `拼音` list |
+| `Phrases` | string[] | Ordered HWXNet common phrases for that reading |
+
+Rules:
+
+- one bucket per represented reading
+- bucket order matches the row’s `拼音` order
+- monophonic rows are wrapped mechanically from the existing flat `常用词组`
+- legacy flat `常用词组` / `common_phrases` remains during the transition for backward compatibility
+- true polyphonic phrases may appear in multiple buckets (for example `琢磨`)
+- the reviewed artifact `extracted_hwxnet_common_phrase_character_readings.reviewed.json` remains checked in as the provenance source
+
+**Rationale:** This preserves the current app behavior while making reviewed HWXNet phrase-reading assignments first-class data. It also keeps regeneration, DB backfill, and debugging deterministic and reversible, rather than embedding one-off manual grouping into runtime logic.
+
+**Consequences:** Consumers should migrate toward `常用词组按拼音` / `common_phrases_by_pinyin` as the preferred structured field, flattening only when current flat behavior must be preserved. Legacy flat `常用词组` remains temporary compatibility data and should be deprecated only after consumer migration is complete.
+
+**Status:** Accepted
