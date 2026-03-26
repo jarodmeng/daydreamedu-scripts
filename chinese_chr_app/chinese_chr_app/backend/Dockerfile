@@ -12,6 +12,7 @@ RUN pip3 install --no-cache-dir -r requirements.txt
 COPY chinese_chr_app/backend/app.py .
 COPY chinese_chr_app/backend/auth.py .
 COPY chinese_chr_app/backend/database.py .
+COPY chinese_chr_app/backend/common_phrases.py .
 COPY chinese_chr_app/backend/pinyin_search.py .
 COPY chinese_chr_app/backend/pinyin_recall.py .
 
