@@ -47,6 +47,8 @@ if (!fs.existsSync(appPath)) {
 const pythonExe = pickPythonExecutable();
 console.log(`[e2e-backend] Using python: ${pythonExe}`);
 console.log(`[e2e-backend] Starting: ${appPath}`);
+const e2eDevUserId = process.env.E2E_DEV_USER_ID || 'e2e-dev';
+console.log(`[e2e-backend] Using dev user: ${e2eDevUserId}`);
 
 // DB-only backend runtime: pass SUPABASE_URL through when available so backend JWT
 // verification works even if only VITE_SUPABASE_URL is set in the environment.
@@ -68,7 +70,7 @@ const child = spawn(pythonExe, [appPath], {
     ...process.env,
     PORT: process.env.PORT || '5001',
     FLASK_DEBUG: process.env.FLASK_DEBUG || '0',
-    PINYIN_RECALL_DEV_USER: 'e2e-dev',
+    PINYIN_RECALL_DEV_USER: e2eDevUserId,
     ...extraEnv,
   },
 });

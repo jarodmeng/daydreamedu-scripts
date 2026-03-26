@@ -12,6 +12,10 @@ on:
       - "chinese_chr_app/chinese_chr_app/**"
       - ".github/workflows/chinese_chr_app_e2e.yml"
 
+concurrency:
+  group: chinese-chr-app-e2e-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   e2e:
     runs-on: ubuntu-latest

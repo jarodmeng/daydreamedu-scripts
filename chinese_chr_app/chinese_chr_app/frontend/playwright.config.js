@@ -4,6 +4,11 @@ import { defineConfig, devices } from '@playwright/test';
 // NOTE: In some local environments (including certain IDE shells), `CI` can be set even though
 // we're not actually running in a CI provider. Use GitHub Actions as the authoritative CI signal.
 const isCI = process.env.GITHUB_ACTIONS === 'true';
+const e2eDevUserId =
+  process.env.E2E_DEV_USER_ID ||
+  (isCI
+    ? `e2e-gha-${process.env.GITHUB_RUN_ID || 'run'}-${process.env.GITHUB_RUN_ATTEMPT || '1'}`
+    : 'e2e-dev');
 
 export default defineConfig({
   testDir: './e2e',
@@ -35,6 +40,7 @@ export default defineConfig({
         ...process.env,
         PORT: '5001',
         FLASK_DEBUG: '0',
+        E2E_DEV_USER_ID: e2eDevUserId,
       },
       stdout: 'pipe',
       stderr: 'pipe',
@@ -49,10 +55,10 @@ export default defineConfig({
         ...process.env,
         NODE_ENV: 'development',
         VITE_E2E_AUTH_BYPASS: '1',
+        VITE_E2E_DEV_USER_ID: e2eDevUserId,
       },
       stdout: 'ignore',
       stderr: 'pipe',
     },
   ],
 });
-

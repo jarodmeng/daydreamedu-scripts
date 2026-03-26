@@ -77,11 +77,16 @@ test.describe('Profile page', () => {
     await expect(page.getByText(`本次共 ${MIN_ANSWERS} 题`)).toBeVisible();
 
     // ── Step 2: Navigate to profile and verify progress snapshot ──
+    const progressResponsePromise = page.waitForResponse((response) => {
+      return response.url().includes('/api/profile/progress') && response.request().method() === 'GET'
+    })
     await page.goto('/profile');
     await expect(page.getByRole('heading', { name: '我的' })).toBeVisible();
+    const progressResponse = await progressResponsePromise
+    expect(progressResponse.ok()).toBeTruthy()
 
-    // Wait for progress to load (no loading spinner, no error)
-    // 45s timeout: profile progress replays pinyin_recall_item_answered; e2e-dev can accumulate many rows across CI runs
+    // Wait for progress to load (no loading spinner, no error).
+    // The backend now uses a per-run E2E dev user in CI so this should stay fast and isolated.
     await expect(page.locator('.profile-loading')).toHaveCount(0, { timeout: 45_000 });
     await expect(page.locator('.profile-error')).toHaveCount(0);
 

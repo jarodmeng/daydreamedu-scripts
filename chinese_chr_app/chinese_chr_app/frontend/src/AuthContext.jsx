@@ -6,10 +6,11 @@ const API_URL = import.meta.env.VITE_API_URL || ''
 const AuthContext = createContext(null)
 
 /** E2E-only: fake session for testing auth-gated features. Set via VITE_E2E_AUTH_BYPASS=1 or ?e2e_auth=1 in URL. */
-const E2E_DEV_TOKEN = 'e2e-dev-token'
+const E2E_DEV_USER_ID = import.meta.env.VITE_E2E_DEV_USER_ID || 'e2e-dev'
+const E2E_DEV_TOKEN = `e2e-dev-token-${E2E_DEV_USER_ID}`
 const E2E_FAKE_SESSION = {
   access_token: E2E_DEV_TOKEN,
-  user: { id: 'e2e-dev', user_metadata: null },
+  user: { id: E2E_DEV_USER_ID, user_metadata: null },
 }
 
 export function AuthProvider({ children }) {
