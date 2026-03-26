@@ -30,6 +30,8 @@ Paths are relative to the repo root. The app lives under `chinese_chr_app/chines
   - `WordsByPinyin` is the preferred consumer target during the migration to reading-aware Feng word handling.
   - Legacy `Words` is retained for backward compatibility and flattened display behavior.
 - **HWXNet (~3664 characters):** Dictionary source for display, radicals, stroke-counts, and pinyin search. Union of Feng and level-1 commonly used characters. Stored in Supabase table `hwxnet_characters`. Includes `searchable_pinyin` for pinyin search.
+  - Transition note: HWXNet rows now carry both legacy flat `常用词组` / `common_phrases` and structured `常用词组按拼音` / `common_phrases_by_pinyin`.
+  - Current conservative migration behavior prefers the structured field internally, then flattens it back to legacy phrase order for consumers that are not yet reading-aware.
 - **Stroke order:** Fetched on demand from HanziWriter-compatible CDN; backend proxies and may cache under `data/temp/hanzi_writer/`.
 - **Radical stroke counts:** Used to sort the Radicals page by 按部首笔画. Stored in Supabase table `radical_stroke_counts`.
 
@@ -126,7 +128,7 @@ Only due items (and new items within cap) are eligible for the next batch.
 
 ### 8.4 Prompt and distractors
 
-- **Prompt:** Hanzi → pinyin-with-tone (MCQ). Stem shows the character and 1–3 example words/phrases (from Feng words or HWXNet 例词). 我不知道 is always offered.
+- **Prompt:** Hanzi → pinyin-with-tone (MCQ). Stem shows the character and 1–3 example words/phrases (from Feng words or HWXNet 例词). When HWXNet 常用词组 are used as backup, the backend now prefers `common_phrases_by_pinyin` but conservatively flattens it back to legacy phrase ordering. 我不知道 is always offered.
 - **Distractors:** Same syllable different tone, same tone different syllable, tone confusions; polyphonic characters use first pinyin as correct and exclude other readings from distractors.
 - **Logging:** Events are written to `pinyin_recall_item_presented` (with `batch_id`, `batch_mode`, `batch_character_category`) and `pinyin_recall_item_answered` (with `score_before`, `score_after`, `category`).
 

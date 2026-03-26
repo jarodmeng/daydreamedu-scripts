@@ -11,6 +11,7 @@ import time
 from collections import defaultdict
 from typing import Any, Dict, Iterable, List, Optional, Set, Tuple
 
+from common_phrases import flatten_hwxnet_common_phrases
 from pinyin_search import pinyin_to_base_and_tone
 
 # Stage ladder (days until next review): 0 = same session, 1 = +1d, 2 = +3d, 3 = +7d, 4 = +14d, 5 = +30d
@@ -249,11 +250,8 @@ def get_stem_words(
                 if ex and ex not in lici_all:
                     lici_all.append(ex)
 
-    # Collect HWXNet 常用词组 (common_phrases)
-    common_all: List[str] = []
-    common_field = entry.get("常用词组")
-    if isinstance(common_field, list):
-        common_all = list(common_field)
+    # Collect HWXNet 常用词组, preferring the structured transition field.
+    common_all = flatten_hwxnet_common_phrases(entry)
 
     lici_normal, lici_deprioritized = _partition_words(lici_all)
     common_normal, common_deprioritized = _partition_words(common_all)

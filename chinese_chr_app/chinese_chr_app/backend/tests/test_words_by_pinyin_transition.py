@@ -11,6 +11,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 import database
 import pinyin_recall
+from common_phrases import flatten_hwxnet_common_phrases
 
 
 CHARACTERS_JSON = Path(__file__).resolve().parents[3] / "data" / "characters.json"
@@ -77,6 +78,39 @@ def test_flatten_feng_words_falls_back_to_bucket_order_without_legacy_words():
     assert pinyin_recall.flatten_feng_words(entry) == ["漂流", "漂泊", "漂亮"]
 
 
+def test_flatten_hwxnet_common_phrases_preserves_current_legacy_order_behavior():
+    entry = {
+        "character": "累",
+        "常用词组": ["累臣", "累次", "累累"],
+        "常用词组按拼音": [
+            {"Pinyin": "lèi", "Phrases": ["累乏"]},
+            {"Pinyin": "léi", "Phrases": ["累臣", "乱石累累"]},
+            {"Pinyin": "lěi", "Phrases": ["累次", "罪行累累"]},
+        ],
+    }
+
+    assert flatten_hwxnet_common_phrases(entry) == [
+        "累臣",
+        "累次",
+        "累累",
+        "累乏",
+        "乱石累累",
+        "罪行累累",
+    ]
+
+
+def test_flatten_hwxnet_common_phrases_falls_back_to_bucket_order_without_legacy_phrases():
+    entry = {
+        "character": "琢",
+        "常用词组按拼音": [
+            {"Pinyin": "zhuó", "Phrases": ["琢磨", "琢石"]},
+            {"Pinyin": "zuó", "Phrases": ["琢磨"]},
+        ],
+    }
+
+    assert flatten_hwxnet_common_phrases(entry) == ["琢磨", "琢石"]
+
+
 def test_get_stem_words_still_returns_flat_words_for_polyphonic_character():
     character_lookup = {
         "的": {
@@ -93,6 +127,39 @@ def test_get_stem_words_still_returns_flat_words_for_polyphonic_character():
 
     assert len(result) == 4
     assert set(result) == {"的确", "好的", "是的", "真的"}
+
+
+def test_get_stem_words_prefers_hwxnet_common_phrases_by_pinyin_over_legacy_list():
+    hwxnet_lookup = {
+        "累": {
+            "character": "累",
+            "常用词组": ["累臣", "累次", "累累"],
+            "常用词组按拼音": [
+                {"Pinyin": "lèi", "Phrases": ["累乏"]},
+                {"Pinyin": "léi", "Phrases": ["累臣", "乱石累累"]},
+                {"Pinyin": "lěi", "Phrases": ["累次", "罪行累累"]},
+            ],
+            "基本字义解释": [],
+        }
+    }
+
+    result = pinyin_recall.get_stem_words("累", {}, hwxnet_lookup, max_words=6)
+
+    assert result == ["累臣", "累次", "累累", "累乏", "乱石累累", "罪行累累"]
+
+
+def test_get_stem_words_falls_back_to_legacy_hwxnet_common_phrases_when_structured_missing():
+    hwxnet_lookup = {
+        "阿": {
+            "character": "阿",
+            "常用词组": ["阿爸", "阿鼻", "阿房宫"],
+            "基本字义解释": [],
+        }
+    }
+
+    result = pinyin_recall.get_stem_words("阿", {}, hwxnet_lookup, max_words=3)
+
+    assert result == ["阿爸", "阿鼻", "阿房宫"]
 
 
 def test_validate_field_value_accepts_valid_words_by_pinyin(monkeypatch):

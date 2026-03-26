@@ -1,9 +1,14 @@
 #!/usr/bin/env python3
 import argparse
 import json
+import sys
 from pathlib import Path
 from typing import List, Tuple
 
+BACKEND_DIR = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(BACKEND_DIR))
+
+from common_phrases import flatten_hwxnet_common_phrases
 
 ROOT = Path(__file__).resolve().parents[4]
 FENG_PATH = ROOT / "data" / "characters.json"
@@ -57,14 +62,10 @@ def load_hwxnet_words(character: str) -> List[str]:
     if words:
         return words
 
-    # Backup: 常用词组 (common_phrases) when there are no 例词
-    common_phrases = entry.get("常用词组") or []
-    if isinstance(common_phrases, list):
-        result: List[str] = []
-        for phrase in common_phrases:
-            if phrase and phrase not in result:
-                result.append(phrase)
-        return result
+    # Backup: 常用词组, preferring the structured transition field.
+    common_phrases = flatten_hwxnet_common_phrases(entry)
+    if common_phrases:
+        return common_phrases
 
     return []
 

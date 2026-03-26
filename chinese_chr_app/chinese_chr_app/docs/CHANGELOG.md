@@ -6,6 +6,14 @@ Release history and version notes. Newest releases are at the top.
 
 ---
 
+## [v0.2.19]
+
+- **HWXNet 常用词组按拼音 transition:** Add structured `常用词组按拼音` to `extracted_characters_hwxnet.json`, add `common_phrases_by_pinyin` to the live `hwxnet_characters` table, and keep `extracted_hwxnet_common_phrase_character_readings.reviewed.json` in git as the provenance artifact. Polyphonic buckets are derived from the reviewed phrase-reading artifact; monophonic rows are wrapped mechanically from legacy `常用词组`.
+- **Conservative consumer migration:** Runtime and utility consumers now prefer the structured HWXNet field while conservatively flattening it back into legacy phrase order when reading-aware handling is not yet needed. This rollout updates Pinyin Recall stem selection plus supporting debug/report scripts without changing the flat-field fallback contract.
+- **Test coverage:** Added focused backend regression coverage for HWXNet flattening and stem-word preference/fallback behavior in `backend/tests/test_words_by_pinyin_transition.py`.
+
+---
+
 ## [v0.2.18]
 
 - **Feng WordsByPinyin transition:** Add structured `WordsByPinyin` to Feng data in `characters.json` and add `words_by_pinyin` to the `feng_characters` table. Polyphonic buckets are derived from the completed reviewed Feng word-reading artifact; monophonic rows are wrapped mechanically. Current consumers now prefer the structured field internally while preserving the existing flat behavior and legacy `Words` remains temporarily for backward compatibility. Added transition scripts plus focused backend test coverage for normalization, flattening, validation, and data invariants.

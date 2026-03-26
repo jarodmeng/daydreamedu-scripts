@@ -14,6 +14,11 @@ import os
 import sys
 from pathlib import Path
 
+BACKEND_DIR = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(BACKEND_DIR))
+
+from common_phrases import flatten_hwxnet_common_phrases
+
 try:
     from dotenv import load_dotenv
     env_file = Path(__file__).resolve().parent.parent.parent / ".env.local"
@@ -47,11 +52,9 @@ def has_hwxnet_example_words(basic_meanings) -> bool:
     return False
 
 
-def has_common_phrases(common_phrases) -> bool:
-    """True if any 常用词组 exists (used as backup when there are no 例词)."""
-    if not common_phrases or not isinstance(common_phrases, list):
-        return False
-    for phrase in common_phrases:
+def has_common_phrases(entry) -> bool:
+    """True if any HWXNet 常用词组 exists (structured field preferred, legacy fallback)."""
+    for phrase in flatten_hwxnet_common_phrases(entry):
         if phrase and (str(phrase).strip() if isinstance(phrase, str) else phrase):
             return True
     return False
@@ -108,12 +111,24 @@ def main():
                     feng_by_char[ch] = flattened
 
             # HWXNet: one row per character (first by zibiao_index),
-            # character + basic_meanings + common_phrases
+            # character + basic_meanings + common_phrases + common_phrases_by_pinyin when available
+            cur.execute(
+                """
+                SELECT EXISTS (
+                    SELECT 1
+                    FROM information_schema.columns
+                    WHERE table_schema = current_schema()
+                      AND table_name = 'hwxnet_characters'
+                      AND column_name = 'common_phrases_by_pinyin'
+                )
+                """
+            )
+            has_common_phrases_by_pinyin = bool(cur.fetchone().get("exists"))
             cur.execute("""
-                SELECT DISTINCT ON (character) character, basic_meanings, common_phrases
+                SELECT DISTINCT ON (character) character, basic_meanings, common_phrases%s
                 FROM hwxnet_characters
                 ORDER BY character, zibiao_index
-            """)
+            """ % (", common_phrases_by_pinyin" if has_common_phrases_by_pinyin else ""))
             hwxnet_by_char = {}
             for row in cur.fetchall():
                 ch = (row.get("character") or "").strip()
@@ -123,6 +138,7 @@ def main():
                     hwxnet_by_char[ch] = {
                         "basic_meanings": row.get("basic_meanings"),
                         "common_phrases": row.get("common_phrases"),
+                        "common_phrases_by_pinyin": row.get("common_phrases_by_pinyin"),
                     }
 
         # Universe: all characters that can appear in pinyin recall (from hwxnet)
@@ -137,9 +153,8 @@ def main():
             )
             hwxnet_entry = hwxnet_by_char.get(ch) or {}
             basic_meanings = hwxnet_entry.get("basic_meanings")
-            common_phrases = hwxnet_entry.get("common_phrases")
             has_lici = has_hwxnet_example_words(basic_meanings)
-            has_common = has_common_phrases(common_phrases)
+            has_common = has_common_phrases(hwxnet_entry)
             # Primary: 例词; backup: 常用词组 only when 例词 are empty.
             has_hwxnet = has_lici or (not has_lici and has_common)
             if not has_feng and not has_hwxnet:
