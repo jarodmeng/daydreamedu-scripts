@@ -266,6 +266,23 @@ def validate_field_value(field: str, value: Any) -> Tuple[bool, Optional[str]]:
             if not isinstance(item, str):
                 return False, "Words items must be strings"
         return True, None
+
+    elif field == 'WordsByPinyin':
+        if not isinstance(value, list):
+            return False, "WordsByPinyin must be an array"
+        for item in value:
+            if not isinstance(item, dict):
+                return False, "WordsByPinyin items must be objects"
+            reading = item.get('Pinyin')
+            phrases = item.get('Phrases')
+            if not isinstance(reading, str) or len(reading.strip()) == 0:
+                return False, "WordsByPinyin.Pinyin must be a non-empty string"
+            if not isinstance(phrases, list):
+                return False, "WordsByPinyin.Phrases must be an array"
+            for phrase in phrases:
+                if not isinstance(phrase, str):
+                    return False, "WordsByPinyin.Phrases items must be strings"
+        return True, None
     
     elif field == 'Radical':
         if not isinstance(value, str):
@@ -414,7 +431,22 @@ def update_character_field(index: str, field: str, new_value: Any) -> Tuple[bool
         backup_success, backup_result = backup_character_files()
         if not backup_success:
             return False, f"Cannot proceed without backup: {backup_result}", None
-        success, err, updated = db.update_feng_character(index, field, new_value)
+
+        if field == 'WordsByPinyin':
+            normalized_words_by_pinyin = db.normalize_words_by_pinyin(current.get('Pinyin') or [], new_value)
+            synced_words = db.flatten_words_by_pinyin(
+                normalized_words_by_pinyin,
+                preferred_order=current.get('Words') or [],
+            )
+            success, err, updated = db.update_feng_character_fields(
+                index,
+                {
+                    'WordsByPinyin': normalized_words_by_pinyin,
+                    'Words': synced_words,
+                },
+            )
+        else:
+            success, err, updated = db.update_feng_character(index, field, new_value)
         if not success:
             return False, err or "Update failed", None
         log_character_edit(index, field, old_value, new_value)
@@ -442,8 +474,8 @@ def update_character(index):
         if new_value is None:
             return jsonify({'error': 'Value is required'}), 400
         
-        # Handle array fields (Pinyin, Words) - parse from string if needed
-        if field in ['Pinyin', 'Words']:
+        # Handle array fields (Pinyin, Words, WordsByPinyin) - parse from string if needed
+        if field in ['Pinyin', 'Words', 'WordsByPinyin']:
             if isinstance(new_value, str):
                 try:
                     new_value = json.loads(new_value)
@@ -453,6 +485,11 @@ def update_character(index):
                         new_value = [p.strip() for p in new_value.split(',') if p.strip()]
                     elif field == 'Words':
                         new_value = [w.strip() for w in new_value.split(',') if w.strip()]
+                    else:
+                        return jsonify({
+                            'success': False,
+                            'error': 'WordsByPinyin must be valid JSON'
+                        }), 400
         
         # Update the field
         success, error_msg, updated_character = update_character_field(index, field, new_value)

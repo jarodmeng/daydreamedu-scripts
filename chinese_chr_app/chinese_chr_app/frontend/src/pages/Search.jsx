@@ -25,6 +25,39 @@ function getStrokeBoxSize() {
   return window.innerWidth <= 768 ? Math.min(300, Math.max(200, window.innerWidth - 48)) : 420
 }
 
+function flattenWordsByPinyin(character) {
+  if (!character || typeof character !== 'object') return []
+
+  const legacyWords = Array.isArray(character.Words)
+    ? character.Words.filter(item => typeof item === 'string' && item.trim()).map(item => item.trim())
+    : []
+  const wordsByPinyin = Array.isArray(character.WordsByPinyin) ? character.WordsByPinyin : []
+
+  const flattened = []
+  const seen = new Set()
+
+  legacyWords.forEach(word => {
+    if (!seen.has(word)) {
+      flattened.push(word)
+      seen.add(word)
+    }
+  })
+
+  wordsByPinyin.forEach(bucket => {
+    if (!bucket || typeof bucket !== 'object' || !Array.isArray(bucket.Phrases)) return
+    bucket.Phrases.forEach(phrase => {
+      if (typeof phrase !== 'string') return
+      const value = phrase.trim()
+      if (value && !seen.has(value)) {
+        flattened.push(value)
+        seen.add(value)
+      }
+    })
+  })
+
+  return flattened
+}
+
 function Search() {
   const [searchParams, setSearchParams] = useSearchParams()
   const navigate = useNavigate()
@@ -265,7 +298,10 @@ function Search() {
 
   const getDisplayValue = (field) => {
     if (!character) return null
-    const value = character[field]
+    let value = character[field]
+    if (field === 'Words') {
+      value = flattenWordsByPinyin(character)
+    }
     if (field === 'Pinyin' || field === 'Words') {
       if (Array.isArray(value)) {
         return formatArrayForDisplay(value)

@@ -25,7 +25,10 @@ Paths are relative to the repo root. The app lives under `chinese_chr_app/chines
 
 ## 3. Data Model (high-level)
 
-- **Feng (3000 characters):** Primary curriculum set with card images and editable metadata (拼音, 部首, 笔画, 例句, 词组, 结构). Stored in Supabase table `feng_characters`.
+- **Feng (3000 characters):** Primary curriculum set with card images and maintained metadata (拼音, 部首, 笔画, 例句, 词组, 结构). Stored in Supabase table `feng_characters`.
+  - Transition note: Feng rows now carry both legacy flat `Words` and structured `WordsByPinyin` / `words_by_pinyin`.
+  - `WordsByPinyin` is the preferred consumer target during the migration to reading-aware Feng word handling.
+  - Legacy `Words` is retained for backward compatibility and flattened display behavior.
 - **HWXNet (~3664 characters):** Dictionary source for display, radicals, stroke-counts, and pinyin search. Union of Feng and level-1 commonly used characters. Stored in Supabase table `hwxnet_characters`. Includes `searchable_pinyin` for pinyin search.
 - **Stroke order:** Fetched on demand from HanziWriter-compatible CDN; backend proxies and may cache under `data/temp/hanzi_writer/`.
 - **Radical stroke counts:** Used to sort the Radicals page by 按部首笔画. Stored in Supabase table `radical_stroke_counts`.
@@ -37,7 +40,7 @@ Full schema, indexes, and creation/backfill scripts are in [backend/DATABASE.md]
 ## 4. Search Behavior
 
 - **Input:** One Chinese character or one pinyin syllable (e.g. `ke`, `wo3`). Single CJK character → character search; otherwise → pinyin search.
-- **Character search:** If the character is in the Feng set, the Search page shows four panels: 笔顺动画, 字典信息（hwxnet）, 字卡, 字符信息（冯氏早教识字卡）. If the character is only in HWXNet (dictionary-only), the page shows 笔顺动画 and 字典信息 only. Metadata for Feng entries is editable.
+- **Character search:** If the character is in the Feng set, the Search page shows four panels: 笔顺动画, 字典信息（hwxnet）, 字卡, 字符信息（冯氏早教识字卡）. If the character is only in HWXNet (dictionary-only), the page shows 笔顺动画 and 字典信息 only. Current Feng field display remains read-only; during the WordsByPinyin transition, the UI still presents the legacy flat 词组 view even though backend/data now carry structured `WordsByPinyin`.
 - **Pinyin search:** Results page at `/pinyin/:query` lists characters matching that reading, ranked by stroke count (ascending). Clicking a result opens the character detail (Search) view. The backend primarily uses `hwxnet_characters.searchable_pinyin`, but also recomputes normalized keys from `pinyin` at read time as a safety net if legacy rows contain stale or malformed search keys.
 
 ---
@@ -50,7 +53,7 @@ All under `/api/`. Base URL in development: `http://localhost:5001`.
 |--------|------|---------|
 | GET | `/api/characters/search?q=<character>` | Character search; returns card + dictionary data or dictionary-only. |
 | GET | `/api/pinyin-search?q=<pinyin>` | Pinyin search; returns characters ranked by stroke count. |
-| PUT | `/api/characters/<index>/update` | Update Feng character metadata. |
+| PUT | `/api/characters/<index>/update` | Update Feng character metadata (dormant backend edit surface; current Search UI is read-only). |
 | POST | `/api/log-character-view` | Log signed-in user’s character view (body: `character`, optional `display_name`). Requires Bearer token. |
 | GET | `/api/images/<index>/<page>` | Character card images (page1 or page2). |
 | GET | `/api/strokes?char=<character>` | Proxy/cached stroke JSON for HanziWriter. |

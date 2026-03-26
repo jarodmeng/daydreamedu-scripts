@@ -6,6 +6,26 @@ This file records changes to the character bank (character set, source data, and
 
 ---
 
+## 2026-03-26 — Feng WordsByPinyin transition field
+
+- **What:** Added a transition field `WordsByPinyin` to every Feng entry in `data/characters.json`. The new shape is an ordered array of buckets:
+  - `[{ "Pinyin": string, "Phrases": string[] }]`
+  - bucket order matches the row’s `Pinyin` order
+  - monophonic rows also use this shape, including one empty bucket when `Words` is empty
+- **Polyphonic source of truth:** For the current 163 polyphonic Feng characters, `WordsByPinyin` was derived from the completed reviewed artifact in `tag_character_pinyin_using_review/review/feng_word_reading_decisions.applied.json`.
+- **Monophonic source of truth:** For monophonic rows, `WordsByPinyin` was generated mechanically by wrapping the existing flat `Words` list into a single bucket.
+- **Compatibility:** Legacy `Words` was intentionally retained and not replaced. During the transition, `WordsByPinyin` is the preferred structured field while `Words` remains compatibility data for existing consumers.
+- **Scripts / DB:** Added migration tooling:
+  - `tag_character_pinyin_using_review/scripts/build_feng_words_by_pinyin_transition.py`
+  - `chinese_chr_app/backend/scripts/characters/add_words_by_pinyin_column.py`
+  - `chinese_chr_app/backend/scripts/characters/backfill_feng_words_by_pinyin_from_json.py`
+  - Supabase `feng_characters` now also carries `words_by_pinyin`
+- **Backup:** Created a Supabase-side backup table before further follow-up work:
+  - `feng_characters_backup_20260326_064246`
+- **Why:** This is the data-structure groundwork for reading-specific handling of Feng words on polyphonic characters, while preserving current app behavior during the migration.
+
+---
+
 ## 2026-03-08 — 呵 pinyin unified (Feng + hwxnet)
 
 - **What:** 呵 was showing different pinyin in different places: dictionary (hwxnet) had been pruned to hē only; 冯氏 (Feng) card still had Pinyin ["hē", "hè"]. Updated `data/characters.json` for 呵 to `Pinyin: ["hē"]` only and synced to `feng_characters` via `_update_feng_he_pinyin.py`. Backend now has `reload_hwxnet()` so dictionary cache can be refreshed after hwxnet_characters updates without full restart.

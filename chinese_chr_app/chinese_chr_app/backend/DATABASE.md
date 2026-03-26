@@ -31,6 +31,7 @@ See `.env.local.example` and [DEPLOYMENT.md](DEPLOYMENT.md) for production (e.g.
 | structure | text | |
 | sentence | text | |
 | words | jsonb | list |
+| words_by_pinyin | jsonb | transition field: `[{ "Pinyin": string, "Phrases": string[] }]` |
 
 **Indexes:** `idx_feng_characters_character`, `idx_feng_characters_zibiao_index` (partial).
 
@@ -201,10 +202,10 @@ Psycopg 3 (`psycopg[binary]>=3.1`). All functions return dict shapes compatible 
 
 | Function | Returns |
 |----------|--------|
-| `get_feng_characters()` | `List[Dict]` — all rows; keys: `Character`, `Index`, `zibiao_index`, `Pinyin`, `Radical`, `Strokes`, `Structure`, `Sentence`, `Words`. |
+| `get_feng_characters()` | `List[Dict]` — all rows; keys: `Character`, `Index`, `zibiao_index`, `Pinyin`, `Radical`, `Strokes`, `Structure`, `Sentence`, `Words`, `WordsByPinyin`. |
 | `get_feng_character_by_index(index)` | `Optional[Dict]` — one row, same shape. |
 | `get_feng_character_by_character(ch)` | `Optional[Dict]` — one row by character, same shape. |
-| `update_feng_character(index, field, value)` | `(bool, Optional[str], Optional[Dict])` — success, error message, updated row. Allowed fields: Character, Pinyin, Radical, Strokes, Structure, Sentence, Words. |
+| `update_feng_character(index, field, value)` | `(bool, Optional[str], Optional[Dict])` — success, error message, updated row. Allowed fields: Character, Pinyin, Radical, Strokes, Structure, Sentence, Words, WordsByPinyin. |
 
 **Column mapping (DB → response):** `character` → `Character`, `strokes` (int) → `Strokes` (string), `pinyin`/`words` (jsonb) → list.
 

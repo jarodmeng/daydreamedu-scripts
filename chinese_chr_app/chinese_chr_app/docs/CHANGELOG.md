@@ -6,6 +6,12 @@ Release history and version notes. Newest releases are at the top.
 
 ---
 
+## [v0.2.18]
+
+- **Feng WordsByPinyin transition:** Add structured `WordsByPinyin` to Feng data in `characters.json` and add `words_by_pinyin` to the `feng_characters` table. Polyphonic buckets are derived from the completed reviewed Feng word-reading artifact; monophonic rows are wrapped mechanically. Current consumers now prefer the structured field internally while preserving the existing flat behavior and legacy `Words` remains temporarily for backward compatibility. Added transition scripts plus focused backend test coverage for normalization, flattening, validation, and data invariants.
+
+---
+
 ## [v0.2.17]
 
 - **Pinyin search resilience:** Fix HWXNet pinyin search when `searchable_pinyin` rows are stale or malformed in Supabase. Backend now recomputes normalized keys from the stored `pinyin` column at query time as a safety net, and the `add_searchable_pinyin_column.py` backfill script remains the canonical repair path for the indexed DB data. Added regression coverage for legacy accented-key rows (for example `zhèng`/`dāng` stored instead of `zheng4`/`dang1`).

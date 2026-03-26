@@ -61,9 +61,22 @@ def main():
     conn = psycopg.connect(url, row_factory=dict_row)
     try:
         with conn.cursor() as cur:
+            cur.execute(
+                """
+                SELECT EXISTS (
+                    SELECT 1
+                    FROM information_schema.columns
+                    WHERE table_schema = current_schema()
+                      AND table_name = 'feng_characters'
+                      AND column_name = 'words_by_pinyin'
+                )
+                """
+            )
+            has_words_by_pinyin = bool(cur.fetchone().get("exists"))
+
             # Feng: one row per character (first by index), character + words
-            cur.execute("""
-                SELECT DISTINCT ON (character) character, words
+            cur.execute(f"""
+                SELECT DISTINCT ON (character) character, words{', words_by_pinyin' if has_words_by_pinyin else ''}
                 FROM feng_characters
                 ORDER BY character, index
             """)
@@ -73,8 +86,26 @@ def main():
                 if not ch:
                     continue
                 words = row.get("words")
+                words_by_pinyin = row.get("words_by_pinyin") if has_words_by_pinyin else None
                 if ch not in feng_by_char:
-                    feng_by_char[ch] = words
+                    flattened = []
+                    seen = set()
+                    if isinstance(words, list):
+                        for word in words:
+                            word_text = str(word).strip() if word is not None else ""
+                            if word_text and word_text not in seen:
+                                flattened.append(word_text)
+                                seen.add(word_text)
+                    if isinstance(words_by_pinyin, list):
+                        for bucket in words_by_pinyin:
+                            if not isinstance(bucket, dict):
+                                continue
+                            for phrase in bucket.get("Phrases") or []:
+                                phrase_text = str(phrase).strip() if phrase is not None else ""
+                                if phrase_text and phrase_text not in seen:
+                                    flattened.append(phrase_text)
+                                    seen.add(phrase_text)
+                    feng_by_char[ch] = flattened
 
             # HWXNet: one row per character (first by zibiao_index),
             # character + basic_meanings + common_phrases

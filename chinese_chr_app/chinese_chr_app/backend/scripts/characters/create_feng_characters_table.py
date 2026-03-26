@@ -55,6 +55,7 @@ CREATE TABLE IF NOT EXISTS feng_characters (
     structure text,
     sentence text,
     words jsonb,
+    words_by_pinyin jsonb,
     PRIMARY KEY (character, index)
 );
 
@@ -92,7 +93,7 @@ def parse_strokes(value) -> int | None:
 
 
 def row_from_json(entry: dict):
-    """Convert one characters.json entry to a row tuple (character, index, zibiao_index, pinyin, radical, strokes, structure, sentence, words). Psycopg 3 adapts list/dict to JSONB automatically."""
+    """Convert one characters.json entry to a row tuple for feng_characters."""
     return (
         entry.get("Character", "").strip(),
         entry.get("Index", "").strip(),
@@ -103,6 +104,7 @@ def row_from_json(entry: dict):
         (entry.get("Structure") or "").strip() or None,
         (entry.get("Sentence") or "").strip() or None,
         entry.get("Words") or [],
+        entry.get("WordsByPinyin") or [],
     )
 
 
@@ -160,8 +162,8 @@ def main():
                 cur.executemany(
                     """
                     INSERT INTO feng_characters
-                    (character, index, zibiao_index, pinyin, radical, strokes, structure, sentence, words)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    (character, index, zibiao_index, pinyin, radical, strokes, structure, sentence, words, words_by_pinyin)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                     ON CONFLICT (character, index) DO UPDATE SET
                         zibiao_index = EXCLUDED.zibiao_index,
                         pinyin = EXCLUDED.pinyin,
@@ -169,7 +171,8 @@ def main():
                         strokes = EXCLUDED.strokes,
                         structure = EXCLUDED.structure,
                         sentence = EXCLUDED.sentence,
-                        words = EXCLUDED.words
+                        words = EXCLUDED.words,
+                        words_by_pinyin = EXCLUDED.words_by_pinyin
                     """,
                     [row_from_json(e) for e in batch],
                 )

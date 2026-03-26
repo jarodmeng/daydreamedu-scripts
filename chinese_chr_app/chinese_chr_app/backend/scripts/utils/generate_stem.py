@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import List, Tuple
 
 
-ROOT = Path(__file__).resolve().parents[3]
+ROOT = Path(__file__).resolve().parents[4]
 FENG_PATH = ROOT / "data" / "characters.json"
 HWXNET_PATH = ROOT / "data" / "extracted_characters_hwxnet.json"
 
@@ -14,7 +14,29 @@ def load_feng_words(character: str) -> List[str]:
     data = json.loads(FENG_PATH.read_text(encoding="utf-8"))
     for item in data:
         if item.get("Character") == character:
-            return list(item.get("Words") or [])
+            legacy_words = [
+                word.strip()
+                for word in (item.get("Words") or [])
+                if isinstance(word, str) and word.strip()
+            ]
+            words_by_pinyin = item.get("WordsByPinyin") or []
+            flattened: List[str] = []
+            seen = set()
+            for word in legacy_words:
+                if word not in seen:
+                    flattened.append(word)
+                    seen.add(word)
+            for bucket in words_by_pinyin:
+                if not isinstance(bucket, dict):
+                    continue
+                for phrase in bucket.get("Phrases") or []:
+                    if not isinstance(phrase, str):
+                        continue
+                    phrase_text = phrase.strip()
+                    if phrase_text and phrase_text not in seen:
+                        flattened.append(phrase_text)
+                        seen.add(phrase_text)
+            return flattened
     return []
 
 

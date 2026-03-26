@@ -129,6 +129,57 @@ DEPRIORITIZED_STEM_WORDS: Set[str] = {
 }
 
 
+def flatten_feng_words(
+    entry: Dict[str, Any],
+    preserve_legacy_order: bool = True,
+) -> List[str]:
+    """
+    Flatten WordsByPinyin into the legacy flat Feng words list.
+
+    Prefer the legacy Words ordering when the same phrases still exist there so
+    current behavior stays stable while consumers migrate to WordsByPinyin.
+    """
+    if not entry:
+        return []
+
+    words_by_pinyin = entry.get("WordsByPinyin")
+    legacy_words = entry.get("Words") or []
+
+    flattened: List[str] = []
+    seen: Set[str] = set()
+
+    if preserve_legacy_order and isinstance(legacy_words, list):
+        for word in legacy_words:
+            if not isinstance(word, str):
+                continue
+            word_text = word.strip()
+            if word_text and word_text not in seen:
+                flattened.append(word_text)
+                seen.add(word_text)
+
+    if isinstance(words_by_pinyin, list):
+        for bucket in words_by_pinyin:
+            if not isinstance(bucket, dict):
+                continue
+            phrases = bucket.get("Phrases")
+            if not isinstance(phrases, list):
+                continue
+            for phrase in phrases:
+                if not isinstance(phrase, str):
+                    continue
+                phrase_text = phrase.strip()
+                if phrase_text and phrase_text not in seen:
+                    flattened.append(phrase_text)
+                    seen.add(phrase_text)
+
+    if flattened:
+        return flattened
+
+    if isinstance(legacy_words, list):
+        return [word.strip() for word in legacy_words if isinstance(word, str) and word.strip()]
+    return []
+
+
 def get_stem_words(
     character: str,
     character_lookup: Dict[str, Any],
@@ -154,7 +205,7 @@ def get_stem_words(
     # Tier 1: Feng Words
     feng_words: List[str] = []
     if character_lookup and character in character_lookup:
-        feng_words = list(character_lookup[character].get("Words") or [])
+        feng_words = flatten_feng_words(character_lookup[character])
     for w in sorted({w for w in feng_words if w}, key=len):
         if len(combined) >= max_words:
             break

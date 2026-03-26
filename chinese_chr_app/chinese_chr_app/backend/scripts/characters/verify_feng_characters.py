@@ -22,6 +22,21 @@ OUTER_APP_DIR = BACKEND_DIR.parent.parent
 CHARACTERS_JSON = OUTER_APP_DIR / "data" / "characters.json"
 
 
+def get_has_words_by_pinyin_column(cur) -> bool:
+    cur.execute(
+        """
+        SELECT EXISTS (
+            SELECT 1
+            FROM information_schema.columns
+            WHERE table_schema = current_schema()
+              AND table_name = 'feng_characters'
+              AND column_name = 'words_by_pinyin'
+        )
+        """
+    )
+    return bool(cur.fetchone()[0])
+
+
 def main():
     try:
         import psycopg
@@ -44,14 +59,17 @@ def main():
     conn = psycopg.connect(url)
     try:
         with conn.cursor() as cur:
+            has_words_by_pinyin = get_has_words_by_pinyin_column(cur)
+            select_words_by_pinyin = ", words_by_pinyin" if has_words_by_pinyin else ""
             cur.execute(
                 """
                 SELECT character, index, zibiao_index, pinyin, radical, strokes,
                        structure, sentence, words
+                       {select_words_by_pinyin}
                 FROM feng_characters
                 ORDER BY index
                 LIMIT 10
-                """
+                """.format(select_words_by_pinyin=select_words_by_pinyin)
             )
             rows = cur.fetchall()
     finally:
@@ -63,7 +81,11 @@ def main():
 
     errors = []
     for i, row in enumerate(rows):
-        char, index, zibiao_index, pinyin, radical, strokes, structure, sentence, words = row
+        if has_words_by_pinyin:
+            char, index, zibiao_index, pinyin, radical, strokes, structure, sentence, words, words_by_pinyin = row
+        else:
+            char, index, zibiao_index, pinyin, radical, strokes, structure, sentence, words = row
+            words_by_pinyin = None
         exp = expected_list[i]
         exp_char = (exp.get("Character") or "").strip()
         exp_index = (exp.get("Index") or "").strip()
@@ -74,6 +96,7 @@ def main():
         exp_sentence = (exp.get("Sentence") or "").strip() or None
         exp_pinyin = exp.get("Pinyin") or []
         exp_words = exp.get("Words") or []
+        exp_words_by_pinyin = exp.get("WordsByPinyin") or []
 
         if char != exp_char:
             errors.append(f"index {index}: character DB={char!r} JSON={exp_char!r}")
@@ -93,6 +116,10 @@ def main():
             errors.append(f"index {index}: pinyin DB={pinyin} JSON={exp_pinyin}")
         if (words or []) != exp_words:
             errors.append(f"index {index}: words length DB={len(words or [])} JSON={len(exp_words)}")
+        if has_words_by_pinyin and (words_by_pinyin or []) != exp_words_by_pinyin:
+            errors.append(
+                f"index {index}: words_by_pinyin length DB={len(words_by_pinyin or [])} JSON={len(exp_words_by_pinyin)}"
+            )
 
     if errors:
         print("Mismatches found:")
@@ -101,7 +128,10 @@ def main():
         sys.exit(1)
 
     print("Verified: all 10 rows in feng_characters match the first 10 entries in characters.json.")
-    print("  character, index, zibiao_index, strokes, radical, structure, sentence, pinyin, words — all match.")
+    if has_words_by_pinyin:
+        print("  character, index, zibiao_index, strokes, radical, structure, sentence, pinyin, words, words_by_pinyin — all match.")
+    else:
+        print("  character, index, zibiao_index, strokes, radical, structure, sentence, pinyin, words — all match.")
 
 
 if __name__ == "__main__":

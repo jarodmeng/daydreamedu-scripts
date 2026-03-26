@@ -94,3 +94,36 @@ Backend: one DB function returning (learned, learning, not_tested); API: extend 
 **Source:** [archive/proposals/PROPOSAL_Queue_巩固_Slot_Reserve_And_Total_Load.md](archive/proposals/PROPOSAL_Queue_巩固_Slot_Reserve_And_Total_Load.md)
 
 **Status:** Accepted
+
+---
+
+## ADR-006: Feng WordsByPinyin Transition Field
+
+**Context:** Feng word examples were historically stored as a flat `Words` list, which was sufficient for generic display but not for future reading-aware handling of polyphonic characters. The completed human review workflow for Feng polyphonic word readings produced an authoritative reviewed artifact mapping each Feng phrase to a specific reading for the target character. We needed to land that richer structure without breaking current consumers.
+
+**Decision:** Introduce a transition field:
+
+- JSON: `WordsByPinyin`
+- Supabase: `words_by_pinyin`
+
+Shape:
+
+| Field | Type | Meaning |
+|------|------|---------|
+| `Pinyin` | string | One Feng reading from the row’s `Pinyin` list |
+| `Phrases` | string[] | Ordered Feng phrases for that reading |
+
+Rules:
+
+- one bucket per Feng reading
+- bucket order matches the row’s `Pinyin` order
+- monophonic rows also use the structured shape
+- legacy flat `Words` remains during the transition for backward compatibility
+
+Polyphonic buckets are derived from the reviewed Feng artifact; monophonic buckets are generated mechanically from the existing flat list.
+
+**Rationale:** This preserves the current app behavior while making the reviewed reading assignments first-class data. It also keeps regeneration and DB backfill deterministic and reversible, rather than embedding one-off manual grouping directly into runtime code.
+
+**Consequences:** Consumers should migrate toward `WordsByPinyin` as the preferred structured field, flattening only when current flat behavior must be preserved. Legacy `Words` remains temporary compatibility data and should be deprecated only after consumer migration is complete.
+
+**Status:** Accepted

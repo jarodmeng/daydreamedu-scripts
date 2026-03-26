@@ -25,7 +25,7 @@ For HWXNet `常用词组`, we already have a deterministic extractor in:
 
 That leaves Feng `Words` as the remaining source that still needs reading tags.
 
-We previously explored an AI-assisted path for those Feng words. Since the scope was only **165 polyphonic Feng characters**, we used a **human review tool** instead, and that review is now complete.
+We previously explored an AI-assisted path for those Feng words. Since the remaining scope was only **163 polyphonic Feng characters**, we used a **human review tool** instead, and that review is now complete.
 
 That means this folder should now be read as:
 
@@ -33,7 +33,7 @@ That means this folder should now be read as:
 - human review UI for Feng word readings
 - exported decision artifacts
 - merge/apply scripts for curated results
-- completed review outputs for the 165 polyphonic Feng characters
+- completed review outputs for the 163 polyphonic Feng characters
 
 Not:
 
@@ -44,14 +44,14 @@ Not:
 
 Status:
 
-- the review of all 165 polyphonic Feng characters is complete
+- the review of all 163 polyphonic Feng characters is complete
 - the generated review data, review page, and applied decision artifact in this folder are the completed outputs of that pass
 - the reviewed results can be found in `review/feng_word_reading_decisions.applied.json`
 - the source review data and local review page used for that pass are `review/feng_word_review_data.json` and `review/feng_word_reading_review.html`
 
 In scope:
 
-- generating review data for the 165 polyphonic Feng characters
+- generating review data for the 163 polyphonic Feng characters
 - showing ordered Feng words together with the allowed Feng readings
 - letting a reviewer choose the reading for contiguous Feng word groups
 - letting a reviewer fine-tune individual Feng words when needed
@@ -68,7 +68,7 @@ Out of scope:
 
 This was the workflow used to complete the review:
 
-1. Generate the review source data for the 165 polyphonic Feng characters.
+1. Generate the review source data for the 163 polyphonic Feng characters.
 2. Build a local review page from those generated files.
 3. Review each character’s Feng words in original Feng order.
 4. Assign one reading to a contiguous run of Feng words whenever the local Feng cluster clearly shares the same reading.
@@ -88,15 +88,15 @@ This was the workflow used to complete the review:
 
 ## Planned / Current Contents
 
-- generated review data for the 165 polyphonic Feng characters
+- generated review data for the 163 polyphonic Feng characters
 - a local human review page for choosing Feng word readings
-- exported review decisions and applied downstream artifact for the completed 165-character review pass
+- exported review decisions and applied downstream artifact for the completed 163-character review pass
 - scripts to build that review page from generated data
 - scripts to apply exported review decisions into a curated artifact
 
 ## Reviewed Results
 
-The completed reviewed results for the 165 polyphonic Feng characters are in:
+The completed reviewed results for the 163 polyphonic Feng characters are in:
 
 - `review/feng_word_reading_decisions.applied.json`
 
@@ -167,3 +167,25 @@ This folder supports the proposal in:
 - [PROPOSAL_Pinyin_Recall_Reading_Units_For_Polyphonic_Characters.md](/Users/jarodm/github/jarodmeng/daydreamedu-scripts/chinese_chr_app/chinese_chr_app/docs/archive/proposals/PROPOSAL_Pinyin_Recall_Reading_Units_For_Polyphonic_Characters.md)
 
 That proposal describes the product and data-model reason for reading-level units. This folder is now focused on the practical **human review** machinery needed to make that proposal implementable for Feng words.
+
+## Relationship to WordsByPinyin Migration
+
+The completed reviewed artifact in this folder is now also the source of truth for the Feng `WordsByPinyin` transition field added to the main character bank.
+
+Migration flow:
+
+1. Review/export/apply Feng word readings in this folder.
+2. Use `review/feng_word_reading_decisions.applied.json` as the authoritative reviewed mapping.
+3. Build structured Feng buckets with:
+
+```bash
+python3 chinese_chr_app/tag_character_pinyin_using_review/scripts/build_feng_words_by_pinyin_transition.py
+```
+
+The script updates `data/characters.json` by:
+
+- wrapping monophonic rows into one bucket
+- grouping polyphonic Feng words by reviewed reading
+- keeping legacy flat `Words` in place for backward compatibility during the transition
+
+So while this folder is still not a runtime dependency, it now feeds a committed, reproducible migration step for the structured Feng word data model.

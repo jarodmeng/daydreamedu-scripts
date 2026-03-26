@@ -20,6 +20,9 @@ except ImportError:
     dict_row = None
 
 
+_FENG_HAS_WORDS_BY_PINYIN: Optional[bool] = None
+
+
 def _get_connection():
     if psycopg is None:
         raise RuntimeError("psycopg is required for database support. Install with: pip3 install 'psycopg[binary]>=3.1'")
@@ -29,20 +32,128 @@ def _get_connection():
     return psycopg.connect(url, row_factory=dict_row)
 
 
+def normalize_words_by_pinyin(
+    pinyin_list: List[Any],
+    words_by_pinyin: Any,
+) -> List[Dict[str, Any]]:
+    """Normalize WordsByPinyin into one bucket per pinyin, preserving pinyin order."""
+    ordered_pinyin = [
+        str(reading).strip()
+        for reading in (pinyin_list or [])
+        if isinstance(reading, str) and str(reading).strip()
+    ]
+    if not ordered_pinyin:
+        return []
+
+    bucket_map: Dict[str, List[str]] = {reading: [] for reading in ordered_pinyin}
+    if isinstance(words_by_pinyin, list):
+        for item in words_by_pinyin:
+            if not isinstance(item, dict):
+                continue
+            reading = (item.get("Pinyin") or "").strip()
+            if reading not in bucket_map:
+                continue
+            phrases = item.get("Phrases")
+            if not isinstance(phrases, list):
+                continue
+            for phrase in phrases:
+                if not isinstance(phrase, str):
+                    continue
+                phrase_text = phrase.strip()
+                if phrase_text:
+                    bucket_map[reading].append(phrase_text)
+
+    return [{"Pinyin": reading, "Phrases": bucket_map[reading]} for reading in ordered_pinyin]
+
+
+def flatten_words_by_pinyin(
+    words_by_pinyin: Any,
+    preferred_order: Optional[List[Any]] = None,
+) -> List[str]:
+    """
+    Flatten WordsByPinyin to legacy Words while preserving preferred order when possible.
+
+    If preferred_order is provided, keep that order for phrases that still exist in the
+    structured buckets, then append any remaining phrases in bucket order.
+    """
+    flattened: List[str] = []
+    seen = set()
+
+    if preferred_order:
+        for phrase in preferred_order:
+            if not isinstance(phrase, str):
+                continue
+            phrase_text = phrase.strip()
+            if phrase_text and phrase_text not in seen:
+                flattened.append(phrase_text)
+                seen.add(phrase_text)
+
+    if not isinstance(words_by_pinyin, list):
+        return flattened
+
+    for bucket in words_by_pinyin:
+        if not isinstance(bucket, dict):
+            continue
+        phrases = bucket.get("Phrases")
+        if not isinstance(phrases, list):
+            continue
+        for phrase in phrases:
+            if not isinstance(phrase, str):
+                continue
+            phrase_text = phrase.strip()
+            if phrase_text and phrase_text not in seen:
+                flattened.append(phrase_text)
+                seen.add(phrase_text)
+
+    return flattened
+
+
+def _get_feng_has_words_by_pinyin_column(conn) -> bool:
+    global _FENG_HAS_WORDS_BY_PINYIN
+    if _FENG_HAS_WORDS_BY_PINYIN is not None:
+        return _FENG_HAS_WORDS_BY_PINYIN
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            SELECT EXISTS (
+                SELECT 1
+                FROM information_schema.columns
+                WHERE table_schema = current_schema()
+                  AND table_name = 'feng_characters'
+                  AND column_name = 'words_by_pinyin'
+            ) AS has_column
+            """
+        )
+        row = cur.fetchone() or {}
+    _FENG_HAS_WORDS_BY_PINYIN = bool(row.get("has_column"))
+    return _FENG_HAS_WORDS_BY_PINYIN
+
+
+def _get_feng_select_columns(conn) -> str:
+    base = "character, index, zibiao_index, pinyin, radical, strokes, structure, sentence, words"
+    if _get_feng_has_words_by_pinyin_column(conn):
+        return f"{base}, words_by_pinyin"
+    return base
+
+
 def _row_to_feng_dict(row: Dict[str, Any]) -> Dict[str, Any]:
     """Map feng_characters row to the dict shape expected by the app (Character, Index, Pinyin, etc.)."""
     strokes = row.get("strokes")
     strokes_str = str(strokes) if strokes is not None else ""
+    pinyin = row.get("pinyin") or []
+    words = row.get("words") or []
+    words_by_pinyin = normalize_words_by_pinyin(pinyin, row.get("words_by_pinyin"))
     return {
         "Character": (row.get("character") or "").strip(),
         "Index": (row.get("index") or "").strip(),
         "zibiao_index": row.get("zibiao_index"),
-        "Pinyin": row.get("pinyin") or [],
+        "Pinyin": pinyin,
         "Radical": (row.get("radical") or "").strip() or "",
         "Strokes": strokes_str,
         "Structure": (row.get("structure") or "").strip() or "",
         "Sentence": (row.get("sentence") or "").strip() or "",
-        "Words": row.get("words") or [],
+        "Words": words,
+        "WordsByPinyin": words_by_pinyin,
     }
 
 
@@ -67,9 +178,10 @@ def get_feng_characters() -> List[Dict[str, Any]]:
     """Return all feng_characters rows as list of dicts (same shape as characters.json entries)."""
     conn = _get_connection()
     try:
+        select_columns = _get_feng_select_columns(conn)
         with conn.cursor() as cur:
             cur.execute(
-                "SELECT character, index, zibiao_index, pinyin, radical, strokes, structure, sentence, words FROM feng_characters ORDER BY index"
+                f"SELECT {select_columns} FROM feng_characters ORDER BY index"
             )
             rows = cur.fetchall()
         return [_row_to_feng_dict(r) for r in rows]
@@ -81,9 +193,10 @@ def get_feng_character_by_index(index: str) -> Optional[Dict[str, Any]]:
     """Return one feng character by index, or None."""
     conn = _get_connection()
     try:
+        select_columns = _get_feng_select_columns(conn)
         with conn.cursor() as cur:
             cur.execute(
-                "SELECT character, index, zibiao_index, pinyin, radical, strokes, structure, sentence, words FROM feng_characters WHERE index = %s",
+                f"SELECT {select_columns} FROM feng_characters WHERE index = %s",
                 (index.strip(),),
             )
             row = cur.fetchone()
@@ -96,9 +209,10 @@ def get_feng_character_by_character(ch: str) -> Optional[Dict[str, Any]]:
     """Return one feng character by character (first match if multiple)."""
     conn = _get_connection()
     try:
+        select_columns = _get_feng_select_columns(conn)
         with conn.cursor() as cur:
             cur.execute(
-                "SELECT character, index, zibiao_index, pinyin, radical, strokes, structure, sentence, words FROM feng_characters WHERE character = %s ORDER BY index LIMIT 1",
+                f"SELECT {select_columns} FROM feng_characters WHERE character = %s ORDER BY index LIMIT 1",
                 (ch.strip(),),
             )
             row = cur.fetchone()
@@ -194,6 +308,7 @@ def _field_to_column(field: str) -> str:
         "Structure": "structure",
         "Sentence": "sentence",
         "Words": "words",
+        "WordsByPinyin": "words_by_pinyin",
     }
     return mapping.get(field, field.lower())
 
@@ -211,7 +326,7 @@ def _value_for_db(field: str, value: Any) -> Any:
         except ValueError:
             return None
     # Psycopg 3 adapts list/dict to JSONB automatically
-    if field in ("Pinyin", "Words") and isinstance(value, list):
+    if field in ("Pinyin", "Words", "WordsByPinyin") and isinstance(value, list):
         return value
     return value
 
@@ -221,16 +336,57 @@ def update_feng_character(index: str, field: str, value: Any) -> Tuple[bool, Opt
     Update one field for the feng character with the given index.
     Returns (success, error_message, updated_character_dict).
     """
-    if field not in ("Character", "Pinyin", "Radical", "Strokes", "Structure", "Sentence", "Words"):
+    if field not in ("Character", "Pinyin", "Radical", "Strokes", "Structure", "Sentence", "Words", "WordsByPinyin"):
         return False, f"Unknown field: {field}", None
     col = _field_to_column(field)
-    db_value = _value_for_db(field, value)
     conn = _get_connection()
     try:
+        if col == "words_by_pinyin" and not _get_feng_has_words_by_pinyin_column(conn):
+            return False, "Column words_by_pinyin does not exist in feng_characters yet", None
+        db_value = _value_for_db(field, value)
+        select_columns = _get_feng_select_columns(conn)
         with conn.cursor() as cur:
             cur.execute(
-                f"UPDATE feng_characters SET {col} = %s WHERE index = %s RETURNING character, index, zibiao_index, pinyin, radical, strokes, structure, sentence, words",
+                f"UPDATE feng_characters SET {col} = %s WHERE index = %s RETURNING {select_columns}",
                 (db_value, index.strip()),
+            )
+            row = cur.fetchone()
+        conn.commit()
+        if not row:
+            return False, f"Character with index {index} not found", None
+        return True, None, _row_to_feng_dict(row)
+    except Exception as e:
+        conn.rollback()
+        return False, str(e), None
+    finally:
+        conn.close()
+
+
+def update_feng_character_fields(index: str, updates: Dict[str, Any]) -> Tuple[bool, Optional[str], Optional[Dict[str, Any]]]:
+    """Update multiple feng character fields in one statement."""
+    if not updates:
+        return False, "No fields to update", None
+
+    conn = _get_connection()
+    try:
+        if "WordsByPinyin" in updates and not _get_feng_has_words_by_pinyin_column(conn):
+            return False, "Column words_by_pinyin does not exist in feng_characters yet", None
+
+        assignments = []
+        values = []
+        for field, value in updates.items():
+            if field not in ("Character", "Pinyin", "Radical", "Strokes", "Structure", "Sentence", "Words", "WordsByPinyin"):
+                return False, f"Unknown field: {field}", None
+            col = _field_to_column(field)
+            assignments.append(f"{col} = %s")
+            values.append(_value_for_db(field, value))
+
+        select_columns = _get_feng_select_columns(conn)
+        values.append(index.strip())
+        with conn.cursor() as cur:
+            cur.execute(
+                f"UPDATE feng_characters SET {', '.join(assignments)} WHERE index = %s RETURNING {select_columns}",
+                tuple(values),
             )
             row = cur.fetchone()
         conn.commit()

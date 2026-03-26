@@ -36,7 +36,7 @@ def main():
     backend_dir = Path(__file__).resolve().parent.parent.parent
     sys.path.insert(0, str(backend_dir))
     import database as db
-    from pinyin_recall import get_stem_words
+    from pinyin_recall import flatten_feng_words, get_stem_words
 
     feng = db.get_feng_character_by_character(character)
     hwxnet_full = db.get_hwxnet_lookup()
@@ -53,7 +53,9 @@ def main():
         print("  常见词组： (none)")
     print()
     if feng:
-        print("  Feng Words:", feng.get("Words") or [])
+        print("  Feng Words (legacy):", feng.get("Words") or [])
+        print("  Feng WordsByPinyin:", feng.get("WordsByPinyin") or [])
+        print("  Feng flattened from WordsByPinyin:", flatten_feng_words(feng))
     else:
         print("  Feng: no row")
     if character in hwxnet_full:
