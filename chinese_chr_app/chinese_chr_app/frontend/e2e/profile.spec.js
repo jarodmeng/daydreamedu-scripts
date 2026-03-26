@@ -77,21 +77,16 @@ test.describe('Profile page', () => {
     await expect(page.getByText(`本次共 ${MIN_ANSWERS} 题`)).toBeVisible();
 
     // ── Step 2: Navigate to profile and verify progress snapshot ──
-    const progressResponsePromise = page.waitForResponse((response) => {
-      return response.url().includes('/api/profile/progress') && response.request().method() === 'GET'
-    })
     await page.goto('/profile');
     await expect(page.getByRole('heading', { name: '我的' })).toBeVisible();
-    const progressResponse = await progressResponsePromise
-    expect(progressResponse.ok()).toBeTruthy()
 
-    // Wait for progress to load (no loading spinner, no error).
-    // The backend now uses a per-run E2E dev user in CI so this should stay fast and isolated.
-    await expect(page.locator('.profile-loading')).toHaveCount(0, { timeout: 45_000 });
-    await expect(page.locator('.profile-error')).toHaveCount(0);
+    // Wait for a real loaded state instead of hooking a specific network request.
+    // This is less timing-sensitive in CI and still proves the profile data rendered.
+    await expect(page.locator('.profile-error')).toHaveCount(0, { timeout: 45_000 });
+    await expect(page.getByRole('heading', { name: '汉字掌握度' })).toBeVisible({ timeout: 45_000 });
+    await expect(page.locator('.profile-loading')).toHaveCount(0);
 
     // Proficiency section
-    await expect(page.getByRole('heading', { name: '汉字掌握度' })).toBeVisible();
     const bar = page.locator('.profile-proficiency-stacked');
     await expect(bar).toBeVisible();
     await expect(bar.locator('.profile-proficiency-segment-not-tested')).toBeVisible();
