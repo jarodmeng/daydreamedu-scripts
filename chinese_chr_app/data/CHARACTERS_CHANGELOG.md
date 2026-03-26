@@ -6,6 +6,41 @@ This file records changes to the character bank (character set, source data, and
 
 ---
 
+## 2026-03-26 — HWXNet 常用词组按拼音 DB backfill
+
+- **What:** Added `common_phrases_by_pinyin` to the live `hwxnet_characters` table and backfilled it from `extracted_characters_hwxnet.json`.
+- **Schema / scripts:** Added:
+  - `chinese_chr_app/backend/scripts/characters/add_common_phrases_by_pinyin_column.py`
+  - support in `chinese_chr_app/backend/scripts/characters/create_hwxnet_characters_table.py`
+  - backend lookup support in `chinese_chr_app/backend/database.py`
+- **Verification:** Live spot checks confirmed expected structured data for 琢, 累, and 阿; 嗯 remains intentionally empty in the structured field while legacy flat `常用词组` stays unchanged.
+- **Backup:** Created one backup table before the rollout:
+  - `hwxnet_characters_backup_20260326_082740`
+- **Why:** Keep the DB copy aligned with the new transition field in `extracted_characters_hwxnet.json` without changing existing flat-field consumers.
+
+## 2026-03-26 — HWXNet 常用词组按拼音 transition field
+
+- **What:** Added a transition field `常用词组按拼音` to `extracted_characters_hwxnet.json` using the same bucket structure as Feng `WordsByPinyin`:
+  - `[{ "Pinyin": string, "Phrases": string[] }]`
+- **Polyphonic source of truth:** For HWXNet polyphonic characters with reviewed phrase-reading data, buckets are derived from `extracted_hwxnet_common_phrase_character_readings.reviewed.json`.
+- **Monophonic source of truth:** For monophonic HWXNet rows, `常用词组按拼音` is generated mechanically by wrapping the existing flat `常用词组` list into a single bucket.
+- **Compatibility:** Legacy flat `常用词组` is intentionally retained and not replaced. During the transition, `常用词组按拼音` is the preferred structured field while `常用词组` remains compatibility data for existing consumers.
+- **Scripts:** Added:
+  - `extract_character_from_wxnet/build_common_phrases_by_pinyin_transition.py`
+  - `extract_character_from_wxnet/merge_common_phrases_by_pinyin_into_main_hwxnet.py`
+- **Backup:** The merge script creates a timestamped backup of `extracted_characters_hwxnet.json` in `data/backups/` before overwriting the main JSON.
+- **DB:** The later DB rollout/backfill is recorded separately below in the `HWXNet 常用词组按拼音 DB backfill` entry.
+- **Why:** Land reading-aware HWXNet common-phrase structure without breaking existing consumers and keep the reviewed artifact as the audit/provenance source.
+
+## 2026-03-26 — Common-phrase reviewed artifact cleanup
+
+- **What:** Cleaned unresolved entries in `extracted_hwxnet_common_phrase_character_readings.reviewed.json` based on manual review decisions.
+- **Edits:** Removed non-phrase / unwanted rows for 岗 `岗口儿甜`, one duplicate 咧 `咧咧`, 屏 `屏营`, 喇 `喇喇蛄,拉拉蛄`, 豁 `豁拳`, and 嗯 `嗯嗯` / `嗯嗯呃呃` / `嗯声`.
+- **Reading fixes:** Set 阿 `阿房宫` to `ē`, 咧 `咧咧` to `liē`, 派 `派出机构` to `pài`, and 眯 `眯紧` to `mī`, updating displayed phrase pinyin to match.
+- **Deduplication:** Removed exact duplicate rows wherever both the phrase and the derived reading were identical, keeping the first occurrence only.
+- **Disambiguation:** Kept both readings for 琢 `琢磨` because the word is genuinely polyphonic by meaning. Replaced bare 累 `累累` with disambiguated phrases `乱石累累` (`léi`) and `罪行累累` (`lěi`).
+- **Why:** Resolve remaining known bad or ambiguous rows in the reviewed common-phrase reading artifact before downstream use.
+
 ## 2026-03-26 — Feng WordsByPinyin transition field
 
 - **What:** Added a transition field `WordsByPinyin` to every Feng entry in `data/characters.json`. The new shape is an ordered array of buckets:

@@ -7,8 +7,8 @@ This document describes how the Chinese character app’s character bank is prod
 ## 1. Source of truth
 
 - **HWXNet** (zd.hwxnet.com) is the external dictionary we scrape for character data.
-- **`extracted_characters_hwxnet.json`** (in this folder) is our local mirror of that data. When we run the batch extract script (see below), this file is updated to match what we extract from HWXNet. **Note:** After a one-time restore (2026-03-02), the current file is a *hybrid*: all fields except 常用词组 were restored from a backup that still had the AI-merged 英文翻译 and 拼音; 常用词组 comes from the post–batch-extract file. So for the current state, 英文翻译 and 拼音 do *not* reflect a raw HWXNet re-fetch—they reflect the pre-restore backup. See CHARACTERS_CHANGELOG.md for the restore entry.
-- **Supabase table `hwxnet_characters`** is populated *from* the JSON file. It is the runtime source for the app (search, character cards, pinyin recall). The JSON is the source of truth for *content*; the DB is the deployed copy.
+- **`extracted_characters_hwxnet.json`** (in this folder) is our local mirror of that data. When we run the batch extract script (see below), this file is updated to match what we extract from HWXNet. **Note:** After a one-time restore (2026-03-02), the current file is a *hybrid*: all fields except 常用词组 were restored from a backup that still had the AI-merged 英文翻译 and 拼音; 常用词组 comes from the post–batch-extract file. A later transition field, `常用词组按拼音`, was added alongside the flat `常用词组` list. It is derived from the reviewed phrase-reading artifact for polyphonic rows and mechanical wrapping for monophonic rows. So for the current state, 英文翻译 and 拼音 do *not* reflect a raw HWXNet re-fetch—they reflect the pre-restore backup. See CHARACTERS_CHANGELOG.md for the restore and transition entries.
+- **Supabase table `hwxnet_characters`** is populated *from* the JSON file. It is the runtime source for the app (search, character cards, pinyin recall). The JSON is the source of truth for *content*; the DB is the deployed copy. `hwxnet_characters` now stores both legacy flat `common_phrases` and the structured transition field `common_phrases_by_pinyin`.
 
 ---
 
@@ -31,6 +31,10 @@ Rough order of operations (historical and current):
 Character lists (characters.json + level-1.json)
     → Batch extract from HWXNet (extract_character_from_wxnet/)
     → extracted_characters_hwxnet.json  (HWXNet mirror)
+
+Optional: reviewed 常用词组 reading transition
+    → extracted_hwxnet_common_phrase_character_readings.reviewed.json  (audit/provenance artifact)
+    → 常用词组按拼音 added to extracted_characters_hwxnet.json
 
 Optional: AI gloss merge (generate_english_meaning_using_ai/)
     → Updates 英文翻译 and 拼音 order in the same JSON
@@ -81,8 +85,12 @@ Pinyin search uses the **`searchable_pinyin`** column in `hwxnet_characters`. Th
 | HWXNet mirror | `data/extracted_characters_hwxnet.json` |
 | Batch extract | `extract_character_from_wxnet/batch_extract_hwxnet.py` (uses `--full` for 3664 chars) |
 | Single-char extract | `extract_character_from_wxnet/extract_character_hwxnet.py` |
+| Reviewed HWXNet phrase-reading artifact | `data/extracted_hwxnet_common_phrase_character_readings.reviewed.json` |
+| Build HWXNet transition buckets | `extract_character_from_wxnet/build_common_phrases_by_pinyin_transition.py` |
+| Merge `常用词组按拼音` into main JSON | `extract_character_from_wxnet/merge_common_phrases_by_pinyin_into_main_hwxnet.py` |
 | AI gloss merge | `generate_english_meaning_using_ai/scripts/merge_glosses_into_hwxnet.py` |
 | Load JSON → DB | `chinese_chr_app/backend/scripts/characters/create_hwxnet_characters_table.py` |
+| Backfill `common_phrases_by_pinyin` | `chinese_chr_app/backend/scripts/characters/add_common_phrases_by_pinyin_column.py` |
 | Backfill searchable_pinyin | `chinese_chr_app/backend/scripts/characters/add_searchable_pinyin_column.py` |
 | DB schema / scripts | `chinese_chr_app/backend/DATABASE.md` |
 
@@ -90,9 +98,13 @@ Pinyin search uses the **`searchable_pinyin`** column in `hwxnet_characters`. Th
 
 ## 7. JSON fields vs DB columns
 
-The JSON keys (e.g. 分类, 拼音, 部首, 总笔画, 基本字义解释, 英文翻译, 常用词组) are mapped to DB columns by `create_hwxnet_characters_table.py`. As of this writing:
+The JSON keys (e.g. 分类, 拼音, 部首, 总笔画, 基本字义解释, 英文翻译, 常用词组, 常用词组按拼音) are mapped to DB columns by `create_hwxnet_characters_table.py`. As of this writing:
 
-- **常用词组** exists in the JSON (from the batch extract) but is **not** yet stored in `hwxnet_characters`. Adding it to the DB and using it for stem words (e.g. in pinyin recall) is tracked in [issue #26](https://github.com/jarodmeng/daydreamedu-scripts/issues/26).
+- **常用词组** exists in the JSON as a flat compatibility list and is stored in DB as `common_phrases`.
+- **常用词组按拼音** now exists in the JSON as the structured transition field, using the same bucket shape as Feng `WordsByPinyin`, and is stored in DB as `common_phrases_by_pinyin`.
+- The reviewed artifact `extracted_hwxnet_common_phrase_character_readings.reviewed.json` is kept in git as the provenance source for polyphonic bucket assignments.
+- Current conservative consumers prefer the structured field first, then flatten it back into legacy phrase order when reading-aware handling is not yet needed.
+- Legacy flat `常用词组` remains compatibility data for older or still-migrating consumers.
 
 For changelog of what changed and when, see **`CHARACTERS_CHANGELOG.md`** in this folder.
 

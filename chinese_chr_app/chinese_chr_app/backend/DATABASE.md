@@ -57,10 +57,11 @@ See `.env.local.example` and [DEPLOYMENT.md](DEPLOYMENT.md) for production (e.g.
 | english_translations | jsonb | |
 | **searchable_pinyin** | jsonb | Array of normalized pinyin keys for search (e.g. `["wo", "wo3"]`). Backfill: `scripts/characters/add_searchable_pinyin_column.py`. |
 | **common_phrases** | jsonb | Array of 常用词组 (common phrases) from HWXNet. Backfill: `scripts/characters/add_common_phrases_column.py`. |
+| **common_phrases_by_pinyin** | jsonb | Structured transition field: `[{ "Pinyin": string, "Phrases": string[] }]`. Backfill: `scripts/characters/add_common_phrases_by_pinyin_column.py`. |
 
 **Indexes:** `idx_hwxnet_characters_character`, `idx_hwxnet_characters_index` (partial), **`idx_hwxnet_searchable_pinyin`** (GIN on `searchable_pinyin`).
 
-**Create:** `python3 scripts/characters/create_hwxnet_characters_table.py` (use `--all` for full migration). **Verify:** `python3 scripts/characters/verify_hwxnet_characters.py`. **Pinyin column:** `python3 scripts/characters/add_searchable_pinyin_column.py` (options: `--dry-run`, `--no-backup`, `--skip-filled`). **Common phrases:** `python3 scripts/characters/add_common_phrases_column.py` (options: `--dry-run`, `--no-backup`). **Verify common_phrases:** `python3 scripts/characters/verify_common_phrases.py` (optional `--limit N`).
+**Create:** `python3 scripts/characters/create_hwxnet_characters_table.py` (use `--all` for full migration). **Verify:** `python3 scripts/characters/verify_hwxnet_characters.py`. **Pinyin column:** `python3 scripts/characters/add_searchable_pinyin_column.py` (options: `--dry-run`, `--no-backup`, `--skip-filled`). **Common phrases:** `python3 scripts/characters/add_common_phrases_column.py` (options: `--dry-run`, `--no-backup`). **Common phrases by pinyin:** `python3 scripts/characters/add_common_phrases_by_pinyin_column.py` (options: `--dry-run`, `--no-backup`). **Verify common_phrases:** `python3 scripts/characters/verify_common_phrases.py` (optional `--limit N`). The reviewed source artifact still lives in `data/extracted_hwxnet_common_phrase_character_readings.reviewed.json`; DB backfill consumes the already-merged field from `extracted_characters_hwxnet.json`.
 
 ---
 
@@ -213,10 +214,10 @@ Psycopg 3 (`psycopg[binary]>=3.1`). All functions return dict shapes compatible 
 
 | Function | Returns |
 |----------|--------|
-| `get_hwxnet_lookup()` | `Dict[str, Dict]` — key = character; value has `character`, `部首`, `拼音`, `总笔画`, `index`, `zibiao_index`, `source_url`, `基本字义解释`, `英文翻译`, `分类`. |
+| `get_hwxnet_lookup()` | `Dict[str, Dict]` — key = character; value has `character`, `部首`, `拼音`, `总笔画`, `index`, `zibiao_index`, `source_url`, `基本字义解释`, `英文翻译`, `分类`, `常用词组`, `常用词组按拼音`. |
 | `get_characters_by_pinyin_search_keys(search_keys)` | `List[Dict]` — characters whose `searchable_pinyin` contains any of the keys. Dict keys: `character`, `radical`, `pinyin`, `strokes`, `zibiao_index`, `index`. Sorted by strokes ASC, then zibiao_index ASC; one entry per character. |
 
-**Column mapping (DB → hwxnet dict):** `radical` → `部首`, `strokes` → `总笔画`, `pinyin` → `拼音`, `classification` → `分类`, `basic_meanings` → `基本字义解释`, `english_translations` → `英文翻译`.
+**Column mapping (DB → hwxnet dict):** `radical` → `部首`, `strokes` → `总笔画`, `pinyin` → `拼音`, `classification` → `分类`, `basic_meanings` → `基本字义解释`, `english_translations` → `英文翻译`, `common_phrases` → `常用词组`, `common_phrases_by_pinyin` → `常用词组按拼音`.
 
 ### Character views
 

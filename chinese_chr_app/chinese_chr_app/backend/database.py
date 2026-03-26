@@ -21,6 +21,7 @@ except ImportError:
 
 
 _FENG_HAS_WORDS_BY_PINYIN: Optional[bool] = None
+_HWXNET_HAS_COMMON_PHRASES_BY_PINYIN: Optional[bool] = None
 
 
 def _get_connection():
@@ -136,6 +137,37 @@ def _get_feng_select_columns(conn) -> str:
     return base
 
 
+def _get_hwxnet_has_common_phrases_by_pinyin_column(conn) -> bool:
+    global _HWXNET_HAS_COMMON_PHRASES_BY_PINYIN
+    if _HWXNET_HAS_COMMON_PHRASES_BY_PINYIN is not None:
+        return _HWXNET_HAS_COMMON_PHRASES_BY_PINYIN
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            SELECT EXISTS (
+                SELECT 1
+                FROM information_schema.columns
+                WHERE table_schema = current_schema()
+                  AND table_name = 'hwxnet_characters'
+                  AND column_name = 'common_phrases_by_pinyin'
+            ) AS has_column
+            """
+        )
+        row = cur.fetchone() or {}
+    _HWXNET_HAS_COMMON_PHRASES_BY_PINYIN = bool(row.get("has_column"))
+    return _HWXNET_HAS_COMMON_PHRASES_BY_PINYIN
+
+
+def _get_hwxnet_select_columns(conn) -> str:
+    base = (
+        "character, zibiao_index, index, source_url, classification, pinyin, radical, "
+        "strokes, basic_meanings, english_translations, common_phrases"
+    )
+    if _get_hwxnet_has_common_phrases_by_pinyin_column(conn):
+        return f"{base}, common_phrases_by_pinyin"
+    return base
+
+
 def _row_to_feng_dict(row: Dict[str, Any]) -> Dict[str, Any]:
     """Map feng_characters row to the dict shape expected by the app (Character, Index, Pinyin, etc.)."""
     strokes = row.get("strokes")
@@ -171,6 +203,7 @@ def _row_to_hwxnet_dict(row: Dict[str, Any]) -> Dict[str, Any]:
         "英文翻译": row.get("english_translations") or [],
         "分类": row.get("classification") or [],
         "常用词组": row.get("common_phrases") or [],
+        "常用词组按拼音": row.get("common_phrases_by_pinyin") or [],
     }
 
 
@@ -225,9 +258,10 @@ def get_hwxnet_lookup() -> Dict[str, Dict[str, Any]]:
     """Return all hwxnet_characters as dict keyed by character (same shape as JSON hwxnet_lookup)."""
     conn = _get_connection()
     try:
+        select_columns = _get_hwxnet_select_columns(conn)
         with conn.cursor() as cur:
             cur.execute(
-                "SELECT character, zibiao_index, index, source_url, classification, pinyin, radical, strokes, basic_meanings, english_translations, common_phrases FROM hwxnet_characters"
+                f"SELECT {select_columns} FROM hwxnet_characters"
             )
             rows = cur.fetchall()
         result = {}
