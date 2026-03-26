@@ -28,7 +28,7 @@ Paths are relative to the repo root. The app lives under `chinese_chr_app/chines
 - **Feng (3000 characters):** Primary curriculum set with card images and maintained metadata (拼音, 部首, 笔画, 例句, 词组, 结构). Stored in Supabase table `feng_characters`.
   - Transition note: Feng rows now carry both legacy flat `Words` and structured `WordsByPinyin` / `words_by_pinyin`.
   - `WordsByPinyin` is the preferred consumer target during the migration to reading-aware Feng word handling.
-  - Legacy `Words` is retained for backward compatibility and flattened display behavior.
+  - Legacy `Words` is retained for backward compatibility and fallback behavior for consumers that are not yet reading-aware.
 - **HWXNet (~3664 characters):** Dictionary source for display, radicals, stroke-counts, and pinyin search. Union of Feng and level-1 commonly used characters. Stored in Supabase table `hwxnet_characters`. Includes `searchable_pinyin` for pinyin search.
   - Transition note: HWXNet rows now carry both legacy flat `常用词组` / `common_phrases` and structured `常用词组按拼音` / `common_phrases_by_pinyin`.
   - Current conservative migration behavior prefers the structured field internally, then flattens it back to legacy phrase order for consumers that are not yet reading-aware.
@@ -42,7 +42,7 @@ Full schema, indexes, and creation/backfill scripts are in [backend/DATABASE.md]
 ## 4. Search Behavior
 
 - **Input:** One Chinese character or one pinyin syllable (e.g. `ke`, `wo3`). Single CJK character → character search; otherwise → pinyin search.
-- **Character search:** If the character is in the Feng set, the Search page shows four panels: 笔顺动画, 字典信息（hwxnet）, 字卡, 字符信息（冯氏早教识字卡）. If the character is only in HWXNet (dictionary-only), the page shows 笔顺动画 and 字典信息 only. Current Feng field display remains read-only; during the WordsByPinyin transition, the UI still presents the legacy flat 词组 view even though backend/data now carry structured `WordsByPinyin`.
+- **Character search:** If the character is in the Feng set, the Search page shows four panels: 笔顺动画, 字典信息（hwxnet）, 字卡, 字符信息（冯氏早教识字卡）. If the character is only in HWXNet (dictionary-only), the page shows 笔顺动画 and 字典信息 only. Current Feng field display remains read-only. The `词组` row now renders grouped `WordsByPinyin` buckets for Feng characters so polyphonic readings are visually separated, with legacy flat `Words` used only as a fallback when structured bucket data is unavailable.
 - **Pinyin search:** Results page at `/pinyin/:query` lists characters matching that reading, ranked by stroke count (ascending). Clicking a result opens the character detail (Search) view. The backend primarily uses `hwxnet_characters.searchable_pinyin`, but also recomputes normalized keys from `pinyin` at read time as a safety net if legacy rows contain stale or malformed search keys.
 
 ---

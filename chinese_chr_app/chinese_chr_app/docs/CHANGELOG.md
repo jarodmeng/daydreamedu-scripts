@@ -6,6 +6,12 @@ Release history and version notes. Newest releases are at the top.
 
 ---
 
+## [Unreleased]
+
+- **Search words grouped by pinyin:** The Feng `词组` row on the Search page now renders `WordsByPinyin` buckets directly instead of flattening them into a single comma-separated line, so polyphonic characters clearly separate phrases by reading. Added focused Playwright coverage for a known polyphonic example (`参`) to lock in the grouped UI behavior.
+
+---
+
 ## [v0.2.19]
 
 - **HWXNet 常用词组按拼音 transition:** Add structured `常用词组按拼音` to `extracted_characters_hwxnet.json`, add `common_phrases_by_pinyin` to the live `hwxnet_characters` table, and keep `extracted_hwxnet_common_phrase_character_readings.reviewed.json` in git as the provenance artifact. Polyphonic buckets are derived from the reviewed phrase-reading artifact; monophonic rows are wrapped mechanically from legacy `常用词组`.

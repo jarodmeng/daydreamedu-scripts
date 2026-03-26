@@ -4,7 +4,7 @@ A web application to help primary school students learn simplified Chinese chara
 
 **Current version: v0.2.19**
 
-Recent data update: HWXNet common phrases now also carry a structured reading-aware transition field (`常用词组按拼音` / `common_phrases_by_pinyin`) alongside the legacy flat list. Current runtime consumers use the structured field conservatively by flattening it back into legacy phrase order where reading-aware behavior is not yet needed.
+Recent data update: Feng word examples and HWXNet common phrases now both carry structured reading-aware transition fields (`WordsByPinyin`, `常用词组按拼音` / `common_phrases_by_pinyin`) alongside legacy flat lists. The Search page now uses grouped Feng `WordsByPinyin` display for `词组`, while other runtime consumers may still flatten structured buckets back into legacy phrase order where reading-aware handling is not yet needed.
 
 ---
 

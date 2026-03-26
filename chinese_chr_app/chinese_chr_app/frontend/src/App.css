@@ -212,6 +212,37 @@ h1 {
   border-bottom: none;
 }
 
+.pinyin-word-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.pinyin-word-group {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.pinyin-word-label {
+  flex: 0 0 auto;
+  min-width: 3.5em;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: #eef5ea;
+  color: #2e7d32;
+  font-weight: 700;
+  line-height: 1.6;
+  text-align: center;
+}
+
+.pinyin-word-phrases {
+  flex: 1 1 220px;
+  line-height: 1.7;
+  word-break: break-word;
+}
+
 .inline-link {
   color: #1a73e8;
   text-decoration: underline;
@@ -418,6 +449,20 @@ button.nav-link:disabled {
   outline: none;
   border-color: #45a049;
   box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+}
+
+@media (max-width: 768px) {
+  .pinyin-word-group {
+    gap: 8px;
+  }
+
+  .pinyin-word-label {
+    min-width: auto;
+  }
+
+  .pinyin-word-phrases {
+    flex-basis: 100%;
+  }
 }
 
 .updating-indicator {

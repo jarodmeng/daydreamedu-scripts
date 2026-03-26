@@ -25,37 +25,32 @@ function getStrokeBoxSize() {
   return window.innerWidth <= 768 ? Math.min(300, Math.max(200, window.innerWidth - 48)) : 420
 }
 
-function flattenWordsByPinyin(character) {
+function getLegacyWords(character) {
   if (!character || typeof character !== 'object') return []
 
-  const legacyWords = Array.isArray(character.Words)
+  return Array.isArray(character.Words)
     ? character.Words.filter(item => typeof item === 'string' && item.trim()).map(item => item.trim())
     : []
+}
+
+function getWordBuckets(character) {
+  if (!character || typeof character !== 'object') return []
+
   const wordsByPinyin = Array.isArray(character.WordsByPinyin) ? character.WordsByPinyin : []
 
-  const flattened = []
-  const seen = new Set()
+  return wordsByPinyin
+    .map(bucket => {
+      if (!bucket || typeof bucket !== 'object' || !Array.isArray(bucket.Phrases)) return null
 
-  legacyWords.forEach(word => {
-    if (!seen.has(word)) {
-      flattened.push(word)
-      seen.add(word)
-    }
-  })
+      const pinyin = typeof bucket.Pinyin === 'string' ? bucket.Pinyin.trim() : ''
+      const phrases = bucket.Phrases
+        .filter(phrase => typeof phrase === 'string' && phrase.trim())
+        .map(phrase => phrase.trim())
 
-  wordsByPinyin.forEach(bucket => {
-    if (!bucket || typeof bucket !== 'object' || !Array.isArray(bucket.Phrases)) return
-    bucket.Phrases.forEach(phrase => {
-      if (typeof phrase !== 'string') return
-      const value = phrase.trim()
-      if (value && !seen.has(value)) {
-        flattened.push(value)
-        seen.add(value)
-      }
+      if (!pinyin || phrases.length === 0) return null
+      return { pinyin, phrases }
     })
-  })
-
-  return flattened
+    .filter(Boolean)
 }
 
 function Search() {
@@ -299,10 +294,7 @@ function Search() {
   const getDisplayValue = (field) => {
     if (!character) return null
     let value = character[field]
-    if (field === 'Words') {
-      value = flattenWordsByPinyin(character)
-    }
-    if (field === 'Pinyin' || field === 'Words') {
+    if (field === 'Pinyin') {
       if (Array.isArray(value)) {
         return formatArrayForDisplay(value)
       }
@@ -318,6 +310,26 @@ function Search() {
     const displayValue = getDisplayValue(field)
     const displayText = displayValue || '无'
     return <span>{displayText}</span>
+  }
+
+  const WordsCell = () => {
+    const buckets = getWordBuckets(character)
+
+    if (buckets.length > 0) {
+      return (
+        <div className="pinyin-word-groups" data-testid="words-by-pinyin-groups">
+          {buckets.map(bucket => (
+            <div key={bucket.pinyin} className="pinyin-word-group" data-testid="words-by-pinyin-group">
+              <span className="pinyin-word-label">{bucket.pinyin}</span>
+              <span className="pinyin-word-phrases">{bucket.phrases.join('、')}</span>
+            </div>
+          ))}
+        </div>
+      )
+    }
+
+    const legacyDisplay = formatArrayForDisplay(getLegacyWords(character))
+    return <span>{legacyDisplay || '无'}</span>
   }
 
   const handleReplayAnimation = () => {
@@ -591,7 +603,7 @@ function Search() {
                       <tr>
                         <td>词组</td>
                         <td>
-                          <ReadOnlyCell field="Words" />
+                          <WordsCell />
                         </td>
                       </tr>
                     </tbody>
