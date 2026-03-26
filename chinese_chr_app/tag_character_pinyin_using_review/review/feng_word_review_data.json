@@ -1,0 +1,8859 @@
+[
+  {
+    "character": "了",
+    "index": "0021",
+    "allowed_readings": [
+      "le",
+      "liǎo"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "为了",
+        "previous_word": null,
+        "next_word": "走了"
+      },
+      {
+        "position": 2,
+        "text": "走了",
+        "previous_word": "为了",
+        "next_word": "完了"
+      },
+      {
+        "position": 3,
+        "text": "完了",
+        "previous_word": "走了",
+        "next_word": "罢了"
+      },
+      {
+        "position": 4,
+        "text": "罢了",
+        "previous_word": "完了",
+        "next_word": "了断"
+      },
+      {
+        "position": 5,
+        "text": "了断",
+        "previous_word": "罢了",
+        "next_word": "了结"
+      },
+      {
+        "position": 6,
+        "text": "了结",
+        "previous_word": "了断",
+        "next_word": "了得"
+      },
+      {
+        "position": 7,
+        "text": "了得",
+        "previous_word": "了结",
+        "next_word": "明了"
+      },
+      {
+        "position": 8,
+        "text": "明了",
+        "previous_word": "了得",
+        "next_word": "了不起"
+      },
+      {
+        "position": 9,
+        "text": "了不起",
+        "previous_word": "明了",
+        "next_word": "了如指掌"
+      },
+      {
+        "position": 10,
+        "text": "了如指掌",
+        "previous_word": "了不起",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "乐",
+    "index": "0023",
+    "allowed_readings": [
+      "lè",
+      "yuè"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "乐观",
+        "previous_word": null,
+        "next_word": "快乐"
+      },
+      {
+        "position": 2,
+        "text": "快乐",
+        "previous_word": "乐观",
+        "next_word": "欢乐"
+      },
+      {
+        "position": 3,
+        "text": "欢乐",
+        "previous_word": "快乐",
+        "next_word": "乐园"
+      },
+      {
+        "position": 4,
+        "text": "乐园",
+        "previous_word": "欢乐",
+        "next_word": "安居乐业"
+      },
+      {
+        "position": 5,
+        "text": "安居乐业",
+        "previous_word": "乐园",
+        "next_word": "乐于助人"
+      },
+      {
+        "position": 6,
+        "text": "乐于助人",
+        "previous_word": "安居乐业",
+        "next_word": "乐队"
+      },
+      {
+        "position": 7,
+        "text": "乐队",
+        "previous_word": "乐于助人",
+        "next_word": "音乐"
+      },
+      {
+        "position": 8,
+        "text": "音乐",
+        "previous_word": "乐队",
+        "next_word": "乐曲"
+      },
+      {
+        "position": 9,
+        "text": "乐曲",
+        "previous_word": "音乐",
+        "next_word": "乐谱"
+      },
+      {
+        "position": 10,
+        "text": "乐谱",
+        "previous_word": "乐曲",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "的",
+    "index": "0029",
+    "allowed_readings": [
+      "de",
+      "dí",
+      "dì"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "的确",
+        "previous_word": null,
+        "next_word": "好的"
+      },
+      {
+        "position": 2,
+        "text": "好的",
+        "previous_word": "的确",
+        "next_word": "是的"
+      },
+      {
+        "position": 3,
+        "text": "是的",
+        "previous_word": "好的",
+        "next_word": "真的"
+      },
+      {
+        "position": 4,
+        "text": "真的",
+        "previous_word": "是的",
+        "next_word": "众矢之的"
+      },
+      {
+        "position": 5,
+        "text": "众矢之的",
+        "previous_word": "真的",
+        "next_word": "一言中的"
+      },
+      {
+        "position": 6,
+        "text": "一言中的",
+        "previous_word": "众矢之的",
+        "next_word": "的士"
+      },
+      {
+        "position": 7,
+        "text": "的士",
+        "previous_word": "一言中的",
+        "next_word": "摩的"
+      },
+      {
+        "position": 8,
+        "text": "摩的",
+        "previous_word": "的士",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "和",
+    "index": "0042",
+    "allowed_readings": [
+      "hé",
+      "huó",
+      "hú",
+      "hè"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "和平",
+        "previous_word": null,
+        "next_word": "和谐"
+      },
+      {
+        "position": 2,
+        "text": "和谐",
+        "previous_word": "和平",
+        "next_word": "和解"
+      },
+      {
+        "position": 3,
+        "text": "和解",
+        "previous_word": "和谐",
+        "next_word": "和气"
+      },
+      {
+        "position": 4,
+        "text": "和气",
+        "previous_word": "和解",
+        "next_word": "和面"
+      },
+      {
+        "position": 5,
+        "text": "和面",
+        "previous_word": "和气",
+        "next_word": "和泥"
+      },
+      {
+        "position": 6,
+        "text": "和泥",
+        "previous_word": "和面",
+        "next_word": "暖和"
+      },
+      {
+        "position": 7,
+        "text": "暖和",
+        "previous_word": "和泥",
+        "next_word": "和了"
+      },
+      {
+        "position": 8,
+        "text": "和了",
+        "previous_word": "暖和",
+        "next_word": "和牌"
+      },
+      {
+        "position": 9,
+        "text": "和牌",
+        "previous_word": "和了",
+        "next_word": "一唱一和"
+      },
+      {
+        "position": 10,
+        "text": "一唱一和",
+        "previous_word": "和牌",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "好",
+    "index": "0045",
+    "allowed_readings": [
+      "hǎo",
+      "hào"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "好事",
+        "previous_word": null,
+        "next_word": "好处"
+      },
+      {
+        "position": 2,
+        "text": "好处",
+        "previous_word": "好事",
+        "next_word": "好人"
+      },
+      {
+        "position": 3,
+        "text": "好人",
+        "previous_word": "好处",
+        "next_word": "好多"
+      },
+      {
+        "position": 4,
+        "text": "好多",
+        "previous_word": "好人",
+        "next_word": "好像"
+      },
+      {
+        "position": 5,
+        "text": "好像",
+        "previous_word": "好多",
+        "next_word": "好香"
+      },
+      {
+        "position": 6,
+        "text": "好香",
+        "previous_word": "好像",
+        "next_word": "好玩"
+      },
+      {
+        "position": 7,
+        "text": "好玩",
+        "previous_word": "好香",
+        "next_word": "好吃"
+      },
+      {
+        "position": 8,
+        "text": "好吃",
+        "previous_word": "好玩",
+        "next_word": "好事成双"
+      },
+      {
+        "position": 9,
+        "text": "好事成双",
+        "previous_word": "好吃",
+        "next_word": "花好月圆"
+      },
+      {
+        "position": 10,
+        "text": "花好月圆",
+        "previous_word": "好事成双",
+        "next_word": "爱好"
+      },
+      {
+        "position": 11,
+        "text": "爱好",
+        "previous_word": "花好月圆",
+        "next_word": "游手好闲"
+      },
+      {
+        "position": 12,
+        "text": "游手好闲",
+        "previous_word": "爱好",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "校",
+    "index": "0053",
+    "allowed_readings": [
+      "xiào",
+      "jiào"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "学校",
+        "previous_word": null,
+        "next_word": "校友"
+      },
+      {
+        "position": 2,
+        "text": "校友",
+        "previous_word": "学校",
+        "next_word": "校长"
+      },
+      {
+        "position": 3,
+        "text": "校长",
+        "previous_word": "校友",
+        "next_word": "校园"
+      },
+      {
+        "position": 4,
+        "text": "校园",
+        "previous_word": "校长",
+        "next_word": "校庆"
+      },
+      {
+        "position": 5,
+        "text": "校庆",
+        "previous_word": "校园",
+        "next_word": "校规"
+      },
+      {
+        "position": 6,
+        "text": "校规",
+        "previous_word": "校庆",
+        "next_word": "校场"
+      },
+      {
+        "position": 7,
+        "text": "校场",
+        "previous_word": "校规",
+        "next_word": "校刊"
+      },
+      {
+        "position": 8,
+        "text": "校刊",
+        "previous_word": "校场",
+        "next_word": "摸金校尉"
+      },
+      {
+        "position": 9,
+        "text": "摸金校尉",
+        "previous_word": "校刊",
+        "next_word": "校正"
+      },
+      {
+        "position": 10,
+        "text": "校正",
+        "previous_word": "摸金校尉",
+        "next_word": "校场"
+      },
+      {
+        "position": 11,
+        "text": "校场",
+        "previous_word": "校正",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "片",
+    "index": "0057",
+    "allowed_readings": [
+      "piàn",
+      "piān"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "卡片",
+        "previous_word": null,
+        "next_word": "名片"
+      },
+      {
+        "position": 2,
+        "text": "名片",
+        "previous_word": "卡片",
+        "next_word": "瓦片"
+      },
+      {
+        "position": 3,
+        "text": "瓦片",
+        "previous_word": "名片",
+        "next_word": "片面"
+      },
+      {
+        "position": 4,
+        "text": "片面",
+        "previous_word": "瓦片",
+        "next_word": "片刻"
+      },
+      {
+        "position": 5,
+        "text": "片刻",
+        "previous_word": "片面",
+        "next_word": "切片"
+      },
+      {
+        "position": 6,
+        "text": "切片",
+        "previous_word": "片刻",
+        "next_word": "片头"
+      },
+      {
+        "position": 7,
+        "text": "片头",
+        "previous_word": "切片",
+        "next_word": "只言片语"
+      },
+      {
+        "position": 8,
+        "text": "只言片语",
+        "previous_word": "片头",
+        "next_word": "冰心一片"
+      },
+      {
+        "position": 9,
+        "text": "冰心一片",
+        "previous_word": "只言片语",
+        "next_word": "老照片"
+      },
+      {
+        "position": 10,
+        "text": "老照片",
+        "previous_word": "冰心一片",
+        "next_word": "戏剧片"
+      },
+      {
+        "position": 11,
+        "text": "戏剧片",
+        "previous_word": "老照片",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "发",
+    "index": "0096",
+    "allowed_readings": [
+      "fā",
+      "fà"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "发烧",
+        "previous_word": null,
+        "next_word": "发声"
+      },
+      {
+        "position": 2,
+        "text": "发声",
+        "previous_word": "发烧",
+        "next_word": "发展"
+      },
+      {
+        "position": 3,
+        "text": "发展",
+        "previous_word": "发声",
+        "next_word": "发扬"
+      },
+      {
+        "position": 4,
+        "text": "发扬",
+        "previous_word": "发展",
+        "next_word": "发生"
+      },
+      {
+        "position": 5,
+        "text": "发生",
+        "previous_word": "发扬",
+        "next_word": "发现"
+      },
+      {
+        "position": 6,
+        "text": "发现",
+        "previous_word": "发生",
+        "next_word": "发觉"
+      },
+      {
+        "position": 7,
+        "text": "发觉",
+        "previous_word": "发现",
+        "next_word": "令人发指"
+      },
+      {
+        "position": 8,
+        "text": "令人发指",
+        "previous_word": "发觉",
+        "next_word": "白发苍苍"
+      },
+      {
+        "position": 9,
+        "text": "白发苍苍",
+        "previous_word": "令人发指",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "还",
+    "index": "0130",
+    "allowed_readings": [
+      "hái",
+      "huán"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "还好",
+        "previous_word": null,
+        "next_word": "还差"
+      },
+      {
+        "position": 2,
+        "text": "还差",
+        "previous_word": "还好",
+        "next_word": "还有"
+      },
+      {
+        "position": 3,
+        "text": "还有",
+        "previous_word": "还差",
+        "next_word": "还看"
+      },
+      {
+        "position": 4,
+        "text": "还看",
+        "previous_word": "还有",
+        "next_word": "还原"
+      },
+      {
+        "position": 5,
+        "text": "还原",
+        "previous_word": "还看",
+        "next_word": "归还"
+      },
+      {
+        "position": 6,
+        "text": "归还",
+        "previous_word": "还原",
+        "next_word": "偿还"
+      },
+      {
+        "position": 7,
+        "text": "偿还",
+        "previous_word": "归还",
+        "next_word": "还手"
+      },
+      {
+        "position": 8,
+        "text": "还手",
+        "previous_word": "偿还",
+        "next_word": "讨价还价"
+      },
+      {
+        "position": 9,
+        "text": "讨价还价",
+        "previous_word": "还手",
+        "next_word": "返老还童"
+      },
+      {
+        "position": 10,
+        "text": "返老还童",
+        "previous_word": "讨价还价",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "中",
+    "index": "0146",
+    "allowed_readings": [
+      "zhōng",
+      "zhòng"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "中心",
+        "previous_word": null,
+        "next_word": "中文"
+      },
+      {
+        "position": 2,
+        "text": "中文",
+        "previous_word": "中心",
+        "next_word": "中原"
+      },
+      {
+        "position": 3,
+        "text": "中原",
+        "previous_word": "中文",
+        "next_word": "中式"
+      },
+      {
+        "position": 4,
+        "text": "中式",
+        "previous_word": "中原",
+        "next_word": "中等"
+      },
+      {
+        "position": 5,
+        "text": "中等",
+        "previous_word": "中式",
+        "next_word": "中华"
+      },
+      {
+        "position": 6,
+        "text": "中华",
+        "previous_word": "中等",
+        "next_word": "中看"
+      },
+      {
+        "position": 7,
+        "text": "中看",
+        "previous_word": "中华",
+        "next_word": "暗中"
+      },
+      {
+        "position": 8,
+        "text": "暗中",
+        "previous_word": "中看",
+        "next_word": "相中"
+      },
+      {
+        "position": 9,
+        "text": "相中",
+        "previous_word": "暗中",
+        "next_word": "中意"
+      },
+      {
+        "position": 10,
+        "text": "中意",
+        "previous_word": "相中",
+        "next_word": "一语中的"
+      },
+      {
+        "position": 11,
+        "text": "一语中的",
+        "previous_word": "中意",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "漂",
+    "index": "0160",
+    "allowed_readings": [
+      "piāo",
+      "piào"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "漂流",
+        "previous_word": null,
+        "next_word": "漂泊"
+      },
+      {
+        "position": 2,
+        "text": "漂泊",
+        "previous_word": "漂流",
+        "next_word": "漂浮"
+      },
+      {
+        "position": 3,
+        "text": "漂浮",
+        "previous_word": "漂泊",
+        "next_word": "漂移"
+      },
+      {
+        "position": 4,
+        "text": "漂移",
+        "previous_word": "漂浮",
+        "next_word": "漂白"
+      },
+      {
+        "position": 5,
+        "text": "漂白",
+        "previous_word": "漂移",
+        "next_word": "漂洗"
+      },
+      {
+        "position": 6,
+        "text": "漂洗",
+        "previous_word": "漂白",
+        "next_word": "漂荡"
+      },
+      {
+        "position": 7,
+        "text": "漂荡",
+        "previous_word": "漂洗",
+        "next_word": "漂亮"
+      },
+      {
+        "position": 8,
+        "text": "漂亮",
+        "previous_word": "漂荡",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "要",
+    "index": "0167",
+    "allowed_readings": [
+      "yāo",
+      "yào"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "要求",
+        "previous_word": null,
+        "next_word": "要挟"
+      },
+      {
+        "position": 2,
+        "text": "要挟",
+        "previous_word": "要求",
+        "next_word": "将要"
+      },
+      {
+        "position": 3,
+        "text": "将要",
+        "previous_word": "要挟",
+        "next_word": "要领"
+      },
+      {
+        "position": 4,
+        "text": "要领",
+        "previous_word": "将要",
+        "next_word": "要点"
+      },
+      {
+        "position": 5,
+        "text": "要点",
+        "previous_word": "要领",
+        "next_word": "要饭"
+      },
+      {
+        "position": 6,
+        "text": "要饭",
+        "previous_word": "要点",
+        "next_word": "要强"
+      },
+      {
+        "position": 7,
+        "text": "要强",
+        "previous_word": "要饭",
+        "next_word": "要害"
+      },
+      {
+        "position": 8,
+        "text": "要害",
+        "previous_word": "要强",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "只",
+    "index": "0192",
+    "allowed_readings": [
+      "zhī",
+      "zhǐ"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "一只",
+        "previous_word": null,
+        "next_word": "只身前往"
+      },
+      {
+        "position": 2,
+        "text": "只身前往",
+        "previous_word": "一只",
+        "next_word": "只言片语"
+      },
+      {
+        "position": 3,
+        "text": "只言片语",
+        "previous_word": "只身前往",
+        "next_word": "只要"
+      },
+      {
+        "position": 4,
+        "text": "只要",
+        "previous_word": "只言片语",
+        "next_word": "只有"
+      },
+      {
+        "position": 5,
+        "text": "只有",
+        "previous_word": "只要",
+        "next_word": "只是"
+      },
+      {
+        "position": 6,
+        "text": "只是",
+        "previous_word": "只有",
+        "next_word": "只好"
+      },
+      {
+        "position": 7,
+        "text": "只好",
+        "previous_word": "只是",
+        "next_word": "只怕"
+      },
+      {
+        "position": 8,
+        "text": "只怕",
+        "previous_word": "只好",
+        "next_word": "只能"
+      },
+      {
+        "position": 9,
+        "text": "只能",
+        "previous_word": "只怕",
+        "next_word": "只得"
+      },
+      {
+        "position": 10,
+        "text": "只得",
+        "previous_word": "只能",
+        "next_word": "只顾"
+      },
+      {
+        "position": 11,
+        "text": "只顾",
+        "previous_word": "只得",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "看",
+    "index": "0193",
+    "allowed_readings": [
+      "kàn",
+      "kān"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "看见",
+        "previous_word": null,
+        "next_word": "看书"
+      },
+      {
+        "position": 2,
+        "text": "看书",
+        "previous_word": "看见",
+        "next_word": "看病"
+      },
+      {
+        "position": 3,
+        "text": "看病",
+        "previous_word": "看书",
+        "next_word": "看待"
+      },
+      {
+        "position": 4,
+        "text": "看待",
+        "previous_word": "看病",
+        "next_word": "看齐"
+      },
+      {
+        "position": 5,
+        "text": "看齐",
+        "previous_word": "看待",
+        "next_word": "看望"
+      },
+      {
+        "position": 6,
+        "text": "看望",
+        "previous_word": "看齐",
+        "next_word": "观看"
+      },
+      {
+        "position": 7,
+        "text": "观看",
+        "previous_word": "看望",
+        "next_word": "看法"
+      },
+      {
+        "position": 8,
+        "text": "看法",
+        "previous_word": "观看",
+        "next_word": "刮目相看"
+      },
+      {
+        "position": 9,
+        "text": "刮目相看",
+        "previous_word": "看法",
+        "next_word": "看破红尘"
+      },
+      {
+        "position": 10,
+        "text": "看破红尘",
+        "previous_word": "刮目相看",
+        "next_word": "看守"
+      },
+      {
+        "position": 11,
+        "text": "看守",
+        "previous_word": "看破红尘",
+        "next_word": "看管"
+      },
+      {
+        "position": 12,
+        "text": "看管",
+        "previous_word": "看守",
+        "next_word": "看护"
+      },
+      {
+        "position": 13,
+        "text": "看护",
+        "previous_word": "看管",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "更",
+    "index": "0202",
+    "allowed_readings": [
+      "gèng",
+      "gēng"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "更好",
+        "previous_word": null,
+        "next_word": "更加"
+      },
+      {
+        "position": 2,
+        "text": "更加",
+        "previous_word": "更好",
+        "next_word": "更进一步"
+      },
+      {
+        "position": 3,
+        "text": "更进一步",
+        "previous_word": "更加",
+        "next_word": "更改"
+      },
+      {
+        "position": 4,
+        "text": "更改",
+        "previous_word": "更进一步",
+        "next_word": "更正"
+      },
+      {
+        "position": 5,
+        "text": "更正",
+        "previous_word": "更改",
+        "next_word": "更新"
+      },
+      {
+        "position": 6,
+        "text": "更新",
+        "previous_word": "更正",
+        "next_word": "更换"
+      },
+      {
+        "position": 7,
+        "text": "更换",
+        "previous_word": "更新",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "长",
+    "index": "0204",
+    "allowed_readings": [
+      "cháng",
+      "zhǎng"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "长城",
+        "previous_word": null,
+        "next_word": "长短"
+      },
+      {
+        "position": 2,
+        "text": "长短",
+        "previous_word": "长城",
+        "next_word": "长跑"
+      },
+      {
+        "position": 3,
+        "text": "长跑",
+        "previous_word": "长短",
+        "next_word": "专长"
+      },
+      {
+        "position": 4,
+        "text": "专长",
+        "previous_word": "长跑",
+        "next_word": "长度"
+      },
+      {
+        "position": 5,
+        "text": "长度",
+        "previous_word": "专长",
+        "next_word": "长寿"
+      },
+      {
+        "position": 6,
+        "text": "长寿",
+        "previous_word": "长度",
+        "next_word": "长廊"
+      },
+      {
+        "position": 7,
+        "text": "长廊",
+        "previous_word": "长寿",
+        "next_word": "长期"
+      },
+      {
+        "position": 8,
+        "text": "长期",
+        "previous_word": "长廊",
+        "next_word": "长大"
+      },
+      {
+        "position": 9,
+        "text": "长大",
+        "previous_word": "长期",
+        "next_word": "长辈"
+      },
+      {
+        "position": 10,
+        "text": "长辈",
+        "previous_word": "长大",
+        "next_word": "长高"
+      },
+      {
+        "position": 11,
+        "text": "长高",
+        "previous_word": "长辈",
+        "next_word": "长官"
+      },
+      {
+        "position": 12,
+        "text": "长官",
+        "previous_word": "长高",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "着",
+    "index": "0215",
+    "allowed_readings": [
+      "zhāo",
+      "zháo",
+      "zhe",
+      "zhuó"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "一着失误",
+        "previous_word": null,
+        "next_word": "着火"
+      },
+      {
+        "position": 2,
+        "text": "着火",
+        "previous_word": "一着失误",
+        "next_word": "着急"
+      },
+      {
+        "position": 3,
+        "text": "着急",
+        "previous_word": "着火",
+        "next_word": "着凉"
+      },
+      {
+        "position": 4,
+        "text": "着凉",
+        "previous_word": "着急",
+        "next_word": "灯亮着"
+      },
+      {
+        "position": 5,
+        "text": "灯亮着",
+        "previous_word": "着凉",
+        "next_word": "走着"
+      },
+      {
+        "position": 6,
+        "text": "走着",
+        "previous_word": "灯亮着",
+        "next_word": "着装"
+      },
+      {
+        "position": 7,
+        "text": "着装",
+        "previous_word": "走着",
+        "next_word": "着陆"
+      },
+      {
+        "position": 8,
+        "text": "着陆",
+        "previous_word": "着装",
+        "next_word": "沉着指挥"
+      },
+      {
+        "position": 9,
+        "text": "沉着指挥",
+        "previous_word": "着陆",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "把",
+    "index": "0225",
+    "allowed_readings": [
+      "bǎ",
+      "bà"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "把手",
+        "previous_word": null,
+        "next_word": "把握"
+      },
+      {
+        "position": 2,
+        "text": "把握",
+        "previous_word": "把手",
+        "next_word": "把持"
+      },
+      {
+        "position": 3,
+        "text": "把持",
+        "previous_word": "把握",
+        "next_word": "把戏"
+      },
+      {
+        "position": 4,
+        "text": "把戏",
+        "previous_word": "把持",
+        "next_word": "把柄"
+      },
+      {
+        "position": 5,
+        "text": "把柄",
+        "previous_word": "把戏",
+        "next_word": "把控"
+      },
+      {
+        "position": 6,
+        "text": "把控",
+        "previous_word": "把柄",
+        "next_word": "把脉"
+      },
+      {
+        "position": 7,
+        "text": "把脉",
+        "previous_word": "把控",
+        "next_word": "火把"
+      },
+      {
+        "position": 8,
+        "text": "火把",
+        "previous_word": "把脉",
+        "next_word": "把子"
+      },
+      {
+        "position": 9,
+        "text": "把子",
+        "previous_word": "火把",
+        "next_word": "手把"
+      },
+      {
+        "position": 10,
+        "text": "手把",
+        "previous_word": "把子",
+        "next_word": "枪把子"
+      },
+      {
+        "position": 11,
+        "text": "枪把子",
+        "previous_word": "手把",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "扁",
+    "index": "0229",
+    "allowed_readings": [
+      "biān",
+      "piān"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "扁豆",
+        "previous_word": null,
+        "next_word": "扁担"
+      },
+      {
+        "position": 2,
+        "text": "扁担",
+        "previous_word": "扁豆",
+        "next_word": "扁圆"
+      },
+      {
+        "position": 3,
+        "text": "扁圆",
+        "previous_word": "扁担",
+        "next_word": "扁鹊"
+      },
+      {
+        "position": 4,
+        "text": "扁鹊",
+        "previous_word": "扁圆",
+        "next_word": "一叶扁舟"
+      },
+      {
+        "position": 5,
+        "text": "一叶扁舟",
+        "previous_word": "扁鹊",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "作",
+    "index": "0254",
+    "allowed_readings": [
+      "zuò",
+      "zuō"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "作业",
+        "previous_word": null,
+        "next_word": "作用"
+      },
+      {
+        "position": 2,
+        "text": "作用",
+        "previous_word": "作业",
+        "next_word": "作息"
+      },
+      {
+        "position": 3,
+        "text": "作息",
+        "previous_word": "作用",
+        "next_word": "作乱"
+      },
+      {
+        "position": 4,
+        "text": "作乱",
+        "previous_word": "作息",
+        "next_word": "作案"
+      },
+      {
+        "position": 5,
+        "text": "作案",
+        "previous_word": "作乱",
+        "next_word": "作为"
+      },
+      {
+        "position": 6,
+        "text": "作为",
+        "previous_word": "作案",
+        "next_word": "作家"
+      },
+      {
+        "position": 7,
+        "text": "作家",
+        "previous_word": "作为",
+        "next_word": "大有作为"
+      },
+      {
+        "position": 8,
+        "text": "大有作为",
+        "previous_word": "作家",
+        "next_word": "逢场作戏"
+      },
+      {
+        "position": 9,
+        "text": "逢场作戏",
+        "previous_word": "大有作为",
+        "next_word": "作坊"
+      },
+      {
+        "position": 10,
+        "text": "作坊",
+        "previous_word": "逢场作戏",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "角",
+    "index": "0262",
+    "allowed_readings": [
+      "jiǎo",
+      "jué"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "角落",
+        "previous_word": null,
+        "next_word": "牛角"
+      },
+      {
+        "position": 2,
+        "text": "牛角",
+        "previous_word": "角落",
+        "next_word": "鹿角"
+      },
+      {
+        "position": 3,
+        "text": "鹿角",
+        "previous_word": "牛角",
+        "next_word": "特角"
+      },
+      {
+        "position": 4,
+        "text": "特角",
+        "previous_word": "鹿角",
+        "next_word": "角质"
+      },
+      {
+        "position": 5,
+        "text": "角质",
+        "previous_word": "特角",
+        "next_word": "号角"
+      },
+      {
+        "position": 6,
+        "text": "号角",
+        "previous_word": "角质",
+        "next_word": "角度"
+      },
+      {
+        "position": 7,
+        "text": "角度",
+        "previous_word": "号角",
+        "next_word": "勾心斗角"
+      },
+      {
+        "position": 8,
+        "text": "勾心斗角",
+        "previous_word": "角度",
+        "next_word": "拐弯抹角"
+      },
+      {
+        "position": 9,
+        "text": "拐弯抹角",
+        "previous_word": "勾心斗角",
+        "next_word": "角逐"
+      },
+      {
+        "position": 10,
+        "text": "角逐",
+        "previous_word": "拐弯抹角",
+        "next_word": "口角"
+      },
+      {
+        "position": 11,
+        "text": "口角",
+        "previous_word": "角逐",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "卜",
+    "index": "0264",
+    "allowed_readings": [
+      "bō",
+      "bǔ"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "萝卜",
+        "previous_word": null,
+        "next_word": "占卜"
+      },
+      {
+        "position": 2,
+        "text": "占卜",
+        "previous_word": "萝卜",
+        "next_word": "未卜先知"
+      },
+      {
+        "position": 3,
+        "text": "未卜先知",
+        "previous_word": "占卜",
+        "next_word": "生死未卜"
+      },
+      {
+        "position": 4,
+        "text": "生死未卜",
+        "previous_word": "未卜先知",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "藏",
+    "index": "0269",
+    "allowed_readings": [
+      "cáng",
+      "zàng"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "躲藏",
+        "previous_word": null,
+        "next_word": "隐藏"
+      },
+      {
+        "position": 2,
+        "text": "隐藏",
+        "previous_word": "躲藏",
+        "next_word": "收藏"
+      },
+      {
+        "position": 3,
+        "text": "收藏",
+        "previous_word": "隐藏",
+        "next_word": "埋藏"
+      },
+      {
+        "position": 4,
+        "text": "埋藏",
+        "previous_word": "收藏",
+        "next_word": "藏身"
+      },
+      {
+        "position": 5,
+        "text": "藏身",
+        "previous_word": "埋藏",
+        "next_word": "掩藏"
+      },
+      {
+        "position": 6,
+        "text": "掩藏",
+        "previous_word": "藏身",
+        "next_word": "暗藏杀机"
+      },
+      {
+        "position": 7,
+        "text": "暗藏杀机",
+        "previous_word": "掩藏",
+        "next_word": "宝藏"
+      },
+      {
+        "position": 8,
+        "text": "宝藏",
+        "previous_word": "暗藏杀机",
+        "next_word": "西藏"
+      },
+      {
+        "position": 9,
+        "text": "西藏",
+        "previous_word": "宝藏",
+        "next_word": "藏族"
+      },
+      {
+        "position": 10,
+        "text": "藏族",
+        "previous_word": "西藏",
+        "next_word": "藏青"
+      },
+      {
+        "position": 11,
+        "text": "藏青",
+        "previous_word": "藏族",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "数",
+    "index": "0300",
+    "allowed_readings": [
+      "shǔ",
+      "shù",
+      "shuò"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "数落",
+        "previous_word": null,
+        "next_word": "数数"
+      },
+      {
+        "position": 2,
+        "text": "数数",
+        "previous_word": "数落",
+        "next_word": "数一数二"
+      },
+      {
+        "position": 3,
+        "text": "数一数二",
+        "previous_word": "数数",
+        "next_word": "数学"
+      },
+      {
+        "position": 4,
+        "text": "数学",
+        "previous_word": "数一数二",
+        "next_word": "数字"
+      },
+      {
+        "position": 5,
+        "text": "数字",
+        "previous_word": "数学",
+        "next_word": "数据"
+      },
+      {
+        "position": 6,
+        "text": "数据",
+        "previous_word": "数字",
+        "next_word": "数量"
+      },
+      {
+        "position": 7,
+        "text": "数量",
+        "previous_word": "数据",
+        "next_word": "滥竽充数"
+      },
+      {
+        "position": 8,
+        "text": "滥竽充数",
+        "previous_word": "数量",
+        "next_word": "浑身解数"
+      },
+      {
+        "position": 9,
+        "text": "浑身解数",
+        "previous_word": "滥竽充数",
+        "next_word": "频数"
+      },
+      {
+        "position": 10,
+        "text": "频数",
+        "previous_word": "浑身解数",
+        "next_word": "数次"
+      },
+      {
+        "position": 11,
+        "text": "数次",
+        "previous_word": "频数",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "空",
+    "index": "0305",
+    "allowed_readings": [
+      "kōng",
+      "kòng"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "空气",
+        "previous_word": null,
+        "next_word": "空间"
+      },
+      {
+        "position": 2,
+        "text": "空间",
+        "previous_word": "空气",
+        "next_word": "空姐"
+      },
+      {
+        "position": 3,
+        "text": "空姐",
+        "previous_word": "空间",
+        "next_word": "空灵"
+      },
+      {
+        "position": 4,
+        "text": "空灵",
+        "previous_word": "空姐",
+        "next_word": "空调"
+      },
+      {
+        "position": 5,
+        "text": "空调",
+        "previous_word": "空灵",
+        "next_word": "空旷"
+      },
+      {
+        "position": 6,
+        "text": "空旷",
+        "previous_word": "空调",
+        "next_word": "空位"
+      },
+      {
+        "position": 7,
+        "text": "空位",
+        "previous_word": "空旷",
+        "next_word": "空手"
+      },
+      {
+        "position": 8,
+        "text": "空手",
+        "previous_word": "空位",
+        "next_word": "赤手空拳"
+      },
+      {
+        "position": 9,
+        "text": "赤手空拳",
+        "previous_word": "空手",
+        "next_word": "空空如也"
+      },
+      {
+        "position": 10,
+        "text": "空空如也",
+        "previous_word": "赤手空拳",
+        "next_word": "没空"
+      },
+      {
+        "position": 11,
+        "text": "没空",
+        "previous_word": "空空如也",
+        "next_word": "空地"
+      },
+      {
+        "position": 12,
+        "text": "空地",
+        "previous_word": "没空",
+        "next_word": "空缺"
+      },
+      {
+        "position": 13,
+        "text": "空缺",
+        "previous_word": "空地",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "间",
+    "index": "0312",
+    "allowed_readings": [
+      "jiān",
+      "jiàn"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "中间",
+        "previous_word": null,
+        "next_word": "人间"
+      },
+      {
+        "position": 2,
+        "text": "人间",
+        "previous_word": "中间",
+        "next_word": "间距"
+      },
+      {
+        "position": 3,
+        "text": "间距",
+        "previous_word": "人间",
+        "next_word": "瞬间"
+      },
+      {
+        "position": 4,
+        "text": "瞬间",
+        "previous_word": "间距",
+        "next_word": "间隔"
+      },
+      {
+        "position": 5,
+        "text": "间隔",
+        "previous_word": "瞬间",
+        "next_word": "离间"
+      },
+      {
+        "position": 6,
+        "text": "离间",
+        "previous_word": "间隔",
+        "next_word": "间谍"
+      },
+      {
+        "position": 7,
+        "text": "间谍",
+        "previous_word": "离间",
+        "next_word": "间接"
+      },
+      {
+        "position": 8,
+        "text": "间接",
+        "previous_word": "间谍",
+        "next_word": "黑白相间"
+      },
+      {
+        "position": 9,
+        "text": "黑白相间",
+        "previous_word": "间接",
+        "next_word": "亲密无间"
+      },
+      {
+        "position": 10,
+        "text": "亲密无间",
+        "previous_word": "黑白相间",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "都",
+    "index": "0315",
+    "allowed_readings": [
+      "dōu",
+      "dū"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "都要",
+        "previous_word": null,
+        "next_word": "都是"
+      },
+      {
+        "position": 2,
+        "text": "都是",
+        "previous_word": "都要",
+        "next_word": "都会"
+      },
+      {
+        "position": 3,
+        "text": "都会",
+        "previous_word": "都是",
+        "next_word": "首都"
+      },
+      {
+        "position": 4,
+        "text": "首都",
+        "previous_word": "都会",
+        "next_word": "京都"
+      },
+      {
+        "position": 5,
+        "text": "京都",
+        "previous_word": "首都",
+        "next_word": "建都"
+      },
+      {
+        "position": 6,
+        "text": "建都",
+        "previous_word": "京都",
+        "next_word": "都市"
+      },
+      {
+        "position": 7,
+        "text": "都市",
+        "previous_word": "建都",
+        "next_word": "都尉"
+      },
+      {
+        "position": 8,
+        "text": "都尉",
+        "previous_word": "都市",
+        "next_word": "都督"
+      },
+      {
+        "position": 9,
+        "text": "都督",
+        "previous_word": "都尉",
+        "next_word": "都江堰"
+      },
+      {
+        "position": 10,
+        "text": "都江堰",
+        "previous_word": "都督",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "呢",
+    "index": "0317",
+    "allowed_readings": [
+      "ne",
+      "ní"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "干嘛呢",
+        "previous_word": null,
+        "next_word": "干什么呢"
+      },
+      {
+        "position": 2,
+        "text": "干什么呢",
+        "previous_word": "干嘛呢",
+        "next_word": "呢喃"
+      },
+      {
+        "position": 3,
+        "text": "呢喃",
+        "previous_word": "干什么呢",
+        "next_word": "毛呢"
+      },
+      {
+        "position": 4,
+        "text": "毛呢",
+        "previous_word": "呢喃",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "啊",
+    "index": "0318",
+    "allowed_readings": [
+      "ā",
+      "á",
+      "ǎ",
+      "à"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "啊呀",
+        "previous_word": null,
+        "next_word": "啊哟"
+      },
+      {
+        "position": 2,
+        "text": "啊哟",
+        "previous_word": "啊呀",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "没",
+    "index": "0319",
+    "allowed_readings": [
+      "méi",
+      "mò"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "没事",
+        "previous_word": null,
+        "next_word": "没用"
+      },
+      {
+        "position": 2,
+        "text": "没用",
+        "previous_word": "没事",
+        "next_word": "没劲"
+      },
+      {
+        "position": 3,
+        "text": "没劲",
+        "previous_word": "没用",
+        "next_word": "没有"
+      },
+      {
+        "position": 4,
+        "text": "没有",
+        "previous_word": "没劲",
+        "next_word": "没钱"
+      },
+      {
+        "position": 5,
+        "text": "没钱",
+        "previous_word": "没有",
+        "next_word": "沉没"
+      },
+      {
+        "position": 6,
+        "text": "沉没",
+        "previous_word": "没钱",
+        "next_word": "没落"
+      },
+      {
+        "position": 7,
+        "text": "没落",
+        "previous_word": "沉没",
+        "next_word": "没收"
+      },
+      {
+        "position": 8,
+        "text": "没收",
+        "previous_word": "没落",
+        "next_word": "埋没"
+      },
+      {
+        "position": 9,
+        "text": "埋没",
+        "previous_word": "没收",
+        "next_word": "没齿难忘"
+      },
+      {
+        "position": 10,
+        "text": "没齿难忘",
+        "previous_word": "埋没",
+        "next_word": "神出鬼没"
+      },
+      {
+        "position": 11,
+        "text": "神出鬼没",
+        "previous_word": "没齿难忘",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "吧",
+    "index": "0323",
+    "allowed_readings": [
+      "ba",
+      "bā"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "好吧",
+        "previous_word": null,
+        "next_word": "酒吧"
+      },
+      {
+        "position": 2,
+        "text": "酒吧",
+        "previous_word": "好吧",
+        "next_word": "吧台"
+      },
+      {
+        "position": 3,
+        "text": "吧台",
+        "previous_word": "酒吧",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "吗",
+    "index": "0326",
+    "allowed_readings": [
+      "ma",
+      "mǎ"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "好吗",
+        "previous_word": null,
+        "next_word": "干吗"
+      },
+      {
+        "position": 2,
+        "text": "干吗",
+        "previous_word": "好吗",
+        "next_word": "吗啡"
+      },
+      {
+        "position": 3,
+        "text": "吗啡",
+        "previous_word": "干吗",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "会",
+    "index": "0329",
+    "allowed_readings": [
+      "huì",
+      "kuài"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "会议",
+        "previous_word": null,
+        "next_word": "开会"
+      },
+      {
+        "position": 2,
+        "text": "开会",
+        "previous_word": "会议",
+        "next_word": "会见"
+      },
+      {
+        "position": 3,
+        "text": "会见",
+        "previous_word": "开会",
+        "next_word": "会场"
+      },
+      {
+        "position": 4,
+        "text": "会场",
+        "previous_word": "会见",
+        "next_word": "会员"
+      },
+      {
+        "position": 5,
+        "text": "会员",
+        "previous_word": "会场",
+        "next_word": "会面"
+      },
+      {
+        "position": 6,
+        "text": "会面",
+        "previous_word": "会员",
+        "next_word": "会心"
+      },
+      {
+        "position": 7,
+        "text": "会心",
+        "previous_word": "会面",
+        "next_word": "体会"
+      },
+      {
+        "position": 8,
+        "text": "体会",
+        "previous_word": "会心",
+        "next_word": "聚精会神"
+      },
+      {
+        "position": 9,
+        "text": "聚精会神",
+        "previous_word": "体会",
+        "next_word": "后会有期"
+      },
+      {
+        "position": 10,
+        "text": "后会有期",
+        "previous_word": "聚精会神",
+        "next_word": "会计师"
+      },
+      {
+        "position": 11,
+        "text": "会计师",
+        "previous_word": "后会有期",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "燕",
+    "index": "0335",
+    "allowed_readings": [
+      "yàn",
+      "yān"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "燕雀",
+        "previous_word": null,
+        "next_word": "燕子"
+      },
+      {
+        "position": 2,
+        "text": "燕子",
+        "previous_word": "燕雀",
+        "next_word": "燕窝"
+      },
+      {
+        "position": 3,
+        "text": "燕窝",
+        "previous_word": "燕子",
+        "next_word": "燕麦"
+      },
+      {
+        "position": 4,
+        "text": "燕麦",
+        "previous_word": "燕窝",
+        "next_word": "新婚燕尔"
+      },
+      {
+        "position": 5,
+        "text": "新婚燕尔",
+        "previous_word": "燕麦",
+        "next_word": "劳燕分飞"
+      },
+      {
+        "position": 6,
+        "text": "劳燕分飞",
+        "previous_word": "新婚燕尔",
+        "next_word": "燕石"
+      },
+      {
+        "position": 7,
+        "text": "燕石",
+        "previous_word": "劳燕分飞",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "什",
+    "index": "0336",
+    "allowed_readings": [
+      "shén",
+      "shí"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "什么",
+        "previous_word": null,
+        "next_word": "什锦"
+      },
+      {
+        "position": 2,
+        "text": "什锦",
+        "previous_word": "什么",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "得",
+    "index": "0339",
+    "allowed_readings": [
+      "dé",
+      "de",
+      "děi"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "得到",
+        "previous_word": null,
+        "next_word": "得分"
+      },
+      {
+        "position": 2,
+        "text": "得分",
+        "previous_word": "得到",
+        "next_word": "得病"
+      },
+      {
+        "position": 3,
+        "text": "得病",
+        "previous_word": "得分",
+        "next_word": "得宠"
+      },
+      {
+        "position": 4,
+        "text": "得宠",
+        "previous_word": "得病",
+        "next_word": "得不偿失"
+      },
+      {
+        "position": 5,
+        "text": "得不偿失",
+        "previous_word": "得宠",
+        "next_word": "措辞得当"
+      },
+      {
+        "position": 6,
+        "text": "措辞得当",
+        "previous_word": "得不偿失",
+        "next_word": "舍得"
+      },
+      {
+        "position": 7,
+        "text": "舍得",
+        "previous_word": "措辞得当",
+        "next_word": "觉得"
+      },
+      {
+        "position": 8,
+        "text": "觉得",
+        "previous_word": "舍得",
+        "next_word": "懂得"
+      },
+      {
+        "position": 9,
+        "text": "懂得",
+        "previous_word": "觉得",
+        "next_word": "必得"
+      },
+      {
+        "position": 10,
+        "text": "必得",
+        "previous_word": "懂得",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "可",
+    "index": "0341",
+    "allowed_readings": [
+      "kě",
+      "kè"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "可以",
+        "previous_word": null,
+        "next_word": "可能"
+      },
+      {
+        "position": 2,
+        "text": "可能",
+        "previous_word": "可以",
+        "next_word": "可是"
+      },
+      {
+        "position": 3,
+        "text": "可是",
+        "previous_word": "可能",
+        "next_word": "可怜"
+      },
+      {
+        "position": 4,
+        "text": "可怜",
+        "previous_word": "可是",
+        "next_word": "可口"
+      },
+      {
+        "position": 5,
+        "text": "可口",
+        "previous_word": "可怜",
+        "next_word": "许可"
+      },
+      {
+        "position": 6,
+        "text": "许可",
+        "previous_word": "可口",
+        "next_word": "可悲"
+      },
+      {
+        "position": 7,
+        "text": "可悲",
+        "previous_word": "许可",
+        "next_word": "宁可"
+      },
+      {
+        "position": 8,
+        "text": "宁可",
+        "previous_word": "可悲",
+        "next_word": "可歌可泣"
+      },
+      {
+        "position": 9,
+        "text": "可歌可泣",
+        "previous_word": "宁可",
+        "next_word": "不可思议"
+      },
+      {
+        "position": 10,
+        "text": "不可思议",
+        "previous_word": "可歌可泣",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "仔",
+    "index": "0342",
+    "allowed_readings": [
+      "zǐ",
+      "zǎi",
+      "zī"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "仔细",
+        "previous_word": null,
+        "next_word": "牛仔"
+      },
+      {
+        "position": 2,
+        "text": "牛仔",
+        "previous_word": "仔细",
+        "next_word": "马仔"
+      },
+      {
+        "position": 3,
+        "text": "马仔",
+        "previous_word": "牛仔",
+        "next_word": "亲仔"
+      },
+      {
+        "position": 4,
+        "text": "亲仔",
+        "previous_word": "马仔",
+        "next_word": "仔肩"
+      },
+      {
+        "position": 5,
+        "text": "仔肩",
+        "previous_word": "亲仔",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "兴",
+    "index": "0344",
+    "allowed_readings": [
+      "xīng",
+      "xìng"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "兴奋",
+        "previous_word": null,
+        "next_word": "兴建"
+      },
+      {
+        "position": 2,
+        "text": "兴建",
+        "previous_word": "兴奋",
+        "next_word": "兴旺"
+      },
+      {
+        "position": 3,
+        "text": "兴旺",
+        "previous_word": "兴建",
+        "next_word": "复兴"
+      },
+      {
+        "position": 4,
+        "text": "复兴",
+        "previous_word": "兴旺",
+        "next_word": "百废待兴"
+      },
+      {
+        "position": 5,
+        "text": "百废待兴",
+        "previous_word": "复兴",
+        "next_word": "方兴未艾"
+      },
+      {
+        "position": 6,
+        "text": "方兴未艾",
+        "previous_word": "百废待兴",
+        "next_word": "兴致"
+      },
+      {
+        "position": 7,
+        "text": "兴致",
+        "previous_word": "方兴未艾",
+        "next_word": "即兴"
+      },
+      {
+        "position": 8,
+        "text": "即兴",
+        "previous_word": "兴致",
+        "next_word": "尽兴"
+      },
+      {
+        "position": 9,
+        "text": "尽兴",
+        "previous_word": "即兴",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "种",
+    "index": "0349",
+    "allowed_readings": [
+      "zhǒng",
+      "zhòng"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "种类",
+        "previous_word": null,
+        "next_word": "种子"
+      },
+      {
+        "position": 2,
+        "text": "种子",
+        "previous_word": "种类",
+        "next_word": "种族"
+      },
+      {
+        "position": 3,
+        "text": "种族",
+        "previous_word": "种子",
+        "next_word": "物种"
+      },
+      {
+        "position": 4,
+        "text": "物种",
+        "previous_word": "种族",
+        "next_word": "种地"
+      },
+      {
+        "position": 5,
+        "text": "种地",
+        "previous_word": "物种",
+        "next_word": "种植"
+      },
+      {
+        "position": 6,
+        "text": "种植",
+        "previous_word": "种地",
+        "next_word": "种田"
+      },
+      {
+        "position": 7,
+        "text": "种田",
+        "previous_word": "种植",
+        "next_word": "种树"
+      },
+      {
+        "position": 8,
+        "text": "种树",
+        "previous_word": "种田",
+        "next_word": "东门种瓜"
+      },
+      {
+        "position": 9,
+        "text": "东门种瓜",
+        "previous_word": "种树",
+        "next_word": "蓝田种玉"
+      },
+      {
+        "position": 10,
+        "text": "蓝田种玉",
+        "previous_word": "东门种瓜",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "几",
+    "index": "0361",
+    "allowed_readings": [
+      "jī",
+      "jǐ"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "几乎",
+        "previous_word": null,
+        "next_word": "茶几"
+      },
+      {
+        "position": 2,
+        "text": "茶几",
+        "previous_word": "几乎",
+        "next_word": "窗明几净"
+      },
+      {
+        "position": 3,
+        "text": "窗明几净",
+        "previous_word": "茶几",
+        "next_word": "几个"
+      },
+      {
+        "position": 4,
+        "text": "几个",
+        "previous_word": "窗明几净",
+        "next_word": "几何"
+      },
+      {
+        "position": 5,
+        "text": "几何",
+        "previous_word": "几个",
+        "next_word": "几种"
+      },
+      {
+        "position": 6,
+        "text": "几种",
+        "previous_word": "几何",
+        "next_word": "寥寥无几"
+      },
+      {
+        "position": 7,
+        "text": "寥寥无几",
+        "previous_word": "几种",
+        "next_word": "所剩无几"
+      },
+      {
+        "position": 8,
+        "text": "所剩无几",
+        "previous_word": "寥寥无几",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "为",
+    "index": "0364",
+    "allowed_readings": [
+      "wéi",
+      "wèi"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "为生",
+        "previous_word": null,
+        "next_word": "为患"
+      },
+      {
+        "position": 2,
+        "text": "为患",
+        "previous_word": "为生",
+        "next_word": "为难"
+      },
+      {
+        "position": 3,
+        "text": "为难",
+        "previous_word": "为患",
+        "next_word": "为人"
+      },
+      {
+        "position": 4,
+        "text": "为人",
+        "previous_word": "为难",
+        "next_word": "为非作歹"
+      },
+      {
+        "position": 5,
+        "text": "为非作歹",
+        "previous_word": "为人",
+        "next_word": "为时过早"
+      },
+      {
+        "position": 6,
+        "text": "为时过早",
+        "previous_word": "为非作歹",
+        "next_word": "为富不仁"
+      },
+      {
+        "position": 7,
+        "text": "为富不仁",
+        "previous_word": "为时过早",
+        "next_word": "合二为一"
+      },
+      {
+        "position": 8,
+        "text": "合二为一",
+        "previous_word": "为富不仁",
+        "next_word": "因为"
+      },
+      {
+        "position": 9,
+        "text": "因为",
+        "previous_word": "合二为一",
+        "next_word": "为何"
+      },
+      {
+        "position": 10,
+        "text": "为何",
+        "previous_word": "因为",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "参",
+    "index": "0365",
+    "allowed_readings": [
+      "cān",
+      "cēn",
+      "shēn"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "参照",
+        "previous_word": null,
+        "next_word": "参加"
+      },
+      {
+        "position": 2,
+        "text": "参加",
+        "previous_word": "参照",
+        "next_word": "参与"
+      },
+      {
+        "position": 3,
+        "text": "参与",
+        "previous_word": "参加",
+        "next_word": "参观"
+      },
+      {
+        "position": 4,
+        "text": "参观",
+        "previous_word": "参与",
+        "next_word": "参差不齐"
+      },
+      {
+        "position": 5,
+        "text": "参差不齐",
+        "previous_word": "参观",
+        "next_word": "人参"
+      },
+      {
+        "position": 6,
+        "text": "人参",
+        "previous_word": "参差不齐",
+        "next_word": "党参"
+      },
+      {
+        "position": 7,
+        "text": "党参",
+        "previous_word": "人参",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "正",
+    "index": "0377",
+    "allowed_readings": [
+      "zhèng",
+      "zhēng"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "正确",
+        "previous_word": null,
+        "next_word": "正常"
+      },
+      {
+        "position": 2,
+        "text": "正常",
+        "previous_word": "正确",
+        "next_word": "正义"
+      },
+      {
+        "position": 3,
+        "text": "正义",
+        "previous_word": "正常",
+        "next_word": "正规"
+      },
+      {
+        "position": 4,
+        "text": "正规",
+        "previous_word": "正义",
+        "next_word": "正气"
+      },
+      {
+        "position": 5,
+        "text": "正气",
+        "previous_word": "正规",
+        "next_word": "正好"
+      },
+      {
+        "position": 6,
+        "text": "正好",
+        "previous_word": "正气",
+        "next_word": "正式"
+      },
+      {
+        "position": 7,
+        "text": "正式",
+        "previous_word": "正好",
+        "next_word": "改邪归正"
+      },
+      {
+        "position": 8,
+        "text": "改邪归正",
+        "previous_word": "正式",
+        "next_word": "不务正业"
+      },
+      {
+        "position": 9,
+        "text": "不务正业",
+        "previous_word": "改邪归正",
+        "next_word": "正月"
+      },
+      {
+        "position": 10,
+        "text": "正月",
+        "previous_word": "不务正业",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "觉",
+    "index": "0386",
+    "allowed_readings": [
+      "jiào",
+      "jué"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "睡觉",
+        "previous_word": null,
+        "next_word": "觉得"
+      },
+      {
+        "position": 2,
+        "text": "觉得",
+        "previous_word": "睡觉",
+        "next_word": "感觉"
+      },
+      {
+        "position": 3,
+        "text": "感觉",
+        "previous_word": "觉得",
+        "next_word": "直觉"
+      },
+      {
+        "position": 4,
+        "text": "直觉",
+        "previous_word": "感觉",
+        "next_word": "知觉"
+      },
+      {
+        "position": 5,
+        "text": "知觉",
+        "previous_word": "直觉",
+        "next_word": "觉察"
+      },
+      {
+        "position": 6,
+        "text": "觉察",
+        "previous_word": "知觉",
+        "next_word": "触觉"
+      },
+      {
+        "position": 7,
+        "text": "触觉",
+        "previous_word": "觉察",
+        "next_word": "视觉"
+      },
+      {
+        "position": 8,
+        "text": "视觉",
+        "previous_word": "触觉",
+        "next_word": "嗅觉"
+      },
+      {
+        "position": 9,
+        "text": "嗅觉",
+        "previous_word": "视觉",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "舍",
+    "index": "0394",
+    "allowed_readings": [
+      "shě",
+      "shè"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "舍得",
+        "previous_word": null,
+        "next_word": "不舍"
+      },
+      {
+        "position": 2,
+        "text": "不舍",
+        "previous_word": "舍得",
+        "next_word": "舍己"
+      },
+      {
+        "position": 3,
+        "text": "舍己",
+        "previous_word": "不舍",
+        "next_word": "施舍"
+      },
+      {
+        "position": 4,
+        "text": "施舍",
+        "previous_word": "舍己",
+        "next_word": "舍己为人"
+      },
+      {
+        "position": 5,
+        "text": "舍己为人",
+        "previous_word": "施舍",
+        "next_word": "舍近求远"
+      },
+      {
+        "position": 6,
+        "text": "舍近求远",
+        "previous_word": "舍己为人",
+        "next_word": "农舍"
+      },
+      {
+        "position": 7,
+        "text": "农舍",
+        "previous_word": "舍近求远",
+        "next_word": "屋舍"
+      },
+      {
+        "position": 8,
+        "text": "屋舍",
+        "previous_word": "农舍",
+        "next_word": "退避三舍"
+      },
+      {
+        "position": 9,
+        "text": "退避三舍",
+        "previous_word": "屋舍",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "结",
+    "index": "0395",
+    "allowed_readings": [
+      "jié",
+      "jiē"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "结果",
+        "previous_word": null,
+        "next_word": "结尾"
+      },
+      {
+        "position": 2,
+        "text": "结尾",
+        "previous_word": "结果",
+        "next_word": "结构"
+      },
+      {
+        "position": 3,
+        "text": "结构",
+        "previous_word": "结尾",
+        "next_word": "结论"
+      },
+      {
+        "position": 4,
+        "text": "结论",
+        "previous_word": "结构",
+        "next_word": "结冰"
+      },
+      {
+        "position": 5,
+        "text": "结冰",
+        "previous_word": "结论",
+        "next_word": "结束"
+      },
+      {
+        "position": 6,
+        "text": "结束",
+        "previous_word": "结冰",
+        "next_word": "团结"
+      },
+      {
+        "position": 7,
+        "text": "团结",
+        "previous_word": "结束",
+        "next_word": "结识"
+      },
+      {
+        "position": 8,
+        "text": "结识",
+        "previous_word": "团结",
+        "next_word": "归根结底"
+      },
+      {
+        "position": 9,
+        "text": "归根结底",
+        "previous_word": "结识",
+        "next_word": "张灯结彩"
+      },
+      {
+        "position": 10,
+        "text": "张灯结彩",
+        "previous_word": "归根结底",
+        "next_word": "结实"
+      },
+      {
+        "position": 11,
+        "text": "结实",
+        "previous_word": "张灯结彩",
+        "next_word": "结果"
+      },
+      {
+        "position": 12,
+        "text": "结果",
+        "previous_word": "结实",
+        "next_word": "结结巴巴"
+      },
+      {
+        "position": 13,
+        "text": "结结巴巴",
+        "previous_word": "结果",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "行",
+    "index": "0442",
+    "allowed_readings": [
+      "xíng",
+      "háng"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "行动",
+        "previous_word": null,
+        "next_word": "行走"
+      },
+      {
+        "position": 2,
+        "text": "行走",
+        "previous_word": "行动",
+        "next_word": "进行"
+      },
+      {
+        "position": 3,
+        "text": "进行",
+        "previous_word": "行走",
+        "next_word": "步行"
+      },
+      {
+        "position": 4,
+        "text": "步行",
+        "previous_word": "进行",
+        "next_word": "爬行"
+      },
+      {
+        "position": 5,
+        "text": "爬行",
+        "previous_word": "步行",
+        "next_word": "品行"
+      },
+      {
+        "position": 6,
+        "text": "品行",
+        "previous_word": "爬行",
+        "next_word": "横行"
+      },
+      {
+        "position": 7,
+        "text": "横行",
+        "previous_word": "品行",
+        "next_word": "飞行"
+      },
+      {
+        "position": 8,
+        "text": "飞行",
+        "previous_word": "横行",
+        "next_word": "行尸走肉"
+      },
+      {
+        "position": 9,
+        "text": "行尸走肉",
+        "previous_word": "飞行",
+        "next_word": "行坐不安"
+      },
+      {
+        "position": 10,
+        "text": "行坐不安",
+        "previous_word": "行尸走肉",
+        "next_word": "行列"
+      },
+      {
+        "position": 11,
+        "text": "行列",
+        "previous_word": "行坐不安",
+        "next_word": "行业"
+      },
+      {
+        "position": 12,
+        "text": "行业",
+        "previous_word": "行列",
+        "next_word": "银行"
+      },
+      {
+        "position": 13,
+        "text": "银行",
+        "previous_word": "行业",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "处",
+    "index": "0450",
+    "allowed_readings": [
+      "chǔ",
+      "chù"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "相处",
+        "previous_word": null,
+        "next_word": "处理"
+      },
+      {
+        "position": 2,
+        "text": "处理",
+        "previous_word": "相处",
+        "next_word": "处置"
+      },
+      {
+        "position": 3,
+        "text": "处置",
+        "previous_word": "处理",
+        "next_word": "处罚"
+      },
+      {
+        "position": 4,
+        "text": "处罚",
+        "previous_word": "处置",
+        "next_word": "处分"
+      },
+      {
+        "position": 5,
+        "text": "处分",
+        "previous_word": "处罚",
+        "next_word": "处境"
+      },
+      {
+        "position": 6,
+        "text": "处境",
+        "previous_word": "处分",
+        "next_word": "处于"
+      },
+      {
+        "position": 7,
+        "text": "处于",
+        "previous_word": "处境",
+        "next_word": "处心积虑"
+      },
+      {
+        "position": 8,
+        "text": "处心积虑",
+        "previous_word": "处于",
+        "next_word": "设身处地"
+      },
+      {
+        "position": 9,
+        "text": "设身处地",
+        "previous_word": "处心积虑",
+        "next_word": "到处"
+      },
+      {
+        "position": 10,
+        "text": "到处",
+        "previous_word": "设身处地",
+        "next_word": "处方"
+      },
+      {
+        "position": 11,
+        "text": "处方",
+        "previous_word": "到处",
+        "next_word": "不足之处"
+      },
+      {
+        "position": 12,
+        "text": "不足之处",
+        "previous_word": "处方",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "散",
+    "index": "0457",
+    "allowed_readings": [
+      "sǎn",
+      "sàn"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "零散",
+        "previous_word": null,
+        "next_word": "散剂"
+      },
+      {
+        "position": 2,
+        "text": "散剂",
+        "previous_word": "零散",
+        "next_word": "散文"
+      },
+      {
+        "position": 3,
+        "text": "散文",
+        "previous_word": "散剂",
+        "next_word": "拆散"
+      },
+      {
+        "position": 4,
+        "text": "拆散",
+        "previous_word": "散文",
+        "next_word": "一盘散沙"
+      },
+      {
+        "position": 5,
+        "text": "一盘散沙",
+        "previous_word": "拆散",
+        "next_word": "散开"
+      },
+      {
+        "position": 6,
+        "text": "散开",
+        "previous_word": "一盘散沙",
+        "next_word": "驱散"
+      },
+      {
+        "position": 7,
+        "text": "驱散",
+        "previous_word": "散开",
+        "next_word": "扩散"
+      },
+      {
+        "position": 8,
+        "text": "扩散",
+        "previous_word": "驱散",
+        "next_word": "失散"
+      },
+      {
+        "position": 9,
+        "text": "失散",
+        "previous_word": "扩散",
+        "next_word": "披头散发"
+      },
+      {
+        "position": 10,
+        "text": "披头散发",
+        "previous_word": "失散",
+        "next_word": "云消雾散"
+      },
+      {
+        "position": 11,
+        "text": "云消雾散",
+        "previous_word": "披头散发",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "教",
+    "index": "0470",
+    "allowed_readings": [
+      "jiào",
+      "jiāo"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "教师",
+        "previous_word": null,
+        "next_word": "教导"
+      },
+      {
+        "position": 2,
+        "text": "教导",
+        "previous_word": "教师",
+        "next_word": "请教"
+      },
+      {
+        "position": 3,
+        "text": "请教",
+        "previous_word": "教导",
+        "next_word": "教育"
+      },
+      {
+        "position": 4,
+        "text": "教育",
+        "previous_word": "请教",
+        "next_word": "管教"
+      },
+      {
+        "position": 5,
+        "text": "管教",
+        "previous_word": "教育",
+        "next_word": "教练"
+      },
+      {
+        "position": 6,
+        "text": "教练",
+        "previous_word": "管教",
+        "next_word": "教材"
+      },
+      {
+        "position": 7,
+        "text": "教材",
+        "previous_word": "教练",
+        "next_word": "教堂"
+      },
+      {
+        "position": 8,
+        "text": "教堂",
+        "previous_word": "教材",
+        "next_word": "因材施教"
+      },
+      {
+        "position": 9,
+        "text": "因材施教",
+        "previous_word": "教堂",
+        "next_word": "不吝赐教"
+      },
+      {
+        "position": 10,
+        "text": "不吝赐教",
+        "previous_word": "因材施教",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "背",
+    "index": "0522",
+    "allowed_readings": [
+      "bēi",
+      "bèi"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "背带",
+        "previous_word": null,
+        "next_word": "背负"
+      },
+      {
+        "position": 2,
+        "text": "背负",
+        "previous_word": "背带",
+        "next_word": "背包"
+      },
+      {
+        "position": 3,
+        "text": "背包",
+        "previous_word": "背负",
+        "next_word": "背诵"
+      },
+      {
+        "position": 4,
+        "text": "背诵",
+        "previous_word": "背包",
+        "next_word": "背叛"
+      },
+      {
+        "position": 5,
+        "text": "背叛",
+        "previous_word": "背诵",
+        "next_word": "背影"
+      },
+      {
+        "position": 6,
+        "text": "背影",
+        "previous_word": "背叛",
+        "next_word": "背景"
+      },
+      {
+        "position": 7,
+        "text": "背景",
+        "previous_word": "背影",
+        "next_word": "背水一战"
+      },
+      {
+        "position": 8,
+        "text": "背水一战",
+        "previous_word": "背景",
+        "next_word": "背道而驰"
+      },
+      {
+        "position": 9,
+        "text": "背道而驰",
+        "previous_word": "背水一战",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "累",
+    "index": "0529",
+    "allowed_readings": [
+      "lěi",
+      "léi",
+      "lèi"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "积累",
+        "previous_word": null,
+        "next_word": "累计"
+      },
+      {
+        "position": 2,
+        "text": "累计",
+        "previous_word": "积累",
+        "next_word": "日积月累"
+      },
+      {
+        "position": 3,
+        "text": "日积月累",
+        "previous_word": "累计",
+        "next_word": "累赘"
+      },
+      {
+        "position": 4,
+        "text": "累赘",
+        "previous_word": "日积月累",
+        "next_word": "果实累累"
+      },
+      {
+        "position": 5,
+        "text": "果实累累",
+        "previous_word": "累赘",
+        "next_word": "劳累"
+      },
+      {
+        "position": 6,
+        "text": "劳累",
+        "previous_word": "果实累累",
+        "next_word": "受累"
+      },
+      {
+        "position": 7,
+        "text": "受累",
+        "previous_word": "劳累",
+        "next_word": "累死累活"
+      },
+      {
+        "position": 8,
+        "text": "累死累活",
+        "previous_word": "受累",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "朝",
+    "index": "0542",
+    "allowed_readings": [
+      "cháo",
+      "zhāo"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "朝代",
+        "previous_word": null,
+        "next_word": "朝廷"
+      },
+      {
+        "position": 2,
+        "text": "朝廷",
+        "previous_word": "朝代",
+        "next_word": "朝拜"
+      },
+      {
+        "position": 3,
+        "text": "朝拜",
+        "previous_word": "朝廷",
+        "next_word": "朝见"
+      },
+      {
+        "position": 4,
+        "text": "朝见",
+        "previous_word": "朝拜",
+        "next_word": "朝贡"
+      },
+      {
+        "position": 5,
+        "text": "朝贡",
+        "previous_word": "朝见",
+        "next_word": "朝鲜"
+      },
+      {
+        "position": 6,
+        "text": "朝鲜",
+        "previous_word": "朝贡",
+        "next_word": "朝向"
+      },
+      {
+        "position": 7,
+        "text": "朝向",
+        "previous_word": "朝鲜",
+        "next_word": "朝服"
+      },
+      {
+        "position": 8,
+        "text": "朝服",
+        "previous_word": "朝向",
+        "next_word": "朝气"
+      },
+      {
+        "position": 9,
+        "text": "朝气",
+        "previous_word": "朝服",
+        "next_word": "今朝"
+      },
+      {
+        "position": 10,
+        "text": "今朝",
+        "previous_word": "朝气",
+        "next_word": "朝霞"
+      },
+      {
+        "position": 11,
+        "text": "朝霞",
+        "previous_word": "今朝",
+        "next_word": "朝阳"
+      },
+      {
+        "position": 12,
+        "text": "朝阳",
+        "previous_word": "朝霞",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "佛",
+    "index": "0561",
+    "allowed_readings": [
+      "fó",
+      "fú"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "佛像",
+        "previous_word": null,
+        "next_word": "佛教"
+      },
+      {
+        "position": 2,
+        "text": "佛教",
+        "previous_word": "佛像",
+        "next_word": "佛经"
+      },
+      {
+        "position": 3,
+        "text": "佛经",
+        "previous_word": "佛教",
+        "next_word": "佛珠"
+      },
+      {
+        "position": 4,
+        "text": "佛珠",
+        "previous_word": "佛经",
+        "next_word": "借花献佛"
+      },
+      {
+        "position": 5,
+        "text": "借花献佛",
+        "previous_word": "佛珠",
+        "next_word": "青灯古佛"
+      },
+      {
+        "position": 6,
+        "text": "青灯古佛",
+        "previous_word": "借花献佛",
+        "next_word": "仿佛"
+      },
+      {
+        "position": 7,
+        "text": "仿佛",
+        "previous_word": "青灯古佛",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "干",
+    "index": "0588",
+    "allowed_readings": [
+      "gān",
+      "gàn"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "干旱",
+        "previous_word": null,
+        "next_word": "干燥"
+      },
+      {
+        "position": 2,
+        "text": "干燥",
+        "previous_word": "干旱",
+        "next_word": "干扰"
+      },
+      {
+        "position": 3,
+        "text": "干扰",
+        "previous_word": "干燥",
+        "next_word": "干粮"
+      },
+      {
+        "position": 4,
+        "text": "干粮",
+        "previous_word": "干扰",
+        "next_word": "干部"
+      },
+      {
+        "position": 5,
+        "text": "干部",
+        "previous_word": "干粮",
+        "next_word": "干活"
+      },
+      {
+        "position": 6,
+        "text": "干活",
+        "previous_word": "干部",
+        "next_word": "干练"
+      },
+      {
+        "position": 7,
+        "text": "干练",
+        "previous_word": "干活",
+        "next_word": "精明强干"
+      },
+      {
+        "position": 8,
+        "text": "精明强干",
+        "previous_word": "干练",
+        "next_word": "埋头苦干"
+      },
+      {
+        "position": 9,
+        "text": "埋头苦干",
+        "previous_word": "精明强干",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "观",
+    "index": "0593",
+    "allowed_readings": [
+      "guān",
+      "guàn"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "观看",
+        "previous_word": null,
+        "next_word": "观点"
+      },
+      {
+        "position": 2,
+        "text": "观点",
+        "previous_word": "观看",
+        "next_word": "参观"
+      },
+      {
+        "position": 3,
+        "text": "参观",
+        "previous_word": "观点",
+        "next_word": "观察"
+      },
+      {
+        "position": 4,
+        "text": "观察",
+        "previous_word": "参观",
+        "next_word": "外观"
+      },
+      {
+        "position": 5,
+        "text": "外观",
+        "previous_word": "观察",
+        "next_word": "围观"
+      },
+      {
+        "position": 6,
+        "text": "围观",
+        "previous_word": "外观",
+        "next_word": "观念"
+      },
+      {
+        "position": 7,
+        "text": "观念",
+        "previous_word": "围观",
+        "next_word": "坐井观天"
+      },
+      {
+        "position": 8,
+        "text": "坐井观天",
+        "previous_word": "观念",
+        "next_word": "雄伟壮观"
+      },
+      {
+        "position": 9,
+        "text": "雄伟壮观",
+        "previous_word": "坐井观天",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "蚂",
+    "index": "0617",
+    "allowed_readings": [
+      "mǎ",
+      "mà"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "蚂蚁",
+        "previous_word": null,
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "露",
+    "index": "0636",
+    "allowed_readings": [
+      "lù",
+      "lòu"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "揭露",
+        "previous_word": null,
+        "next_word": "甘露"
+      },
+      {
+        "position": 2,
+        "text": "甘露",
+        "previous_word": "揭露",
+        "next_word": "露水"
+      },
+      {
+        "position": 3,
+        "text": "露水",
+        "previous_word": "甘露",
+        "next_word": "露天"
+      },
+      {
+        "position": 4,
+        "text": "露天",
+        "previous_word": "露水",
+        "next_word": "风餐露宿"
+      },
+      {
+        "position": 5,
+        "text": "风餐露宿",
+        "previous_word": "露天",
+        "next_word": "锋芒毕露"
+      },
+      {
+        "position": 6,
+        "text": "锋芒毕露",
+        "previous_word": "风餐露宿",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "荷",
+    "index": "0637",
+    "allowed_readings": [
+      "hé",
+      "hè"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "荷包",
+        "previous_word": null,
+        "next_word": "荷花"
+      },
+      {
+        "position": 2,
+        "text": "荷花",
+        "previous_word": "荷包",
+        "next_word": "荷兰"
+      },
+      {
+        "position": 3,
+        "text": "荷兰",
+        "previous_word": "荷花",
+        "next_word": "荷载"
+      },
+      {
+        "position": 4,
+        "text": "荷载",
+        "previous_word": "荷兰",
+        "next_word": "荷枪实弹"
+      },
+      {
+        "position": 5,
+        "text": "荷枪实弹",
+        "previous_word": "荷载",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "闷",
+    "index": "0664",
+    "allowed_readings": [
+      "mēn",
+      "mèn"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "闷热",
+        "previous_word": null,
+        "next_word": "闷声不响"
+      },
+      {
+        "position": 2,
+        "text": "闷声不响",
+        "previous_word": "闷热",
+        "next_word": "郁闷"
+      },
+      {
+        "position": 3,
+        "text": "郁闷",
+        "previous_word": "闷声不响",
+        "next_word": "愁闷"
+      },
+      {
+        "position": 4,
+        "text": "愁闷",
+        "previous_word": "郁闷",
+        "next_word": "沉闷"
+      },
+      {
+        "position": 5,
+        "text": "沉闷",
+        "previous_word": "愁闷",
+        "next_word": "闷闷不乐"
+      },
+      {
+        "position": 6,
+        "text": "闷闷不乐",
+        "previous_word": "沉闷",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "哗",
+    "index": "0673",
+    "allowed_readings": [
+      "huá",
+      "huā"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "喧哗",
+        "previous_word": null,
+        "next_word": "哗然"
+      },
+      {
+        "position": 2,
+        "text": "哗然",
+        "previous_word": "喧哗",
+        "next_word": "哗变"
+      },
+      {
+        "position": 3,
+        "text": "哗变",
+        "previous_word": "哗然",
+        "next_word": "哗众取宠"
+      },
+      {
+        "position": 4,
+        "text": "哗众取宠",
+        "previous_word": "哗变",
+        "next_word": "哗啦"
+      },
+      {
+        "position": 5,
+        "text": "哗啦",
+        "previous_word": "哗众取宠",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "难",
+    "index": "0680",
+    "allowed_readings": [
+      "nán",
+      "nàn"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "难忘",
+        "previous_word": null,
+        "next_word": "难道"
+      },
+      {
+        "position": 2,
+        "text": "难道",
+        "previous_word": "难忘",
+        "next_word": "难听"
+      },
+      {
+        "position": 3,
+        "text": "难听",
+        "previous_word": "难道",
+        "next_word": "难题"
+      },
+      {
+        "position": 4,
+        "text": "难题",
+        "previous_word": "难听",
+        "next_word": "左右为难"
+      },
+      {
+        "position": 5,
+        "text": "左右为难",
+        "previous_word": "难题",
+        "next_word": "本性难移"
+      },
+      {
+        "position": 6,
+        "text": "本性难移",
+        "previous_word": "左右为难",
+        "next_word": "难民"
+      },
+      {
+        "position": 7,
+        "text": "难民",
+        "previous_word": "本性难移",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "量",
+    "index": "0691",
+    "allowed_readings": [
+      "liáng",
+      "liàng"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "质量",
+        "previous_word": null,
+        "next_word": "气量"
+      },
+      {
+        "position": 2,
+        "text": "气量",
+        "previous_word": "质量",
+        "next_word": "胆量"
+      },
+      {
+        "position": 3,
+        "text": "胆量",
+        "previous_word": "气量",
+        "next_word": "酒量"
+      },
+      {
+        "position": 4,
+        "text": "酒量",
+        "previous_word": "胆量",
+        "next_word": "量力而行"
+      },
+      {
+        "position": 5,
+        "text": "量力而行",
+        "previous_word": "酒量",
+        "next_word": "量体裁衣"
+      },
+      {
+        "position": 6,
+        "text": "量体裁衣",
+        "previous_word": "量力而行",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "重",
+    "index": "0699",
+    "allowed_readings": [
+      "zhòng",
+      "chóng"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "尊重",
+        "previous_word": null,
+        "next_word": "重视"
+      },
+      {
+        "position": 2,
+        "text": "重视",
+        "previous_word": "尊重",
+        "next_word": "重要"
+      },
+      {
+        "position": 3,
+        "text": "重要",
+        "previous_word": "重视",
+        "next_word": "重大"
+      },
+      {
+        "position": 4,
+        "text": "重大",
+        "previous_word": "重要",
+        "next_word": "重心"
+      },
+      {
+        "position": 5,
+        "text": "重心",
+        "previous_word": "重大",
+        "next_word": "重点"
+      },
+      {
+        "position": 6,
+        "text": "重点",
+        "previous_word": "重心",
+        "next_word": "自重"
+      },
+      {
+        "position": 7,
+        "text": "自重",
+        "previous_word": "重点",
+        "next_word": "举重"
+      },
+      {
+        "position": 8,
+        "text": "举重",
+        "previous_word": "自重",
+        "next_word": "重新"
+      },
+      {
+        "position": 9,
+        "text": "重新",
+        "previous_word": "举重",
+        "next_word": "重逢"
+      },
+      {
+        "position": 10,
+        "text": "重逢",
+        "previous_word": "重新",
+        "next_word": "重叠"
+      },
+      {
+        "position": 11,
+        "text": "重叠",
+        "previous_word": "重逢",
+        "next_word": "重庆"
+      },
+      {
+        "position": 12,
+        "text": "重庆",
+        "previous_word": "重叠",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "熟",
+    "index": "0704",
+    "allowed_readings": [
+      "shóu",
+      "shú"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "成熟",
+        "previous_word": null,
+        "next_word": "熟练"
+      },
+      {
+        "position": 2,
+        "text": "熟练",
+        "previous_word": "成熟",
+        "next_word": "熟记"
+      },
+      {
+        "position": 3,
+        "text": "熟记",
+        "previous_word": "熟练",
+        "next_word": "熟人"
+      },
+      {
+        "position": 4,
+        "text": "熟人",
+        "previous_word": "熟记",
+        "next_word": "熟悉"
+      },
+      {
+        "position": 5,
+        "text": "熟悉",
+        "previous_word": "熟人",
+        "next_word": "熟睡"
+      },
+      {
+        "position": 6,
+        "text": "熟睡",
+        "previous_word": "熟悉",
+        "next_word": "熟路"
+      },
+      {
+        "position": 7,
+        "text": "熟路",
+        "previous_word": "熟睡",
+        "next_word": "耳熟能详"
+      },
+      {
+        "position": 8,
+        "text": "耳熟能详",
+        "previous_word": "熟路",
+        "next_word": "深思熟虑"
+      },
+      {
+        "position": 9,
+        "text": "深思熟虑",
+        "previous_word": "耳熟能详",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "喝",
+    "index": "0717",
+    "allowed_readings": [
+      "hē",
+      "hè"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "喝水",
+        "previous_word": null,
+        "next_word": "喝汤"
+      },
+      {
+        "position": 2,
+        "text": "喝汤",
+        "previous_word": "喝水",
+        "next_word": "喝酒"
+      },
+      {
+        "position": 3,
+        "text": "喝酒",
+        "previous_word": "喝汤",
+        "next_word": "喝茶"
+      },
+      {
+        "position": 4,
+        "text": "喝茶",
+        "previous_word": "喝酒",
+        "next_word": "吃喝玩乐"
+      },
+      {
+        "position": 5,
+        "text": "吃喝玩乐",
+        "previous_word": "喝茶",
+        "next_word": "大吃大喝"
+      },
+      {
+        "position": 6,
+        "text": "大吃大喝",
+        "previous_word": "吃喝玩乐",
+        "next_word": "喝彩"
+      },
+      {
+        "position": 7,
+        "text": "喝彩",
+        "previous_word": "大吃大喝",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "称",
+    "index": "0737",
+    "allowed_readings": [
+      "chēng",
+      "chèn"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "称赞",
+        "previous_word": null,
+        "next_word": "称病"
+      },
+      {
+        "position": 2,
+        "text": "称病",
+        "previous_word": "称赞",
+        "next_word": "称谓"
+      },
+      {
+        "position": 3,
+        "text": "称谓",
+        "previous_word": "称病",
+        "next_word": "称呼"
+      },
+      {
+        "position": 4,
+        "text": "称呼",
+        "previous_word": "称谓",
+        "next_word": "称号"
+      },
+      {
+        "position": 5,
+        "text": "称号",
+        "previous_word": "称呼",
+        "next_word": "称量"
+      },
+      {
+        "position": 6,
+        "text": "称量",
+        "previous_word": "称号",
+        "next_word": "称兄道弟"
+      },
+      {
+        "position": 7,
+        "text": "称兄道弟",
+        "previous_word": "称量",
+        "next_word": "称心如意"
+      },
+      {
+        "position": 8,
+        "text": "称心如意",
+        "previous_word": "称兄道弟",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "倒",
+    "index": "0745",
+    "allowed_readings": [
+      "dǎo",
+      "dào"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "卧倒",
+        "previous_word": null,
+        "next_word": "倒塌"
+      },
+      {
+        "position": 2,
+        "text": "倒塌",
+        "previous_word": "卧倒",
+        "next_word": "倒台"
+      },
+      {
+        "position": 3,
+        "text": "倒台",
+        "previous_word": "倒塌",
+        "next_word": "打倒"
+      },
+      {
+        "position": 4,
+        "text": "打倒",
+        "previous_word": "倒台",
+        "next_word": "倒戈"
+      },
+      {
+        "position": 5,
+        "text": "倒戈",
+        "previous_word": "打倒",
+        "next_word": "倒闭"
+      },
+      {
+        "position": 6,
+        "text": "倒闭",
+        "previous_word": "倒戈",
+        "next_word": "倒霉"
+      },
+      {
+        "position": 7,
+        "text": "倒霉",
+        "previous_word": "倒闭",
+        "next_word": "倒卖"
+      },
+      {
+        "position": 8,
+        "text": "倒卖",
+        "previous_word": "倒霉",
+        "next_word": "倒背如流"
+      },
+      {
+        "position": 9,
+        "text": "倒背如流",
+        "previous_word": "倒卖",
+        "next_word": "倒打一耙"
+      },
+      {
+        "position": 10,
+        "text": "倒打一耙",
+        "previous_word": "倒背如流",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "解",
+    "index": "0779",
+    "allowed_readings": [
+      "jiě",
+      "xiè"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "解开",
+        "previous_word": null,
+        "next_word": "分解"
+      },
+      {
+        "position": 2,
+        "text": "分解",
+        "previous_word": "解开",
+        "next_word": "解释"
+      },
+      {
+        "position": 3,
+        "text": "解释",
+        "previous_word": "分解",
+        "next_word": "解剖"
+      },
+      {
+        "position": 4,
+        "text": "解剖",
+        "previous_word": "解释",
+        "next_word": "土崩瓦解"
+      },
+      {
+        "position": 5,
+        "text": "土崩瓦解",
+        "previous_word": "解剖",
+        "next_word": "不求甚解"
+      },
+      {
+        "position": 6,
+        "text": "不求甚解",
+        "previous_word": "土崩瓦解",
+        "next_word": "浑身解数"
+      },
+      {
+        "position": 7,
+        "text": "浑身解数",
+        "previous_word": "不求甚解",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "壳",
+    "index": "0801",
+    "allowed_readings": [
+      "ké",
+      "qiào"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "贝壳",
+        "previous_word": null,
+        "next_word": "外壳"
+      },
+      {
+        "position": 2,
+        "text": "外壳",
+        "previous_word": "贝壳",
+        "next_word": "蛋壳"
+      },
+      {
+        "position": 3,
+        "text": "蛋壳",
+        "previous_word": "外壳",
+        "next_word": "地壳"
+      },
+      {
+        "position": 4,
+        "text": "地壳",
+        "previous_word": "蛋壳",
+        "next_word": "金蝉脱壳"
+      },
+      {
+        "position": 5,
+        "text": "金蝉脱壳",
+        "previous_word": "地壳",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "挑",
+    "index": "0842",
+    "allowed_readings": [
+      "tiāo",
+      "tiǎo"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "挑选",
+        "previous_word": null,
+        "next_word": "挑剔"
+      },
+      {
+        "position": 2,
+        "text": "挑剔",
+        "previous_word": "挑选",
+        "next_word": "挑食"
+      },
+      {
+        "position": 3,
+        "text": "挑食",
+        "previous_word": "挑剔",
+        "next_word": "挑错"
+      },
+      {
+        "position": 4,
+        "text": "挑错",
+        "previous_word": "挑食",
+        "next_word": "挑三拣四"
+      },
+      {
+        "position": 5,
+        "text": "挑三拣四",
+        "previous_word": "挑错",
+        "next_word": "百里挑一"
+      },
+      {
+        "position": 6,
+        "text": "百里挑一",
+        "previous_word": "挑三拣四",
+        "next_word": "挑拨"
+      },
+      {
+        "position": 7,
+        "text": "挑拨",
+        "previous_word": "百里挑一",
+        "next_word": "挑明"
+      },
+      {
+        "position": 8,
+        "text": "挑明",
+        "previous_word": "挑拨",
+        "next_word": "挑战"
+      },
+      {
+        "position": 9,
+        "text": "挑战",
+        "previous_word": "挑明",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "担",
+    "index": "0843",
+    "allowed_readings": [
+      "dān",
+      "dàn"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "担任",
+        "previous_word": null,
+        "next_word": "担当"
+      },
+      {
+        "position": 2,
+        "text": "担当",
+        "previous_word": "担任",
+        "next_word": "担待"
+      },
+      {
+        "position": 3,
+        "text": "担待",
+        "previous_word": "担当",
+        "next_word": "担负"
+      },
+      {
+        "position": 4,
+        "text": "担负",
+        "previous_word": "担待",
+        "next_word": "担保"
+      },
+      {
+        "position": 5,
+        "text": "担保",
+        "previous_word": "担负",
+        "next_word": "担心"
+      },
+      {
+        "position": 6,
+        "text": "担心",
+        "previous_word": "担保",
+        "next_word": "担架"
+      },
+      {
+        "position": 7,
+        "text": "担架",
+        "previous_word": "担心",
+        "next_word": "担忧"
+      },
+      {
+        "position": 8,
+        "text": "担忧",
+        "previous_word": "担架",
+        "next_word": "担子"
+      },
+      {
+        "position": 9,
+        "text": "担子",
+        "previous_word": "担忧",
+        "next_word": "扁担"
+      },
+      {
+        "position": 10,
+        "text": "扁担",
+        "previous_word": "担子",
+        "next_word": "重担"
+      },
+      {
+        "position": 11,
+        "text": "重担",
+        "previous_word": "扁担",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "将",
+    "index": "0855",
+    "allowed_readings": [
+      "jiāng",
+      "jiàng"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "将要",
+        "previous_word": null,
+        "next_word": "将来"
+      },
+      {
+        "position": 2,
+        "text": "将来",
+        "previous_word": "将要",
+        "next_word": "将军"
+      },
+      {
+        "position": 3,
+        "text": "将军",
+        "previous_word": "将来",
+        "next_word": "即将"
+      },
+      {
+        "position": 4,
+        "text": "即将",
+        "previous_word": "将军",
+        "next_word": "大厦将倾"
+      },
+      {
+        "position": 5,
+        "text": "大厦将倾",
+        "previous_word": "即将",
+        "next_word": "将计就计"
+      },
+      {
+        "position": 6,
+        "text": "将计就计",
+        "previous_word": "大厦将倾",
+        "next_word": "损兵折将"
+      },
+      {
+        "position": 7,
+        "text": "损兵折将",
+        "previous_word": "将计就计",
+        "next_word": "将令"
+      },
+      {
+        "position": 8,
+        "text": "将令",
+        "previous_word": "损兵折将",
+        "next_word": "将进酒"
+      },
+      {
+        "position": 9,
+        "text": "将进酒",
+        "previous_word": "将令",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "夹",
+    "index": "0870",
+    "allowed_readings": [
+      "jiā",
+      "jiá"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "夹杂",
+        "previous_word": null,
+        "next_word": "夹层"
+      },
+      {
+        "position": 2,
+        "text": "夹层",
+        "previous_word": "夹杂",
+        "next_word": "夹心"
+      },
+      {
+        "position": 3,
+        "text": "夹心",
+        "previous_word": "夹层",
+        "next_word": "夹子"
+      },
+      {
+        "position": 4,
+        "text": "夹子",
+        "previous_word": "夹心",
+        "next_word": "夹克"
+      },
+      {
+        "position": 5,
+        "text": "夹克",
+        "previous_word": "夹子",
+        "next_word": "里外夹攻"
+      },
+      {
+        "position": 6,
+        "text": "里外夹攻",
+        "previous_word": "夹克",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "俩",
+    "index": "0905",
+    "allowed_readings": [
+      "liǎ",
+      "liǎng"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "俩人",
+        "previous_word": null,
+        "next_word": "他俩"
+      },
+      {
+        "position": 2,
+        "text": "他俩",
+        "previous_word": "俩人",
+        "next_word": "爷俩"
+      },
+      {
+        "position": 3,
+        "text": "爷俩",
+        "previous_word": "他俩",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "划",
+    "index": "0919",
+    "allowed_readings": [
+      "huá",
+      "huà"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "划船",
+        "previous_word": null,
+        "next_word": "划算"
+      },
+      {
+        "position": 2,
+        "text": "划算",
+        "previous_word": "划船",
+        "next_word": "策划"
+      },
+      {
+        "position": 3,
+        "text": "策划",
+        "previous_word": "划算",
+        "next_word": "划分"
+      },
+      {
+        "position": 4,
+        "text": "划分",
+        "previous_word": "策划",
+        "next_word": "出谋划策"
+      },
+      {
+        "position": 5,
+        "text": "出谋划策",
+        "previous_word": "划分",
+        "next_word": "计划"
+      },
+      {
+        "position": 6,
+        "text": "计划",
+        "previous_word": "出谋划策",
+        "next_word": "筹划"
+      },
+      {
+        "position": 7,
+        "text": "筹划",
+        "previous_word": "计划",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "薄",
+    "index": "0921",
+    "allowed_readings": [
+      "báo",
+      "bó",
+      "bò"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "薄片",
+        "previous_word": null,
+        "next_word": "薄饼"
+      },
+      {
+        "position": 2,
+        "text": "薄饼",
+        "previous_word": "薄片",
+        "next_word": "薄弱"
+      },
+      {
+        "position": 3,
+        "text": "薄弱",
+        "previous_word": "薄饼",
+        "next_word": "刻薄"
+      },
+      {
+        "position": 4,
+        "text": "刻薄",
+        "previous_word": "薄弱",
+        "next_word": "薄荷"
+      },
+      {
+        "position": 5,
+        "text": "薄荷",
+        "previous_word": "刻薄",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "阿",
+    "index": "0940",
+    "allowed_readings": [
+      "ā",
+      "ē"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "阿姨",
+        "previous_word": null,
+        "next_word": "阿婆"
+      },
+      {
+        "position": 2,
+        "text": "阿婆",
+        "previous_word": "阿姨",
+        "next_word": "阿拉伯"
+      },
+      {
+        "position": 3,
+        "text": "阿拉伯",
+        "previous_word": "阿婆",
+        "next_word": "阿胶"
+      },
+      {
+        "position": 4,
+        "text": "阿胶",
+        "previous_word": "阿拉伯",
+        "next_word": "刚正不阿"
+      },
+      {
+        "position": 5,
+        "text": "刚正不阿",
+        "previous_word": "阿胶",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "尽",
+    "index": "0953",
+    "allowed_readings": [
+      "jǐn",
+      "jìn"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "尽快",
+        "previous_word": null,
+        "next_word": "尽管"
+      },
+      {
+        "position": 2,
+        "text": "尽管",
+        "previous_word": "尽快",
+        "next_word": "尽早"
+      },
+      {
+        "position": 3,
+        "text": "尽早",
+        "previous_word": "尽管",
+        "next_word": "尽力"
+      },
+      {
+        "position": 4,
+        "text": "尽力",
+        "previous_word": "尽早",
+        "next_word": "尽心"
+      },
+      {
+        "position": 5,
+        "text": "尽心",
+        "previous_word": "尽力",
+        "next_word": "尽头"
+      },
+      {
+        "position": 6,
+        "text": "尽头",
+        "previous_word": "尽心",
+        "next_word": "尽忠"
+      },
+      {
+        "position": 7,
+        "text": "尽忠",
+        "previous_word": "尽头",
+        "next_word": "山穷水尽"
+      },
+      {
+        "position": 8,
+        "text": "山穷水尽",
+        "previous_word": "尽忠",
+        "next_word": "仁至义尽"
+      },
+      {
+        "position": 9,
+        "text": "仁至义尽",
+        "previous_word": "山穷水尽",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "笼",
+    "index": "0964",
+    "allowed_readings": [
+      "lóng",
+      "lǒng"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "灯笼",
+        "previous_word": null,
+        "next_word": "鸟笼"
+      },
+      {
+        "position": 2,
+        "text": "鸟笼",
+        "previous_word": "灯笼",
+        "next_word": "牢笼"
+      },
+      {
+        "position": 3,
+        "text": "牢笼",
+        "previous_word": "鸟笼",
+        "next_word": "蒸笼"
+      },
+      {
+        "position": 4,
+        "text": "蒸笼",
+        "previous_word": "牢笼",
+        "next_word": "笼统"
+      },
+      {
+        "position": 5,
+        "text": "笼统",
+        "previous_word": "蒸笼",
+        "next_word": "笼络"
+      },
+      {
+        "position": 6,
+        "text": "笼络",
+        "previous_word": "笼统",
+        "next_word": "笼罩"
+      },
+      {
+        "position": 7,
+        "text": "笼罩",
+        "previous_word": "笼络",
+        "next_word": "笼络人心"
+      },
+      {
+        "position": 8,
+        "text": "笼络人心",
+        "previous_word": "笼罩",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "当",
+    "index": "0979",
+    "allowed_readings": [
+      "dāng",
+      "dàng"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "充当",
+        "previous_word": null,
+        "next_word": "当初"
+      },
+      {
+        "position": 2,
+        "text": "当初",
+        "previous_word": "充当",
+        "next_word": "担当"
+      },
+      {
+        "position": 3,
+        "text": "担当",
+        "previous_word": "当初",
+        "next_word": "当代"
+      },
+      {
+        "position": 4,
+        "text": "当代",
+        "previous_word": "担当",
+        "next_word": "理所当然"
+      },
+      {
+        "position": 5,
+        "text": "理所当然",
+        "previous_word": "当代",
+        "next_word": "大敌当前"
+      },
+      {
+        "position": 6,
+        "text": "大敌当前",
+        "previous_word": "理所当然",
+        "next_word": "恰当"
+      },
+      {
+        "position": 7,
+        "text": "恰当",
+        "previous_word": "大敌当前",
+        "next_word": "适当"
+      },
+      {
+        "position": 8,
+        "text": "适当",
+        "previous_word": "恰当",
+        "next_word": "上当"
+      },
+      {
+        "position": 9,
+        "text": "上当",
+        "previous_word": "适当",
+        "next_word": "典当"
+      },
+      {
+        "position": 10,
+        "text": "典当",
+        "previous_word": "上当",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "降",
+    "index": "0986",
+    "allowed_readings": [
+      "jiàng",
+      "xiáng"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "降落",
+        "previous_word": null,
+        "next_word": "降雨"
+      },
+      {
+        "position": 2,
+        "text": "降雨",
+        "previous_word": "降落",
+        "next_word": "降临"
+      },
+      {
+        "position": 3,
+        "text": "降临",
+        "previous_word": "降雨",
+        "next_word": "下降"
+      },
+      {
+        "position": 4,
+        "text": "下降",
+        "previous_word": "降临",
+        "next_word": "喜从天降"
+      },
+      {
+        "position": 5,
+        "text": "喜从天降",
+        "previous_word": "下降",
+        "next_word": "明升暗降"
+      },
+      {
+        "position": 6,
+        "text": "明升暗降",
+        "previous_word": "喜从天降",
+        "next_word": "投降"
+      },
+      {
+        "position": 7,
+        "text": "投降",
+        "previous_word": "明升暗降",
+        "next_word": "降服"
+      },
+      {
+        "position": 8,
+        "text": "降服",
+        "previous_word": "投降",
+        "next_word": "降妖除魔"
+      },
+      {
+        "position": 9,
+        "text": "降妖除魔",
+        "previous_word": "降服",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "弹",
+    "index": "1013",
+    "allowed_readings": [
+      "dàn",
+      "tán"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "子弹",
+        "previous_word": null,
+        "next_word": "弹药"
+      },
+      {
+        "position": 2,
+        "text": "弹药",
+        "previous_word": "子弹",
+        "next_word": "导弹"
+      },
+      {
+        "position": 3,
+        "text": "导弹",
+        "previous_word": "弹药",
+        "next_word": "弹丸"
+      },
+      {
+        "position": 4,
+        "text": "弹丸",
+        "previous_word": "导弹",
+        "next_word": "弹无虚发"
+      },
+      {
+        "position": 5,
+        "text": "弹无虚发",
+        "previous_word": "弹丸",
+        "next_word": "荷枪实弹"
+      },
+      {
+        "position": 6,
+        "text": "荷枪实弹",
+        "previous_word": "弹无虚发",
+        "next_word": "弹跳"
+      },
+      {
+        "position": 7,
+        "text": "弹跳",
+        "previous_word": "荷枪实弹",
+        "next_word": "弹琴"
+      },
+      {
+        "position": 8,
+        "text": "弹琴",
+        "previous_word": "弹跳",
+        "next_word": "弹奏"
+      },
+      {
+        "position": 9,
+        "text": "弹奏",
+        "previous_word": "弹琴",
+        "next_word": "弹劲"
+      },
+      {
+        "position": 10,
+        "text": "弹劲",
+        "previous_word": "弹奏",
+        "next_word": "弹指之间"
+      },
+      {
+        "position": 11,
+        "text": "弹指之间",
+        "previous_word": "弹劲",
+        "next_word": "对牛弹琴"
+      },
+      {
+        "position": 12,
+        "text": "对牛弹琴",
+        "previous_word": "弹指之间",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "委",
+    "index": "1031",
+    "allowed_readings": [
+      "wěi",
+      "wēi"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "委屈",
+        "previous_word": null,
+        "next_word": "委托"
+      },
+      {
+        "position": 2,
+        "text": "委托",
+        "previous_word": "委屈",
+        "next_word": "委任"
+      },
+      {
+        "position": 3,
+        "text": "委任",
+        "previous_word": "委托",
+        "next_word": "委员"
+      },
+      {
+        "position": 4,
+        "text": "委员",
+        "previous_word": "委任",
+        "next_word": "委婉"
+      },
+      {
+        "position": 5,
+        "text": "委婉",
+        "previous_word": "委员",
+        "next_word": "原委"
+      },
+      {
+        "position": 6,
+        "text": "原委",
+        "previous_word": "委婉",
+        "next_word": "委派"
+      },
+      {
+        "position": 7,
+        "text": "委派",
+        "previous_word": "原委",
+        "next_word": "委曲求全"
+      },
+      {
+        "position": 8,
+        "text": "委曲求全",
+        "previous_word": "委派",
+        "next_word": "委以重任"
+      },
+      {
+        "position": 9,
+        "text": "委以重任",
+        "previous_word": "委曲求全",
+        "next_word": "虚与委蛇"
+      },
+      {
+        "position": 10,
+        "text": "虚与委蛇",
+        "previous_word": "委以重任",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "切",
+    "index": "1036",
+    "allowed_readings": [
+      "qiē",
+      "qiè"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "切菜",
+        "previous_word": null,
+        "next_word": "切磋"
+      },
+      {
+        "position": 2,
+        "text": "切磋",
+        "previous_word": "切菜",
+        "next_word": "切割"
+      },
+      {
+        "position": 3,
+        "text": "切割",
+        "previous_word": "切磋",
+        "next_word": "亲切"
+      },
+      {
+        "position": 4,
+        "text": "亲切",
+        "previous_word": "切割",
+        "next_word": "急切"
+      },
+      {
+        "position": 5,
+        "text": "急切",
+        "previous_word": "亲切",
+        "next_word": "迫切"
+      },
+      {
+        "position": 6,
+        "text": "迫切",
+        "previous_word": "急切",
+        "next_word": "切实"
+      },
+      {
+        "position": 7,
+        "text": "切实",
+        "previous_word": "迫切",
+        "next_word": "咬牙切齿"
+      },
+      {
+        "position": 8,
+        "text": "咬牙切齿",
+        "previous_word": "切实",
+        "next_word": "不切实际"
+      },
+      {
+        "position": 9,
+        "text": "不切实际",
+        "previous_word": "咬牙切齿",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "柏",
+    "index": "1061",
+    "allowed_readings": [
+      "bǎi",
+      "bó"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "松柏",
+        "previous_word": null,
+        "next_word": "黄柏"
+      },
+      {
+        "position": 2,
+        "text": "黄柏",
+        "previous_word": "松柏",
+        "next_word": "柏林"
+      },
+      {
+        "position": 3,
+        "text": "柏林",
+        "previous_word": "黄柏",
+        "next_word": "柏拉图"
+      },
+      {
+        "position": 4,
+        "text": "柏拉图",
+        "previous_word": "柏林",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "与",
+    "index": "1076",
+    "allowed_readings": [
+      "yù",
+      "yǔ"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "参与",
+        "previous_word": null,
+        "next_word": "与会"
+      },
+      {
+        "position": 2,
+        "text": "与会",
+        "previous_word": "参与",
+        "next_word": "生死与共"
+      },
+      {
+        "position": 3,
+        "text": "生死与共",
+        "previous_word": "与会",
+        "next_word": "与世长辞"
+      },
+      {
+        "position": 4,
+        "text": "与世长辞",
+        "previous_word": "生死与共",
+        "next_word": "与人为善"
+      },
+      {
+        "position": 5,
+        "text": "与人为善",
+        "previous_word": "与世长辞",
+        "next_word": "与众不同"
+      },
+      {
+        "position": 6,
+        "text": "与众不同",
+        "previous_word": "与人为善",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "厦",
+    "index": "1099",
+    "allowed_readings": [
+      "xià",
+      "shà"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "厦门",
+        "previous_word": null,
+        "next_word": "大厦"
+      },
+      {
+        "position": 2,
+        "text": "大厦",
+        "previous_word": "厦门",
+        "next_word": "商厦"
+      },
+      {
+        "position": 3,
+        "text": "商厦",
+        "previous_word": "大厦",
+        "next_word": "广厦"
+      },
+      {
+        "position": 4,
+        "text": "广厦",
+        "previous_word": "商厦",
+        "next_word": "高楼大厦"
+      },
+      {
+        "position": 5,
+        "text": "高楼大厦",
+        "previous_word": "广厦",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "省",
+    "index": "1114",
+    "allowed_readings": [
+      "shěng",
+      "xǐng"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "省份",
+        "previous_word": null,
+        "next_word": "省会"
+      },
+      {
+        "position": 2,
+        "text": "省会",
+        "previous_word": "省份",
+        "next_word": "省钱"
+      },
+      {
+        "position": 3,
+        "text": "省钱",
+        "previous_word": "省会",
+        "next_word": "省事"
+      },
+      {
+        "position": 4,
+        "text": "省事",
+        "previous_word": "省钱",
+        "next_word": "省略"
+      },
+      {
+        "position": 5,
+        "text": "省略",
+        "previous_word": "省事",
+        "next_word": "节省"
+      },
+      {
+        "position": 6,
+        "text": "节省",
+        "previous_word": "省略",
+        "next_word": "省吃俭用"
+      },
+      {
+        "position": 7,
+        "text": "省吃俭用",
+        "previous_word": "节省",
+        "next_word": "发人深省"
+      },
+      {
+        "position": 8,
+        "text": "发人深省",
+        "previous_word": "省吃俭用",
+        "next_word": "不省人事"
+      },
+      {
+        "position": 9,
+        "text": "不省人事",
+        "previous_word": "发人深省",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "呗",
+    "index": "1155",
+    "allowed_readings": [
+      "bei",
+      "bài"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "清呗",
+        "previous_word": null,
+        "next_word": "诵呗"
+      },
+      {
+        "position": 2,
+        "text": "诵呗",
+        "previous_word": "清呗",
+        "next_word": "梵呗"
+      },
+      {
+        "position": 3,
+        "text": "梵呗",
+        "previous_word": "诵呗",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "炮",
+    "index": "1185",
+    "allowed_readings": [
+      "páo",
+      "pào"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "炮制",
+        "previous_word": null,
+        "next_word": "如法炮制"
+      },
+      {
+        "position": 2,
+        "text": "如法炮制",
+        "previous_word": "炮制",
+        "next_word": "鞭炮"
+      },
+      {
+        "position": 3,
+        "text": "鞭炮",
+        "previous_word": "如法炮制",
+        "next_word": "炮仗"
+      },
+      {
+        "position": 4,
+        "text": "炮仗",
+        "previous_word": "鞭炮",
+        "next_word": "放炮"
+      },
+      {
+        "position": 5,
+        "text": "放炮",
+        "previous_word": "炮仗",
+        "next_word": "炮弹"
+      },
+      {
+        "position": 6,
+        "text": "炮弹",
+        "previous_word": "放炮",
+        "next_word": "炮台"
+      },
+      {
+        "position": 7,
+        "text": "炮台",
+        "previous_word": "炮弹",
+        "next_word": "炮火"
+      },
+      {
+        "position": 8,
+        "text": "炮火",
+        "previous_word": "炮台",
+        "next_word": "炮兵"
+      },
+      {
+        "position": 9,
+        "text": "炮兵",
+        "previous_word": "炮火",
+        "next_word": "糖衣炮弹"
+      },
+      {
+        "position": 10,
+        "text": "糖衣炮弹",
+        "previous_word": "炮兵",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "削",
+    "index": "1213",
+    "allowed_readings": [
+      "xiāo",
+      "xuē"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "车削",
+        "previous_word": null,
+        "next_word": "刮削"
+      },
+      {
+        "position": 2,
+        "text": "刮削",
+        "previous_word": "车削",
+        "next_word": "刀削"
+      },
+      {
+        "position": 3,
+        "text": "刀削",
+        "previous_word": "刮削",
+        "next_word": "剥削"
+      },
+      {
+        "position": 4,
+        "text": "剥削",
+        "previous_word": "刀削",
+        "next_word": "削弱"
+      },
+      {
+        "position": 5,
+        "text": "削弱",
+        "previous_word": "剥削",
+        "next_word": "削减"
+      },
+      {
+        "position": 6,
+        "text": "削减",
+        "previous_word": "削弱",
+        "next_word": "削发"
+      },
+      {
+        "position": 7,
+        "text": "削发",
+        "previous_word": "削减",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "扎",
+    "index": "1216",
+    "allowed_readings": [
+      "zā",
+      "zhā"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "包扎",
+        "previous_word": null,
+        "next_word": "扎手"
+      },
+      {
+        "position": 2,
+        "text": "扎手",
+        "previous_word": "包扎",
+        "next_word": "扎堆"
+      },
+      {
+        "position": 3,
+        "text": "扎堆",
+        "previous_word": "扎手",
+        "next_word": "扎彩"
+      },
+      {
+        "position": 4,
+        "text": "扎彩",
+        "previous_word": "扎堆",
+        "next_word": "扎根"
+      },
+      {
+        "position": 5,
+        "text": "扎根",
+        "previous_word": "扎彩",
+        "next_word": "扎花"
+      },
+      {
+        "position": 6,
+        "text": "扎花",
+        "previous_word": "扎根",
+        "next_word": "绑扎"
+      },
+      {
+        "position": 7,
+        "text": "绑扎",
+        "previous_word": "扎花",
+        "next_word": "扎营"
+      },
+      {
+        "position": 8,
+        "text": "扎营",
+        "previous_word": "绑扎",
+        "next_word": "扎实"
+      },
+      {
+        "position": 9,
+        "text": "扎实",
+        "previous_word": "扎营",
+        "next_word": "扎眼"
+      },
+      {
+        "position": 10,
+        "text": "扎眼",
+        "previous_word": "扎实",
+        "next_word": "扎鸟"
+      },
+      {
+        "position": 11,
+        "text": "扎鸟",
+        "previous_word": "扎眼",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "扇",
+    "index": "1289",
+    "allowed_readings": [
+      "shàn",
+      "shān"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "扇贝",
+        "previous_word": null,
+        "next_word": "扇子"
+      },
+      {
+        "position": 2,
+        "text": "扇子",
+        "previous_word": "扇贝",
+        "next_word": "蒲扇"
+      },
+      {
+        "position": 3,
+        "text": "蒲扇",
+        "previous_word": "扇子",
+        "next_word": "团扇"
+      },
+      {
+        "position": 4,
+        "text": "团扇",
+        "previous_word": "蒲扇",
+        "next_word": "风扇"
+      },
+      {
+        "position": 5,
+        "text": "风扇",
+        "previous_word": "团扇",
+        "next_word": "葵扇"
+      },
+      {
+        "position": 6,
+        "text": "葵扇",
+        "previous_word": "风扇",
+        "next_word": "羽扇纶巾"
+      },
+      {
+        "position": 7,
+        "text": "羽扇纶巾",
+        "previous_word": "葵扇",
+        "next_word": "扇风"
+      },
+      {
+        "position": 8,
+        "text": "扇风",
+        "previous_word": "羽扇纶巾",
+        "next_word": "扇动"
+      },
+      {
+        "position": 9,
+        "text": "扇动",
+        "previous_word": "扇风",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "卷",
+    "index": "1311",
+    "allowed_readings": [
+      "juǎn",
+      "juàn"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "卷发",
+        "previous_word": null,
+        "next_word": "卷尺"
+      },
+      {
+        "position": 2,
+        "text": "卷尺",
+        "previous_word": "卷发",
+        "next_word": "卷入"
+      },
+      {
+        "position": 3,
+        "text": "卷入",
+        "previous_word": "卷尺",
+        "next_word": "案卷"
+      },
+      {
+        "position": 4,
+        "text": "案卷",
+        "previous_word": "卷入",
+        "next_word": "试卷"
+      },
+      {
+        "position": 5,
+        "text": "试卷",
+        "previous_word": "案卷",
+        "next_word": "白卷"
+      },
+      {
+        "position": 6,
+        "text": "白卷",
+        "previous_word": "试卷",
+        "next_word": "长卷"
+      },
+      {
+        "position": 7,
+        "text": "长卷",
+        "previous_word": "白卷",
+        "next_word": "开卷有益"
+      },
+      {
+        "position": 8,
+        "text": "开卷有益",
+        "previous_word": "长卷",
+        "next_word": "手不释卷"
+      },
+      {
+        "position": 9,
+        "text": "手不释卷",
+        "previous_word": "开卷有益",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "蒙",
+    "index": "1329",
+    "allowed_readings": [
+      "mēng",
+      "méng",
+      "měng"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "蒙骗",
+        "previous_word": null,
+        "next_word": "启蒙"
+      },
+      {
+        "position": 2,
+        "text": "启蒙",
+        "previous_word": "蒙骗",
+        "next_word": "蒙昧"
+      },
+      {
+        "position": 3,
+        "text": "蒙昧",
+        "previous_word": "启蒙",
+        "next_word": "蒙蔽"
+      },
+      {
+        "position": 4,
+        "text": "蒙蔽",
+        "previous_word": "蒙昧",
+        "next_word": "蒙混过关"
+      },
+      {
+        "position": 5,
+        "text": "蒙混过关",
+        "previous_word": "蒙蔽",
+        "next_word": "蒙在鼓里"
+      },
+      {
+        "position": 6,
+        "text": "蒙在鼓里",
+        "previous_word": "蒙混过关",
+        "next_word": "蒙古"
+      },
+      {
+        "position": 7,
+        "text": "蒙古",
+        "previous_word": "蒙在鼓里",
+        "next_word": "内蒙古"
+      },
+      {
+        "position": 8,
+        "text": "内蒙古",
+        "previous_word": "蒙古",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "射",
+    "index": "1336",
+    "allowed_readings": [
+      "shè",
+      "yè"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "射击",
+        "previous_word": null,
+        "next_word": "发射"
+      },
+      {
+        "position": 2,
+        "text": "发射",
+        "previous_word": "射击",
+        "next_word": "扫射"
+      },
+      {
+        "position": 3,
+        "text": "扫射",
+        "previous_word": "发射",
+        "next_word": "射手"
+      },
+      {
+        "position": 4,
+        "text": "射手",
+        "previous_word": "扫射",
+        "next_word": "注射"
+      },
+      {
+        "position": 5,
+        "text": "注射",
+        "previous_word": "射手",
+        "next_word": "辐射"
+      },
+      {
+        "position": 6,
+        "text": "辐射",
+        "previous_word": "注射",
+        "next_word": "照射"
+      },
+      {
+        "position": 7,
+        "text": "照射",
+        "previous_word": "辐射",
+        "next_word": "射箭"
+      },
+      {
+        "position": 8,
+        "text": "射箭",
+        "previous_word": "照射",
+        "next_word": "光芒四射"
+      },
+      {
+        "position": 9,
+        "text": "光芒四射",
+        "previous_word": "射箭",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "载",
+    "index": "1343",
+    "allowed_readings": [
+      "zǎi",
+      "zài"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "登载",
+        "previous_word": null,
+        "next_word": "刊载"
+      },
+      {
+        "position": 2,
+        "text": "刊载",
+        "previous_word": "登载",
+        "next_word": "记载"
+      },
+      {
+        "position": 3,
+        "text": "记载",
+        "previous_word": "刊载",
+        "next_word": "连载"
+      },
+      {
+        "position": 4,
+        "text": "连载",
+        "previous_word": "记载",
+        "next_word": "千载难逢"
+      },
+      {
+        "position": 5,
+        "text": "千载难逢",
+        "previous_word": "连载",
+        "next_word": "一年半载"
+      },
+      {
+        "position": 6,
+        "text": "一年半载",
+        "previous_word": "千载难逢",
+        "next_word": "搭载"
+      },
+      {
+        "position": 7,
+        "text": "搭载",
+        "previous_word": "一年半载",
+        "next_word": "超载"
+      },
+      {
+        "position": 8,
+        "text": "超载",
+        "previous_word": "搭载",
+        "next_word": "载重"
+      },
+      {
+        "position": 9,
+        "text": "载重",
+        "previous_word": "超载",
+        "next_word": "装载"
+      },
+      {
+        "position": 10,
+        "text": "装载",
+        "previous_word": "载重",
+        "next_word": "满载而归"
+      },
+      {
+        "position": 11,
+        "text": "满载而归",
+        "previous_word": "装载",
+        "next_word": "怨声载道"
+      },
+      {
+        "position": 12,
+        "text": "怨声载道",
+        "previous_word": "满载而归",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "圈",
+    "index": "1358",
+    "allowed_readings": [
+      "quān",
+      "juàn"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "圈套",
+        "previous_word": null,
+        "next_word": "圆圈"
+      },
+      {
+        "position": 2,
+        "text": "圆圈",
+        "previous_word": "圈套",
+        "next_word": "项圈"
+      },
+      {
+        "position": 3,
+        "text": "项圈",
+        "previous_word": "圆圈",
+        "next_word": "光圈"
+      },
+      {
+        "position": 4,
+        "text": "光圈",
+        "previous_word": "项圈",
+        "next_word": "圈养"
+      },
+      {
+        "position": 5,
+        "text": "圈养",
+        "previous_word": "光圈",
+        "next_word": "猪圈"
+      },
+      {
+        "position": 6,
+        "text": "猪圈",
+        "previous_word": "圈养",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "唠",
+    "index": "1424",
+    "allowed_readings": [
+      "láo",
+      "lào"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "唠叨",
+        "previous_word": null,
+        "next_word": "唠唠叨叨"
+      },
+      {
+        "position": 2,
+        "text": "唠唠叨叨",
+        "previous_word": "唠叨",
+        "next_word": "唠嗑"
+      },
+      {
+        "position": 3,
+        "text": "唠嗑",
+        "previous_word": "唠唠叨叨",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "缝",
+    "index": "1450",
+    "allowed_readings": [
+      "féng",
+      "fèng"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "缝纫",
+        "previous_word": null,
+        "next_word": "缝补"
+      },
+      {
+        "position": 2,
+        "text": "缝补",
+        "previous_word": "缝纫",
+        "next_word": "缝合"
+      },
+      {
+        "position": 3,
+        "text": "缝合",
+        "previous_word": "缝补",
+        "next_word": "裁缝"
+      },
+      {
+        "position": 4,
+        "text": "裁缝",
+        "previous_word": "缝合",
+        "next_word": "夹缝"
+      },
+      {
+        "position": 5,
+        "text": "夹缝",
+        "previous_word": "裁缝",
+        "next_word": "门缝"
+      },
+      {
+        "position": 6,
+        "text": "门缝",
+        "previous_word": "夹缝",
+        "next_word": "缝隙"
+      },
+      {
+        "position": 7,
+        "text": "缝隙",
+        "previous_word": "门缝",
+        "next_word": "裂缝"
+      },
+      {
+        "position": 8,
+        "text": "裂缝",
+        "previous_word": "缝隙",
+        "next_word": "天衣无缝"
+      },
+      {
+        "position": 9,
+        "text": "天衣无缝",
+        "previous_word": "裂缝",
+        "next_word": "严丝合缝"
+      },
+      {
+        "position": 10,
+        "text": "严丝合缝",
+        "previous_word": "天衣无缝",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "曾",
+    "index": "1458",
+    "allowed_readings": [
+      "céng",
+      "zēng"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "曾经",
+        "previous_word": null,
+        "next_word": "不曾"
+      },
+      {
+        "position": 2,
+        "text": "不曾",
+        "previous_word": "曾经",
+        "next_word": "未曾"
+      },
+      {
+        "position": 3,
+        "text": "未曾",
+        "previous_word": "不曾",
+        "next_word": "似曾相识"
+      },
+      {
+        "position": 4,
+        "text": "似曾相识",
+        "previous_word": "未曾",
+        "next_word": "曾几何时"
+      },
+      {
+        "position": 5,
+        "text": "曾几何时",
+        "previous_word": "似曾相识",
+        "next_word": "曾孙"
+      },
+      {
+        "position": 6,
+        "text": "曾孙",
+        "previous_word": "曾几何时",
+        "next_word": "曾祖"
+      },
+      {
+        "position": 7,
+        "text": "曾祖",
+        "previous_word": "曾孙",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "占",
+    "index": "1498",
+    "allowed_readings": [
+      "zhàn",
+      "zhān"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "占领",
+        "previous_word": null,
+        "next_word": "占据"
+      },
+      {
+        "position": 2,
+        "text": "占据",
+        "previous_word": "占领",
+        "next_word": "霸占"
+      },
+      {
+        "position": 3,
+        "text": "霸占",
+        "previous_word": "占据",
+        "next_word": "侵占"
+      },
+      {
+        "position": 4,
+        "text": "侵占",
+        "previous_word": "霸占",
+        "next_word": "独占鳌头"
+      },
+      {
+        "position": 5,
+        "text": "独占鳌头",
+        "previous_word": "侵占",
+        "next_word": "占卜"
+      },
+      {
+        "position": 6,
+        "text": "占卜",
+        "previous_word": "独占鳌头",
+        "next_word": "占卦"
+      },
+      {
+        "position": 7,
+        "text": "占卦",
+        "previous_word": "占卜",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "勾",
+    "index": "1499",
+    "allowed_readings": [
+      "gōu",
+      "gòu"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "勾结",
+        "previous_word": null,
+        "next_word": "勾画"
+      },
+      {
+        "position": 2,
+        "text": "勾画",
+        "previous_word": "勾结",
+        "next_word": "勾芡"
+      },
+      {
+        "position": 3,
+        "text": "勾芡",
+        "previous_word": "勾画",
+        "next_word": "勾搭"
+      },
+      {
+        "position": 4,
+        "text": "勾搭",
+        "previous_word": "勾芡",
+        "next_word": "勾心斗角"
+      },
+      {
+        "position": 5,
+        "text": "勾心斗角",
+        "previous_word": "勾搭",
+        "next_word": "一笔勾销"
+      },
+      {
+        "position": 6,
+        "text": "一笔勾销",
+        "previous_word": "勾心斗角",
+        "next_word": "勾当"
+      },
+      {
+        "position": 7,
+        "text": "勾当",
+        "previous_word": "一笔勾销",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "爪",
+    "index": "1504",
+    "allowed_readings": [
+      "zhǎo",
+      "zhuǎ"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "爪牙",
+        "previous_word": null,
+        "next_word": "鳞爪"
+      },
+      {
+        "position": 2,
+        "text": "鳞爪",
+        "previous_word": "爪牙",
+        "next_word": "魔爪"
+      },
+      {
+        "position": 3,
+        "text": "魔爪",
+        "previous_word": "鳞爪",
+        "next_word": "鹰爪"
+      },
+      {
+        "position": 4,
+        "text": "鹰爪",
+        "previous_word": "魔爪",
+        "next_word": "张牙舞爪"
+      },
+      {
+        "position": 5,
+        "text": "张牙舞爪",
+        "previous_word": "鹰爪",
+        "next_word": "一鳞半爪"
+      },
+      {
+        "position": 6,
+        "text": "一鳞半爪",
+        "previous_word": "张牙舞爪",
+        "next_word": "爪子"
+      },
+      {
+        "position": 7,
+        "text": "爪子",
+        "previous_word": "一鳞半爪",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "咖",
+    "index": "1532",
+    "allowed_readings": [
+      "kā",
+      "gā"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "咖啡",
+        "previous_word": null,
+        "next_word": "怪咖"
+      },
+      {
+        "position": 2,
+        "text": "怪咖",
+        "previous_word": "咖啡",
+        "next_word": "咖喱"
+      },
+      {
+        "position": 3,
+        "text": "咖喱",
+        "previous_word": "怪咖",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "幢",
+    "index": "1544",
+    "allowed_readings": [
+      "zhuàng",
+      "chuáng"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "一幢大楼",
+        "previous_word": null,
+        "next_word": "经幢"
+      },
+      {
+        "position": 2,
+        "text": "经幢",
+        "previous_word": "一幢大楼",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "恶",
+    "index": "1556",
+    "allowed_readings": [
+      "ě",
+      "è",
+      "wù"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "恶心",
+        "previous_word": null,
+        "next_word": "恶人"
+      },
+      {
+        "position": 2,
+        "text": "恶人",
+        "previous_word": "恶心",
+        "next_word": "恶战"
+      },
+      {
+        "position": 3,
+        "text": "恶战",
+        "previous_word": "恶人",
+        "next_word": "恶化"
+      },
+      {
+        "position": 4,
+        "text": "恶化",
+        "previous_word": "恶战",
+        "next_word": "嫉恶如仇"
+      },
+      {
+        "position": 5,
+        "text": "嫉恶如仇",
+        "previous_word": "恶化",
+        "next_word": "厌恶"
+      },
+      {
+        "position": 6,
+        "text": "厌恶",
+        "previous_word": "嫉恶如仇",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "强",
+    "index": "1558",
+    "allowed_readings": [
+      "qiáng",
+      "qiǎng",
+      "jiàng"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "强风",
+        "previous_word": null,
+        "next_word": "强硬"
+      },
+      {
+        "position": 2,
+        "text": "强硬",
+        "previous_word": "强风",
+        "next_word": "强大"
+      },
+      {
+        "position": 3,
+        "text": "强大",
+        "previous_word": "强硬",
+        "next_word": "强盗"
+      },
+      {
+        "position": 4,
+        "text": "强盗",
+        "previous_word": "强大",
+        "next_word": "强烈"
+      },
+      {
+        "position": 5,
+        "text": "强烈",
+        "previous_word": "强盗",
+        "next_word": "强调"
+      },
+      {
+        "position": 6,
+        "text": "强调",
+        "previous_word": "强烈",
+        "next_word": "勉强"
+      },
+      {
+        "position": 7,
+        "text": "勉强",
+        "previous_word": "强调",
+        "next_word": "倔强"
+      },
+      {
+        "position": 8,
+        "text": "倔强",
+        "previous_word": "勉强",
+        "next_word": "强人所难"
+      },
+      {
+        "position": 9,
+        "text": "强人所难",
+        "previous_word": "倔强",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "娜",
+    "index": "1568",
+    "allowed_readings": [
+      "nuó",
+      "nà"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "婀娜多姿",
+        "previous_word": null,
+        "next_word": "蒙娜丽莎"
+      },
+      {
+        "position": 2,
+        "text": "蒙娜丽莎",
+        "previous_word": "婀娜多姿",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "哄",
+    "index": "1570",
+    "allowed_readings": [
+      "hōng",
+      "hòng"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "哄抢",
+        "previous_word": null,
+        "next_word": "哄堂大笑"
+      },
+      {
+        "position": 2,
+        "text": "哄堂大笑",
+        "previous_word": "哄抢",
+        "next_word": "哄骗"
+      },
+      {
+        "position": 3,
+        "text": "哄骗",
+        "previous_word": "哄堂大笑",
+        "next_word": "哄人"
+      },
+      {
+        "position": 4,
+        "text": "哄人",
+        "previous_word": "哄骗",
+        "next_word": "起哄"
+      },
+      {
+        "position": 5,
+        "text": "起哄",
+        "previous_word": "哄人",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "便",
+    "index": "1579",
+    "allowed_readings": [
+      "biàn",
+      "pián"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "便利",
+        "previous_word": null,
+        "next_word": "便捷"
+      },
+      {
+        "position": 2,
+        "text": "便捷",
+        "previous_word": "便利",
+        "next_word": "随便"
+      },
+      {
+        "position": 3,
+        "text": "随便",
+        "previous_word": "便捷",
+        "next_word": "方便"
+      },
+      {
+        "position": 4,
+        "text": "方便",
+        "previous_word": "随便",
+        "next_word": "家常便饭"
+      },
+      {
+        "position": 5,
+        "text": "家常便饭",
+        "previous_word": "方便",
+        "next_word": "随随便便"
+      },
+      {
+        "position": 6,
+        "text": "随随便便",
+        "previous_word": "家常便饭",
+        "next_word": "便宜"
+      },
+      {
+        "position": 7,
+        "text": "便宜",
+        "previous_word": "随随便便",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "旋",
+    "index": "1595",
+    "allowed_readings": [
+      "xuán",
+      "xuàn"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "旋转",
+        "previous_word": null,
+        "next_word": "盘旋"
+      },
+      {
+        "position": 2,
+        "text": "盘旋",
+        "previous_word": "旋转",
+        "next_word": "凯旋"
+      },
+      {
+        "position": 3,
+        "text": "凯旋",
+        "previous_word": "盘旋",
+        "next_word": "旋律"
+      },
+      {
+        "position": 4,
+        "text": "旋律",
+        "previous_word": "凯旋",
+        "next_word": "旋转乾坤"
+      },
+      {
+        "position": 5,
+        "text": "旋转乾坤",
+        "previous_word": "旋律",
+        "next_word": "天旋地转"
+      },
+      {
+        "position": 6,
+        "text": "天旋地转",
+        "previous_word": "旋转乾坤",
+        "next_word": "旋风"
+      },
+      {
+        "position": 7,
+        "text": "旋风",
+        "previous_word": "天旋地转",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "差",
+    "index": "1602",
+    "allowed_readings": [
+      "chā",
+      "chà",
+      "chāi",
+      "cī"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "差别",
+        "previous_word": null,
+        "next_word": "差错"
+      },
+      {
+        "position": 2,
+        "text": "差错",
+        "previous_word": "差别",
+        "next_word": "差强人意"
+      },
+      {
+        "position": 3,
+        "text": "差强人意",
+        "previous_word": "差错",
+        "next_word": "差劲"
+      },
+      {
+        "position": 4,
+        "text": "差劲",
+        "previous_word": "差强人意",
+        "next_word": "差不多"
+      },
+      {
+        "position": 5,
+        "text": "差不多",
+        "previous_word": "差劲",
+        "next_word": "差遣"
+      },
+      {
+        "position": 6,
+        "text": "差遣",
+        "previous_word": "差不多",
+        "next_word": "差事"
+      },
+      {
+        "position": 7,
+        "text": "差事",
+        "previous_word": "差遣",
+        "next_word": "出差"
+      },
+      {
+        "position": 8,
+        "text": "出差",
+        "previous_word": "差事",
+        "next_word": "参差不齐"
+      },
+      {
+        "position": 9,
+        "text": "参差不齐",
+        "previous_word": "出差",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "粘",
+    "index": "1603",
+    "allowed_readings": [
+      "zhān",
+      "nián"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "粘贴",
+        "previous_word": null,
+        "next_word": "粘住"
+      },
+      {
+        "position": 2,
+        "text": "粘住",
+        "previous_word": "粘贴",
+        "next_word": "粘连"
+      },
+      {
+        "position": 3,
+        "text": "粘连",
+        "previous_word": "粘住",
+        "next_word": "粘合"
+      },
+      {
+        "position": 4,
+        "text": "粘合",
+        "previous_word": "粘连",
+        "next_word": "粘性"
+      },
+      {
+        "position": 5,
+        "text": "粘性",
+        "previous_word": "粘合",
+        "next_word": "粘土"
+      },
+      {
+        "position": 6,
+        "text": "粘土",
+        "previous_word": "粘性",
+        "next_word": "粘稠"
+      },
+      {
+        "position": 7,
+        "text": "粘稠",
+        "previous_word": "粘土",
+        "next_word": "粘度"
+      },
+      {
+        "position": 8,
+        "text": "粘度",
+        "previous_word": "粘稠",
+        "next_word": "粘液"
+      },
+      {
+        "position": 9,
+        "text": "粘液",
+        "previous_word": "粘度",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "泊",
+    "index": "1621",
+    "allowed_readings": [
+      "bó",
+      "pō"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "停泊",
+        "previous_word": null,
+        "next_word": "漂泊"
+      },
+      {
+        "position": 2,
+        "text": "漂泊",
+        "previous_word": "停泊",
+        "next_word": "淡泊"
+      },
+      {
+        "position": 3,
+        "text": "淡泊",
+        "previous_word": "漂泊",
+        "next_word": "湖泊"
+      },
+      {
+        "position": 4,
+        "text": "湖泊",
+        "previous_word": "淡泊",
+        "next_word": "血泊"
+      },
+      {
+        "position": 5,
+        "text": "血泊",
+        "previous_word": "湖泊",
+        "next_word": "梁山泊"
+      },
+      {
+        "position": 6,
+        "text": "梁山泊",
+        "previous_word": "血泊",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "刨",
+    "index": "1634",
+    "allowed_readings": [
+      "páo",
+      "bào"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "刨除",
+        "previous_word": null,
+        "next_word": "刨土"
+      },
+      {
+        "position": 2,
+        "text": "刨土",
+        "previous_word": "刨除",
+        "next_word": "刨坑"
+      },
+      {
+        "position": 3,
+        "text": "刨坑",
+        "previous_word": "刨土",
+        "next_word": "刨根问底"
+      },
+      {
+        "position": 4,
+        "text": "刨根问底",
+        "previous_word": "刨坑",
+        "next_word": "刨冰"
+      },
+      {
+        "position": 5,
+        "text": "刨冰",
+        "previous_word": "刨根问底",
+        "next_word": "刨子"
+      },
+      {
+        "position": 6,
+        "text": "刨子",
+        "previous_word": "刨冰",
+        "next_word": "刨床"
+      },
+      {
+        "position": 7,
+        "text": "刨床",
+        "previous_word": "刨子",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "翘",
+    "index": "1658",
+    "allowed_readings": [
+      "qiào",
+      "qiáo"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "翘首",
+        "previous_word": null,
+        "next_word": "翘望"
+      },
+      {
+        "position": 2,
+        "text": "翘望",
+        "previous_word": "翘首",
+        "next_word": "翘首以待"
+      },
+      {
+        "position": 3,
+        "text": "翘首以待",
+        "previous_word": "翘望",
+        "next_word": "翘班"
+      },
+      {
+        "position": 4,
+        "text": "翘班",
+        "previous_word": "翘首以待",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "攒",
+    "index": "1668",
+    "allowed_readings": [
+      "zǎn",
+      "cuán"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "积攒",
+        "previous_word": null,
+        "next_word": "攒钱"
+      },
+      {
+        "position": 2,
+        "text": "攒钱",
+        "previous_word": "积攒",
+        "next_word": "攒动"
+      },
+      {
+        "position": 3,
+        "text": "攒动",
+        "previous_word": "攒钱",
+        "next_word": "人头攒动"
+      },
+      {
+        "position": 4,
+        "text": "人头攒动",
+        "previous_word": "攒动",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "茄",
+    "index": "1690",
+    "allowed_readings": [
+      "qié",
+      "jiā"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "茄子",
+        "previous_word": null,
+        "next_word": "番茄"
+      },
+      {
+        "position": 2,
+        "text": "番茄",
+        "previous_word": "茄子",
+        "next_word": "雪茄"
+      },
+      {
+        "position": 3,
+        "text": "雪茄",
+        "previous_word": "番茄",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "扒",
+    "index": "1694",
+    "allowed_readings": [
+      "pá",
+      "bā"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "扒手",
+        "previous_word": null,
+        "next_word": "扒鸡"
+      },
+      {
+        "position": 2,
+        "text": "扒鸡",
+        "previous_word": "扒手",
+        "next_word": "扒窃"
+      },
+      {
+        "position": 3,
+        "text": "扒窃",
+        "previous_word": "扒鸡",
+        "next_word": "扒皮"
+      },
+      {
+        "position": 4,
+        "text": "扒皮",
+        "previous_word": "扒窃",
+        "next_word": "扒开"
+      },
+      {
+        "position": 5,
+        "text": "扒开",
+        "previous_word": "扒皮",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "脏",
+    "index": "1704",
+    "allowed_readings": [
+      "zāng",
+      "zàng"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "脏话",
+        "previous_word": null,
+        "next_word": "脏字"
+      },
+      {
+        "position": 2,
+        "text": "脏字",
+        "previous_word": "脏话",
+        "next_word": "肮脏"
+      },
+      {
+        "position": 3,
+        "text": "肮脏",
+        "previous_word": "脏字",
+        "next_word": "肾脏"
+      },
+      {
+        "position": 4,
+        "text": "肾脏",
+        "previous_word": "肮脏",
+        "next_word": "脏腑"
+      },
+      {
+        "position": 5,
+        "text": "脏腑",
+        "previous_word": "肾脏",
+        "next_word": "脏器"
+      },
+      {
+        "position": 6,
+        "text": "脏器",
+        "previous_word": "脏腑",
+        "next_word": "心脏"
+      },
+      {
+        "position": 7,
+        "text": "心脏",
+        "previous_word": "脏器",
+        "next_word": "五脏六腑"
+      },
+      {
+        "position": 8,
+        "text": "五脏六腑",
+        "previous_word": "心脏",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "撒",
+    "index": "1745",
+    "allowed_readings": [
+      "sā",
+      "sǎ"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "撒手",
+        "previous_word": null,
+        "next_word": "撒网"
+      },
+      {
+        "position": 2,
+        "text": "撒网",
+        "previous_word": "撒手",
+        "next_word": "撒娇"
+      },
+      {
+        "position": 3,
+        "text": "撒娇",
+        "previous_word": "撒网",
+        "next_word": "撒谎"
+      },
+      {
+        "position": 4,
+        "text": "撒谎",
+        "previous_word": "撒娇",
+        "next_word": "撒野"
+      },
+      {
+        "position": 5,
+        "text": "撒野",
+        "previous_word": "撒谎",
+        "next_word": "撒泼"
+      },
+      {
+        "position": 6,
+        "text": "撒泼",
+        "previous_word": "撒野",
+        "next_word": "喷撒"
+      },
+      {
+        "position": 7,
+        "text": "喷撒",
+        "previous_word": "撒泼",
+        "next_word": "撒播"
+      },
+      {
+        "position": 8,
+        "text": "撒播",
+        "previous_word": "喷撒",
+        "next_word": "撒脱"
+      },
+      {
+        "position": 9,
+        "text": "撒脱",
+        "previous_word": "撒播",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "屏",
+    "index": "1783",
+    "allowed_readings": [
+      "píng",
+      "bǐng"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "屏蔽",
+        "previous_word": null,
+        "next_word": "屏风"
+      },
+      {
+        "position": 2,
+        "text": "屏风",
+        "previous_word": "屏蔽",
+        "next_word": "屏幕"
+      },
+      {
+        "position": 3,
+        "text": "屏幕",
+        "previous_word": "屏风",
+        "next_word": "屏障"
+      },
+      {
+        "position": 4,
+        "text": "屏障",
+        "previous_word": "屏幕",
+        "next_word": "孔雀开屏"
+      },
+      {
+        "position": 5,
+        "text": "孔雀开屏",
+        "previous_word": "屏障",
+        "next_word": "开屏"
+      },
+      {
+        "position": 6,
+        "text": "开屏",
+        "previous_word": "孔雀开屏",
+        "next_word": "屏气凝神"
+      },
+      {
+        "position": 7,
+        "text": "屏气凝神",
+        "previous_word": "开屏",
+        "next_word": "屏息"
+      },
+      {
+        "position": 8,
+        "text": "屏息",
+        "previous_word": "屏气凝神",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "系",
+    "index": "1790",
+    "allowed_readings": [
+      "xì",
+      "jì"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "系列",
+        "previous_word": null,
+        "next_word": "系统"
+      },
+      {
+        "position": 2,
+        "text": "系统",
+        "previous_word": "系列",
+        "next_word": "关系"
+      },
+      {
+        "position": 3,
+        "text": "关系",
+        "previous_word": "系统",
+        "next_word": "根系"
+      },
+      {
+        "position": 4,
+        "text": "根系",
+        "previous_word": "关系",
+        "next_word": "体系"
+      },
+      {
+        "position": 5,
+        "text": "体系",
+        "previous_word": "根系",
+        "next_word": "维系"
+      },
+      {
+        "position": 6,
+        "text": "维系",
+        "previous_word": "体系",
+        "next_word": "联系"
+      },
+      {
+        "position": 7,
+        "text": "联系",
+        "previous_word": "维系",
+        "next_word": "系鞋带"
+      },
+      {
+        "position": 8,
+        "text": "系鞋带",
+        "previous_word": "联系",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "脯",
+    "index": "1825",
+    "allowed_readings": [
+      "pú",
+      "fǔ"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "胸脯",
+        "previous_word": null,
+        "next_word": "拍胸脯"
+      },
+      {
+        "position": 2,
+        "text": "拍胸脯",
+        "previous_word": "胸脯",
+        "next_word": "果脯"
+      },
+      {
+        "position": 3,
+        "text": "果脯",
+        "previous_word": "拍胸脯",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "丧",
+    "index": "1851",
+    "allowed_readings": [
+      "sàng",
+      "sāng"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "灰心丧气",
+        "previous_word": null,
+        "next_word": "丧心病狂"
+      },
+      {
+        "position": 2,
+        "text": "丧心病狂",
+        "previous_word": "灰心丧气",
+        "next_word": "丧葬"
+      },
+      {
+        "position": 3,
+        "text": "丧葬",
+        "previous_word": "丧心病狂",
+        "next_word": "丧事"
+      },
+      {
+        "position": 4,
+        "text": "丧事",
+        "previous_word": "丧葬",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "磨",
+    "index": "1852",
+    "allowed_readings": [
+      "mó",
+      "mò"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "磨蹭",
+        "previous_word": null,
+        "next_word": "磨合"
+      },
+      {
+        "position": 2,
+        "text": "磨合",
+        "previous_word": "磨蹭",
+        "next_word": "折磨"
+      },
+      {
+        "position": 3,
+        "text": "折磨",
+        "previous_word": "磨合",
+        "next_word": "磨练"
+      },
+      {
+        "position": 4,
+        "text": "磨练",
+        "previous_word": "折磨",
+        "next_word": "好事多磨"
+      },
+      {
+        "position": 5,
+        "text": "好事多磨",
+        "previous_word": "磨练",
+        "next_word": "临阵磨枪"
+      },
+      {
+        "position": 6,
+        "text": "临阵磨枪",
+        "previous_word": "好事多磨",
+        "next_word": "磨坊"
+      },
+      {
+        "position": 7,
+        "text": "磨坊",
+        "previous_word": "临阵磨枪",
+        "next_word": "磨面"
+      },
+      {
+        "position": 8,
+        "text": "磨面",
+        "previous_word": "磨坊",
+        "next_word": "磨盘"
+      },
+      {
+        "position": 9,
+        "text": "磨盘",
+        "previous_word": "磨面",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "匙",
+    "index": "1855",
+    "allowed_readings": [
+      "shí",
+      "chí"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "钥匙",
+        "previous_word": null,
+        "next_word": "密匙"
+      },
+      {
+        "position": 2,
+        "text": "密匙",
+        "previous_word": "钥匙",
+        "next_word": "汤匙"
+      },
+      {
+        "position": 3,
+        "text": "汤匙",
+        "previous_word": "密匙",
+        "next_word": "茶匙"
+      },
+      {
+        "position": 4,
+        "text": "茶匙",
+        "previous_word": "汤匙",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "裳",
+    "index": "1861",
+    "allowed_readings": [
+      "shāng",
+      "cháng"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "衣裳",
+        "previous_word": null,
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "调",
+    "index": "1882",
+    "allowed_readings": [
+      "diào",
+      "tiáo",
+      "zhōu"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "调查",
+        "previous_word": null,
+        "next_word": "调换"
+      },
+      {
+        "position": 2,
+        "text": "调换",
+        "previous_word": "调查",
+        "next_word": "对调"
+      },
+      {
+        "position": 3,
+        "text": "对调",
+        "previous_word": "调换",
+        "next_word": "调兵遣将"
+      },
+      {
+        "position": 4,
+        "text": "调兵遣将",
+        "previous_word": "对调",
+        "next_word": "调虎离山"
+      },
+      {
+        "position": 5,
+        "text": "调虎离山",
+        "previous_word": "调兵遣将",
+        "next_word": "调整"
+      },
+      {
+        "position": 6,
+        "text": "调整",
+        "previous_word": "调虎离山",
+        "next_word": "调节"
+      },
+      {
+        "position": 7,
+        "text": "调节",
+        "previous_word": "调整",
+        "next_word": "调解"
+      },
+      {
+        "position": 8,
+        "text": "调解",
+        "previous_word": "调节",
+        "next_word": "调料"
+      },
+      {
+        "position": 9,
+        "text": "调料",
+        "previous_word": "调解",
+        "next_word": "调饥"
+      },
+      {
+        "position": 10,
+        "text": "调饥",
+        "previous_word": "调料",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "砌",
+    "index": "1913",
+    "allowed_readings": [
+      "qì",
+      "qiè"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "堆砌",
+        "previous_word": null,
+        "next_word": "砌墙"
+      },
+      {
+        "position": 2,
+        "text": "砌墙",
+        "previous_word": "堆砌",
+        "next_word": "雕砌"
+      },
+      {
+        "position": 3,
+        "text": "雕砌",
+        "previous_word": "砌墙",
+        "next_word": "雕栏玉砌"
+      },
+      {
+        "position": 4,
+        "text": "雕栏玉砌",
+        "previous_word": "雕砌",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "横",
+    "index": "1914",
+    "allowed_readings": [
+      "héng",
+      "hèng"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "横幅",
+        "previous_word": null,
+        "next_word": "横竖"
+      },
+      {
+        "position": 2,
+        "text": "横竖",
+        "previous_word": "横幅",
+        "next_word": "纵横"
+      },
+      {
+        "position": 3,
+        "text": "纵横",
+        "previous_word": "横竖",
+        "next_word": "才华横溢"
+      },
+      {
+        "position": 4,
+        "text": "才华横溢",
+        "previous_word": "纵横",
+        "next_word": "横冲直撞"
+      },
+      {
+        "position": 5,
+        "text": "横冲直撞",
+        "previous_word": "才华横溢",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "磅",
+    "index": "1928",
+    "allowed_readings": [
+      "bàng",
+      "páng"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "过磅",
+        "previous_word": null,
+        "next_word": "重磅来袭"
+      },
+      {
+        "position": 2,
+        "text": "重磅来袭",
+        "previous_word": "过磅",
+        "next_word": "气势磅礴"
+      },
+      {
+        "position": 3,
+        "text": "气势磅礴",
+        "previous_word": "重磅来袭",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "朴",
+    "index": "1968",
+    "allowed_readings": [
+      "pǔ",
+      "pō"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "朴素",
+        "previous_word": null,
+        "next_word": "简朴"
+      },
+      {
+        "position": 2,
+        "text": "简朴",
+        "previous_word": "朴素",
+        "next_word": "朴实"
+      },
+      {
+        "position": 3,
+        "text": "朴实",
+        "previous_word": "简朴",
+        "next_word": "艰苦朴素"
+      },
+      {
+        "position": 4,
+        "text": "艰苦朴素",
+        "previous_word": "朴实",
+        "next_word": "朴实无华"
+      },
+      {
+        "position": 5,
+        "text": "朴实无华",
+        "previous_word": "艰苦朴素",
+        "next_word": "朴刀"
+      },
+      {
+        "position": 6,
+        "text": "朴刀",
+        "previous_word": "朴实无华",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "挨",
+    "index": "2014",
+    "allowed_readings": [
+      "āi",
+      "ái"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "挨着",
+        "previous_word": null,
+        "next_word": "挨近"
+      },
+      {
+        "position": 2,
+        "text": "挨近",
+        "previous_word": "挨着",
+        "next_word": "挨家挨户"
+      },
+      {
+        "position": 3,
+        "text": "挨家挨户",
+        "previous_word": "挨近",
+        "next_word": "挨打"
+      },
+      {
+        "position": 4,
+        "text": "挨打",
+        "previous_word": "挨家挨户",
+        "next_word": "挨饿"
+      },
+      {
+        "position": 5,
+        "text": "挨饿",
+        "previous_word": "挨打",
+        "next_word": "挨骂"
+      },
+      {
+        "position": 6,
+        "text": "挨骂",
+        "previous_word": "挨饿",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "否",
+    "index": "2106",
+    "allowed_readings": [
+      "fǒu",
+      "pǐ"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "否认",
+        "previous_word": null,
+        "next_word": "否定"
+      },
+      {
+        "position": 2,
+        "text": "否定",
+        "previous_word": "否认",
+        "next_word": "否决"
+      },
+      {
+        "position": 3,
+        "text": "否决",
+        "previous_word": "否定",
+        "next_word": "可否"
+      },
+      {
+        "position": 4,
+        "text": "可否",
+        "previous_word": "否决",
+        "next_word": "矢口否认"
+      },
+      {
+        "position": 5,
+        "text": "矢口否认",
+        "previous_word": "可否",
+        "next_word": "不置可否"
+      },
+      {
+        "position": 6,
+        "text": "不置可否",
+        "previous_word": "矢口否认",
+        "next_word": "否极泰来"
+      },
+      {
+        "position": 7,
+        "text": "否极泰来",
+        "previous_word": "不置可否",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "咽",
+    "index": "2117",
+    "allowed_readings": [
+      "yàn",
+      "yè",
+      "yān"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "下咽",
+        "previous_word": null,
+        "next_word": "咽气"
+      },
+      {
+        "position": 2,
+        "text": "咽气",
+        "previous_word": "下咽",
+        "next_word": "吞咽"
+      },
+      {
+        "position": 3,
+        "text": "吞咽",
+        "previous_word": "咽气",
+        "next_word": "哽咽"
+      },
+      {
+        "position": 4,
+        "text": "哽咽",
+        "previous_word": "吞咽",
+        "next_word": "呜咽"
+      },
+      {
+        "position": 5,
+        "text": "呜咽",
+        "previous_word": "哽咽",
+        "next_word": "咽喉"
+      },
+      {
+        "position": 6,
+        "text": "咽喉",
+        "previous_word": "呜咽",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "挣",
+    "index": "2197",
+    "allowed_readings": [
+      "zhēng",
+      "zhèng"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "挣扎",
+        "previous_word": null,
+        "next_word": "垂死挣扎"
+      },
+      {
+        "position": 2,
+        "text": "垂死挣扎",
+        "previous_word": "挣扎",
+        "next_word": "挣扎"
+      },
+      {
+        "position": 3,
+        "text": "挣扎",
+        "previous_word": "垂死挣扎",
+        "next_word": "挣钱"
+      },
+      {
+        "position": 4,
+        "text": "挣钱",
+        "previous_word": "挣扎",
+        "next_word": "挣脱"
+      },
+      {
+        "position": 5,
+        "text": "挣脱",
+        "previous_word": "挣钱",
+        "next_word": "挣断"
+      },
+      {
+        "position": 6,
+        "text": "挣断",
+        "previous_word": "挣脱",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "脉",
+    "index": "2212",
+    "allowed_readings": [
+      "mài",
+      "mò"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "脉搏",
+        "previous_word": null,
+        "next_word": "脉络"
+      },
+      {
+        "position": 2,
+        "text": "脉络",
+        "previous_word": "脉搏",
+        "next_word": "人脉"
+      },
+      {
+        "position": 3,
+        "text": "人脉",
+        "previous_word": "脉络",
+        "next_word": "动脉"
+      },
+      {
+        "position": 4,
+        "text": "动脉",
+        "previous_word": "人脉",
+        "next_word": "来龙去脉"
+      },
+      {
+        "position": 5,
+        "text": "来龙去脉",
+        "previous_word": "动脉",
+        "next_word": "一脉相承"
+      },
+      {
+        "position": 6,
+        "text": "一脉相承",
+        "previous_word": "来龙去脉",
+        "next_word": "含情脉脉"
+      },
+      {
+        "position": 7,
+        "text": "含情脉脉",
+        "previous_word": "一脉相承",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "吭",
+    "index": "2273",
+    "allowed_readings": [
+      "kēng",
+      "háng"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "吭哧",
+        "previous_word": null,
+        "next_word": "吭声"
+      },
+      {
+        "position": 2,
+        "text": "吭声",
+        "previous_word": "吭哧",
+        "next_word": "吭气"
+      },
+      {
+        "position": 3,
+        "text": "吭气",
+        "previous_word": "吭声",
+        "next_word": "引吭高歌"
+      },
+      {
+        "position": 4,
+        "text": "引吭高歌",
+        "previous_word": "吭气",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "供",
+    "index": "2278",
+    "allowed_readings": [
+      "gōng",
+      "gòng"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "供给",
+        "previous_word": null,
+        "next_word": "供求"
+      },
+      {
+        "position": 2,
+        "text": "供求",
+        "previous_word": "供给",
+        "next_word": "供销"
+      },
+      {
+        "position": 3,
+        "text": "供销",
+        "previous_word": "供求",
+        "next_word": "供暖"
+      },
+      {
+        "position": 4,
+        "text": "供暖",
+        "previous_word": "供销",
+        "next_word": "供水"
+      },
+      {
+        "position": 5,
+        "text": "供水",
+        "previous_word": "供暖",
+        "next_word": "供货"
+      },
+      {
+        "position": 6,
+        "text": "供货",
+        "previous_word": "供水",
+        "next_word": "供不应求"
+      },
+      {
+        "position": 7,
+        "text": "供不应求",
+        "previous_word": "供货",
+        "next_word": "供词"
+      },
+      {
+        "position": 8,
+        "text": "供词",
+        "previous_word": "供不应求",
+        "next_word": "招供"
+      },
+      {
+        "position": 9,
+        "text": "招供",
+        "previous_word": "供词",
+        "next_word": "逼供"
+      },
+      {
+        "position": 10,
+        "text": "逼供",
+        "previous_word": "招供",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "辟",
+    "index": "2291",
+    "allowed_readings": [
+      "pì",
+      "bì"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "开辟",
+        "previous_word": null,
+        "next_word": "精辟"
+      },
+      {
+        "position": 2,
+        "text": "精辟",
+        "previous_word": "开辟",
+        "next_word": "辟谣"
+      },
+      {
+        "position": 3,
+        "text": "辟谣",
+        "previous_word": "精辟",
+        "next_word": "独辟蹊径"
+      },
+      {
+        "position": 4,
+        "text": "独辟蹊径",
+        "previous_word": "辟谣",
+        "next_word": "复辟"
+      },
+      {
+        "position": 5,
+        "text": "复辟",
+        "previous_word": "独辟蹊径",
+        "next_word": "辟邪"
+      },
+      {
+        "position": 6,
+        "text": "辟邪",
+        "previous_word": "复辟",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "率",
+    "index": "2318",
+    "allowed_readings": [
+      "lǜ",
+      "shuài"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "概率",
+        "previous_word": null,
+        "next_word": "效率"
+      },
+      {
+        "position": 2,
+        "text": "效率",
+        "previous_word": "概率",
+        "next_word": "功率"
+      },
+      {
+        "position": 3,
+        "text": "功率",
+        "previous_word": "效率",
+        "next_word": "汇率"
+      },
+      {
+        "position": 4,
+        "text": "汇率",
+        "previous_word": "功率",
+        "next_word": "机率"
+      },
+      {
+        "position": 5,
+        "text": "机率",
+        "previous_word": "汇率",
+        "next_word": "利率"
+      },
+      {
+        "position": 6,
+        "text": "利率",
+        "previous_word": "机率",
+        "next_word": "频率"
+      },
+      {
+        "position": 7,
+        "text": "频率",
+        "previous_word": "利率",
+        "next_word": "税率"
+      },
+      {
+        "position": 8,
+        "text": "税率",
+        "previous_word": "频率",
+        "next_word": "率先"
+      },
+      {
+        "position": 9,
+        "text": "率先",
+        "previous_word": "税率",
+        "next_word": "率领"
+      },
+      {
+        "position": 10,
+        "text": "率领",
+        "previous_word": "率先",
+        "next_word": "草率"
+      },
+      {
+        "position": 11,
+        "text": "草率",
+        "previous_word": "率领",
+        "next_word": "轻率"
+      },
+      {
+        "position": 12,
+        "text": "轻率",
+        "previous_word": "草率",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "巷",
+    "index": "2431",
+    "allowed_readings": [
+      "xiàng",
+      "hàng"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "巷子",
+        "previous_word": null,
+        "next_word": "小巷"
+      },
+      {
+        "position": 2,
+        "text": "小巷",
+        "previous_word": "巷子",
+        "next_word": "巷战"
+      },
+      {
+        "position": 3,
+        "text": "巷战",
+        "previous_word": "小巷",
+        "next_word": "街头巷尾"
+      },
+      {
+        "position": 4,
+        "text": "街头巷尾",
+        "previous_word": "巷战",
+        "next_word": "大街小巷"
+      },
+      {
+        "position": 5,
+        "text": "大街小巷",
+        "previous_word": "街头巷尾",
+        "next_word": "巷道"
+      },
+      {
+        "position": 6,
+        "text": "巷道",
+        "previous_word": "大街小巷",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "吁",
+    "index": "2450",
+    "allowed_readings": [
+      "xū",
+      "yù"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "长吁短叹",
+        "previous_word": null,
+        "next_word": "气喘吁吁"
+      },
+      {
+        "position": 2,
+        "text": "气喘吁吁",
+        "previous_word": "长吁短叹",
+        "next_word": "呼吁"
+      },
+      {
+        "position": 3,
+        "text": "呼吁",
+        "previous_word": "气喘吁吁",
+        "next_word": "吁请"
+      },
+      {
+        "position": 4,
+        "text": "吁请",
+        "previous_word": "呼吁",
+        "next_word": "吁求"
+      },
+      {
+        "position": 5,
+        "text": "吁求",
+        "previous_word": "吁请",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "铛",
+    "index": "2463",
+    "allowed_readings": [
+      "dāng",
+      "chēng"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "铃铛",
+        "previous_word": null,
+        "next_word": "铛铛"
+      },
+      {
+        "position": 2,
+        "text": "铛铛",
+        "previous_word": "铃铛",
+        "next_word": "饼铛"
+      },
+      {
+        "position": 3,
+        "text": "饼铛",
+        "previous_word": "铛铛",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "畜",
+    "index": "2536",
+    "allowed_readings": [
+      "chù",
+      "xù"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "畜生",
+        "previous_word": null,
+        "next_word": "畜力"
+      },
+      {
+        "position": 2,
+        "text": "畜力",
+        "previous_word": "畜生",
+        "next_word": "牲畜"
+      },
+      {
+        "position": 3,
+        "text": "牲畜",
+        "previous_word": "畜力",
+        "next_word": "畜牧"
+      },
+      {
+        "position": 4,
+        "text": "畜牧",
+        "previous_word": "牲畜",
+        "next_word": "畜产"
+      },
+      {
+        "position": 5,
+        "text": "畜产",
+        "previous_word": "畜牧",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "塞",
+    "index": "2540",
+    "allowed_readings": [
+      "sāi",
+      "sài",
+      "sè"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "瓶塞",
+        "previous_word": null,
+        "next_word": "塞子"
+      },
+      {
+        "position": 2,
+        "text": "塞子",
+        "previous_word": "瓶塞",
+        "next_word": "加塞儿"
+      },
+      {
+        "position": 3,
+        "text": "加塞儿",
+        "previous_word": "塞子",
+        "next_word": "塞外"
+      },
+      {
+        "position": 4,
+        "text": "塞外",
+        "previous_word": "加塞儿",
+        "next_word": "要塞"
+      },
+      {
+        "position": 5,
+        "text": "要塞",
+        "previous_word": "塞外",
+        "next_word": "塞翁失马"
+      },
+      {
+        "position": 6,
+        "text": "塞翁失马",
+        "previous_word": "要塞",
+        "next_word": "堵塞"
+      },
+      {
+        "position": 7,
+        "text": "堵塞",
+        "previous_word": "塞翁失马",
+        "next_word": "阻塞"
+      },
+      {
+        "position": 8,
+        "text": "阻塞",
+        "previous_word": "堵塞",
+        "next_word": "茅塞顿开"
+      },
+      {
+        "position": 9,
+        "text": "茅塞顿开",
+        "previous_word": "阻塞",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "嚼",
+    "index": "2548",
+    "allowed_readings": [
+      "jiáo",
+      "jué"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "嚼舌",
+        "previous_word": null,
+        "next_word": "嚼子"
+      },
+      {
+        "position": 2,
+        "text": "嚼子",
+        "previous_word": "嚼舌",
+        "next_word": "咬文嚼字"
+      },
+      {
+        "position": 3,
+        "text": "咬文嚼字",
+        "previous_word": "嚼子",
+        "next_word": "咀嚼"
+      },
+      {
+        "position": 4,
+        "text": "咀嚼",
+        "previous_word": "咬文嚼字",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "殷",
+    "index": "2711",
+    "allowed_readings": [
+      "yīn",
+      "yān"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "殷实",
+        "previous_word": null,
+        "next_word": "殷勤"
+      },
+      {
+        "position": 2,
+        "text": "殷勤",
+        "previous_word": "殷实",
+        "next_word": "民殷国富"
+      },
+      {
+        "position": 3,
+        "text": "民殷国富",
+        "previous_word": "殷勤",
+        "next_word": "殷红"
+      },
+      {
+        "position": 4,
+        "text": "殷红",
+        "previous_word": "民殷国富",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "混",
+    "index": "2725",
+    "allowed_readings": [
+      "hùn",
+      "hún"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "混合",
+        "previous_word": null,
+        "next_word": "混乱"
+      },
+      {
+        "position": 2,
+        "text": "混乱",
+        "previous_word": "混合",
+        "next_word": "混为一谈"
+      },
+      {
+        "position": 3,
+        "text": "混为一谈",
+        "previous_word": "混乱",
+        "next_word": "混水摸鱼"
+      },
+      {
+        "position": 4,
+        "text": "混水摸鱼",
+        "previous_word": "混为一谈",
+        "next_word": "混蛋"
+      },
+      {
+        "position": 5,
+        "text": "混蛋",
+        "previous_word": "混水摸鱼",
+        "next_word": "混球"
+      },
+      {
+        "position": 6,
+        "text": "混球",
+        "previous_word": "混蛋",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "怔",
+    "index": "2742",
+    "allowed_readings": [
+      "zhēng",
+      "zhèng"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "发怔",
+        "previous_word": null,
+        "next_word": "怔怔"
+      },
+      {
+        "position": 2,
+        "text": "怔怔",
+        "previous_word": "发怔",
+        "next_word": "迷迷怔怔"
+      },
+      {
+        "position": 3,
+        "text": "迷迷怔怔",
+        "previous_word": "怔怔",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "喋",
+    "index": "2743",
+    "allowed_readings": [
+      "dié",
+      "zhá"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "喋血",
+        "previous_word": null,
+        "next_word": "喋喋不休"
+      },
+      {
+        "position": 2,
+        "text": "喋喋不休",
+        "previous_word": "喋血",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "沓",
+    "index": "2749",
+    "allowed_readings": [
+      "dá",
+      "tà"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "一沓",
+        "previous_word": null,
+        "next_word": "拖沓"
+      },
+      {
+        "position": 2,
+        "text": "拖沓",
+        "previous_word": "一沓",
+        "next_word": "纷至沓来"
+      },
+      {
+        "position": 3,
+        "text": "纷至沓来",
+        "previous_word": "拖沓",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "葛",
+    "index": "2758",
+    "allowed_readings": [
+      "gě",
+      "gé"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "葛天",
+        "previous_word": null,
+        "next_word": "葛优"
+      },
+      {
+        "position": 2,
+        "text": "葛优",
+        "previous_word": "葛天",
+        "next_word": "纠葛"
+      },
+      {
+        "position": 3,
+        "text": "纠葛",
+        "previous_word": "葛优",
+        "next_word": "瓜葛"
+      },
+      {
+        "position": 4,
+        "text": "瓜葛",
+        "previous_word": "纠葛",
+        "next_word": "葛藤"
+      },
+      {
+        "position": 5,
+        "text": "葛藤",
+        "previous_word": "瓜葛",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "刹",
+    "index": "2770",
+    "allowed_readings": [
+      "shā",
+      "chà"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "刹车",
+        "previous_word": null,
+        "next_word": "刹住"
+      },
+      {
+        "position": 2,
+        "text": "刹住",
+        "previous_word": "刹车",
+        "next_word": "古刹"
+      },
+      {
+        "position": 3,
+        "text": "古刹",
+        "previous_word": "刹住",
+        "next_word": "刹那"
+      },
+      {
+        "position": 4,
+        "text": "刹那",
+        "previous_word": "古刹",
+        "next_word": "宝刹"
+      },
+      {
+        "position": 5,
+        "text": "宝刹",
+        "previous_word": "刹那",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "勒",
+    "index": "2802",
+    "allowed_readings": [
+      "lè",
+      "lēi"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "勒令",
+        "previous_word": null,
+        "next_word": "勒索"
+      },
+      {
+        "position": 2,
+        "text": "勒索",
+        "previous_word": "勒令",
+        "next_word": "悬崖勒马"
+      },
+      {
+        "position": 3,
+        "text": "悬崖勒马",
+        "previous_word": "勒索",
+        "next_word": "勒紧"
+      },
+      {
+        "position": 4,
+        "text": "勒紧",
+        "previous_word": "悬崖勒马",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "剥",
+    "index": "2831",
+    "allowed_readings": [
+      "bō",
+      "bāo"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "剥夺",
+        "previous_word": null,
+        "next_word": "剥削"
+      },
+      {
+        "position": 2,
+        "text": "剥削",
+        "previous_word": "剥夺",
+        "next_word": "盘剥"
+      },
+      {
+        "position": 3,
+        "text": "盘剥",
+        "previous_word": "剥削",
+        "next_word": "生吞活剥"
+      },
+      {
+        "position": 4,
+        "text": "生吞活剥",
+        "previous_word": "盘剥",
+        "next_word": "剥花生"
+      },
+      {
+        "position": 5,
+        "text": "剥花生",
+        "previous_word": "生吞活剥",
+        "next_word": "抽丝剥茧"
+      },
+      {
+        "position": 6,
+        "text": "抽丝剥茧",
+        "previous_word": "剥花生",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "澄",
+    "index": "2844",
+    "allowed_readings": [
+      "chéng",
+      "dèng"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "澄清",
+        "previous_word": null,
+        "next_word": "澄沙"
+      },
+      {
+        "position": 2,
+        "text": "澄沙",
+        "previous_word": "澄清",
+        "next_word": "澄泥浆"
+      },
+      {
+        "position": 3,
+        "text": "澄泥浆",
+        "previous_word": "澄沙",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "熬",
+    "index": "2873",
+    "allowed_readings": [
+      "áo",
+      "āo"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "熬粥",
+        "previous_word": null,
+        "next_word": "煎熬"
+      },
+      {
+        "position": 2,
+        "text": "煎熬",
+        "previous_word": "熬粥",
+        "next_word": "熬夜"
+      },
+      {
+        "position": 3,
+        "text": "熬夜",
+        "previous_word": "煎熬",
+        "next_word": "熬药"
+      },
+      {
+        "position": 4,
+        "text": "熬药",
+        "previous_word": "熬夜",
+        "next_word": "熬出头"
+      },
+      {
+        "position": 5,
+        "text": "熬出头",
+        "previous_word": "熬药",
+        "next_word": "熬心"
+      },
+      {
+        "position": 6,
+        "text": "熬心",
+        "previous_word": "熬出头",
+        "next_word": "熬菜"
+      },
+      {
+        "position": 7,
+        "text": "熬菜",
+        "previous_word": "熬心",
+        "next_word": null
+      }
+    ]
+  },
+  {
+    "character": "莞",
+    "index": "2970",
+    "allowed_readings": [
+      "wǎn",
+      "guǎn"
+    ],
+    "words": [
+      {
+        "position": 1,
+        "text": "莞尔",
+        "previous_word": null,
+        "next_word": "莞尔一笑"
+      },
+      {
+        "position": 2,
+        "text": "莞尔一笑",
+        "previous_word": "莞尔",
+        "next_word": "东莞"
+      },
+      {
+        "position": 3,
+        "text": "东莞",
+        "previous_word": "莞尔一笑",
+        "next_word": null
+      }
+    ]
+  }
+]

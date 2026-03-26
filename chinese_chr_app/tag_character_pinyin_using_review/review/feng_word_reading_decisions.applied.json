@@ -1,0 +1,8977 @@
+{
+  "character_count": 163,
+  "total_words": 1218,
+  "decided_words": 1218,
+  "undecided_words": 0,
+  "characters": [
+    {
+      "character": "了",
+      "allowed_readings": [
+        "le",
+        "liǎo"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "为了",
+          "reading": "le",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "走了",
+          "reading": "le",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "完了",
+          "reading": "le",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "罢了",
+          "reading": "le",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "了断",
+          "reading": "liǎo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "了结",
+          "reading": "liǎo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "了得",
+          "reading": "liǎo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "明了",
+          "reading": "liǎo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "了不起",
+          "reading": "liǎo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "了如指掌",
+          "reading": "liǎo",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "乐",
+      "allowed_readings": [
+        "lè",
+        "yuè"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "乐观",
+          "reading": "lè",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "快乐",
+          "reading": "lè",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "欢乐",
+          "reading": "lè",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "乐园",
+          "reading": "lè",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "安居乐业",
+          "reading": "lè",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "乐于助人",
+          "reading": "lè",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "乐队",
+          "reading": "yuè",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "音乐",
+          "reading": "yuè",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "乐曲",
+          "reading": "yuè",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "乐谱",
+          "reading": "yuè",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "的",
+      "allowed_readings": [
+        "de",
+        "dí",
+        "dì"
+      ],
+      "extra_readings": [
+        "dī"
+      ],
+      "results": [
+        {
+          "text": "的确",
+          "reading": "dí",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "好的",
+          "reading": "de",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "是的",
+          "reading": "de",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "真的",
+          "reading": "de",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "众矢之的",
+          "reading": "dì",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "一言中的",
+          "reading": "dì",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "的士",
+          "reading": "dī",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "摩的",
+          "reading": "dī",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "和",
+      "allowed_readings": [
+        "hé",
+        "huó",
+        "hú",
+        "hè"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "和平",
+          "reading": "hé",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "和谐",
+          "reading": "hé",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "和解",
+          "reading": "hé",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "和气",
+          "reading": "hé",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "和面",
+          "reading": "huó",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "和泥",
+          "reading": "huó",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "暖和",
+          "reading": "huó",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "和了",
+          "reading": "hú",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "和牌",
+          "reading": "hú",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "一唱一和",
+          "reading": "hè",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "好",
+      "allowed_readings": [
+        "hǎo",
+        "hào"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "好事",
+          "reading": "hǎo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "好处",
+          "reading": "hǎo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "好人",
+          "reading": "hǎo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "好多",
+          "reading": "hǎo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "好像",
+          "reading": "hǎo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "好香",
+          "reading": "hǎo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "好玩",
+          "reading": "hǎo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "好吃",
+          "reading": "hǎo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "好事成双",
+          "reading": "hǎo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "花好月圆",
+          "reading": "hǎo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "爱好",
+          "reading": "hào",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "游手好闲",
+          "reading": "hào",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "校",
+      "allowed_readings": [
+        "xiào",
+        "jiào"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "学校",
+          "reading": "xiào",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "校友",
+          "reading": "xiào",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "校长",
+          "reading": "xiào",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "校园",
+          "reading": "xiào",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "校庆",
+          "reading": "xiào",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "校规",
+          "reading": "xiào",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "校场",
+          "reading": "jiào",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "校刊",
+          "reading": "xiào",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "摸金校尉",
+          "reading": "xiào",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "校正",
+          "reading": "jiào",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "校场",
+          "reading": "jiào",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "片",
+      "allowed_readings": [
+        "piàn",
+        "piān"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "卡片",
+          "reading": "piàn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "名片",
+          "reading": "piàn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "瓦片",
+          "reading": "piàn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "片面",
+          "reading": "piàn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "片刻",
+          "reading": "piàn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "切片",
+          "reading": "piàn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "片头",
+          "reading": "piàn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "只言片语",
+          "reading": "piàn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "冰心一片",
+          "reading": "piàn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "老照片",
+          "reading": "piān",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "戏剧片",
+          "reading": "piān",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "发",
+      "allowed_readings": [
+        "fā",
+        "fà"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "发烧",
+          "reading": "fā",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "发声",
+          "reading": "fā",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "发展",
+          "reading": "fā",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "发扬",
+          "reading": "fā",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "发生",
+          "reading": "fā",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "发现",
+          "reading": "fā",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "发觉",
+          "reading": "fā",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "令人发指",
+          "reading": "fà",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "白发苍苍",
+          "reading": "fà",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "还",
+      "allowed_readings": [
+        "hái",
+        "huán"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "还好",
+          "reading": "hái",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "还差",
+          "reading": "hái",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "还有",
+          "reading": "hái",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "还看",
+          "reading": "hái",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "还原",
+          "reading": "huán",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "归还",
+          "reading": "huán",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "偿还",
+          "reading": "huán",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "还手",
+          "reading": "huán",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "讨价还价",
+          "reading": "huán",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "返老还童",
+          "reading": "huán",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "中",
+      "allowed_readings": [
+        "zhōng",
+        "zhòng"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "中心",
+          "reading": "zhōng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "中文",
+          "reading": "zhōng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "中原",
+          "reading": "zhōng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "中式",
+          "reading": "zhōng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "中等",
+          "reading": "zhōng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "中华",
+          "reading": "zhōng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "中看",
+          "reading": "zhōng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "暗中",
+          "reading": "zhōng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "相中",
+          "reading": "zhòng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "中意",
+          "reading": "zhòng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "一语中的",
+          "reading": "zhòng",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "漂",
+      "allowed_readings": [
+        "piāo",
+        "piào"
+      ],
+      "extra_readings": [
+        "piǎo"
+      ],
+      "results": [
+        {
+          "text": "漂流",
+          "reading": "piāo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "漂泊",
+          "reading": "piāo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "漂浮",
+          "reading": "piāo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "漂移",
+          "reading": "piāo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "漂白",
+          "reading": "piǎo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "漂洗",
+          "reading": "piǎo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "漂荡",
+          "reading": "piǎo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "漂亮",
+          "reading": "piào",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "要",
+      "allowed_readings": [
+        "yāo",
+        "yào"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "要求",
+          "reading": "yāo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "要挟",
+          "reading": "yāo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "将要",
+          "reading": "yào",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "要领",
+          "reading": "yào",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "要点",
+          "reading": "yào",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "要饭",
+          "reading": "yào",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "要强",
+          "reading": "yào",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "要害",
+          "reading": "yào",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "只",
+      "allowed_readings": [
+        "zhī",
+        "zhǐ"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "一只",
+          "reading": "zhī",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "只身前往",
+          "reading": "zhī",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "只言片语",
+          "reading": "zhī",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "只要",
+          "reading": "zhǐ",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "只有",
+          "reading": "zhǐ",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "只是",
+          "reading": "zhǐ",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "只好",
+          "reading": "zhǐ",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "只怕",
+          "reading": "zhǐ",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "只能",
+          "reading": "zhǐ",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "只得",
+          "reading": "zhǐ",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "只顾",
+          "reading": "zhǐ",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "看",
+      "allowed_readings": [
+        "kàn",
+        "kān"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "看见",
+          "reading": "kàn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "看书",
+          "reading": "kàn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "看病",
+          "reading": "kàn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "看待",
+          "reading": "kàn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "看齐",
+          "reading": "kàn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "看望",
+          "reading": "kàn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "观看",
+          "reading": "kàn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "看法",
+          "reading": "kàn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "刮目相看",
+          "reading": "kàn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "看破红尘",
+          "reading": "kàn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "看守",
+          "reading": "kān",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "看管",
+          "reading": "kān",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "看护",
+          "reading": "kān",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "更",
+      "allowed_readings": [
+        "gèng",
+        "gēng"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "更好",
+          "reading": "gèng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "更加",
+          "reading": "gèng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "更进一步",
+          "reading": "gèng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "更改",
+          "reading": "gēng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "更正",
+          "reading": "gēng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "更新",
+          "reading": "gēng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "更换",
+          "reading": "gēng",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "长",
+      "allowed_readings": [
+        "cháng",
+        "zhǎng"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "长城",
+          "reading": "cháng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "长短",
+          "reading": "cháng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "长跑",
+          "reading": "cháng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "专长",
+          "reading": "cháng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "长度",
+          "reading": "cháng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "长寿",
+          "reading": "cháng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "长廊",
+          "reading": "cháng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "长期",
+          "reading": "cháng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "长大",
+          "reading": "zhǎng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "长辈",
+          "reading": "zhǎng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "长高",
+          "reading": "zhǎng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "长官",
+          "reading": "zhǎng",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "着",
+      "allowed_readings": [
+        "zhāo",
+        "zháo",
+        "zhe",
+        "zhuó"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "一着失误",
+          "reading": "zhāo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "着火",
+          "reading": "zháo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "着急",
+          "reading": "zháo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "着凉",
+          "reading": "zháo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "灯亮着",
+          "reading": "zhe",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "走着",
+          "reading": "zhe",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "着装",
+          "reading": "zhuó",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "着陆",
+          "reading": "zhuó",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "沉着指挥",
+          "reading": "zhuó",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "把",
+      "allowed_readings": [
+        "bǎ",
+        "bà"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "把手",
+          "reading": "bǎ",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "把握",
+          "reading": "bǎ",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "把持",
+          "reading": "bǎ",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "把戏",
+          "reading": "bǎ",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "把柄",
+          "reading": "bǎ",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "把控",
+          "reading": "bǎ",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "把脉",
+          "reading": "bǎ",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "火把",
+          "reading": "bǎ",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "把子",
+          "reading": "bà",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "手把",
+          "reading": "bà",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "枪把子",
+          "reading": "bà",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "扁",
+      "allowed_readings": [
+        "biān",
+        "piān"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "扁豆",
+          "reading": "biān",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "扁担",
+          "reading": "biān",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "扁圆",
+          "reading": "biān",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "扁鹊",
+          "reading": "biān",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "一叶扁舟",
+          "reading": "piān",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "作",
+      "allowed_readings": [
+        "zuò",
+        "zuō"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "作业",
+          "reading": "zuò",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "作用",
+          "reading": "zuò",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "作息",
+          "reading": "zuò",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "作乱",
+          "reading": "zuò",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "作案",
+          "reading": "zuò",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "作为",
+          "reading": "zuò",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "作家",
+          "reading": "zuò",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "大有作为",
+          "reading": "zuò",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "逢场作戏",
+          "reading": "zuò",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "作坊",
+          "reading": "zuō",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "角",
+      "allowed_readings": [
+        "jiǎo",
+        "jué"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "角落",
+          "reading": "jiǎo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "牛角",
+          "reading": "jiǎo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "鹿角",
+          "reading": "jiǎo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "特角",
+          "reading": "jiǎo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "角质",
+          "reading": "jiǎo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "号角",
+          "reading": "jiǎo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "角度",
+          "reading": "jiǎo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "勾心斗角",
+          "reading": "jiǎo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "拐弯抹角",
+          "reading": "jiǎo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "角逐",
+          "reading": "jué",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "口角",
+          "reading": "jué",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "卜",
+      "allowed_readings": [
+        "bō",
+        "bǔ"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "萝卜",
+          "reading": "bō",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "占卜",
+          "reading": "bǔ",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "未卜先知",
+          "reading": "bǔ",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "生死未卜",
+          "reading": "bǔ",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "藏",
+      "allowed_readings": [
+        "cáng",
+        "zàng"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "躲藏",
+          "reading": "cáng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "隐藏",
+          "reading": "cáng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "收藏",
+          "reading": "cáng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "埋藏",
+          "reading": "cáng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "藏身",
+          "reading": "cáng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "掩藏",
+          "reading": "cáng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "暗藏杀机",
+          "reading": "cáng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "宝藏",
+          "reading": "zàng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "西藏",
+          "reading": "zàng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "藏族",
+          "reading": "zàng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "藏青",
+          "reading": "zàng",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "数",
+      "allowed_readings": [
+        "shǔ",
+        "shù",
+        "shuò"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "数落",
+          "reading": "shǔ",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "数数",
+          "reading": "shǔ",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "数一数二",
+          "reading": "shǔ",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "数学",
+          "reading": "shù",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "数字",
+          "reading": "shù",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "数据",
+          "reading": "shù",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "数量",
+          "reading": "shù",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "滥竽充数",
+          "reading": "shù",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "浑身解数",
+          "reading": "shù",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "频数",
+          "reading": "shuò",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "数次",
+          "reading": "shuò",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "空",
+      "allowed_readings": [
+        "kōng",
+        "kòng"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "空气",
+          "reading": "kōng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "空间",
+          "reading": "kōng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "空姐",
+          "reading": "kōng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "空灵",
+          "reading": "kōng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "空调",
+          "reading": "kōng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "空旷",
+          "reading": "kōng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "空位",
+          "reading": "kōng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "空手",
+          "reading": "kōng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "赤手空拳",
+          "reading": "kōng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "空空如也",
+          "reading": "kōng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "没空",
+          "reading": "kòng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "空地",
+          "reading": "kòng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "空缺",
+          "reading": "kòng",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "间",
+      "allowed_readings": [
+        "jiān",
+        "jiàn"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "中间",
+          "reading": "jiān",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "人间",
+          "reading": "jiān",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "间距",
+          "reading": "jiān",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "瞬间",
+          "reading": "jiān",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "间隔",
+          "reading": "jiàn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "离间",
+          "reading": "jiàn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "间谍",
+          "reading": "jiàn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "间接",
+          "reading": "jiàn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "黑白相间",
+          "reading": "jiàn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "亲密无间",
+          "reading": "jiàn",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "都",
+      "allowed_readings": [
+        "dōu",
+        "dū"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "都要",
+          "reading": "dōu",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "都是",
+          "reading": "dōu",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "都会",
+          "reading": "dū",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "首都",
+          "reading": "dū",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "京都",
+          "reading": "dū",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "建都",
+          "reading": "dū",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "都市",
+          "reading": "dū",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "都尉",
+          "reading": "dū",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "都督",
+          "reading": "dū",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "都江堰",
+          "reading": "dū",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "呢",
+      "allowed_readings": [
+        "ne",
+        "ní"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "干嘛呢",
+          "reading": "ne",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "干什么呢",
+          "reading": "ne",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "呢喃",
+          "reading": "ní",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "毛呢",
+          "reading": "ní",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "啊",
+      "allowed_readings": [
+        "ā",
+        "á",
+        "ǎ",
+        "à"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "啊呀",
+          "reading": "ā",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "啊哟",
+          "reading": "ā",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "啊，你说什么？",
+          "reading": "á",
+          "notes": "",
+          "source": "manual_word"
+        },
+        {
+          "text": "啊，这事怎么了？",
+          "reading": "ǎ",
+          "notes": "",
+          "source": "manual_word"
+        },
+        {
+          "text": "啊，亲爱的祖国！",
+          "reading": "à",
+          "notes": "",
+          "source": "manual_word"
+        }
+      ]
+    },
+    {
+      "character": "没",
+      "allowed_readings": [
+        "méi",
+        "mò"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "没事",
+          "reading": "méi",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "没用",
+          "reading": "méi",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "没劲",
+          "reading": "méi",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "没有",
+          "reading": "méi",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "没钱",
+          "reading": "méi",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "沉没",
+          "reading": "mò",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "没落",
+          "reading": "mò",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "没收",
+          "reading": "mò",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "埋没",
+          "reading": "mò",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "没齿难忘",
+          "reading": "mò",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "神出鬼没",
+          "reading": "mò",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "吧",
+      "allowed_readings": [
+        "ba",
+        "bā"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "好吧",
+          "reading": "ba",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "酒吧",
+          "reading": "bā",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "吧台",
+          "reading": "bā",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "吗",
+      "allowed_readings": [
+        "ma",
+        "mǎ"
+      ],
+      "extra_readings": [
+        "má"
+      ],
+      "results": [
+        {
+          "text": "好吗",
+          "reading": "ma",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "干吗",
+          "reading": "má",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "吗啡",
+          "reading": "mǎ",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "会",
+      "allowed_readings": [
+        "huì",
+        "kuài"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "会议",
+          "reading": "huì",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "开会",
+          "reading": "huì",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "会见",
+          "reading": "huì",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "会场",
+          "reading": "huì",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "会员",
+          "reading": "huì",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "会面",
+          "reading": "huì",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "会心",
+          "reading": "huì",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "体会",
+          "reading": "huì",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "聚精会神",
+          "reading": "huì",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "后会有期",
+          "reading": "huì",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "会计师",
+          "reading": "kuài",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "燕",
+      "allowed_readings": [
+        "yàn",
+        "yān"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "燕雀",
+          "reading": "yàn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "燕子",
+          "reading": "yàn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "燕窝",
+          "reading": "yàn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "燕麦",
+          "reading": "yàn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "新婚燕尔",
+          "reading": "yàn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "劳燕分飞",
+          "reading": "yàn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "燕石",
+          "reading": "yān",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "什",
+      "allowed_readings": [
+        "shén",
+        "shí"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "什么",
+          "reading": "shén",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "什锦",
+          "reading": "shí",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "得",
+      "allowed_readings": [
+        "dé",
+        "de",
+        "děi"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "得到",
+          "reading": "dé",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "得分",
+          "reading": "dé",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "得病",
+          "reading": "dé",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "得宠",
+          "reading": "dé",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "得不偿失",
+          "reading": "dé",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "措辞得当",
+          "reading": "dé",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "舍得",
+          "reading": "de",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "觉得",
+          "reading": "de",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "懂得",
+          "reading": "de",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "必得",
+          "reading": "děi",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "可",
+      "allowed_readings": [
+        "kě",
+        "kè"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "可以",
+          "reading": "kě",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "可能",
+          "reading": "kě",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "可是",
+          "reading": "kě",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "可怜",
+          "reading": "kě",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "可口",
+          "reading": "kě",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "许可",
+          "reading": "kě",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "可悲",
+          "reading": "kě",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "宁可",
+          "reading": "kě",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "可歌可泣",
+          "reading": "kě",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "不可思议",
+          "reading": "kě",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "可汗",
+          "reading": "kè",
+          "notes": "",
+          "source": "manual_word"
+        }
+      ]
+    },
+    {
+      "character": "仔",
+      "allowed_readings": [
+        "zǐ",
+        "zǎi",
+        "zī"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "仔细",
+          "reading": "zǐ",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "牛仔",
+          "reading": "zǎi",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "马仔",
+          "reading": "zǎi",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "亲仔",
+          "reading": "zǎi",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "仔肩",
+          "reading": "zī",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "兴",
+      "allowed_readings": [
+        "xīng",
+        "xìng"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "兴奋",
+          "reading": "xīng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "兴建",
+          "reading": "xīng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "兴旺",
+          "reading": "xīng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "复兴",
+          "reading": "xīng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "百废待兴",
+          "reading": "xīng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "方兴未艾",
+          "reading": "xīng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "兴致",
+          "reading": "xìng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "即兴",
+          "reading": "xìng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "尽兴",
+          "reading": "xìng",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "种",
+      "allowed_readings": [
+        "zhǒng",
+        "zhòng"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "种类",
+          "reading": "zhǒng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "种子",
+          "reading": "zhǒng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "种族",
+          "reading": "zhǒng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "物种",
+          "reading": "zhǒng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "种地",
+          "reading": "zhòng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "种植",
+          "reading": "zhòng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "种田",
+          "reading": "zhòng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "种树",
+          "reading": "zhòng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "东门种瓜",
+          "reading": "zhòng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "蓝田种玉",
+          "reading": "zhòng",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "几",
+      "allowed_readings": [
+        "jī",
+        "jǐ"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "几乎",
+          "reading": "jī",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "茶几",
+          "reading": "jī",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "窗明几净",
+          "reading": "jī",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "几个",
+          "reading": "jǐ",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "几何",
+          "reading": "jǐ",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "几种",
+          "reading": "jǐ",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "寥寥无几",
+          "reading": "jǐ",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "所剩无几",
+          "reading": "jǐ",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "为",
+      "allowed_readings": [
+        "wéi",
+        "wèi"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "为生",
+          "reading": "wéi",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "为患",
+          "reading": "wéi",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "为难",
+          "reading": "wéi",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "为人",
+          "reading": "wéi",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "为非作歹",
+          "reading": "wéi",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "为时过早",
+          "reading": "wéi",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "为富不仁",
+          "reading": "wéi",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "合二为一",
+          "reading": "wéi",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "因为",
+          "reading": "wèi",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "为何",
+          "reading": "wèi",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "参",
+      "allowed_readings": [
+        "cān",
+        "cēn",
+        "shēn"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "参照",
+          "reading": "cān",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "参加",
+          "reading": "cān",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "参与",
+          "reading": "cān",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "参观",
+          "reading": "cān",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "参差不齐",
+          "reading": "cēn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "人参",
+          "reading": "shēn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "党参",
+          "reading": "shēn",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "正",
+      "allowed_readings": [
+        "zhèng",
+        "zhēng"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "正确",
+          "reading": "zhèng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "正常",
+          "reading": "zhèng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "正义",
+          "reading": "zhèng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "正规",
+          "reading": "zhèng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "正气",
+          "reading": "zhèng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "正好",
+          "reading": "zhèng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "正式",
+          "reading": "zhèng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "改邪归正",
+          "reading": "zhèng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "不务正业",
+          "reading": "zhèng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "正月",
+          "reading": "zhēng",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "觉",
+      "allowed_readings": [
+        "jiào",
+        "jué"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "睡觉",
+          "reading": "jiào",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "觉得",
+          "reading": "jué",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "感觉",
+          "reading": "jué",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "直觉",
+          "reading": "jué",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "知觉",
+          "reading": "jué",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "觉察",
+          "reading": "jué",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "触觉",
+          "reading": "jué",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "视觉",
+          "reading": "jué",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "嗅觉",
+          "reading": "jué",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "舍",
+      "allowed_readings": [
+        "shě",
+        "shè"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "舍得",
+          "reading": "shě",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "不舍",
+          "reading": "shě",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "舍己",
+          "reading": "shě",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "施舍",
+          "reading": "shě",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "舍己为人",
+          "reading": "shě",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "舍近求远",
+          "reading": "shě",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "农舍",
+          "reading": "shè",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "屋舍",
+          "reading": "shè",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "退避三舍",
+          "reading": "shè",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "结",
+      "allowed_readings": [
+        "jié",
+        "jiē"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "结果",
+          "reading": "jiē",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "结尾",
+          "reading": "jié",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "结构",
+          "reading": "jié",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "结论",
+          "reading": "jié",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "结冰",
+          "reading": "jié",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "结束",
+          "reading": "jié",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "团结",
+          "reading": "jié",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "结识",
+          "reading": "jié",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "归根结底",
+          "reading": "jié",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "张灯结彩",
+          "reading": "jié",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "结实",
+          "reading": "jiē",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "结果",
+          "reading": "jiē",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "结结巴巴",
+          "reading": "jiē",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "行",
+      "allowed_readings": [
+        "xíng",
+        "háng"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "行动",
+          "reading": "xíng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "行走",
+          "reading": "xíng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "进行",
+          "reading": "xíng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "步行",
+          "reading": "xíng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "爬行",
+          "reading": "xíng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "品行",
+          "reading": "xíng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "横行",
+          "reading": "xíng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "飞行",
+          "reading": "xíng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "行尸走肉",
+          "reading": "xíng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "行坐不安",
+          "reading": "xíng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "行列",
+          "reading": "háng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "行业",
+          "reading": "háng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "银行",
+          "reading": "háng",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "处",
+      "allowed_readings": [
+        "chǔ",
+        "chù"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "相处",
+          "reading": "chǔ",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "处理",
+          "reading": "chǔ",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "处置",
+          "reading": "chǔ",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "处罚",
+          "reading": "chǔ",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "处分",
+          "reading": "chǔ",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "处境",
+          "reading": "chǔ",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "处于",
+          "reading": "chǔ",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "处心积虑",
+          "reading": "chǔ",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "设身处地",
+          "reading": "chǔ",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "到处",
+          "reading": "chù",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "处方",
+          "reading": "chù",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "不足之处",
+          "reading": "chù",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "散",
+      "allowed_readings": [
+        "sǎn",
+        "sàn"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "零散",
+          "reading": "sǎn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "散剂",
+          "reading": "sǎn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "散文",
+          "reading": "sǎn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "拆散",
+          "reading": "sǎn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "一盘散沙",
+          "reading": "sǎn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "散开",
+          "reading": "sàn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "驱散",
+          "reading": "sàn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "扩散",
+          "reading": "sàn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "失散",
+          "reading": "sàn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "披头散发",
+          "reading": "sàn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "云消雾散",
+          "reading": "sàn",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "教",
+      "allowed_readings": [
+        "jiào",
+        "jiāo"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "教师",
+          "reading": "jiào",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "教导",
+          "reading": "jiào",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "请教",
+          "reading": "jiào",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "教育",
+          "reading": "jiào",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "管教",
+          "reading": "jiào",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "教练",
+          "reading": "jiào",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "教材",
+          "reading": "jiào",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "教堂",
+          "reading": "jiào",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "因材施教",
+          "reading": "jiào",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "不吝赐教",
+          "reading": "jiào",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "教书",
+          "reading": "jiāo",
+          "notes": "",
+          "source": "manual_word"
+        }
+      ]
+    },
+    {
+      "character": "背",
+      "allowed_readings": [
+        "bēi",
+        "bèi"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "背带",
+          "reading": "bēi",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "背负",
+          "reading": "bēi",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "背包",
+          "reading": "bēi",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "背诵",
+          "reading": "bèi",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "背叛",
+          "reading": "bèi",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "背影",
+          "reading": "bèi",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "背景",
+          "reading": "bèi",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "背水一战",
+          "reading": "bèi",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "背道而驰",
+          "reading": "bèi",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "累",
+      "allowed_readings": [
+        "lěi",
+        "léi",
+        "lèi"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "积累",
+          "reading": "lěi",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "累计",
+          "reading": "lěi",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "日积月累",
+          "reading": "lěi",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "累赘",
+          "reading": "léi",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "果实累累",
+          "reading": "léi",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "劳累",
+          "reading": "lèi",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "受累",
+          "reading": "lèi",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "累死累活",
+          "reading": "lèi",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "朝",
+      "allowed_readings": [
+        "cháo",
+        "zhāo"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "朝代",
+          "reading": "cháo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "朝廷",
+          "reading": "cháo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "朝拜",
+          "reading": "cháo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "朝见",
+          "reading": "cháo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "朝贡",
+          "reading": "cháo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "朝鲜",
+          "reading": "cháo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "朝向",
+          "reading": "cháo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "朝服",
+          "reading": "cháo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "朝气",
+          "reading": "zhāo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "今朝",
+          "reading": "zhāo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "朝霞",
+          "reading": "zhāo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "朝阳",
+          "reading": "zhāo",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "佛",
+      "allowed_readings": [
+        "fó",
+        "fú"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "佛像",
+          "reading": "fó",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "佛教",
+          "reading": "fó",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "佛经",
+          "reading": "fó",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "佛珠",
+          "reading": "fó",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "借花献佛",
+          "reading": "fó",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "青灯古佛",
+          "reading": "fó",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "仿佛",
+          "reading": "fú",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "干",
+      "allowed_readings": [
+        "gān",
+        "gàn"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "干旱",
+          "reading": "gān",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "干燥",
+          "reading": "gān",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "干扰",
+          "reading": "gān",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "干粮",
+          "reading": "gān",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "干部",
+          "reading": "gàn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "干活",
+          "reading": "gàn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "干练",
+          "reading": "gàn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "精明强干",
+          "reading": "gàn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "埋头苦干",
+          "reading": "gàn",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "观",
+      "allowed_readings": [
+        "guān",
+        "guàn"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "观看",
+          "reading": "guān",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "观点",
+          "reading": "guān",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "参观",
+          "reading": "guān",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "观察",
+          "reading": "guān",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "外观",
+          "reading": "guān",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "围观",
+          "reading": "guān",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "观念",
+          "reading": "guān",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "坐井观天",
+          "reading": "guān",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "雄伟壮观",
+          "reading": "guān",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "道观",
+          "reading": "guàn",
+          "notes": "",
+          "source": "manual_word"
+        }
+      ]
+    },
+    {
+      "character": "蚂",
+      "allowed_readings": [
+        "mǎ",
+        "mà"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "蚂蚁",
+          "reading": "mǎ",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "蚂蚱",
+          "reading": "mà",
+          "notes": "",
+          "source": "manual_word"
+        }
+      ]
+    },
+    {
+      "character": "露",
+      "allowed_readings": [
+        "lù",
+        "lòu"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "揭露",
+          "reading": "lù",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "甘露",
+          "reading": "lù",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "露水",
+          "reading": "lù",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "露天",
+          "reading": "lù",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "风餐露宿",
+          "reading": "lù",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "锋芒毕露",
+          "reading": "lù",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "露馅儿",
+          "reading": "lòu",
+          "notes": "",
+          "source": "manual_word"
+        }
+      ]
+    },
+    {
+      "character": "荷",
+      "allowed_readings": [
+        "hé",
+        "hè"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "荷包",
+          "reading": "hé",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "荷花",
+          "reading": "hé",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "荷兰",
+          "reading": "hé",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "荷载",
+          "reading": "hè",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "荷枪实弹",
+          "reading": "hè",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "闷",
+      "allowed_readings": [
+        "mēn",
+        "mèn"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "闷热",
+          "reading": "mēn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "闷声不响",
+          "reading": "mēn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "郁闷",
+          "reading": "mèn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "愁闷",
+          "reading": "mèn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "沉闷",
+          "reading": "mèn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "闷闷不乐",
+          "reading": "mèn",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "哗",
+      "allowed_readings": [
+        "huá",
+        "huā"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "喧哗",
+          "reading": "huá",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "哗然",
+          "reading": "huá",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "哗变",
+          "reading": "huá",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "哗众取宠",
+          "reading": "huá",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "哗啦",
+          "reading": "huā",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "难",
+      "allowed_readings": [
+        "nán",
+        "nàn"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "难忘",
+          "reading": "nán",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "难道",
+          "reading": "nán",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "难听",
+          "reading": "nán",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "难题",
+          "reading": "nán",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "左右为难",
+          "reading": "nán",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "本性难移",
+          "reading": "nán",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "难民",
+          "reading": "nàn",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "量",
+      "allowed_readings": [
+        "liáng",
+        "liàng"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "质量",
+          "reading": "liàng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "气量",
+          "reading": "liàng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "胆量",
+          "reading": "liàng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "酒量",
+          "reading": "liàng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "量力而行",
+          "reading": "liàng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "量体裁衣",
+          "reading": "liàng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "量体温",
+          "reading": "liáng",
+          "notes": "",
+          "source": "manual_word"
+        }
+      ]
+    },
+    {
+      "character": "重",
+      "allowed_readings": [
+        "zhòng",
+        "chóng"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "尊重",
+          "reading": "zhòng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "重视",
+          "reading": "zhòng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "重要",
+          "reading": "zhòng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "重大",
+          "reading": "zhòng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "重心",
+          "reading": "zhòng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "重点",
+          "reading": "zhòng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "自重",
+          "reading": "zhòng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "举重",
+          "reading": "zhòng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "重新",
+          "reading": "chóng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "重逢",
+          "reading": "chóng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "重叠",
+          "reading": "chóng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "重庆",
+          "reading": "chóng",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "熟",
+      "allowed_readings": [
+        "shóu",
+        "shú"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "成熟",
+          "reading": "shóu",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "熟练",
+          "reading": "shóu",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "熟记",
+          "reading": "shóu",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "熟人",
+          "reading": "shóu",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "熟悉",
+          "reading": "shóu",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "熟睡",
+          "reading": "shóu",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "熟路",
+          "reading": "shóu",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "耳熟能详",
+          "reading": "shú",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "深思熟虑",
+          "reading": "shú",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "喝",
+      "allowed_readings": [
+        "hē",
+        "hè"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "喝水",
+          "reading": "hē",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "喝汤",
+          "reading": "hē",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "喝酒",
+          "reading": "hē",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "喝茶",
+          "reading": "hē",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "吃喝玩乐",
+          "reading": "hē",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "大吃大喝",
+          "reading": "hē",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "喝彩",
+          "reading": "hè",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "称",
+      "allowed_readings": [
+        "chēng",
+        "chèn"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "称赞",
+          "reading": "chēng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "称病",
+          "reading": "chēng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "称谓",
+          "reading": "chēng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "称呼",
+          "reading": "chēng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "称号",
+          "reading": "chēng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "称量",
+          "reading": "chēng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "称兄道弟",
+          "reading": "chēng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "称心如意",
+          "reading": "chèn",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "倒",
+      "allowed_readings": [
+        "dǎo",
+        "dào"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "卧倒",
+          "reading": "dǎo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "倒塌",
+          "reading": "dǎo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "倒台",
+          "reading": "dǎo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "打倒",
+          "reading": "dǎo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "倒戈",
+          "reading": "dǎo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "倒闭",
+          "reading": "dǎo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "倒霉",
+          "reading": "dǎo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "倒卖",
+          "reading": "dào",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "倒背如流",
+          "reading": "dào",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "倒打一耙",
+          "reading": "dào",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "解",
+      "allowed_readings": [
+        "jiě",
+        "xiè"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "解开",
+          "reading": "jiě",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "分解",
+          "reading": "jiě",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "解释",
+          "reading": "jiě",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "解剖",
+          "reading": "jiě",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "土崩瓦解",
+          "reading": "jiě",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "不求甚解",
+          "reading": "jiě",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "浑身解数",
+          "reading": "xiè",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "壳",
+      "allowed_readings": [
+        "ké",
+        "qiào"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "贝壳",
+          "reading": "ké",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "外壳",
+          "reading": "ké",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "蛋壳",
+          "reading": "ké",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "地壳",
+          "reading": "ké",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "金蝉脱壳",
+          "reading": "qiào",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "挑",
+      "allowed_readings": [
+        "tiāo",
+        "tiǎo"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "挑选",
+          "reading": "tiāo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "挑剔",
+          "reading": "tiāo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "挑食",
+          "reading": "tiāo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "挑错",
+          "reading": "tiāo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "挑三拣四",
+          "reading": "tiāo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "百里挑一",
+          "reading": "tiāo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "挑拨",
+          "reading": "tiǎo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "挑明",
+          "reading": "tiǎo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "挑战",
+          "reading": "tiǎo",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "担",
+      "allowed_readings": [
+        "dān",
+        "dàn"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "担任",
+          "reading": "dān",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "担当",
+          "reading": "dān",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "担待",
+          "reading": "dān",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "担负",
+          "reading": "dān",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "担保",
+          "reading": "dān",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "担心",
+          "reading": "dān",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "担架",
+          "reading": "dān",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "担忧",
+          "reading": "dān",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "担子",
+          "reading": "dàn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "扁担",
+          "reading": "dàn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "重担",
+          "reading": "dàn",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "将",
+      "allowed_readings": [
+        "jiāng",
+        "jiàng"
+      ],
+      "extra_readings": [
+        "qiāng"
+      ],
+      "results": [
+        {
+          "text": "将要",
+          "reading": "jiāng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "将来",
+          "reading": "jiāng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "将军",
+          "reading": "jiāng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "即将",
+          "reading": "jiāng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "大厦将倾",
+          "reading": "jiāng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "将计就计",
+          "reading": "jiāng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "损兵折将",
+          "reading": "jiàng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "将令",
+          "reading": "jiàng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "将进酒",
+          "reading": "qiāng",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "夹",
+      "allowed_readings": [
+        "jiā",
+        "jiá"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "夹杂",
+          "reading": "jiā",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "夹层",
+          "reading": "jiā",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "夹心",
+          "reading": "jiā",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "夹子",
+          "reading": "jiā",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "夹克",
+          "reading": "jiā",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "里外夹攻",
+          "reading": "jiā",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "夹袄",
+          "reading": "jiá",
+          "notes": "",
+          "source": "manual_word"
+        }
+      ]
+    },
+    {
+      "character": "俩",
+      "allowed_readings": [
+        "liǎ",
+        "liǎng"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "俩人",
+          "reading": "liǎ",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "他俩",
+          "reading": "liǎ",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "爷俩",
+          "reading": "liǎ",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "伎俩",
+          "reading": "liǎng",
+          "notes": "",
+          "source": "manual_word"
+        }
+      ]
+    },
+    {
+      "character": "划",
+      "allowed_readings": [
+        "huá",
+        "huà"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "划船",
+          "reading": "huá",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "划算",
+          "reading": "huá",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "策划",
+          "reading": "huà",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "划分",
+          "reading": "huà",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "出谋划策",
+          "reading": "huà",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "计划",
+          "reading": "huà",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "筹划",
+          "reading": "huà",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "薄",
+      "allowed_readings": [
+        "báo",
+        "bó",
+        "bò"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "薄片",
+          "reading": "báo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "薄饼",
+          "reading": "báo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "薄弱",
+          "reading": "bó",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "刻薄",
+          "reading": "bó",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "薄荷",
+          "reading": "bò",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "阿",
+      "allowed_readings": [
+        "ā",
+        "ē"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "阿姨",
+          "reading": "ā",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "阿婆",
+          "reading": "ā",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "阿拉伯",
+          "reading": "ā",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "阿胶",
+          "reading": "ē",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "刚正不阿",
+          "reading": "ē",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "尽",
+      "allowed_readings": [
+        "jǐn",
+        "jìn"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "尽快",
+          "reading": "jǐn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "尽管",
+          "reading": "jǐn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "尽早",
+          "reading": "jǐn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "尽力",
+          "reading": "jìn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "尽心",
+          "reading": "jìn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "尽头",
+          "reading": "jìn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "尽忠",
+          "reading": "jìn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "山穷水尽",
+          "reading": "jìn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "仁至义尽",
+          "reading": "jìn",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "笼",
+      "allowed_readings": [
+        "lóng",
+        "lǒng"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "灯笼",
+          "reading": "lóng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "鸟笼",
+          "reading": "lóng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "牢笼",
+          "reading": "lóng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "蒸笼",
+          "reading": "lóng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "笼统",
+          "reading": "lǒng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "笼络",
+          "reading": "lǒng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "笼罩",
+          "reading": "lǒng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "笼络人心",
+          "reading": "lǒng",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "当",
+      "allowed_readings": [
+        "dāng",
+        "dàng"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "充当",
+          "reading": "dāng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "当初",
+          "reading": "dāng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "担当",
+          "reading": "dāng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "当代",
+          "reading": "dāng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "理所当然",
+          "reading": "dāng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "大敌当前",
+          "reading": "dāng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "恰当",
+          "reading": "dàng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "适当",
+          "reading": "dàng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "上当",
+          "reading": "dàng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "典当",
+          "reading": "dàng",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "降",
+      "allowed_readings": [
+        "jiàng",
+        "xiáng"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "降落",
+          "reading": "jiàng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "降雨",
+          "reading": "jiàng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "降临",
+          "reading": "jiàng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "下降",
+          "reading": "jiàng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "喜从天降",
+          "reading": "jiàng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "明升暗降",
+          "reading": "jiàng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "投降",
+          "reading": "xiáng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "降服",
+          "reading": "xiáng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "降妖除魔",
+          "reading": "xiáng",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "弹",
+      "allowed_readings": [
+        "dàn",
+        "tán"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "子弹",
+          "reading": "dàn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "弹药",
+          "reading": "dàn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "导弹",
+          "reading": "dàn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "弹丸",
+          "reading": "dàn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "弹无虚发",
+          "reading": "dàn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "荷枪实弹",
+          "reading": "dàn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "弹跳",
+          "reading": "tán",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "弹琴",
+          "reading": "tán",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "弹奏",
+          "reading": "tán",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "弹劲",
+          "reading": "tán",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "弹指之间",
+          "reading": "tán",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "对牛弹琴",
+          "reading": "tán",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "委",
+      "allowed_readings": [
+        "wěi",
+        "wēi"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "委屈",
+          "reading": "wěi",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "委托",
+          "reading": "wěi",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "委任",
+          "reading": "wěi",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "委员",
+          "reading": "wěi",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "委婉",
+          "reading": "wěi",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "原委",
+          "reading": "wěi",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "委派",
+          "reading": "wěi",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "委曲求全",
+          "reading": "wěi",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "委以重任",
+          "reading": "wěi",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "虚与委蛇",
+          "reading": "wēi",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "切",
+      "allowed_readings": [
+        "qiē",
+        "qiè"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "切菜",
+          "reading": "qiē",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "切磋",
+          "reading": "qiē",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "切割",
+          "reading": "qiē",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "亲切",
+          "reading": "qiè",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "急切",
+          "reading": "qiè",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "迫切",
+          "reading": "qiè",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "切实",
+          "reading": "qiè",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "咬牙切齿",
+          "reading": "qiè",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "不切实际",
+          "reading": "qiè",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "柏",
+      "allowed_readings": [
+        "bǎi",
+        "bó"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "松柏",
+          "reading": "bǎi",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "黄柏",
+          "reading": "bǎi",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "柏林",
+          "reading": "bó",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "柏拉图",
+          "reading": "bó",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "与",
+      "allowed_readings": [
+        "yù",
+        "yǔ"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "参与",
+          "reading": "yù",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "与会",
+          "reading": "yù",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "生死与共",
+          "reading": "yǔ",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "与世长辞",
+          "reading": "yǔ",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "与人为善",
+          "reading": "yǔ",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "与众不同",
+          "reading": "yǔ",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "厦",
+      "allowed_readings": [
+        "xià",
+        "shà"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "厦门",
+          "reading": "xià",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "大厦",
+          "reading": "shà",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "商厦",
+          "reading": "shà",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "广厦",
+          "reading": "shà",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "高楼大厦",
+          "reading": "shà",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "省",
+      "allowed_readings": [
+        "shěng",
+        "xǐng"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "省份",
+          "reading": "shěng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "省会",
+          "reading": "shěng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "省钱",
+          "reading": "shěng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "省事",
+          "reading": "shěng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "省略",
+          "reading": "shěng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "节省",
+          "reading": "shěng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "省吃俭用",
+          "reading": "shěng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "发人深省",
+          "reading": "xǐng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "不省人事",
+          "reading": "xǐng",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "呗",
+      "allowed_readings": [
+        "bei",
+        "bài"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "清呗",
+          "reading": "bei",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "诵呗",
+          "reading": "bei",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "梵呗",
+          "reading": "bài",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "炮",
+      "allowed_readings": [
+        "páo",
+        "pào"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "炮制",
+          "reading": "páo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "如法炮制",
+          "reading": "páo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "鞭炮",
+          "reading": "pào",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "炮仗",
+          "reading": "pào",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "放炮",
+          "reading": "pào",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "炮弹",
+          "reading": "pào",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "炮台",
+          "reading": "pào",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "炮火",
+          "reading": "pào",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "炮兵",
+          "reading": "pào",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "糖衣炮弹",
+          "reading": "pào",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "削",
+      "allowed_readings": [
+        "xiāo",
+        "xuē"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "车削",
+          "reading": "xiāo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "刮削",
+          "reading": "xiāo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "刀削",
+          "reading": "xiāo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "剥削",
+          "reading": "xuē",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "削弱",
+          "reading": "xuē",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "削减",
+          "reading": "xuē",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "削发",
+          "reading": "xuē",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "扎",
+      "allowed_readings": [
+        "zā",
+        "zhā"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "包扎",
+          "reading": "zā",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "扎手",
+          "reading": "zā",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "扎堆",
+          "reading": "zā",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "扎彩",
+          "reading": "zā",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "扎根",
+          "reading": "zā",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "扎花",
+          "reading": "zā",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "绑扎",
+          "reading": "zā",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "扎营",
+          "reading": "zā",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "扎实",
+          "reading": "zā",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "扎眼",
+          "reading": "zhā",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "扎鸟",
+          "reading": "zhā",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "扇",
+      "allowed_readings": [
+        "shàn",
+        "shān"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "扇贝",
+          "reading": "shàn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "扇子",
+          "reading": "shàn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "蒲扇",
+          "reading": "shàn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "团扇",
+          "reading": "shàn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "风扇",
+          "reading": "shàn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "葵扇",
+          "reading": "shàn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "羽扇纶巾",
+          "reading": "shàn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "扇风",
+          "reading": "shān",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "扇动",
+          "reading": "shān",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "卷",
+      "allowed_readings": [
+        "juǎn",
+        "juàn"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "卷发",
+          "reading": "juǎn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "卷尺",
+          "reading": "juǎn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "卷入",
+          "reading": "juǎn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "案卷",
+          "reading": "juàn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "试卷",
+          "reading": "juàn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "白卷",
+          "reading": "juàn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "长卷",
+          "reading": "juàn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "开卷有益",
+          "reading": "juàn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "手不释卷",
+          "reading": "juàn",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "蒙",
+      "allowed_readings": [
+        "mēng",
+        "méng",
+        "měng"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "蒙骗",
+          "reading": "mēng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "启蒙",
+          "reading": "méng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "蒙昧",
+          "reading": "méng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "蒙蔽",
+          "reading": "méng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "蒙混过关",
+          "reading": "méng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "蒙在鼓里",
+          "reading": "méng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "蒙古",
+          "reading": "měng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "内蒙古",
+          "reading": "měng",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "射",
+      "allowed_readings": [
+        "shè",
+        "yè"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "射击",
+          "reading": "shè",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "发射",
+          "reading": "shè",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "扫射",
+          "reading": "shè",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "射手",
+          "reading": "shè",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "注射",
+          "reading": "shè",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "辐射",
+          "reading": "shè",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "照射",
+          "reading": "shè",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "射箭",
+          "reading": "shè",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "光芒四射",
+          "reading": "shè",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "仆射",
+          "reading": "yè",
+          "notes": "",
+          "source": "manual_word"
+        }
+      ]
+    },
+    {
+      "character": "载",
+      "allowed_readings": [
+        "zǎi",
+        "zài"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "登载",
+          "reading": "zǎi",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "刊载",
+          "reading": "zǎi",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "记载",
+          "reading": "zǎi",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "连载",
+          "reading": "zǎi",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "千载难逢",
+          "reading": "zǎi",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "一年半载",
+          "reading": "zǎi",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "搭载",
+          "reading": "zǎi",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "超载",
+          "reading": "zǎi",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "载重",
+          "reading": "zǎi",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "装载",
+          "reading": "zǎi",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "满载而归",
+          "reading": "zài",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "怨声载道",
+          "reading": "zài",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "圈",
+      "allowed_readings": [
+        "quān",
+        "juàn"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "圈套",
+          "reading": "quān",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "圆圈",
+          "reading": "quān",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "项圈",
+          "reading": "quān",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "光圈",
+          "reading": "quān",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "圈养",
+          "reading": "juàn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "猪圈",
+          "reading": "juàn",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "唠",
+      "allowed_readings": [
+        "láo",
+        "lào"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "唠叨",
+          "reading": "láo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "唠唠叨叨",
+          "reading": "láo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "唠嗑",
+          "reading": "lào",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "缝",
+      "allowed_readings": [
+        "féng",
+        "fèng"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "缝纫",
+          "reading": "féng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "缝补",
+          "reading": "féng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "缝合",
+          "reading": "féng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "裁缝",
+          "reading": "féng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "夹缝",
+          "reading": "fèng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "门缝",
+          "reading": "fèng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "缝隙",
+          "reading": "fèng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "裂缝",
+          "reading": "fèng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "天衣无缝",
+          "reading": "fèng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "严丝合缝",
+          "reading": "fèng",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "曾",
+      "allowed_readings": [
+        "céng",
+        "zēng"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "曾经",
+          "reading": "céng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "不曾",
+          "reading": "céng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "未曾",
+          "reading": "céng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "似曾相识",
+          "reading": "céng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "曾几何时",
+          "reading": "céng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "曾孙",
+          "reading": "zēng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "曾祖",
+          "reading": "zēng",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "占",
+      "allowed_readings": [
+        "zhàn",
+        "zhān"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "占领",
+          "reading": "zhàn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "占据",
+          "reading": "zhàn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "霸占",
+          "reading": "zhàn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "侵占",
+          "reading": "zhàn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "独占鳌头",
+          "reading": "zhàn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "占卜",
+          "reading": "zhān",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "占卦",
+          "reading": "zhān",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "勾",
+      "allowed_readings": [
+        "gōu",
+        "gòu"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "勾结",
+          "reading": "gōu",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "勾画",
+          "reading": "gōu",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "勾芡",
+          "reading": "gōu",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "勾搭",
+          "reading": "gōu",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "勾心斗角",
+          "reading": "gōu",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "一笔勾销",
+          "reading": "gōu",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "勾当",
+          "reading": "gòu",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "爪",
+      "allowed_readings": [
+        "zhǎo",
+        "zhuǎ"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "爪牙",
+          "reading": "zhǎo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "鳞爪",
+          "reading": "zhǎo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "魔爪",
+          "reading": "zhǎo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "鹰爪",
+          "reading": "zhǎo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "张牙舞爪",
+          "reading": "zhǎo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "一鳞半爪",
+          "reading": "zhǎo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "爪子",
+          "reading": "zhuǎ",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "咖",
+      "allowed_readings": [
+        "kā",
+        "gā"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "咖啡",
+          "reading": "kā",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "怪咖",
+          "reading": "kā",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "咖喱",
+          "reading": "gā",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "幢",
+      "allowed_readings": [
+        "zhuàng",
+        "chuáng"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "一幢大楼",
+          "reading": "zhuàng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "经幢",
+          "reading": "chuáng",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "恶",
+      "allowed_readings": [
+        "ě",
+        "è",
+        "wù"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "恶心",
+          "reading": "ě",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "恶人",
+          "reading": "è",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "恶战",
+          "reading": "è",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "恶化",
+          "reading": "è",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "嫉恶如仇",
+          "reading": "è",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "厌恶",
+          "reading": "wù",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "强",
+      "allowed_readings": [
+        "qiáng",
+        "qiǎng",
+        "jiàng"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "强风",
+          "reading": "qiáng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "强硬",
+          "reading": "qiáng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "强大",
+          "reading": "qiáng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "强盗",
+          "reading": "qiáng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "强烈",
+          "reading": "qiáng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "强调",
+          "reading": "qiáng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "勉强",
+          "reading": "qiǎng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "倔强",
+          "reading": "jiàng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "强人所难",
+          "reading": "qiǎng",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "娜",
+      "allowed_readings": [
+        "nuó",
+        "nà"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "婀娜多姿",
+          "reading": "nuó",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "蒙娜丽莎",
+          "reading": "nà",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "哄",
+      "allowed_readings": [
+        "hōng",
+        "hòng"
+      ],
+      "extra_readings": [
+        "hǒng"
+      ],
+      "results": [
+        {
+          "text": "哄抢",
+          "reading": "hōng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "哄堂大笑",
+          "reading": "hōng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "哄骗",
+          "reading": "hǒng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "哄人",
+          "reading": "hǒng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "起哄",
+          "reading": "hòng",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "便",
+      "allowed_readings": [
+        "biàn",
+        "pián"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "便利",
+          "reading": "biàn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "便捷",
+          "reading": "biàn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "随便",
+          "reading": "biàn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "方便",
+          "reading": "biàn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "家常便饭",
+          "reading": "biàn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "随随便便",
+          "reading": "biàn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "便宜",
+          "reading": "pián",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "旋",
+      "allowed_readings": [
+        "xuán",
+        "xuàn"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "旋转",
+          "reading": "xuán",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "盘旋",
+          "reading": "xuán",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "凯旋",
+          "reading": "xuán",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "旋律",
+          "reading": "xuán",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "旋转乾坤",
+          "reading": "xuán",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "天旋地转",
+          "reading": "xuán",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "旋风",
+          "reading": "xuàn",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "差",
+      "allowed_readings": [
+        "chā",
+        "chà",
+        "chāi",
+        "cī"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "差别",
+          "reading": "chā",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "差错",
+          "reading": "chā",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "差强人意",
+          "reading": "chā",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "差劲",
+          "reading": "chà",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "差不多",
+          "reading": "chà",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "差遣",
+          "reading": "chāi",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "差事",
+          "reading": "chāi",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "出差",
+          "reading": "chāi",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "参差不齐",
+          "reading": "cī",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "粘",
+      "allowed_readings": [
+        "zhān",
+        "nián"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "粘贴",
+          "reading": "zhān",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "粘住",
+          "reading": "zhān",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "粘连",
+          "reading": "zhān",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "粘合",
+          "reading": "nián",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "粘性",
+          "reading": "nián",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "粘土",
+          "reading": "nián",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "粘稠",
+          "reading": "nián",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "粘度",
+          "reading": "nián",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "粘液",
+          "reading": "nián",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "泊",
+      "allowed_readings": [
+        "bó",
+        "pō"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "停泊",
+          "reading": "bó",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "漂泊",
+          "reading": "bó",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "淡泊",
+          "reading": "bó",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "湖泊",
+          "reading": "pō",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "血泊",
+          "reading": "pō",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "梁山泊",
+          "reading": "pō",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "刨",
+      "allowed_readings": [
+        "páo",
+        "bào"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "刨除",
+          "reading": "páo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "刨土",
+          "reading": "páo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "刨坑",
+          "reading": "páo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "刨根问底",
+          "reading": "páo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "刨冰",
+          "reading": "bào",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "刨子",
+          "reading": "bào",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "刨床",
+          "reading": "bào",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "翘",
+      "allowed_readings": [
+        "qiào",
+        "qiáo"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "翘首",
+          "reading": "qiáo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "翘望",
+          "reading": "qiáo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "翘首以待",
+          "reading": "qiáo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "翘班",
+          "reading": "qiào",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "攒",
+      "allowed_readings": [
+        "zǎn",
+        "cuán"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "积攒",
+          "reading": "zǎn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "攒钱",
+          "reading": "zǎn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "攒动",
+          "reading": "cuán",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "人头攒动",
+          "reading": "cuán",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "茄",
+      "allowed_readings": [
+        "qié",
+        "jiā"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "茄子",
+          "reading": "qié",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "番茄",
+          "reading": "qié",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "雪茄",
+          "reading": "jiā",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "扒",
+      "allowed_readings": [
+        "pá",
+        "bā"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "扒手",
+          "reading": "pá",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "扒鸡",
+          "reading": "pá",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "扒窃",
+          "reading": "pá",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "扒皮",
+          "reading": "bā",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "扒开",
+          "reading": "bā",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "脏",
+      "allowed_readings": [
+        "zāng",
+        "zàng"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "脏话",
+          "reading": "zāng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "脏字",
+          "reading": "zāng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "肮脏",
+          "reading": "zāng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "肾脏",
+          "reading": "zàng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "脏腑",
+          "reading": "zàng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "脏器",
+          "reading": "zàng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "心脏",
+          "reading": "zàng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "五脏六腑",
+          "reading": "zàng",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "撒",
+      "allowed_readings": [
+        "sā",
+        "sǎ"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "撒手",
+          "reading": "sā",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "撒网",
+          "reading": "sā",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "撒娇",
+          "reading": "sā",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "撒谎",
+          "reading": "sā",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "撒野",
+          "reading": "sā",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "撒泼",
+          "reading": "sā",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "喷撒",
+          "reading": "sǎ",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "撒播",
+          "reading": "sǎ",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "撒脱",
+          "reading": "sǎ",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "屏",
+      "allowed_readings": [
+        "píng",
+        "bǐng"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "屏蔽",
+          "reading": "píng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "屏风",
+          "reading": "píng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "屏幕",
+          "reading": "píng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "屏障",
+          "reading": "píng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "孔雀开屏",
+          "reading": "píng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "开屏",
+          "reading": "píng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "屏气凝神",
+          "reading": "bǐng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "屏息",
+          "reading": "bǐng",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "系",
+      "allowed_readings": [
+        "xì",
+        "jì"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "系列",
+          "reading": "xì",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "系统",
+          "reading": "xì",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "关系",
+          "reading": "xì",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "根系",
+          "reading": "xì",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "体系",
+          "reading": "xì",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "维系",
+          "reading": "xì",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "联系",
+          "reading": "xì",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "系鞋带",
+          "reading": "jì",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "脯",
+      "allowed_readings": [
+        "pú",
+        "fǔ"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "胸脯",
+          "reading": "pú",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "拍胸脯",
+          "reading": "pú",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "果脯",
+          "reading": "fǔ",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "丧",
+      "allowed_readings": [
+        "sàng",
+        "sāng"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "灰心丧气",
+          "reading": "sàng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "丧心病狂",
+          "reading": "sàng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "丧葬",
+          "reading": "sāng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "丧事",
+          "reading": "sāng",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "磨",
+      "allowed_readings": [
+        "mó",
+        "mò"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "磨蹭",
+          "reading": "mó",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "磨合",
+          "reading": "mó",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "折磨",
+          "reading": "mó",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "磨练",
+          "reading": "mó",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "好事多磨",
+          "reading": "mó",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "临阵磨枪",
+          "reading": "mó",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "磨坊",
+          "reading": "mò",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "磨面",
+          "reading": "mò",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "磨盘",
+          "reading": "mò",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "匙",
+      "allowed_readings": [
+        "shí",
+        "chí"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "钥匙",
+          "reading": "shí",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "密匙",
+          "reading": "shí",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "汤匙",
+          "reading": "chí",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "茶匙",
+          "reading": "chí",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "裳",
+      "allowed_readings": [
+        "shāng",
+        "cháng"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "衣裳",
+          "reading": "shāng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "霓裳",
+          "reading": "cháng",
+          "notes": "",
+          "source": "manual_word"
+        }
+      ]
+    },
+    {
+      "character": "调",
+      "allowed_readings": [
+        "diào",
+        "tiáo",
+        "zhōu"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "调查",
+          "reading": "diào",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "调换",
+          "reading": "diào",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "对调",
+          "reading": "diào",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "调兵遣将",
+          "reading": "diào",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "调虎离山",
+          "reading": "diào",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "调整",
+          "reading": "tiáo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "调节",
+          "reading": "tiáo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "调解",
+          "reading": "tiáo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "调料",
+          "reading": "tiáo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "调饥",
+          "reading": "zhōu",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "砌",
+      "allowed_readings": [
+        "qì",
+        "qiè"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "堆砌",
+          "reading": "qì",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "砌墙",
+          "reading": "qì",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "雕砌",
+          "reading": "qì",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "雕栏玉砌",
+          "reading": "qì",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "砌末",
+          "reading": "qiè",
+          "notes": "",
+          "source": "manual_word"
+        }
+      ]
+    },
+    {
+      "character": "横",
+      "allowed_readings": [
+        "héng",
+        "hèng"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "横幅",
+          "reading": "héng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "横竖",
+          "reading": "héng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "纵横",
+          "reading": "héng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "才华横溢",
+          "reading": "héng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "横冲直撞",
+          "reading": "héng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "蛮横",
+          "reading": "hèng",
+          "notes": "",
+          "source": "manual_word"
+        }
+      ]
+    },
+    {
+      "character": "磅",
+      "allowed_readings": [
+        "bàng",
+        "páng"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "过磅",
+          "reading": "bàng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "重磅来袭",
+          "reading": "bàng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "气势磅礴",
+          "reading": "páng",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "朴",
+      "allowed_readings": [
+        "pǔ",
+        "pō"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "朴素",
+          "reading": "pǔ",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "简朴",
+          "reading": "pǔ",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "朴实",
+          "reading": "pǔ",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "艰苦朴素",
+          "reading": "pǔ",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "朴实无华",
+          "reading": "pǔ",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "朴刀",
+          "reading": "pō",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "挨",
+      "allowed_readings": [
+        "āi",
+        "ái"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "挨着",
+          "reading": "āi",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "挨近",
+          "reading": "āi",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "挨家挨户",
+          "reading": "āi",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "挨打",
+          "reading": "āi",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "挨饿",
+          "reading": "ái",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "挨骂",
+          "reading": "ái",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "否",
+      "allowed_readings": [
+        "fǒu",
+        "pǐ"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "否认",
+          "reading": "fǒu",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "否定",
+          "reading": "fǒu",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "否决",
+          "reading": "fǒu",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "可否",
+          "reading": "fǒu",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "矢口否认",
+          "reading": "fǒu",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "不置可否",
+          "reading": "fǒu",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "否极泰来",
+          "reading": "pǐ",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "咽",
+      "allowed_readings": [
+        "yàn",
+        "yè",
+        "yān"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "下咽",
+          "reading": "yàn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "咽气",
+          "reading": "yàn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "吞咽",
+          "reading": "yàn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "哽咽",
+          "reading": "yè",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "呜咽",
+          "reading": "yè",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "咽喉",
+          "reading": "yān",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "挣",
+      "allowed_readings": [
+        "zhēng",
+        "zhèng"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "挣扎",
+          "reading": "zhēng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "垂死挣扎",
+          "reading": "zhēng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "挣扎",
+          "reading": "zhēng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "挣钱",
+          "reading": "zhèng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "挣脱",
+          "reading": "zhèng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "挣断",
+          "reading": "zhèng",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "脉",
+      "allowed_readings": [
+        "mài",
+        "mò"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "脉搏",
+          "reading": "mài",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "脉络",
+          "reading": "mài",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "人脉",
+          "reading": "mài",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "动脉",
+          "reading": "mài",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "来龙去脉",
+          "reading": "mài",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "一脉相承",
+          "reading": "mài",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "含情脉脉",
+          "reading": "mò",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "吭",
+      "allowed_readings": [
+        "kēng",
+        "háng"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "吭哧",
+          "reading": "kēng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "吭声",
+          "reading": "kēng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "吭气",
+          "reading": "kēng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "引吭高歌",
+          "reading": "háng",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "供",
+      "allowed_readings": [
+        "gōng",
+        "gòng"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "供给",
+          "reading": "gōng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "供求",
+          "reading": "gōng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "供销",
+          "reading": "gōng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "供暖",
+          "reading": "gōng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "供水",
+          "reading": "gōng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "供货",
+          "reading": "gōng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "供不应求",
+          "reading": "gōng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "供词",
+          "reading": "gòng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "招供",
+          "reading": "gòng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "逼供",
+          "reading": "gòng",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "辟",
+      "allowed_readings": [
+        "pì",
+        "bì"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "开辟",
+          "reading": "pì",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "精辟",
+          "reading": "pì",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "辟谣",
+          "reading": "pì",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "独辟蹊径",
+          "reading": "pì",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "复辟",
+          "reading": "bì",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "辟邪",
+          "reading": "bì",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "率",
+      "allowed_readings": [
+        "lǜ",
+        "shuài"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "概率",
+          "reading": "lǜ",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "效率",
+          "reading": "lǜ",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "功率",
+          "reading": "lǜ",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "汇率",
+          "reading": "lǜ",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "机率",
+          "reading": "lǜ",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "利率",
+          "reading": "lǜ",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "频率",
+          "reading": "lǜ",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "税率",
+          "reading": "lǜ",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "率先",
+          "reading": "shuài",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "率领",
+          "reading": "shuài",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "草率",
+          "reading": "shuài",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "轻率",
+          "reading": "shuài",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "巷",
+      "allowed_readings": [
+        "xiàng",
+        "hàng"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "巷子",
+          "reading": "xiàng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "小巷",
+          "reading": "xiàng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "巷战",
+          "reading": "xiàng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "街头巷尾",
+          "reading": "xiàng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "大街小巷",
+          "reading": "xiàng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "巷道",
+          "reading": "hàng",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "吁",
+      "allowed_readings": [
+        "xū",
+        "yù"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "长吁短叹",
+          "reading": "xū",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "气喘吁吁",
+          "reading": "xū",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "呼吁",
+          "reading": "yù",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "吁请",
+          "reading": "yù",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "吁求",
+          "reading": "yù",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "铛",
+      "allowed_readings": [
+        "dāng",
+        "chēng"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "铃铛",
+          "reading": "dāng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "铛铛",
+          "reading": "dāng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "饼铛",
+          "reading": "chēng",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "畜",
+      "allowed_readings": [
+        "chù",
+        "xù"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "畜生",
+          "reading": "chù",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "畜力",
+          "reading": "chù",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "牲畜",
+          "reading": "chù",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "畜牧",
+          "reading": "xù",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "畜产",
+          "reading": "xù",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "塞",
+      "allowed_readings": [
+        "sāi",
+        "sài",
+        "sè"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "瓶塞",
+          "reading": "sāi",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "塞子",
+          "reading": "sāi",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "加塞儿",
+          "reading": "sāi",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "塞外",
+          "reading": "sài",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "要塞",
+          "reading": "sài",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "塞翁失马",
+          "reading": "sài",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "堵塞",
+          "reading": "sè",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "阻塞",
+          "reading": "sè",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "茅塞顿开",
+          "reading": "sè",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "嚼",
+      "allowed_readings": [
+        "jiáo",
+        "jué"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "嚼舌",
+          "reading": "jiáo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "嚼子",
+          "reading": "jiáo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "咬文嚼字",
+          "reading": "jiáo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "咀嚼",
+          "reading": "jué",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "殷",
+      "allowed_readings": [
+        "yīn",
+        "yān"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "殷实",
+          "reading": "yīn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "殷勤",
+          "reading": "yīn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "民殷国富",
+          "reading": "yīn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "殷红",
+          "reading": "yān",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "混",
+      "allowed_readings": [
+        "hùn",
+        "hún"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "混合",
+          "reading": "hùn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "混乱",
+          "reading": "hùn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "混为一谈",
+          "reading": "hùn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "混水摸鱼",
+          "reading": "hùn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "混蛋",
+          "reading": "hún",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "混球",
+          "reading": "hún",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "怔",
+      "allowed_readings": [
+        "zhēng",
+        "zhèng"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "发怔",
+          "reading": "zhèng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "怔怔",
+          "reading": "zhèng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "迷迷怔怔",
+          "reading": "zhèng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "怔忪",
+          "reading": "zhēng",
+          "notes": "",
+          "source": "manual_word"
+        }
+      ]
+    },
+    {
+      "character": "喋",
+      "allowed_readings": [
+        "dié",
+        "zhá"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "喋血",
+          "reading": "dié",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "喋喋不休",
+          "reading": "dié",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "喋呷",
+          "reading": "zhá",
+          "notes": "",
+          "source": "manual_word"
+        }
+      ]
+    },
+    {
+      "character": "沓",
+      "allowed_readings": [
+        "dá",
+        "tà"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "一沓",
+          "reading": "dá",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "拖沓",
+          "reading": "tà",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "纷至沓来",
+          "reading": "tà",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "葛",
+      "allowed_readings": [
+        "gě",
+        "gé"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "葛天",
+          "reading": "gě",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "葛优",
+          "reading": "gě",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "纠葛",
+          "reading": "gé",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "瓜葛",
+          "reading": "gé",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "葛藤",
+          "reading": "gé",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "刹",
+      "allowed_readings": [
+        "shā",
+        "chà"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "刹车",
+          "reading": "shā",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "刹住",
+          "reading": "shā",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "古刹",
+          "reading": "chà",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "刹那",
+          "reading": "chà",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "宝刹",
+          "reading": "chà",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "勒",
+      "allowed_readings": [
+        "lè",
+        "lēi"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "勒令",
+          "reading": "lè",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "勒索",
+          "reading": "lè",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "悬崖勒马",
+          "reading": "lè",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "勒紧",
+          "reading": "lēi",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "剥",
+      "allowed_readings": [
+        "bō",
+        "bāo"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "剥夺",
+          "reading": "bō",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "剥削",
+          "reading": "bō",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "盘剥",
+          "reading": "bō",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "生吞活剥",
+          "reading": "bō",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "剥花生",
+          "reading": "bāo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "抽丝剥茧",
+          "reading": "bāo",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "澄",
+      "allowed_readings": [
+        "chéng",
+        "dèng"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "澄清",
+          "reading": "chéng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "澄沙",
+          "reading": "dèng",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "澄泥浆",
+          "reading": "dèng",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "熬",
+      "allowed_readings": [
+        "áo",
+        "āo"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "熬粥",
+          "reading": "áo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "煎熬",
+          "reading": "áo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "熬夜",
+          "reading": "áo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "熬药",
+          "reading": "áo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "熬出头",
+          "reading": "áo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "熬心",
+          "reading": "āo",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "熬菜",
+          "reading": "āo",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    },
+    {
+      "character": "莞",
+      "allowed_readings": [
+        "wǎn",
+        "guǎn"
+      ],
+      "extra_readings": [],
+      "results": [
+        {
+          "text": "莞尔",
+          "reading": "wǎn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "莞尔一笑",
+          "reading": "wǎn",
+          "notes": "",
+          "source": "feng_word"
+        },
+        {
+          "text": "东莞",
+          "reading": "guǎn",
+          "notes": "",
+          "source": "feng_word"
+        }
+      ]
+    }
+  ]
+}
