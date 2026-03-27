@@ -6,6 +6,32 @@ This file records changes to the character bank (character set, source data, and
 
 ---
 
+## 2026-03-27 — HWXNet 英文解释按拼音 transition + DB backfill
+
+- **What:** Added the new structured transition field `英文解释按拼音` to `extracted_characters_hwxnet.json` and backfilled the matching `english_translations_by_pinyin` column in the live `hwxnet_characters` table.
+- **Field shape:** Ordered buckets using the same transition pattern as `WordsByPinyin` / `常用词组按拼音`:
+  - `[{ "Pinyin": string, "Glosses": string[] }]`
+- **Polyphonic source of truth:** For polyphonic HWXNet rows, buckets were derived from the curated reading-level English gloss artifact:
+  - `generate_english_meaning_using_ai/batch_artifacts/reading_glosses.reviewed.json`
+- **Monophonic source of truth:** For monophonic rows, `英文解释按拼音` was generated mechanically by wrapping the existing flat `英文翻译` list into a single bucket.
+- **Compatibility / consumers:** Legacy flat `英文翻译` is intentionally retained. Runtime consumers now flatten `英文解释按拼音` through a shared middleware utility so behavior stays the same while the structured field becomes the preferred source.
+- **JSON backup:** Before overwriting the main JSON, created:
+  - `chinese_chr_app/data/backups/extracted_characters_hwxnet.20260327-english-glosses-by-pinyin-backup.json`
+- **DB backup:** Before the live backfill, created:
+  - `hwxnet_characters_backup_20260327_111005`
+- **Scripts / code:** Added:
+  - `extract_character_from_wxnet/build_english_translations_by_pinyin_transition.py`
+  - `extract_character_from_wxnet/merge_english_translations_by_pinyin_into_main_hwxnet.py`
+  - `chinese_chr_app/backend/english_translations.py`
+  - `chinese_chr_app/backend/scripts/characters/add_english_translations_by_pinyin_column.py`
+- **DB/runtime plumbing:** Updated:
+  - `chinese_chr_app/backend/scripts/characters/create_hwxnet_characters_table.py`
+  - `chinese_chr_app/backend/database.py`
+  - `chinese_chr_app/backend/app.py`
+  - `chinese_chr_app/backend/pinyin_recall.py`
+  - `chinese_chr_app/backend/scripts/characters/verify_hwxnet_characters.py`
+- **Verification:** Local regression tests passed for flattening / invariants, and the live DB verifier confirmed the updated JSON and DB row shape match for sampled HWXNet rows, including `english_translations_by_pinyin`.
+
 ## 2026-03-27 — Polyphonic uncovered-reading review + in-place apply
 
 - **What:** Reviewed every uncovered polyphonic reading under the stricter coverage rule that a reading only counts as covered when it has at least one example word/phrase in `基本字义解释[].释义[].例词`, `常用词组按拼音[].Phrases`, or `WordsByPinyin[].Phrases`.

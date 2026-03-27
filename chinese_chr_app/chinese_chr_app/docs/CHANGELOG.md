@@ -6,6 +6,14 @@ Release history and version notes. Newest releases are at the top.
 
 ---
 
+## [v0.2.21]
+
+- **HWXNet 英文解释按拼音 transition:** Add structured `英文解释按拼音` to `extracted_characters_hwxnet.json`, add `english_translations_by_pinyin` to the live `hwxnet_characters` table, and use the curated reading-level English gloss artifact as the provenance source for polyphonic buckets. Monophonic rows are wrapped mechanically from legacy `英文翻译`.
+- **Conservative English consumer migration:** Runtime consumers now prefer the new structured HWXNet English field internally while preserving current flat behavior through a shared flatten utility. Legacy flat `英文翻译` remains compatibility data during the migration.
+- **Verification / tooling:** Added transition builder + merge scripts, DB backfill support, focused backend regression tests for English bucket normalization/flattening, and live DB verification coverage for the new column.
+
+---
+
 ## [v0.2.20]
 
 - **Search words grouped by pinyin:** The Feng `词组` row on the Search page now renders `WordsByPinyin` buckets directly instead of flattening them into a single comma-separated line, so polyphonic characters clearly separate phrases by reading. Added focused Playwright coverage for a known polyphonic example (`参`) to lock in the grouped UI behavior.

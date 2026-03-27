@@ -160,3 +160,36 @@ Rules:
 **Consequences:** Consumers should migrate toward `常用词组按拼音` / `common_phrases_by_pinyin` as the preferred structured field, flattening only when current flat behavior must be preserved. Legacy flat `常用词组` remains temporary compatibility data and should be deprecated only after consumer migration is complete.
 
 **Status:** Accepted
+
+---
+
+## ADR-008: HWXNet 英文解释按拼音 Transition Field
+
+**Context:** HWXNet English glosses were historically stored as a flat `英文翻译` / `english_translations` list. That was workable for generic display, but it mixed senses across readings on polyphonic characters and was not suitable as a reading-aware source for future pinyin-recall and dictionary behavior. We already had a curated reviewed reading-level English gloss artifact keyed by `character + reading`, and we wanted to land that structure without breaking current flat-field consumers.
+
+**Decision:** Introduce a transition field:
+
+- JSON: `英文解释按拼音`
+- Supabase: `english_translations_by_pinyin`
+
+Shape:
+
+| Field | Type | Meaning |
+|------|------|---------|
+| `Pinyin` | string | One HWXNet reading from the row’s `拼音` list |
+| `Glosses` | string[] | Ordered learner-facing English glosses for that reading |
+
+Rules:
+
+- one bucket per reading in the row’s `拼音` list
+- bucket order matches the row’s `拼音` order
+- monophonic rows are wrapped mechanically from the existing flat `英文翻译`
+- polyphonic rows are derived from the curated reviewed reading-level English gloss artifact
+- fringe / weakly supported reviewed readings are still kept as thin buckets rather than dropped
+- legacy flat `英文翻译` / `english_translations` remains during the transition for backward compatibility
+
+**Rationale:** This keeps the data model honest by making reading-specific English first-class data instead of continuing to compress multiple readings into one mixed flat list. It also keeps regeneration, DB backfill, and debugging deterministic and reversible by treating the reviewed reading-gloss artifact as the provenance source.
+
+**Consequences:** Consumers should migrate toward `英文解释按拼音` / `english_translations_by_pinyin` as the preferred structured field, flattening only when current flat behavior must be preserved. Legacy flat `英文翻译` remains temporary compatibility data and should be deprecated only after consumer migration is complete.
+
+**Status:** Accepted

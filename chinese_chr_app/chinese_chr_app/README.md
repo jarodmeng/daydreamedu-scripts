@@ -2,9 +2,9 @@
 
 A web application to help primary school students learn simplified Chinese characters. It combines utility features (character search, radicals, stroke counts, pinyin search) with learning features (personalized pinyin-recall practice) and is data-driven and customized per logged-in user.
 
-**Current version: v0.2.20**
+**Current version: v0.2.21**
 
-Recent data update: Feng word examples and HWXNet common phrases now both carry structured reading-aware transition fields (`WordsByPinyin`, `常用词组按拼音` / `common_phrases_by_pinyin`) alongside legacy flat lists. The Search page now uses grouped Feng `WordsByPinyin` display for `词组`, while other runtime consumers may still flatten structured buckets back into legacy phrase order where reading-aware handling is not yet needed.
+Recent data update: Feng word examples, HWXNet common phrases, and HWXNet English glosses now all carry structured reading-aware transition fields (`WordsByPinyin`, `常用词组按拼音` / `common_phrases_by_pinyin`, and `英文解释按拼音` / `english_translations_by_pinyin`) alongside legacy flat lists. Current consumers preserve existing behavior by flattening these structured buckets through shared middleware utilities where reading-aware handling is not yet needed.
 
 ---
 
