@@ -58,6 +58,7 @@ CREATE TABLE IF NOT EXISTS hwxnet_characters (
     strokes integer,
     basic_meanings jsonb,
     english_translations jsonb,
+    english_translations_by_pinyin jsonb,
     common_phrases jsonb,
     common_phrases_by_pinyin jsonb,
     PRIMARY KEY (character, zibiao_index)
@@ -144,6 +145,7 @@ def row_from_entry(entry: dict):
     pinyin_list = entry.get("拼音") or []
     pinyin_norm = _normalize_pinyin_list(pinyin_list)
     common_phrases = entry.get("常用词组") or []
+    english_translations_by_pinyin = entry.get("英文解释按拼音") or []
     common_phrases_by_pinyin = entry.get("常用词组按拼音") or []
 
     return (
@@ -157,6 +159,7 @@ def row_from_entry(entry: dict):
         strokes_val,
         Json(entry.get("基本字义解释") or []),
         Json(entry.get("英文翻译") or []),
+        Json(english_translations_by_pinyin),
         Json(common_phrases),
         Json(common_phrases_by_pinyin),
     )
@@ -240,8 +243,8 @@ def main():
                 cur.executemany(
                     """
                     INSERT INTO hwxnet_characters
-                    (character, zibiao_index, index, source_url, classification, pinyin, radical, strokes, basic_meanings, english_translations, common_phrases, common_phrases_by_pinyin)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    (character, zibiao_index, index, source_url, classification, pinyin, radical, strokes, basic_meanings, english_translations, english_translations_by_pinyin, common_phrases, common_phrases_by_pinyin)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                     ON CONFLICT (character, zibiao_index) DO UPDATE SET
                         index = EXCLUDED.index,
                         source_url = EXCLUDED.source_url,
@@ -251,6 +254,7 @@ def main():
                         strokes = EXCLUDED.strokes,
                         basic_meanings = EXCLUDED.basic_meanings,
                         english_translations = EXCLUDED.english_translations,
+                        english_translations_by_pinyin = EXCLUDED.english_translations_by_pinyin,
                         common_phrases = EXCLUDED.common_phrases,
                         common_phrases_by_pinyin = EXCLUDED.common_phrases_by_pinyin
                     """,
