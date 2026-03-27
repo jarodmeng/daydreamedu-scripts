@@ -76,29 +76,32 @@ def main():
             expected_by_key[key] = e
 
     conn = psycopg.connect(url)
+    rows = []
     try:
         with conn.cursor() as cur:
-            cur.execute(
-                """
-                SELECT character, zibiao_index, index, source_url, classification,
-                       pinyin, radical, strokes, basic_meanings, english_translations
-                FROM hwxnet_characters
-                ORDER BY zibiao_index
-                LIMIT 10
-                """
-            )
-            rows = cur.fetchall()
+            for char, zibiao_index in expected_by_key:
+                cur.execute(
+                    """
+                    SELECT character, zibiao_index, index, source_url, classification,
+                           pinyin, radical, strokes, basic_meanings, english_translations,
+                           english_translations_by_pinyin
+                    FROM hwxnet_characters
+                    WHERE character = %s AND zibiao_index = %s
+                    """,
+                    (char, zibiao_index),
+                )
+                row = cur.fetchone()
+                if row is None:
+                    rows.append((char, zibiao_index, None, None, None, None, None, None, None, None, None))
+                else:
+                    rows.append(row)
     finally:
         conn.close()
-
-    if len(rows) != 10:
-        print(f"Expected 10 rows, got {len(rows)}")
-        sys.exit(1)
 
     errors = []
     for row in rows:
         (char, zibiao_index, index, source_url, classification, pinyin, radical, strokes,
-         basic_meanings, english_translations) = row
+         basic_meanings, english_translations, english_translations_by_pinyin) = row
         key = (char, zibiao_index)
         exp = expected_by_key.get(key)
         if not exp:
@@ -113,6 +116,7 @@ def main():
         exp_strokes = norm_strokes(exp)
         exp_meanings = exp.get("基本字义解释") or []
         exp_eng = exp.get("英文翻译") or []
+        exp_eng_by_pinyin = exp.get("英文解释按拼音") or []
 
         if index != exp_index:
             errors.append(f"{char} zibiao={zibiao_index}: index DB={index!r} JSON={exp_index!r}")
@@ -130,6 +134,10 @@ def main():
             errors.append(f"{char} zibiao={zibiao_index}: basic_meanings length DB={len(basic_meanings or [])} JSON={len(exp_meanings)}")
         if (english_translations or []) != exp_eng:
             errors.append(f"{char} zibiao={zibiao_index}: english_translations DB={english_translations} JSON={exp_eng}")
+        if (english_translations_by_pinyin or []) != exp_eng_by_pinyin:
+            errors.append(
+                f"{char} zibiao={zibiao_index}: english_translations_by_pinyin DB={english_translations_by_pinyin} JSON={exp_eng_by_pinyin}"
+            )
 
     if errors:
         print("Mismatches found:")
@@ -138,7 +146,7 @@ def main():
         sys.exit(1)
 
     print("Verified: all 10 rows in hwxnet_characters match the first 10 entries in extracted_characters_hwxnet.json.")
-    print("  character, zibiao_index, index, source_url, classification, pinyin, radical, strokes, basic_meanings, english_translations — all match.")
+    print("  character, zibiao_index, index, source_url, classification, pinyin, radical, strokes, basic_meanings, english_translations, english_translations_by_pinyin — all match.")
 
 
 if __name__ == "__main__":
