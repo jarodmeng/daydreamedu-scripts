@@ -431,7 +431,7 @@ export default function PinyinRecall() {
               {item.meanings?.length > 0 && (
                 <p className="pinyin-recall-meaning">
                   <span className="pinyin-recall-meaning-label">Meaning: </span>
-                  {item.meanings.join(', ')}
+                  {item.meanings.join(' | ')}
                 </p>
               )}
               {item.meaning_zh && (
@@ -475,7 +475,7 @@ export default function PinyinRecall() {
               {learn.meanings?.length > 0 && (
                 <p className="pinyin-recall-meaning">
                   <span className="pinyin-recall-meaning-label">Meaning: </span>
-                  {learn.meanings.join(', ')}
+                  {learn.meanings.join(' | ')}
                 </p>
               )}
               {learn.meaning_zh && (
@@ -565,7 +565,7 @@ export default function PinyinRecall() {
           {m?.meanings?.length > 0 && (
             <p className="pinyin-recall-meaning">
               <span className="pinyin-recall-meaning-label">Meaning: </span>
-              {m.meanings.join(', ')}
+              {m.meanings.join(' | ')}
             </p>
           )}
           {m?.meaning_zh && (

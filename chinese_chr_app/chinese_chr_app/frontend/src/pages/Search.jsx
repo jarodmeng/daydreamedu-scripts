@@ -509,7 +509,7 @@ function Search() {
                         <td>英语</td>
                         <td>
                           {Array.isArray(dictionary['英文翻译'])
-                            ? dictionary['英文翻译'].join(', ')
+                            ? dictionary['英文翻译'].join(' | ')
                             : dictionary['英文翻译'] || '—'}
                         </td>
                       </tr>

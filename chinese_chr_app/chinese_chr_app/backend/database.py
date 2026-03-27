@@ -10,6 +10,10 @@ import os
 from datetime import date, timedelta
 from typing import Any, Dict, List, Optional, Tuple
 
+from english_translations import (
+    flatten_hwxnet_english_translations,
+    normalize_hwxnet_english_translations_by_pinyin,
+)
 from pinyin_search import compute_searchable_pinyin_for_entry
 
 try:
@@ -22,6 +26,7 @@ except ImportError:
 
 _FENG_HAS_WORDS_BY_PINYIN: Optional[bool] = None
 _HWXNET_HAS_COMMON_PHRASES_BY_PINYIN: Optional[bool] = None
+_HWXNET_HAS_ENGLISH_TRANSLATIONS_BY_PINYIN: Optional[bool] = None
 
 
 def _get_connection():
@@ -158,13 +163,39 @@ def _get_hwxnet_has_common_phrases_by_pinyin_column(conn) -> bool:
     return _HWXNET_HAS_COMMON_PHRASES_BY_PINYIN
 
 
+def _get_hwxnet_has_english_translations_by_pinyin_column(conn) -> bool:
+    global _HWXNET_HAS_ENGLISH_TRANSLATIONS_BY_PINYIN
+    if _HWXNET_HAS_ENGLISH_TRANSLATIONS_BY_PINYIN is not None:
+        return _HWXNET_HAS_ENGLISH_TRANSLATIONS_BY_PINYIN
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            SELECT EXISTS (
+                SELECT 1
+                FROM information_schema.columns
+                WHERE table_schema = current_schema()
+                  AND table_name = 'hwxnet_characters'
+                  AND column_name = 'english_translations_by_pinyin'
+            ) AS has_column
+            """
+        )
+        row = cur.fetchone() or {}
+    _HWXNET_HAS_ENGLISH_TRANSLATIONS_BY_PINYIN = bool(row.get("has_column"))
+    return _HWXNET_HAS_ENGLISH_TRANSLATIONS_BY_PINYIN
+
+
 def _get_hwxnet_select_columns(conn) -> str:
     base = (
         "character, zibiao_index, index, source_url, classification, pinyin, radical, "
         "strokes, basic_meanings, english_translations, common_phrases"
     )
+    extras = []
     if _get_hwxnet_has_common_phrases_by_pinyin_column(conn):
-        return f"{base}, common_phrases_by_pinyin"
+        extras.append("common_phrases_by_pinyin")
+    if _get_hwxnet_has_english_translations_by_pinyin_column(conn):
+        extras.append("english_translations_by_pinyin")
+    if extras:
+        return f"{base}, {', '.join(extras)}"
     return base
 
 
@@ -191,20 +222,29 @@ def _row_to_feng_dict(row: Dict[str, Any]) -> Dict[str, Any]:
 
 def _row_to_hwxnet_dict(row: Dict[str, Any]) -> Dict[str, Any]:
     """Map hwxnet_characters row to the dict shape expected by the app (部首, 拼音, 总笔画, etc.)."""
-    return {
+    pinyin = row.get("pinyin") or []
+    legacy_english = row.get("english_translations") or []
+    english_by_pinyin = normalize_hwxnet_english_translations_by_pinyin(
+        pinyin,
+        row.get("english_translations_by_pinyin"),
+    )
+    entry = {
         "character": (row.get("character") or "").strip(),
         "部首": (row.get("radical") or "").strip() or "",
-        "拼音": row.get("pinyin") or [],
+        "拼音": pinyin,
         "总笔画": row.get("strokes"),
         "index": row.get("index"),
         "zibiao_index": row.get("zibiao_index"),
         "source_url": row.get("source_url"),
         "基本字义解释": row.get("basic_meanings") or [],
-        "英文翻译": row.get("english_translations") or [],
+        "英文翻译": legacy_english,
+        "英文解释按拼音": english_by_pinyin,
         "分类": row.get("classification") or [],
         "常用词组": row.get("common_phrases") or [],
         "常用词组按拼音": row.get("common_phrases_by_pinyin") or [],
     }
+    entry["英文翻译"] = flatten_hwxnet_english_translations(entry)
+    return entry
 
 
 def get_feng_characters() -> List[Dict[str, Any]]:

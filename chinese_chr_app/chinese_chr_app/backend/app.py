@@ -14,6 +14,7 @@ from pathlib import Path
 from typing import Optional, Dict, Any, List, Tuple
 from collections import defaultdict
 
+from english_translations import flatten_hwxnet_english_translations
 from pinyin_search import parse_pinyin_query, compute_searchable_pinyin_for_entry
 from pinyin_recall import (
     build_session_queue,
@@ -1459,9 +1460,7 @@ def pinyin_recall_answer():
         meanings = []
         meaning_zh = None
         if entry:
-            english = entry.get("英文翻译") or []
-            if isinstance(english, list):
-                meanings = [(e or "").strip() for e in english if (e or "").strip()]
+            meanings = flatten_hwxnet_english_translations(entry)
             for sense in (entry.get("基本字义解释") or [])[:1]:
                 for defn in (sense.get("释义") or [])[:1]:
                     expl = (defn.get("解释") or "").strip()

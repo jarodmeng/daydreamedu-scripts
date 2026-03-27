@@ -12,6 +12,7 @@ from collections import defaultdict
 from typing import Any, Dict, Iterable, List, Optional, Set, Tuple
 
 from common_phrases import flatten_hwxnet_common_phrases
+from english_translations import flatten_hwxnet_english_translations
 from pinyin_search import pinyin_to_base_and_tone
 
 # Stage ladder (days until next review): 0 = same session, 1 = +1d, 2 = +3d, 3 = +7d, 4 = +14d, 5 = +30d
@@ -647,11 +648,7 @@ def build_session_queue(
         # For correct-answer screen (Issue #7): all pinyin, English meaning, 基本解释
         all_pinyin = _all_pinyin_list(entry, fallback_primary=correct)
         is_polyphonic = len(all_pinyin) > 1
-        english = entry.get("英文翻译") or []
-        if isinstance(english, list):
-            meanings = [(e or "").strip() for e in english if (e or "").strip()]
-        else:
-            meanings = []
+        meanings = flatten_hwxnet_english_translations(entry)
         meaning_zh = _first_basic_meaning_zh(entry)
         items_out.append({
             "character": ch,
