@@ -6,6 +6,22 @@ This file records changes to the character bank (character set, source data, and
 
 ---
 
+## 2026-03-27 — Polyphonic uncovered-reading review + in-place apply
+
+- **What:** Reviewed every uncovered polyphonic reading under the stricter coverage rule that a reading only counts as covered when it has at least one example word/phrase in `基本字义解释[].释义[].例词`, `常用词组按拼音[].Phrases`, or `WordsByPinyin[].Phrases`.
+- **Scope:** `529` uncovered reading candidates total.
+  - `350` were in the `missing_entry` bucket
+  - `179` were in the `has_entry_no_examples` bucket
+  - final decisions: `506` `remove`, `23` `add_sample_word`
+- **Apply result:** Ran the new review/apply CLI in place against `extracted_characters_hwxnet.json`.
+  - created backup: `data/backups/extracted_characters_hwxnet.20260327-polyphonic-reading-review-backup.json`
+  - overwrote: `data/extracted_characters_hwxnet.json`
+- **Scripts / artifacts:**
+  - `chinese_chr_app/backend/scripts/characters/review_uncovered_polyphonic_readings.py`
+  - `data/hwxnet_polyphonic_uncovered_reading_decisions.json`
+- **Full detail:** The complete removed-reading list and all added sample words are recorded in:
+  - `data/2026-03-27-polyphonic-reading-review.md`
+
 ## 2026-03-27 — 嗯 manual normalization + DB sync
 
 - **What:** Reworked `嗯` as a fully curated special-case row in `extracted_characters_hwxnet.json`.

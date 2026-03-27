@@ -6,9 +6,10 @@ Release history and version notes. Newest releases are at the top.
 
 ---
 
-## [Unreleased]
+## [v0.2.20]
 
 - **Search words grouped by pinyin:** The Feng `词组` row on the Search page now renders `WordsByPinyin` buckets directly instead of flattening them into a single comma-separated line, so polyphonic characters clearly separate phrases by reading. Added focused Playwright coverage for a known polyphonic example (`参`) to lock in the grouped UI behavior.
+- **Polyphonic reading coverage cleanup:** Reviewed all uncovered HWXNet polyphonic readings under a stricter sample-word coverage rule, removed `506` low-value readings, added `23` manual sample words into `常用词组按拼音`, synced the updated JSON into Supabase, and verified that both local JSON and live DB now have `0` uncovered polyphonic readings. See `data/2026-03-27-polyphonic-reading-review.md`, `data/CHARACTERS_CHANGELOG.md`, and `data/CHARACTERS_ARCHITECTURE.md` for the full data-layer record.
 
 ---
 

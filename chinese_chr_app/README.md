@@ -26,6 +26,8 @@ chinese_chr_app/                    # You are here (meta)
 
 The **Chinese Character Learning App** is a full-stack web app for primary school students to learn simplified Chinese: character search, pinyin search, radicals, stroke counts, stroke-order animation, and a personalized pinyin-recall learning game.
 
+Current app version: **v0.2.20**
+
 - **Setup, quick start, production URLs, troubleshooting:** [chinese_chr_app/README.md](chinese_chr_app/README.md)
 - **Product strategy and vision:** [chinese_chr_app/docs/VISION.md](chinese_chr_app/docs/VISION.md)
 - **Technical specs and API:** [chinese_chr_app/docs/ARCHITECTURE.md](chinese_chr_app/docs/ARCHITECTURE.md)
