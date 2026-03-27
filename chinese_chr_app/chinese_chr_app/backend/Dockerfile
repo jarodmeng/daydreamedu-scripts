@@ -8,11 +8,12 @@ COPY chinese_chr_app/backend/requirements.txt .
 RUN pip3 install --no-cache-dir -r requirements.txt
 
 # Copy application code. When adding a new module imported by app.py, add it here.
-# Current app.py local imports: auth, database, pinyin_search, pinyin_recall
+# Current app.py local imports: auth, database, english_translations, pinyin_search, pinyin_recall
 COPY chinese_chr_app/backend/app.py .
 COPY chinese_chr_app/backend/auth.py .
 COPY chinese_chr_app/backend/database.py .
 COPY chinese_chr_app/backend/common_phrases.py .
+COPY chinese_chr_app/backend/english_translations.py .
 COPY chinese_chr_app/backend/pinyin_search.py .
 COPY chinese_chr_app/backend/pinyin_recall.py .
 
