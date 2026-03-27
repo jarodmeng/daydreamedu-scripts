@@ -53,6 +53,28 @@ function getWordBuckets(character) {
     .filter(Boolean)
 }
 
+function getEnglishBuckets(dictionary) {
+  if (!dictionary || typeof dictionary !== 'object') return []
+
+  const englishByPinyin = Array.isArray(dictionary['英文解释按拼音'])
+    ? dictionary['英文解释按拼音']
+    : []
+
+  return englishByPinyin
+    .map(bucket => {
+      if (!bucket || typeof bucket !== 'object' || !Array.isArray(bucket.Glosses)) return null
+
+      const pinyin = typeof bucket.Pinyin === 'string' ? bucket.Pinyin.trim() : ''
+      const glosses = bucket.Glosses
+        .filter(gloss => typeof gloss === 'string' && gloss.trim())
+        .map(gloss => gloss.trim())
+
+      if (!pinyin || glosses.length === 0) return null
+      return { pinyin, glosses }
+    })
+    .filter(Boolean)
+}
+
 function Search() {
   const [searchParams, setSearchParams] = useSearchParams()
   const navigate = useNavigate()
@@ -332,6 +354,31 @@ function Search() {
     return <span>{legacyDisplay || '无'}</span>
   }
 
+  const EnglishCell = () => {
+    const buckets = getEnglishBuckets(dictionary)
+
+    if (buckets.length > 0) {
+      return (
+        <div className="pinyin-word-groups" data-testid="english-by-pinyin-groups">
+          {buckets.map(bucket => (
+            <div key={bucket.pinyin} className="pinyin-word-group" data-testid="english-by-pinyin-group">
+              <span className="pinyin-word-label">{bucket.pinyin}</span>
+              <span className="pinyin-word-phrases">{bucket.glosses.join(', ')}</span>
+            </div>
+          ))}
+        </div>
+      )
+    }
+
+    return (
+      <span>
+        {Array.isArray(dictionary?.['英文翻译'])
+          ? dictionary['英文翻译'].join(' | ')
+          : dictionary?.['英文翻译'] || '—'}
+      </span>
+    )
+  }
+
   const handleReplayAnimation = () => {
     if (writerRef.current) {
       writerRef.current.animateCharacter()
@@ -508,9 +555,7 @@ function Search() {
                       <tr>
                         <td>英语</td>
                         <td>
-                          {Array.isArray(dictionary['英文翻译'])
-                            ? dictionary['英文翻译'].join(' | ')
-                            : dictionary['英文翻译'] || '—'}
+                          <EnglishCell />
                         </td>
                       </tr>
                       {dictionary.source_url && (

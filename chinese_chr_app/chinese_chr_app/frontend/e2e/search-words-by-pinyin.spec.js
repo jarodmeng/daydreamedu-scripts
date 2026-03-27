@@ -52,3 +52,22 @@ test('search groups 词组 by pinyin for polyphonic Feng characters', async ({ p
   await expect(groupedWords).toContainText('shēn');
   await expect(groupedWords).toContainText('人参、党参');
 });
+
+test('search groups 英语 by pinyin for polyphonic dictionary characters', async ({ page }) => {
+  await page.goto('/?q=%E7%B4%AF');
+
+  await expect(
+    page.getByRole('heading', { name: '字典信息（来源：hwxnet）' })
+  ).toBeVisible();
+
+  const groupedEnglish = page.getByTestId('english-by-pinyin-groups');
+  await expect(groupedEnglish).toBeVisible();
+  await expect(page.getByTestId('english-by-pinyin-group')).toHaveCount(3);
+
+  await expect(groupedEnglish).toContainText('lèi');
+  await expect(groupedEnglish).toContainText('tired, weary, to strain, to wear out');
+  await expect(groupedEnglish).toContainText('léi');
+  await expect(groupedEnglish).toContainText('burden, numerous, cumbersome');
+  await expect(groupedEnglish).toContainText('lěi');
+  await expect(groupedEnglish).toContainText('accumulate, successive, involve');
+});
