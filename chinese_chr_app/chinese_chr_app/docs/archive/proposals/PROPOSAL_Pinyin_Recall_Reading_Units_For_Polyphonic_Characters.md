@@ -6,12 +6,13 @@
 **Issue:** #32 — `[Chinese character app] Polyphonic characters should be split into multiple "characters"`
 
 > Update (2026-03-27): Since this proposal was drafted, the source data has gained
-> structured per-reading phrase buckets for both major stem sources:
-> Feng `WordsByPinyin` and HWXNet `常用词组按拼音` / `common_phrases_by_pinyin`.
-> That means a substantial part of the old "reading-tagging" prerequisite is now
-> complete at the data layer. The remaining gap is mainly in the pinyin-recall
-> runtime model, which still treats the learning unit as `character` and still
-> flattens those structured fields back into character-level stem lists.
+> structured per-reading buckets for the main pinyin-recall content sources:
+> Feng `WordsByPinyin`, HWXNet `常用词组按拼音` / `common_phrases_by_pinyin`,
+> and HWXNet `英文解释按拼音` / `english_translations_by_pinyin`.
+> That means the main prerequisite data modeling is now complete. The remaining
+> gap is mostly in the pinyin-recall runtime model, which still treats the
+> learning unit as `character` and still flattens those structured fields back
+> into character-level prompts and feedback.
 
 ---
 
@@ -41,11 +42,11 @@ Those stems span multiple readings:
 
 - `和|hé` -> `和谐`, `和平`
 - `和|hú` -> `和了`
-- `和|huo` -> `暖和`
+- `和|huó` -> `暖和`
 - `和|huó` / `和|huò` -> `和泥`
 
 So the current single-unit model can ask for `hé` while showing stems that point
-to `hú`, `huo`, or `huó` / `huò`.
+to `hú`, `huó`, or `huò`.
 
 #### `行`
 
@@ -55,7 +56,7 @@ to `hú`, `huo`, or `huó` / `huò`.
 Those stems are not one reading:
 
 - `行|xíng` -> `爬行`, `进行`, `品行`
-- `行|héng` -> `横行`
+- `行|xíng` -> `横行`
 - `行|háng` -> `行业`
 
 So the learner is being tested on one pronunciation while seeing hints from another.
@@ -136,7 +137,7 @@ Current `pinyin_recall_item_answered` rows on polyphonic characters:
 
 So issue #32 is not only about future data quality. The current learner history already contains a large amount of polyphonic-character activity.
 
-### 2.4 Data-quality nuance: source coverage is much better, but runtime still uses character-level behavior
+### 2.4 Remaining data-quality edge cases: source coverage is much better, but runtime still uses character-level behavior
 
 Among the 424 polyphonic characters:
 
@@ -144,23 +145,28 @@ Among the 424 polyphonic characters:
 - **50** have only **1 reading** tagged in `basic_meanings`
 - **1** has **0** reading-tagged senses
 
-This still matters for implementation, but the situation has improved since the
-original draft:
+This still matters for implementation, but it is now a **secondary caution**
+rather than the main blocker. The situation has improved since the original
+draft:
 
 - Feng words now exist in a structured transition field: `WordsByPinyin`
 - HWXNet common phrases now exist in a structured transition field:
   `常用词组按拼音` / `common_phrases_by_pinyin`
+- HWXNet English glosses now exist in a structured transition field:
+  `英文解释按拼音` / `english_translations_by_pinyin`
 
-So the remaining caution is no longer "we must first invent reading-aware phrase
-tagging for our main stem sources." Instead, it is:
+So the remaining caution is no longer "we must first invent reading-aware source
+structure." Instead, it is:
 
 - a reading-level model is still the right target, and
 - we should now consume the existing structured buckets rather than flattening
-  them back into character-level phrase lists.
+  them back into character-level phrase and gloss lists.
 
 We still need a small **override / curation layer** for incomplete cases,
-especially where `basic_meanings` does not yet cover all readings cleanly or
-where a raw source reading should not be recall-enabled yet.
+especially where `basic_meanings` does not yet cover all readings cleanly,
+where a structured bucket exists but should not yet be recall-enabled, or where
+the runtime needs a cleaner per-reading interpretation than the raw source row
+currently provides.
 
 ---
 
@@ -191,11 +197,14 @@ This solves the actual issue without forcing the entire app to pretend that `行
 To reduce risk, the first implementation should focus on **content correctness**
 before full learner-history migration:
 
-1. Generate derived reading-unit rows from the current content tables.
-2. Build one backend helper that produces merged reading-specific stems using:
-   `WordsByPinyin` -> `common_phrases_by_pinyin` -> `basic_meanings`.
-3. Use that helper to build reading-specific prompt payloads and validate them on
-   real characters.
+1. Build one derived reading-unit helper layer from the current content tables.
+   This can start in-memory / in-code before we commit to a physical derived
+   table.
+2. Use that helper to produce merged reading-specific prompt payloads using:
+   `WordsByPinyin` -> `common_phrases_by_pinyin` -> reading-matched
+   `basic_meanings`, plus `english_translations_by_pinyin` for feedback glosses.
+3. Validate those payloads on real characters and confirm the runtime no longer
+   leaks cross-reading stems or glosses.
 4. Only after that content layer is stable, add new unit-keyed bank / answer
    tables and migrate learner progress.
 
@@ -209,13 +218,26 @@ This keeps the first milestone narrow:
 
 ---
 
-## 4. Proposed Data Model
+## 4. Proposed Recall-Unit Contract
 
-### 4.1 New derived table: `pinyin_recall_reading_units`
+This section defines the **target recall-unit shape** that pinyin recall should
+consume once the atomic item becomes `character + reading`.
 
-Create a new derived table specifically for pinyin recall.
+Important clarification:
 
-Suggested columns:
+- this is the logical contract the runtime, persistence layer, and reporting
+  should agree on
+- it does **not** require a physical `pinyin_recall_reading_units` table on day 1
+- we can first derive these units in code / memory, then decide later whether a
+  dedicated derived table is worth materializing
+
+### 4.1 Target derived unit shape
+
+If we do materialize the unit layer, a natural table name would be
+`pinyin_recall_reading_units`. But even before that, the runtime should behave
+as if this structure exists.
+
+Suggested fields:
 
 | Column | Purpose |
 |--------|---------|
@@ -232,6 +254,9 @@ Suggested columns:
 | `example_words` | Reading-specific stems/examples only |
 | `source_character_index` | Optional Feng index / linkage back to source character |
 
+In other words, this section is specifying the shape of one recall unit, not
+yet mandating how aggressively it must be persisted physically.
+
 ### 4.1.1 English meanings must also split by reading
 
 The proposal should treat `english_translations` the same way it treats stems
@@ -241,6 +266,9 @@ bucketed by reading, not copied wholesale from the character row.
 Why this matters:
 
 - a single character-level English list often mixes senses from multiple readings
+- English meaning is shown on the current correct-answer and incorrect-answer
+  pages, so a reading-specific testing unit also requires reading-specific
+  feedback content
 - if we keep inherited mixed glosses, the feedback screen and future review UI
   will still leak cross-reading hints
 - the reading-unit layer should stay internally consistent: one reading, one
@@ -248,45 +276,53 @@ Why this matters:
 
 Recommended derivation rule:
 
-1. Prefer reading-specific glosses derived from the matching HWXNet
-   `basic_meanings` bucket.
-2. Use CC-CEDICT as a candidate source for `character + reading` English glosses,
-   especially when the current app gloss exists only at the whole-character level.
-3. If the source English translations were previously merged at the whole-character
-   level, map or curate them into per-reading buckets during reading-unit build.
+1. Prefer HWXNet `英文解释按拼音` / `english_translations_by_pinyin` as the
+   primary source of learner-facing reading-specific English glosses.
+2. Fall back to reading-matched HWXNet `basic_meanings` only when the structured
+   English bucket is absent or intentionally empty.
+3. Use manual override / curation for unresolved readings that should still be
+   recall-enabled.
 4. If a reading cannot yet be assigned a trustworthy English gloss bucket, leave
    `english_translations` empty for that unit and rely on the Hanzi + pinyin +
    stems until curated.
 
-So for polyphonic characters, "inherited translations" should only mean
-"inherited after per-reading assignment," not "copy the full character-level
-English list into every reading unit."
+So for polyphonic characters, "inherited translations" should mean
+"inherit the already-curated per-reading bucket when available," not "copy the
+full character-level English list into every reading unit."
 
 Recommended source priority for reading-level English:
 
-1. HWXNet reading-specific `basic_meanings`
-2. CC-CEDICT entries matching the same `character + reading`
-3. Existing app-level `英文翻译` as a weak compatibility hint only
-4. Manual override / curation for unresolved cases
+1. HWXNet `english_translations_by_pinyin`
+2. HWXNet reading-specific `basic_meanings`
+3. Manual override / curation for unresolved cases
+4. Existing app-level `英文翻译` only as a weak compatibility hint while legacy
+   consumers still exist
 
-Important caution:
+Optional tooling note:
 
-- CC-CEDICT should be treated as a **candidate source**, not a blind final source
-- it is useful because it is already reading-aware
-- but its glosses still need filtering or rewriting for learner-friendly
-  character-level use
+- CC-CEDICT may still be useful as an offline curation aid for unresolved
+  readings, but it should not be treated as a core runtime dependency for this
+  proposal now that the app already has a curated structured English field.
 
-### 4.2 Why a derived table is better than duplicating character rows
+### 4.2 Why a derived unit layer is better than duplicating character rows
 
 We should **not** duplicate `hwxnet_characters` or `feng_characters` into multiple physical "characters".
 
 That would make dictionary/search semantics messy and would over-couple the learning model to the rest of the app.
 
-Instead:
+Instead, we should introduce a derived recall-unit layer:
 
 - keep character tables as they are
 - derive recall units for learning
 - store only recall-specific, reading-specific fields in the new table
+
+That derived layer may initially live:
+
+- in backend helper code
+- in unit-aware session payloads
+- in new unit-keyed bank/log tables
+
+and only later, if useful, in a dedicated `pinyin_recall_reading_units` table
 
 This keeps the data model honest:
 
@@ -306,13 +342,487 @@ Display should still use the tone-mark form from the source data.
 
 This avoids Unicode-key issues and matches the existing pinyin-normalization logic already used elsewhere.
 
+### 4.4 Existing learner state and event logs must also move to the reading unit
+
+Changing the prompt unit from `character` to `character + reading` is not only a
+content-model change. It also changes the identity of the item being scheduled,
+scored, and logged.
+
+Today the pinyin-recall persistence layer is character-keyed:
+
+- `pinyin_recall_character_bank` uses `(user_id, character)` as the learning-state key
+- `pinyin_recall_item_presented` logs `character`
+- `pinyin_recall_item_answered` logs `character`
+- queue/category analytics replay history per `(user_id, character)`
+
+Once recall becomes reading-specific, those tables can no longer treat `行`
+as a single learnable item. They need to key against the recall unit instead.
+
+Recommended target shape:
+
+- learner-state table: key by `(user_id, unit_id)` where
+  `unit_id = character|reading_key`
+- presented log: keep `character`, but also store `unit_id`, `reading_key`,
+  and `reading_display`
+- answered log: keep `character`, but also store `unit_id`, `reading_key`,
+  and the tested `correct_reading`
+- error-report log: keep `character`, but also store nullable `unit_id` so
+  report triage knows which reading-specific prompt was shown
+
+Important schema note:
+
+- for the event-log tables, this is mostly an **additive schema change**
+- for the learner-state table, this is **not only additive**, because the
+  logical identity and primary key change from `(user_id, character)` to
+  `(user_id, unit_id)`
+
+In practice, that means we should either:
+
+- create a new unit-keyed learner-state table, or
+- add the new columns and then replace the old PK / uniqueness contract
+
+The first option is safer and easier to audit during rollout.
+
+Why keep both `character` and `unit_id`:
+
+- `character` remains useful for joins, UI, and broad reporting
+- `unit_id` is the real learning identity for scheduling and correctness
+- storing both makes migration/debugging much easier than trying to recover the
+  Hanzi from `unit_id` everywhere
+
+### 4.4.1 Do not clone old character-bank state onto every reading
+
+The old bank rows should **not** be copied wholesale to all derived reading
+units for a polyphonic character.
+
+Example of what we should avoid:
+
+- old row: `(user_id, 行)` score `20`
+- bad migration: create both `(user_id, 行|xing2)` score `20` and
+  `(user_id, 行|hang2)` score `20`
+
+That would incorrectly mark unseen readings as already learned.
+
+The conservative migration rule should be:
+
+- monophonic characters: migrate state directly to their sole reading unit
+- polyphonic characters: migrate existing bank/history only to the
+  **legacy-tested primary reading unit**, not to every reading
+- other enabled readings for that character should start with no bank row yet
+  (or an explicit untouched/new state, if we want rows materialized eagerly)
+
+Why mapping to the primary reading is the least-wrong interpretation:
+
+- the old runtime always scored the character against `get_correct_pinyin(...)`,
+  which means the first HWXNet reading
+- so existing bank score/stage/due state represents learner exposure to the
+  old **primary-reading question**, even if the stems were sometimes noisy
+- it does **not** represent mastery of the character's other readings
+
+### 4.4.2 Recommended migration strategy for existing tables
+
+Use a staged migration, not an in-place reinterpretation of the old tables.
+
+1. Create new unit-keyed learner-state tables and add unit columns to the
+   event-log tables.
+2. Backfill monophonic rows directly to their sole unit.
+3. Backfill polyphonic bank rows only to the current primary reading unit.
+4. Leave other polyphonic reading units uninitialized until the learner actually
+   encounters them in the new runtime.
+5. Switch queue building, answer updates, category counts, daily trend replay,
+   and progress analytics to the unit-keyed tables / unit-aware log columns.
+6. Keep the old character-keyed tables as backup / audit history until the new
+   flow has been verified in production.
+
+Recommended concrete mapping for the bank table:
+
+- source key: `(user_id, character)`
+- target key: `(user_id, unit_id)`
+- monophonic: `unit_id = character|sole_reading`
+- polyphonic: `unit_id = character|current_primary_reading`
+- copy across: `score`, `stage`, `next_due_utc`, `first_seen_at`,
+  `last_answered_at`, `total_correct`, `total_wrong`, `total_i_dont_know`
+- add migration metadata such as `migration_source = 'legacy_character_bank'`
+  and `migration_strategy = 'primary_only'`
+
+Recommended concrete schema direction:
+
+- existing `pinyin_recall_character_bank` should not remain logically keyed by
+  `(user_id, character)` once the runtime is unit-based
+- the new learner-state table should be keyed by `(user_id, unit_id)` and keep
+  `character`, `reading_key`, and `reading_display` as explicit columns
+- existing event-log tables can keep `character`, but should gain `unit_id`
+  and reading columns so new rows are unit-identifiable
+
+### 4.4.3 What to do with historical event rows
+
+Historical event rows are useful, but they should not block the product change.
+
+Recommended approach:
+
+- new runtime writes reading-unit-aware presented/answered rows going forward
+- old character-only rows remain preserved as legacy history
+- any analytics that depend on exact item identity should read from the new
+  unit-aware history after the cutover date
+
+For optional backfill:
+
+- `item_presented` rows can usually be mapped to a unit because the presented
+  payload stores the old `correct_choice`, which corresponds to the legacy
+  tested reading
+- `item_answered` rows are weaker because they store the selected choice but not
+  the full presented prompt context; if we backfill them, the safest rule is to
+  map them to the same legacy primary-reading unit rather than pretending they
+  contain fully reading-specific evidence
+
+So the proposal should treat historical logs as:
+
+- worth preserving
+- useful for audit / broad trend context
+- not trustworthy enough to synthesize per-reading mastery for non-primary
+  readings
+
+Subsequent table-usage change:
+
+- after cutover, new runtime writes must treat `unit_id` as the item identity
+- queue building must load learner state by `(user_id, unit_id)`, not by
+  `(user_id, character)`
+- score/category progression must update one unit row at a time
+- daily trend replay and profile category counts must group answered history by
+  `(user_id, unit_id)` for post-cutover rows
+- any remaining character-level reporting should be treated as legacy or as a
+  separate rollup view, not as the authoritative recall-state model
+
+### 4.4.4 Product consequence for users
+
+After migration, a learner who previously studied `行` under the old character
+model should experience:
+
+- their old progress continuing on `行|xíng` if `xíng` was the old tested reading
+- `行|háng` appearing as a genuinely new unit later
+- no fake "already learned" status for readings they were never explicitly tested on
+
+That preserves user trust better than either:
+
+- resetting all polyphonic progress to zero, or
+- copying one character score onto multiple distinct readings
+
 ---
 
-## 5. Prompt Construction Rules
+## 5. Risks and Trade-offs
+
+### 5.1 More units means more surface area
+
+Splitting 424 characters into 904 reading units increases content and scheduling complexity.
+
+Mitigation:
+
+- `recall_enabled`
+- override layer
+- phased rollout
+
+### 5.2 Not every source reading should become a recall unit automatically
+
+The current source data is much stronger than when this proposal was first
+drafted, but that does not mean every raw reading in `拼音` should immediately
+become a learner-facing recall unit.
+
+Some readings will still be weaker on one or more dimensions:
+
+- stem coverage is thin or overly marginal
+- `basic_meanings` support is incomplete
+- the reading is real but low-value for recall
+- the reading exists in source data but needs explicit curation before it becomes
+  a good prompt
+
+Mitigation:
+
+- keep source tables unchanged
+- use a derived recall-unit layer with manual overrides
+- do not require every raw reading to be recall-enabled on day 1
+
+### 5.3 Historical continuity is imperfect
+
+Old character-level history cannot be split perfectly by reading.
+
+Mitigation:
+
+- migrate polyphonic history only to the primary unit
+- keep old tables for legacy analytics / audit
+
+---
+
+## 6. Detailed Rollout Plan
+
+This change touches four coupled surfaces:
+
+- recall-unit content derivation
+- pinyin-recall session/runtime payloads
+- persistent learner state and logs
+- profile/progress reporting and category UI
+
+So the implementation should be staged deliberately rather than merged as one
+large switch.
+
+### 6.1 Phase 0: Freeze the unit contract
+
+Before changing runtime behavior, define the reading-unit contract clearly.
+
+Required outputs for each recall-enabled unit:
+
+- `unit_id`
+- `character`
+- `reading_key`
+- `reading_display`
+- `reading_rank`
+- `is_primary`
+- `recall_enabled`
+- `enable_reason`
+- reading-specific `stem_words`
+- reading-specific `english_translations`
+- reading-specific `basic_meanings`
+
+Required product invariant:
+
+- every pinyin-recall question, answer update, and progress count must be
+  attributable to exactly one `unit_id`
+
+Definition-of-done for this phase:
+
+- a single backend helper can build a stable reading-unit payload for any HWXNet
+  character
+- the helper uses structured per-reading sources first and does not flatten them
+  back to character-level prompts
+
+### 6.2 Phase 1: Build the reading-unit content layer
+
+Implement a backend helper or builder that derives recall units from current
+source tables / JSON.
+
+Input sources:
+
+- HWXNet `拼音`
+- HWXNet `basic_meanings`
+- HWXNet `common_phrases_by_pinyin`
+- HWXNet `english_translations_by_pinyin`
+- Feng `WordsByPinyin`
+- manual override / curation config for `recall_enabled`
+
+Expected behavior:
+
+- monophonic characters yield one unit
+- polyphonic characters yield one unit per enabled reading
+- stems are merged per reading
+- glosses are selected per reading
+- disabled readings remain visible in debug/admin output but are excluded from
+  the recall pool
+
+Suggested verification work:
+
+- snapshot real examples like `和`, `行`, `乐`, `长`, `累`
+- verify that no unit leaks stems from a sibling reading
+- verify that glosses match the tested reading only
+- verify that `unit_id` is stable across rebuilds
+
+Definition-of-done for this phase:
+
+- the backend can produce a full in-memory pool of recall-enabled reading units
+- the total enabled unit count is known and can be exposed for reporting
+
+### 6.3 Phase 2: Make the pinyin-recall session API unit-aware
+
+Change queue building and prompt construction to operate on units instead of
+characters.
+
+Backend changes:
+
+- replace character-based candidate selection with unit-based candidate selection
+- build distractors against the tested reading unit
+- exclude sibling readings of the same character from distractors
+- emit session items keyed by `unit_id`
+
+Session payload should include:
+
+- `unit_id`
+- `character`
+- `correct_pinyin`
+- `all_pinyin` or `other_readings`
+- reading-specific `stem_words`
+- reading-specific `meanings`
+- `is_polyphonic`
+- existing category/batch metadata
+
+Frontend pinyin-recall changes:
+
+- treat the session item as a reading unit even if the main visual headline is
+  still the Hanzi
+- show the tested reading on result screens as the primary answer identity
+- keep other readings secondary
+- update the correct-answer and incorrect-answer screens to consume
+  reading-specific English meanings for the tested unit, rather than the
+  current flattened character-level meaning list
+- preserve the current "多音字" affordance, but make the card explicitly about
+  one tested reading
+
+Definition-of-done for this phase:
+
+- a live session can ask `行|háng` and `行|xíng` as two different questions
+- correct-answer and incorrect-answer screens show only the tested reading's
+  English meaning / gloss content
+- feedback screens are internally consistent for the tested reading
+
+### 6.4 Phase 3: Introduce unit-keyed persistence
+
+Add new persistence structures for reading-unit learning state and logs.
+
+Recommended target changes:
+
+- new bank table keyed by `(user_id, unit_id)`
+- presented log stores both `character` and `unit_id`
+- answered log stores both `character` and `unit_id`
+- report-error log stores nullable `unit_id`
+
+Minimal required columns for the new bank table:
+
+- `user_id`
+- `unit_id`
+- `character`
+- `reading_key`
+- `reading_display`
+- `score`
+- `stage`
+- `next_due_utc`
+- `first_seen_at`
+- `last_answered_at`
+- `total_correct`
+- `total_wrong`
+- `total_i_dont_know`
+
+Migration tasks:
+
+1. Create the new unit-keyed bank/log tables.
+2. Backfill legacy character-bank rows to unit rows using the `primary_only`
+   strategy described above.
+3. Optionally backfill legacy event rows with inferred `unit_id` for audit
+   continuity.
+4. Switch all runtime writes to the new tables.
+5. Stop reading from the old character-keyed bank in queue building.
+
+Operational safety:
+
+- keep backup copies of old tables before backfill
+- run dual-read or verification scripts during rollout
+- do not delete legacy tables immediately after cutover
+
+Definition-of-done for this phase:
+
+- answering a question updates only one unit row
+- no scoring or scheduling code still depends on `(user_id, character)` for
+  recall state
+
+### 6.5 Phase 4: Migrate profile/progress reporting to the unit denominator
+
+After the game runtime is unit-aware, the Profile page and related analytics
+must also move to the same denominator.
+
+Current behavior:
+
+- progress is reported against total character count
+- category counts are grouped by character
+- trend replay groups answer history per `(user_id, character)`
+
+Target behavior:
+
+- progress is reported against total enabled recall-unit count
+- learned / learning / not-tested are counts of units
+- category lists show unit-level entries
+- daily trend replays unit history, not character history
+
+Backend work:
+
+- replace total character constant with total enabled unit count
+- replace category-count queries with unit-based versions
+- replace daily trend replay with unit-based grouping
+- replace "characters by category" queries with unit-aware results
+
+Frontend/Profile work:
+
+- remove hardcoded `3664` fallback
+- render `total_units` or equivalent backend-provided denominator
+- update copy so the user understands that some polyphonic readings count
+  separately
+- category pages should render entries like `行（xíng）` and `行（háng）`, not
+  one collapsed `行`
+
+Recommended product copy adjustment:
+
+- avoid saying only "汉字掌握度" if the denominator is now partly reading-based
+- preferred direction: explain that pinyin recall progress is based on
+  "拼音记忆单元" or equivalent wording
+
+Definition-of-done for this phase:
+
+- Profile and pinyin-recall use the same denominator and the same unit identity
+- a user's progress percentage changes only because the underlying pool changed,
+  not because one screen is still character-based
+
+Queue / scheduling note:
+
+- if all eligible polyphonic readings become recall units, the effective pool
+  grows by about **13.10%**
+- queue and progression constants may need retuning later:
+  batch new-count caps, Total Load thresholds, and zibiao/pool expansion heuristics
+- do **not** bundle those retunings into the first implementation of issue #32;
+  first ship correct unit identity, stems, answer keys, logging, and reporting,
+  then measure whether queue pressure justifies new thresholds
+
+### 6.6 Phase 5: Cutover and validation
+
+Roll the change out behind a controlled cutover.
+
+Recommended order:
+
+1. Land reading-unit builder and verification scripts.
+2. Land new unit-keyed tables and migration scripts.
+3. Backfill legacy learner state.
+4. Deploy runtime reads/writes against the unit model.
+5. Deploy profile/progress changes.
+6. Compare old vs new counts for a sample of users.
+7. Keep legacy tables read-only for a safety window.
+
+Validation checklist:
+
+- sample users retain expected progress on old primary readings
+- non-primary readings start as new units
+- profile category counts sum to the total enabled unit denominator
+- daily trend charts remain monotonic / plausible after replay migration
+- pinyin-recall session mixes new units and due units correctly
+- correct and incorrect answer pages no longer render flattened
+  character-level English meanings for polyphonic units
+- no frontend screen still assumes "one Hanzi = one recall item"
+
+### 6.7 Open decisions to resolve before implementation
+
+The proposal should call out a few choices explicitly:
+
+1. Is the user-facing denominator all derived units or only `recall_enabled`
+   units?
+2. Do we introduce a physical `pinyin_recall_reading_units` table immediately,
+   or keep the unit layer derived in code first?
+3. Do category pages list one row per unit, or group by character with reading
+   chips inside each row?
+4. Do we backfill legacy presented/answered logs with inferred `unit_id`, or
+   keep them as pre-cutover history only?
+5. What exact user-facing label replaces or qualifies `汉字掌握度` once polyphonic
+   readings count separately?
+
+---
+
+## 7. Prompt Construction Rules
 
 Once the unit becomes `character + reading`, the prompt builder should follow these rules.
 
-### 5.1 Correct answer
+### 7.1 Correct answer
 
 Correct answer should be:
 
@@ -322,7 +832,7 @@ not:
 
 - `first pinyin in hwxnet_characters`
 
-### 5.2 Stem-word selection
+### 7.2 Stem-word selection
 
 Stem words must be reading-specific.
 
@@ -359,7 +869,7 @@ Source policy:
 - if a remaining source phrase is not covered by any of those paths, keep it
   out of recall prompts until curated
 
-### 5.3 Distractors
+### 7.3 Distractors
 
 Distractors should continue to exclude other readings of the same character from the wrong choices.
 
@@ -371,7 +881,7 @@ not:
 
 - "Pick between `xíng` and another valid reading of the same character."
 
-### 5.4 Feedback screen
+### 7.4 Feedback screen
 
 On answer feedback:
 
@@ -383,7 +893,7 @@ For example:
 
 - `行`
 - **This question's reading:** `háng`
-- Other readings: `xíng`, `hàng`, `xìng`, `héng`
+- Other readings: `xíng`
 
 That teaches the distinction without collapsing the score/state again.
 
@@ -396,7 +906,7 @@ English-gloss rule:
 
 ---
 
-## 6. How This Would Work for Real Characters
+## 8. How This Would Work for Real Characters
 
 All examples below use the same stem-generation rule:
 
@@ -406,7 +916,7 @@ All examples below use the same stem-generation rule:
 - de-duplicate in first-seen order
 - show the first `3` merged items in the current recall UI
 
-### 6.1 `和`
+### 8.1 `和`
 
 Current live behavior:
 
@@ -428,7 +938,7 @@ Likely rollout detail:
 - not every raw HWXNet reading needs to be recall-enabled on day 1
 - fringe readings such as tone-less or interjection-like variants can be disabled until curated
 
-So issue #32 does **not** need to mean "ask 8 separate `和` questions immediately."
+So issue #32 does **not** need to mean "ask 5 separate `和` questions immediately."
 It means the model is capable of separating them correctly.
 
 If we apply the preferred merge order:
@@ -459,7 +969,7 @@ And the actual prompt stems shown by the current 3-word recall UI would be:
 - `和|huo4` (`huò`) -> `和弄`, `和药`, `奶里和点儿糖`
 - `和|hu2` (`hú`) -> `和了`, `和牌`
 
-### 6.2 `行`
+### 8.2 `行`
 
 Current live behavior:
 
@@ -471,12 +981,8 @@ Proposed reading units:
 - `行|xing2` (`xíng`) -> `行走`, `爬行`, `进行`
 - `行|hang2` (`háng`) -> `银行`, `行业`, `行列`
 
-Additional readings like `hàng`, `xìng`, `héng` can be:
-
-- recall-disabled initially, or
-- enabled only after manual review
-
-This is a good example of why we need `recall_enabled` and `enable_reason`, not just "split every pinyin string blindly."
+This is still a good example of why the model should be reading-specific even
+when the current live row only has two active recall-ready readings.
 
 If we apply the preferred merge order:
 
@@ -501,7 +1007,7 @@ And the actual prompt stems shown by the current 3-word recall UI would be:
 - `行|xing2` (`xíng`) -> `行动`, `行走`, `进行`
 - `行|hang2` (`háng`) -> `行列`, `行业`, `银行`
 
-### 6.3 `乐`
+### 8.3 `乐`
 
 Current live behavior:
 
@@ -535,7 +1041,7 @@ And the actual prompt stems shown by the current 3-word recall UI would be:
 - `乐|le4` (`lè`) -> `乐观`, `快乐`, `欢乐`
 - `乐|yue4` (`yuè`) -> `乐队`, `音乐`, `乐曲`
 
-### 6.4 `累`
+### 8.4 `累`
 
 Current live behavior:
 
@@ -574,7 +1080,7 @@ And the actual prompt stems shown by the current 3-word recall UI would be:
 - `累|lei2` (`léi`) -> `累赘`, `果实累累`, `累臣`
 - `累|lei3` (`lěi`) -> `积累`, `累计`, `日积月累`
 
-### 6.5 `参`
+### 8.5 `参`
 
 Current live behavior:
 
@@ -619,7 +1125,7 @@ And the actual prompt stems shown by the current 3-word recall UI would be:
 - `参|cen1` (`cēn`) -> `参差不齐`, `参差`, `参错`
 - `参|shen1` (`shēn`) -> `人参`, `党参`, `参商`
 
-### 6.6 `琢`
+### 8.6 `琢`
 
 Current live behavior:
 
@@ -657,7 +1163,7 @@ And the actual prompt stems shown by the current 3-word recall UI would be:
 - `琢|zhuo2` (`zhuó`) -> `琢磨`, `琢石`, `雕琢`
 - `琢|zuo2` (`zuó`) -> `琢磨`
 
-### 6.7 `啊`
+### 8.7 `啊`
 
 Current live behavior:
 
@@ -676,8 +1182,8 @@ This is a useful example because it shows a different kind of polyphonic split:
 
 - the readings are all discourse particles rather than lexical senses
 - the best "stem words" are often short exclamations or whole sentence snippets
-- the raw HWXNet pinyin list also includes a tone-less `a`, which likely should
-  stay recall-disabled unless we have a strong pedagogical reason to surface it
+- the best enabled reading set may still need product judgment even when the
+  source row itself looks clean
 
 So `啊` shows why the reading-unit model needs not only reading-specific stems,
 but also a practical `recall_enabled` gate for variants that are technically
@@ -705,7 +1211,7 @@ And the actual prompt stems shown by the current 3-word recall UI would be:
 - `啊|a3` (`ǎ`) -> `啊，这事怎么了？`, `啊，这是怎么回事？`
 - `啊|a4` (`à`) -> `啊，亲爱的祖国！`, `啊，好吧！`, `啊，我这才明白过来！`
 
-### 6.8 Example: English meaning split by reading
+### 8.8 Example: English meaning split by reading
 
 The same separation should apply to English glosses.
 
@@ -803,248 +1309,3 @@ In those cases:
 
 That is still better than showing an English gloss bucket that belongs to a
 different reading.
-
----
-
-## 7. Reading-Aware Stem Data Status and Remaining Gaps
-
-To make the reading-level model work well in practice, we should not stop at
-splitting the answer key.
-
-The important update is that the two biggest whole-character stem sources now
-already have reading-aware transition fields:
-
-- Feng card `WordsByPinyin`
-- HWXNet `常用词组按拼音` / `common_phrases_by_pinyin`
-
-So the remaining mismatch is now mainly in the runtime consumer:
-
-- learning state is still character-level, and
-- the current pinyin-recall stem builder still flattens structured phrase buckets
-  back into character-level lists, which can leak the wrong reading into the prompt.
-
-### 7.1 What is already present
-
-The data layer already contains the key transition outputs this proposal wanted:
-
-- Feng JSON / DB: `WordsByPinyin` / `words_by_pinyin`
-- HWXNet JSON / DB: `常用词组按拼音` / `common_phrases_by_pinyin`
-
-Those fields can feed directly into a derived reading-unit table, or they can be
-joined on demand while generating recall items.
-
-### 7.2 What still needs to happen
-
-For each polyphonic character:
-
-1. Start with the reading list from HWXNet.
-2. Collect candidate phrases from:
-   - Feng `WordsByPinyin`
-   - HWXNet `例词`
-   - HWXNet `常用词组按拼音`
-3. Use those structured buckets directly where present.
-4. Use HWXNet `basic_meanings` `例词` directly where the reading is explicit.
-5. For still-uncovered cases, fall back to a small review/override layer rather
-   than flattening across readings.
-
-### 7.3 Review / override layer
-
-The manual layer should be small and focused:
-
-- readings present in raw `拼音` but not mature enough to be recall-enabled
-- characters whose `basic_meanings` coverage is incomplete or uneven
-- cases where all structured buckets are empty and no safe reading-specific stems exist
-- phrases whose assignment looks suspicious in spot checks
-
-### 7.4 Recommended bridge for reading-level English glosses
-
-The biggest remaining gap on the English side is that the current app glosses
-were generated at the **character** level, not the **character + reading** level.
-
-The best bridge strategy is:
-
-1. keep the current character-level `英文翻译` as compatibility data
-2. build a new derived reading-level English artifact keyed by `unit_id`
-3. bootstrap that artifact from:
-   - HWXNet reading-specific `basic_meanings`
-   - CC-CEDICT entries matching the same `character + reading`
-4. use AI to rewrite or rank those candidates into a short learner-facing gloss
-   bucket
-5. keep a small manual override layer for cases where CC-CEDICT or AI output is
-   too broad, too word-oriented, or pedagogically weak
-
-This is preferable to trying to split the existing app `英文翻译` list
-mechanically after the fact.
-
-The reviewed decision should then be persisted as the source of truth so the same phrase does not need to be re-adjudicated repeatedly.
-
-### 7.5 Practical rule
-
-For polyphonic characters:
-
-- a Feng phrase should come from the matching `WordsByPinyin` bucket to be
-  eligible for the final stem list
-- a HWXNet common phrase should come from the matching
-  `常用词组按拼音` / `common_phrases_by_pinyin` bucket to be eligible for the
-  final stem list
-- a HWXNet `例词` should only be used when its reading is explicit in
-  `basic_meanings`
-
-They can still exist in the source tables, but pinyin recall should only consume
-the reading-specific versions.
-
-### 7.6 Why this matters
-
-This preserves one of the current app's strengths:
-
-- Feng `Words` are often very child-friendly and curriculum-aligned
-- 常用词组 often give more natural usage than dictionary 例词 alone
-
-So the right solution is not to drop them. The right solution is to **reading-tag them** and keep them in the pipeline safely.
-
----
-
-## 8. Rollout Strategy
-
-### Phase 1: Add reading-unit infrastructure
-
-1. Create `pinyin_recall_reading_units`
-2. Build a generation script from `hwxnet_characters` and the existing
-   structured stem fields
-3. Add a small override file/table for:
-   - disabling fringe readings
-   - supplying missing reading-specific stems/examples
-   - correcting incomplete source data
-4. Make the pinyin-recall prompt builder consume:
-   - Feng `WordsByPinyin`
-   - HWXNet reading-tagged `例词`
-   - HWXNet `常用词组按拼音` / `common_phrases_by_pinyin`
-5. Keep uncovered or low-confidence cases behind a manual override / disable path
-
-### Phase 2: Switch pinyin recall to unit-based scheduling
-
-Add new learning-state tables keyed by `unit_id` rather than `character`:
-
-- `pinyin_recall_unit_bank`
-- `pinyin_recall_unit_presented`
-- `pinyin_recall_unit_answered`
-- optionally `pinyin_recall_unit_report_error`
-
-I recommend **new tables**, not in-place mutation of the current ones.
-
-Reason:
-
-- old tables contain character-level history
-- new tables contain reading-level history
-- mixing both semantics in one table will make analytics and migrations fragile
-
-### Phase 3: Migrate existing learner progress conservatively
-
-Migration rule:
-
-- **Monophonic characters:** migrate 1:1 to their only unit
-- **Polyphonic characters:** migrate existing bank/history to the **primary reading unit only**
-- all non-primary reading units start as unseen
-
-Why this conservative rule is better:
-
-- current history does not tell us which reading the learner actually mastered
-- some historical prompts already mixed readings in the stem
-- pretending we can split that history precisely would create fake data
-
-Primary-unit migration preserves most learner progress without inventing certainty we do not have.
-
-### Phase 4: Revisit profile aggregation
-
-The profile page currently uses a 3664-character denominator.
-
-If pinyin recall moves to 4144 possible reading units, we should **not** automatically replace the profile denominator with 4144.
-
-Recommended short-term approach:
-
-- keep the existing character-centric profile
-- add a separate reading-level metric later if useful
-
-Possible future metric:
-
-- `多音字读音掌握` or similar
-
-That keeps issue #32 focused on fixing the learning model without unexpectedly redefining the entire profile UI.
-
----
-
-## 9. Queue / Scheduling Implications
-
-If all polyphonic readings become eligible units, the effective recall pool grows by **13.10%**.
-
-That means the current queue and progression constants may need retuning later:
-
-- batch new-count caps
-- Total Load thresholds
-- zibiao/pool expansion heuristics
-- profile thresholds if they ever become reading-based
-
-I do **not** recommend bundling those retunings into the first implementation of issue #32.
-
-The first milestone should be:
-
-- correct unit identity
-- correct stems
-- correct answer key
-- correct logging
-
-Then measure whether queue pressure changes enough to justify new thresholds.
-
----
-
-## 10. Risks and Trade-offs
-
-### 9.1 More units means more surface area
-
-Splitting 424 characters into 904 reading units increases content and scheduling complexity.
-
-Mitigation:
-
-- `recall_enabled`
-- override layer
-- phased rollout
-
-### 9.2 Source data is not uniformly complete
-
-`行` is a good warning example: it has 5 readings in the live DB, but the reading-tagged sense coverage is not equally complete.
-
-Mitigation:
-
-- keep source tables unchanged
-- use a derived table with manual overrides
-- do not require every raw reading to be recall-enabled on day 1
-
-### 9.3 Historical continuity is imperfect
-
-Old character-level history cannot be split perfectly by reading.
-
-Mitigation:
-
-- migrate polyphonic history only to the primary unit
-- keep old tables for legacy analytics / audit
-
----
-
-## 11. Recommendation Summary
-
-Issue #32 should be solved by introducing a **reading-level learning model** for pinyin recall:
-
-- keep dictionary/search character-centric
-- make pinyin recall unit = `character + normalized_pinyin`
-- derive reading-specific stems/meanings per unit
-- consume the existing reading-aware source fields first:
-  `WordsByPinyin` and `常用词组按拼音` / `common_phrases_by_pinyin`
-- use HWXNet-explicit `basic_meanings` mappings where available
-- add an override layer for incomplete source data
-- use new unit-keyed bank/event tables
-- migrate historical polyphonic progress conservatively to primary units only
-
-This is the smallest solution that is both:
-
-- **correct enough for real characters like `和`, `行`, `乐`, `累`**, and
-- **honest about the limits of the current data**.
