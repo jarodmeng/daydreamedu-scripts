@@ -6,6 +6,19 @@ This file records changes to the character bank (character set, source data, and
 
 ---
 
+## 2026-03-28 — 嘛 polyphonic phrase fix (#34)
+
+- **What:** Corrected the Feng row for `嘛` so its readings and example phrases now match the intended split reported in issue `#34`.
+- **Data fixes:** Updated `data/characters.json` for `嘛` (index `2786`) from a monophonic row to:
+  - `Pinyin: ["ma", "má"]`
+  - `Words: ["喇嘛", "干嘛"]`
+  - `WordsByPinyin`: `ma -> ["喇嘛"]`, `má -> ["干嘛"]`
+- **Why:** Search was showing only one Feng-side reading for `嘛`, and `干嘛` had been attached to the wrong bucket. The card/example data needed to represent both readings explicitly.
+- **DB sync:** Synced only the single live `feng_characters` row for `嘛` in Supabase so `pinyin`, `words`, and `words_by_pinyin` now match `data/characters.json`.
+- **Script:** Added `chinese_chr_app/backend/scripts/characters/sync_single_feng_character_from_json.py` as a reusable one-row sync helper for small Feng record corrections.
+
+---
+
 ## 2026-03-28 — Final Feng Words cleanup for issue #31
 
 - **What:** Cleaned up the last four Feng `Words` / `WordsByPinyin` rows that were still violating the phrase-quality expectations behind issue `#31`.

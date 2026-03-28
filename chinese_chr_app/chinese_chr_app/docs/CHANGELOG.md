@@ -6,6 +6,13 @@ Release history and version notes. Newest releases are at the top.
 
 ---
 
+## [v0.2.24]
+
+- **Feng polyphonic fix for `嘛` (#34):** Correct the Feng-side Search data for `嘛` so it now exposes both readings instead of collapsing to one: `ma -> 喇嘛`, `má -> 干嘛`.
+- **Targeted Supabase sync:** Update only the live `feng_characters` row for `嘛` so `pinyin`, `words`, and `words_by_pinyin` match the reviewed `data/characters.json` entry without requiring a broader table reload.
+
+---
+
 ## [v0.2.23]
 
 - **Feng data cleanup for issue #31:** Fixed the remaining bad Feng sample-word rows so split idioms are merged correctly (`来日方长`, `人来人往`, `惹事生非`), removed the `朗 -> 吊儿郎当` source-card typo, and corrected Feng index `2328` from a long-mislabeled `谴` row to the actual `遣` card with matching metadata and phrases.

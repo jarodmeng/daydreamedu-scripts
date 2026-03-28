@@ -97039,18 +97039,26 @@
     "Character": "嘛",
     "zibiao_index": 3110,
     "Pinyin": [
-      "ma"
+      "ma",
+      "má"
     ],
     "Radical": "口",
     "Strokes": "14",
     "Structure": "左右结构",
     "Sentence": "这种事情合情合理嘛。",
     "Words": [
+      "喇嘛",
       "干嘛"
     ],
     "WordsByPinyin": [
       {
         "Pinyin": "ma",
+        "Phrases": [
+          "喇嘛"
+        ]
+      },
+      {
+        "Pinyin": "má",
         "Phrases": [
           "干嘛"
         ]
