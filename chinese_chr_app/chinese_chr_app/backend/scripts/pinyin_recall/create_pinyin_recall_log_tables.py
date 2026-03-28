@@ -2,8 +2,8 @@
 """
 Create the two pinyin recall log tables in Supabase (two-table design).
 
-- pinyin_recall_item_presented: when a character is shown (user_id, session_id, character, prompt_type, correct_choice, choices)
-- pinyin_recall_item_answered: when user submits an answer (user_id, session_id, character, selected_choice, correct, latency_ms, i_dont_know, score_before, score_after)
+- pinyin_recall_item_presented: when a unit is shown (user_id, session_id, unit_id, character, prompt_type, correct_choice, choices)
+- pinyin_recall_item_answered: when user submits an answer (user_id, session_id, unit_id, character, selected_choice, correct, latency_ms, i_dont_know, score_before, score_after)
 
 Requires DATABASE_URL (or SUPABASE_DB_URL). Run from backend/:
   python3 scripts/create_pinyin_recall_log_tables.py
@@ -30,7 +30,10 @@ CREATE TABLE IF NOT EXISTS pinyin_recall_item_presented (
     batch_id uuid,
     batch_mode text,
     batch_character_category text,
+    unit_id text,
     character text NOT NULL,
+    reading_key text,
+    reading_display text,
     prompt_type text NOT NULL,
     correct_choice text NOT NULL,
     choices jsonb NOT NULL,
@@ -44,6 +47,9 @@ CREATE INDEX IF NOT EXISTS idx_pinyin_recall_item_presented_session
 CREATE INDEX IF NOT EXISTS idx_pinyin_recall_item_presented_batch_id
     ON pinyin_recall_item_presented (batch_id)
     WHERE batch_id IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_pinyin_recall_item_presented_user_unit
+    ON pinyin_recall_item_presented (user_id, unit_id)
+    WHERE unit_id IS NOT NULL;
 """
 
 CREATE_ITEM_ANSWERED_SQL = """
@@ -51,7 +57,10 @@ CREATE TABLE IF NOT EXISTS pinyin_recall_item_answered (
     id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id text NOT NULL,
     session_id text NOT NULL,
+    unit_id text,
     character text NOT NULL,
+    reading_key text,
+    reading_display text,
     selected_choice text,
     correct boolean NOT NULL,
     latency_ms integer,
@@ -66,6 +75,9 @@ CREATE INDEX IF NOT EXISTS idx_pinyin_recall_item_answered_user_created
     ON pinyin_recall_item_answered (user_id, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_pinyin_recall_item_answered_session
     ON pinyin_recall_item_answered (session_id, created_at);
+CREATE INDEX IF NOT EXISTS idx_pinyin_recall_item_answered_user_unit
+    ON pinyin_recall_item_answered (user_id, unit_id, created_at)
+    WHERE unit_id IS NOT NULL;
 """
 
 
