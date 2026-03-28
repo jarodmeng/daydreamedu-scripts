@@ -54,6 +54,10 @@ If the backend and frontend are already running, Playwright reuses them (`reuseE
 
 Both frontends use `npm run build` (Vite). No lint command is configured in `package.json` — the build itself serves as the primary code quality check.
 
+### Versioning housekeeping
+
+- For the Chinese chr app, whenever `chinese_chr_app/chinese_chr_app/docs/CHANGELOG.md` gets a version bump, also update the `Current version` line in `chinese_chr_app/chinese_chr_app/README.md` in the same change.
+
 ### Testing signed-in user flows (no real credentials needed)
 
 The codebase has built-in dev auth bypass mechanisms:
