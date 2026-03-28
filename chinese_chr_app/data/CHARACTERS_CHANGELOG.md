@@ -6,6 +6,22 @@ This file records changes to the character bank (character set, source data, and
 
 ---
 
+## 2026-03-28 — Final Feng Words cleanup for issue #31
+
+- **What:** Cleaned up the last four Feng `Words` / `WordsByPinyin` rows that were still violating the phrase-quality expectations behind issue `#31`.
+- **Data fixes:** Updated:
+  - `来` (0132): merged split idiom halves into `来日方长` and `人来人往`.
+  - `非` (0656): merged split halves `惹事` + `生非` into `惹事生非`.
+  - `朗` (1562): removed `吊儿郎当`. This appears to be a typo on the original Feng card itself, so the app data now drops it instead of preserving the source-card error.
+  - `遣` (2328): corrected a mislabeled Feng row that had long been stored as `谴`. The card image at index `2328` is actually `遣`, so the row now uses `Character: 遣`, `zibiao_index: 2921`, radical `辶`, a clean `遣` example sentence, and `遣...` phrases only.
+  - `谴`: no Feng card row is currently exposed for `谴`; Search should now show HWXNet dictionary data only for that character until/unless a real Feng card/source entry is added later.
+- **Root cause note:** This was not a Search join bug. The underlying Feng source row for index `2328` appears to have been misread during the original extraction/import, while the card itself also contains a `遣责`-style typo that needed cleanup in the sentence/phrases.
+- **Docs/tests:** Updated the extraction prompt example so it no longer treats `朗 -> 吊儿郎当` as valid, and added regression coverage for both the general `Words contains Character` invariant and the corrected Feng identity of index `2328`.
+- **DB sync:** Backed up the live `feng_characters` table as `feng_characters_backup_20260328_041118`, then synced the reviewed issue-31 fixes for indices `0132`, `0656`, `1562`, and `2328` from `data/characters.json` into Supabase using a temporary one-off script that was removed after the sync.
+- **Why:** The earlier bulk cleanup fixed most of the bad fragments, but these rows were still leaking split idioms, a source-card typo, and one old extraction/import mismatch into Search and Pinyin Recall.
+
+---
+
 ## 2026-03-27 — HWXNet 英文解释按拼音 transition + DB backfill
 
 - **What:** Added the new structured transition field `英文解释按拼音` to `extracted_characters_hwxnet.json` and backfilled the matching `english_translations_by_pinyin` column in the live `hwxnet_characters` table.
