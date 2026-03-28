@@ -18,9 +18,11 @@ from english_translations import flatten_hwxnet_english_translations
 from pinyin_search import parse_pinyin_query, compute_searchable_pinyin_for_entry
 from pinyin_recall import (
     build_session_queue,
+    build_reading_units_for_character,
     get_stem_words,
     get_correct_pinyin,
     _all_pinyin_list,
+    _first_basic_meaning_zh_for_unit,
 )
 import uuid
 
@@ -1147,7 +1149,7 @@ def get_profile_progress():
         learned_count = category_counts["learned"]
         learning_count = category_counts["learning"]
         not_tested_count = category_counts["not_tested"]
-        total_chars = db.PROFILE_HWXNET_TOTAL
+        total_units = category_counts.get("total_units", db.PROFILE_HWXNET_TOTAL)
         return jsonify({
             "viewed_characters_count": viewed_count,
             "viewed_characters_recent": viewed_recent,
@@ -1155,8 +1157,9 @@ def get_profile_progress():
                 "learned_count": learned_count,
                 "learning_count": learning_count,
                 "not_tested_count": not_tested_count,
-                "total_characters": total_chars,
-                "description": f"{learned_count} / {total_chars}",
+                "total_units": total_units,
+                "total_characters": total_units,
+                "description": f"{learned_count} / {total_units}",
                 "learning_hard": category_counts.get("learning_hard", 0),
                 "learning_normal": category_counts.get("learning_normal", 0),
                 "learned_mastered": category_counts.get("learned_mastered", 0),
@@ -1184,8 +1187,8 @@ def get_profile_progress_category(category: str):
         return jsonify({"error": "Invalid category"}), 400
     try:
         import database as db
-        characters = db.get_pinyin_recall_characters_by_category(user.user_id, category)
-        return jsonify({"category": category, "characters": characters})
+        units = db.get_pinyin_recall_characters_by_category(user.user_id, category)
+        return jsonify({"category": category, "units": units, "characters": units})
     except Exception as e:
         print(f"[profile/progress/category] Error: {e}", flush=True)
         import traceback
@@ -1223,8 +1226,8 @@ def _display_name_for_log(user, display_name_from_body: Optional[str] = None) ->
 def _get_pinyin_recall_learning_state(user_id: str) -> Dict[str, Dict[str, Any]]:
     """Learning state for queue building from Supabase/Postgres."""
     import database as db
-    char_state = db.get_pinyin_recall_learning_state(user_id)
-    return {user_id: char_state}
+    unit_state = db.get_pinyin_recall_learning_state(user_id)
+    return {user_id: unit_state}
 
 
 def _log_pinyin_recall_event(
@@ -1248,7 +1251,10 @@ def _log_pinyin_recall_event(
                     "batch_id": batch_id,
                     "batch_mode": batch_mode,
                     "batch_character_category": item.get("batch_category"),
+                    "unit_id": item.get("unit_id"),
                     "character": item.get("character"),
+                    "reading_key": item.get("reading_key"),
+                    "reading_display": item.get("reading_display"),
                     "prompt_type": item.get("prompt_type"),
                     "correct_choice": item.get("correct_pinyin"),
                     "choices": item.get("choices"),
@@ -1420,7 +1426,15 @@ def pinyin_recall_answer():
         return jsonify({"error": "character must be exactly one character"}), 400
     selected_choice = (data.get("selected_choice") or "").strip()
     i_dont_know = bool(data.get("i_dont_know"))
+    unit_id = (data.get("unit_id") or "").strip()
+    reading_key = (data.get("reading_key") or "").strip()
     correct_pinyin = (data.get("correct_pinyin") or "").strip()
+    if not unit_id:
+        return jsonify({"error": "unit_id is required"}), 400
+    if not reading_key and "|" in unit_id:
+        reading_key = unit_id.split("|", 1)[1].strip()
+    if not reading_key:
+        return jsonify({"error": "reading_key is required"}), 400
     if not correct_pinyin:
         return jsonify({"error": "correct_pinyin is required"}), 400
     correct = not i_dont_know and selected_choice.strip().lower() == correct_pinyin.strip().lower()
@@ -1433,7 +1447,10 @@ def pinyin_recall_answer():
         "event": "item_answered",
         "user_id": user.user_id,
         "session_id": data.get("session_id"),
+        "unit_id": unit_id,
         "character": character,
+        "reading_key": reading_key,
+        "reading_display": correct_pinyin,
         "selected_choice": selected_choice,
         "correct": correct,
         "latency_ms": latency_ms,
@@ -1442,24 +1459,50 @@ def pinyin_recall_answer():
     try:
         import database as db
         score_before, score_after = db.upsert_pinyin_recall_answer_and_log(
-            user.user_id, character, correct=correct, i_dont_know=i_dont_know, log_payload=log_payload
+            user.user_id,
+            unit_id,
+            character,
+            reading_key,
+            correct_pinyin,
+            correct=correct,
+            i_dont_know=i_dont_know,
+            log_payload=log_payload,
         )
     except Exception as e:
-        print(f"[pinyin-recall] Failed to upsert character bank / log: {e}", flush=True)
+        print(f"[pinyin-recall] Failed to upsert unit bank / log: {e}", flush=True)
     missed_item = None
     if not correct:
         load_hwxnet()
         load_characters()
         entry = (hwxnet_lookup or {}).get(character) if hwxnet_lookup else None
         feng = (character_lookup or {}).get(character) if character_lookup else None
-        stem_words = get_stem_words(character, character_lookup or {}, hwxnet_lookup or {}, 3)
-        correct_pinyin_val = get_correct_pinyin(entry) if entry else correct_pinyin
+        unit = None
+        if entry:
+            units = build_reading_units_for_character(character, entry, feng)
+            if unit_id:
+                unit = next((candidate for candidate in units if candidate.get("unit_id") == unit_id), None)
+            if unit is None and correct_pinyin:
+                normalized_correct = correct_pinyin.strip().lower()
+                unit = next(
+                    (
+                        candidate for candidate in units
+                        if (candidate.get("reading_display") or "").strip().lower() == normalized_correct
+                    ),
+                    None,
+                )
+        stem_words = list((unit or {}).get("stem_words") or [])[:3]
+        if not stem_words:
+            stem_words = get_stem_words(character, character_lookup or {}, hwxnet_lookup or {}, 3)
+        correct_pinyin_val = (unit or {}).get("reading_display") or (get_correct_pinyin(entry) if entry else correct_pinyin)
         all_pinyin = _all_pinyin_list(entry, fallback_primary=correct_pinyin_val) if entry else [correct_pinyin_val]
         is_polyphonic = len(all_pinyin) > 1
         # English meanings and 基本解释 for learning screen (show both when available)
         meanings = []
         meaning_zh = None
-        if entry:
+        if unit:
+            meanings = list(unit.get("english_translations") or [])
+            meaning_zh = _first_basic_meaning_zh_for_unit(unit)
+        elif entry:
             meanings = flatten_hwxnet_english_translations(entry)
             for sense in (entry.get("基本字义解释") or [])[:1]:
                 for defn in (sense.get("释义") or [])[:1]:
@@ -1482,13 +1525,20 @@ def pinyin_recall_answer():
         structure = (feng.get("Structure") or "").strip() if feng else ""
         sentence = (feng.get("Sentence") or "").strip() if feng else ""
         missed_item = {
+            "unit_id": (unit or {}).get("unit_id") or unit_id or None,
             "character": character,
             "stem_words": stem_words,
             "correct_pinyin": correct_pinyin_val,
             "all_pinyin": all_pinyin,
+            "other_readings": [
+                py for py in all_pinyin
+                if py.strip().lower() != correct_pinyin_val.strip().lower()
+            ],
             "is_polyphonic": is_polyphonic,
             "meanings": meanings,
             "meaning_zh": meaning_zh,
+            "reading_display": (unit or {}).get("reading_display") or correct_pinyin_val,
+            "reading_key": (unit or {}).get("reading_key"),
             "radical": radical,
             "strokes": strokes,
             "structure": structure,
@@ -1510,6 +1560,7 @@ def pinyin_recall_report_error():
     data = request.get_json() or {}
     session_id = (data.get("session_id") or "").strip()
     batch_id = (data.get("batch_id") or "").strip() or None
+    unit_id = (data.get("unit_id") or "").strip() or None
     character = (data.get("character") or "").strip()
     page = (data.get("page") or "").strip() or None
     if not character or len(character) != 1:
@@ -1522,6 +1573,7 @@ def pinyin_recall_report_error():
             user_id=user.user_id,
             session_id=session_id,
             batch_id=batch_id,
+            unit_id=unit_id,
             character=character,
             page=page,
         )

@@ -6,10 +6,10 @@ import './Profile.css'
 const API_BASE = import.meta.env.VITE_API_URL || ''
 
 const CATEGORY_TITLES = {
-  learning_hard: '难字',
-  learning_normal: '普通（在学字）',
-  learned_mastered: '掌握字',
-  learned_normal: '普通（已学字）',
+  learning_hard: '难项',
+  learning_normal: '普通（在学项）',
+  learned_mastered: '掌握项',
+  learned_normal: '普通（已学项）',
 }
 
 export default function ProfileCategory() {
@@ -83,7 +83,7 @@ export default function ProfileCategory() {
     return (
       <main className="profile-page">
         <div className="profile-container">
-          <h1>汉字掌握度</h1>
+          <h1>读音掌握度</h1>
           <p className="profile-error">无效分类</p>
           <Link to="/profile" className="profile-link">返回 我的</Link>
         </div>
@@ -94,30 +94,34 @@ export default function ProfileCategory() {
   return (
     <main className="profile-page">
       <div className="profile-container">
-        <h1>汉字掌握度</h1>
+        <h1>读音掌握度</h1>
         <p className="profile-subtitle">
           <Link to="/profile" className="profile-link">← 返回 我的</Link>
         </p>
         <section className="profile-section">
           <h2>{title}</h2>
-          <p className="profile-proficiency-hint">按最近测试时间排序（最近在前）</p>
+          <p className="profile-proficiency-hint">按最近测试时间排序（最近在前）。同一汉字的不同读音会分别显示。</p>
           {loading && <p className="profile-loading">加载中…</p>}
           {error && <p className="profile-error">{error}</p>}
-          {!loading && !error && data?.characters?.length > 0 && (
+          {!loading && !error && (data?.units || data?.characters)?.length > 0 && (
             <div className="profile-characters-grid">
-              {data.characters.map((item) => (
+              {(data.units || data.characters).map((item) => (
                 <Link
-                  key={item.character}
+                  key={item.unit_id || `${item.character}-${item.reading_key || item.reading_display || ''}`}
                   to={`/?q=${encodeURIComponent(item.character)}`}
-                  className="profile-char-link"
+                  className={`profile-char-link${item.reading_display ? ' profile-char-link-unit' : ''}`}
+                  title={item.reading_display ? `${item.character} · ${item.reading_display}` : item.character}
                 >
-                  {item.character}
+                  <span className="profile-char-main">{item.character}</span>
+                  {item.reading_display && (
+                    <span className="profile-char-reading">{item.reading_display}</span>
+                  )}
                 </Link>
               ))}
             </div>
           )}
-          {!loading && !error && data?.characters?.length === 0 && (
-            <p className="profile-empty">该分类下暂无字符。</p>
+          {!loading && !error && (data?.units || data?.characters)?.length === 0 && (
+            <p className="profile-empty">该分类下暂无读音项。</p>
           )}
         </section>
       </div>

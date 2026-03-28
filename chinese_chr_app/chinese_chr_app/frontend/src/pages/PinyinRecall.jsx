@@ -159,6 +159,8 @@ export default function PinyinRecall() {
           body: JSON.stringify({
             session_id: sessionId,
             character: item.character,
+            unit_id: item.unit_id,
+            reading_key: item.reading_key,
             selected_choice: selectedChoice,
             i_dont_know: iDontKnow,
             correct_pinyin: item.correct_pinyin,
@@ -201,6 +203,7 @@ export default function PinyinRecall() {
           body: JSON.stringify({
             session_id: sessionId,
             batch_id: batchId ?? undefined,
+            unit_id: item.unit_id,
             character: item.character,
             page,
           }),
@@ -423,6 +426,12 @@ export default function PinyinRecall() {
             <>
               <p className="pinyin-recall-feedback-correct">✓ 正确</p>
               <div className="pinyin-recall-character">{item.character}</div>
+              {item.is_polyphonic && item.correct_pinyin && (
+                <p className="pinyin-recall-meaning">
+                  <span className="pinyin-recall-meaning-label">本题读音：</span>
+                  <strong>{item.correct_pinyin}</strong>
+                </p>
+              )}
               <PinyinDisplay
                 allPinyin={item.all_pinyin}
                 primary={item.correct_pinyin}
@@ -467,6 +476,12 @@ export default function PinyinRecall() {
               )}
               <p className="pinyin-recall-feedback-correct-label">正确答案：</p>
               <div className="pinyin-recall-character">{learn.character}</div>
+              {learn.is_polyphonic && learn.correct_pinyin && (
+                <p className="pinyin-recall-meaning">
+                  <span className="pinyin-recall-meaning-label">本题读音：</span>
+                  <strong>{learn.correct_pinyin}</strong>
+                </p>
+              )}
               <PinyinDisplay
                 allPinyin={learn.all_pinyin}
                 primary={learn.correct_pinyin}
@@ -557,6 +572,12 @@ export default function PinyinRecall() {
             {learnIndex + 1} / {missedItems.length}
           </p>
           <div className="pinyin-recall-character">{m?.character}</div>
+          {m?.is_polyphonic && m?.correct_pinyin && (
+            <p className="pinyin-recall-meaning">
+              <span className="pinyin-recall-meaning-label">本题读音：</span>
+              <strong>{m.correct_pinyin}</strong>
+            </p>
+          )}
           <PinyinDisplay
             allPinyin={m?.all_pinyin}
             primary={m?.correct_pinyin}

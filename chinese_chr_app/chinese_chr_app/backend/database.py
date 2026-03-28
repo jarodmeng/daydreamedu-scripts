@@ -14,6 +14,7 @@ from english_translations import (
     flatten_hwxnet_english_translations,
     normalize_hwxnet_english_translations_by_pinyin,
 )
+from pinyin_recall import build_reading_unit_pool
 from pinyin_search import compute_searchable_pinyin_for_entry
 
 try:
@@ -27,6 +28,7 @@ except ImportError:
 _FENG_HAS_WORDS_BY_PINYIN: Optional[bool] = None
 _HWXNET_HAS_COMMON_PHRASES_BY_PINYIN: Optional[bool] = None
 _HWXNET_HAS_ENGLISH_TRANSLATIONS_BY_PINYIN: Optional[bool] = None
+_PROFILE_ENABLED_RECALL_UNIT_IDS: Optional[set[str]] = None
 
 
 def _get_connection():
@@ -571,6 +573,37 @@ PROFILE_PROFICIENCY_MIN_SCORE = 10
 PROFILE_HWXNET_TOTAL = 3664
 
 
+def _get_enabled_recall_unit_ids() -> set[str]:
+    """
+    Return the current enabled pinyin-recall unit IDs derived from live character tables.
+
+    Phase 4 progress/reporting uses reading-unit denominator semantics rather than raw
+    character count. Cache in-process because the source tables change rarely.
+    """
+    global _PROFILE_ENABLED_RECALL_UNIT_IDS
+    if _PROFILE_ENABLED_RECALL_UNIT_IDS is not None:
+        return _PROFILE_ENABLED_RECALL_UNIT_IDS
+
+    hwxnet_lookup = get_hwxnet_lookup()
+    feng_lookup = {
+        (entry.get("Character") or "").strip(): entry
+        for entry in get_feng_characters()
+        if (entry.get("Character") or "").strip()
+    }
+    pool = build_reading_unit_pool(hwxnet_lookup, feng_lookup, enabled_only=True)
+    _PROFILE_ENABLED_RECALL_UNIT_IDS = {
+        (unit.get("unit_id") or "").strip()
+        for unit in pool
+        if (unit.get("unit_id") or "").strip()
+    }
+    return _PROFILE_ENABLED_RECALL_UNIT_IDS
+
+
+def get_pinyin_recall_enabled_unit_total() -> int:
+    """Return the denominator for profile/progress: enabled reading-level recall units."""
+    return len(_get_enabled_recall_unit_ids())
+
+
 def get_character_views_count_for_user(user_id: str) -> int:
     """Return count of distinct characters viewed by user."""
     conn = _get_connection()
@@ -673,7 +706,7 @@ def get_pinyin_recall_category_daily_trend(
     days: int = 60,
 ) -> List[Dict[str, Any]]:
     """
-    Return daily counts of characters in the four profile bands for a user:
+    Return daily counts of recall units in the four profile bands for a user:
 
     - hard (难字)
     - learning_normal (普通在学字)
@@ -681,7 +714,8 @@ def get_pinyin_recall_category_daily_trend(
     - mastered (掌握字)
 
     Counts reflect band membership at end-of-day. Derived at runtime from
-    pinyin_recall_item_answered.score_after, without additional logging.
+    pinyin_recall_item_answered.score_after. Use unit_id when present, and fall
+    back to character for legacy pre-Phase-3 rows.
     """
     if days <= 0:
         return []
@@ -691,7 +725,7 @@ def get_pinyin_recall_category_daily_trend(
         with conn.cursor() as cur:
             cur.execute(
                 """
-                SELECT character, score_after, created_at
+                SELECT COALESCE(unit_id, character) AS entity_id, score_after, created_at
                 FROM pinyin_recall_item_answered
                 WHERE user_id = %s
                 ORDER BY created_at ASC
@@ -704,20 +738,20 @@ def get_pinyin_recall_category_daily_trend(
         if not rows:
             return []
 
-        # Track current band per character and global band counts.
+        # Track current band per recall unit and global band counts.
         band_keys = ["难字", "普通在学字", "普通已学字", "掌握字"]
         band_counts: Dict[str, int] = {k: 0 for k in band_keys}
-        per_char_band: Dict[str, str] = {}
+        per_entity_band: Dict[str, str] = {}
 
         # Snapshots for days that had at least one event.
         daily_snapshots: Dict[date, Dict[str, int]] = {}
         current_day: Optional[date] = None
 
         for r in rows:
-            ch = (r.get("character") or "").strip()
+            entity_id = (r.get("entity_id") or "").strip()
             score_after = r.get("score_after")
             created_at = r.get("created_at")
-            if not ch or score_after is None or created_at is None:
+            if not entity_id or score_after is None or created_at is None:
                 continue
 
             ev_day = created_at.date()
@@ -728,7 +762,7 @@ def get_pinyin_recall_category_daily_trend(
                 daily_snapshots[current_day] = dict(band_counts)
                 current_day = ev_day
 
-            prev_band = per_char_band.get(ch)
+            prev_band = per_entity_band.get(entity_id)
             score_val = int(score_after)
             if score_val <= PROFILE_LEARNING_HARD_MAX_SCORE:
                 new_band = "难字"
@@ -745,7 +779,7 @@ def get_pinyin_recall_category_daily_trend(
             if prev_band is not None:
                 band_counts[prev_band] = max(0, band_counts.get(prev_band, 0) - 1)
             band_counts[new_band] = band_counts.get(new_band, 0) + 1
-            per_char_band[ch] = new_band
+            per_entity_band[entity_id] = new_band
 
         # Snapshot the final day.
         if current_day is not None and current_day not in daily_snapshots:
@@ -816,8 +850,8 @@ PROFILE_LEARNED_MASTERED_MIN_SCORE = 20  # 掌握字: score >= 20
 
 def get_pinyin_recall_category_counts(user_id: str) -> Dict[str, int]:
     """
-    Return counts for 未学字 / 在学字 / 已学字 and sub-categories.
-    learned = score >= 10, learning = score < 10, not_tested = PROFILE_HWXNET_TOTAL - (learned + learning).
+    Return counts for 未学项 / 在学项 / 已学项 and sub-categories.
+    learned = score >= 10, learning = score < 10, not_tested = enabled_units - (learned + learning).
     Sub: learning_hard (score <= -20), learning_normal (-20 < score < 10),
          learned_mastered (score >= 20), learned_normal (10 <= score < 20).
     """
@@ -833,7 +867,7 @@ def get_pinyin_recall_category_counts(user_id: str) -> Dict[str, int]:
                     COUNT(*) FILTER (WHERE score < %s AND score > %s) AS learning_normal,
                     COUNT(*) FILTER (WHERE score >= %s) AS learned_mastered,
                     COUNT(*) FILTER (WHERE score >= %s AND score < %s) AS learned_normal
-                FROM pinyin_recall_character_bank
+                FROM pinyin_recall_unit_bank
                 WHERE user_id = %s
                 """,
                 (
@@ -852,8 +886,10 @@ def get_pinyin_recall_category_counts(user_id: str) -> Dict[str, int]:
             row = cur.fetchone()
         learned = int(row.get("learned") or 0)
         learning = int(row.get("learning") or 0)
-        not_tested = max(0, PROFILE_HWXNET_TOTAL - learned - learning)
+        total_units = get_pinyin_recall_enabled_unit_total()
+        not_tested = max(0, total_units - learned - learning)
         return {
+            "total_units": total_units,
             "learned": learned,
             "learning": learning,
             "not_tested": not_tested,
@@ -877,7 +913,7 @@ def get_pinyin_recall_characters_by_category(
     user_id: str, category: str
 ) -> List[Dict[str, Any]]:
     """
-    Return characters in the given profile sub-category, ordered by last_answered_at DESC (latest first).
+    Return reading units in the given profile sub-category, ordered by last_answered_at DESC (latest first).
     category: learning_hard | learning_normal | learned_mastered | learned_normal.
     """
     conn = _get_connection()
@@ -899,8 +935,8 @@ def get_pinyin_recall_characters_by_category(
         with conn.cursor() as cur:
             cur.execute(
                 f"""
-                SELECT character, score, last_answered_at
-                FROM pinyin_recall_character_bank
+                SELECT unit_id, character, reading_key, reading_display, score, last_answered_at
+                FROM pinyin_recall_unit_bank
                 WHERE {where}
                 ORDER BY last_answered_at DESC NULLS LAST
                 """,
@@ -909,7 +945,10 @@ def get_pinyin_recall_characters_by_category(
             rows = cur.fetchall()
         return [
             {
+                "unit_id": r.get("unit_id"),
                 "character": r.get("character"),
+                "reading_key": r.get("reading_key"),
+                "reading_display": r.get("reading_display"),
                 "score": r.get("score"),
                 "last_answered_at": r.get("last_answered_at").isoformat() if r.get("last_answered_at") else None,
             }
@@ -979,16 +1018,16 @@ def _cooling_days_for_score(score: int) -> int:
 def get_pinyin_recall_learning_state(user_id: str) -> Dict[str, Dict[str, Any]]:
     """
     Load learning state for pinyin recall for one user.
-    Returns dict: character -> { stage, next_due_utc, score, total_correct, total_wrong, total_i_dont_know }.
-    Used by build_session_queue. Table must exist (run create_pinyin_recall_character_bank_table.py once).
+    Returns dict: unit_id -> { character, reading_key, reading_display, stage, next_due_utc, score, total_correct, total_wrong, total_i_dont_know }.
+    Used by build_session_queue. Table must exist (run create_pinyin_recall_unit_bank_table.py once).
     """
     conn = _get_connection()
     try:
         with conn.cursor() as cur:
             cur.execute(
                 """
-                SELECT character, score, stage, next_due_utc, total_correct, total_wrong, total_i_dont_know
-                FROM pinyin_recall_character_bank
+                SELECT unit_id, character, reading_key, reading_display, score, stage, next_due_utc, total_correct, total_wrong, total_i_dont_know
+                FROM pinyin_recall_unit_bank
                 WHERE user_id = %s
                 """,
                 (user_id.strip(),),
@@ -996,10 +1035,13 @@ def get_pinyin_recall_learning_state(user_id: str) -> Dict[str, Dict[str, Any]]:
             rows = cur.fetchall()
         result: Dict[str, Dict[str, Any]] = {}
         for r in rows:
-            ch = (r.get("character") or "").strip()
-            if not ch:
+            unit_id = (r.get("unit_id") or "").strip()
+            if not unit_id:
                 continue
-            result[ch] = {
+            result[unit_id] = {
+                "character": (r.get("character") or "").strip(),
+                "reading_key": (r.get("reading_key") or "").strip(),
+                "reading_display": (r.get("reading_display") or "").strip(),
                 "stage": int(r.get("stage") or 0),
                 "next_due_utc": r.get("next_due_utc"),
                 "score": int(r.get("score") or 0),
@@ -1012,19 +1054,25 @@ def get_pinyin_recall_learning_state(user_id: str) -> Dict[str, Dict[str, Any]]:
         conn.close()
 
 
-def upsert_pinyin_recall_character_bank(
+def upsert_pinyin_recall_unit_bank(
     user_id: str,
+    unit_id: str,
     character: str,
+    reading_key: str,
+    reading_display: str,
     correct: bool,
     i_dont_know: bool,
 ) -> Tuple[int, int]:
     """
-    Update character bank after one answer. Creates row if missing.
+    Update unit bank after one answer. Creates row if missing.
     Returns (score_before, score_after). Table must exist.
     """
     import time as _time
     user_id = user_id.strip()
+    unit_id = unit_id.strip()
     character = character.strip()
+    reading_key = reading_key.strip()
+    reading_display = reading_display.strip()
     now_ts = int(_time.time())
 
     conn = _get_connection()
@@ -1033,10 +1081,10 @@ def upsert_pinyin_recall_character_bank(
             cur.execute(
                 """
                 SELECT score, stage, next_due_utc, total_correct, total_wrong, total_i_dont_know
-                FROM pinyin_recall_character_bank
-                WHERE user_id = %s AND character = %s
+                FROM pinyin_recall_unit_bank
+                WHERE user_id = %s AND unit_id = %s
                 """,
-                (user_id, character),
+                (user_id, unit_id),
             )
             row = cur.fetchone()
 
@@ -1088,11 +1136,14 @@ def upsert_pinyin_recall_character_bank(
         with conn.cursor() as cur:
             cur.execute(
                 """
-                INSERT INTO pinyin_recall_character_bank (
-                    user_id, character, score, stage, next_due_utc,
+                INSERT INTO pinyin_recall_unit_bank (
+                    user_id, unit_id, character, reading_key, reading_display, score, stage, next_due_utc,
                     first_seen_at, last_answered_at, total_correct, total_wrong, total_i_dont_know
-                ) VALUES (%s, %s, %s, %s, %s, now(), now(), %s, %s, %s)
-                ON CONFLICT (user_id, character) DO UPDATE SET
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, now(), now(), %s, %s, %s)
+                ON CONFLICT (user_id, unit_id) DO UPDATE SET
+                    character = EXCLUDED.character,
+                    reading_key = EXCLUDED.reading_key,
+                    reading_display = EXCLUDED.reading_display,
                     score = EXCLUDED.score,
                     stage = EXCLUDED.stage,
                     next_due_utc = EXCLUDED.next_due_utc,
@@ -1101,7 +1152,19 @@ def upsert_pinyin_recall_character_bank(
                     total_wrong = EXCLUDED.total_wrong,
                     total_i_dont_know = EXCLUDED.total_i_dont_know
                 """,
-                (user_id, character, score_after, stage, next_due_utc, total_correct, total_wrong, total_i_dont_know),
+                (
+                    user_id,
+                    unit_id,
+                    character,
+                    reading_key,
+                    reading_display,
+                    score_after,
+                    stage,
+                    next_due_utc,
+                    total_correct,
+                    total_wrong,
+                    total_i_dont_know,
+                ),
             )
         conn.commit()
         return (score_before, score_after)
@@ -1115,7 +1178,7 @@ def upsert_pinyin_recall_character_bank(
 def insert_pinyin_recall_item_presented(payload: Dict[str, Any]) -> None:
     """
     Insert one item_presented event into pinyin_recall_item_presented.
-    payload: user_id, session_id, character, prompt_type, correct_choice, choices, batch_id?, batch_mode?, batch_character_category?.
+    payload: user_id, session_id, unit_id?, character, reading_key?, reading_display?, prompt_type, correct_choice, choices, batch_id?, batch_mode?, batch_character_category?.
     Table must exist (run scripts/create_pinyin_recall_log_tables.py once).
     batch_character_category: five-band at batch time (new|hard|learning_normal|learned_normal|mastered).
     """
@@ -1130,13 +1193,16 @@ def insert_pinyin_recall_item_presented(payload: Dict[str, Any]) -> None:
             cur.execute(
                 """
                 INSERT INTO pinyin_recall_item_presented (
-                    user_id, session_id, character, prompt_type, correct_choice, choices, batch_id, batch_mode, batch_character_category
-                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    user_id, session_id, unit_id, character, reading_key, reading_display, prompt_type, correct_choice, choices, batch_id, batch_mode, batch_character_category
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 """,
                 (
                     (payload.get("user_id") or "").strip(),
                     (payload.get("session_id") or "").strip(),
+                    (payload.get("unit_id") or "").strip() or None,
                     (payload.get("character") or "").strip(),
+                    (payload.get("reading_key") or "").strip() or None,
+                    (payload.get("reading_display") or "").strip() or None,
                     (payload.get("prompt_type") or "").strip(),
                     (payload.get("correct_choice") or "").strip(),
                     choices_json,
@@ -1158,6 +1224,7 @@ def insert_pinyin_recall_report_error(
     user_id: str,
     session_id: str,
     batch_id: Optional[str],
+    unit_id: Optional[str],
     character: str,
     page: Optional[str] = None,
 ) -> None:
@@ -1171,13 +1238,14 @@ def insert_pinyin_recall_report_error(
         with conn.cursor() as cur:
             cur.execute(
                 """
-                INSERT INTO pinyin_recall_report_error (user_id, session_id, batch_id, character, page)
-                VALUES (%s, %s, %s, %s, %s)
+                INSERT INTO pinyin_recall_report_error (user_id, session_id, batch_id, unit_id, character, page)
+                VALUES (%s, %s, %s, %s, %s, %s)
                 """,
                 (
                     (user_id or "").strip(),
                     (session_id or "").strip(),
                     (batch_id or "").strip() or None,
+                    (unit_id or "").strip() or None,
                     (character or "").strip(),
                     (page or "").strip() or None,
                 ),
@@ -1193,18 +1261,24 @@ def insert_pinyin_recall_report_error(
 
 def upsert_pinyin_recall_answer_and_log(
     user_id: str,
+    unit_id: str,
     character: str,
+    reading_key: str,
+    reading_display: str,
     correct: bool,
     i_dont_know: bool,
     log_payload: Dict[str, Any],
 ) -> Tuple[int, int]:
     """
-    Do character-bank upsert and item_answered insert in one connection (faster: one round-trip).
+    Do unit-bank upsert and item_answered insert in one connection (faster: one round-trip).
     Returns (score_before, score_after). Mutates log_payload with score_before/score_after.
     """
     import time as _time
     user_id = user_id.strip()
+    unit_id = unit_id.strip()
     character = character.strip()
+    reading_key = reading_key.strip()
+    reading_display = reading_display.strip()
     now_ts = int(_time.time())
 
     conn = _get_connection()
@@ -1213,10 +1287,10 @@ def upsert_pinyin_recall_answer_and_log(
             cur.execute(
                 """
                 SELECT score, stage, next_due_utc, total_correct, total_wrong, total_i_dont_know
-                FROM pinyin_recall_character_bank
-                WHERE user_id = %s AND character = %s
+                FROM pinyin_recall_unit_bank
+                WHERE user_id = %s AND unit_id = %s
                 """,
-                (user_id, character),
+                (user_id, unit_id),
             )
             row = cur.fetchone()
 
@@ -1266,11 +1340,14 @@ def upsert_pinyin_recall_answer_and_log(
         with conn.cursor() as cur:
             cur.execute(
                 """
-                INSERT INTO pinyin_recall_character_bank (
-                    user_id, character, score, stage, next_due_utc,
+                INSERT INTO pinyin_recall_unit_bank (
+                    user_id, unit_id, character, reading_key, reading_display, score, stage, next_due_utc,
                     first_seen_at, last_answered_at, total_correct, total_wrong, total_i_dont_know
-                ) VALUES (%s, %s, %s, %s, %s, now(), now(), %s, %s, %s)
-                ON CONFLICT (user_id, character) DO UPDATE SET
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, now(), now(), %s, %s, %s)
+                ON CONFLICT (user_id, unit_id) DO UPDATE SET
+                    character = EXCLUDED.character,
+                    reading_key = EXCLUDED.reading_key,
+                    reading_display = EXCLUDED.reading_display,
                     score = EXCLUDED.score,
                     stage = EXCLUDED.stage,
                     next_due_utc = EXCLUDED.next_due_utc,
@@ -1279,18 +1356,33 @@ def upsert_pinyin_recall_answer_and_log(
                     total_wrong = EXCLUDED.total_wrong,
                     total_i_dont_know = EXCLUDED.total_i_dont_know
                 """,
-                (user_id, character, score_after, stage, next_due_utc, total_correct, total_wrong, total_i_dont_know),
+                (
+                    user_id,
+                    unit_id,
+                    character,
+                    reading_key,
+                    reading_display,
+                    score_after,
+                    stage,
+                    next_due_utc,
+                    total_correct,
+                    total_wrong,
+                    total_i_dont_know,
+                ),
             )
             cur.execute(
                 """
                 INSERT INTO pinyin_recall_item_answered (
-                    user_id, session_id, character, selected_choice, correct, latency_ms, i_dont_know, score_before, score_after, category
-                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    user_id, session_id, unit_id, character, reading_key, reading_display, selected_choice, correct, latency_ms, i_dont_know, score_before, score_after, category
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 """,
                 (
                     (log_payload.get("user_id") or "").strip(),
                     (log_payload.get("session_id") or "").strip(),
+                    (log_payload.get("unit_id") or "").strip() or unit_id,
                     (log_payload.get("character") or "").strip(),
+                    (log_payload.get("reading_key") or "").strip() or reading_key,
+                    (log_payload.get("reading_display") or "").strip() or reading_display,
                     (log_payload.get("selected_choice") or "").strip() if log_payload.get("selected_choice") is not None else None,
                     bool(log_payload.get("correct") is True),
                     log_payload.get("latency_ms"),
@@ -1316,7 +1408,7 @@ def upsert_pinyin_recall_answer_and_log(
 def insert_pinyin_recall_item_answered(payload: Dict[str, Any]) -> None:
     """
     Insert one item_answered event into pinyin_recall_item_answered.
-    payload: user_id, session_id, character, selected_choice, correct, latency_ms, i_dont_know, score_before?, score_after?, category?.
+    payload: user_id, session_id, unit_id?, character, reading_key?, reading_display?, selected_choice, correct, latency_ms, i_dont_know, score_before?, score_after?, category?.
     Table must exist (run scripts/create_pinyin_recall_log_tables.py once).
     """
     conn = _get_connection()
@@ -1325,13 +1417,16 @@ def insert_pinyin_recall_item_answered(payload: Dict[str, Any]) -> None:
             cur.execute(
                 """
                 INSERT INTO pinyin_recall_item_answered (
-                    user_id, session_id, character, selected_choice, correct, latency_ms, i_dont_know, score_before, score_after, category
-                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    user_id, session_id, unit_id, character, reading_key, reading_display, selected_choice, correct, latency_ms, i_dont_know, score_before, score_after, category
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 """,
                 (
                     (payload.get("user_id") or "").strip(),
                     (payload.get("session_id") or "").strip(),
+                    (payload.get("unit_id") or "").strip() or None,
                     (payload.get("character") or "").strip(),
+                    (payload.get("reading_key") or "").strip() or None,
+                    (payload.get("reading_display") or "").strip() or None,
                     (payload.get("selected_choice") or "").strip() if payload.get("selected_choice") is not None else None,
                     bool(payload.get("correct") is True),
                     payload.get("latency_ms"),
@@ -1356,8 +1451,8 @@ def bulk_insert_pinyin_recall_item_presented(payloads: List[Dict[str, Any]]) -> 
         return 0
     conn = _get_connection()
     sql = """
-        INSERT INTO pinyin_recall_item_presented (user_id, session_id, character, prompt_type, correct_choice, choices, batch_id, batch_mode, batch_character_category)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+        INSERT INTO pinyin_recall_item_presented (user_id, session_id, unit_id, character, reading_key, reading_display, prompt_type, correct_choice, choices, batch_id, batch_mode, batch_character_category)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
     """
     try:
         with conn.cursor() as cur:
@@ -1367,7 +1462,10 @@ def bulk_insert_pinyin_recall_item_presented(payloads: List[Dict[str, Any]]) -> 
                 cur.execute(sql, (
                     (p.get("user_id") or "").strip(),
                     (p.get("session_id") or "").strip(),
+                    (p.get("unit_id") or "").strip() or None,
                     (p.get("character") or "").strip(),
+                    (p.get("reading_key") or "").strip() or None,
+                    (p.get("reading_display") or "").strip() or None,
                     (p.get("prompt_type") or "").strip(),
                     (p.get("correct_choice") or "").strip(),
                     choices_json,
@@ -1390,8 +1488,8 @@ def bulk_insert_pinyin_recall_item_answered(payloads: List[Dict[str, Any]]) -> i
         return 0
     conn = _get_connection()
     sql = """
-        INSERT INTO pinyin_recall_item_answered (user_id, session_id, character, selected_choice, correct, latency_ms, i_dont_know, score_before, score_after, category)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        INSERT INTO pinyin_recall_item_answered (user_id, session_id, unit_id, character, reading_key, reading_display, selected_choice, correct, latency_ms, i_dont_know, score_before, score_after, category)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
     """
     try:
         with conn.cursor() as cur:
@@ -1399,7 +1497,10 @@ def bulk_insert_pinyin_recall_item_answered(payloads: List[Dict[str, Any]]) -> i
                 cur.execute(sql, (
                     (p.get("user_id") or "").strip(),
                     (p.get("session_id") or "").strip(),
+                    (p.get("unit_id") or "").strip() or None,
                     (p.get("character") or "").strip(),
+                    (p.get("reading_key") or "").strip() or None,
+                    (p.get("reading_display") or "").strip() or None,
                     (p.get("selected_choice") or "").strip() if p.get("selected_choice") is not None else None,
                     bool(p.get("correct") is True),
                     p.get("latency_ms"),

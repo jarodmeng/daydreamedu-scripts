@@ -263,6 +263,25 @@
   transition: background-color 0.2s, transform 0.2s;
 }
 
+.profile-char-link-unit {
+  width: 72px;
+  height: 60px;
+  flex-direction: column;
+  gap: 2px;
+  padding: 4px 6px;
+}
+
+.profile-char-main {
+  line-height: 1;
+}
+
+.profile-char-reading {
+  font-size: 0.72rem;
+  line-height: 1.1;
+  color: #555;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
 .profile-char-link:hover {
   background: rgba(76, 175, 80, 0.2);
   transform: scale(1.05);
