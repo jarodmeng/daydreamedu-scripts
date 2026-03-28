@@ -83,6 +83,14 @@ Prioritize new tests in this order:
 4. Profile and progress edge cases
 5. Real-auth / production-like integration smoke tests
 
+## Current Migration-Sensitive Areas
+
+The pinyin-recall system is now reading-unit based for polyphonic characters. When adding or updating tests around the game or Profile:
+
+- Prefer assertions that distinguish sibling readings of the same Hanzi when that behavior matters
+- Verify `unit_id`-aware payloads on game/profile APIs rather than assuming character-only identity
+- Treat reading-specific stems, glosses, and feedback as part of the contract for polyphonic items
+
 ## For AI Agents
 
 Before adding tests:
@@ -97,4 +105,3 @@ When proposing coverage estimates, report:
 - Route coverage estimate
 - Behavior depth estimate
 - Integration confidence estimate
-

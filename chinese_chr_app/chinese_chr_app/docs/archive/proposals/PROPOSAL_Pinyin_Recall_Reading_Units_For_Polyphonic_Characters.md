@@ -1,6 +1,6 @@
 # Proposal: Reading-Level Units for Polyphonic Characters in Pinyin Recall
 
-**Status:** Proposed  
+**Status:** Implemented  
 **Date:** 2026-03-24  
 **Revisited:** 2026-03-27  
 **Issue:** #32 — `[Chinese character app] Polyphonic characters should be split into multiple "characters"`
@@ -246,8 +246,8 @@ Suggested fields:
 | `character` | Hanzi, e.g. `行` |
 | `reading_display` | Tone-mark pinyin for UI, e.g. `xíng` |
 | `reading_key` | Normalized pinyin key, e.g. `xing2` |
-| `reading_rank` | Order from HWXNet / override |
-| `is_primary` | Whether this is the current first reading |
+| `reading_rank` | Stable per-character reading order, usually from HWXNet `拼音` order unless overridden for curation |
+| `is_primary` | Whether this unit is the character's designated default reading for migration / continuity purposes; initially this will usually be the `reading_rank = 1` unit |
 | `recall_enabled` | Whether this reading should appear in pinyin recall |
 | `enable_reason` | `auto`, `manual_override`, `disabled_rare`, `disabled_incomplete`, etc. |
 | `basic_meanings` | Reading-specific meanings only |
@@ -517,6 +517,20 @@ Required outputs for each recall-enabled unit:
 - reading-specific `english_translations`
 - reading-specific `basic_meanings`
 
+Field clarifications:
+
+- `reading_rank` is a stable ordering field within one character's readings. It
+  should usually follow HWXNet `拼音` order, unless an explicit override layer
+  changes that order for curation reasons. Its main jobs are deterministic unit
+  generation, deterministic UI ordering, and giving migration logic a stable
+  fallback order.
+- `is_primary` marks the one reading unit that should act as the character's
+  default / continuity target when legacy character-level learner state must map
+  to exactly one unit. On the first implementation pass, this will usually mean
+  the same unit as `reading_rank = 1`, but it is defined separately so we can
+  preserve source order while still overriding the migration/default target if
+  needed later.
+
 Required product invariant:
 
 - every pinyin-recall question, answer update, and progress count must be
@@ -526,8 +540,21 @@ Definition-of-done for this phase:
 
 - a single backend helper can build a stable reading-unit payload for any HWXNet
   character
+- that helper is the canonical contract source for later runtime / persistence /
+  profile work, so downstream phases do not redefine unit fields independently
+- the helper returns a deterministic payload shape with at least:
+  `unit_id`, `character`, `reading_key`, `reading_display`, `reading_rank`,
+  `is_primary`, `recall_enabled`, `enable_reason`, `stem_words`,
+  `english_translations`, and `basic_meanings`
 - the helper uses structured per-reading sources first and does not flatten them
   back to character-level prompts
+- a small gold-set verification fixture covers real polyphonic examples such as
+  `和`, `行`, `乐`, `长`, or `累`, and confirms:
+  stable `unit_id` ordering, no cross-reading stem leakage, and reading-specific
+  gloss/basic-meaning selection
+- if two engineers implement Phase 1 or Phase 2 against the helper, they should
+  get the same unit identity and payload shape without separately debating field
+  semantics
 
 ### 7.2 Phase 1: Build the reading-unit content layer
 
@@ -609,6 +636,20 @@ Definition-of-done for this phase:
   English meaning / gloss content
 - feedback screens are internally consistent for the tested reading
 
+Practical verification checklist:
+
+- the session API emits unit-aware items with `unit_id`, reading-specific
+  `correct_pinyin`, reading-specific `stem_words`, and reading-specific
+  `meanings`
+- for a polyphonic character such as `行`, the runtime can emit both `行|xíng`
+  and `行|háng` as separate items
+- the `xíng` item never shows `银行`, and the `háng` item never shows `行动`
+- wrong-answer feedback is built from the tested unit, not from the
+  character-level first reading
+- sibling readings of the same character are excluded from distractors
+- the frontend can submit `unit_id` back to the answer endpoint and render the
+  tested reading as the primary answer identity on feedback screens
+
 ### 7.4 Phase 3: Introduce unit-keyed persistence
 
 Add new persistence structures for reading-unit learning state and logs.
@@ -642,14 +683,21 @@ Migration tasks:
 2. Backfill legacy character-bank rows to unit rows using a `primary_only`
    strategy: monophonic characters map to their sole unit, and polyphonic
    characters map only to the legacy-tested primary reading unit.
-3. Optionally backfill legacy event rows with inferred `unit_id` for audit
-   continuity.
-4. Switch all runtime writes to the new tables.
-5. Stop reading from the old character-keyed bank in queue building.
+3. Backfill legacy `item_presented` rows with inferred `unit_id`, `reading_key`,
+   and `reading_display` using `character + correct_choice`, with fallback to
+   the current primary reading when the historical target reading no longer
+   exists in the current unit builder.
+4. Backfill legacy `item_answered` rows with inferred `unit_id`, `reading_key`,
+   and `reading_display` by joining to the latest preceding
+   `item_presented` row in the same `(user_id, session_id, character)`.
+5. Switch all runtime writes to the new tables.
+6. Stop reading from the old character-keyed bank in queue building.
 
 Operational safety:
 
-- keep backup copies of old tables before backfill
+- create timestamped backup copies of every persistence table before any schema
+  change or backfill write; this is a required migration step, not an optional
+  precaution
 - run dual-read or verification scripts during rollout
 - do not delete legacy tables immediately after cutover
 
@@ -696,8 +744,7 @@ Frontend/Profile work:
 Recommended product copy adjustment:
 
 - avoid saying only "汉字掌握度" if the denominator is now partly reading-based
-- preferred direction: explain that pinyin recall progress is based on
-  "拼音记忆单元" or equivalent wording
+- the implemented UI direction uses `读音掌握度` / `项` wording
 
 Definition-of-done for this phase:
 
@@ -728,6 +775,9 @@ Recommended order:
 5. Deploy profile/progress changes.
 6. Compare old vs new counts for a sample of users.
 7. Keep legacy tables read-only for a safety window.
+8. Confirm the Profile page, category pages, and trend charts now use the
+   enabled reading-unit denominator while search/dictionary drill-down remains
+   intentionally character-centric.
 
 Validation checklist:
 
@@ -739,20 +789,38 @@ Validation checklist:
 - correct and incorrect answer pages no longer render flattened
   character-level English meanings for polyphonic units
 - no frontend screen still assumes "one Hanzi = one recall item"
+- post-cutover presented / answered / report-error rows all carry `unit_id`
+- legacy presented / answered rows were backfilled successfully, with zero
+  remaining null `unit_id` rows in those two tables
+- runtime writes no longer depend on `pinyin_recall_character_bank`
+- category pages list one tile per unit, while click-through remains
+  character-centric by design
 
-### 7.7 Open decisions to resolve before implementation
+### 7.7 Final Implementation Decisions
 
-The proposal should call out a few choices explicitly:
+Resolved implementation choices:
 
-1. Is the user-facing denominator all derived units or only `recall_enabled`
-   units?
-2. Do we introduce a physical `pinyin_recall_reading_units` table immediately,
-   or keep the unit layer derived in code first?
-3. Do category pages list one row per unit, or group by character with reading
-   chips inside each row?
-4. Do we backfill legacy presented/answered logs with inferred `unit_id`, or
-   keep them as pre-cutover history only?
-5. What exact user-facing label replaces or qualifies `汉字掌握度` once polyphonic
-   readings count separately?
+1. The user-facing denominator is `recall_enabled` units only.
+2. The unit layer stays derived in code; no physical
+   `pinyin_recall_reading_units` table was introduced in this rollout.
+3. Category pages list one tile per unit, with the reading shown on the tile.
+   Clicking still opens the character search/detail flow.
+4. Legacy presented/answered logs were backfilled with inferred `unit_id`.
+   `item_presented` used `character + correct_choice` with primary-reading
+   fallback for pruned historical readings; `item_answered` used the latest
+   preceding `item_presented` row in the same session and character.
+5. The Profile UI now uses `读音掌握度` / `项` wording instead of presenting the
+   denominator as purely character-based.
+
+### 7.8 Final State Summary
+
+After rollout, the shipped behavior is:
+
+- pinyin recall runtime is keyed by `unit_id`
+- learner state is stored in `pinyin_recall_unit_bank`
+- `item_presented` and `item_answered` rows are fully backfilled with
+  `unit_id`, `reading_key`, and `reading_display`
+- profile/progress uses the enabled reading-unit denominator
+- search and character detail remain intentionally character-centric
 
 ---

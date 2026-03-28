@@ -193,3 +193,28 @@ Rules:
 **Consequences:** Consumers should migrate toward `英文解释按拼音` / `english_translations_by_pinyin` as the preferred structured field, flattening only when current flat behavior must be preserved. Legacy flat `英文翻译` remains temporary compatibility data and should be deprecated only after consumer migration is complete.
 
 **Status:** Accepted
+
+---
+
+## ADR-009: Pinyin Recall Reading Units For Polyphonic Characters
+
+**Context:** Pinyin Recall originally treated each Hanzi as one learning item keyed by `character` in `pinyin_recall_character_bank`. That worked for monophonic characters, but it broke down on polyphonic ones because the runtime could ask for one reading while showing stems or glosses from sibling readings, and profile/progress could only count one shared character state even when the learner knew one reading but not another.
+
+**Decision:** Move Pinyin Recall from character-level identity to reading-unit identity:
+
+- the learning unit is `character + reading`
+- runtime identity uses stable `unit_id`s like `行|xing2`
+- learner state is stored in `pinyin_recall_unit_bank`
+- `pinyin_recall_item_presented` and `pinyin_recall_item_answered` store `unit_id`, `reading_key`, and `reading_display`
+- profile/progress counts enabled reading units rather than raw characters
+- category pages may show multiple entries for the same Hanzi when different readings fall into different bands
+
+Reading units are derived in code from existing Feng/HWXNet character rows rather than stored in a standalone `pinyin_recall_reading_units` table.
+
+**Rationale:** This fixes the core correctness problem for polyphonic recall: prompt, answer key, stem words, English glosses, and feedback now all refer to the same tested reading. It also makes learner progress more honest by allowing one reading of a Hanzi to be mastered while another remains in progress.
+
+**Consequences:** Pinyin Recall is now explicitly reading-aware while the rest of the dictionary/search experience remains character-centric. This required a persistence migration, runtime/API changes, and a Profile wording change from `汉字掌握度` to `读音掌握度`. Legacy `pinyin_recall_character_bank` remains historical migration data rather than the active runtime bank.
+
+**Source:** [archive/proposals/PROPOSAL_Pinyin_Recall_Reading_Units_For_Polyphonic_Characters.md](archive/proposals/PROPOSAL_Pinyin_Recall_Reading_Units_For_Polyphonic_Characters.md)
+
+**Status:** Accepted

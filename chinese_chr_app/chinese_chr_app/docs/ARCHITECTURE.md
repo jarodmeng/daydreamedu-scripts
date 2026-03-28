@@ -26,12 +26,14 @@ Paths are relative to the repo root. The app lives under `chinese_chr_app/chines
 ## 3. Data Model (high-level)
 
 - **Feng (3000 characters):** Primary curriculum set with card images and maintained metadata (拼音, 部首, 笔画, 例句, 词组, 结构). Stored in Supabase table `feng_characters`.
-  - Transition note: Feng rows now carry both legacy flat `Words` and structured `WordsByPinyin` / `words_by_pinyin`.
-  - `WordsByPinyin` is the preferred consumer target during the migration to reading-aware Feng word handling.
-  - Legacy `Words` is retained for backward compatibility and fallback behavior for consumers that are not yet reading-aware.
+  - Feng rows carry both legacy flat `Words` and structured `WordsByPinyin` / `words_by_pinyin`.
+  - `WordsByPinyin` is the preferred source for reading-aware consumers such as Pinyin Recall.
+  - Legacy `Words` remains compatibility/fallback data for character-centric consumers.
 - **HWXNet (~3664 characters):** Dictionary source for display, radicals, stroke-counts, and pinyin search. Union of Feng and level-1 commonly used characters. Stored in Supabase table `hwxnet_characters`. Includes `searchable_pinyin` for pinyin search.
-  - Transition note: HWXNet rows now carry both legacy flat `常用词组` / `common_phrases` and structured `常用词组按拼音` / `common_phrases_by_pinyin`.
-  - Current conservative migration behavior prefers the structured field internally, then flattens it back to legacy phrase order for consumers that are not yet reading-aware.
+  - HWXNet rows carry both legacy flat `常用词组` / `common_phrases` and structured `常用词组按拼音` / `common_phrases_by_pinyin`, plus both legacy flat `英文翻译` / `english_translations` and structured `英文解释按拼音` / `english_translations_by_pinyin`.
+  - Reading-aware consumers prefer the structured buckets; legacy flat fields remain compatibility/fallback data for consumers that still operate at the character level.
+- **Pinyin Recall reading units:** The pinyin-recall learning identity is now `character + reading`, represented by stable `unit_id`s such as `行|xing2`. These units are derived from the character rows rather than materialized as a standalone dictionary table.
+- **Per-user learning state:** Pinyin-recall learner state is stored in `pinyin_recall_unit_bank`, keyed by `(user_id, unit_id)`. Presented/answered/report rows also carry `unit_id`, `reading_key`, and `reading_display`.
 - **Stroke order:** Fetched on demand from HanziWriter-compatible CDN; backend proxies and may cache under `data/temp/hanzi_writer/`.
 - **Radical stroke counts:** Used to sort the Radicals page by 按部首笔画. Stored in Supabase table `radical_stroke_counts`.
 
@@ -65,8 +67,8 @@ All under `/api/`. Base URL in development: `http://localhost:5001`.
 | GET | `/api/stroke-counts/<count>` | Characters with that stroke count. |
 | GET | `/api/profile` | Current user profile (display name). Requires Bearer token. |
 | PUT | `/api/profile` | Update display name. Requires Bearer token. |
-| GET | `/api/profile/progress` | Progress summary: viewed characters, daily stats, proficiency (未学字/在学字/已学字), and `category_trend` (daily counts for 难字/普通在学字/普通已学字/掌握字, runtime-computed from `pinyin_recall_item_answered`). Requires Bearer token. |
-| GET | `/api/profile/progress/category/<category>` | Characters in a given category (e.g. learning_hard, learned_normal). Requires Bearer token. |
+| GET | `/api/profile/progress` | Progress summary: viewed characters, daily stats, and pinyin-recall progress (`读音掌握度`) over the enabled reading-unit pool, plus `category_trend` (daily counts for 难项/普通在学项/普通已学项/掌握项, computed from pinyin-recall history). Requires Bearer token. |
+| GET | `/api/profile/progress/category/<category>` | Reading-unit entries in a given category (e.g. learning_hard, learned_normal). Category pages still link through to character detail pages by design. Requires Bearer token. |
 | GET | `/api/games/pinyin-recall/session` | First batch of pinyin-recall items (20). Requires Bearer token. |
 | POST | `/api/games/pinyin-recall/next-batch` | Next batch of 20 items. Optional body: `session_id`. Requires Bearer token. |
 | POST | `/api/games/pinyin-recall/answer` | Submit one answer. Requires Bearer token. |
@@ -90,7 +92,7 @@ The backend runtime is DB-only and requires `DATABASE_URL` (or `SUPABASE_DB_URL`
 
 - Character and dictionary data are read/written from Supabase tables `feng_characters` and `hwxnet_characters`.
 - Signed-in users’ character views (Search) are logged to `character_views`.
-- Pinyin recall state and events use `pinyin_recall_character_bank`, `pinyin_recall_item_presented`, `pinyin_recall_item_answered`, and `pinyin_recall_report_error`. Radical stroke counts are served from table `radical_stroke_counts`.
+- Pinyin recall state and events use `pinyin_recall_unit_bank`, `pinyin_recall_item_presented`, `pinyin_recall_item_answered`, and `pinyin_recall_report_error`. Legacy `pinyin_recall_character_bank` is retained as historical migration-era state, not the active runtime bank. Radical stroke counts are served from table `radical_stroke_counts`.
 
 Schema, configuration, data-access layer, and all migration/backfill scripts are documented in [backend/DATABASE.md](../backend/DATABASE.md).
 
@@ -102,41 +104,41 @@ Schema, configuration, data-access layer, and all migration/backfill scripts are
 
 - **Session:** User gets a first batch of 20 items from `GET /api/games/pinyin-recall/session`. After finishing a batch, `POST /api/games/pinyin-recall/next-batch` returns the next 20. Session is open-ended until the user ends it.
 - **Batch size:** 20 items per batch. `new_count` cap per batch is 8 (at most 8 新字 per batch).
-- **Queue construction:** Total Load = count(难字) + count(普通在学字) + 0.3×count(普通已学字). Three modes:
-  - **Expansion** (Total Load < 100): 10 新字 + 10 review; reserve 4 slots for 巩固 before 在学字.
-  - **Consolidation** (100 ≤ Total Load ≤ 250): 5 新字 + 15 review; reserve 6 slots for 巩固 before 在学字.
-  - **Rescue** (Total Load > 250): 4 掌握字 + 8 普通已学字 + 6 在学字 (难字 first) + 2 新字; within 在学字 slots, 难字 first (score ascending), no cap.
-- **Slot reservation:** In Expansion/Consolidation, reserve slots for 巩固 (普通已学字 + 掌握字) before allocating to 在学字, so 巩固 is never crowded out.
+- **Queue construction:** Total Load = count(难项) + count(普通在学项) + 0.3×count(普通已学项). Three modes:
+  - **Expansion** (Total Load < 100): 10 新字 + 10 review; reserve 4 slots for 巩固 before 在学项.
+  - **Consolidation** (100 ≤ Total Load ≤ 250): 5 新字 + 15 review; reserve 6 slots for 巩固 before 在学项.
+  - **Rescue** (Total Load > 250): 4 掌握项 + 8 普通已学项 + 6 在学项 (难项 first) + 2 新字; within 在学项 slots, 难项 first (score ascending), no cap.
+- **Slot reservation:** In Expansion/Consolidation, reserve slots for 巩固 (普通已学项 + 掌握项) before allocating to 在学项, so 巩固 is never crowded out.
 
 ### 8.2 Score and categories
 
 - **Score range:** −50 to 100. Correct: +10 (cap 100). Wrong or 我不知道: −10 (floor −50).
-- **Proficiency threshold:** score ≥ 10 = 已学字 (learned). Used for profile 汉字掌握度 and for 巩固 vs 重测.
-- **Five bands (for queue selection):** 难字 (score ≤ −20), 普通在学字 (−20 < score ≤ 0), 普通已学字 (0 < score < 20), 掌握字 (score ≥ 20). 未学字 = not yet in bank.
+- **Proficiency threshold:** score ≥ 10 = 已学项 (learned item). Used for profile `读音掌握度` and for 巩固 vs 重测.
+- **Five bands (for queue selection):** 难项 (score ≤ −20), 普通在学项 (−20 < score ≤ 0), 普通已学项 (0 < score < 20), 掌握项 (score ≥ 20). 未学项 = not yet in `pinyin_recall_unit_bank`.
 - **Display categories (three):** 新字 (first time), 重测 (retest / still learning), 巩固 (consolidation / maintenance). Session items include `is_polyphonic`; when true, a 多音字 tag is shown next to the category in the question header.
 
 ### 8.3 Cooling (next_due_utc)
 
 After a correct answer, `next_due_utc` is set by band:
 
-- 难字: 0 days  
-- 普通在学字: 1 day  
-- 普通已学字: 5 days  
-- 掌握字: 22 days  
+- 难项: 0 days  
+- 普通在学项: 1 day  
+- 普通已学项: 5 days  
+- 掌握项: 22 days  
 
 Only due items (and new items within cap) are eligible for the next batch.
 
 ### 8.4 Prompt and distractors
 
-- **Prompt:** Hanzi → pinyin-with-tone (MCQ). Stem shows the character and 1–3 example words/phrases (from Feng words or HWXNet 例词). When HWXNet 常用词组 are used as backup, the backend now prefers `common_phrases_by_pinyin` but conservatively flattens it back to legacy phrase ordering. 我不知道 is always offered.
-- **Distractors:** Same syllable different tone, same tone different syllable, tone confusions; polyphonic characters use first pinyin as correct and exclude other readings from distractors.
-- **Logging:** Events are written to `pinyin_recall_item_presented` (with `batch_id`, `batch_mode`, `batch_character_category`) and `pinyin_recall_item_answered` (with `score_before`, `score_after`, `category`).
+- **Prompt:** Hanzi reading recall as multiple-choice pinyin. The tested identity is one reading unit, not just the character. Stem words and learner-facing meaning content are built from reading-aware sources in priority order: Feng `WordsByPinyin`, HWXNet `common_phrases_by_pinyin`, then reading-matched HWXNet `basic_meanings`. 我不知道 is always offered.
+- **Distractors:** Same syllable different tone, same tone different syllable, tone confusions. For polyphonic characters, sibling readings are excluded from the main answer identity and the prompt/feedback are built for the tested unit only.
+- **Logging:** Events are written to `pinyin_recall_item_presented` (with `batch_id`, `batch_mode`, `batch_character_category`, `unit_id`, `reading_key`, `reading_display`) and `pinyin_recall_item_answered` (with `score_before`, `score_after`, `category`, `unit_id`, `reading_key`, `reading_display`).
 
 ### 8.5 Feedback and review UI
 
-- **Correct-answer screen:** Character, all pinyin (primary in bold), English meaning (英文翻译) when available, 基本解释 when available, stem words.
-- **Wrong-answer / 我不知道 screen:** 答错了 (and 你选了: …), correct character and pinyin, then a learning block: English meaning and 基本解释 when available (same two blocks as correct screen), plus 部首/笔画, 结构, 常见词组, 例句 when present in `missed_item`.
-- **Final review (复习这些字):** For each missed character, same content as wrong-answer learning block: character, pinyin, Meaning + 基本解释 when available, stem words.
+- **Correct-answer screen:** Character, the tested reading, sibling readings as secondary context when relevant, reading-specific English meaning / 基本解释 when available, and reading-specific stem words.
+- **Wrong-answer / 我不知道 screen:** 答错了 (and 你选了: …), correct character and tested reading, then a learning block with reading-specific English meaning / 基本解释 plus the usual supporting metadata.
+- **Final review (复习这些字):** For each missed item, the same reading-specific learning block used by the wrong-answer flow.
 
 ---
 

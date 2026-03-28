@@ -6,6 +6,15 @@ Release history and version notes. Newest releases are at the top.
 
 ---
 
+## [v0.3.0]
+
+- **Major pinyin-recall upgrade: reading units for polyphonic characters.** Pinyin Recall now treats the learning unit as `character + reading` rather than just `character`, so polyphonic siblings like `行|xíng` and `行|háng` can be scheduled, prompted, answered, and reviewed separately. Runtime prompts, distractors, stem words, English glosses, and wrong-answer feedback are now reading-specific instead of leaking content across sibling readings.
+- **Persistence migrated to unit-level state.** Learner state now uses `pinyin_recall_unit_bank`, and the pinyin-recall event tables carry `unit_id`, `reading_key`, and `reading_display`. Existing learner state was migrated with backups, and legacy `pinyin_recall_item_presented` / `pinyin_recall_item_answered` rows were backfilled to unit-level identity as well.
+- **Profile/progress now use reading-unit accounting.** The Profile page now reports `读音掌握度` against the enabled reading-unit pool instead of the old character denominator. Category pages can now show separate entries for different readings of the same Hanzi while still linking through to the same character detail page by design.
+- **Data/model cleanup and validation.** The upgrade formalizes reading-aware consumption of Feng `WordsByPinyin`, HWXNet `常用词组按拼音` / `common_phrases_by_pinyin`, and HWXNet `英文解释按拼音` / `english_translations_by_pinyin`, adds focused backend coverage for the new contract/API/profile behavior, and completes live-DB migration validation with backup tables and zero remaining null `unit_id` rows in `pinyin_recall_item_presented` and `pinyin_recall_item_answered`.
+
+---
+
 ## [v0.2.24]
 
 - **Feng Search fixes for `嘛` / `嗯` (#34, #35):** Correct the Feng-side Search data for `嘛` so it now exposes both readings `ma -> 喇嘛`, `má -> 干嘛`, and fix `嗯` so its Feng pinyin uses `ǹg` for the `嗯声` row instead of the incorrect `èn`.
