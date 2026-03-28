@@ -131,6 +131,246 @@ DEPRIORITIZED_STEM_WORDS: Set[str] = {
 }
 
 
+def pinyin_to_numbered(pinyin: str) -> str:
+    """
+    Convert one tone-mark pinyin syllable to numbered form (e.g. xíng -> xing2).
+
+    Neutral tone is normalized to tone 5 for stable unit IDs.
+    """
+    base, tone = pinyin_to_base_and_tone(pinyin)
+    if not base:
+        return ""
+    tone_val = tone if tone not in (None, 0) else 5
+    return f"{base}{tone_val}"
+
+
+def _clean_unique_strings(values: Iterable[Any]) -> List[str]:
+    cleaned: List[str] = []
+    seen: Set[str] = set()
+    for value in values:
+        if not isinstance(value, str):
+            continue
+        text = value.strip()
+        if not text or text in seen:
+            continue
+        seen.add(text)
+        cleaned.append(text)
+    return cleaned
+
+
+def _normalize_reading_key(value: Any) -> str:
+    if not isinstance(value, str):
+        return ""
+    return pinyin_to_numbered(value.strip())
+
+
+def _bucket_phrases_by_reading(
+    buckets: Any,
+) -> Dict[str, List[str]]:
+    out: Dict[str, List[str]] = {}
+    if not isinstance(buckets, list):
+        return out
+    for bucket in buckets:
+        if not isinstance(bucket, dict):
+            continue
+        reading_key = _normalize_reading_key(bucket.get("Pinyin"))
+        if not reading_key:
+            continue
+        phrases = bucket.get("Phrases")
+        out[reading_key] = _clean_unique_strings(phrases if isinstance(phrases, list) else [])
+    return out
+
+
+def _bucket_glosses_by_reading(
+    buckets: Any,
+) -> Dict[str, List[str]]:
+    out: Dict[str, List[str]] = {}
+    if not isinstance(buckets, list):
+        return out
+    for bucket in buckets:
+        if not isinstance(bucket, dict):
+            continue
+        reading_key = _normalize_reading_key(bucket.get("Pinyin"))
+        if not reading_key:
+            continue
+        glosses = bucket.get("Glosses")
+        out[reading_key] = _clean_unique_strings(glosses if isinstance(glosses, list) else [])
+    return out
+
+
+def _basic_meanings_by_reading(
+    entry: Dict[str, Any],
+    ordered_readings: List[str],
+) -> Dict[str, List[Dict[str, Any]]]:
+    senses = entry.get("基本字义解释") or []
+    out: Dict[str, List[Dict[str, Any]]] = {reading: [] for reading in ordered_readings}
+    if not isinstance(senses, list):
+        return out
+
+    for sense in senses:
+        if not isinstance(sense, dict):
+            continue
+        reading_key = _normalize_reading_key(sense.get("读音"))
+        if reading_key in out:
+            out[reading_key].append(sense)
+
+    # Monophonic fallback: if senses are untagged or partially tagged, keep all
+    # remaining senses on the sole reading rather than dropping meaning content.
+    if len(ordered_readings) == 1:
+        sole = ordered_readings[0]
+        if not out[sole]:
+            out[sole] = [sense for sense in senses if isinstance(sense, dict)]
+
+    return out
+
+
+def _merge_reading_stem_words(
+    character: str,
+    reading_key: str,
+    feng_words_by_reading: Dict[str, List[str]],
+    common_phrases_by_reading: Dict[str, List[str]],
+    basic_meanings_by_reading: Dict[str, List[Dict[str, Any]]],
+) -> List[str]:
+    merged: List[str] = []
+
+    def _append(words: Iterable[str]) -> None:
+        for word in words:
+            if not isinstance(word, str):
+                continue
+            word_text = word.strip()
+            if not word_text or character not in word_text:
+                continue
+            if word_text not in merged:
+                merged.append(word_text)
+
+    _append(feng_words_by_reading.get(reading_key, []))
+    _append(common_phrases_by_reading.get(reading_key, []))
+
+    basic_words: List[str] = []
+    for sense in basic_meanings_by_reading.get(reading_key, []):
+        for definition in sense.get("释义") or []:
+            if not isinstance(definition, dict):
+                continue
+            basic_words.extend(_clean_unique_strings(definition.get("例词") or []))
+    _append(basic_words)
+
+    normal: List[str] = []
+    deprioritized: List[str] = []
+    for word in merged:
+        if word in DEPRIORITIZED_STEM_WORDS:
+            deprioritized.append(word)
+        else:
+            normal.append(word)
+    return normal + deprioritized
+
+
+def build_reading_units_for_character(
+    character: str,
+    hwxnet_entry: Dict[str, Any],
+    feng_entry: Optional[Dict[str, Any]] = None,
+    *,
+    recall_overrides: Optional[Dict[str, Dict[str, Any]]] = None,
+) -> List[Dict[str, Any]]:
+    """
+    Build stable reading-level recall units for one HWXNet character.
+
+    This is the Phase 0 contract builder. It freezes the reading-unit shape in
+    code before pinyin-recall runtime and persistence migrate to unit keys.
+    """
+    if not character or not isinstance(hwxnet_entry, dict):
+        return []
+
+    pinyin_list = hwxnet_entry.get("拼音") or []
+    if isinstance(pinyin_list, str):
+        pinyin_list = [pinyin_list]
+    ordered_display_readings = [
+        reading.strip()
+        for reading in pinyin_list
+        if isinstance(reading, str) and reading.strip()
+    ]
+    ordered_readings = [pinyin_to_numbered(reading) for reading in ordered_display_readings]
+    if not ordered_readings:
+        return []
+
+    feng_words_by_reading = _bucket_phrases_by_reading((feng_entry or {}).get("WordsByPinyin"))
+    common_phrases_by_reading = _bucket_phrases_by_reading(hwxnet_entry.get("常用词组按拼音"))
+    english_by_reading = _bucket_glosses_by_reading(hwxnet_entry.get("英文解释按拼音"))
+    basic_by_reading = _basic_meanings_by_reading(hwxnet_entry, ordered_readings)
+    overrides = recall_overrides or {}
+
+    units: List[Dict[str, Any]] = []
+    for index, (display_reading, reading_key) in enumerate(zip(ordered_display_readings, ordered_readings), start=1):
+        unit_id = f"{character}|{reading_key}"
+        override = overrides.get(unit_id) or {}
+        recall_enabled = bool(override.get("recall_enabled", True))
+        enable_reason = str(override.get("enable_reason") or ("manual_override" if unit_id in overrides else "auto"))
+        is_primary = bool(override.get("is_primary", index == 1))
+        unit = {
+            "unit_id": unit_id,
+            "character": character,
+            "reading_key": reading_key,
+            "reading_display": display_reading,
+            "reading_rank": index,
+            "is_primary": is_primary,
+            "recall_enabled": recall_enabled,
+            "enable_reason": enable_reason,
+            "stem_words": _merge_reading_stem_words(
+                character,
+                reading_key,
+                feng_words_by_reading,
+                common_phrases_by_reading,
+                basic_by_reading,
+            ),
+            "english_translations": list(english_by_reading.get(reading_key, [])),
+            "basic_meanings": list(basic_by_reading.get(reading_key, [])),
+            "source_character_index": (feng_entry or {}).get("Index"),
+        }
+        units.append(unit)
+    return units
+
+
+def build_reading_unit_pool(
+    hwxnet_lookup: Dict[str, Dict[str, Any]],
+    character_lookup: Optional[Dict[str, Dict[str, Any]]] = None,
+    *,
+    recall_overrides: Optional[Dict[str, Dict[str, Any]]] = None,
+    enabled_only: bool = True,
+) -> List[Dict[str, Any]]:
+    """
+    Build the full reading-unit pool from current HWXNet and Feng lookup data.
+
+    This is the Phase 1 content-layer builder that expands the per-character
+    contract helper into an in-memory recall-unit pool.
+    """
+    pool: List[Dict[str, Any]] = []
+    character_lookup = character_lookup or {}
+
+    for character, hwxnet_entry in sorted((hwxnet_lookup or {}).items()):
+        if not character or not isinstance(hwxnet_entry, dict):
+            continue
+        units = build_reading_units_for_character(
+            character,
+            hwxnet_entry,
+            character_lookup.get(character),
+            recall_overrides=recall_overrides,
+        )
+        if enabled_only:
+            units = [unit for unit in units if unit.get("recall_enabled")]
+        pool.extend(units)
+
+    return pool
+
+
+def _first_basic_meaning_zh_for_unit(unit: Dict[str, Any]) -> Optional[str]:
+    """First 解释 from reading-specific basic_meanings for feedback screens."""
+    for sense in unit.get("basic_meanings") or []:
+        for defn in (sense.get("释义") or [])[:1]:
+            expl = (defn.get("解释") or "").strip()
+            if expl:
+                return expl
+    return None
+
+
 def flatten_feng_words(
     entry: Dict[str, Any],
     preserve_legacy_order: bool = True,
@@ -485,8 +725,9 @@ def build_session_queue(
     seed_str = f"{user_id}:{date_str}"
     rng = random.Random(hashlib.sha256(seed_str.encode()).hexdigest())
 
-    # Candidate pool: HWXNet chars with zibiao_index in [zibiao_min, zibiao_max_effective]
-    candidates: List[Tuple[str, Dict[str, Any]]] = []
+    # Candidate pool: reading units derived from HWXNet/Feng rows with source
+    # character zibiao_index in [zibiao_min, zibiao_max_effective].
+    candidates: List[Dict[str, Any]] = []
     for ch, entry in (hwxnet_lookup or {}).items():
         if not isinstance(entry, dict):
             continue
@@ -499,9 +740,19 @@ def build_session_queue(
             continue
         if not (zibiao_min <= zi_int <= zibiao_max_effective):
             continue
-        candidates.append((ch, entry))
+        feng_entry = (character_lookup or {}).get(ch) if character_lookup else None
+        units = build_reading_units_for_character(ch, entry, feng_entry)
+        for unit in units:
+            if not unit.get("recall_enabled"):
+                continue
+            candidates.append({
+                "unit": unit,
+                "character": ch,
+                "entry": entry,
+                "zibiao_index": zi_int,
+            })
 
-    candidates.sort(key=lambda x: (x[1].get("zibiao_index"), x[0]))
+    candidates.sort(key=lambda x: (x.get("zibiao_index"), x.get("character"), x["unit"].get("reading_rank", 0)))
     rng.shuffle(candidates)
 
     pinyin_by_base_tone, all_pinyin = get_or_build_pinyin_index(hwxnet_lookup)
@@ -510,29 +761,30 @@ def build_session_queue(
         nd = _next_due_ts(state, now_ts)
         return nd == 0 or nd <= now_ts
 
-    due_hard: List[Tuple[str, Dict[str, Any]]] = []
-    due_learning_normal: List[Tuple[str, Dict[str, Any]]] = []
-    due_learned_normal: List[Tuple[str, Dict[str, Any]]] = []
-    due_mastered: List[Tuple[str, Dict[str, Any]]] = []
-    new_items: List[Tuple[str, Dict[str, Any]]] = []
+    due_hard: List[Dict[str, Any]] = []
+    due_learning_normal: List[Dict[str, Any]] = []
+    due_learned_normal: List[Dict[str, Any]] = []
+    due_mastered: List[Dict[str, Any]] = []
+    new_items: List[Dict[str, Any]] = []
 
-    for ch, entry in candidates:
-        state = user_state.get(ch, {})
+    for candidate in candidates:
+        unit_id = candidate["unit"]["unit_id"]
+        state = user_state.get(unit_id, {})
         if not state:
-            new_items.append((ch, entry))
+            new_items.append(candidate)
             continue
         if not _is_due(state):
             continue
         score = int(state.get("score") or 0)
         band = _score_band(score)
         if band == "hard":
-            due_hard.append((ch, entry))
+            due_hard.append(candidate)
         elif band == "learning_normal":
-            due_learning_normal.append((ch, entry))
+            due_learning_normal.append(candidate)
         elif band == "learned_normal":
-            due_learned_normal.append((ch, entry))
+            due_learned_normal.append(candidate)
         else:
-            due_mastered.append((ch, entry))
+            due_mastered.append(candidate)
 
     active_load = 0
     n_learned_normal_bank = 0
@@ -553,11 +805,13 @@ def build_session_queue(
     else:
         mode = "rescue"
 
-    def _score_key(x: Tuple[str, Dict[str, Any]]) -> int:
-        return user_state.get(x[0], {}).get("score", 0)
+    def _score_key(candidate: Dict[str, Any]) -> int:
+        unit_id = candidate["unit"]["unit_id"]
+        return user_state.get(unit_id, {}).get("score", 0)
 
-    def _next_due_key(x: Tuple[str, Dict[str, Any]]) -> int:
-        return _next_due_ts(user_state.get(x[0], {}), now_ts) or 0
+    def _next_due_key(candidate: Dict[str, Any]) -> int:
+        unit_id = candidate["unit"]["unit_id"]
+        return _next_due_ts(user_state.get(unit_id, {}), now_ts) or 0
 
     due_hard.sort(key=_score_key)
     due_learning_normal.sort(key=_score_key)
@@ -609,56 +863,64 @@ def build_session_queue(
         if spare > 0:
             n_learning_slots = min(n_learning, n_learning_slots + spare)
 
-    learning_pool: List[Tuple[str, Dict[str, Any]]] = list(due_hard) + list(due_learning_normal)
+    learning_pool: List[Dict[str, Any]] = list(due_hard) + list(due_learning_normal)
     learning_pool = learning_pool[:n_learning_slots]
 
     mastered_queue = due_mastered[:n_mastered_slots]
     learned_normal_queue = due_learned_normal[:n_learned_normal_slots]
-    new_queue: List[Tuple[str, Dict[str, Any]]] = []
-    seen = {x[0] for x in mastered_queue + learned_normal_queue + learning_pool}
-    for ch, entry in new_items:
+    new_queue: List[Dict[str, Any]] = []
+    seen: Set[str] = set()
+    for x in mastered_queue + learned_normal_queue + learning_pool:
+        seen.add(x["unit"]["unit_id"])
+    for candidate in new_items:
         if len(new_queue) >= n_new_slots:
             break
-        if ch in seen:
+        unit_id = candidate["unit"]["unit_id"]
+        if unit_id in seen:
             continue
-        new_queue.append((ch, entry))
-        seen.add(ch)
+        new_queue.append(candidate)
+        seen.add(unit_id)
 
     if mode == "rescue":
-        queue: List[Tuple[str, Dict[str, Any]]] = mastered_queue + learned_normal_queue + learning_pool + new_queue
+        queue: List[Dict[str, Any]] = mastered_queue + learned_normal_queue + learning_pool + new_queue
     else:
         learned_queue = learned_normal_queue + mastered_queue
         queue = learned_queue + learning_pool + new_queue
 
     items_out: List[Dict[str, Any]] = []
-    for ch, entry in queue:
-        correct = get_correct_pinyin(entry)
+    for candidate in queue:
+        ch = candidate["character"]
+        entry = candidate["entry"]
+        unit = candidate["unit"]
+        correct = unit.get("reading_display") or ""
         if not correct:
             continue
-        other = get_other_pronunciations(entry)
+        all_pinyin = _all_pinyin_list(entry, fallback_primary=correct)
+        other = [py for py in all_pinyin if py.strip().lower() != correct.strip().lower()]
         distractors = build_distractors(
             correct, other, pinyin_by_base_tone, all_pinyin, count=3
         )
         choices = [correct] + distractors[:3]
         rng.shuffle(choices)
-        stem_words = get_stem_words(ch, character_lookup or {}, hwxnet_lookup or {}, 3)
-        char_state = user_state.get(ch, {})
+        char_state = user_state.get(unit.get("unit_id"), {})
         category = _category_for_character(char_state)
         batch_category = _batch_category_for_character(char_state)
-        # For correct-answer screen (Issue #7): all pinyin, English meaning, 基本解释
-        all_pinyin = _all_pinyin_list(entry, fallback_primary=correct)
         is_polyphonic = len(all_pinyin) > 1
-        meanings = flatten_hwxnet_english_translations(entry)
-        meaning_zh = _first_basic_meaning_zh(entry)
+        meanings = list(unit.get("english_translations") or [])
+        meaning_zh = _first_basic_meaning_zh_for_unit(unit)
         items_out.append({
+            "unit_id": unit.get("unit_id"),
             "character": ch,
-            "stem_words": stem_words,
+            "reading_key": unit.get("reading_key"),
+            "reading_display": unit.get("reading_display"),
+            "stem_words": list(unit.get("stem_words") or [])[:3],
             "correct_pinyin": correct,
             "choices": choices,
             "prompt_type": "hanzi_to_pinyin",
             "category": category,
             "batch_category": batch_category,
             "all_pinyin": all_pinyin,
+            "other_readings": other,
             "is_polyphonic": is_polyphonic,
             "meanings": meanings,
             "meaning_zh": meaning_zh,
