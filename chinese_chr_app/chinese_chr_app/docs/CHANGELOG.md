@@ -6,6 +6,13 @@ Release history and version notes. Newest releases are at the top.
 
 ---
 
+## [v0.2.23]
+
+- **Feng data cleanup for issue #31:** Fixed the remaining bad Feng sample-word rows so split idioms are merged correctly (`来日方长`, `人来人往`, `惹事生非`), removed the `朗 -> 吊儿郎当` source-card typo, and corrected Feng index `2328` from a long-mislabeled `谴` row to the actual `遣` card with matching metadata and phrases.
+- **Supabase sync + regression coverage:** Backed up the live `feng_characters` table, synced the reviewed rows from `data/characters.json`, and added focused backend invariants coverage for Feng phrase quality plus the corrected `2328 -> 遣` identity.
+
+---
+
 ## [v0.2.22]
 
 - **Search English grouped by pinyin:** The HWXNet `英语` row on the Search page now renders `英文解释按拼音` buckets directly instead of flattening all glosses into a single `|`-separated line, so polyphonic characters clearly separate English meanings by reading.
