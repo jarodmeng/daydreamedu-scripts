@@ -8,8 +8,8 @@ Release history and version notes. Newest releases are at the top.
 
 ## [v0.2.24]
 
-- **Feng polyphonic fix for `嘛` (#34):** Correct the Feng-side Search data for `嘛` so it now exposes both readings instead of collapsing to one: `ma -> 喇嘛`, `má -> 干嘛`.
-- **Targeted Supabase sync:** Update only the live `feng_characters` row for `嘛` so `pinyin`, `words`, and `words_by_pinyin` match the reviewed `data/characters.json` entry without requiring a broader table reload.
+- **Feng Search fixes for `嘛` / `嗯` (#34, #35):** Correct the Feng-side Search data for `嘛` so it now exposes both readings `ma -> 喇嘛`, `má -> 干嘛`, and fix `嗯` so its Feng pinyin uses `ǹg` for the `嗯声` row instead of the incorrect `èn`.
+- **Targeted Supabase sync:** Update only the live `feng_characters` rows for `嘛` and `嗯` so `pinyin`, `words`, and `words_by_pinyin` match the reviewed `data/characters.json` entries without requiring a broader table reload.
 
 ---
 

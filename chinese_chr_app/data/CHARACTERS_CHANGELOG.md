@@ -6,15 +6,16 @@ This file records changes to the character bank (character set, source data, and
 
 ---
 
-## 2026-03-28 — 嘛 polyphonic phrase fix (#34)
+## 2026-03-28 — 嘛 / 嗯 Feng Search fixes (#34, #35)
 
-- **What:** Corrected the Feng row for `嘛` so its readings and example phrases now match the intended split reported in issue `#34`.
+- **What:** Corrected the Feng rows for `嘛` and `嗯` so their Search-side pinyin and example data now match the intended readings reported in issues `#34` and `#35`.
 - **Data fixes:** Updated `data/characters.json` for `嘛` (index `2786`) from a monophonic row to:
   - `Pinyin: ["ma", "má"]`
   - `Words: ["喇嘛", "干嘛"]`
   - `WordsByPinyin`: `ma -> ["喇嘛"]`, `má -> ["干嘛"]`
-- **Why:** Search was showing only one Feng-side reading for `嘛`, and `干嘛` had been attached to the wrong bucket. The card/example data needed to represent both readings explicitly.
-- **DB sync:** Synced only the single live `feng_characters` row for `嘛` in Supabase so `pinyin`, `words`, and `words_by_pinyin` now match `data/characters.json`.
+- **Data fixes:** Updated `data/characters.json` for `嗯` (index `2610`) so the Feng-side pinyin now uses `ǹg` instead of the incorrect `èn`, while keeping `Words: ["嗯声"]` and `WordsByPinyin: ǹg -> ["嗯声"]`.
+- **Why:** Search was showing only one Feng-side reading for `嘛`, and `干嘛` had been attached to the wrong bucket. `嗯` also had an incorrect Feng-side pinyin, so the card info panel disagreed with the curated reading-aware dictionary data.
+- **DB sync:** Synced only the live `feng_characters` rows for `嘛` and `嗯` in Supabase so `pinyin`, `words`, and `words_by_pinyin` now match `data/characters.json`.
 - **Script:** Added `chinese_chr_app/backend/scripts/characters/sync_single_feng_character_from_json.py` as a reusable one-row sync helper for small Feng record corrections.
 
 ---
