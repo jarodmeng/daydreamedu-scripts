@@ -21,6 +21,15 @@ All notable changes to the pdf_file_manager utility are documented here.
 - Added tests covering raw/main parity during compression, parity-preserving metadata updates, and repair of existing drift.
 - Documented raw/main invariant metadata expectations and parity behavior in `README.md`, `ARCHITECTURE.md`, and `SPEC.md`.
 
+### 3. Reproducible integrity validation
+
+- Added [`scripts/validate_pdf_registry_integrity.py`](./scripts/validate_pdf_registry_integrity.py) as a standalone validator for the three integrity problems investigated during this release cycle:
+  - lingering `doc_type='unknown'` records
+  - missing `student_id` in student-scoped folders
+  - raw/main invariant metadata drift
+- Added `tests/test_integrity_validator.py` to keep the validator reproducible and regression-tested.
+- Documented the validator entrypoint in `README.md`.
+
 ## [v0.2.2] — Book doc_type/group_type support
 
 - Added `book` as a supported `doc_type` and `group_type`.

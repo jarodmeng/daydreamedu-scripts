@@ -8,6 +8,10 @@ A local utility that keeps a SQLite registry of PDF files in the study archive. 
 
 **Raw/main parity:** Linked raw and main records represent the same logical document in two file forms. Document-level metadata such as `subject`, `doc_type`, `student_id`, `is_template`, and core metadata fields is expected to stay in sync across the pair. The manager now enforces that parity during metadata updates and includes a repair helper for older drift.
 
+**Student inference:** When `student_id` is not supplied explicitly by a configured scan root or direct API call, the manager can now fall back to matching registered `students.email` path segments so student-scoped scans do not silently leave `student_id` unset.
+
+**Integrity validation:** Use [`scripts/validate_pdf_registry_integrity.py`](./scripts/validate_pdf_registry_integrity.py) to reproducibly audit the registry for lingering `doc_type='unknown'` files, missing `student_id` in student-scoped folders, and raw/main invariant metadata drift.
+
 **Machine interface:** The preferred machine-facing contract is now the MCP wrapper in [`pdf_file_manager_mcp.py`](./pdf_file_manager_mcp.py) plus the runnable FastMCP entrypoint in [`pdf_file_manager_mcp_server.py`](./pdf_file_manager_mcp_server.py). The Python library in [`pdf_file_manager.py`](./pdf_file_manager.py) remains the source of truth for business logic. The old built-in CLI has been removed to avoid maintaining a second, partial interface.
 
 ---
