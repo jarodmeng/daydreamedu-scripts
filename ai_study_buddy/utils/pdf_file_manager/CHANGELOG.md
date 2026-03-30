@@ -4,6 +4,15 @@ All notable changes to the pdf_file_manager utility are documented here.
 
 ---
 
+## [v0.2.2] — Book doc_type/group_type support
+
+- Added `book` as a supported `doc_type` and `group_type`.
+- Extended schema bootstrap to migrate existing registries so the new `book` enum values are accepted.
+- Extended `_infer_from_path` and `scan_for_new_files` so `.../Book/<book name>/...` folders are scanned as `doc_type='book'` with inferred `metadata.unit`.
+- Added automatic syncing of `group_type='book'` file groups from scanned book folders, with only `main` files added as members.
+- Added `ensure_book_group_from_path(...)` helper for idempotent book-group creation/sync.
+- Added tests covering book inference, book scan behavior, and `book` file-group creation.
+
 ## [v0.2.1] — GoodNotes-safe compression and template resolution
 
 - Added `preserve_input` flag to `compress_and_register` to support GoodNotes-safe compression: originals remain at their paths and `_c_` mains are created alongside and linked as raw↔main.

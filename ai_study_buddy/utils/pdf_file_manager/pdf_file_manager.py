@@ -115,7 +115,7 @@ class FileGroupMember:
 class FileGroup:
     id: str
     label: str
-    group_type: str  # 'exam' | 'book_exercise' | 'collection'
+    group_type: str  # 'exam' | 'book' | 'book_exercise' | 'collection'
     anchor_id: str | None
     created_at: str
     notes: str | None
@@ -171,6 +171,10 @@ def _schema_sql() -> str:
     return schema_file.read_text()
 
 class PdfFileManager:
+    _ALLOWED_SUBJECTS = ("english", "math", "science", "chinese")
+    _ALLOWED_DOC_TYPES = ("exam", "worksheet", "book", "book_exercise", "activity", "practice", "notes", "unknown")
+    _ALLOWED_GROUP_TYPES = ("exam", "book", "book_exercise", "collection")
+
     def __init__(self, db_path=None):
         self._db_path = Path(db_path).resolve() if db_path else _default_db_path()
         self._conn = None
@@ -192,6 +196,102 @@ class PdfFileManager:
 
     def _ensure_schema(self):
         self._conn.executescript(_schema_sql())
+        self._migrate_schema_if_needed()
+
+    def _migrate_schema_if_needed(self):
+        conn = self._conn
+        assert conn is not None
+        pdf_sql_row = conn.execute(
+            "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'pdf_files'"
+        ).fetchone()
+        pdf_sql = (pdf_sql_row["sql"] or "") if pdf_sql_row else ""
+        if "'book'" not in pdf_sql:
+            self._rebuild_pdf_files_table()
+
+        group_sql_row = conn.execute(
+            "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'file_groups'"
+        ).fetchone()
+        group_sql = (group_sql_row["sql"] or "") if group_sql_row else ""
+        if "'book'" not in group_sql:
+            self._rebuild_file_groups_table()
+
+    def _rebuild_pdf_files_table(self):
+        conn = self._conn
+        assert conn is not None
+        conn.execute("PRAGMA foreign_keys = OFF")
+        conn.executescript(
+            """
+            BEGIN;
+            CREATE TABLE pdf_files_new (
+                id             TEXT PRIMARY KEY,
+                name           TEXT NOT NULL,
+                path           TEXT NOT NULL UNIQUE,
+                file_type      TEXT NOT NULL DEFAULT 'unknown'
+                               CHECK(file_type IN ('main', 'raw', 'unknown')),
+                doc_type       TEXT NOT NULL DEFAULT 'unknown'
+                               CHECK(doc_type IN ('exam', 'worksheet', 'book', 'book_exercise', 'activity', 'practice', 'notes', 'unknown')),
+                student_id     TEXT REFERENCES students(id),
+                subject        TEXT
+                               CHECK(subject IN ('english', 'math', 'science', 'chinese')),
+                is_template    BOOLEAN NOT NULL DEFAULT 0,
+                size_bytes     INTEGER,
+                page_count     INTEGER,
+                has_raw        BOOLEAN NOT NULL DEFAULT 0,
+                metadata       TEXT,
+                added_at       TEXT NOT NULL,
+                updated_at     TEXT NOT NULL,
+                notes          TEXT
+            );
+            INSERT INTO pdf_files_new (
+                id, name, path, file_type, doc_type, student_id, subject, is_template,
+                size_bytes, page_count, has_raw, metadata, added_at, updated_at, notes
+            )
+            SELECT
+                id, name, path, file_type, doc_type, student_id, subject, is_template,
+                size_bytes, page_count, has_raw, metadata, added_at, updated_at, notes
+            FROM pdf_files;
+            DROP TABLE pdf_files;
+            ALTER TABLE pdf_files_new RENAME TO pdf_files;
+            COMMIT;
+            """
+        )
+        conn.execute("PRAGMA foreign_keys = ON")
+
+    def _rebuild_file_groups_table(self):
+        conn = self._conn
+        assert conn is not None
+        conn.execute("PRAGMA foreign_keys = OFF")
+        conn.executescript(
+            """
+            BEGIN;
+            CREATE TABLE file_groups_new (
+                id         TEXT PRIMARY KEY,
+                label      TEXT NOT NULL,
+                group_type TEXT NOT NULL DEFAULT 'collection'
+                           CHECK(group_type IN ('exam', 'book', 'book_exercise', 'collection')),
+                anchor_id  TEXT REFERENCES pdf_files(id) ON DELETE SET NULL,
+                created_at TEXT NOT NULL,
+                notes      TEXT
+            );
+            INSERT INTO file_groups_new (id, label, group_type, anchor_id, created_at, notes)
+            SELECT id, label, group_type, anchor_id, created_at, notes
+            FROM file_groups;
+            DROP TABLE file_groups;
+            ALTER TABLE file_groups_new RENAME TO file_groups;
+            COMMIT;
+            """
+        )
+        conn.execute("PRAGMA foreign_keys = ON")
+
+    @classmethod
+    def _validate_doc_type(cls, doc_type: str):
+        if doc_type not in cls._ALLOWED_DOC_TYPES:
+            raise ValueError(f"doc_type must be one of {', '.join(cls._ALLOWED_DOC_TYPES)}; got {doc_type!r}")
+
+    @classmethod
+    def _validate_group_type(cls, group_type: str):
+        if group_type not in cls._ALLOWED_GROUP_TYPES:
+            raise ValueError(f"group_type must be one of {', '.join(cls._ALLOWED_GROUP_TYPES)}; got {group_type!r}")
 
     def _log_operation(
         self,
@@ -468,6 +568,7 @@ class PdfFileManager:
         meta_json = json.dumps(metadata) if metadata is not None else None
         if subject is not None and subject not in ("english", "math", "science", "chinese"):
             raise ValueError(f"subject must be one of english, math, science, chinese; got {subject!r}")
+        self._validate_doc_type(doc_type)
         now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
         file_id = str(uuid.uuid4())
         conn.execute(
@@ -633,7 +734,67 @@ class PdfFileManager:
     # ---------------------------------------------------------------------------
 
     @staticmethod
-    def _infer_from_path(path: Path) -> dict:
+    def _infer_book_folder(path: Path) -> Path | None:
+        resolved = path.resolve()
+        parts = resolved.parts
+        try:
+            book_idx = parts.index("Book")
+        except ValueError:
+            return None
+        if book_idx + 1 >= len(parts):
+            return None
+        book_folder = Path(*parts[: book_idx + 2])
+        return book_folder
+
+    @staticmethod
+    def _strip_technical_pdf_prefix(name: str) -> str:
+        if name.startswith("_raw_"):
+            return name[5:]
+        if name.startswith("_c_"):
+            return name[3:]
+        if name.startswith("c_"):
+            return name[2:]
+        return name
+
+    @staticmethod
+    def _strip_redundant_leading_ascii_label(stem: str) -> str:
+        for idx, char in enumerate(stem):
+            if "\u4e00" <= char <= "\u9fff":
+                prefix = stem[:idx]
+                if prefix and all(ord(c) < 128 and (c.isalnum() or c in " ._-+&()[]") for c in prefix):
+                    stripped = stem[idx:].lstrip(" -_.")
+                    if stripped:
+                        return stripped
+                break
+        return stem
+
+    @classmethod
+    def _infer_book_unit(cls, path: Path) -> str | None:
+        book_folder = cls._infer_book_folder(path)
+        if book_folder is None or path.suffix.lower() != ".pdf":
+            return None
+        current_stem = Path(cls._strip_technical_pdf_prefix(path.name)).stem.strip()
+        if not current_stem:
+            return None
+        sibling_stems: list[str] = []
+        try:
+            for sibling in book_folder.glob("*.pdf"):
+                stem = Path(cls._strip_technical_pdf_prefix(sibling.name)).stem.strip()
+                if stem:
+                    sibling_stems.append(stem)
+        except OSError:
+            sibling_stems = []
+        if len(sibling_stems) <= 1:
+            return cls._strip_redundant_leading_ascii_label(current_stem)
+        common_prefix = os.path.commonprefix(sibling_stems).rstrip(" -_.")
+        if common_prefix:
+            remainder = current_stem[len(common_prefix):].lstrip(" -_.")
+            if remainder:
+                return remainder
+        return cls._strip_redundant_leading_ascii_label(current_stem)
+
+    @classmethod
+    def _infer_from_path(cls, path: Path) -> dict:
         """Infer subject, doc_type, is_template, and metadata from path segments (DaydreamEdu layout).
         is_template: True when path has a grade/scope segment (P3–P6, PSLE, Archive) and no *student folder*
         (a segment containing @ immediately followed by a grade/scope segment). False when such a student folder exists.
@@ -671,6 +832,13 @@ class PdfFileManager:
             if p == "Exam":
                 out["doc_type"] = "exam"
                 out.setdefault("metadata", {})["content_folder"] = "Exam"
+                break
+            if p == "Book":
+                out["doc_type"] = "book"
+                out.setdefault("metadata", {})["content_folder"] = "Book"
+                unit = cls._infer_book_unit(resolved)
+                if unit:
+                    out.setdefault("metadata", {})["unit"] = unit
                 break
             if p == "Exercise":
                 out["doc_type"] = "worksheet"
@@ -723,13 +891,62 @@ class PdfFileManager:
             root_entries = [ (r.path, r.student_id) for r in scan_roots_list ]
         registered_paths = { row[0] for row in conn.execute("SELECT path FROM pdf_files").fetchall() }
         results: list[ScanResult] = []
+        book_folders_to_sync: set[Path] = set()
         for root_path, root_student_id in root_entries:
             root_p = Path(root_path)
             if not root_p.is_dir():
                 continue
             for pdf_path in root_p.rglob("*.pdf"):
                 path_str = str(pdf_path.resolve())
+                inferred = self._infer_from_path(pdf_path)
+                if inferred.get("doc_type") == "book":
+                    book_folder = self._infer_book_folder(pdf_path)
+                    if book_folder is not None:
+                        book_folders_to_sync.add(book_folder)
                 if path_str in registered_paths:
+                    existing = self.get_file_by_path(pdf_path)
+                    if existing and existing.file_type == "unknown":
+                        if dry_run:
+                            results.append(
+                                ScanResult(
+                                    file=existing,
+                                    raw_archive=None,
+                                    compressed=False,
+                                )
+                            )
+                            continue
+                        if on_file_start is not None:
+                            on_file_start(pdf_path)
+                        is_goodnotes = "GoodNotes" in pdf_path.parts
+                        if is_goodnotes:
+                            result = self.compress_and_register(existing.id, min_savings_pct=min_savings_pct, preserve_input=True)
+                        else:
+                            result = self.compress_and_register(existing.id, min_savings_pct=min_savings_pct)
+                        if root_student_id:
+                            conn.execute("UPDATE pdf_files SET student_id = ? WHERE id = ?", (root_student_id, result.main_file_id))
+                            if result.raw_archive_id:
+                                conn.execute("UPDATE pdf_files SET student_id = ? WHERE id = ?", (root_student_id, result.raw_archive_id))
+                            conn.commit()
+                        if inferred:
+                            kwargs = {k: v for k, v in inferred.items() if k != "metadata" and v is not None}
+                            if inferred.get("metadata"):
+                                kwargs["metadata"] = inferred["metadata"]
+                            if kwargs:
+                                self.update_metadata(result.main_file_id, **kwargs)
+                                if result.raw_archive_id:
+                                    self.update_metadata(result.raw_archive_id, **kwargs)
+                        main_file = self.get_file(result.main_file_id)
+                        raw_file = self.get_file(result.raw_archive_id) if result.raw_archive_id else None
+                        if main_file:
+                            results.append(ScanResult(file=main_file, raw_archive=raw_file, compressed=result.compressed))
+                        continue
+                    if not dry_run:
+                        if existing and inferred:
+                            kwargs = {k: v for k, v in inferred.items() if k != "metadata" and v is not None}
+                            if inferred.get("metadata"):
+                                kwargs["metadata"] = inferred["metadata"]
+                            if kwargs:
+                                self.update_metadata(existing.id, **kwargs)
                     continue
                 name = pdf_path.name
                 if name.startswith("_raw_"):
@@ -773,7 +990,6 @@ class PdfFileManager:
                     if root_student_id:
                         conn.execute("UPDATE pdf_files SET student_id = ? WHERE id = ?", (root_student_id, reg.id))
                         conn.commit()
-                    inferred = self._infer_from_path(pdf_path)
                     if inferred:
                         kwargs = {k: v for k, v in inferred.items() if k != "metadata" and v is not None}
                         if inferred.get("metadata"):
@@ -805,7 +1021,6 @@ class PdfFileManager:
                     if result.raw_archive_id:
                         conn.execute("UPDATE pdf_files SET student_id = ? WHERE id = ?", (root_student_id, result.raw_archive_id))
                     conn.commit()
-                inferred = self._infer_from_path(pdf_path)
                 if inferred:
                     kwargs = {k: v for k, v in inferred.items() if k != "metadata" and v is not None}
                     if inferred.get("metadata"):
@@ -818,13 +1033,14 @@ class PdfFileManager:
                 raw_file = self.get_file(result.raw_archive_id) if result.raw_archive_id else None
                 if main_file:
                     results.append(ScanResult(file=main_file, raw_archive=raw_file, compressed=result.compressed))
+        if not dry_run:
+            for book_folder in sorted(book_folders_to_sync):
+                self.ensure_book_group_from_path(book_folder)
         return results
 
     # ---------------------------------------------------------------------------
     # Phase 3: update_metadata, rename_file, move_file, delete_file, open_file
     # ---------------------------------------------------------------------------
-
-    _ALLOWED_SUBJECTS = ("english", "math", "science", "chinese")
 
     def update_metadata(
         self,
@@ -839,6 +1055,8 @@ class PdfFileManager:
         file_id, file_path, row = self._resolve_file_record(file_id_or_path)
         if subject is not None and subject not in self._ALLOWED_SUBJECTS:
             raise ValueError(f"subject must be one of {', '.join(self._ALLOWED_SUBJECTS)}; got {subject!r}")
+        if doc_type is not None:
+            self._validate_doc_type(doc_type)
         conn = self._get_connection()
         before = {k: row[k] for k in row.keys()}
         updates = []
@@ -1422,8 +1640,7 @@ class PdfFileManager:
         return outcomes
 
     def create_file_group(self, label: str, group_type: str = "collection", anchor_id: str | None = None, notes: str | None = None) -> FileGroup:
-        if group_type not in ("exam", "book_exercise", "collection"):
-            raise ValueError(f"group_type must be exam, book_exercise, or collection; got {group_type!r}")
+        self._validate_group_type(group_type)
         conn = self._get_connection()
         gid = str(uuid.uuid4())
         now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
@@ -1612,3 +1829,29 @@ class PdfFileManager:
                 )
             )
         return out
+
+    def ensure_book_group_from_path(self, path: str | Path) -> FileGroup:
+        target = Path(path).resolve()
+        book_folder = target if target.is_dir() else self._infer_book_folder(target)
+        if book_folder is None or book_folder.parent.name != "Book":
+            raise ValueError(f"Path is not under a .../Book/<book name>/ folder: {path}")
+        label = book_folder.name
+        existing = [
+            group for group in self.list_file_groups(group_type="book")
+            if group.label == label
+        ]
+        group = existing[0] if existing else self.create_file_group(label=label, group_type="book")
+        members_by_id = {member.file_id for member in group.members}
+        main_files = [
+            file for file in self.find_files(doc_type="book", file_type="main")
+            if Path(file.path).resolve().parent == book_folder
+        ]
+        for file in main_files:
+            if file.id not in members_by_id:
+                self.add_to_file_group(group.id, file.id)
+        group = self.get_file_group(group.id)
+        if group.anchor_id is None and group.members:
+            anchor = sorted(group.members, key=lambda member: member.file.name)[0]
+            self.set_file_group_anchor(group.id, anchor.file_id)
+            group = self.get_file_group(group.id)
+        return group

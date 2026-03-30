@@ -27,6 +27,20 @@ def test_create_file_group_and_get_file_group():
         Path(db_path).unlink(missing_ok=True)
 
 
+def test_create_book_file_group_and_list_by_type():
+    with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as f:
+        db_path = f.name
+    try:
+        mgr = PdfFileManager(db_path=db_path)
+        group = mgr.create_file_group("Power Pack Chinese PSLE", group_type="book")
+        groups = mgr.list_file_groups(group_type="book")
+        assert len(groups) == 1
+        assert groups[0].id == group.id
+        assert groups[0].group_type == "book"
+    finally:
+        Path(db_path).unlink(missing_ok=True)
+
+
 def test_add_to_file_group_and_list_file_groups():
     if not fixture_has_pdfs():
         pytest.skip("Fixture PDFs not present")

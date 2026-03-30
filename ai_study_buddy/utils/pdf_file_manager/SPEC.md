@@ -18,6 +18,8 @@ This document specifies the **operations** (Python API and MCP tool layer), **op
 
 Walk configured scan roots (or override list), find every `*.pdf`, compare against registry, and process any that are new. If `dry_run=True`, no disk or database changes are made; the return value describes what would have been done for each would-be-processed file.
 
+**Book-aware behavior:** For paths under `.../Book/<book name>/...`, scan applies path inference so files are registered with `doc_type='book'`, infers `metadata.unit` from filename where possible, and syncs a `group_type='book'` file group for that folder using `<book name>` as the group label. Only `main` files are added to the book group.
+
 **For each unregistered file with `_c_` prefix:**
 1. Register as `file_type='main'` (no compress). Apply scan root `student_id` and path-based inference (subject, doc_type, metadata, **is_template**: path with no email segment and a grade/scope segment → `True`; path with email segment → `False`; **Chinese exams only:** when `subject='chinese'` and `doc_type='exam'`, `metadata.chinese_variant` is inferred from the filename: `higher` for names containing `高华` or `.hc.`, `foundation` for names containing `华文` or `.chinese.`). Skip compress step.
 

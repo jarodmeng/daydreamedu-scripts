@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS pdf_files (
     file_type      TEXT NOT NULL DEFAULT 'unknown'
                    CHECK(file_type IN ('main', 'raw', 'unknown')),
     doc_type       TEXT NOT NULL DEFAULT 'unknown'
-                   CHECK(doc_type IN ('exam', 'worksheet', 'book_exercise', 'activity', 'practice', 'notes', 'unknown')),
+                   CHECK(doc_type IN ('exam', 'worksheet', 'book', 'book_exercise', 'activity', 'practice', 'notes', 'unknown')),
     student_id     TEXT REFERENCES students(id),
     subject        TEXT
                    CHECK(subject IN ('english', 'math', 'science', 'chinese')),
@@ -46,7 +46,7 @@ CREATE TABLE IF NOT EXISTS file_groups (
     id         TEXT PRIMARY KEY,
     label      TEXT NOT NULL,
     group_type TEXT NOT NULL DEFAULT 'collection'
-               CHECK(group_type IN ('exam', 'book_exercise', 'collection')),
+               CHECK(group_type IN ('exam', 'book', 'book_exercise', 'collection')),
     anchor_id  TEXT REFERENCES pdf_files(id) ON DELETE SET NULL,
     created_at TEXT NOT NULL,
     notes      TEXT

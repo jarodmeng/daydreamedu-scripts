@@ -18,7 +18,7 @@ Scanned files may live in one or more folders (e.g. different Google Drive accou
 |-------|----------------|----------|
 | **L1** | Subject | May be short (`Chinese`, `Math`) or longer (`Singapore Primary English`, `Singapore Primary Math`). Inference matches the subject word (e.g. "English" → `english`). |
 | **L2** | Student (email-named) or general scope | Student: `winston.ry.meng@gmail.com` (then has Px/PSLE inside). General: any non-email segment — `P3`, `P4`, `P5`, `P6`, `PSLE`, `Archive` — **files under general scope are templates** (`is_template=True`). |
-| **L3** | Content type | `Exam`, `Exercise`, `Activity`, `Note` |
+| **L3** | Content type | `Exam`, `Exercise`, `Book`, `Activity`, `Note` |
 
 So a full path might be: `DaydreamEdu/Singapore Primary Math/winston.ry.meng@gmail.com/P6/Exam/...` or `DaydreamEdu/Singapore Primary Science/P6/Exercise/...`. Student-specific folders are named by the student's email; the file manager can map that path segment to `student_id` via the `students.email` column when present. **Shallow paths:** Some files (e.g. answer keys) sit directly under L1 with no L2/L3; for those, only subject (and optionally filename-based `source_book`) can be inferred; `content_folder`, `grade_or_scope`, and `is_template` are left unset or for human classification.
 
@@ -28,6 +28,7 @@ So a full path might be: `DaydreamEdu/Singapore Primary Math/winston.ry.meng@gma
 |--------|-------------|----------------------|---------------------------|
 | **Exam** | Weighted assessments (end of term), end-of-year assessments (full year). | `exam` | Yes — can be broken into individual questions. |
 | **Exercise** | Day-to-day exercises. | `worksheet` or `book_exercise` | Yes. |
+| **Book** | Whole-book or book-organized PDFs managed at the book level. | `book` | Not necessarily by questions. |
 | **Activity** | Topic-related study activities; often accompany a textbook or topic. | `activity` | Not necessarily by questions. |
 | **Note** | Study notes; various formats. | `notes` | Not necessarily by questions. |
 
@@ -40,7 +41,7 @@ So a full path might be: `DaydreamEdu/Singapore Primary Math/winston.ry.meng@gma
 
 Content from these books may be split across multiple folders by "nature of the portions". **Answers** files (answer keys) do not roll up to a single folder — they apply to a book or set of exercises. How to treat them is discussed in **Answers files** below.
 
-**Folder-based inference (optional):** When registering or scanning under this root, the file manager can infer: **subject** from L1 folder name — match a known subject word (e.g. `Chinese`, `Math`, `Science`, `English`), including when L1 is longer (e.g. `Singapore Primary English` → `english`); **student_id** when an L2 path segment matches `students.email` (otherwise L2 is general scope); **is_template** — `True` when the file is under a general-scope L2 folder (any non-email L2, e.g. `P3`, `P4`, `P5`, `P6`, `PSLE`, `Archive`), `False` when under a student (email-named) folder; **metadata.grade_or_scope** from L2 when not student-specific; **metadata.content_folder** from L3 (`Exam`, `Exercise`, `Activity`, `Note`); **metadata.source_book** from filename prefix when recognised (e.g. `PP`, `PP `, `EPO`, `EPO_`). For **files directly under L1** (no L2/L3, e.g. answer keys in `Subject/Answers.pdf`), only subject and optionally `source_book` from the filename are inferred; `is_template`, `content_folder`, and `grade_or_scope` are not set by path. Inference is best-effort; any inferred value can be overridden by a human. **Precedence:** When a scan root has `student_id` set, that value is used for all files discovered under that root and overrides path-based inference. **Implementation:** `_infer_from_path(path)` implements the above: any path segment containing `@` → `is_template=False` (student folder); if no such segment and any segment in `P3`–`P6`, `PSLE`, `Archive` → `is_template=True` (general scope).
+**Folder-based inference (optional):** When registering or scanning under this root, the file manager can infer: **subject** from L1 folder name — match a known subject word (e.g. `Chinese`, `Math`, `Science`, `English`), including when L1 is longer (e.g. `Singapore Primary English` → `english`); **student_id** when an L2 path segment matches `students.email` (otherwise L2 is general scope); **is_template** — `True` when the file is under a general-scope L2 folder (any non-email L2, e.g. `P3`, `P4`, `P5`, `P6`, `PSLE`, `Archive`), `False` when under a student (email-named) folder; **metadata.grade_or_scope** from L2 when not student-specific; **metadata.content_folder** from L3 (`Exam`, `Exercise`, `Book`, `Activity`, `Note`); **metadata.source_book** from filename prefix when recognised (e.g. `PP`, `PP `, `EPO`, `EPO_`); **metadata.unit** for files under `.../Book/<book name>/...`, inferred from filename after removing technical prefixes like `_c_` / `_raw_` and trimming a redundant shared label where possible. For **files directly under L1** (no L2/L3, e.g. answer keys in `Subject/Answers.pdf`), only subject and optionally `source_book` from the filename are inferred; `is_template`, `content_folder`, and `grade_or_scope` are not set by path. Inference is best-effort; any inferred value can be overridden by a human. **Precedence:** When a scan root has `student_id` set, that value is used for all files discovered under that root and overrides path-based inference. **Implementation:** `_infer_from_path(path)` implements the above: any path segment containing `@` → `is_template=False` (student folder); if no such segment and any segment in `P3`–`P6`, `PSLE`, `Archive` → `is_template=True` (general scope).
 
 **Human-supplied metadata:** Not all metadata can be derived from folder structure, file name, or file content. Fields such as `school`, `exam_date`, `paper_type`, `chinese_variant`, `topic`, and free-form `notes` typically require a **human reviewer** to provide or confirm them. The file manager supports this via the **classify** workflow: after scan (or register), the user runs `classify` / `update_metadata` (CLI or API) to set `doc_type`, `subject`, and any metadata fields. Newly scanned files default to `doc_type='unknown'`; use `find_files(doc_type='unknown')` or `list --doc-type unknown` to surface files that still need classification. Template linking and suggest-groups are most useful once classification (and, for exams, `exam_date`) has been filled in.
 
@@ -93,7 +94,7 @@ CREATE TABLE pdf_files (
     file_type      TEXT NOT NULL DEFAULT 'unknown'
                    CHECK(file_type IN ('main', 'raw', 'unknown')),
     doc_type       TEXT NOT NULL DEFAULT 'unknown'
-                   CHECK(doc_type IN ('exam', 'worksheet', 'book_exercise', 'activity', 'practice', 'notes', 'unknown')),
+                   CHECK(doc_type IN ('exam', 'worksheet', 'book', 'book_exercise', 'activity', 'practice', 'notes', 'unknown')),
     student_id     TEXT REFERENCES students(id),
     subject        TEXT
                    CHECK(subject IN ('english', 'math', 'science', 'chinese')),
@@ -123,7 +124,7 @@ CREATE TABLE file_groups (
     id         TEXT PRIMARY KEY,                 -- UUID v4
     label      TEXT NOT NULL,                    -- e.g. "Chinese EoY P6 2025", "Math 6A Ch3 Exercise 3A"
     group_type TEXT NOT NULL DEFAULT 'collection'
-               CHECK(group_type IN ('exam', 'book_exercise', 'collection')),
+               CHECK(group_type IN ('exam', 'book', 'book_exercise', 'collection')),
     anchor_id  TEXT REFERENCES pdf_files(id)
                ON DELETE SET NULL,               -- file to open when opening the group
     created_at TEXT NOT NULL,
@@ -197,6 +198,7 @@ Both directions for raw↔main and template↔completed are written as separate 
 |------------|-------------|----------------|---------------------|
 | `exam` | Formal school exam — WA, EoY, mid-year, weighted assessment | Scanner app, download | Exam |
 | `worksheet` | Standalone practice worksheet — teacher-issued, tuition center, printed online | Scanner app | Exercise |
+| `book` | Whole-book or book-organized PDFs managed at the book level | Scanner app or download | Book |
 | `book_exercise` | Pages from a physical textbook/workbook (contiguous page range for one exercise) | Scanner app | Exercise (when from a book) |
 | `activity` | Topic-related study activities; accompany a textbook or topic; not necessarily question-based | Scanner app | Activity |
 | `practice` | Generic practice material not fitting above categories | Various | — |
@@ -262,6 +264,16 @@ The `metadata` column stores a JSON object. `student_id` and `subject` are first
 
 `page_range` refers to physical page numbers in the book, not PDF page count.
 
+### `book`
+
+```json
+{
+  "unit": "模拟考卷 3"
+}
+```
+
+`unit` is the human-meaningful file label within the book collection. The shared book identity is represented by the `book` file group label rather than repeated in each file's metadata.
+
 ### `activity`
 
 ```json
@@ -295,6 +307,7 @@ No expected structure. Free-form JSON or `null`.
 | `group_type` | When to use | Typical `role` values |
 |--------------|-------------|----------------------|
 | `exam` | Multiple booklets from one exam sitting (English: 2 PDFs, Chinese/HC: 3 PDFs) | `paper1`, `paper2_questions`, `paper2_answers` |
+| `book` | Multiple files that belong to one logical book folder, e.g. `.../Book/<book name>/...` | Usually blank / unused; the group label carries the book identity |
 | `book_exercise` | One exercise scanned across multiple sessions | `part_1`, `part_2`; or `pages_10_14`, `pages_15_18` |
 | `collection` | Any other manual grouping | Free-form |
 

@@ -65,6 +65,30 @@ def test_infer_from_path_chinese_note():
     assert meta.get("grade_or_scope") == "P4"
 
 
+def test_infer_from_path_chinese_book_sets_book_doc_type_and_unit():
+    path = Path(
+        "/fake/DaydreamEdu/Singapore Primary Chinese/PSLE/Book/Power Pack Chinese PSLE/_c_PP Chinese 模拟考卷 3.pdf"
+    )
+    out = PdfFileManager._infer_from_path(path)
+    assert out.get("subject") == "chinese"
+    assert out.get("doc_type") == "book"
+    assert out.get("is_template") is True
+    meta = out.get("metadata") or {}
+    assert meta.get("content_folder") == "Book"
+    assert meta.get("grade_or_scope") == "PSLE"
+    assert meta.get("unit") == "模拟考卷 3"
+
+
+def test_infer_from_path_chinese_book_handles_non_numbered_unit():
+    path = Path(
+        "/fake/DaydreamEdu/Singapore Primary Chinese/PSLE/Book/Power Pack Chinese PSLE/PP Chinese 试卷蓝图与复习指南.pdf"
+    )
+    out = PdfFileManager._infer_from_path(path)
+    assert out.get("doc_type") == "book"
+    meta = out.get("metadata") or {}
+    assert meta.get("unit") == "试卷蓝图与复习指南"
+
+
 def test_infer_from_path_no_matching_segments_returns_empty():
     """Path with no subject or content folder segments returns empty or minimal dict.
     No grade scope → is_template not set."""
@@ -201,5 +225,77 @@ def test_scan_applies_is_template_true_when_path_has_no_email():
                     break
             else:
                 pytest.fail("No main file under P6/Exam without @ in path")
+        finally:
+            Path(db_path).unlink(missing_ok=True)
+
+
+def test_scan_book_folder_applies_book_inference_and_grouping():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmpdir = Path(tmpdir)
+        book_dir = tmpdir / "Singapore Primary Chinese" / "PSLE" / "Book" / "Power Pack Chinese PSLE"
+        book_dir.mkdir(parents=True)
+        pdf_a = book_dir / "PP Chinese 模拟考卷 3.pdf"
+        pdf_b = book_dir / "PP Chinese 试卷蓝图与复习指南.pdf"
+        pdf_a.write_bytes(b"%PDF-1.4 fake")
+        pdf_b.write_bytes(b"%PDF-1.4 fake")
+        with tempfile.NamedTemporaryFile(suffix=".db", delete=False, dir=tmpdir) as f:
+            db_path = f.name
+        try:
+            mgr = PdfFileManager(db_path=db_path)
+
+            def fake_compress_and_register(file_id_or_path, force=False, min_savings_pct=10, preserve_input=False, **compress_kwargs):
+                registered = mgr.register_file(file_id_or_path, file_type="main", doc_type="unknown")
+                return type("FakeCompressResult", (), {
+                    "main_file_id": registered.id,
+                    "compressed": False,
+                    "raw_archive_id": None,
+                })()
+
+            mgr.compress_and_register = fake_compress_and_register  # type: ignore[method-assign]
+            mgr.scan_for_new_files(roots=[book_dir], dry_run=False, min_savings_pct=101)
+            main_files = mgr.find_files(doc_type="book", file_type="main")
+            assert len(main_files) == 2
+            units = sorted((file.metadata or {}).get("unit") for file in main_files)
+            assert units == ["模拟考卷 3", "试卷蓝图与复习指南"]
+            groups = mgr.list_file_groups(group_type="book")
+            assert len(groups) == 1
+            assert groups[0].label == "Power Pack Chinese PSLE"
+            assert len(groups[0].members) == 2
+        finally:
+            Path(db_path).unlink(missing_ok=True)
+
+
+def test_scan_registered_unknown_book_file_processes_it_on_rescan():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmpdir = Path(tmpdir)
+        book_dir = tmpdir / "Singapore Primary Chinese" / "PSLE" / "Book" / "Power Pack Chinese PSLE"
+        book_dir.mkdir(parents=True)
+        pdf_path = book_dir / "PP Chinese 作文 范文.pdf"
+        pdf_path.write_bytes(b"%PDF-1.4 fake")
+        with tempfile.NamedTemporaryFile(suffix=".db", delete=False, dir=tmpdir) as f:
+            db_path = f.name
+        try:
+            mgr = PdfFileManager(db_path=db_path)
+            existing = mgr.register_file(pdf_path, file_type="unknown", doc_type="unknown")
+
+            def fake_compress_and_register(file_id_or_path, force=False, min_savings_pct=10, preserve_input=False, **compress_kwargs):
+                mgr._get_connection().execute(
+                    "UPDATE pdf_files SET file_type = 'main' WHERE id = ?",
+                    (existing.id,),
+                )
+                mgr._get_connection().commit()
+                return type("FakeCompressResult", (), {
+                    "main_file_id": existing.id,
+                    "compressed": False,
+                    "raw_archive_id": None,
+                })()
+
+            mgr.compress_and_register = fake_compress_and_register  # type: ignore[method-assign]
+            mgr.scan_for_new_files(roots=[book_dir], dry_run=False, min_savings_pct=101)
+            refreshed = mgr.get_file(existing.id)
+            assert refreshed is not None
+            assert refreshed.file_type == "main"
+            assert refreshed.doc_type == "book"
+            assert (refreshed.metadata or {}).get("unit") == "作文 范文"
         finally:
             Path(db_path).unlink(missing_ok=True)
