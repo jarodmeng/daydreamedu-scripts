@@ -41,7 +41,7 @@ So a full path might be: `DaydreamEdu/Singapore Primary Math/winston.ry.meng@gma
 
 Content from these books may be split across multiple folders by "nature of the portions". **Answers** files (answer keys) do not roll up to a single folder — they apply to a book or set of exercises. How to treat them is discussed in **Answers files** below.
 
-**Folder-based inference (optional):** When registering or scanning under this root, the file manager can infer: **subject** from L1 folder name — match a known subject word (e.g. `Chinese`, `Math`, `Science`, `English`), including when L1 is longer (e.g. `Singapore Primary English` → `english`); **student_id** when an L2 path segment matches `students.email` (otherwise L2 is general scope); **is_template** — `True` when the file is under a general-scope L2 folder (any non-email L2, e.g. `P3`, `P4`, `P5`, `P6`, `PSLE`, `Archive`), `False` when under a student (email-named) folder; **metadata.grade_or_scope** from L2 when not student-specific; **metadata.content_folder** from L3 (`Exam`, `Exercise`, `Book`, `Activity`, `Note`); **metadata.source_book** from filename prefix when recognised (e.g. `PP`, `PP `, `EPO`, `EPO_`); **metadata.unit** for files under `.../Book/<book name>/...`, inferred from filename after removing technical prefixes like `_c_` / `_raw_` and trimming a redundant shared label where possible. For **files directly under L1** (no L2/L3, e.g. answer keys in `Subject/Answers.pdf`), only subject and optionally `source_book` from the filename are inferred; `is_template`, `content_folder`, and `grade_or_scope` are not set by path. Inference is best-effort; any inferred value can be overridden by a human. **Precedence:** When a scan root has `student_id` set, that value is used for all files discovered under that root and overrides path-based inference. **Implementation:** `_infer_from_path(path)` implements the above: any path segment containing `@` → `is_template=False` (student folder); if no such segment and any segment in `P3`–`P6`, `PSLE`, `Archive` → `is_template=True` (general scope).
+**Folder-based inference (optional):** When registering or scanning under this root, the file manager can infer: **subject** from L1 folder name — match a known subject word (e.g. `Chinese`, `Math`, `Science`, `English`), including when L1 is longer (e.g. `Singapore Primary English` → `english`); **student_id** when a path segment matches a registered `students.email` value (otherwise the path is treated as general scope); **is_template** — `True` when the file is under a general-scope L2 folder (any non-email L2, e.g. `P3`, `P4`, `P5`, `P6`, `PSLE`, `Archive`), `False` when under a student (email-named) folder; **metadata.grade_or_scope** from L2 when not student-specific; **metadata.content_folder** from L3 (`Exam`, `Exercise`, `Book`, `Activity`, `Note`); **metadata.source_book** from filename prefix when recognised (e.g. `PP`, `PP `, `EPO`, `EPO_`); **metadata.unit** for files under `.../Book/<book name>/...`, inferred from filename after removing technical prefixes like `_c_` / `_raw_` and trimming a redundant shared label where possible. For **files directly under L1** (no L2/L3, e.g. answer keys in `Subject/Answers.pdf`), only subject and optionally `source_book` from the filename are inferred; `is_template`, `content_folder`, and `grade_or_scope` are not set by path. Inference is best-effort; any inferred value can be overridden by a human. **Precedence:** When a scan root has `student_id` set, that value is used for all files discovered under that root and overrides path-based student inference. **Implementation:** `_infer_from_path(path)` implements subject/doc_type/is_template/metadata inference, and the manager separately resolves `student_id` from registered student emails found in the path when an explicit scan-root `student_id` is not provided.
 
 **Human-supplied metadata:** Not all metadata can be derived from folder structure, file name, or file content. Fields such as `school`, `exam_date`, `paper_type`, `chinese_variant`, `topic`, and free-form `notes` typically require a **human reviewer** to provide or confirm them. The file manager supports this via the **classify** workflow: after scan (or register), the user runs `classify` / `update_metadata` (CLI or API) to set `doc_type`, `subject`, and any metadata fields. Newly scanned files default to `doc_type='unknown'`; use `find_files(doc_type='unknown')` or `list --doc-type unknown` to surface files that still need classification. Template linking and suggest-groups are most useful once classification (and, for exams, `exam_date`) has been filled in.
 
@@ -175,6 +175,18 @@ CREATE TABLE scan_roots (
 
 Both directions for raw↔main and template↔completed are written as separate rows. A template can have many `template_for` rows (one per student completion); a completed file has at most one `completed_from` row.
 
+**Raw/main invariant metadata:** A linked raw/main pair represents one logical document in two file forms. The following fields are treated as document-level and should normally match across the pair:
+
+- `subject`
+- `doc_type`
+- `student_id`
+- `is_template`
+- `metadata.grade_or_scope`
+- `metadata.content_folder`
+- other document-level metadata such as `metadata.chinese_variant` when present
+
+File-representation fields such as `file_type`, `path`, `name`, and file size are expected to differ. The manager now enforces parity for invariant metadata during metadata updates and can repair older drift by copying canonical main values onto raw.
+
 ---
 
 ## File naming conventions
@@ -189,6 +201,8 @@ Both directions for raw↔main and template↔completed are written as separate 
 `compress_and_register` has two modes:
 - Default (`preserve_input=False`): moves the original to `_raw_<name>`, then calls `compress_pdf` with `output_name=_c_<name>`, so the compressed file is written as `_c_<name>`. If savings are below threshold, the original is restored at `<name>` and the row is updated to `file_type='main'` (no `_c_` prefix).
 - GoodNotes-safe (`preserve_input=True`): treats the original as the raw source at `<name>`, writes a new `_c_<name>` main alongside it, and links them via `raw_source` / `main_version` without renaming or moving the original. This is used for any path under a `GoodNotes/` segment so GoodNotes’ one-way backup behaviour is preserved.
+
+In both modes, invariant document metadata is intended to remain aligned between the raw and main records.
 
 ---
 
@@ -212,6 +226,8 @@ Both directions for raw↔main and template↔completed are written as separate 
 A **template** is a blank or master version of a document — no student content yet. It can be any `doc_type` (exam, worksheet, book_exercise, etc.). Examples: a blank WA paper in the shared DaydreamEdu folder; a scanned blank book exercise. Templates typically have `student_id=NULL`. When a student completes the document (e.g. in Goodnotes), the resulting PDF is a **completion** of that template: `is_template=False`, `student_id` set, and linked via `template_for` / `completed_from` relations.
 
 **Why a boolean, not a `doc_type` value:** "Template" describes *role* (blank vs. filled), not *content type*. An exam template and an exam completion are both `doc_type='exam'`; one has `is_template=True`, the other `is_template=False`.
+
+For raw/main pairs, `is_template` is treated as document-level metadata and should match across both linked records.
 
 **Metadata inheritance:** When linking a completed file to a template via `link_to_template`, the file manager can copy `subject`, `doc_type` (if unset), and `metadata` from the template to the completion so the completion does not need to be classified manually. Optionally warn if `page_count` differs between template and completion.
 
@@ -331,7 +347,7 @@ When `register_file` is called directly, `file_type` is inferred from the filena
 | Name does not start with `_raw_` | `unknown` (becomes `main` after `compress_and_register`) |
 | Explicitly overridden by caller | caller-provided value |
 
-`doc_type` defaults to `unknown`. `student_id` is populated from the scan root's `student_id` if the file was discovered by `scan_for_new_files`.
+`doc_type` defaults to `unknown`. `student_id` is populated from the scan root's `student_id` if present; otherwise the manager falls back to matching registered `students.email` path segments when available.
 
 ---
 

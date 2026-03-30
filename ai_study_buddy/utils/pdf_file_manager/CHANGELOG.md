@@ -4,6 +4,23 @@ All notable changes to the pdf_file_manager utility are documented here.
 
 ---
 
+## [v0.2.3] — Main/raw metadata parity enforcement
+
+### 1. Missing `student_id` inference
+
+- See [LEARNING_STUDENT_ID_INFERENCE_GAP.md](./docs/learnings/LEARNING_STUDENT_ID_INFERENCE_GAP.md).
+- Added fallback `student_id` inference from registered `students.email` path segments in `register_file(...)` and `scan_for_new_files(...)`.
+- This closes gaps where explicit-root scans or GoodNotes scans could previously classify files correctly while still leaving `student_id` unset.
+- Documented student-id inference precedence in `ARCHITECTURE.md` and `SPEC.md`.
+
+### 2. Main/raw invariant metadata drift
+
+- See [LEARNING_MAIN_RAW_METADATA_DRIFT.md](./docs/learnings/LEARNING_MAIN_RAW_METADATA_DRIFT.md).
+- Added raw/main invariant metadata parity enforcement to `update_metadata(...)` so linked raw/main pairs stay synchronized on document-level fields.
+- Added `repair_main_raw_metadata_drift()` to backfill existing raw/main drift by copying canonical main-file values onto raw records.
+- Added tests covering raw/main parity during compression, parity-preserving metadata updates, and repair of existing drift.
+- Documented raw/main invariant metadata expectations and parity behavior in `README.md`, `ARCHITECTURE.md`, and `SPEC.md`.
+
 ## [v0.2.2] — Book doc_type/group_type support
 
 - Added `book` as a supported `doc_type` and `group_type`.

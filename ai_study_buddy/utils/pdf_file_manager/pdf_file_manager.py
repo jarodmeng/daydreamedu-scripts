@@ -1074,6 +1074,7 @@ class PdfFileManager:
         is_template: bool | None = None,
         metadata: dict | None = None,
         notes: str | None = None,
+        _skip_main_raw_sync: bool = False,
     ) -> PdfFile:
         file_id, file_path, row = self._resolve_file_record(file_id_or_path)
         if subject is not None and subject not in self._ALLOWED_SUBJECTS:
@@ -1127,6 +1128,25 @@ class PdfFileManager:
             before_state=json.dumps(before),
             after_state=json.dumps(after),
         )
+        if not _skip_main_raw_sync:
+            sync_kwargs = {}
+            if doc_type is not None:
+                sync_kwargs["doc_type"] = doc_type
+            if student_id is not None:
+                sync_kwargs["student_id"] = student_id
+            if subject is not None:
+                sync_kwargs["subject"] = subject
+            if is_template is not None:
+                sync_kwargs["is_template"] = is_template
+            if metadata is not None:
+                sync_kwargs["metadata"] = metadata
+            if sync_kwargs:
+                raw_file, main_file = self._get_raw_main_pair(file_id)
+                counterpart = None
+                if raw_file and main_file:
+                    counterpart = raw_file if row["file_type"] == "main" else main_file
+                if counterpart and counterpart.id != file_id:
+                    self.update_metadata(counterpart.id, _skip_main_raw_sync=True, **sync_kwargs)
         return self.get_file(file_id)
 
     def rename_file(self, file_id_or_path, new_name: str) -> PdfFile:
@@ -1285,6 +1305,62 @@ class PdfFileManager:
             if other:
                 result.append((other, row["relation_type"]))
         return result
+
+    def _get_raw_main_pair(self, file_id: str) -> tuple[PdfFile | None, PdfFile | None]:
+        current = self.get_file(file_id)
+        if current is None:
+            return None, None
+        raw_file = current if current.file_type == "raw" else None
+        main_file = current if current.file_type == "main" else None
+        for other, _relation_type in self.get_related_files(file_id):
+            if other.file_type == "raw":
+                raw_file = other
+            elif other.file_type == "main":
+                main_file = other
+        return raw_file, main_file
+
+    def repair_main_raw_metadata_drift(self) -> list[dict]:
+        """Repair invariant metadata drift by copying main-file values onto linked raw files."""
+        conn = self._get_connection()
+        rows = conn.execute(
+            """
+            SELECT raw.id AS raw_id, main.id AS main_id
+            FROM file_relations fr
+            JOIN pdf_files raw ON raw.id = fr.source_id
+            JOIN pdf_files main ON main.id = fr.target_id
+            WHERE fr.relation_type = 'main_version'
+              AND raw.file_type = 'raw'
+              AND main.file_type = 'main'
+            ORDER BY raw.path
+            """
+        ).fetchall()
+        repairs: list[dict] = []
+        seen_raw_ids: set[str] = set()
+        for row in rows:
+            raw_id = row["raw_id"]
+            main_id = row["main_id"]
+            if raw_id in seen_raw_ids:
+                continue
+            seen_raw_ids.add(raw_id)
+            raw_file = self.get_file(raw_id)
+            main_file = self.get_file(main_id)
+            if raw_file is None or main_file is None:
+                continue
+            repair_kwargs = {}
+            if raw_file.doc_type != main_file.doc_type:
+                repair_kwargs["doc_type"] = main_file.doc_type
+            if raw_file.student_id != main_file.student_id:
+                repair_kwargs["student_id"] = main_file.student_id
+            if raw_file.subject != main_file.subject:
+                repair_kwargs["subject"] = main_file.subject
+            if raw_file.is_template != main_file.is_template:
+                repair_kwargs["is_template"] = main_file.is_template
+            if (raw_file.metadata or {}) != (main_file.metadata or {}):
+                repair_kwargs["metadata"] = main_file.metadata or {}
+            if repair_kwargs:
+                self.update_metadata(raw_id, _skip_main_raw_sync=True, **repair_kwargs)
+                repairs.append({"raw_id": raw_id, "main_id": main_id, "fields": sorted(repair_kwargs.keys())})
+        return repairs
 
     def link_files(self, source_id: str, target_id: str, relation_type: str):
         """Create raw_source or main_version relation; inverse row created automatically. Updates has_raw on main."""

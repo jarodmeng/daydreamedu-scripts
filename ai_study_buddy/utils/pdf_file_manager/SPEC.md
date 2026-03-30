@@ -18,14 +18,19 @@ This document specifies the **operations** (Python API and MCP tool layer), **op
 
 Walk configured scan roots (or override list), find every `*.pdf`, compare against registry, and process any that are new. If `dry_run=True`, no disk or database changes are made; the return value describes what would have been done for each would-be-processed file.
 
+Student assignment precedence during scan:
+
+1. explicit/configured `scan_root.student_id`
+2. fallback inference from a registered `students.email` path segment
+
 **Book-aware behavior:** For paths under `.../Book/<book name>/...`, scan applies path inference so files are registered with `doc_type='book'`, infers `metadata.unit` from filename where possible, and syncs a `group_type='book'` file group for that folder using `<book name>` as the group label. Only `main` files are added to the book group.
 
 **For each unregistered file with `_c_` prefix:**
-1. Register as `file_type='main'` (no compress). Apply scan root `student_id` and path-based inference (subject, doc_type, metadata, **is_template**: path with no email segment and a grade/scope segment → `True`; path with email segment → `False`; **Chinese exams only:** when `subject='chinese'` and `doc_type='exam'`, `metadata.chinese_variant` is inferred from the filename: `higher` for names containing `高华` or `.hc.`, `foundation` for names containing `华文` or `.chinese.`). Skip compress step.
+1. Register as `file_type='main'` (no compress). Apply `student_id` from the scan root when set, otherwise infer it from a registered student email segment in the path. Apply path-based inference for subject, doc_type, metadata, and **is_template**: path with no email segment and a grade/scope segment → `True`; path with email segment → `False`; **Chinese exams only:** when `subject='chinese'` and `doc_type='exam'`, `metadata.chinese_variant` is inferred from the filename: `higher` for names containing `高华` or `.hc.`, `foundation` for names containing `华文` or `.chinese.`). Skip compress step.
 
 **For each unregistered file without `_raw_` or `_c_` prefix:**
 1. Call `compress_and_register(path, ...)` (see below). When the path is not yet in the registry, `compress_and_register` registers it first, then compresses.
-2. Populate `student_id` from the scan root's `student_id` if set (on the resulting main file).
+2. Populate `student_id` from the scan root's `student_id` if set; otherwise fall back to a registered student email found in the path (on the resulting main file).
 
 **For each unregistered file with `_raw_` prefix:**
 1. Register as `file_type='raw'`.
@@ -37,7 +42,7 @@ Each newly processed file produces `register` and (where applicable) `compress` 
 
 #### `register_file(path, file_type=None, doc_type='unknown', student_id=None, subject=None, is_template=False, metadata=None, notes=None) -> PdfFile`
 
-Manually register a single file without compression. Infers `file_type` from filename unless overridden: `_raw_` → `raw`, `_c_` → `main`, else `unknown`. Raises `FileNotFoundError` if path absent. Raises `AlreadyRegisteredError` if already registered. Writes a `register` log entry.
+Manually register a single file without compression. Infers `file_type` from filename unless overridden: `_raw_` → `raw`, `_c_` → `main`, else `unknown`. If `student_id` is not provided, the manager attempts to infer it from a registered `students.email` path segment. Raises `FileNotFoundError` if path absent. Raises `AlreadyRegisteredError` if already registered. Writes a `register` log entry.
 
 #### `compress_and_register(file_id_or_path, force=False, min_savings_pct=10, preserve_input=False, **compress_kwargs) -> CompressResult`
 
@@ -68,6 +73,8 @@ Composite: register (if needed) then compress. When given a **path** that is not
      - Keep `<name>` as `file_type='main'`; do not create a persistent `_c_` file (any temporary copy is removed).
      - Write `compress` log entry with `skipped=True` note.
 7. Return `CompressResult` augmented with the main file's UUID.
+
+**Invariant metadata parity:** raw and main records created or maintained by this workflow are expected to share document-level metadata such as `subject`, `doc_type`, `student_id`, `is_template`, `metadata.grade_or_scope`, `metadata.content_folder`, and `metadata.chinese_variant` when present.
 
 ---
 
@@ -126,6 +133,18 @@ Run `mv <old> <new_dir/name>`. Update `path`, `updated_at`. Write `move` log ent
 #### `update_metadata(file_id_or_path, doc_type=None, student_id=None, subject=None, is_template=None, metadata=None, notes=None) -> PdfFile`
 
 Update `doc_type`, `student_id`, `subject`, `is_template`, `metadata` (merged, not replaced), and/or `notes` without touching disk. Primary classification method. Raises `ValueError` if `subject` is not one of the allowed values. Writes `update_metadata` log entry.
+
+When any invariant document-level fields are updated on a file that is part of a linked raw/main pair, the same changes are propagated to the counterpart record to keep the pair in sync. This currently applies to:
+
+- `doc_type`
+- `student_id`
+- `subject`
+- `is_template`
+- `metadata`
+
+#### `repair_main_raw_metadata_drift() -> list[dict]`
+
+Audit linked raw/main pairs for invariant metadata drift and repair it by copying canonical main-file values onto the linked raw record. Returns one item per repaired pair, including the raw id, main id, and the fields that were synchronized.
 
 ---
 
@@ -489,11 +508,12 @@ python3 ai_study_buddy/utils/pdf_file_manager/pdf_file_manager_mcp_server.py --d
 | `add_to_file_group` on a file already in a different group | Allowed; log info |
 | `open_file_group` with no anchor set | Raise `ConfigError`; suggest `group anchor` |
 | `delete_file_group` | Only group record and memberships are removed; member files remain in the registry and on disk |
-| `update_metadata` with partial `metadata` dict | Merges into existing metadata; unmentioned keys preserved |
+| `update_metadata` with partial `metadata` dict | Merges into existing metadata; unmentioned keys preserved; merged metadata is synced across linked raw/main pairs |
 | `update_metadata` / `register_file` with an unrecognised `subject` value | Raise `ValueError` listing the allowed values |
 | `link_to_template` with completed already linked to a template | Raise `ValueError` |
 | `link_to_template` with a file that is not `file_type='main'` | Raise `ValueError` |
 | `link_to_template` with template having `is_template=False` or completed having `is_template=True` | Raise `ValueError` |
+| raw/main pair has drift on invariant metadata | `repair_main_raw_metadata_drift()` copies canonical main values onto raw |
 | `suggest_groups` called on unclassified files | They are simply excluded from suggestions; no error |
 | Any operation fails mid-way (disk op succeeds, DB update fails) | Attempt to reverse disk change; log failure with full context |
 

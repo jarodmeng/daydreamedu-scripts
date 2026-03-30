@@ -1,10 +1,12 @@
 # pdf_file_manager
 
-**Version: v0.2.2**
+**Version: v0.2.3**
 
 A local utility that keeps a SQLite registry of PDF files in the study archive. It tracks exams, worksheets, books, book exercises, activities, notes, and templates (with optional completed variants), and keeps on-disk paths and database records in sync. You can scan one or more folders for new PDFs, optionally compress and archive originals, classify documents by type and metadata, group multi-file documents (e.g. exam booklets or book folders), and link completions to templates. Every state-mutating operation is recorded in an append-only operation log.
 
 **Typical workflow:** Add scan roots (e.g. Google Drive folders) and students → run **scan** to discover and optionally compress new PDFs → **classify** with `doc_type`, `subject`, and metadata → use **suggest-groups** for exams, or let scan infer/group `.../Book/<book name>/...` folders as books, then link templates as needed. Only main files are ingested by the pipeline; raw archives are kept for traceability.
+
+**Raw/main parity:** Linked raw and main records represent the same logical document in two file forms. Document-level metadata such as `subject`, `doc_type`, `student_id`, `is_template`, and core metadata fields is expected to stay in sync across the pair. The manager now enforces that parity during metadata updates and includes a repair helper for older drift.
 
 **Machine interface:** The preferred machine-facing contract is now the MCP wrapper in [`pdf_file_manager_mcp.py`](./pdf_file_manager_mcp.py) plus the runnable FastMCP entrypoint in [`pdf_file_manager_mcp_server.py`](./pdf_file_manager_mcp_server.py). The Python library in [`pdf_file_manager.py`](./pdf_file_manager.py) remains the source of truth for business logic. The old built-in CLI has been removed to avoid maintaining a second, partial interface.
 

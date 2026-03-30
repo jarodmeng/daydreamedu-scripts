@@ -106,6 +106,88 @@ def test_link_to_template_and_get_template():
             Path(db_path).unlink(missing_ok=True)
 
 
+def test_update_metadata_syncs_invariant_fields_across_raw_main_pair():
+    if not fixture_has_pdfs():
+        pytest.skip("Fixture PDFs not present")
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmpdir = Path(tmpdir)
+        shutil.copytree(FIXTURE_ROOT, tmpdir / "fixture", dirs_exist_ok=True)
+        pdfs = list((tmpdir / "fixture").rglob("*.pdf"))
+        with tempfile.NamedTemporaryFile(suffix=".db", delete=False, dir=tmpdir) as f:
+            db_path = f.name
+        try:
+            mgr = PdfFileManager(db_path=db_path)
+            result = mgr.compress_and_register(pdfs[0], min_savings_pct=0)
+            main_file = mgr.get_file(result.main_file_id)
+            raw_file = mgr.get_file(result.raw_archive_id)
+            assert main_file is not None and raw_file is not None
+            mgr.update_metadata(
+                main_file.id,
+                doc_type="exam",
+                student_id="winston",
+                subject="science",
+                is_template=True,
+                metadata={"grade_or_scope": "P6", "content_folder": "Exam"},
+            )
+            refreshed_main = mgr.get_file(main_file.id)
+            refreshed_raw = mgr.get_file(raw_file.id)
+            assert refreshed_main is not None and refreshed_raw is not None
+            assert refreshed_raw.doc_type == refreshed_main.doc_type == "exam"
+            assert refreshed_raw.student_id == refreshed_main.student_id == "winston"
+            assert refreshed_raw.subject == refreshed_main.subject == "science"
+            assert refreshed_raw.is_template == refreshed_main.is_template is True
+            assert refreshed_raw.metadata == refreshed_main.metadata == {"grade_or_scope": "P6", "content_folder": "Exam"}
+        finally:
+            Path(db_path).unlink(missing_ok=True)
+
+
+def test_repair_main_raw_metadata_drift_copies_main_values_to_raw():
+    if not fixture_has_pdfs():
+        pytest.skip("Fixture PDFs not present")
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmpdir = Path(tmpdir)
+        shutil.copytree(FIXTURE_ROOT, tmpdir / "fixture", dirs_exist_ok=True)
+        pdfs = list((tmpdir / "fixture").rglob("*.pdf"))
+        with tempfile.NamedTemporaryFile(suffix=".db", delete=False, dir=tmpdir) as f:
+            db_path = f.name
+        try:
+            mgr = PdfFileManager(db_path=db_path)
+            result = mgr.compress_and_register(pdfs[0], min_savings_pct=0)
+            main_file = mgr.get_file(result.main_file_id)
+            raw_file = mgr.get_file(result.raw_archive_id)
+            assert main_file is not None and raw_file is not None
+            mgr.update_metadata(
+                main_file.id,
+                doc_type="exam",
+                student_id="winston",
+                subject="science",
+                is_template=True,
+                metadata={"grade_or_scope": "P6", "content_folder": "Exam"},
+            )
+            mgr.update_metadata(
+                raw_file.id,
+                doc_type="worksheet",
+                student_id="wrong",
+                subject="math",
+                is_template=False,
+                metadata={"grade_or_scope": "P5", "content_folder": "Exercise"},
+                _skip_main_raw_sync=True,
+            )
+            repairs = mgr.repair_main_raw_metadata_drift()
+            assert len(repairs) == 1
+            assert repairs[0]["fields"] == ["doc_type", "is_template", "metadata", "student_id", "subject"]
+            refreshed_main = mgr.get_file(main_file.id)
+            refreshed_raw = mgr.get_file(raw_file.id)
+            assert refreshed_main is not None and refreshed_raw is not None
+            assert refreshed_raw.doc_type == refreshed_main.doc_type == "exam"
+            assert refreshed_raw.student_id == refreshed_main.student_id == "winston"
+            assert refreshed_raw.subject == refreshed_main.subject == "science"
+            assert refreshed_raw.is_template == refreshed_main.is_template is True
+            assert refreshed_raw.metadata == refreshed_main.metadata == {"grade_or_scope": "P6", "content_folder": "Exam"}
+        finally:
+            Path(db_path).unlink(missing_ok=True)
+
+
 def test_get_completions():
     if not fixture_has_pdfs():
         pytest.skip("Fixture PDFs not present")

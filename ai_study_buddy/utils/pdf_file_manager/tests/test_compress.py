@@ -105,6 +105,11 @@ def test_compress_and_register_preserve_input_creates_raw_and_main():
             assert main_file.file_type == "main"
             assert main_file.has_raw
             assert main_file.name.startswith("_c_")
+            assert raw_file.doc_type == main_file.doc_type
+            assert raw_file.student_id == main_file.student_id
+            assert raw_file.subject == main_file.subject
+            assert raw_file.is_template == main_file.is_template
+            assert raw_file.metadata == main_file.metadata
             # Relations should link raw and main
             related = mgr.get_related_files(main_file.id)
             rel_types = {rel_type for _, rel_type in related}
