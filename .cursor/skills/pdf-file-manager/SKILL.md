@@ -59,6 +59,12 @@ Prefer these supported operations instead of ad hoc filesystem or DB changes:
 - Resolve and link GoodNotes templates: prefer `PdfFileManager.link_goodnotes_template_for_file(...)` or `PdfFileManager.link_goodnotes_templates_for_root(...)`, fallback MCP equivalents
 - Rename, move, or delete registered files: use the corresponding Python API method first, or the matching `pdf_*` tool as fallback, so the registry stays in sync
 
+Important sequencing rule:
+
+- Do not run registration/scan and GoodNotes template-linking in parallel.
+- `link_goodnotes_templates_for_root(...)` queries the registry for already-registered `main` files under the root. If a scan is still in progress, the linker may only see a partial subset and skip files that have not been committed to the registry yet.
+- For GoodNotes capture flows, run in this order: scan/register first, then link templates, then verify the resulting registrations and links.
+
 ## GoodNotes vs DaydreamEdu
 
 Keep this distinction clear in responses:
