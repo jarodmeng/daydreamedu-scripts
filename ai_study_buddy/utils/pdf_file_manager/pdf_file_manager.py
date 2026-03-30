@@ -424,6 +424,18 @@ class PdfFileManager:
                 return r
         return self.add_scan_root(path_str, student_id=student_id)
 
+    def _infer_student_id_from_path(self, path: str | Path) -> str | None:
+        """Resolve a registered student's email folder in the path to that student's id."""
+        resolved = Path(path).resolve()
+        parts = set(resolved.parts)
+        matches: list[str] = []
+        for student in self.list_students():
+            if student.email and student.email in parts:
+                matches.append(student.id)
+        if len(matches) == 1:
+            return matches[0]
+        return None
+
     # ---------------------------------------------------------------------------
     # Coverage (find_leaf_dirs, report_coverage)
     # ---------------------------------------------------------------------------
@@ -553,6 +565,8 @@ class PdfFileManager:
         path = Path(path).resolve()
         if not path.exists():
             raise FileNotFoundError(f"Path not found: {path}")
+        if student_id is None:
+            student_id = self._infer_student_id_from_path(path)
         name = path.name
         if file_type is None:
             if name.startswith("_raw_"):
@@ -899,6 +913,7 @@ class PdfFileManager:
             for pdf_path in root_p.rglob("*.pdf"):
                 path_str = str(pdf_path.resolve())
                 inferred = self._infer_from_path(pdf_path)
+                inferred_student_id = root_student_id or self._infer_student_id_from_path(pdf_path)
                 if inferred.get("doc_type") == "book":
                     book_folder = self._infer_book_folder(pdf_path)
                     if book_folder is not None:
@@ -929,6 +944,8 @@ class PdfFileManager:
                             conn.commit()
                         if inferred:
                             kwargs = {k: v for k, v in inferred.items() if k != "metadata" and v is not None}
+                            if inferred_student_id is not None:
+                                kwargs["student_id"] = inferred_student_id
                             if inferred.get("metadata"):
                                 kwargs["metadata"] = inferred["metadata"]
                             if kwargs:
@@ -943,6 +960,8 @@ class PdfFileManager:
                     if not dry_run:
                         if existing and inferred:
                             kwargs = {k: v for k, v in inferred.items() if k != "metadata" and v is not None}
+                            if inferred_student_id is not None:
+                                kwargs["student_id"] = inferred_student_id
                             if inferred.get("metadata"):
                                 kwargs["metadata"] = inferred["metadata"]
                             if kwargs:
@@ -992,6 +1011,8 @@ class PdfFileManager:
                         conn.commit()
                     if inferred:
                         kwargs = {k: v for k, v in inferred.items() if k != "metadata" and v is not None}
+                        if inferred_student_id is not None:
+                            kwargs["student_id"] = inferred_student_id
                         if inferred.get("metadata"):
                             kwargs["metadata"] = inferred["metadata"]
                         if kwargs:
@@ -1023,6 +1044,8 @@ class PdfFileManager:
                     conn.commit()
                 if inferred:
                     kwargs = {k: v for k, v in inferred.items() if k != "metadata" and v is not None}
+                    if inferred_student_id is not None:
+                        kwargs["student_id"] = inferred_student_id
                     if inferred.get("metadata"):
                         kwargs["metadata"] = inferred["metadata"]
                     if kwargs:

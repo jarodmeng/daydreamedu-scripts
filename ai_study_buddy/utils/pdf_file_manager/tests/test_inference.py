@@ -114,6 +114,20 @@ def test_infer_from_path_is_template_false_when_student_email_in_path():
     assert out.get("is_template") is False
 
 
+def test_register_file_infers_student_id_from_registered_student_email_folder():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmpdir = Path(tmpdir)
+        pdf_path = tmpdir / "DaydreamEdu" / "Singapore Primary Science" / "winston.ry.meng@gmail.com" / "P5" / "Exam" / "paper.pdf"
+        pdf_path.parent.mkdir(parents=True, exist_ok=True)
+        pdf_path.write_bytes(b"pdf")
+        db_path = tmpdir / "registry.db"
+        mgr = PdfFileManager(db_path=str(db_path))
+        mgr.add_student("winston", "Winston Meng", "winston.ry.meng@gmail.com")
+
+        registered = mgr.register_file(pdf_path)
+        assert registered.student_id == "winston"
+
+
 def test_infer_from_path_is_template_true_when_at_in_drive_segment_only():
     """Path with @ in a non-student segment (e.g. GoogleDrive-user@gmail.com) and P6 in path → is_template=True.
     Student folder = @ segment immediately followed by grade/scope (P3–P6, PSLE, Archive)."""

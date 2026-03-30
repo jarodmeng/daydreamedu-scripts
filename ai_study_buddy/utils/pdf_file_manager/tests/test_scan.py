@@ -159,6 +159,48 @@ def test_scan_for_new_files_goodnotes_uses_preserve_input(monkeypatch):
         assert calls.get("kwargs", {}).get("preserve_input") is True
 
 
+def test_scan_explicit_student_root_infers_student_id_without_configured_scan_root(monkeypatch):
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmpdir = Path(tmpdir)
+        exam_root = tmpdir / "DaydreamEdu" / "Singapore Primary English" / "winston.ry.meng@gmail.com" / "P6" / "Exam"
+        exam_root.mkdir(parents=True, exist_ok=True)
+        pdf_path = exam_root / "paper.pdf"
+        pdf_path.write_bytes(b"pdf")
+        db_path = tmpdir / "registry.db"
+        mgr = PdfFileManager(db_path=str(db_path))
+        mgr.add_student("winston", "Winston Meng", "winston.ry.meng@gmail.com")
+
+        def _spy(file_id_or_path, *args, **kwargs):
+            registered = mgr.register_file(file_id_or_path, file_type="main", doc_type="unknown")
+            return CompressResult(main_file_id=registered.id, compressed=False, raw_archive_id=None)
+
+        monkeypatch.setattr(mgr, "compress_and_register", _spy)
+        results = mgr.scan_for_new_files(roots=[exam_root], min_savings_pct=0)
+        assert len(results) == 1
+        assert results[0].file.student_id == "winston"
+
+
+def test_scan_explicit_goodnotes_root_infers_student_id_without_configured_scan_root(monkeypatch):
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmpdir = Path(tmpdir)
+        goodnotes_root = tmpdir / "GoodNotes" / "Singapore Primary Math" / "winston.ry.meng@gmail.com" / "P6" / "Exam"
+        goodnotes_root.mkdir(parents=True, exist_ok=True)
+        pdf_path = goodnotes_root / "P6 WA1 practice paper 1 (attempt).pdf"
+        pdf_path.write_bytes(b"pdf")
+        db_path = tmpdir / "registry.db"
+        mgr = PdfFileManager(db_path=str(db_path))
+        mgr.add_student("winston", "Winston Meng", "winston.ry.meng@gmail.com")
+
+        def _spy(file_id_or_path, *args, **kwargs):
+            registered = mgr.register_file(file_id_or_path, file_type="main", doc_type="unknown")
+            return CompressResult(main_file_id=registered.id, compressed=False, raw_archive_id=None)
+
+        monkeypatch.setattr(mgr, "compress_and_register", _spy)
+        results = mgr.scan_for_new_files(roots=[goodnotes_root], min_savings_pct=0)
+        assert len(results) == 1
+        assert results[0].file.student_id == "winston"
+
+
 def test_scan_with_no_roots_raises():
     with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as f:
         tmp = f.name
