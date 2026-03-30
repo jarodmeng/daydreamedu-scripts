@@ -16,11 +16,10 @@ from pdf_file_manager import PdfFileManager, ConfigError, CompressResult
 
 
 def test_scan_dry_run_does_not_write():
-    if not fixture_has_pdfs():
-        pytest.skip("Fixture PDFs not present")
     with tempfile.TemporaryDirectory() as tmpdir:
         tmpdir = Path(tmpdir)
-        shutil.copytree(FIXTURE_ROOT, tmpdir / "fixture", dirs_exist_ok=True)
+        pdf_path = tmpdir / "paper.pdf"
+        pdf_path.write_bytes(b"%PDF-1.4 fake")
         root = str(tmpdir)
         with tempfile.NamedTemporaryFile(suffix=".db", delete=False, dir=tmpdir) as f:
             db_path = f.name
@@ -37,12 +36,11 @@ def test_scan_dry_run_does_not_write():
             Path(db_path).unlink(missing_ok=True)
 
 
-def test_scan_without_dry_run_registers_and_compresses():
-    if not fixture_has_pdfs():
-        pytest.skip("Fixture PDFs not present")
+def test_scan_without_dry_run_registers_and_compresses(monkeypatch):
     with tempfile.TemporaryDirectory() as tmpdir:
         tmpdir = Path(tmpdir)
-        shutil.copytree(FIXTURE_ROOT, tmpdir / "fixture", dirs_exist_ok=True)
+        pdf_path = tmpdir / "paper.pdf"
+        pdf_path.write_bytes(b"%PDF-1.4 fake")
         root = str(tmpdir)
         with tempfile.NamedTemporaryFile(suffix=".db", delete=False, dir=tmpdir) as f:
             db_path = f.name
@@ -50,6 +48,12 @@ def test_scan_without_dry_run_registers_and_compresses():
             mgr = PdfFileManager(db_path=db_path)
             mgr.add_student("w", "W")
             mgr.add_scan_root(root, student_id="w")
+
+            def _spy(file_id_or_path, *args, **kwargs):
+                registered = mgr.register_file(file_id_or_path, file_type="main", doc_type="unknown")
+                return CompressResult(main_file_id=registered.id, compressed=False, raw_archive_id=None)
+
+            monkeypatch.setattr(mgr, "compress_and_register", _spy)
             results = mgr.scan_for_new_files(dry_run=False, min_savings_pct=0)
             conn = sqlite3.connect(db_path)
             count = conn.execute("SELECT COUNT(*) FROM pdf_files WHERE file_type = 'main'").fetchone()[0]
@@ -199,6 +203,34 @@ def test_scan_explicit_goodnotes_root_infers_student_id_without_configured_scan_
         results = mgr.scan_for_new_files(roots=[goodnotes_root], min_savings_pct=0)
         assert len(results) == 1
         assert results[0].file.student_id == "winston"
+
+
+def test_scan_roots_only_process_direct_pdf_children(monkeypatch):
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmpdir = Path(tmpdir)
+        root = tmpdir / "GoodNotes" / "Singapore Primary Math" / "winston.ry.meng@gmail.com" / "P6" / "Book" / "Model Drawing"
+        nested = root / "Not completed"
+        root.mkdir(parents=True, exist_ok=True)
+        nested.mkdir(parents=True, exist_ok=True)
+        direct_pdf = root / "direct.pdf"
+        nested_pdf = nested / "nested.pdf"
+        direct_pdf.write_bytes(b"pdf")
+        nested_pdf.write_bytes(b"pdf")
+        db_path = tmpdir / "registry.db"
+        mgr = PdfFileManager(db_path=str(db_path))
+
+        def _spy(file_id_or_path, *args, **kwargs):
+            registered = mgr.register_file(file_id_or_path, file_type="main", doc_type="unknown")
+            return CompressResult(main_file_id=registered.id, compressed=False, raw_archive_id=None)
+
+        monkeypatch.setattr(mgr, "compress_and_register", _spy)
+
+        results = mgr.scan_for_new_files(roots=[root], min_savings_pct=0)
+
+        assert len(results) == 1
+        assert results[0].file.path == str(direct_pdf.resolve())
+        assert mgr.get_file_by_path(direct_pdf) is not None
+        assert mgr.get_file_by_path(nested_pdf) is None
 
 
 def test_scan_with_no_roots_raises():

@@ -910,7 +910,9 @@ class PdfFileManager:
             root_p = Path(root_path)
             if not root_p.is_dir():
                 continue
-            for pdf_path in root_p.rglob("*.pdf"):
+            # Scan only direct PDF children of each root. Callers that want to
+            # process nested folders should pass those folders explicitly.
+            for pdf_path in root_p.glob("*.pdf"):
                 path_str = str(pdf_path.resolve())
                 inferred = self._infer_from_path(pdf_path)
                 inferred_student_id = root_student_id or self._infer_student_id_from_path(pdf_path)

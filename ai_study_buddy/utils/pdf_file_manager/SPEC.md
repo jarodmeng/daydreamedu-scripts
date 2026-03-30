@@ -16,7 +16,7 @@ This document specifies the **operations** (Python API and MCP tool layer), **op
 
 #### `scan_for_new_files(roots=None, min_savings_pct=10, dry_run=False) -> list[ScanResult]`
 
-Walk configured scan roots (or override list), find every `*.pdf`, compare against registry, and process any that are new. If `dry_run=True`, no disk or database changes are made; the return value describes what would have been done for each would-be-processed file.
+Walk configured scan roots (or override list), find direct-child `*.pdf` files in each root, compare against the registry, and process any that are new. `scan_for_new_files(...)` does **not** recurse into nested subfolders; callers that want nested folders processed must pass those folders explicitly as roots. If `dry_run=True`, no disk or database changes are made; the return value describes what would have been done for each would-be-processed file.
 
 Student assignment precedence during scan:
 

@@ -4,6 +4,13 @@ All notable changes to the pdf_file_manager utility are documented here.
 
 ---
 
+## [v0.2.4] — Direct-child scan roots
+
+- Changed `scan_for_new_files(...)` to scan only direct `*.pdf` children of each supplied root instead of recursing into nested subfolders.
+- This prevents accidental capture of nested folders such as `Not completed/` when the caller intended to scan only the selected parent folder.
+- Added regression coverage in `tests/test_scan.py` proving nested PDFs are ignored unless their folder is passed explicitly as a scan root.
+- Updated `README.md`, `SPEC.md`, and `TESTING.md` to document the new scan-root contract.
+
 ## [v0.2.3] — Main/raw metadata parity enforcement
 
 ### 1. Missing `student_id` inference
