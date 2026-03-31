@@ -244,6 +244,7 @@ After merge or split:
 
 - confirm output files exist
 - confirm representative page counts with `pdfinfo`
+- for splits, ensure that the **sum of all split page counts exactly equals** the page count of the original merged PDF (no gaps, no overlaps)
 - for `Extra` replacements, verify the inserted pages visually or by rendered-image comparison
 - mention any inferred page offset explicitly in the final response
 
