@@ -92,19 +92,43 @@ tesseract /tmp/book-scan-004.png stdout --psm 6
 
 ### 3. Build a printed-page to PDF-page mapping
 
-Use the contents page together with visible printed page numbers on real content pages to compute the offset:
+The goal is to find a single, consistent offset
 
 `offset = pdf_page - printed_page`
 
-Verify the offset from at least two or three spots, not just the first chapter.
+for the whole book, then reuse it everywhere (including `Extra` replacements).
 
-Example:
+#### 3a. Fast, small-offset method: visually locate printed page 1
 
-- TOC says `Chapter 2` starts on printed page `19`
-- PDF page `23` shows the `Chapter 2` title page
-- therefore offset is `23 - 19 = 4`
+For many workbooks, the offset is small (e.g. 2–4 pages of front matter). Instead of OCRing, do this:
 
-Once verified, convert starts with:
+1. Render just the first few PDF pages to images:
+
+   ```bash
+   pdftoppm -f 1 -l 8 -png "book.pdf" /tmp/book-front
+   ```
+
+2. Visually scan those PNGs and find the first page whose printed footer/header says `1`.
+3. Let `k` be that PDF page index (e.g. `k = 5` if `book-front-005.png` shows printed page `1`).
+4. Then the book-wide offset is:
+
+   `offset = k - 1`
+
+5. Use that same offset to map any printed page `p` to its PDF page:
+
+   `pdf_page = p + offset`
+
+This is usually faster and more reliable than trying to OCR page numbers.
+
+#### 3b. TOC-based method (when helpful)
+
+You can also use the contents page together with visible printed page numbers on real content pages:
+
+1. From the TOC, note that a chapter or unit starts on printed page `p`.
+2. Render candidate PDF pages and find where that title actually appears.
+3. Compute `offset = pdf_page - printed_page` from that match.
+
+Verify the offset from at least two or three spots, not just the first chapter. Once verified, convert all printed starts with:
 
 `pdf_start = printed_start + offset`
 
