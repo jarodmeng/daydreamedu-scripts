@@ -65,6 +65,21 @@ Important sequencing rule:
 - `link_goodnotes_templates_for_root(...)` queries the registry for already-registered `main` files under the root. If a scan is still in progress, the linker may only see a partial subset and skip files that have not been committed to the registry yet.
 - For GoodNotes capture flows, run in this order: scan/register first, then link templates, then verify the resulting registrations and links.
 
+### Exam `unit` inference fallback (`题目` / `答案` / `作文`)
+
+`scan_for_new_files(...)` currently auto-infers `metadata.unit` for `doc_type='book'`, but not for exam files. For Chinese exam folders, when a user expects per-file unit labels and they are missing, run a post-scan metadata pass on `main` files:
+
+1. Filter to the intended scope (for example one exam folder, one student, or one batch).
+2. Only update files where `metadata.unit` is missing/empty.
+3. Infer from filename keywords:
+   - `questions` (`题目`)
+   - `answers` (`答案`)
+   - `composition` (`作文`)
+4. Write using `PdfFileManager.update_metadata(..., metadata={"unit": <value>})` (or MCP `pdf_update_metadata`).
+5. Report coverage (updated count, already-set count, unmapped count) and list any unmapped files for manual review.
+
+Use this fallback only when it matches user intent. Do not overwrite existing non-empty `metadata.unit` unless the user explicitly asks.
+
 ## GoodNotes vs DaydreamEdu
 
 Keep this distinction clear in responses:
