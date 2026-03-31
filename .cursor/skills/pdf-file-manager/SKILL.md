@@ -80,6 +80,69 @@ Important sequencing rule:
 
 Use this fallback only when it matches user intent. Do not overwrite existing non-empty `metadata.unit` unless the user explicitly asks.
 
+### Math exam-group `unit` fallback (`Paper 1` / `Paper 2`)
+
+For math exam files, when a file is already in an `exam` group and `metadata.unit` is missing, infer `unit` from filename markers:
+
+- `(... (Paper 1) ...)` -> `Paper 1`
+- `(... (Paper 2) ...)` -> `Paper 2`
+
+Recommended guardrails:
+
+1. Restrict to `file_type='main'`.
+2. Restrict to files with exam-group membership (`group_type='exam'`).
+3. Only fill missing/empty `metadata.unit`.
+4. Skip files not in exam groups (for example `(Paper 1) (empty)` templates) unless the user explicitly asks.
+
+### Science exam booklet tags and `unit` (`(Booklet A)` / `(Booklet B)`)
+
+Science exams that split across two physical booklets use a **filename marker** so main and raw pairs stay distinguishable:
+
+- **`(Booklet A)`** and **`(Booklet B)`** in the basename (capital **B** in “Booklet”; match the exact strings).
+- **Canonical `metadata.unit`** for those files: `Booklet A` and `Booklet B` (no parentheses—same pattern as Math’s `Paper 1` / `Paper 2` values).
+
+When `metadata.unit` is missing and the user expects per-booklet labels:
+
+1. Restrict to `file_type='main'` and exam-group membership (`group_type='exam'`), unless the user expands scope.
+2. Infer from the filename: `(Booklet A)` → `Booklet A`, `(Booklet B)` → `Booklet B`.
+3. Write with `PdfFileManager.update_metadata(..., metadata={"unit": <value>})` (or `pdf_update_metadata`). **`update_metadata` on a linked main copies the same `metadata` to the paired raw**, so you normally only need to update mains.
+4. Only fill missing/empty `metadata.unit` unless the user explicitly asks to overwrite.
+
+**Naming hygiene:** Keep the booklet marker aligned on `_c_` and `_raw_` stems (same title + same `(Booklet …)`) so registry tools and drift checks stay simple.
+
+**macOS / APFS:** Default volumes are often **case-insensitive**. Renaming only to change `(booklet a)` → `(Booklet A)` can fail as “destination exists.” Use a **short intermediate filename**, then rename to the final name.
+
+### English exam naming and `unit` (parenthetical tags, `.p5.english.<ddd>`)
+
+For Singapore Primary English **exam** PDFs under DaydreamEdu, prefer this shape so titles read first and the **scan index** stays at the **tail**:
+
+- **Main:** `_c_<Title>.p5.english.<ddd>.pdf`
+- **Raw:** `_raw_<Title>.p5.english.<ddd>.pdf`
+
+**`<Title>` pattern:** lead with the exam context, then **one parenthetical tag** for the paper or component (aligned with “`<exam family> (<tag>)`”):
+
+- **`EoY (Paper 1)`**, **`EoY (Paper 2 Booklet A)`**, **`EoY (Paper 2 Booklet B)`** — for Paper 2 split across booklets, keep **booklet inside the same pair of parentheses** as Paper 2 (not a second `(…)` group).
+- **`EoY (Listening Comprehension)`**, **`EoY (Oral)`**
+- **Practice papers:** same tags but with an **`EoY Practice`** prefix, e.g. **`EoY Practice (Paper 1)`**, **`EoY Practice (Paper 2 Booklet A)`**.
+
+**Official vs practice** in the registry is usually two **`exam` groups** (labels like “P5 English EoY” vs “P5 English EoY Practice”); the **`EoY` / `EoY Practice`** prefix in the filename should stay consistent with the group you assign.
+
+**`metadata.unit` for English exam mains:** set to the **literal text inside the parentheses** (no surrounding `()`), for example:
+
+- `(Paper 1)` → `Paper 1`
+- `(Paper 2 Booklet B)` → `Paper 2 Booklet B`
+- `(Listening Comprehension)` → `Listening Comprehension`
+- `(Oral)` → `Oral`
+
+When filling missing `unit`:
+
+1. Restrict to `file_type='main'` and exam-group membership unless the user says otherwise.
+2. Parse the tag from the basename (typically a single `(...)` segment after `_c_`).
+3. Write with `PdfFileManager.update_metadata(..., metadata={"unit": <value>})`. **`update_metadata` on a linked main propagates the same `metadata` to the paired raw**, so you usually update mains only.
+4. Only fill missing/empty `metadata.unit` unless the user explicitly asks to overwrite.
+
+**Legacy names:** older registrations may use `_c_p5.english.<ddd>.<Title>.pdf` (index before title). Renaming to put **`.p5.english.<ddd>`** at the end should go through **`PdfFileManager.rename_file`** so paths stay correct in the registry.
+
 ## GoodNotes vs DaydreamEdu
 
 Keep this distinction clear in responses:
