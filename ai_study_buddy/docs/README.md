@@ -37,6 +37,7 @@ Detailed documentation on specific aspects of the project.
 | Document | What it covers |
 |----------|---------------|
 | [DATA_STRATEGY](./L3_DATA_STRATEGY.md) | PDF ingestion, OCR, embeddings, storage, question objects |
+| [EXAM_FORMATS](./L3_EXAM_FORMATS.md) | Singapore primary exam structures, question formats, visual layers, and extraction implications |
 | [USER_EXPERIENCE](./L3_USER_EXPERIENCE.md) | Kid UI, parent dashboard, admin/ingestion review UI |
 | [SAFETY_AND_PRIVACY](./L3_SAFETY_AND_PRIVACY.md) | Singapore PDPA, answer-gating, data protection |
 | [GAMIFICATION](./L3_GAMIFICATION.md) | Game mechanics, motivation design, research evidence |
