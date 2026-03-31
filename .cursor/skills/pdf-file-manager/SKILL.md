@@ -27,6 +27,7 @@ This preference is intentional: after repeated use, the direct Python utility ha
 - MCP server docs: [MCP.md](../../../ai_study_buddy/utils/pdf_file_manager/MCP.md)
 - Overview and conventions: [README.md](../../../ai_study_buddy/utils/pdf_file_manager/README.md)
 - Full operation contract: [SPEC.md](../../../ai_study_buddy/utils/pdf_file_manager/SPEC.md)
+- Units and exam completeness rules: [DATA_MODEL.md](../../../ai_study_buddy/utils/pdf_file_manager/DATA_MODEL.md) (see **Exam group completeness**)
 
 ## Lookup Workflow
 
@@ -142,6 +143,19 @@ When filling missing `unit`:
 4. Only fill missing/empty `metadata.unit` unless the user explicitly asks to overwrite.
 
 **Legacy names:** older registrations may use `_c_p5.english.<ddd>.<Title>.pdf` (index before title). Renaming to put **`.p5.english.<ddd>`** at the end should go through **`PdfFileManager.rename_file`** so paths stay correct in the registry.
+
+### Exam group completeness (compulsory `unit`)
+
+When checking whether an **`exam` group has a full set** of exam PDFs, use **compulsory** `metadata.unit` values only (aggregate from non-template **`main`** members). Optional units must not be treated as required.
+
+Authoritative table: [DATA_MODEL.md — Exam group completeness](../../../ai_study_buddy/utils/pdf_file_manager/DATA_MODEL.md#exam-group-completeness-compulsory-metadataunit).
+
+Summary:
+
+- **chinese** (华文 and 高华): `questions`, `answers` — `composition` is optional
+- **math:** `Paper 1`, `Paper 2`
+- **english:** `Paper 1`, `Paper 2 Booklet A`, `Paper 2 Booklet B` — `Oral` and `Listening Comprehension` are optional
+- **science:** `Booklet A`, `Booklet B`
 
 ## GoodNotes vs DaydreamEdu
 

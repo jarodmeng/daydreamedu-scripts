@@ -13,6 +13,21 @@ Use this mental model when classifying files and building groups:
 - Per-member function labels are represented canonically by `pdf_files.metadata.unit`.
 - For `doc_type='book'`: `metadata.unit` is the per-file chapter/unit label, while the shared book identity belongs in the `book` group's `label`.
 
+## Exam group completeness (compulsory `metadata.unit`)
+
+When checking whether an `exam` group has a **full** set of papers for ingestion or QA, use **compulsory** units only. Optional units may be present but must not be required for “complete.”
+
+Collect the set of non-empty `metadata.unit` values from **`main`** members with `is_template = 0` in the group. The group is **incomplete** if any compulsory unit below is missing from that set.
+
+| Subject | Compulsory `unit` values | Optional (do not require for completeness) |
+|--------|---------------------------|---------------------------------------------|
+| **chinese** (华文 and 高华) | `questions`, `answers` | `composition` |
+| **math** | `Paper 1`, `Paper 2` | — |
+| **english** | `Paper 1`, `Paper 2 Booklet A`, `Paper 2 Booklet B` | `Oral`, `Listening Comprehension` |
+| **science** | `Booklet A`, `Booklet B` | — |
+
+Mains with no `unit` (or empty `unit`) contribute nothing to the set until metadata is filled.
+
 ## Common metadata fields
 
 These are common keys used in `PdfFile.metadata`:
