@@ -4,7 +4,7 @@ All notable changes to the pdf_file_manager utility are documented here.
 
 ---
 
-## [Unreleased]
+## [v0.2.5]
 
 ### 1. Documentation change
 
@@ -12,6 +12,11 @@ All notable changes to the pdf_file_manager utility are documented here.
 - Refactored [`SPEC.md`](./SPEC.md) to focus on API and operation contract details; moved data-model-heavy guidance and dataclass reference out to `DATA_MODEL.md`.
 - Updated [`README.md`](./README.md) docs navigation and cross-links so users and agents can find metadata/group semantics quickly without overloading the overview page.
 - Updated [`MCP.md`](./MCP.md) with a concise metadata-vs-groups note for MCP users.
+
+### 2. Unit as canonical function label
+
+- Updated `add_to_file_group(..., role=...)` behavior so `role` is treated as a backward-compatible input and mapped into `pdf_files.metadata.unit` when the file has no unit yet.
+- New group-member inserts now keep `file_group_members.role` unset and rely on `metadata.unit` as the canonical per-file function/unit label.
 
 ## [v0.2.4] — Direct-child scan roots
 

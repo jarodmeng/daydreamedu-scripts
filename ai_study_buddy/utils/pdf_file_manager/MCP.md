@@ -35,7 +35,7 @@ When using MCP tools, keep these locations distinct:
 
 - File-level metadata is in `pdf_files.metadata` (returned by file tools such as `pdf_get_file` and `pdf_find_files`).
 - Group-level identity is in `file_groups` fields (`label`, `group_type`, `anchor_id`, `notes`) returned by `pdf_get_file_group` and `pdf_list_file_groups`.
-- Per-member semantics are in `file_group_members.role` (returned in group member payloads).
+- Per-file function labels should use `pdf_files.metadata.unit` (for example `paper1`, `answers`, chapter/unit names). `file_group_members.role` remains as a legacy compatibility field.
 
 For `doc_type='book'` files:
 

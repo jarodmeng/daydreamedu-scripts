@@ -170,7 +170,7 @@ Audit linked raw/main pairs for invariant metadata drift and repair it by copyin
 Create empty group. Writes `group_create` log entry.
 
 #### `add_to_file_group(group_id, file_id, role=None) -> FileGroupMember`
-Only `main` files may be added (raises `ValueError` for `raw` files). Writes `group_add` log entry.
+Only `main` files may be added (raises `ValueError` for `raw` files). `role` is accepted for backward compatibility and mapped to `metadata.unit` when the file has no unit yet; new function labels should use `metadata.unit` as the canonical location. Writes `group_add` log entry.
 
 #### `remove_from_file_group(group_id, file_id)`
 Clears `anchor_id` if pointed here. Writes `group_remove` log entry.
@@ -311,9 +311,12 @@ suggestions = mgr.suggest_groups()
 
 # Create exam group
 g = mgr.create_file_group("Chinese EoY P6 2025", group_type="exam")
-mgr.add_to_file_group(g.id, p1.id,  role="paper1")
-mgr.add_to_file_group(g.id, p2q.id, role="paper2_questions")
-mgr.add_to_file_group(g.id, p2a.id, role="paper2_answers")
+mgr.update_metadata(p1.id,  metadata={"unit": "paper1"})
+mgr.update_metadata(p2q.id, metadata={"unit": "paper2_questions"})
+mgr.update_metadata(p2a.id, metadata={"unit": "paper2_answers"})
+mgr.add_to_file_group(g.id, p1.id)
+mgr.add_to_file_group(g.id, p2q.id)
+mgr.add_to_file_group(g.id, p2a.id)
 mgr.set_file_group_anchor(g.id, p2a.id)
 
 # Search

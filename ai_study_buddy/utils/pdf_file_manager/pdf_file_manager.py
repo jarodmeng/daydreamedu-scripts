@@ -1759,15 +1759,24 @@ class PdfFileManager:
             raise NotFoundError(f"File not found: {file_id}")
         if row.file_type != "main":
             raise ValueError("Only main files may be added to a group; raw files are not allowed")
+        # Canonical per-file function labels now live in metadata.unit.
+        # Keep accepting `role` for compatibility, but store it on the file
+        # metadata (if unit is not already set) instead of relying on
+        # file_group_members.role.
+        if role is not None:
+            current_meta = row.metadata if isinstance(row.metadata, dict) else {}
+            if not current_meta.get("unit"):
+                self.update_metadata(file_id, metadata={"unit": role})
         conn = self._get_connection()
         now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
         conn.execute(
             "INSERT OR IGNORE INTO file_group_members (group_id, file_id, role, added_at) VALUES (?, ?, ?, ?)",
-            (group_id, file_id, role, now),
+            (group_id, file_id, None, now),
         )
         conn.commit()
         self._log_operation("group_add", file_id=file_id, group_id=group_id)
-        return FileGroupMember(group_id=group_id, file_id=file_id, role=role, added_at=now, file=row)
+        refreshed = self.get_file(file_id) or row
+        return FileGroupMember(group_id=group_id, file_id=file_id, role=None, added_at=now, file=refreshed)
 
     def remove_from_file_group(self, group_id: str, file_id: str) -> None:
         conn = self._get_connection()

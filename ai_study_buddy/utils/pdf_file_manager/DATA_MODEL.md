@@ -10,8 +10,8 @@ Use this mental model when classifying files and building groups:
 
 - File-level metadata lives in `pdf_files.metadata` (for example `content_folder`, `grade_or_scope`, `unit`, `chinese_variant`, `exam_date`).
 - Group-level identity lives in `file_groups` (`label`, `group_type`, `anchor_id`, `notes`).
-- Per-member booklet semantics (for example `paper1`, `paper2_answers`) live in `file_group_members.role`.
-- For `doc_type='book'`: `metadata.unit` is per-file, while the shared book identity belongs in the `book` group's `label`.
+- Per-member function labels are represented canonically by `pdf_files.metadata.unit`.
+- For `doc_type='book'`: `metadata.unit` is the per-file chapter/unit label, while the shared book identity belongs in the `book` group's `label`.
 
 ## Common metadata fields
 
@@ -19,7 +19,7 @@ These are common keys used in `PdfFile.metadata`:
 
 - `content_folder` (path-derived): `Exam`, `Exercise`, `Book`, `Activity`, `Note`
 - `grade_or_scope` (path-derived): `P3`, `P4`, `P5`, `P6`, `PSLE`, `Archive`
-- `unit` (book files): human unit/chapter label for one book file
+- `unit` (all grouped content): per-file function/unit label (for example `paper1`, `answers`, `Part D Topical Practice Fractions`)
 - `chinese_variant` (Chinese exam files): `foundation` or `higher`
 - `exam_date`, `paper_type`, `school`, `topic`: optional workflow fields
 
@@ -38,7 +38,7 @@ Important behavior:
 
 `FileGroupMember` rows add:
 
-- `role`: optional per-member role label (for example `paper1`, `paper2_questions`, `answers`)
+- `role`: legacy compatibility field on membership rows; prefer `PdfFile.metadata.unit` for new labeling
 
 ## Returned data classes
 
