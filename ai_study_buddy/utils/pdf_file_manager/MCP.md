@@ -29,6 +29,21 @@ python3 ai_study_buddy/utils/pdf_file_manager/pdf_file_manager_mcp_server.py \
 
 Use `readonly` when an agent only needs to inspect the registry and should not be able to mutate files, metadata, groups, or scan roots.
 
+## Metadata and groups quick reference
+
+When using MCP tools, keep these locations distinct:
+
+- File-level metadata is in `pdf_files.metadata` (returned by file tools such as `pdf_get_file` and `pdf_find_files`).
+- Group-level identity is in `file_groups` fields (`label`, `group_type`, `anchor_id`, `notes`) returned by `pdf_get_file_group` and `pdf_list_file_groups`.
+- Per-member semantics are in `file_group_members.role` (returned in group member payloads).
+
+For `doc_type='book'` files:
+
+- `metadata.unit` is the per-file unit/chapter label.
+- The shared book identity should be represented by a `group_type='book'` group `label`.
+
+`pdf_update_metadata` merges metadata keys; it does not replace the full metadata object.
+
 ## Transports
 
 ### stdio

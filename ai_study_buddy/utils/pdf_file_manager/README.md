@@ -20,6 +20,8 @@ A local utility that keeps a SQLite registry of PDF files in the study archive. 
 
 Every file has two independent attributes: **file_type** (main vs raw vs unknown — which file is the primary one for ingestion) and **doc_type** (exam, worksheet, book, book_exercise, activity, practice, notes, unknown — what kind of content). The former drives processing and naming; the latter drives metadata shape and how the ingestion pipeline routes the file.
 
+For a quick reference on file-level metadata vs group-level fields (including `metadata.unit`, `label`, `group_type`, and legacy `role`), see [`DATA_MODEL.md`](./DATA_MODEL.md).
+
 ---
 
 ## Docs
@@ -27,6 +29,7 @@ Every file has two independent attributes: **file_type** (main vs raw vs unknown
 | Doc | Contents |
 |-----|----------|
 | [ARCHITECTURE.md](./ARCHITECTURE.md) | Source folder layout, schema, file naming, metadata, integrations |
+| [DATA_MODEL.md](./DATA_MODEL.md) | File metadata fields, group fields, unit-vs-group semantics, returned data classes |
 | [MCP.md](./MCP.md) | MCP server transports, tool modes, and client connection examples |
 | [SPEC.md](./SPEC.md) | API, MCP contract, operation contract, implementation status |
 | [TESTING.md](./TESTING.md) | Test levels, test data strategy, when to add tests |

@@ -2,11 +2,11 @@
 
 > API, MCP contract, operation contract, and implementation status.
 >
-> See [README.md](./README.md) for overview; [ARCHITECTURE.md](./ARCHITECTURE.md) for schema, data model, and integrations.
+> See [README.md](./README.md) for overview; [DATA_MODEL.md](./DATA_MODEL.md) for field-level data model reference; [ARCHITECTURE.md](./ARCHITECTURE.md) for schema and integrations.
 >
 > Decision log: [DECISIONS.md](./DECISIONS.md)
 
-This document specifies the **operations** (Python API and MCP tool layer), **operation types** (for the audit log), **data classes**, **edge cases**, and **implementation status**. All schema and metadata details are in ARCHITECTURE.md.
+This document specifies the **operations** (Python API and MCP tool layer), **operation types** (for the audit log), **edge cases**, and **implementation status**. Data classes and field semantics live in [DATA_MODEL.md](./DATA_MODEL.md). All schema details are in ARCHITECTURE.md.
 
 ---
 
@@ -328,91 +328,7 @@ tpl = mgr.get_template(winston_completed.id)
 all_completions = mgr.get_completions(blank_wa2.id)
 ```
 
-### Data classes
-
-```python
-@dataclass
-class Student:
-    id: str
-    name: str
-    email: str | None
-    added_at: str
-
-@dataclass
-class ScanRoot:
-    id: str
-    path: str
-    student_id: str | None
-    added_at: str
-
-@dataclass
-class PdfFile:
-    id: str
-    name: str
-    path: str
-    file_type: str           # 'main' | 'raw' | 'unknown'
-    doc_type: str            # 'exam' | 'worksheet' | 'book_exercise' | 'activity' | 'practice' | 'notes' | 'unknown'
-    student_id: str | None
-    subject: str | None      # 'english' | 'math' | 'science' | 'chinese'
-    is_template: bool        # True = blank/master; False = completion or non-template
-    size_bytes: int | None
-    page_count: int | None
-    has_raw: bool            # True = main file has a _raw_ archive
-    metadata: dict | None
-    added_at: str
-    updated_at: str
-    notes: str | None
-
-@dataclass
-class FileRelation:
-    id: str
-    source_id: str
-    target_id: str
-    relation_type: str       # 'raw_source' | 'main_version'
-    created_at: str
-
-@dataclass
-class FileGroup:
-    id: str
-    label: str
-    group_type: str          # 'exam' | 'book_exercise' | 'collection'
-    anchor_id: str | None
-    created_at: str
-    notes: str | None
-    members: list[FileGroupMember]
-
-@dataclass
-class FileGroupMember:
-    group_id: str
-    file_id: str
-    role: str | None
-    added_at: str
-    file: PdfFile
-
-@dataclass
-class SuggestedGroup:
-    group_type: str
-    candidate_files: list[PdfFile]
-    match_basis: dict        # e.g. {"student_id": "winston", "subject": "chinese", "exam_date": "2025-11-12"}  (subject from column, exam_date from metadata)
-
-@dataclass
-class OperationRecord:
-    id: str
-    operation: str
-    file_id: str | None
-    group_id: str | None
-    performed_at: str
-    performed_by: str | None
-    before_state: dict | None
-    after_state: dict | None
-    notes: str | None
-
-@dataclass
-class ScanResult:
-    file: PdfFile            # the main file
-    raw_archive: PdfFile | None   # the _raw_ archive created during compression, if any
-    compressed: bool         # True = compression was performed; False = file was already optimal
-```
+For all returned data class shapes (`PdfFile`, `FileGroup`, `FileGroupMember`, and others), see [DATA_MODEL.md](./DATA_MODEL.md).
 
 ---
 

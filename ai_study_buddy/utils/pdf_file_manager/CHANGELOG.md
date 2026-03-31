@@ -4,6 +4,15 @@ All notable changes to the pdf_file_manager utility are documented here.
 
 ---
 
+## [Unreleased]
+
+### 1. Documentation change
+
+- Added [`DATA_MODEL.md`](./DATA_MODEL.md) as the dedicated reference for file/group field semantics, including `metadata.unit` vs group `label`/`group_type` and returned data class shapes.
+- Refactored [`SPEC.md`](./SPEC.md) to focus on API and operation contract details; moved data-model-heavy guidance and dataclass reference out to `DATA_MODEL.md`.
+- Updated [`README.md`](./README.md) docs navigation and cross-links so users and agents can find metadata/group semantics quickly without overloading the overview page.
+- Updated [`MCP.md`](./MCP.md) with a concise metadata-vs-groups note for MCP users.
+
 ## [v0.2.4] — Direct-child scan roots
 
 - Changed `scan_for_new_files(...)` to scan only direct `*.pdf` children of each supplied root instead of recursing into nested subfolders.
