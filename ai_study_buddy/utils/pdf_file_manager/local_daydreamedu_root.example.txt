@@ -1,0 +1,8 @@
+# Copy this file to local_daydreamedu_root.txt (same folder) and replace the
+# line below with your real Google Drive → DaydreamEdu absolute path.
+# That file is gitignored and will not be pushed to GitHub.
+#
+# Example shape (macOS Google Drive):
+# /Users/you/Library/CloudStorage/GoogleDrive-youraccount@gmail.com/My Drive/DaydreamEdu
+
+/path/to/your/My Drive/DaydreamEdu

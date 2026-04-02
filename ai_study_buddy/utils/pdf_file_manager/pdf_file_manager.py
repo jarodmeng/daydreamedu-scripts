@@ -166,6 +166,38 @@ def _default_db_path() -> Path:
         return Path(env).resolve()
     return _repo_root() / "ai_study_buddy" / "db" / "pdf_registry.db"
 
+
+_DAYDREAMEDU_ROOT_ENV = "DAYDREAMEDU_ROOT"
+_LOCAL_DAYDREAMEDU_ROOT_FILE = Path(__file__).resolve().parent / "local_daydreamedu_root.txt"
+
+
+def resolve_daydreamedu_root() -> Path | None:
+    """Return the local DaydreamEdu sync folder if configured.
+
+    Resolution order:
+
+    1. Environment variable ``DAYDREAMEDU_ROOT`` (absolute path).
+    2. ``local_daydreamedu_root.txt`` in this package directory (gitignored):
+       first non-empty, non-comment line is the path.
+
+    Returns ``None`` if unset, missing, or the path is not an existing directory.
+    The registry and scan logic do not call this; it is for scripts, agents, and docs.
+    """
+    env = os.environ.get(_DAYDREAMEDU_ROOT_ENV, "").strip()
+    if env:
+        p = Path(env).expanduser().resolve()
+        return p if p.is_dir() else None
+    if _LOCAL_DAYDREAMEDU_ROOT_FILE.is_file():
+        text = _LOCAL_DAYDREAMEDU_ROOT_FILE.read_text(encoding="utf-8")
+        for line in text.splitlines():
+            line = line.strip()
+            if not line or line.startswith("#"):
+                continue
+            p = Path(line).expanduser().resolve()
+            return p if p.is_dir() else None
+    return None
+
+
 def _schema_sql() -> str:
     schema_file = Path(__file__).resolve().parent / "schema.sql"
     return schema_file.read_text()

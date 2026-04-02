@@ -285,15 +285,15 @@ mgr = PdfFileManager(db_path="/custom/path/registry.db")
 mgr.add_student("winston", name="Winston Meng", email="winston.ry.meng@gmail.com")
 mgr.add_student("emma",    name="Emma Meng",    email="emma.rs.meng@gmail.com")
 mgr.add_scan_root(
-    "/Users/jarodm/Library/CloudStorage/GoogleDrive-winston.ry.meng@gmail.com/My Drive/Winston Primary School documents",
+    "/path/to/GoogleDrive-studentA@example.com/My Drive/Student A documents",
     student_id="winston"
 )
 mgr.add_scan_root(
-    "/Users/jarodm/Library/CloudStorage/GoogleDrive-emma.rs.meng@gmail.com/My Drive/Emma Primary School Documents",
+    "/path/to/GoogleDrive-studentB@example.com/My Drive/Student B documents",
     student_id="emma"
 )
 mgr.add_scan_root(
-    "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu"
+    "/path/to/My Drive/DaydreamEdu"  # or os.environ["DAYDREAMEDU_ROOT"], or resolve_daydreamedu_root()
 )
 
 # Scan + auto-compress

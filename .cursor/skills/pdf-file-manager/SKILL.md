@@ -26,6 +26,7 @@ This preference is intentional: after repeated use, the direct Python utility ha
 - MCP wrapper: [pdf_file_manager_mcp.py](../../../ai_study_buddy/utils/pdf_file_manager/pdf_file_manager_mcp.py)
 - MCP server docs: [MCP.md](../../../ai_study_buddy/utils/pdf_file_manager/MCP.md)
 - Overview and conventions: [README.md](../../../ai_study_buddy/utils/pdf_file_manager/README.md)
+- **DaydreamEdu root on disk:** Not stored in Git. Read via `DAYDREAMEDU_ROOT` env or `ai_study_buddy/utils/pdf_file_manager/local_daydreamedu_root.txt` (gitignored; copy from `local_daydreamedu_root.example.txt`), or call `resolve_daydreamedu_root()` from [`pdf_file_manager.py`](../../../ai_study_buddy/utils/pdf_file_manager/pdf_file_manager.py). See [ARCHITECTURE.md § Local DaydreamEdu root](../../../ai_study_buddy/utils/pdf_file_manager/ARCHITECTURE.md#local-daydreamedu-root-not-in-git).
 - Full operation contract: [SPEC.md](../../../ai_study_buddy/utils/pdf_file_manager/SPEC.md)
 - Units and exam completeness rules: [DATA_MODEL.md](../../../ai_study_buddy/utils/pdf_file_manager/DATA_MODEL.md) (see **Exam group completeness**)
 

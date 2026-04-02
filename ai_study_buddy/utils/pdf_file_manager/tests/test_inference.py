@@ -132,7 +132,7 @@ def test_infer_from_path_is_template_true_when_at_in_drive_segment_only():
     """Path with @ in a non-student segment (e.g. GoogleDrive-user@gmail.com) and P6 in path → is_template=True.
     Student folder = @ segment immediately followed by grade/scope (P3–P6, PSLE, Archive)."""
     path = Path(
-        "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Math/P6/Exam/paper.pdf"
+        "/Users/dev/Library/CloudStorage/GoogleDrive-owner@example.com/My Drive/DaydreamEdu/Singapore Primary Math/P6/Exam/paper.pdf"
     )
     out = PdfFileManager._infer_from_path(path)
     assert out.get("is_template") is True
@@ -183,7 +183,15 @@ def test_scan_applies_inference_to_new_files():
         tmpdir = Path(tmpdir)
         # Use fixture layout: .../Singapore Primary Science/.../P5/Exam/...
         shutil.copytree(FIXTURE_ROOT, tmpdir / "fixture", dirs_exist_ok=True)
-        root = str(tmpdir)
+        # scan_for_new_files only considers direct *.pdf children of the root
+        root = str(
+            tmpdir
+            / "fixture"
+            / "Singapore Primary Science"
+            / "winston.ry.meng@gmail.com"
+            / "P5"
+            / "Exam"
+        )
         with tempfile.NamedTemporaryFile(suffix=".db", delete=False, dir=tmpdir) as f:
             db_path = f.name
         try:
@@ -220,7 +228,7 @@ def test_scan_applies_is_template_true_when_path_has_no_email():
         exam_dir.mkdir(parents=True)
         pdfs = list(FIXTURE_ROOT.rglob("*.pdf"))
         shutil.copy2(pdfs[0], exam_dir / "sample.pdf")
-        root = str(tmpdir)
+        root = str(exam_dir)
         with tempfile.NamedTemporaryFile(suffix=".db", delete=False, dir=tmpdir) as f:
             db_path = f.name
         try:

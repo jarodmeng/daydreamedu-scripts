@@ -6,6 +6,8 @@ A local utility that keeps a SQLite registry of PDF files in the study archive. 
 
 **Typical workflow:** Add scan roots (e.g. Google Drive folders) and students → run **scan** on the exact folder you want to ingest → **classify** with `doc_type`, `subject`, and metadata → use **suggest-groups** for exams, or let scan infer/group `.../Book/<book name>/...` folders as books, then link templates as needed. Only main files are ingested by the pipeline; raw archives are kept for traceability.
 
+**DaydreamEdu folder on disk:** Set `DAYDREAMEDU_ROOT` or create `local_daydreamedu_root.txt` (gitignored; copy from [`local_daydreamedu_root.example.txt`](./local_daydreamedu_root.example.txt)). Call **`resolve_daydreamedu_root()`** in [`pdf_file_manager.py`](./pdf_file_manager.py) to read it. See [ARCHITECTURE.md § Local DaydreamEdu root](./ARCHITECTURE.md#local-daydreamedu-root-not-in-git).
+
 **Raw/main parity:** Linked raw and main records represent the same logical document in two file forms. Document-level metadata such as `subject`, `doc_type`, `student_id`, `is_template`, and core metadata fields is expected to stay in sync across the pair. The manager now enforces that parity during metadata updates and includes a repair helper for older drift.
 
 **Student inference:** When `student_id` is not supplied explicitly by a configured scan root or direct API call, the manager can now fall back to matching registered `students.email` path segments so student-scoped scans do not silently leave `student_id` unset.

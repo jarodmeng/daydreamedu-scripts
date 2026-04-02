@@ -9,6 +9,7 @@ import pytest
 _tests_dir = Path(__file__).resolve().parent
 if str(_tests_dir) not in sys.path:
     sys.path.insert(0, str(_tests_dir))
+import pdf_file_manager as pfm_module
 from pdf_file_manager import PdfFileManager
 
 
@@ -116,3 +117,39 @@ def test_ensure_scan_root_idempotent_returns_existing():
         assert len(mgr.list_scan_roots()) == 1
     finally:
         Path(tmp).unlink(missing_ok=True)
+
+
+def test_resolve_daydreamedu_root_from_env(tmp_path, monkeypatch):
+    d = tmp_path / "dd"
+    d.mkdir()
+    monkeypatch.setenv("DAYDREAMEDU_ROOT", str(d))
+    assert pfm_module.resolve_daydreamedu_root() == d.resolve()
+
+
+def test_resolve_daydreamedu_root_env_overrides_file(tmp_path, monkeypatch):
+    env_dir = tmp_path / "from_env"
+    env_dir.mkdir()
+    file_dir = tmp_path / "from_file"
+    file_dir.mkdir()
+    cfg = tmp_path / "local_daydreamedu_root.txt"
+    cfg.write_text(str(file_dir), encoding="utf-8")
+    monkeypatch.setattr(pfm_module, "_LOCAL_DAYDREAMEDU_ROOT_FILE", cfg)
+    monkeypatch.setenv("DAYDREAMEDU_ROOT", str(env_dir))
+    assert pfm_module.resolve_daydreamedu_root() == env_dir.resolve()
+
+
+def test_resolve_daydreamedu_root_from_file(tmp_path, monkeypatch):
+    d = tmp_path / "dd"
+    d.mkdir()
+    cfg = tmp_path / "local_daydreamedu_root.txt"
+    cfg.write_text(f"# comment\n\n{d}\n", encoding="utf-8")
+    monkeypatch.setattr(pfm_module, "_LOCAL_DAYDREAMEDU_ROOT_FILE", cfg)
+    monkeypatch.delenv("DAYDREAMEDU_ROOT", raising=False)
+    assert pfm_module.resolve_daydreamedu_root() == d.resolve()
+
+
+def test_resolve_daydreamedu_root_none_when_unconfigured(monkeypatch):
+    monkeypatch.delenv("DAYDREAMEDU_ROOT", raising=False)
+    fake = Path("/nonexistent/local_daydreamedu_root_no_such_file_12345.txt")
+    monkeypatch.setattr(pfm_module, "_LOCAL_DAYDREAMEDU_ROOT_FILE", fake)
+    assert pfm_module.resolve_daydreamedu_root() is None

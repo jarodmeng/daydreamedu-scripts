@@ -8,6 +8,7 @@ All notable changes to the pdf_file_manager utility are documented here.
 
 ### 1. Documentation change
 
+- Documented **local-only** configuration for the DaydreamEdu sync path: environment variable `DAYDREAMEDU_ROOT` and gitignored `local_daydreamedu_root.txt` (with [`local_daydreamedu_root.example.txt`](./local_daydreamedu_root.example.txt)), plus [`resolve_daydreamedu_root()`](./pdf_file_manager.py) in [`pdf_file_manager.py`](./pdf_file_manager.py). Updated [`ARCHITECTURE.md`](./ARCHITECTURE.md), [`README.md`](./README.md), and the Cursor [`pdf-file-manager`](../../../.cursor/skills/pdf-file-manager/SKILL.md) skill so no personal paths are required in Git.
 - Added [`DATA_MODEL.md`](./DATA_MODEL.md) as the dedicated reference for file/group field semantics, including `metadata.unit` vs group `label`/`group_type` and returned data class shapes.
 - Refactored [`SPEC.md`](./SPEC.md) to focus on API and operation contract details; moved data-model-heavy guidance and dataclass reference out to `DATA_MODEL.md`.
 - Updated [`README.md`](./README.md) docs navigation and cross-links so users and agents can find metadata/group semantics quickly without overloading the overview page.

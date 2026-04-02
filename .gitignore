@@ -62,5 +62,6 @@ chinese_chr_app/extract_character_from_wxnet/extraction_progress_hwxnet.json
 
 # ---- pdf_file_manager ----
 ai_study_buddy/db/
+ai_study_buddy/utils/pdf_file_manager/local_daydreamedu_root.txt
 ai_study_buddy/utils/pdf_file_manager/tests/fixtures/daydreamedu_fixture/**/*.pdf
 ai_study_buddy/utils/pdf_file_manager/scripts/archive/

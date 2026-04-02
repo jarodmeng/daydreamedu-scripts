@@ -6,14 +6,34 @@ Output: EPO_<section>_<practice index>.pdf and EPO_Answers.pdf
 """
 
 import csv
+import os
 import re
+import sys
 from pathlib import Path
 
 from pypdf import PdfReader, PdfWriter
 
-PDF_PATH = Path(
-    "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary English/English_Practice_1000+_merged.pdf"
-)
+
+def _daydreamedu_root() -> Path:
+    env = os.environ.get("DAYDREAMEDU_ROOT", "").strip()
+    if env:
+        return Path(env).expanduser().resolve()
+    repo = Path(__file__).resolve().parents[1]
+    local_file = repo / "ai_study_buddy" / "utils" / "pdf_file_manager" / "local_daydreamedu_root.txt"
+    if local_file.is_file():
+        for line in local_file.read_text(encoding="utf-8").splitlines():
+            line = line.strip()
+            if line and not line.startswith("#"):
+                return Path(line).expanduser().resolve()
+    print(
+        "Set DAYDREAMEDU_ROOT to your DaydreamEdu folder, or create "
+        "ai_study_buddy/utils/pdf_file_manager/local_daydreamedu_root.txt (see local_daydreamedu_root.example.txt).",
+        file=sys.stderr,
+    )
+    sys.exit(1)
+
+
+PDF_PATH = _daydreamedu_root() / "Singapore Primary English" / "English_Practice_1000+_merged.pdf"
 CSV_PATH = Path("/Users/jarodm/Downloads/Practice Page Index - Practice Page Index.csv")
 OUT_DIR = PDF_PATH.parent
 
