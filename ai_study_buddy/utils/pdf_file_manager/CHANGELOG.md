@@ -4,6 +4,29 @@ All notable changes to the pdf_file_manager utility are documented here.
 
 ---
 
+## [v0.2.6] — Registry path repair and `file_type` updates
+
+### 1. `rename_file` external path sync
+
+- When the registry still points at a missing path but the **intended** basename already exists in the same folder (for example after a manual or tool rename to `_c_…` on disk), `rename_file(...)` updates `name` and `path` without calling `mv`, matching the existing “sync DB to disk” branch.
+- If that on-disk target is a **file**, the row’s **`size_bytes`** is refreshed from the file on disk so compressed mains do not keep the pre-compress size.
+
+### 2. `update_metadata` and raw/main parity
+
+- **`file_type`:** optional `update_metadata(..., file_type='main'|'raw'|'unknown')` to correct or promote rows (for example `unknown` → `main` after compression) without re-running compression. Invalid values raise `ValueError`.
+- **Parity sync:** when linked raw/main pairs are updated, the counterpart is chosen using the **updated** `file_type` on the row being edited, so a single call can set `file_type='main'` together with `doc_type` / `subject` / `metadata` and still propagate those fields to the linked raw.
+
+### 3. MCP
+
+- `pdf_update_metadata` accepts optional `file_type` (same enum as the Python API). Cursor MCP descriptor `pdf_update_metadata.json` updated accordingly.
+
+### 4. Documentation and tests
+
+- `SPEC.md` (API and edge cases), `MCP.md`, and `TESTING.md` updated for the above.
+- Implemented **TESTING.md** cases **3.12b** / **3.12c**: `test_update_metadata_file_type_syncs_invariant_fields_to_raw` and `test_update_metadata_invalid_file_type_raises` in `tests/test_update_metadata.py`; `test_rename_file_syncs_db_when_source_missing_on_disk` in `tests/test_file_ops.py`.
+
+---
+
 ## [v0.2.5]
 
 ### 1. Documentation change

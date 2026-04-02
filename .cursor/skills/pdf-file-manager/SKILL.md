@@ -55,11 +55,11 @@ Prefer these supported operations instead of ad hoc filesystem or DB changes:
 - Register one file: `PdfFileManager.register_file(...)`, fallback `pdf_register_file`
 - Scan folders for new PDFs: `PdfFileManager.scan_for_new_files(...)`, fallback `pdf_scan_for_new_files`
 - GoodNotes-safe compression and registration: `PdfFileManager.compress_and_register(... preserve_input=True)` when working under a `GoodNotes/` path, fallback `pdf_compress_and_register`
-- Update classification or metadata: prefer `PdfFileManager.update_metadata(...)`, fallback `pdf_update_metadata`
+- Update classification or metadata: prefer `PdfFileManager.update_metadata(...)` (optional `file_type` to promote or repair `main` / `raw` / `unknown`), fallback `pdf_update_metadata`
 - Link raw/main files: prefer `PdfFileManager.link_files(...)`, fallback `pdf_link_files`
 - Link completed files to templates: prefer `PdfFileManager.link_to_template(...)`, fallback `pdf_link_to_template`
 - Resolve and link GoodNotes templates: prefer `PdfFileManager.link_goodnotes_template_for_file(...)` or `PdfFileManager.link_goodnotes_templates_for_root(...)`, fallback MCP equivalents
-- Rename, move, or delete registered files: use the corresponding Python API method first, or the matching `pdf_*` tool as fallback, so the registry stays in sync
+- Rename, move, or delete registered files: use the corresponding Python API method first, or the matching `pdf_*` tool as fallback, so the registry stays in sync. If the PDF was already renamed on disk, `rename_file` can update `path` / `name` (and `size_bytes` when the target is a file) without moving files again — see `SPEC.md` § `rename_file`.
 
 Important sequencing rule:
 

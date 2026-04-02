@@ -134,6 +134,8 @@ These tests give confidence that Phase 3 (Read / update / delete) is complete. U
 | **3.10** | **update_metadata updates single fields** | Register a file. `update_metadata(file_id, doc_type="exam", subject="science")`. `get_file(file_id)` shows new `doc_type` and `subject`. Proves: fields updated, log entry written. |
 | **3.11** | **update_metadata merges metadata dict** | File has `metadata={"a": 1}`. `update_metadata(file_id, metadata={"b": 2})`. Result has `metadata={"a": 1, "b": 2}`. Proves: merge, not replace. |
 | **3.12** | **update_metadata invalid subject raises** | `update_metadata(file_id, subject="invalid")` raises `ValueError` (message mentions allowed values). Proves: validation. |
+| **3.12b** | **update_metadata `file_type` and raw/main sync** | Linked raw/main with main still `unknown`. Single `update_metadata(main_id, file_type="main", doc_type="exam", subject="english")`. Main becomes `main`; raw receives `doc_type` / `subject`. Proves: optional `file_type`; counterpart chosen from updated row. |
+| **3.12c** | **rename_file DB sync when source missing** | Register row at `gone.pdf` (file absent); create `newname.pdf` on disk. `rename_file("gone.pdf", "newname.pdf")` updates path/name and `size_bytes` without `mv`. Proves: external-rename repair branch. |
 
 ### rename_file / move_file
 

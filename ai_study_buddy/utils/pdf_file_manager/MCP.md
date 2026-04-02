@@ -42,7 +42,7 @@ For `doc_type='book'` files:
 - `metadata.unit` is the per-file unit/chapter label.
 - The shared book identity should be represented by a `group_type='book'` group `label`.
 
-`pdf_update_metadata` merges metadata keys; it does not replace the full metadata object.
+`pdf_update_metadata` merges metadata keys; it does not replace the full metadata object. It accepts the same optional fields as the Python `update_metadata` API, including optional **`file_type`** (`main`, `raw`, or `unknown`) for registry repairs (for example promoting a compressed main row from `unknown` to `main`).
 
 ## Transports
 

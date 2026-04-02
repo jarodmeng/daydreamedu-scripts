@@ -41,6 +41,7 @@ These are common keys used in `PdfFile.metadata`:
 Important behavior:
 
 - `update_metadata(..., metadata=...)` merges keys; it does not replace the full metadata object.
+- `update_metadata(..., file_type=...)` can set or repair `pdf_files.file_type` (`main`, `raw`, `unknown`) without touching disk; use with `rename_file` when the on-disk main was renamed (for example to `_c_…`) but the registry path was not updated.
 
 ## Group fields
 

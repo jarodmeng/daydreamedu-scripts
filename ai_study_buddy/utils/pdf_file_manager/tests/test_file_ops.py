@@ -63,6 +63,41 @@ def test_rename_file_destination_exists_raises():
             Path(db_path).unlink(missing_ok=True)
 
 
+def test_rename_file_syncs_db_when_source_missing_on_disk():
+    """TESTING.md § 3.12c: registry path gone; target basename exists — DB-only sync + size_bytes from file."""
+    if not fixture_has_pdfs():
+        pytest.skip("Fixture PDFs not present")
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmpdir = Path(tmpdir)
+        shutil.copytree(FIXTURE_ROOT, tmpdir / "fixture", dirs_exist_ok=True)
+        pdfs = list((tmpdir / "fixture").rglob("*.pdf"))
+        gone = tmpdir / "gone.pdf"
+        newname = tmpdir / "newname.pdf"
+        shutil.copy2(pdfs[0], gone)
+        with tempfile.NamedTemporaryFile(suffix=".db", delete=False, dir=tmpdir) as f:
+            db_path = f.name
+        try:
+            mgr = PdfFileManager(db_path=db_path)
+            reg = mgr.register_file(gone)
+            gone.unlink()
+            shutil.copy2(pdfs[1], newname)
+            expected_size = newname.stat().st_size
+
+            updated = mgr.rename_file(reg.id, new_name="newname.pdf")
+            assert updated.name == "newname.pdf"
+            assert Path(updated.path).resolve() == newname.resolve()
+            assert Path(updated.path).exists()
+            assert updated.size_bytes == expected_size
+            assert not gone.exists()
+
+            conn = sqlite3.connect(db_path)
+            log = conn.execute("SELECT operation FROM operation_log WHERE operation = 'rename'").fetchall()
+            assert len(log) >= 1
+            conn.close()
+        finally:
+            Path(db_path).unlink(missing_ok=True)
+
+
 def test_move_file_moves_on_disk_and_in_db():
     if not fixture_has_pdfs():
         pytest.skip("Fixture PDFs not present")

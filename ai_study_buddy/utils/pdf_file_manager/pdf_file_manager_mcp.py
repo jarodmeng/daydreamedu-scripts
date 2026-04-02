@@ -228,6 +228,7 @@ class PdfFileManagerMcpTools:
         is_template: bool | None = None,
         metadata: dict | None = None,
         notes: str | None = None,
+        file_type: str | None = None,
     ) -> dict[str, Any]:
         return self._call(
             self._manager().update_metadata,
@@ -238,6 +239,7 @@ class PdfFileManagerMcpTools:
             is_template=is_template,
             metadata=metadata,
             notes=notes,
+            file_type=file_type,
         )
 
     def pdf_create_file_group(

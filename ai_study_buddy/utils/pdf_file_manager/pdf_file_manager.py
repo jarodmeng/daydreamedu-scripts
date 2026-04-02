@@ -1108,6 +1108,7 @@ class PdfFileManager:
         is_template: bool | None = None,
         metadata: dict | None = None,
         notes: str | None = None,
+        file_type: str | None = None,
         _skip_main_raw_sync: bool = False,
     ) -> PdfFile:
         file_id, file_path, row = self._resolve_file_record(file_id_or_path)
@@ -1115,10 +1116,15 @@ class PdfFileManager:
             raise ValueError(f"subject must be one of {', '.join(self._ALLOWED_SUBJECTS)}; got {subject!r}")
         if doc_type is not None:
             self._validate_doc_type(doc_type)
+        if file_type is not None and file_type not in ("main", "raw", "unknown"):
+            raise ValueError(f"file_type must be one of main, raw, unknown; got {file_type!r}")
         conn = self._get_connection()
         before = {k: row[k] for k in row.keys()}
         updates = []
         params = []
+        if file_type is not None:
+            updates.append("file_type = ?")
+            params.append(file_type)
         if doc_type is not None:
             updates.append("doc_type = ?")
             params.append(doc_type)
@@ -1177,8 +1183,9 @@ class PdfFileManager:
             if sync_kwargs:
                 raw_file, main_file = self._get_raw_main_pair(file_id)
                 counterpart = None
+                effective_type = after_row["file_type"] if after_row else row["file_type"]
                 if raw_file and main_file:
-                    counterpart = raw_file if row["file_type"] == "main" else main_file
+                    counterpart = raw_file if effective_type == "main" else main_file
                 if counterpart and counterpart.id != file_id:
                     self.update_metadata(counterpart.id, _skip_main_raw_sync=True, **sync_kwargs)
         return self.get_file(file_id)
@@ -1193,10 +1200,17 @@ class PdfFileManager:
         if new_path.exists() and not old_path.exists():
             # File was moved externally; sync DB to new path/name
             now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-            conn.execute(
-                "UPDATE pdf_files SET name = ?, path = ?, updated_at = ? WHERE id = ?",
-                (new_name, str(new_path.resolve()), now, file_id),
-            )
+            if new_path.is_file():
+                sz = new_path.stat().st_size
+                conn.execute(
+                    "UPDATE pdf_files SET name = ?, path = ?, size_bytes = ?, updated_at = ? WHERE id = ?",
+                    (new_name, str(new_path.resolve()), sz, now, file_id),
+                )
+            else:
+                conn.execute(
+                    "UPDATE pdf_files SET name = ?, path = ?, updated_at = ? WHERE id = ?",
+                    (new_name, str(new_path.resolve()), now, file_id),
+                )
             conn.commit()
             self._log_operation("rename", file_id=file_id, before_state=json.dumps({"path": file_path}), after_state=json.dumps({"path": str(new_path.resolve()), "name": new_name}))
             return self.get_file(file_id)

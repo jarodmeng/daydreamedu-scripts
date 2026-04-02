@@ -124,15 +124,17 @@ Query `operation_log`. All parameters optional. If `log_id` is set, return at mo
 
 #### `rename_file(file_id_or_path, new_name) -> PdfFile`
 
-Run `mv <old> <new>`. Update `name`, `path`, `updated_at`. Write `rename` log entry. Raises `ValueError` if destination exists. Does not automatically rename the paired `_raw_` archive — call separately if needed.
+If the registry path exists on disk: run `mv <old> <new>`. Update `name`, `path`, `updated_at`. Write `rename` log entry. Raises `ValueError` if the destination path is already occupied by another file.
+
+If the **registry path is missing** on disk but **`<parent>/<new_name>`** already exists (external rename): update `name`, `path`, and `updated_at` only (no `mv`). When the destination is a regular file, also set **`size_bytes`** from that file. Write `rename` log entry. Does not automatically rename the paired `_raw_` archive — call separately if needed.
 
 #### `move_file(file_id_or_path, new_dir) -> PdfFile`
 
 Run `mv <old> <new_dir/name>`. Update `path`, `updated_at`. Write `move` log entry. Raises `ValueError` if destination exists.
 
-#### `update_metadata(file_id_or_path, doc_type=None, student_id=None, subject=None, is_template=None, metadata=None, notes=None) -> PdfFile`
+#### `update_metadata(file_id_or_path, doc_type=None, student_id=None, subject=None, is_template=None, metadata=None, notes=None, file_type=None) -> PdfFile`
 
-Update `doc_type`, `student_id`, `subject`, `is_template`, `metadata` (merged, not replaced), and/or `notes` without touching disk. Primary classification method. Raises `ValueError` if `subject` is not one of the allowed values. Writes `update_metadata` log entry.
+Update `doc_type`, `student_id`, `subject`, `is_template`, `metadata` (merged, not replaced), `notes`, and/or **`file_type`** (`'main'`, `'raw'`, or `'unknown'`) without touching disk. Primary classification method. Raises `ValueError` if `subject` is not one of the allowed values, or if `file_type` is not one of `main`, `raw`, `unknown`. Writes `update_metadata` log entry.
 
 When any invariant document-level fields are updated on a file that is part of a linked raw/main pair, the same changes are propagated to the counterpart record to keep the pair in sync. This currently applies to:
 
@@ -141,6 +143,8 @@ When any invariant document-level fields are updated on a file that is part of a
 - `subject`
 - `is_template`
 - `metadata`
+
+(`file_type` itself is not copied to the counterpart.) Counterpart selection for that sync uses the row’s **`file_type` after this update**, so promoting `unknown` → `main` in the same call as `doc_type` / `subject` / `metadata` still propagates those fields to the linked raw.
 
 #### `repair_main_raw_metadata_drift() -> list[dict]`
 
@@ -417,7 +421,10 @@ python3 ai_study_buddy/utils/pdf_file_manager/pdf_file_manager_mcp_server.py --d
 | `compress_and_register` on a file with `file_type != 'unknown'` | Raise `ValueError` |
 | `compress_and_register` and the `_raw_` rename destination already exists | Raise `ValueError`; abort; no changes |
 | `delete_file` and file already absent from disk | Log warning; proceed with registry removal and `delete` log entry |
-| `mv` / `rename` and destination path already exists | Raise `ValueError`; no changes; no log entry |
+| `mv` / `rename` and destination path already exists (and source path still exists on disk) | Raise `ValueError`; no changes; no log entry |
+| `rename_file` and source path missing but destination path already exists | DB-only sync: update `name`, `path`, `updated_at`; if destination is a file, refresh `size_bytes`; write `rename` log |
+| `update_metadata` with invalid `file_type` | Raise `ValueError`; must be `main`, `raw`, or `unknown` |
+| `update_metadata` promoting `unknown` → `main` with `doc_type` / `subject` / `metadata` on a linked main | Invariant fields sync to raw using the **updated** `file_type` |
 | `scan_for_new_files` with no scan roots configured | Raise `ConfigError` pointing to adding a scan root programmatically or via the MCP/config layer |
 | `_raw_` file found during scan but main file not registered | Register as `file_type='raw'`; skip auto-link; warn to run `link` manually |
 | Two files have the same `name` but different `path` | Both are valid distinct entries |
