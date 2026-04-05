@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Metadata Crop Tool</title>
+    <link rel="stylesheet" href="./styles.css?v=20260404-generic" />
+  </head>
+  <body>
+    <main class="app">
+      <section class="sidebar">
+        <h1>Metadata Crop Tool</h1>
+        <p class="subtle">Select the title/metadata rectangle for each set's first page.</p>
+
+        <div class="status">
+          <div><strong>Set:</strong> <span id="set-number">-</span></div>
+          <div><strong>PDF page:</strong> <span id="pdf-page">-</span></div>
+          <div><strong>Saved regions:</strong> <span id="saved-status">0</span></div>
+        </div>
+
+        <div class="controls">
+          <button id="prev-btn">Prev</button>
+          <button id="next-btn">Next</button>
+          <button id="save-btn">Save Crop</button>
+          <button id="delete-last-btn">Delete Last</button>
+        </div>
+
+        <div class="controls">
+          <button id="clear-pending-btn">Clear Pending</button>
+          <button id="clear-all-btn">Clear All</button>
+        </div>
+
+        <div class="controls">
+          <button id="export-btn">Export JSON</button>
+          <label class="import-label">
+            <span>Import JSON</span>
+            <input id="import-input" type="file" accept="application/json" />
+          </label>
+        </div>
+
+        <div class="coords">
+          <h2>Current Crop</h2>
+          <pre id="coords-output">No crop selected.</pre>
+        </div>
+
+        <div class="coords">
+          <h2>Saved Regions</h2>
+          <div id="regions-list" class="regions-list">No saved regions.</div>
+        </div>
+      </section>
+
+      <section class="viewer">
+        <div class="canvas-wrap" id="canvas-wrap">
+          <img id="page-image" alt="Exam set first page" draggable="false" />
+          <div id="saved-selections-layer"></div>
+          <div id="selection-box" class="selection pending hidden"></div>
+        </div>
+      </section>
+    </main>
+
+    <script type="module" src="./main.js?v=20260404-generic"></script>
+  </body>
+  </html>
