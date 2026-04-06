@@ -33,6 +33,7 @@ Paths are relative to the repo root. The app lives under `chinese_chr_app/chines
   - HWXNet rows carry both legacy flat `常用词组` / `common_phrases` and structured `常用词组按拼音` / `common_phrases_by_pinyin`, plus both legacy flat `英文翻译` / `english_translations` and structured `英文解释按拼音` / `english_translations_by_pinyin`.
   - Reading-aware consumers prefer the structured buckets; legacy flat fields remain compatibility/fallback data for consumers that still operate at the character level.
 - **Pinyin Recall reading units:** The pinyin-recall learning identity is now `character + reading`, represented by stable `unit_id`s such as `行|xing2`. These units are derived from the character rows rather than materialized as a standalone dictionary table.
+- **Pinyin Recall disabled units:** Units reported by real authenticated users can be removed from future circulation globally. Current disable state is stored in `pinyin_recall_disabled_units` and consumed at runtime as `recall_enabled = false` overrides.
 - **Per-user learning state:** Pinyin-recall learner state is stored in `pinyin_recall_unit_bank`, keyed by `(user_id, unit_id)`. Presented/answered/report rows also carry `unit_id`, `reading_key`, and `reading_display`.
 - **Stroke order:** Fetched on demand from HanziWriter-compatible CDN; backend proxies and may cache under `data/temp/hanzi_writer/`.
 - **Radical stroke counts:** Used to sort the Radicals page by 按部首笔画. Stored in Supabase table `radical_stroke_counts`.
@@ -72,7 +73,7 @@ All under `/api/`. Base URL in development: `http://localhost:5001`.
 | GET | `/api/games/pinyin-recall/session` | First batch of pinyin-recall items (20). Requires Bearer token. |
 | POST | `/api/games/pinyin-recall/next-batch` | Next batch of 20 items. Optional body: `session_id`. Requires Bearer token. |
 | POST | `/api/games/pinyin-recall/answer` | Submit one answer. Requires Bearer token. |
-| POST | `/api/games/pinyin-recall/report-error` | Log 报错 (wrong data report). Requires Bearer token. |
+| POST | `/api/games/pinyin-recall/report-error` | Log 报错 (wrong data report). Real authenticated users also globally disable the reported unit for future queues. Requires Bearer token. |
 | GET | `/api/health` | Health check. |
 
 ---
@@ -92,7 +93,7 @@ The backend runtime is DB-only and requires `DATABASE_URL` (or `SUPABASE_DB_URL`
 
 - Character and dictionary data are read/written from Supabase tables `feng_characters` and `hwxnet_characters`.
 - Signed-in users’ character views (Search) are logged to `character_views`.
-- Pinyin recall state and events use `pinyin_recall_unit_bank`, `pinyin_recall_item_presented`, `pinyin_recall_item_answered`, and `pinyin_recall_report_error`. Legacy `pinyin_recall_character_bank` is retained as historical migration-era state, not the active runtime bank. Radical stroke counts are served from table `radical_stroke_counts`.
+- Pinyin recall state and events use `pinyin_recall_unit_bank`, `pinyin_recall_item_presented`, `pinyin_recall_item_answered`, `pinyin_recall_report_error`, and `pinyin_recall_disabled_units`. Legacy `pinyin_recall_character_bank` is retained as historical migration-era state, not the active runtime bank. Radical stroke counts are served from table `radical_stroke_counts`.
 
 Schema, configuration, data-access layer, and all migration/backfill scripts are documented in [backend/DATABASE.md](../backend/DATABASE.md).
 
@@ -133,6 +134,7 @@ Only due items (and new items within cap) are eligible for the next batch.
 - **Prompt:** Hanzi reading recall as multiple-choice pinyin. The tested identity is one reading unit, not just the character. Stem words and learner-facing meaning content are built from reading-aware sources in priority order: Feng `WordsByPinyin`, HWXNet `common_phrases_by_pinyin`, then reading-matched HWXNet `basic_meanings`. 我不知道 is always offered.
 - **Distractors:** Same syllable different tone, same tone different syllable, tone confusions. For polyphonic characters, sibling readings are excluded from the main answer identity and the prompt/feedback are built for the tested unit only.
 - **Logging:** Events are written to `pinyin_recall_item_presented` (with `batch_id`, `batch_mode`, `batch_character_category`, `unit_id`, `reading_key`, `reading_display`) and `pinyin_recall_item_answered` (with `score_before`, `score_after`, `category`, `unit_id`, `reading_key`, `reading_display`).
+- **Global disable-on-report:** When a real authenticated user reports a unit with `POST /api/games/pinyin-recall/report-error`, that unit is written to the global disabled-unit registry and excluded from future queues and enabled-unit totals. Synthetic/dev fallback users can still log report rows, but do not disable units globally. This applies to future queue construction only; already-issued in-flight items remain answerable.
 
 ### 8.5 Feedback and review UI
 

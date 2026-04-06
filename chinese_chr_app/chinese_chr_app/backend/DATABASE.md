@@ -160,7 +160,7 @@ Session events are written to Supabase (two-table design).
 | category | text | 新字/巩固/重测 (at answer time); backfill via `scripts/pinyin_recall/backfill_pinyin_recall_category.py` |
 | created_at | timestamptz | NOT NULL, default now() |
 
-**`pinyin_recall_report_error`** — when the user clicks "报错" in the pinyin recall game (Issue #6). One row per report: user, session, batch (nullable), character, page (which screen), reported_at.
+**`pinyin_recall_report_error`** — when the user clicks "报错" in the pinyin recall game (Issue #6). One row per report: user, session, batch (nullable), unit (nullable), character, page (which screen), reported_at. This table stays append-only even if the reported unit is later disabled globally.
 
 | Column | Type | Notes |
 |--------|------|--------|
@@ -168,19 +168,41 @@ Session events are written to Supabase (two-table design).
 | user_id | text | NOT NULL |
 | session_id | text | NOT NULL |
 | batch_id | uuid | Identifies the batch; NULL if client did not send it |
+| unit_id | text | Reported reading unit (for example `行|hang2`); NULL for legacy rows or rows from older clients |
 | character | text | NOT NULL |
 | page | text | Which screen: question (stem), wrong (wrong-answer feedback), or correct (correct-answer feedback); NULL for rows before migration |
 | reported_at | timestamptz | NOT NULL, default now() |
 
 **Index:** `idx_pinyin_recall_report_error_user_reported` on `(user_id, reported_at DESC)`.
 
-**Create:** `python3 scripts/pinyin_recall/create_pinyin_recall_report_error_table.py`. Run once per environment so the table exists before the first report. **Add page column (existing deployments):** `python3 scripts/pinyin_recall/add_pinyin_recall_report_error_page_column.py` (options: `--dry-run`).
+**Create:** `python3 scripts/pinyin_recall/create_pinyin_recall_report_error_table.py`. Run once per environment so the table exists before the first report. **Add page column (existing deployments):** `python3 scripts/pinyin_recall/add_pinyin_recall_report_error_page_column.py` (options: `--dry-run`). **Add unit-aware columns (existing deployments):** `python3 scripts/pinyin_recall/add_pinyin_recall_unit_columns.py`.
 
 **Create:** `python3 scripts/pinyin_recall/create_pinyin_recall_log_tables.py`. **Add batch_id column (existing deployments):** `python3 scripts/pinyin_recall/add_pinyin_recall_batch_id_column.py`. **Add batch columns (existing deployments):** `python3 scripts/pinyin_recall/add_pinyin_recall_batch_columns.py` (adds batch_mode and batch_character_category). **Backfill batch_id:** `python3 scripts/pinyin_recall/backfill_pinyin_recall_batch_id.py` (clusters by created_at within session; options: `--dry-run`, `--gap 10`). **Add category column (existing deployments):** `python3 scripts/pinyin_recall/add_pinyin_recall_category_column.py`. **Backfill category:** `python3 scripts/pinyin_recall/backfill_pinyin_recall_category.py` (run after adding the column). **Backfill score (symmetric +10/−10):** `python3 scripts/pinyin_recall/backfill_pinyin_recall_score.py` (replays item_answered, updates bank + item_answered; creates backup tables first; `--dry-run`, `--no-backup`). **Upload local log:** `python3 scripts/pinyin_recall/upload_pinyin_recall_log_to_db.py` (reads `logs/pinyin_recall.log`). **Migrate from legacy single table:** `python3 scripts/pinyin_recall/migrate_pinyin_recall_events_to_two_tables.py` (if you had data in `pinyin_recall_events`).
 
 ---
 
-### 2.7 `radical_stroke_counts`
+### 2.7 `pinyin_recall_disabled_units`
+
+Globally disabled Pinyin Recall reading units. When a real authenticated user reports a unit via 报错, the unit is inserted here and removed from future queue circulation for everyone.
+
+| Column | Type | Notes |
+|--------|------|--------|
+| unit_id | text | PRIMARY KEY; stable reading-unit id such as `行|hang2` |
+| character | text | NOT NULL |
+| disabled_reason | text | NOT NULL; currently `reported_by_user` |
+| disabled_source | text | NOT NULL; currently `report_error` |
+| triggering_report_error_id | uuid | Nullable FK to `pinyin_recall_report_error.id`; preserved for auditability |
+| disabled_by_user_id | text | NOT NULL; real authenticated Supabase user id |
+| disabled_at | timestamptz | NOT NULL, default now() |
+| notes | text | Optional internal note / future curation metadata |
+
+**Index:** `idx_pinyin_recall_disabled_units_disabled_at` on `(disabled_at DESC)`.
+
+**Create:** `python3 scripts/pinyin_recall/create_pinyin_recall_disabled_units_table.py`.
+
+---
+
+### 2.8 `radical_stroke_counts`
 
 Mapping of radical character to its stroke count (e.g. for sorting the Radicals page by radical stroke count). Source: [汉文学网 按部首查字](https://zd.hwxnet.com/bushou.html); JSON at `data/radical_stroke_counts.json`.
 
@@ -240,7 +262,9 @@ Psycopg 3 (`psycopg[binary]>=3.1`). All functions return dict shapes compatible 
 | `upsert_pinyin_recall_character_bank(user_id, character, correct, i_dont_know)` | Update character bank after one answer. Returns `(score_before, score_after)`. |
 | `insert_pinyin_recall_item_presented(payload)` | Insert one row into `pinyin_recall_item_presented`. |
 | `insert_pinyin_recall_item_answered(payload)` | Insert one row into `pinyin_recall_item_answered`. |
-| `insert_pinyin_recall_report_error(user_id, session_id, batch_id, character, page=None)` | Insert one row into `pinyin_recall_report_error`. `batch_id` may be None. `page`: question, wrong, or correct. |
+| `insert_pinyin_recall_report_error(user_id, session_id, batch_id, unit_id, character, page=None)` | Insert one row into `pinyin_recall_report_error` and return the report row id. `batch_id` may be None. `unit_id` may be None for legacy/older-client rows. |
+| `disable_pinyin_recall_unit_globally(unit_id, character, disabled_by_user_id, ...)` | Insert an idempotent global disable row for one reading unit. |
+| `get_globally_disabled_pinyin_recall_overrides()` | Return `unit_id -> { recall_enabled: False, enable_reason: ... }` for runtime queue/profile filtering. |
 | `bulk_insert_pinyin_recall_item_presented(payloads)` | Bulk insert into `pinyin_recall_item_presented` (e.g. upload script). |
 | `bulk_insert_pinyin_recall_item_answered(payloads)` | Bulk insert into `pinyin_recall_item_answered` (e.g. upload script). |
 | `get_pinyin_recall_category_daily_trend(user_id, days=60)` | Return daily end-of-day counts for the four bands (难字, 普通在学字, 普通已学字, 掌握字) by replaying `pinyin_recall_item_answered` for the user. No new table; used by `GET /api/profile/progress` for the 掌握度每日趋势 chart. |
@@ -258,7 +282,7 @@ Psycopg 3 (`psycopg[binary]>=3.1`). All functions return dict shapes compatible 
 - **Radicals / stroke counts** — Same `generate_radicals_data` and `generate_stroke_counts_data`; inputs come from DB-backed loaders.
 - **Pinyin recall character bank** — Learning state (score, stage, next_due_utc) is loaded from `pinyin_recall_character_bank` and updated on each answer. Queue orders due items by score ascending.
 - **Pinyin recall event log** — `item_presented` and `item_answered` are written to `pinyin_recall_item_presented` and `pinyin_recall_item_answered` (two-table design).
-- **Pinyin recall report error (报错)** — `POST /api/games/pinyin-recall/report-error` inserts one row into `pinyin_recall_report_error` (user_id, session_id, batch_id, character, page, reported_at). `page` is one of question, wrong, or correct (which screen the report came from).
+- **Pinyin recall report error (报错)** — `POST /api/games/pinyin-recall/report-error` inserts one row into `pinyin_recall_report_error` (user_id, session_id, batch_id, unit_id, character, page, reported_at). `page` is one of question, wrong, or correct (which screen the report came from). If the request resolved through a real authenticated user and includes `unit_id`, the backend also inserts the unit into `pinyin_recall_disabled_units`, removing it from future queue circulation globally. Synthetic/dev fallback users (`local-dev`, `e2e-dev`, `e2e-gha-*`) still log rows for testing, but do not disable units globally.
 
 API response shapes are unchanged; no frontend changes required for DB migration.
 
@@ -274,6 +298,7 @@ API response shapes are unchanged; no frontend changes required for DB migration
 | `scripts/pinyin_recall/create_pinyin_recall_character_bank_table.py` | Create `pinyin_recall_character_bank` (MVP1 pinyin recall state). |
 | `scripts/pinyin_recall/create_pinyin_recall_log_tables.py` | Create `pinyin_recall_item_presented` and `pinyin_recall_item_answered` (two-table event log). |
 | `scripts/pinyin_recall/create_pinyin_recall_report_error_table.py` | Create `pinyin_recall_report_error` (Issue #6: 报错 button log). Run once per environment. |
+| `scripts/pinyin_recall/create_pinyin_recall_disabled_units_table.py` | Create `pinyin_recall_disabled_units` (global disable registry for real-user-reported bad units). |
 | `scripts/pinyin_recall/add_pinyin_recall_report_error_page_column.py` | Add `page` column to `pinyin_recall_report_error` (question/wrong/correct). Options: `--dry-run`. |
 | `scripts/pinyin_recall/add_pinyin_recall_batch_id_column.py` | Add `batch_id` column to `pinyin_recall_item_presented` (for existing deployments). Options: `--dry-run`. |
 | `scripts/pinyin_recall/backfill_pinyin_recall_batch_id.py` | Backfill `batch_id` using created_at clustering per session. Creates backup table first. Options: `--dry-run`, `--gap N` (seconds), `--no-backup`. |

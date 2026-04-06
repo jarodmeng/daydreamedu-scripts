@@ -6,6 +6,15 @@ Release history and version notes. Newest releases are at the top.
 
 ---
 
+## [v0.3.1]
+
+- **Globally disable real-user-reported recall units:** When a real authenticated user reports a Pinyin Recall unit via 报错, that `character + reading` unit is now removed from future circulation for everyone. Disabled units no longer enter newly built queues, but already-issued in-flight items remain answerable.
+- **Dedicated disabled-unit registry + reading-aware tooling:** Add a global `pinyin_recall_disabled_units` table and runtime override path, keep `pinyin_recall_report_error` append-only, and update the report-error query utility to surface `unit_id` by default for polyphonic triage.
+- **Profile enabled-unit totals now derive fresh state:** Remove the in-process enabled-unit cache so Profile/progress totals always recompute against the current globally enabled unit pool, including newly disabled units.
+- **Docs and decision record:** Add a proposal for global disable-on-report behavior, record the decision in `DECISIONS.md`, and update architecture/auth/database docs for the real-user-only trigger rule and synthetic-user exclusion.
+
+---
+
 ## [v0.3.0]
 
 - **Major pinyin-recall upgrade: reading units for polyphonic characters.** Pinyin Recall now treats the learning unit as `character + reading` rather than just `character`, so polyphonic siblings like `行|xíng` and `行|háng` can be scheduled, prompted, answered, and reviewed separately. Runtime prompts, distractors, stem words, English glosses, and wrong-answer feedback are now reading-specific instead of leaking content across sibling readings.

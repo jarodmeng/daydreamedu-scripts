@@ -218,3 +218,26 @@ Reading units are derived in code from existing Feng/HWXNet character rows rathe
 **Source:** [archive/proposals/PROPOSAL_Pinyin_Recall_Reading_Units_For_Polyphonic_Characters.md](archive/proposals/PROPOSAL_Pinyin_Recall_Reading_Units_For_Polyphonic_Characters.md)
 
 **Status:** Accepted
+
+---
+
+## ADR-010: Globally Disable Real-User-Reported Pinyin Recall Units
+
+**Context:** After ADR-009, Pinyin Recall became reading-unit based, so the runtime can now identify and log bad content at the same `unit_id` granularity that the learner is actually tested on. However, the existing 报错 flow only appended a row to `pinyin_recall_report_error`; it did not stop that bad unit from continuing to enter newly built queues for other users.
+
+**Decision:** When a real authenticated user reports a Pinyin Recall unit via 报错, globally disable that `unit_id` for future circulation:
+
+- insert the report row into `pinyin_recall_report_error` as append-only history
+- insert the reported `unit_id` into a separate `pinyin_recall_disabled_units` registry
+- treat that registry as runtime `recall_enabled = false` overrides with `enable_reason = disabled_reported_by_user`
+- exclude disabled units from future queue construction and enabled-unit totals used by Profile/progress
+- do not retroactively edit already-issued in-flight batches
+- do not allow synthetic/dev fallback users (`local-dev`, `e2e-dev`, `e2e-gha-*`) to trigger global disables
+
+**Rationale:** This is a safety-first content policy: once a real user identifies a bad unit, the system should contain that unit immediately rather than continuing to schedule known-suspect content. Keeping the report log append-only preserves audit history and later analysis, while the separate disabled-unit registry cleanly models current global runtime state. Excluding synthetic/dev users avoids letting test traffic mutate real learner-facing availability.
+
+**Consequences:** Pinyin Recall now has a small amount of global mutable content state in addition to per-user state. Enabled-unit totals must be derived from current content plus current disabled-unit state, so the prior in-process enabled-unit cache is removed rather than invalidated. Profile/progress and queue-mode calculations now ignore disabled units, and operational tooling should surface `unit_id` when triaging report rows.
+
+**Source:** [archive/proposals/PROPOSAL_Global_Disable_Reported_Pinyin_Recall_Units.md](archive/proposals/PROPOSAL_Global_Disable_Reported_Pinyin_Recall_Units.md)
+
+**Status:** Accepted

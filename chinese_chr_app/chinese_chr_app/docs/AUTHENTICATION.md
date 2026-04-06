@@ -141,6 +141,10 @@ Common values used in this codebase:
 - Local manual / cloud-agent dev fallback often uses `local-dev`
 - Playwright E2E backend launcher uses `e2e-dev` (`frontend/scripts/run-backend-for-e2e.mjs`)
 
+Important behavior for Pinyin Recall report-error:
+- Real authenticated users can trigger global disable of a reported recall unit
+- Dev / synthetic fallback users (`local-dev`, `e2e-dev`, `e2e-gha-*`) can still log report rows for testing, but they do **not** disable units globally
+
 ### Route auth matrix (important)
 
 Routes that accept real JWT OR dev fallback:
@@ -156,6 +160,7 @@ Routes that accept real JWT OR dev fallback:
 Notes:
 - Backend still attempts real JWT verification first.
 - In dev fallback mode, expected fake-token parse/validation errors (for example `DecodeError`) are suppressed before fallback succeeds.
+- For `POST /api/games/pinyin-recall/report-error`, only the real-JWT path can globally disable a unit; fallback users only create log rows.
 
 ## Data Source and Logging Behavior (DB-only Runtime)
 
