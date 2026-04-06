@@ -1261,6 +1261,9 @@ def _log_pinyin_recall_event(
                     "batch_id": batch_id,
                     "batch_mode": batch_mode,
                     "batch_character_category": item.get("batch_category"),
+                    "from_user_priority": item.get("from_user_priority"),
+                    "priority_label": item.get("priority_label"),
+                    "priority_source": item.get("priority_source"),
                     "unit_id": item.get("unit_id"),
                     "character": item.get("character"),
                     "reading_key": item.get("reading_key"),
@@ -1299,6 +1302,8 @@ def pinyin_recall_session():
     t4 = time.perf_counter()
     date_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     learning_state = _get_pinyin_recall_learning_state(user.user_id)
+    import database as db
+    prioritized_characters = db.get_user_prioritized_characters(user.user_id)
     t5 = time.perf_counter()
     timings["load_learning_state_ms"] = int((t5 - t4) * 1000)
 
@@ -1310,6 +1315,7 @@ def pinyin_recall_session():
         hwxnet_lookup,
         character_lookup,
         recall_overrides=_get_pinyin_recall_global_overrides(),
+        prioritized_characters=prioritized_characters,
         total_target=20,
         new_count=8,
     )
@@ -1378,6 +1384,8 @@ def pinyin_recall_next_batch():
     t4 = time.perf_counter()
     date_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     learning_state = _get_pinyin_recall_learning_state(user.user_id)
+    import database as db
+    prioritized_characters = db.get_user_prioritized_characters(user.user_id)
     t5 = time.perf_counter()
     timings["load_learning_state_ms"] = int((t5 - t4) * 1000)
 
@@ -1389,6 +1397,7 @@ def pinyin_recall_next_batch():
         hwxnet_lookup,
         character_lookup,
         recall_overrides=_get_pinyin_recall_global_overrides(),
+        prioritized_characters=prioritized_characters,
         total_target=20,
         new_count=8,
     )

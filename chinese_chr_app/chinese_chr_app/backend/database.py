@@ -14,7 +14,7 @@ from english_translations import (
     flatten_hwxnet_english_translations,
     normalize_hwxnet_english_translations_by_pinyin,
 )
-from pinyin_recall import build_reading_unit_pool
+from pinyin_recall import build_reading_unit_pool, pinyin_to_numbered
 from pinyin_search import compute_searchable_pinyin_for_entry
 
 try:
@@ -635,6 +635,76 @@ def get_globally_disabled_pinyin_recall_overrides() -> Dict[str, Dict[str, Any]]
         return overrides
     finally:
         conn.close()
+
+
+def get_user_prioritized_characters(user_id: str) -> List[Dict[str, Any]]:
+    """
+    Return active, unexpired user-priority rows ordered for queue consumption.
+
+    Rows are scoped to one user and may target either a whole character
+    (`reading` is NULL) or one specific reading.
+    """
+    user_id = (user_id or "").strip()
+    if not user_id:
+        return []
+
+    conn = _get_connection()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                SELECT
+                    id,
+                    user_id,
+                    character,
+                    reading,
+                    priority,
+                    label,
+                    source,
+                    note,
+                    active,
+                    expires_at,
+                    created_at,
+                    updated_at
+                FROM user_prioritized_characters
+                WHERE user_id = %s
+                  AND active = TRUE
+                  AND (expires_at IS NULL OR expires_at > now())
+                ORDER BY priority ASC, created_at ASC
+                """,
+                (user_id,),
+            )
+            rows = cur.fetchall()
+    except Exception as exc:
+        message = str(exc)
+        if "user_prioritized_characters" in message and "does not exist" in message:
+            return []
+        raise
+    finally:
+        conn.close()
+
+    out: List[Dict[str, Any]] = []
+    for row in rows:
+        character = (row.get("character") or "").strip()
+        if len(character) != 1:
+            continue
+        reading = (row.get("reading") or "").strip() or None
+        out.append({
+            "id": row.get("id"),
+            "user_id": (row.get("user_id") or "").strip(),
+            "character": character,
+            "reading": reading,
+            "reading_key": pinyin_to_numbered(reading) if reading else None,
+            "priority": int(row.get("priority") or 0),
+            "label": (row.get("label") or "").strip() or None,
+            "source": (row.get("source") or "").strip() or None,
+            "note": (row.get("note") or "").strip() or None,
+            "active": bool(row.get("active")),
+            "expires_at": row.get("expires_at"),
+            "created_at": row.get("created_at"),
+            "updated_at": row.get("updated_at"),
+        })
+    return out
 
 
 def disable_pinyin_recall_unit_globally(
@@ -1278,7 +1348,7 @@ def upsert_pinyin_recall_unit_bank(
 def insert_pinyin_recall_item_presented(payload: Dict[str, Any]) -> None:
     """
     Insert one item_presented event into pinyin_recall_item_presented.
-    payload: user_id, session_id, unit_id?, character, reading_key?, reading_display?, prompt_type, correct_choice, choices, batch_id?, batch_mode?, batch_character_category?.
+    payload: user_id, session_id, unit_id?, character, reading_key?, reading_display?, prompt_type, correct_choice, choices, batch_id?, batch_mode?, batch_character_category?, from_user_priority?, priority_label?, priority_source?.
     Table must exist (run scripts/create_pinyin_recall_log_tables.py once).
     batch_character_category: five-band at batch time (new|hard|learning_normal|learned_normal|mastered).
     """
@@ -1289,12 +1359,15 @@ def insert_pinyin_recall_item_presented(payload: Dict[str, Any]) -> None:
         batch_id = payload.get("batch_id")
         batch_mode = payload.get("batch_mode")
         batch_character_category = payload.get("batch_character_category")
+        from_user_priority = payload.get("from_user_priority")
+        priority_label = (payload.get("priority_label") or "").strip() or None
+        priority_source = (payload.get("priority_source") or "").strip() or None
         with conn.cursor() as cur:
             cur.execute(
                 """
                 INSERT INTO pinyin_recall_item_presented (
-                    user_id, session_id, unit_id, character, reading_key, reading_display, prompt_type, correct_choice, choices, batch_id, batch_mode, batch_character_category
-                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    user_id, session_id, unit_id, character, reading_key, reading_display, prompt_type, correct_choice, choices, batch_id, batch_mode, batch_character_category, from_user_priority, priority_label, priority_source
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 """,
                 (
                     (payload.get("user_id") or "").strip(),
@@ -1309,6 +1382,9 @@ def insert_pinyin_recall_item_presented(payload: Dict[str, Any]) -> None:
                     batch_id,
                     batch_mode,
                     batch_character_category,
+                    bool(from_user_priority) if from_user_priority is not None else None,
+                    priority_label,
+                    priority_source,
                 ),
                 prepare=False,
             )
@@ -1554,8 +1630,8 @@ def bulk_insert_pinyin_recall_item_presented(payloads: List[Dict[str, Any]]) -> 
         return 0
     conn = _get_connection()
     sql = """
-        INSERT INTO pinyin_recall_item_presented (user_id, session_id, unit_id, character, reading_key, reading_display, prompt_type, correct_choice, choices, batch_id, batch_mode, batch_character_category)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        INSERT INTO pinyin_recall_item_presented (user_id, session_id, unit_id, character, reading_key, reading_display, prompt_type, correct_choice, choices, batch_id, batch_mode, batch_character_category, from_user_priority, priority_label, priority_source)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
     """
     try:
         with conn.cursor() as cur:
@@ -1575,6 +1651,9 @@ def bulk_insert_pinyin_recall_item_presented(payloads: List[Dict[str, Any]]) -> 
                     p.get("batch_id"),
                     p.get("batch_mode"),
                     p.get("batch_character_category"),
+                    bool(p.get("from_user_priority")) if p.get("from_user_priority") is not None else None,
+                    (p.get("priority_label") or "").strip() or None,
+                    (p.get("priority_source") or "").strip() or None,
                 ), prepare=False)
         conn.commit()
         return len(payloads)

@@ -92,6 +92,179 @@ def _next_due_ts(state: Dict[str, Any], now_ts: int) -> Optional[int]:
         return 0
 
 
+def _normalize_priority_rows(rows: Optional[List[Dict[str, Any]]]) -> List[Dict[str, Any]]:
+    normalized: List[Dict[str, Any]] = []
+    for index, row in enumerate(rows or []):
+        if not isinstance(row, dict):
+            continue
+        character = (row.get("character") or "").strip()
+        if len(character) != 1:
+            continue
+        reading = (row.get("reading") or "").strip()
+        reading_key = (row.get("reading_key") or "").strip() or pinyin_to_numbered(reading)
+        try:
+            priority = int(row.get("priority") or 0)
+        except (TypeError, ValueError):
+            priority = 0
+        normalized.append({
+            **row,
+            "character": character,
+            "reading": reading or None,
+            "reading_key": reading_key or None,
+            "priority": priority,
+            "_sort_index": index,
+        })
+    normalized.sort(
+        key=lambda row: (
+            row.get("priority", 0),
+            0 if row.get("reading_key") else 1,
+            row.get("_sort_index", 0),
+        )
+    )
+    return normalized
+
+
+def _candidate_matches_priority_row(candidate: Dict[str, Any], row: Dict[str, Any]) -> bool:
+    if candidate.get("character") != row.get("character"):
+        return False
+    row_reading_key = row.get("reading_key")
+    if row_reading_key:
+        return candidate.get("unit", {}).get("reading_key") == row_reading_key
+    return True
+
+
+def _resolve_priority_match(
+    candidate: Dict[str, Any],
+    prioritized_characters: Optional[List[Dict[str, Any]]],
+) -> Optional[Dict[str, Any]]:
+    matches = [
+        row for row in (prioritized_characters or [])
+        if _candidate_matches_priority_row(candidate, row)
+    ]
+    if not matches:
+        return None
+    matches.sort(
+        key=lambda row: (
+            row.get("priority", 0),
+            0 if row.get("reading_key") else 1,
+            row.get("_sort_index", 0),
+        )
+    )
+    return matches[0]
+
+
+def _priority_due_sort_key(
+    candidate: Dict[str, Any],
+    user_state: Dict[str, Dict[str, Any]],
+    now_ts: int,
+    prioritized_characters: Optional[List[Dict[str, Any]]],
+) -> Tuple[int, int, int, int]:
+    unit_id = candidate["unit"]["unit_id"]
+    state = user_state.get(unit_id, {})
+    try:
+        score = int(state.get("score") or 0)
+    except (TypeError, ValueError):
+        score = 0
+    priority_match = _resolve_priority_match(candidate, prioritized_characters)
+    boosted = priority_match is not None and score < PROFICIENCY_MIN_SCORE
+    return (
+        0 if boosted else 1,
+        int(priority_match.get("priority", 0)) if priority_match else 0,
+        0 if priority_match and priority_match.get("reading_key") else 1,
+        _next_due_ts(state, now_ts) or 0,
+    )
+
+
+def _select_priority_new_items(
+    prioritized_characters: Optional[List[Dict[str, Any]]],
+    new_items: List[Dict[str, Any]],
+    user_state: Dict[str, Dict[str, Any]],
+    hwxnet_lookup: Dict[str, Any],
+    character_lookup: Dict[str, Any],
+    recall_overrides: Optional[Dict[str, Dict[str, Any]]],
+    zibiao_min: int,
+    zibiao_max_effective: int,
+) -> Tuple[List[Dict[str, Any]], Set[str]]:
+    if not prioritized_characters:
+        return ([], set())
+
+    normal_candidates_by_character: Dict[str, List[Dict[str, Any]]] = defaultdict(list)
+    for candidate in new_items:
+        normal_candidates_by_character[candidate.get("character")].append(candidate)
+
+    override_candidates_by_character: Dict[str, List[Dict[str, Any]]] = {}
+    selected: List[Dict[str, Any]] = []
+    selected_unit_ids: Set[str] = set()
+
+    def _eligible_match_for_row(row: Dict[str, Any], candidates: List[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
+        matches = [candidate for candidate in candidates if _candidate_matches_priority_row(candidate, row)]
+        if not matches:
+            return None
+        matches.sort(key=lambda candidate: candidate.get("unit", {}).get("reading_rank", 0))
+        for candidate in matches:
+            unit_id = candidate.get("unit", {}).get("unit_id")
+            if unit_id and unit_id not in selected_unit_ids:
+                return candidate
+        return None
+
+    def _build_override_candidates(character: str) -> List[Dict[str, Any]]:
+        if character in override_candidates_by_character:
+            return override_candidates_by_character[character]
+        entry = (hwxnet_lookup or {}).get(character)
+        if not isinstance(entry, dict):
+            override_candidates_by_character[character] = []
+            return []
+        zi = entry.get("zibiao_index")
+        try:
+            zi_int = int(zi)
+        except (TypeError, ValueError):
+            override_candidates_by_character[character] = []
+            return []
+        if zibiao_min <= zi_int <= zibiao_max_effective:
+            override_candidates_by_character[character] = []
+            return []
+        feng_entry = (character_lookup or {}).get(character) if character_lookup else None
+        units = build_reading_units_for_character(
+            character,
+            entry,
+            feng_entry,
+            recall_overrides=recall_overrides,
+        )
+        candidates: List[Dict[str, Any]] = []
+        for unit in units:
+            if not unit.get("recall_enabled"):
+                continue
+            unit_id = unit.get("unit_id")
+            if not unit_id or user_state.get(unit_id):
+                continue
+            candidates.append({
+                "unit": unit,
+                "character": character,
+                "entry": entry,
+                "zibiao_index": zi_int,
+            })
+        candidates.sort(key=lambda candidate: candidate.get("unit", {}).get("reading_rank", 0))
+        override_candidates_by_character[character] = candidates
+        return candidates
+
+    for row in prioritized_characters:
+        character = row.get("character")
+        if not character:
+            continue
+        chosen = _eligible_match_for_row(row, normal_candidates_by_character.get(character, []))
+        if chosen is None:
+            chosen = _eligible_match_for_row(row, _build_override_candidates(character))
+        if chosen is None:
+            continue
+        unit_id = chosen.get("unit", {}).get("unit_id")
+        if not unit_id or unit_id in selected_unit_ids:
+            continue
+        selected.append(chosen)
+        selected_unit_ids.add(unit_id)
+
+    return (selected, selected_unit_ids)
+
+
 # Expand character pool as user progresses. Mastery = score >= 10 (matches profile "已学").
 # Every 200 mastered chars, add 500 more to zibiao_max. Prevents "bank run out" at 500 chars.
 ZIBIAO_EXPAND_MASTERED_STEP = 200
@@ -681,6 +854,7 @@ def build_session_queue(
     hwxnet_lookup: Dict[str, Any],
     character_lookup: Dict[str, Any],
     recall_overrides: Optional[Dict[str, Dict[str, Any]]] = None,
+    prioritized_characters: Optional[List[Dict[str, Any]]] = None,
     *,
     zibiao_min: int = 1,
     zibiao_max: int = 500,
@@ -819,16 +993,32 @@ def build_session_queue(
         unit_id = candidate["unit"]["unit_id"]
         return _next_due_ts(user_state.get(unit_id, {}), now_ts) or 0
 
-    due_hard.sort(key=_score_key)
-    due_learning_normal.sort(key=_score_key)
-    due_learned_normal.sort(key=_next_due_key)
+    normalized_prioritized_characters = _normalize_priority_rows(prioritized_characters)
+
+    due_hard.sort(key=lambda candidate: (_priority_due_sort_key(candidate, user_state, now_ts, normalized_prioritized_characters), _score_key(candidate)))
+    due_learning_normal.sort(key=lambda candidate: (_priority_due_sort_key(candidate, user_state, now_ts, normalized_prioritized_characters), _score_key(candidate)))
+    due_learned_normal.sort(key=lambda candidate: _priority_due_sort_key(candidate, user_state, now_ts, normalized_prioritized_characters))
     due_mastered.sort(key=_next_due_key)
-    rng.shuffle(new_items)
+    priority_new_items, priority_new_unit_ids = _select_priority_new_items(
+        normalized_prioritized_characters,
+        new_items,
+        user_state,
+        hwxnet_lookup,
+        character_lookup,
+        recall_overrides,
+        zibiao_min,
+        zibiao_max_effective,
+    )
+    new_items_rest = [
+        candidate for candidate in new_items
+        if candidate["unit"]["unit_id"] not in priority_new_unit_ids
+    ]
+    rng.shuffle(new_items_rest)
 
     n_mastered = len(due_mastered)
     n_learned_normal = len(due_learned_normal)
     n_learning = len(due_hard) + len(due_learning_normal)
-    n_new_avail = len(new_items)
+    n_new_avail = len(priority_new_items) + len(new_items_rest)
 
     if mode == "rescue":
         n_mastered_slots = min(RESCUE_MASTERED, n_mastered)
@@ -878,7 +1068,7 @@ def build_session_queue(
     seen: Set[str] = set()
     for x in mastered_queue + learned_normal_queue + learning_pool:
         seen.add(x["unit"]["unit_id"])
-    for candidate in new_items:
+    for candidate in priority_new_items + new_items_rest:
         if len(new_queue) >= n_new_slots:
             break
         unit_id = candidate["unit"]["unit_id"]
@@ -914,6 +1104,7 @@ def build_session_queue(
         is_polyphonic = len(all_pinyin) > 1
         meanings = list(unit.get("english_translations") or [])
         meaning_zh = _first_basic_meaning_zh_for_unit(unit)
+        priority_match = _resolve_priority_match(candidate, normalized_prioritized_characters)
         items_out.append({
             "unit_id": unit.get("unit_id"),
             "character": ch,
@@ -930,6 +1121,9 @@ def build_session_queue(
             "is_polyphonic": is_polyphonic,
             "meanings": meanings,
             "meaning_zh": meaning_zh,
+            "priority_label": priority_match.get("label") if priority_match else None,
+            "priority_source": priority_match.get("source") if priority_match else None,
+            "from_user_priority": bool(priority_match),
         })
     return (items_out, mode)
 
