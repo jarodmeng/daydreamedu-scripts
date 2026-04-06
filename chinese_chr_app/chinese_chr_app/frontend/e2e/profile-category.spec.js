@@ -48,13 +48,13 @@ test.describe('Profile Category page', () => {
     });
 
     await page.goto('/profile/category/not_real');
-    await expect(page.getByRole('heading', { name: '汉字掌握度' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: '读音掌握度' })).toBeVisible();
     await expect(page.locator('.profile-error')).toContainText('无效分类');
     await expect(page.getByRole('link', { name: '返回 我的' })).toBeVisible();
 
     await page.goto('/profile/category/learning_hard');
-    await expect(page.getByRole('heading', { name: '汉字掌握度' })).toBeVisible();
-    await expect(page.getByRole('heading', { name: '难字' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: '读音掌握度' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: '难项' })).toBeVisible();
     const charLink = page.getByRole('link', { name: '难' });
     await expect(charLink).toBeVisible();
     await charLink.click();
@@ -63,4 +63,3 @@ test.describe('Profile Category page', () => {
     await expect(page.getByPlaceholder(/输入汉字或拼音/)).toHaveValue('难');
   });
 });
-

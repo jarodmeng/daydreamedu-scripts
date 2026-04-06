@@ -79,15 +79,14 @@ test.describe('Profile interactions', () => {
     await expect(page.getByText('新名称')).toBeVisible();
     await expect(putCalls).toBe(1);
 
-    await expect(page.getByRole('link', { name: '难字' })).toHaveAttribute(
+    await expect(page.getByRole('link', { name: '难项' })).toHaveAttribute(
       'href',
       '/profile/category/learning_hard'
     );
-    await expect(page.getByRole('link', { name: '掌握字' })).toHaveAttribute(
+    await expect(page.getByRole('link', { name: '掌握项' })).toHaveAttribute(
       'href',
       '/profile/category/learned_mastered'
     );
     await expect(page.getByRole('link', { name: /^普通$/ }).first()).toBeVisible();
   });
 });
-

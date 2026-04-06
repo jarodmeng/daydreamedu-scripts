@@ -83,7 +83,7 @@ test.describe('Profile page', () => {
     // Wait for a real loaded state instead of hooking a specific network request.
     // This is less timing-sensitive in CI and still proves the profile data rendered.
     await expect(page.locator('.profile-error')).toHaveCount(0, { timeout: 45_000 });
-    await expect(page.getByRole('heading', { name: '汉字掌握度' })).toBeVisible({ timeout: 45_000 });
+    await expect(page.getByRole('heading', { name: '读音掌握度' })).toBeVisible({ timeout: 45_000 });
     await expect(page.locator('.profile-loading')).toHaveCount(0);
 
     // Proficiency section
@@ -91,15 +91,15 @@ test.describe('Profile page', () => {
     await expect(bar).toBeVisible();
     await expect(bar.locator('.profile-proficiency-segment-not-tested')).toBeVisible();
 
-    // Counts: total_characters line should mention /3664
-    await expect(page.getByText(/\/ 3664 字/).first()).toBeVisible();
+    // Counts: total units line should show the current enabled-unit denominator
+    await expect(page.getByText(/\/ \d+ 项/).first()).toBeVisible();
 
     // Sub-category links
-    await expect(page.getByRole('link', { name: '难字' })).toBeVisible();
-    await expect(page.getByRole('link', { name: '掌握字' })).toBeVisible();
+    await expect(page.getByRole('link', { name: '难项' })).toBeVisible();
+    await expect(page.getByRole('link', { name: '掌握项' })).toBeVisible();
 
     // Proficiency hint text
-    await expect(page.getByText('掌握度根据拼音记忆游戏计算')).toBeVisible();
+    await expect(page.getByText('掌握度根据拼音记忆游戏的读音项计算')).toBeVisible();
 
     // Daily stats section should have at least one row from the game we just played
     await expect(page.getByRole('heading', { name: '每日练习统计' })).toBeVisible();
