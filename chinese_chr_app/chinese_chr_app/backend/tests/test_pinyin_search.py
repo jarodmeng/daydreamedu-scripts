@@ -1,16 +1,51 @@
 #!/usr/bin/env python3
 """Tests for GET /api/pinyin-search."""
+import importlib
 import sys
+import types
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
-from app import app
+import pytest
 
 
-def test_pinyin_search_tone_specific_returns_characters():
+@pytest.fixture
+def app_with_fake_search_db(monkeypatch):
+    backend_dir = Path(__file__).parent.parent
+    if str(backend_dir) not in sys.path:
+        sys.path.insert(0, str(backend_dir))
+
+    monkeypatch.setenv("SUPABASE_URL", "https://example.supabase.co")
+    monkeypatch.setenv(
+        "DATABASE_URL", "postgresql://example:example@example.com:5432/example"
+    )
+
+    fake_rows = {
+        "wo3": [
+            {"character": "我", "strokes": 7, "zibiao_index": 21},
+            {"character": "窝", "strokes": 12, "zibiao_index": 45},
+        ],
+        "wo": [
+            {"character": "我", "strokes": 7, "zibiao_index": 21},
+            {"character": "握", "strokes": 12, "zibiao_index": 52},
+        ],
+        "xyz": [],
+    }
+
+    fake_db_module = types.SimpleNamespace(
+        _get_connection=lambda: None,
+        get_characters_by_pinyin_search_keys=lambda search_keys: list(
+            fake_rows.get(search_keys[0], [])
+        ),
+    )
+
+    monkeypatch.setitem(sys.modules, "database", fake_db_module)
+    monkeypatch.delitem(sys.modules, "app", raising=False)
+    return importlib.import_module("app").app
+
+
+def test_pinyin_search_tone_specific_returns_characters(app_with_fake_search_db):
     """Valid tone-specific query (e.g. wo3) returns 200, found true, characters list."""
-    with app.test_client() as client:
+    with app_with_fake_search_db.test_client() as client:
         r = client.get("/api/pinyin-search?q=wo3")
     assert r.status_code == 200
     data = r.get_json()
@@ -32,9 +67,9 @@ def test_pinyin_search_tone_specific_returns_characters():
                 assert za <= zb
 
 
-def test_pinyin_search_no_tone_returns_characters():
+def test_pinyin_search_no_tone_returns_characters(app_with_fake_search_db):
     """Valid no-tone query (e.g. wo) returns 200 and at least one character when syllable exists."""
-    with app.test_client() as client:
+    with app_with_fake_search_db.test_client() as client:
         r = client.get("/api/pinyin-search?q=wo")
     assert r.status_code == 200
     data = r.get_json()
@@ -42,9 +77,9 @@ def test_pinyin_search_no_tone_returns_characters():
     assert len(data["characters"]) >= 1
 
 
-def test_pinyin_search_no_match():
+def test_pinyin_search_no_match(app_with_fake_search_db):
     """Valid query with no characters returns 200, found false, error message."""
-    with app.test_client() as client:
+    with app_with_fake_search_db.test_client() as client:
         r = client.get("/api/pinyin-search?q=xyz")
     assert r.status_code == 200
     data = r.get_json()
@@ -53,9 +88,9 @@ def test_pinyin_search_no_match():
     assert data.get("characters") == []
 
 
-def test_pinyin_search_invalid_format():
+def test_pinyin_search_invalid_format(app_with_fake_search_db):
     """Invalid format (e.g. mixed tone mark and digit) returns 400 and error message."""
-    with app.test_client() as client:
+    with app_with_fake_search_db.test_client() as client:
         # nǐ3 = tone mark + trailing digit -> invalid
         r = client.get("/api/pinyin-search?q=n%C4%AB3")
     assert r.status_code == 400
@@ -63,9 +98,9 @@ def test_pinyin_search_invalid_format():
     assert data.get("error") == "拼音输入格式错误"
 
 
-def test_pinyin_search_empty_query():
+def test_pinyin_search_empty_query(app_with_fake_search_db):
     """Empty query returns 400."""
-    with app.test_client() as client:
+    with app_with_fake_search_db.test_client() as client:
         r = client.get("/api/pinyin-search?q=")
     assert r.status_code == 400
     data = r.get_json()
