@@ -158,6 +158,11 @@
   color: #7b1fa2;
 }
 
+.pinyin-recall-tag-priority {
+  background: #eceff1;
+  color: #455a64;
+}
+
 .pinyin-recall-stem-label {
   font-size: 1rem;
   color: #555;
