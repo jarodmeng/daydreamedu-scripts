@@ -90,6 +90,7 @@ The pinyin-recall system is now reading-unit based for polyphonic characters. Wh
 - Prefer assertions that distinguish sibling readings of the same Hanzi when that behavior matters
 - Verify `unit_id`-aware payloads on game/profile APIs rather than assuming character-only identity
 - Treat reading-specific stems, glosses, and feedback as part of the contract for polyphonic items
+- Treat user-priority behavior as part of the queue contract: prioritized 新字 should front-load correctly, weak prioritized due items should boost within existing slot budgets, and session/log payloads should preserve serve-time `priority_label` / `priority_source` / `from_user_priority` values.
 
 ## For AI Agents
 

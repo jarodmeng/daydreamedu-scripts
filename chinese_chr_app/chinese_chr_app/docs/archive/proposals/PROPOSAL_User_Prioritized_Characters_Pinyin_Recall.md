@@ -1,7 +1,8 @@
 # Proposal: User-prioritized characters for Pinyin Recall (新字 selection)
 
-**Status:** Draft  
+**Status:** Implemented  
 **Date:** 2026-04-02  
+**Implemented in:** v0.3.2  
 **Context:** Learners (e.g. school dictation lists) benefit when the game surfaces **specific characters soon**, not only a global `zibiao_index` pool. [Emma’s P4 听写 category (ii) analysis](../../../../ai_study_buddy/docs/notes/p4_4a_dictation_2026_category_ii.md) now shows **176 / 548** category (ii) characters **not yet** in `pinyin_recall_unit_bank` at the character level, and **181 / 553** missing `character + reading` pairs at the reading-unit level. Since the source material is now available at both levels, this proposal uses a **hybrid priority model**: rows always target a **character**, and may optionally target a specific **reading/unit** when the curriculum source or operator import provides that precision.
 
 **References:**
@@ -30,7 +31,7 @@
 3. When building **due / review** portions of the queue (**难字、普通在学字、普通已学字**等已入库且 `next_due` 已到期的项), give **extra weight** to units whose **character** is on the priority list and whose **score is weak** (e.g. `score < PROFILE_PROFICIENCY_MIN_SCORE` / 10), with reading-specific rows matching only that reading.
 4. Keep **Rescue / Consolidation / Expansion** **slot counts** and **Active Load** mode selection; change **ordering** (and 新字 pick) to respect priorities, not the total recipe arithmetic.
 5. Remain **backward compatible**: users with **no** priority rows behave exactly as today.
-6. **In-game UX:** When an item is shown because the character is on the user’s priority list, the client displays a **short label** for *where* that priority comes from (e.g. **听写二**), **alongside** the existing **新字 / 巩固 / 重测** and **多音字** chips.
+6. **In-game UX:** When an item is shown because the character is on the user’s priority list, the client displays a **short label** for *where* that priority comes from (e.g. **第二学期听写**), **alongside** the existing **新字 / 巩固 / 重测** and **多音字** chips.
 
 **Non-goals (initial phase):**
 
@@ -98,7 +99,7 @@ See the due-pool boosted ordering implementation in **§4.2.2.4**.
 #### 3.3.1 UX and signaling
 The learner should be able to tell *why* an item is being emphasized without the feature overwhelming the session:
 
-- prioritized items can carry a short human label such as `听写二`
+- prioritized items can carry a short human label such as `第二学期听写`
 - that label appears beside the existing 新字/巩固/重测 and 多音字 chips
 - queued items may also carry optional machine-facing fields such as `priority_source`
 
@@ -119,7 +120,7 @@ The implementation details for ingestion, API, migration, and tests are specifie
 | `character` | `text` NOT NULL | Single simplified character; normalize NFC; length 1 enforced in app. |
 | `reading` | `text` NULL | Optional accented Pinyin / bank-aligned reading. `NULL` means “any reading for this character”; non-NULL means this row only targets that `character + reading` unit. |
 | `priority` | `integer` NOT NULL DEFAULT 0 | Lower = higher priority. |
-| `label` | `text` | Human-readable UI tag such as `听写二`. |
+| `label` | `text` | Human-readable UI tag such as `第二学期听写`. |
 | `source` | `text` | Optional machine / analytics source tag. |
 | `note` | `text` | Optional internal note; not shown in game. |
 | `active` | `boolean` NOT NULL DEFAULT true | Soft-disable without delete. |
@@ -320,12 +321,12 @@ Prefer **deterministic** fixtures: fix RNG seed where the implementation shuffle
 
 **5. Logging / analytics (optional in v1)**
 
-- If `pinyin_recall_item_presented` gains columns, add a test or migration check that insert path sets `priority_label` when the presented item had a label.
+- `pinyin_recall_item_presented` now carries serve-time `from_user_priority`, `priority_label`, and `priority_source`; keep a regression test or migration check that the insert path preserves those values when the presented item had them.
 
 **6. Manual QA checklist (pre-release)**
 
 - [ ] User with **no** priority rows: game indistinguishable from production today.  
-- [ ] User with list: 新字 batch shows prioritized characters earlier; chip shows 听写二 (or test label).  
+- [ ] User with list: 新字 batch shows prioritized characters earlier; chip shows 第二学期听写 (or test label).  
 - [ ] Polyphonic prioritized character: only one unit per batch (v1).  
 - [ ] Merge then replace: list matches expected after each operation.
 
@@ -361,7 +362,7 @@ Prefer **deterministic** fixtures: fix RNG seed where the implementation shuffle
 | 2 | **Per-family vs `user_id`** | **`user_id` only.** Each signed-in learner has their own list (e.g. Emma vs Winston). No shared family-level table in v1. |
 | 3 | **Integration with AI Study Buddy** or GoodNotes exports (automatic list refresh) | **Not yet** — no integration in this proposal; lists are populated manually, via script, or via future API. Revisit when cross-product flows are defined. |
 | 4 | **巩固 / due-queue boost** for prioritized characters that **already have** a bank row but are **weak** (e.g. `score < 10`) | **Yes** — give them **earlier placement** within the same due pools (**难字 / 普通在学字 / optionally 普通已学字**), without changing slot counts. Details in §3.2.3 / §4.2.2.4. |
-| 5 | **In-game tag for “where priority came from”** | **Yes** — store human **`label`** per row (e.g. 听写二); session JSON exposes **`priority_label`**; UI shows a chip **next to** 新字/巩固/重测 and 多音字 (`PinyinRecall.jsx`, §3.3.1 / §4.3.1). |
+| 5 | **In-game tag for “where priority came from”** | **Yes** — store human **`label`** per row (e.g. 第二学期听写); session JSON exposes **`priority_label`**; UI shows a chip **next to** 新字/巩固/重测 and 多音字 (`PinyinRecall.jsx`, §3.3.1 / §4.3.1). |
 
 ---
 

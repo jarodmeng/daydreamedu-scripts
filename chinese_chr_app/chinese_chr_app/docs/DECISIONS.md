@@ -241,3 +241,29 @@ Reading units are derived in code from existing Feng/HWXNet character rows rathe
 **Source:** [archive/proposals/PROPOSAL_Global_Disable_Reported_Pinyin_Recall_Units.md](archive/proposals/PROPOSAL_Global_Disable_Reported_Pinyin_Recall_Units.md)
 
 **Status:** Accepted
+
+---
+
+## ADR-011: User-Prioritized Pinyin Recall Units
+
+**Context:** The standard Pinyin Recall queue already adapts to learner state, but it did not provide a first-party way to emphasize a time-bound school list for one specific learner. Emma’s category-(ii) dictation analysis showed a concrete gap between the curriculum list and her current `pinyin_recall_unit_bank`, and the product needed a way to surface those targeted items sooner without rewriting the rest of the queue system.
+
+**Decision:** Add per-user Pinyin Recall priorities via `user_prioritized_characters` and make the queue priority-aware:
+
+- store per-user priority rows that may be character-wide or reading-specific
+- front-load eligible prioritized 新字 before the shuffled non-priority remainder
+- allow explicit priority targets to override the normal zibiao candidate window while keeping the existing 新字 slot budget
+- boost weak due items that match a priority row earlier within their existing due pools
+- expose `priority_label`, `priority_source`, and `from_user_priority` in session items
+- render the priority label as a neutral in-game chip
+- persist serve-time priority metadata into `pinyin_recall_item_presented`
+
+Priority changes ordering and selection, not the Expansion / Consolidation / Rescue slot recipes.
+
+**Rationale:** This keeps the existing queue model intact while adding a focused curriculum-alignment lever. The feature is strong enough to make school-driven targets show up soon, but bounded enough to avoid inflating batch size or replacing the underlying pacing logic.
+
+**Consequences:** Pinyin Recall now has a second layer of per-user control in addition to learning state. Operational workflows can import or replace user priority rows for targeted study periods, and analytics can distinguish served items that were emphasized by a priority list from those that were not.
+
+**Source:** [archive/proposals/PROPOSAL_User_Prioritized_Characters_Pinyin_Recall.md](archive/proposals/PROPOSAL_User_Prioritized_Characters_Pinyin_Recall.md)
+
+**Status:** Accepted

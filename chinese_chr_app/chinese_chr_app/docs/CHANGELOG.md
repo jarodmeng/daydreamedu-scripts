@@ -6,6 +6,13 @@ Release history and version notes. Newest releases are at the top.
 
 ---
 
+## [v0.3.2]
+
+- **User-prioritized Pinyin Recall queueing:** Add `user_prioritized_characters` support so per-user reading-level priority targets can front-load eligible 新字 without changing Expansion / Consolidation / Rescue slot counts, including explicit out-of-window overrides for targeted new items.
+- **Priority-aware review ordering:** Weak due items that match a user priority row now sort earlier within the existing due pools, while mastered items keep their current ordering.
+- **In-game priority labels:** Session items now expose `priority_label`, `priority_source`, and `from_user_priority`, and the Pinyin Recall question UI renders the priority label as a neutral chip alongside the existing category and 多音字 tags.
+- **Operator tooling for Emma-style imports:** Add scripts to regenerate a user’s missing reading-level priorities from a source readings JSON and upsert them into `user_prioritized_characters`.
+
 ## [v0.3.1]
 
 - **Globally disable real-user-reported recall units:** When a real authenticated user reports a Pinyin Recall unit via 报错, that `character + reading` unit is now removed from future circulation for everyone. Disabled units no longer enter newly built queues, but already-issued in-flight items remain answerable.

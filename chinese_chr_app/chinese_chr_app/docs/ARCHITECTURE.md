@@ -34,6 +34,7 @@ Paths are relative to the repo root. The app lives under `chinese_chr_app/chines
   - Reading-aware consumers prefer the structured buckets; legacy flat fields remain compatibility/fallback data for consumers that still operate at the character level.
 - **Pinyin Recall reading units:** The pinyin-recall learning identity is now `character + reading`, represented by stable `unit_id`s such as `行|xing2`. These units are derived from the character rows rather than materialized as a standalone dictionary table.
 - **Pinyin Recall disabled units:** Units reported by real authenticated users can be removed from future circulation globally. Current disable state is stored in `pinyin_recall_disabled_units` and consumed at runtime as `recall_enabled = false` overrides.
+- **Pinyin Recall user priorities:** Per-user priority targets are stored in `user_prioritized_characters`. Rows may be character-wide or reading-specific, and are used to front-load eligible 新字, boost weak due items, and provide a serve-time UI/log label.
 - **Per-user learning state:** Pinyin-recall learner state is stored in `pinyin_recall_unit_bank`, keyed by `(user_id, unit_id)`. Presented/answered/report rows also carry `unit_id`, `reading_key`, and `reading_display`.
 - **Stroke order:** Fetched on demand from HanziWriter-compatible CDN; backend proxies and may cache under `data/temp/hanzi_writer/`.
 - **Radical stroke counts:** Used to sort the Radicals page by 按部首笔画. Stored in Supabase table `radical_stroke_counts`.
@@ -110,13 +111,15 @@ Schema, configuration, data-access layer, and all migration/backfill scripts are
   - **Consolidation** (100 ≤ Total Load ≤ 250): 5 新字 + 15 review; reserve 6 slots for 巩固 before 在学项.
   - **Rescue** (Total Load > 250): 4 掌握项 + 8 普通已学项 + 6 在学项 (难项 first) + 2 新字; within 在学项 slots, 难项 first (score ascending), no cap.
 - **Slot reservation:** In Expansion/Consolidation, reserve slots for 巩固 (普通已学项 + 掌握项) before allocating to 在学项, so 巩固 is never crowded out.
+- **Priority-aware 新字:** Active user-priority rows front-load eligible 新字 before the shuffled remainder. Explicit priority targets may override the normal zibiao candidate window, but still compete within the existing 新字 slot budget.
+- **Priority-aware due ordering:** Weak due items (`score < 10`) that match an active user-priority row sort earlier within the existing due pools. Mastered items keep their normal ordering.
 
 ### 8.2 Score and categories
 
 - **Score range:** −50 to 100. Correct: +10 (cap 100). Wrong or 我不知道: −10 (floor −50).
 - **Proficiency threshold:** score ≥ 10 = 已学项 (learned item). Used for profile `读音掌握度` and for 巩固 vs 重测.
 - **Five bands (for queue selection):** 难项 (score ≤ −20), 普通在学项 (−20 < score ≤ 0), 普通已学项 (0 < score < 20), 掌握项 (score ≥ 20). 未学项 = not yet in `pinyin_recall_unit_bank`.
-- **Display categories (three):** 新字 (first time), 重测 (retest / still learning), 巩固 (consolidation / maintenance). Session items include `is_polyphonic`; when true, a 多音字 tag is shown next to the category in the question header.
+- **Display categories (three):** 新字 (first time), 重测 (retest / still learning), 巩固 (consolidation / maintenance). Session items include `is_polyphonic`; when true, a 多音字 tag is shown next to the category in the question header. When an item is being emphasized by a user-priority row, the question header also shows a neutral priority chip such as `第二学期听写`.
 
 ### 8.3 Cooling (next_due_utc)
 
@@ -133,7 +136,7 @@ Only due items (and new items within cap) are eligible for the next batch.
 
 - **Prompt:** Hanzi reading recall as multiple-choice pinyin. The tested identity is one reading unit, not just the character. Stem words and learner-facing meaning content are built from reading-aware sources in priority order: Feng `WordsByPinyin`, HWXNet `common_phrases_by_pinyin`, then reading-matched HWXNet `basic_meanings`. 我不知道 is always offered.
 - **Distractors:** Same syllable different tone, same tone different syllable, tone confusions. For polyphonic characters, sibling readings are excluded from the main answer identity and the prompt/feedback are built for the tested unit only.
-- **Logging:** Events are written to `pinyin_recall_item_presented` (with `batch_id`, `batch_mode`, `batch_character_category`, `unit_id`, `reading_key`, `reading_display`) and `pinyin_recall_item_answered` (with `score_before`, `score_after`, `category`, `unit_id`, `reading_key`, `reading_display`).
+- **Logging:** Events are written to `pinyin_recall_item_presented` (with `batch_id`, `batch_mode`, `batch_character_category`, `unit_id`, `reading_key`, `reading_display`, `from_user_priority`, `priority_label`, `priority_source`) and `pinyin_recall_item_answered` (with `score_before`, `score_after`, `category`, `unit_id`, `reading_key`, `reading_display`).
 - **Global disable-on-report:** When a real authenticated user reports a unit with `POST /api/games/pinyin-recall/report-error`, that unit is written to the global disabled-unit registry and excluded from future queues and enabled-unit totals. Synthetic/dev fallback users can still log report rows, but do not disable units globally. This applies to future queue construction only; already-issued in-flight items remain answerable.
 
 ### 8.5 Feedback and review UI

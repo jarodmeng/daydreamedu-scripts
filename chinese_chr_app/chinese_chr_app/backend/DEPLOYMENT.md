@@ -226,7 +226,17 @@ gcloud run services update chinese-chr-app \
 
 **Character view logging:** With `DATABASE_URL` set, signed-in users’ character views (Search result) are logged to the `character_views` table (user_id, character, viewed_at, display_name). Display name comes from the app profile or JWT metadata. Create the table once (same DB as feng_characters): from repo root, `cd chinese_chr_app/chinese_chr_app/backend && python3 scripts/create_character_views_table.py` (requires `DATABASE_URL` or `SUPABASE_DB_URL` in `.env.local` or environment). Cloud Build uses `--update-env-vars`, so `DATABASE_URL` set in the Cloud Run Console (Variables & Secrets) is preserved on deploy.
 
-**Pinyin recall (character bank and event log):** The pinyin recall game uses `pinyin_recall_character_bank` (per-user, per-character score and schedule) and writes events to `pinyin_recall_item_presented` and `pinyin_recall_item_answered`. Create the tables once: `python3 scripts/create_pinyin_recall_character_bank_table.py` and `python3 scripts/create_pinyin_recall_log_tables.py`. See [DATABASE.md](DATABASE.md) for details.
+**Pinyin recall (unit bank, priorities, and event log):** The pinyin recall game now uses `pinyin_recall_unit_bank` (per-user, per-reading-unit score and schedule), optional per-user priority rows in `user_prioritized_characters`, and writes serve-time events to `pinyin_recall_item_presented` and `pinyin_recall_item_answered`. Create the tables once:
+
+- `python3 scripts/pinyin_recall/create_pinyin_recall_unit_bank_table.py`
+- `python3 scripts/pinyin_recall/create_pinyin_recall_log_tables.py`
+- `python3 scripts/pinyin_recall/create_user_prioritized_characters_table.py`
+
+For existing deployments that already have `pinyin_recall_item_presented`, also run:
+
+- `python3 scripts/pinyin_recall/add_pinyin_recall_priority_columns.py`
+
+This adds serve-time logging columns `from_user_priority`, `priority_label`, and `priority_source` so analytics reflect what was true when the batch was served. See [DATABASE.md](DATABASE.md) for details.
 
 **Radicals sort by stroke count:** The Radicals page can sort by radical stroke count (按部首笔画). The backend reads from the `radical_stroke_counts` table and now expects it to exist. Create and populate the table once: `python3 scripts/create_radical_stroke_counts_table.py` (reads `data/radical_stroke_counts.json`). No new env vars required.
 
