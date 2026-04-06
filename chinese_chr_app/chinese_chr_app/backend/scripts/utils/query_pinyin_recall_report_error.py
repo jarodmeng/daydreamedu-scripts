@@ -57,7 +57,7 @@ def main():
         with conn.cursor() as cur:
             cur.execute(
                 """
-                SELECT id, user_id, session_id, batch_id, character, page, reported_at
+                SELECT id, user_id, session_id, batch_id, unit_id, character, page, reported_at
                 FROM pinyin_recall_report_error r
                 WHERE r.user_id != 'local-dev'
                   AND r.reported_at >= now() - interval '1 day' * %s
@@ -76,7 +76,11 @@ def main():
 
     print(f"Report errors in the last {args.days} day(s), excluding local-dev, newest first (limit {args.limit}):\n")
     for r in rows:
-        print(f"  {r['reported_at']}  user={r['user_id'][:8]}…  char={r['character']}  page={r['page']}  session={r['session_id'][:8]}…")
+        unit_id = (r.get("unit_id") or "").strip() or "-"
+        print(
+            f"  {r['reported_at']}  user={r['user_id'][:8]}…  unit={unit_id}  "
+            f"char={r['character']}  page={r['page']}  session={r['session_id'][:8]}…"
+        )
     print(f"\nTotal: {len(rows)} row(s).")
 
 

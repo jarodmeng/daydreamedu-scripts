@@ -3,7 +3,7 @@
 Create the pinyin_recall_report_error table in Supabase.
 
 Stores user reports when they click "报错" in the pinyin recall game.
-Columns: user_id, session_id, batch_id (nullable), character, page (question/wrong/correct), reported_at (default now()).
+Columns: user_id, session_id, batch_id (nullable), unit_id (nullable), character, page (question/wrong/correct), reported_at (default now()).
 
 Requires DATABASE_URL (or SUPABASE_DB_URL). Run from backend/:
   python3 scripts/pinyin_recall/create_pinyin_recall_report_error_table.py
@@ -28,6 +28,7 @@ CREATE TABLE IF NOT EXISTS pinyin_recall_report_error (
     user_id text NOT NULL,
     session_id text NOT NULL,
     batch_id uuid,
+    unit_id text,
     character text NOT NULL,
     page text,
     reported_at timestamptz NOT NULL DEFAULT now()

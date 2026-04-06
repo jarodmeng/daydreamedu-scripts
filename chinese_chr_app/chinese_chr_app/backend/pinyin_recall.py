@@ -680,6 +680,7 @@ def build_session_queue(
     learning_state: Dict[str, Dict[str, Any]],
     hwxnet_lookup: Dict[str, Any],
     character_lookup: Dict[str, Any],
+    recall_overrides: Optional[Dict[str, Dict[str, Any]]] = None,
     *,
     zibiao_min: int = 1,
     zibiao_max: int = 500,
@@ -741,7 +742,12 @@ def build_session_queue(
         if not (zibiao_min <= zi_int <= zibiao_max_effective):
             continue
         feng_entry = (character_lookup or {}).get(ch) if character_lookup else None
-        units = build_reading_units_for_character(ch, entry, feng_entry)
+        units = build_reading_units_for_character(
+            ch,
+            entry,
+            feng_entry,
+            recall_overrides=recall_overrides,
+        )
         for unit in units:
             if not unit.get("recall_enabled"):
                 continue

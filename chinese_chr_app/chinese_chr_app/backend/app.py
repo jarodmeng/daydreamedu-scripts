@@ -1230,6 +1230,16 @@ def _get_pinyin_recall_learning_state(user_id: str) -> Dict[str, Dict[str, Any]]
     return {user_id: unit_state}
 
 
+def _get_pinyin_recall_global_overrides() -> Dict[str, Dict[str, Any]]:
+    """Runtime recall overrides for globally disabled units."""
+    import database as db
+    getter = getattr(db, "get_globally_disabled_pinyin_recall_overrides", None)
+    if getter is None:
+        return {}
+    overrides = getter()
+    return overrides if isinstance(overrides, dict) else {}
+
+
 def _log_pinyin_recall_event(
     event: str,
     *,
@@ -1299,6 +1309,7 @@ def pinyin_recall_session():
         learning_state,
         hwxnet_lookup,
         character_lookup,
+        recall_overrides=_get_pinyin_recall_global_overrides(),
         total_target=20,
         new_count=8,
     )
@@ -1377,6 +1388,7 @@ def pinyin_recall_next_batch():
         learning_state,
         hwxnet_lookup,
         character_lookup,
+        recall_overrides=_get_pinyin_recall_global_overrides(),
         total_target=20,
         new_count=8,
     )
@@ -1554,7 +1566,8 @@ def pinyin_recall_answer():
 @app.route('/api/games/pinyin-recall/report-error', methods=['POST'])
 def pinyin_recall_report_error():
     """Record a user report that character data is wrong (报错). Requires Bearer token (or PINYIN_RECALL_DEV_USER)."""
-    user = _get_profile_user() or _get_pinyin_recall_dev_user()
+    real_user = _get_profile_user()
+    user = real_user or _get_pinyin_recall_dev_user()
     if user is None:
         return jsonify({"error": "Unauthorized"}), 401
     data = request.get_json() or {}
@@ -1569,7 +1582,7 @@ def pinyin_recall_report_error():
         return jsonify({"error": "page must be question, wrong, or correct"}), 400
     try:
         import database as db
-        db.insert_pinyin_recall_report_error(
+        report_id = db.insert_pinyin_recall_report_error(
             user_id=user.user_id,
             session_id=session_id,
             batch_id=batch_id,
@@ -1577,6 +1590,13 @@ def pinyin_recall_report_error():
             character=character,
             page=page,
         )
+        if real_user is not None and unit_id:
+            db.disable_pinyin_recall_unit_globally(
+                unit_id=unit_id,
+                character=character,
+                disabled_by_user_id=real_user.user_id,
+                triggering_report_error_id=report_id,
+            )
     except Exception as e:
         print(f"[pinyin-recall] Failed to insert report_error: {e}", flush=True)
         return jsonify({"error": "Failed to record report"}), 500

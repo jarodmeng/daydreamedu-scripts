@@ -209,3 +209,23 @@ def test_build_session_queue_emits_unit_specific_items_for_polyphonic_character(
         "rank among siblings",
     ]
     assert "银行" not in by_correct["xíng"]["stem_words"]
+
+
+def test_build_session_queue_excludes_globally_disabled_units_from_future_batches():
+    items, _mode = pinyin_recall.build_session_queue(
+        "test-user",
+        "2026-03-29",
+        {},
+        {"行": _load_hwxnet_entry("行")},
+        {"行": _load_feng_entry("行")},
+        recall_overrides={
+            "行|hang2": {
+                "recall_enabled": False,
+                "enable_reason": "disabled_reported_by_user",
+            }
+        },
+        total_target=10,
+        new_count=10,
+    )
+
+    assert [item["unit_id"] for item in items] == ["行|xing2"]

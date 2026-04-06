@@ -28,7 +28,6 @@ except ImportError:
 _FENG_HAS_WORDS_BY_PINYIN: Optional[bool] = None
 _HWXNET_HAS_COMMON_PHRASES_BY_PINYIN: Optional[bool] = None
 _HWXNET_HAS_ENGLISH_TRANSLATIONS_BY_PINYIN: Optional[bool] = None
-_PROFILE_ENABLED_RECALL_UNIT_IDS: Optional[set[str]] = None
 
 
 def _get_connection():
@@ -578,30 +577,110 @@ def _get_enabled_recall_unit_ids() -> set[str]:
     Return the current enabled pinyin-recall unit IDs derived from live character tables.
 
     Phase 4 progress/reporting uses reading-unit denominator semantics rather than raw
-    character count. Cache in-process because the source tables change rarely.
+    character count. This is derived fresh on each call because runtime-disabled units
+    can change without a process restart.
     """
-    global _PROFILE_ENABLED_RECALL_UNIT_IDS
-    if _PROFILE_ENABLED_RECALL_UNIT_IDS is not None:
-        return _PROFILE_ENABLED_RECALL_UNIT_IDS
-
     hwxnet_lookup = get_hwxnet_lookup()
     feng_lookup = {
         (entry.get("Character") or "").strip(): entry
         for entry in get_feng_characters()
         if (entry.get("Character") or "").strip()
     }
-    pool = build_reading_unit_pool(hwxnet_lookup, feng_lookup, enabled_only=True)
-    _PROFILE_ENABLED_RECALL_UNIT_IDS = {
+    pool = build_reading_unit_pool(
+        hwxnet_lookup,
+        feng_lookup,
+        recall_overrides=get_globally_disabled_pinyin_recall_overrides(),
+        enabled_only=True,
+    )
+    return {
         (unit.get("unit_id") or "").strip()
         for unit in pool
         if (unit.get("unit_id") or "").strip()
     }
-    return _PROFILE_ENABLED_RECALL_UNIT_IDS
 
 
 def get_pinyin_recall_enabled_unit_total() -> int:
     """Return the denominator for profile/progress: enabled reading-level recall units."""
     return len(_get_enabled_recall_unit_ids())
+
+
+def get_globally_disabled_pinyin_recall_overrides() -> Dict[str, Dict[str, Any]]:
+    """
+    Return recall overrides for globally disabled pinyin-recall units.
+
+    Shape:
+        unit_id -> { recall_enabled: False, enable_reason: "disabled_reported_by_user" }
+    """
+    conn = _get_connection()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                SELECT unit_id, disabled_reason
+                FROM pinyin_recall_disabled_units
+                """
+            )
+            rows = cur.fetchall()
+        overrides: Dict[str, Dict[str, Any]] = {}
+        for row in rows:
+            unit_id = (row.get("unit_id") or "").strip()
+            if not unit_id:
+                continue
+            disabled_reason = (row.get("disabled_reason") or "").strip()
+            enable_reason = f"disabled_{disabled_reason}" if disabled_reason else "disabled_reported_by_user"
+            overrides[unit_id] = {
+                "recall_enabled": False,
+                "enable_reason": enable_reason,
+            }
+        return overrides
+    finally:
+        conn.close()
+
+
+def disable_pinyin_recall_unit_globally(
+    unit_id: str,
+    character: str,
+    disabled_by_user_id: str,
+    *,
+    disabled_reason: str = "reported_by_user",
+    disabled_source: str = "report_error",
+    triggering_report_error_id: Optional[str] = None,
+    notes: Optional[str] = None,
+) -> None:
+    """Insert or preserve a global disable row for one recall unit."""
+    conn = _get_connection()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                INSERT INTO pinyin_recall_disabled_units (
+                    unit_id,
+                    character,
+                    disabled_reason,
+                    disabled_source,
+                    triggering_report_error_id,
+                    disabled_by_user_id,
+                    notes
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s)
+                ON CONFLICT (unit_id) DO NOTHING
+                """,
+                (
+                    (unit_id or "").strip(),
+                    (character or "").strip(),
+                    (disabled_reason or "").strip(),
+                    (disabled_source or "").strip(),
+                    (triggering_report_error_id or "").strip() or None,
+                    (disabled_by_user_id or "").strip(),
+                    (notes or "").strip() or None,
+                ),
+                prepare=False,
+            )
+        conn.commit()
+    except Exception:
+        conn.rollback()
+        raise
+    finally:
+        conn.close()
 
 
 def get_character_views_count_for_user(user_id: str) -> int:
@@ -855,6 +934,18 @@ def get_pinyin_recall_category_counts(user_id: str) -> Dict[str, int]:
     Sub: learning_hard (score <= -20), learning_normal (-20 < score < 10),
          learned_mastered (score >= 20), learned_normal (10 <= score < 20).
     """
+    enabled_unit_ids = sorted(_get_enabled_recall_unit_ids())
+    if not enabled_unit_ids:
+        return {
+            "total_units": 0,
+            "learned": 0,
+            "learning": 0,
+            "not_tested": 0,
+            "learning_hard": 0,
+            "learning_normal": 0,
+            "learned_mastered": 0,
+            "learned_normal": 0,
+        }
     conn = _get_connection()
     try:
         with conn.cursor() as cur:
@@ -869,6 +960,7 @@ def get_pinyin_recall_category_counts(user_id: str) -> Dict[str, int]:
                     COUNT(*) FILTER (WHERE score >= %s AND score < %s) AS learned_normal
                 FROM pinyin_recall_unit_bank
                 WHERE user_id = %s
+                  AND unit_id = ANY(%s)
                 """,
                 (
                     PROFILE_PROFICIENCY_MIN_SCORE,
@@ -881,6 +973,7 @@ def get_pinyin_recall_category_counts(user_id: str) -> Dict[str, int]:
                     PROFILE_PROFICIENCY_MIN_SCORE,
                     PROFILE_LEARNED_MASTERED_MIN_SCORE,
                     user_id.strip(),
+                    enabled_unit_ids,
                 ),
             )
             row = cur.fetchone()
@@ -916,20 +1009,23 @@ def get_pinyin_recall_characters_by_category(
     Return reading units in the given profile sub-category, ordered by last_answered_at DESC (latest first).
     category: learning_hard | learning_normal | learned_mastered | learned_normal.
     """
+    enabled_unit_ids = sorted(_get_enabled_recall_unit_ids())
+    if not enabled_unit_ids:
+        return []
     conn = _get_connection()
     try:
         if category == PROFILE_CATEGORY_LEARNING_HARD:
-            where = "user_id = %s AND score < %s AND score <= %s"
-            params = (user_id.strip(), PROFILE_PROFICIENCY_MIN_SCORE, PROFILE_LEARNING_HARD_MAX_SCORE)
+            where = "user_id = %s AND unit_id = ANY(%s) AND score < %s AND score <= %s"
+            params = (user_id.strip(), enabled_unit_ids, PROFILE_PROFICIENCY_MIN_SCORE, PROFILE_LEARNING_HARD_MAX_SCORE)
         elif category == PROFILE_CATEGORY_LEARNING_NORMAL:
-            where = "user_id = %s AND score < %s AND score > %s"
-            params = (user_id.strip(), PROFILE_PROFICIENCY_MIN_SCORE, PROFILE_LEARNING_HARD_MAX_SCORE)
+            where = "user_id = %s AND unit_id = ANY(%s) AND score < %s AND score > %s"
+            params = (user_id.strip(), enabled_unit_ids, PROFILE_PROFICIENCY_MIN_SCORE, PROFILE_LEARNING_HARD_MAX_SCORE)
         elif category == PROFILE_CATEGORY_LEARNED_MASTERED:
-            where = "user_id = %s AND score >= %s"
-            params = (user_id.strip(), PROFILE_LEARNED_MASTERED_MIN_SCORE)
+            where = "user_id = %s AND unit_id = ANY(%s) AND score >= %s"
+            params = (user_id.strip(), enabled_unit_ids, PROFILE_LEARNED_MASTERED_MIN_SCORE)
         elif category == PROFILE_CATEGORY_LEARNED_NORMAL:
-            where = "user_id = %s AND score >= %s AND score < %s"
-            params = (user_id.strip(), PROFILE_PROFICIENCY_MIN_SCORE, PROFILE_LEARNED_MASTERED_MIN_SCORE)
+            where = "user_id = %s AND unit_id = ANY(%s) AND score >= %s AND score < %s"
+            params = (user_id.strip(), enabled_unit_ids, PROFILE_PROFICIENCY_MIN_SCORE, PROFILE_LEARNED_MASTERED_MIN_SCORE)
         else:
             return []
         with conn.cursor() as cur:
@@ -1021,6 +1117,9 @@ def get_pinyin_recall_learning_state(user_id: str) -> Dict[str, Dict[str, Any]]:
     Returns dict: unit_id -> { character, reading_key, reading_display, stage, next_due_utc, score, total_correct, total_wrong, total_i_dont_know }.
     Used by build_session_queue. Table must exist (run create_pinyin_recall_unit_bank_table.py once).
     """
+    enabled_unit_ids = sorted(_get_enabled_recall_unit_ids())
+    if not enabled_unit_ids:
+        return {}
     conn = _get_connection()
     try:
         with conn.cursor() as cur:
@@ -1029,8 +1128,9 @@ def get_pinyin_recall_learning_state(user_id: str) -> Dict[str, Dict[str, Any]]:
                 SELECT unit_id, character, reading_key, reading_display, score, stage, next_due_utc, total_correct, total_wrong, total_i_dont_know
                 FROM pinyin_recall_unit_bank
                 WHERE user_id = %s
+                  AND unit_id = ANY(%s)
                 """,
-                (user_id.strip(),),
+                (user_id.strip(), enabled_unit_ids),
             )
             rows = cur.fetchall()
         result: Dict[str, Dict[str, Any]] = {}
@@ -1227,7 +1327,7 @@ def insert_pinyin_recall_report_error(
     unit_id: Optional[str],
     character: str,
     page: Optional[str] = None,
-) -> None:
+) -> str:
     """
     Insert one report-error row into pinyin_recall_report_error.
     reported_at is set by DB default (now()). page: question, wrong, or correct.
@@ -1240,6 +1340,7 @@ def insert_pinyin_recall_report_error(
                 """
                 INSERT INTO pinyin_recall_report_error (user_id, session_id, batch_id, unit_id, character, page)
                 VALUES (%s, %s, %s, %s, %s, %s)
+                RETURNING id
                 """,
                 (
                     (user_id or "").strip(),
@@ -1251,7 +1352,9 @@ def insert_pinyin_recall_report_error(
                 ),
                 prepare=False,
             )
+            row = cur.fetchone() or {}
         conn.commit()
+        return str(row.get("id") or "")
     except Exception as e:
         conn.rollback()
         raise
