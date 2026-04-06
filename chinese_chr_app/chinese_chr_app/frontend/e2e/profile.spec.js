@@ -14,6 +14,8 @@ test.describe('Profile page', () => {
   });
 
   test('authenticated: play pinyin recall then view progress snapshot', async ({ page }) => {
+    test.setTimeout(180_000);
+
     // ── Step 1: Play pinyin recall — answer at least 3 questions ──
     await page.goto('/games/pinyin-recall');
     await expect(page.getByRole('heading', { name: '拼音记忆' })).toBeVisible();
@@ -80,11 +82,12 @@ test.describe('Profile page', () => {
     await page.goto('/profile');
     await expect(page.getByRole('heading', { name: '我的' })).toBeVisible();
 
-    // Wait for a real loaded state instead of hooking a specific network request.
-    // This is less timing-sensitive in CI and still proves the profile data rendered.
-    await expect(page.locator('.profile-error')).toHaveCount(0, { timeout: 45_000 });
-    await expect(page.getByRole('heading', { name: '读音掌握度' })).toBeVisible({ timeout: 45_000 });
-    await expect(page.locator('.profile-loading')).toHaveCount(0);
+    // CI can spend most of a default 60s test budget on the recall round itself,
+    // so wait for the profile page's own loading state to clear before asserting
+    // on the rendered progress section.
+    await expect(page.locator('.profile-loading')).toHaveCount(0, { timeout: 60_000 });
+    await expect(page.locator('.profile-error')).toHaveCount(0);
+    await expect(page.getByRole('heading', { name: '读音掌握度' })).toBeVisible();
 
     // Proficiency section
     const bar = page.locator('.profile-proficiency-stacked');
