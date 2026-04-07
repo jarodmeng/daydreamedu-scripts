@@ -1,0 +1,165 @@
+# 2026-04-07 Low-learning-value unit removals
+
+This note records the confirmed-removal pass for low-learning-value polyphonic reading units in `extracted_characters_hwxnet.json`.
+
+Unlike the 2026-03-27 uncovered-reading review, this pass started from the current enabled runtime pool, restricted the review universe to enabled units from polyphonic characters without Feng support, used AI to propose likely low-value units, and then used operator review to decide true vs false positives.
+
+## Summary
+
+- AI-review workflow folder: `chinese_chr_app/review_low_learning_value_units_using_ai/`
+- Candidate artifact: `chinese_chr_app/review_low_learning_value_units_using_ai/batch_artifacts/polyphonic_review_candidates.json`
+- AI-selected subset artifact: `chinese_chr_app/review_low_learning_value_units_using_ai/batch_artifacts/low_learning_value_units.selected.full_349.complete.json`
+- Operator decisions artifact: `chinese_chr_app/review_low_learning_value_units_using_ai/batch_artifacts/low_learning_value_units.review_decisions.json`
+- Confirmed-removals artifact: `chinese_chr_app/review_low_learning_value_units_using_ai/batch_artifacts/low_learning_value_units.confirmed_true_positives.json`
+- Source-data apply summary: `chinese_chr_app/review_low_learning_value_units_using_ai/batch_artifacts/low_learning_value_units.applied_removals.json`
+- Learning-history cleanup summary: `chinese_chr_app/review_low_learning_value_units_using_ai/batch_artifacts/low_learning_value_units.learning_history_cleanup.json`
+- In-place apply target: `chinese_chr_app/data/extracted_characters_hwxnet.json`
+- Backup created before overwriting local JSON:
+  - `chinese_chr_app/data/backups/extracted_characters_hwxnet.20260407_043640-low-learning-value-removals-backup.json`
+- Supabase backup created before syncing changed HWXNet rows:
+  - `hwxnet_characters_backup_20260407_043703`
+- Supabase backups created before deleting from learning-history tables:
+  - `pinyin_recall_unit_bank_backup_20260407_043701`
+  - `pinyin_recall_item_presented_backup_20260407_043701`
+  - `pinyin_recall_item_answered_backup_20260407_043701`
+  - `user_prioritized_characters_backup_20260407_043701`
+
+Decision / apply totals:
+
+- Candidate units reviewed by AI: `349`
+- AI-selected units manually reviewed: `157`
+- Confirmed true positives: `122`
+- False positives rejected by operator review: `35`
+- HWXNet character rows changed: `116`
+- User-history rows deleted:
+  - `pinyin_recall_unit_bank`: `31`
+  - `pinyin_recall_item_presented`: `175`
+  - `pinyin_recall_item_answered`: `133`
+  - `user_prioritized_characters`: `0`
+
+## Confirmed removed units
+
+The following `character + reading` pairs were confirmed as low learning value and removed from the curated HWXNet JSON. The listed rationale is the AI-selected reason for the unit that survived operator review.
+
+- `丁 zhēng (zheng1)` — This reading has very limited support with only one phrase and lacks additional common usage context, making it low-learning value.
+- `且 jū (ju1)` — The reading has insufficient practical usage with only one phrase, making it less valuable for learners.
+- `丽 lí (li2)` — Only one rare phrase and historical context make it less significant for learners.
+- `仅 jìn (jin4)` — This reading is under-supported by phrases and lacks common usage, making it unsuitable for learners.
+- `令 líng (ling2)` — The reading is supported by inadequate evidence, with only one example phrase.
+- `价 jiè (jie4)` — Insufficient supporting phrases and low common usage make this reading not suitable for circulation.
+- `价 jie (jie5)` — Low exposure and minimal evidence make this reading unlikely to assist learners effectively.
+- `估 gù (gu4)` — Only one supporting phrase with no basic meanings, making it less useful for recall.
+- `似 shì (shi4)` — Similar to others, it provides insufficient supporting phrases for practical learning use.
+- `体 tī (ti1)` — Only one example phrase and no basic meanings, suggesting low practical use for learners.
+- `侧 zhāi (zhai1)` — This reading has sparse examples and lacks strong common usage, which diminishes its value for teaching and recall.
+- `倘 cháng (chang2)` — Only one common phrase and no sufficient supporting examples, indicating low utility.
+- `倡 chāng (chang1)` — Only one example phrase and low exposure to learners create low learning value.
+- `冒 mò (mo4)` — This reading has very limited usage and lacks common phrases, reducing its learner utility.
+- `凉 liàng (liang4)` — Only one example phrase and no frequent usage indicate low value for learners.
+- `凹 wā (wa1)` — This reading has minimal evidence, with only one supporting phrase and lacks common exposure.
+- `刷 shuà (shua4)` — This reading has low general exposure with limited examples and fewer common phrases to support learning.
+- `卒 cù (cu4)` — Lacks strong example support and is connected primarily to a literary term, making it less relevant for practical learning.
+- `单 chán (chan2)` — This reading relates primarily to a historical term with very limited modern context and usage, thus it is low-value for learners.
+- `叉 chá (cha2)` — The reading has limited context and only one supporting phrase, which fails to establish practical learner value.
+- `叉 chǎ (cha3)` — With only one example phrase and no common usage, this reading lacks relevance for learners.
+- `叶 xié (xie2)` — With very limited phrases, this reading has low utility for learners in a recall game context.
+- `各 gě (ge3)` — Very limited supporting phrases and dialectal usage make it low-value for learners.
+- `吵 chāo (chao1)` — Lack of common usage in example phrases lowers its utility for learners.
+- `咋 zé (ze2)` — Lacks example phrases and basic meanings, limiting utility for learners.
+- `咋 zhā (zha1)` — Rare usage with minimal contextual support suggests it is not learner-friendly.
+- `咋 zhà (zha4)` — Only one example in evidence; does not support a useful learning context.
+- `咱 zan (zan5)` — Despite its dialectal roots, the reading lacks general usage examples, lowering learner value.
+- `哈 hà (ha4)` — This reading provides limited basic phrases and may not be practical for learners.
+- `嗒 tà (ta4)` — This reading has limited phrases and weak supporting meanings, making it low-value.
+- `嘲 zhāo (zhao1)` — The reading has limited applications with only one supporting phrase and little relevant context for learners.
+- `嚓 cā (ca1)` — This reading has only one example phrase and no clear basic meanings, making it low-value.
+- `嚣 áo (ao2)` — This reading lacks supporting basic meanings and examples, rendering it less useful.
+- `嚷 rāng (rang1)` — This reading has limited phrases and no concrete basic meanings to support learner recall.
+- `囊 nāng (nang1)` — This reading has minimal example phrases and lacks strong learner appeal.
+- `坊 fáng (fang2)` — Only one supporting phrase and specialized meaning make it low-value for learners.
+- `坏 pēi (pei1)` — Only one rare phrase and specialization limit its usefulness for learners.
+- `堡 pù (pu4)` — Reading primarily represents a specialized or archaic term used in place names.
+- `夫 fú (fu2)` — Despite having some phrases, its context is largely literary and not applicable for practical learning.
+- `娆 rǎo (rao3)` — This reading has very few phrases and low relevance for learners, justifying exclusion.
+- `家 jia (jia5)` — Limited common phrases; meanings are specialized and less likely to be familiar to young learners.
+- `寻 xín (xin2)` — Lack of basic meanings and only one example phrase reduce its learner utility.
+- `尉 yù (yu4)` — Limited example phrases; significantly low exposure for learners.
+- `尾 yǐ (yi3)` — Very little support and context for this reading, indicating it's of low value for learners.
+- `尿 suī (sui1)` — Only a few phrases and has limited practical use, making it less effective for learning.
+- `屯 zhūn (zhun1)` — Only one supporting phrase and limited context make this reading of low utility for learners.
+- `岗 gāng (gang1)` — Has very limited phrases and lacks basic meanings, indicating low practicality for learners.
+- `恶 wū (wu1)` — Very specific usages and limited examples make this reading less relevant for learners.
+- `扎 zhá (zha2)` — Supported by very few phrases and lacks common usage, this reading presents low learner value.
+- `打 dá (da2)` — Limited to one phrase, this reading fails to provide enough learner-facing applications.
+- `扛 gāng (gang1)` — This reading has only one example phrase, showing it has low learning value for recall.
+- `扳 pān (pan1)` — Limited evidence with only one common phrase makes this reading low-value.
+- `抡 lún (lun2)` — Only one rare phrase and negligible basic meanings reduce its practical value for learners.
+- `拂 bì (bi4)` — Lack of clear supporting phrases and presence of only one example, indicating low value for learning.
+- `拆 cā (ca1)` — Only one supporting phrase and dialectal in nature, indicating low learner relevance.
+- `拓 tà (ta4)` — Limited example phrases with rare usage, indicating low learner value.
+- `拗 ǎo (ao3)` — Only one example phrase present, indicating limited utility in learner recall.
+- `拧 níng (ning2)` — Limited example phrases and no common usage, suggesting low familiarity for learners.
+- `拽 zhuāi (zhuai1)` — Only one example phrase exists with minimal context, which limits its educational utility for learners.
+- `拾 shè (she4)` — This reading is tied to a very specific action with limited contemporary usage, making it less useful for learners.
+- `擞 sòu (sou4)` — This reading is exceptionally specialized with no strong examples or meanings, indicating its low value.
+- `服 fù (fu4)` — With only one specific example related to medicine and no strong common phrases, this reading offers limited educational utility.
+- `柜 jǔ (ju3)` — Insufficient supporting phrases; very specialized meaning suggesting low exposure for learners.
+- `栅 shān (shan1)` — It is specialized and lacks sufficient example phrases to be beneficial for learners.
+- `核 hú (hu2)` — This reading has limited examples and phrases, making it low-value in a learning context.
+- `桔 jié (jie2)` — Has very few phrases and is contextually narrow, limiting its utility for learners.
+- `氓 méng (meng2)` — Limited to a historical or literary context, this reading lacks contemporary relevance or common usage for learners.
+- `汗 hán (han2)` — Only one example phrase and no basic meanings make it impractical for learners.
+- `汤 shāng (shang1)` — Only one supporting phrase and archaic usage limit its relevance for learners.
+- `派 pā (pa1)` — Lacks clear basic meanings and widespread usage. Only has one supporting phrase, making it less useful for learners.
+- `渐 jiān (jian1)` — Lacks strong common phrases and high exposure; less familiar meanings.
+- `溅 jiān (jian1)` — Lacks clear example phrases and the associated basic meaning is indicated as rare or non-standard.
+- `番 pān (pan1)` — Reading is specific to a place name, limiting its usefulness for learners.
+- `疟 yào (yao4)` — Similar to its sibling, it has very low support with minimal example phrases, making it less valuable for learners.
+- `症 zhēng (zheng1)` — Only one common phrase and insufficient supporting examples lead to low learner value.
+- `瘪 biē (bie1)` — Lacks substantial supporting phrases, only has one example, which limits its value for learner comprehension.
+- `碌 liù (liu4)` — The reading has very limited use and mostly outdated reference, suitable meanings are rare.
+- `秘 bì (bi4)` — Only one common supporting phrase with no further evidence of use, indicating low exposure.
+- `稍 shào (shao4)` — Limited examples and phrases suggest it's not essential for learners.
+- `簸 bò (bo4)` — This reading has minimal phrase usage and lacks supporting basic meanings.
+- `糊 hū (hu1)` — The reading is not supported by clear basic meanings and contains only one example, indicating low learning value.
+- `约 yāo (yao1)` — Sparse examples and minimal relevance to learners decrease its value.
+- `纹 wèn (wen4)` — Sparse examples and no common phrases limit its utility for learners in recall games.
+- `绰 chāo (chao1)` — Only one supporting phrase; lacks common usage in children's language.
+- `综 zèng (zeng4)` — Reading has limited practical phrases and is overly specialized, primarily referring to a weaving device.
+- `绿 lù (lu4)` — Reading is primarily used in specific contexts or names rather than in common speech.
+- `缴 zhuó (zhuo2)` — Insufficient supporting evidence with only one example phrase, limiting its utility for learners.
+- `胖 pán (pan2)` — Limited practical usage with only one example and no common phrases, which reduces its learner value.
+- `胳 gé (ge2)` — Only one example phrase with low context, indicating diminished learner recall relevance.
+- `腊 xī (xi1)` — The reading has very limited practical use with few associated phrases and archaic meanings.
+- `般 bō (bo1)` — Lack of basic meanings and minimal example phrases show low practical value for learners.
+- `般 pán (pan2)` — Lack of basic meanings with only two unclear example phrases suggests low utility for learners.
+- `节 jiē (jie1)` — Only one supporting phrase available and lacks practical relevance, indicating low learning value.
+- `荤 xūn (xun1)` — This reading lacks meaning and example phrases, making it not useful for learners.
+- `荫 yìn (yin4)` — Although it has some phrases, the evidence suggests a low value for basic language learning.
+- `菌 jùn (jun4)` — Only one example phrase; lacks common usage and exposure.
+- `蕉 qiáo (qiao2)` — The reading's evidence is sparse with only one common phrase and lacks practical significance for learners.
+- `藉 jí (ji2)` — This reading is rare with limited example usage and lacks strong learner-facing phrases.
+- `虎 hù (hu4)` — Absence of meaning and basic phrases suggests this reading is not practical for learners.
+- `虾 há (ha2)` — This reading has insufficient basic meanings or frequent usage, making it less valuable for recall.
+- `蚂 mā (ma1)` — It has limited supporting phrases and basic meanings which makes it poor for learning.
+- `蚌 bèng (beng4)` — Only one common supporting phrase and no widespread usage, making it low learning value.
+- `解 jiè (jie4)` — Has few practical applications in learner contexts despite having some phrases.
+- `识 zhì (zhi4)` — Limited supportive phrases and examples suggest a poor fit for teaching and recall purposes.
+- `语 yù (yu4)` — This reading has minimal supporting phrases and is not commonly encountered in typical learning contexts.
+- `读 dòu (dou4)` — Only one example phrase; does not provide strong learner-facing meanings or common usage.
+- `谜 mèi (mei4)` — No clear definitions of reading-specific meanings; very limited common phrases.
+- `贾 gǔ (gu3)` — Lacks basic meanings and examples, making it less practical for learners compared to other readings.
+- `蹬 dèng (deng4)` — This reading lacks basic meanings and has few example phrases, which diminishes its learner value.
+- `蹲 cún (cun2)` — This reading has limited examples and no strong supporting phrases, indicating low value.
+- `这 zhèi (zhei4)` — Only three examples without clear learner-facing utility, making it low-value for recall.
+- `迫 pǎi (pai3)` — This reading is tied to a specialized term (howitzer) with no compelling phrases, reducing its practical learning value.
+- `邪 yé (ye2)` — This reading has only one example phrase, showing it has low exposure and practical value.
+- `雀 qiāo (qiao1)` — Limited to one example phrase and low exposure; less familiar for children.
+- `雅 yā (ya1)` — Reading-specific meanings are unclear and commonly used phrases are lacking.
+- `雨 yù (yu4)` — Absence of common phrases; weak learner-facing context renders it low-value.
+- `靡 mǐ (mi3)` — This reading has weak supporting phrases and lacks common usage, indicating low educational value.
+- `颤 zhàn (zhan4)` — This reading lacks meaningful supporting phrases and is otherwise unappealing for learners.
+- `食 sì (si4)` — Despite the examples, this reading does not have enough common phrases to justify inclusion.
+- `食 yì (yi4)` — This reading has a very narrow context, specifically tied to a person's name, with no common phrases making it low-value for learners.
+- `饮 yìn (yin4)` — Lacks basic meanings and has very limited supporting phrases, indicating low learner value.
+- `龟 qiū (qiu1)` — Very limited example and context for this reading, indicating low usability for learning.

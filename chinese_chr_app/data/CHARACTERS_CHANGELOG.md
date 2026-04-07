@@ -6,6 +6,39 @@ This file records changes to the character bank (character set, source data, and
 
 ---
 
+## 2026-04-07 — Confirmed low-learning-value unit removals + history cleanup
+
+- **What:** Permanently removed `122` confirmed low-learning-value `character + reading` units from the HWXNet source corpus after the AI-assisted review workflow and manual true/false-positive pass under `review_low_learning_value_units_using_ai/`.
+- **Scope:** `116` HWXNet character rows changed overall. This pass removed only the confirmed reading units, not whole characters.
+- **Source-data apply:** Updated `data/extracted_characters_hwxnet.json` in place by pruning the confirmed readings from:
+  - top-level `拼音`
+  - `基本字义解释`
+  - `常用词组按拼音`
+  - `英文解释按拼音`
+  - then rebuilding flat compatibility fields `常用词组` and `英文翻译` from the remaining reading buckets
+- **Local JSON backup:** Before overwriting the main JSON, created:
+  - `data/backups/extracted_characters_hwxnet.20260407_043640-low-learning-value-removals-backup.json`
+- **Supabase HWXNet backup + sync:** Before syncing the changed rows into the live `hwxnet_characters` table, created:
+  - `hwxnet_characters_backup_20260407_043703`
+  - then upserted the `116` changed HWXNet rows from the cleaned JSON
+- **User-history cleanup:** Also removed matching confirmed units from users' Pinyin Recall learning state/history using explicit `unit_id` matches:
+  - deleted `31` rows from `pinyin_recall_unit_bank`
+  - deleted `175` rows from `pinyin_recall_item_presented`
+  - deleted `133` rows from `pinyin_recall_item_answered`
+  - deleted `0` rows from `user_prioritized_characters`
+- **Supabase history-table backups:** Before any delete pass, created:
+  - `pinyin_recall_unit_bank_backup_20260407_043701`
+  - `pinyin_recall_item_presented_backup_20260407_043701`
+  - `pinyin_recall_item_answered_backup_20260407_043701`
+  - `user_prioritized_characters_backup_20260407_043701`
+- **Audit/provenance note:** Kept `pinyin_recall_report_error` and `pinyin_recall_disabled_units` intact as audit history. This pass removed the units from source data and from user learning history, not from the report/error trail.
+- **Scripts / artifacts:**
+  - `review_low_learning_value_units_using_ai/scripts/apply_confirmed_low_learning_value_unit_removals.py`
+  - `review_low_learning_value_units_using_ai/scripts/remove_confirmed_units_from_learning_history.py`
+  - `review_low_learning_value_units_using_ai/batch_artifacts/low_learning_value_units.confirmed_true_positives.json`
+  - `review_low_learning_value_units_using_ai/batch_artifacts/low_learning_value_units.applied_removals.json`
+  - `review_low_learning_value_units_using_ai/batch_artifacts/low_learning_value_units.learning_history_cleanup.json`
+
 ## 2026-03-28 — 嘛 / 嗯 Feng Search fixes (#34, #35)
 
 - **What:** Corrected the Feng rows for `嘛` and `嗯` so their Search-side pinyin and example data now match the intended readings reported in issues `#34` and `#35`.

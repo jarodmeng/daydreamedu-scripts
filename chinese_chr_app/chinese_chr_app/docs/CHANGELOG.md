@@ -6,6 +6,12 @@ Release history and version notes. Newest releases are at the top.
 
 ---
 
+## [v0.3.3]
+
+- **AI review + operator confirmation for low-learning-value units:** Add a dedicated workflow to review enabled polyphonic units, save true/false-positive decisions, and produce a confirmed-removals artifact.
+- **Permanent removal rollout:** Remove confirmed low-learning-value `character + reading` units from HWXNet source data and matching user Pinyin Recall history, with backup-first sync/cleanup steps for local JSON and Supabase tables.
+- **Prompt/candidate refinement and docs:** Exclude Feng-supported readings from the candidate pool, tighten the AI prompt toward standalone learner value, and document the workflow/apply steps with focused test coverage.
+
 ## [v0.3.2]
 
 - **User-prioritized Pinyin Recall queueing:** Add `user_prioritized_characters` support so per-user reading-level priority targets can front-load eligible 新字 without changing Expansion / Consolidation / Rescue slot counts, including explicit out-of-window overrides for targeted new items.

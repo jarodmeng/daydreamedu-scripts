@@ -9,6 +9,7 @@ This document describes how the Chinese character app’s character bank is prod
 - **HWXNet** (zd.hwxnet.com) is the external dictionary we scrape for character data.
 - **`extracted_characters_hwxnet.json`** (in this folder) is our local mirror of that data. When we run the batch extract script (see below), this file is updated to match what we extract from HWXNet. **Note:** After a one-time restore (2026-03-02), the current file is a *hybrid*: all fields except 常用词组 were restored from a backup that still had the AI-merged 英文翻译 and 拼音; 常用词组 comes from the post–batch-extract file. A later transition field, `常用词组按拼音`, was added alongside the flat `常用词组` list. It is derived from the reviewed phrase-reading artifact for polyphonic rows and mechanical wrapping for monophonic rows. On 2026-03-27, we also reviewed `基本字义解释[].读音` values that existed only inside `basic_meanings` and not in the top-level `拼音` list, removing archaic/noisy extras and correcting obvious typos before syncing the DB. On the same day, `嗯` received a fully curated manual entry: top-level `拼音` was normalized to tone-mark form (`ǹg`, `ńg`, `ňg`) and `基本字义解释` was populated with reading-specific interjection senses. So for the current state, 英文翻译 and 拼音 do *not* reflect a raw HWXNet re-fetch—they reflect the pre-restore backup plus later curated fixes. See CHARACTERS_CHANGELOG.md for the restore and transition entries.
 - **Additional 2026-03-27 curation pass:** After the `basic_meanings` extra-reading cleanup above, we ran a second manual review focused on *uncovered polyphonic readings* under a stricter coverage rule: a reading is only considered covered when it has at least one example word in `基本字义解释[].释义[].例词`, `常用词组按拼音[].Phrases`, or Feng `WordsByPinyin[].Phrases`. That pass removed `506` low-value readings and added `23` manual sample words into `常用词组按拼音`, overwriting `extracted_characters_hwxnet.json` in place after creating `data/backups/extracted_characters_hwxnet.20260327-polyphonic-reading-review-backup.json`. See `2026-03-27-polyphonic-reading-review.md` for the full removed/added reading list and `hwxnet_polyphonic_uncovered_reading_decisions.json` for the decision artifact.
+- **Additional 2026-04-07 curation pass:** We then ran a separate review focused on *low-learning-value enabled polyphonic units* rather than uncovered readings. The review universe was limited to enabled runtime units from polyphonic characters and excluded readings with Feng support. AI proposed candidates, operator review confirmed true/false positives, and the confirmed `122` low-value reading units were pruned from `extracted_characters_hwxnet.json` in place after creating `data/backups/extracted_characters_hwxnet.20260407_043640-low-learning-value-removals-backup.json`. The same rollout also removed matching `unit_id`s from users' Pinyin Recall learning/history tables in Supabase. See `2026-04-07-low-learning-value-unit-removals.md` for the full removed-unit list and rollout details.
 - **Supabase table `hwxnet_characters`** is populated *from* the JSON file. It is the runtime source for the app (search, character cards, pinyin recall). The JSON is the source of truth for *content*; the DB is the deployed copy. `hwxnet_characters` now stores both legacy flat `common_phrases` and the structured transition field `common_phrases_by_pinyin`.
 
 ---
@@ -49,6 +50,11 @@ Optional: uncovered polyphonic reading review
     → review_uncovered_polyphonic_readings.py decisions artifact
     → Removes unsupported polyphonic readings or adds manual sample words into 常用词组按拼音
     → Updates extracted_characters_hwxnet.json
+
+Optional: low-learning-value unit review
+    → review_low_learning_value_units_using_ai/ artifacts + operator decisions
+    → Removes confirmed low-learning-value polyphonic reading units from extracted_characters_hwxnet.json
+    → Also removes matching unit_ids from user Pinyin Recall history/state tables
 
 Load to DB (backend/scripts/characters/create_hwxnet_characters_table.py)
     → hwxnet_characters table (character, pinyin, english_translations, etc.)
@@ -106,6 +112,7 @@ Pinyin search uses the **`searchable_pinyin`** column in `hwxnet_characters`. Th
 | AI gloss merge | `generate_english_meaning_using_ai/scripts/merge_glosses_into_hwxnet.py` |
 | Review extra `basic_meanings` readings | `chinese_chr_app/backend/scripts/characters/review_extra_basic_meanings_pinyin.py` |
 | Review uncovered polyphonic readings | `chinese_chr_app/backend/scripts/characters/review_uncovered_polyphonic_readings.py` |
+| Review/apply low-learning-value removals | `review_low_learning_value_units_using_ai/` |
 | Load JSON → DB | `chinese_chr_app/backend/scripts/characters/create_hwxnet_characters_table.py` |
 | Backfill `common_phrases_by_pinyin` | `chinese_chr_app/backend/scripts/characters/add_common_phrases_by_pinyin_column.py` |
 | Backfill searchable_pinyin | `chinese_chr_app/backend/scripts/characters/add_searchable_pinyin_column.py` |
@@ -121,6 +128,7 @@ The JSON keys (e.g. 分类, 拼音, 部首, 总笔画, 基本字义解释, 英�
 - **常用词组按拼音** now exists in the JSON as the structured transition field, using the same bucket shape as Feng `WordsByPinyin`, and is stored in DB as `common_phrases_by_pinyin`.
 - **基本字义解释** remains the HWXNet-derived explanation structure, but its `读音` values may now include reviewed corrections/removals from `review_extra_basic_meanings_pinyin.py` where raw extract-only readings were judged to be typo/noise/undesired extras.
 - **拼音 / 基本字义解释 / 常用词组按拼音** may also reflect the later uncovered-reading review from `review_uncovered_polyphonic_readings.py`, which either removed a low-value uncovered reading entirely or added a manual phrase into `常用词组按拼音` so the reading is represented by at least one sample word.
+- **拼音 / 基本字义解释 / 常用词组按拼音 / 英文解释按拼音** may also reflect the later low-learning-value removal pass from `review_low_learning_value_units_using_ai/`, which permanently pruned confirmed low-value polyphonic reading units from the learner-facing corpus and then synced the cleaned rows back into `hwxnet_characters`.
 - The reviewed artifact `extracted_hwxnet_common_phrase_character_readings.reviewed.json` is kept in git as the provenance source for polyphonic bucket assignments.
 - Current conservative consumers prefer the structured field first, then flatten it back into legacy phrase order when reading-aware handling is not yet needed.
 - Legacy flat `常用词组` remains compatibility data for older or still-migrating consumers.
