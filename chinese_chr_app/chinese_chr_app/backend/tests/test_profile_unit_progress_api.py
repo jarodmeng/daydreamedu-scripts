@@ -3,6 +3,7 @@
 
 import os
 import sys
+from datetime import date
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -11,6 +12,99 @@ os.environ["IMPORT_SMOKE_TEST"] = "1"
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 import app as app_module
+import database as database_module
+
+
+def test_build_pinyin_recall_practice_summary_returns_empty_for_no_rows():
+    assert database_module._build_pinyin_recall_practice_summary([], today_utc=date(2026, 4, 7)) == []
+
+
+def test_build_pinyin_recall_practice_summary_aggregates_rolling_windows():
+    rows = [
+        {
+            "date": date(2026, 4, 7),
+            "answered": 5,
+            "correct": 4,
+            "新字_answered": 2,
+            "新字_correct": 1,
+            "巩固_answered": 2,
+            "巩固_correct": 2,
+            "重测_answered": 1,
+            "重测_correct": 1,
+        },
+        {
+            "date": date(2026, 4, 3),
+            "answered": 4,
+            "correct": 3,
+            "新字_answered": 1,
+            "新字_correct": 1,
+            "巩固_answered": 0,
+            "巩固_correct": 0,
+            "重测_answered": 3,
+            "重测_correct": 2,
+        },
+        {
+            "date": date(2026, 3, 15),
+            "answered": 3,
+            "correct": 2,
+            "新字_answered": 0,
+            "新字_correct": 0,
+            "巩固_answered": 3,
+            "巩固_correct": 2,
+            "重测_answered": 0,
+            "重测_correct": 0,
+        },
+        {
+            "date": date(2026, 1, 15),
+            "answered": 6,
+            "correct": 5,
+            "新字_answered": 4,
+            "新字_correct": 3,
+            "巩固_answered": 2,
+            "巩固_correct": 2,
+            "重测_answered": 0,
+            "重测_correct": 0,
+        },
+    ]
+
+    summary = database_module._build_pinyin_recall_practice_summary(rows, today_utc=date(2026, 4, 7))
+
+    assert [item["key"] for item in summary] == [
+        "last_7_days",
+        "last_30_days",
+        "last_90_days",
+        "lifetime",
+    ]
+
+    last_7_days = summary[0]
+    assert last_7_days["label"] == "最近7天"
+    assert last_7_days["active_days"] == 2
+    assert last_7_days["answered"] == 9
+    assert last_7_days["correct"] == 7
+    assert last_7_days["accuracy_pct"] == 78
+    assert last_7_days["by_category"]["新字"] == {"answered": 3, "correct": 2}
+    assert last_7_days["by_category"]["巩固"] == {"answered": 2, "correct": 2}
+    assert last_7_days["by_category"]["重测"] == {"answered": 4, "correct": 3}
+
+    last_30_days = summary[1]
+    assert last_30_days["active_days"] == 3
+    assert last_30_days["answered"] == 12
+    assert last_30_days["correct"] == 9
+    assert last_30_days["accuracy_pct"] == 75
+
+    last_90_days = summary[2]
+    assert last_90_days["active_days"] == 4
+    assert last_90_days["answered"] == 18
+    assert last_90_days["correct"] == 14
+
+    lifetime = summary[3]
+    assert lifetime["active_days"] == 4
+    assert lifetime["answered"] == 18
+    assert lifetime["correct"] == 14
+    assert lifetime["accuracy_pct"] == 78
+    assert lifetime["by_category"]["新字"] == {"answered": 7, "correct": 5}
+    assert lifetime["by_category"]["巩固"] == {"answered": 7, "correct": 6}
+    assert lifetime["by_category"]["重测"] == {"answered": 4, "correct": 3}
 
 
 def _set_auth(monkeypatch):
@@ -30,6 +124,21 @@ def test_profile_progress_returns_unit_level_denominator(monkeypatch):
         get_character_views_count_for_user=lambda user_id: 12,
         get_character_views_recent_for_user=lambda user_id, limit=50: ["行", "和"],
         get_pinyin_recall_daily_stats=lambda user_id, days=30: [],
+        get_pinyin_recall_practice_summary=lambda user_id: [
+            {
+                "key": "last_7_days",
+                "label": "最近7天",
+                "active_days": 2,
+                "answered": 9,
+                "correct": 7,
+                "accuracy_pct": 78,
+                "by_category": {
+                    "新字": {"answered": 3, "correct": 2},
+                    "巩固": {"answered": 2, "correct": 2},
+                    "重测": {"answered": 4, "correct": 3},
+                },
+            }
+        ],
         get_pinyin_recall_category_daily_trend=lambda user_id, days=60: [],
         get_pinyin_recall_category_counts=lambda user_id: {
             "total_units": 904,
@@ -51,12 +160,16 @@ def test_profile_progress_returns_unit_level_denominator(monkeypatch):
     assert response.status_code == 200
     payload = response.get_json()
     proficiency = payload["proficiency"]
+    practice_summary = payload["practice_summary"]
     assert proficiency["total_units"] == 904
     assert proficiency["total_characters"] == 904
     assert proficiency["description"] == "200 / 904"
     assert proficiency["learned_count"] == 200
     assert proficiency["learning_count"] == 50
     assert proficiency["not_tested_count"] == 654
+    assert practice_summary[0]["label"] == "最近7天"
+    assert practice_summary[0]["active_days"] == 2
+    assert practice_summary[0]["accuracy_pct"] == 78
 
 
 def test_profile_category_returns_unit_entries(monkeypatch):

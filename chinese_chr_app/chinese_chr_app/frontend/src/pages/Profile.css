@@ -304,6 +304,16 @@
   max-width: 100%;
 }
 
+.profile-practice-summary {
+  margin-bottom: 20px;
+}
+
+.profile-practice-summary-heading {
+  margin: 0 0 10px;
+  font-size: 1rem;
+  color: #444;
+}
+
 .profile-daily-table {
   width: 100%;
   min-width: 0;
@@ -329,6 +339,18 @@
 .profile-daily-table td:nth-child(5),
 .profile-daily-table td:nth-child(6),
 .profile-daily-table td:nth-child(7) { text-align: center; }
+
+.profile-summary-table th:nth-child(1) { width: 16%; }   /* 时间范围 */
+.profile-summary-table th:nth-child(2) { width: 10%; }   /* 活跃天数 */
+.profile-summary-table th:nth-child(3) { width: 10%; }   /* 答题数 */
+.profile-summary-table th:nth-child(4) { width: 10%; }   /* 正确数 */
+.profile-summary-table th:nth-child(5) { width: 10%; }   /* 正确率 */
+.profile-summary-table th:nth-child(6),
+.profile-summary-table th:nth-child(7),
+.profile-summary-table th:nth-child(8) { width: 14%; text-align: center; }
+.profile-summary-table td:nth-child(6),
+.profile-summary-table td:nth-child(7),
+.profile-summary-table td:nth-child(8) { text-align: center; }
 
 .profile-daily-table th {
   font-weight: 600;

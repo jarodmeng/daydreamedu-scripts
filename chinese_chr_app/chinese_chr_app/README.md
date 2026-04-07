@@ -2,11 +2,11 @@
 
 A web application to help primary school students learn simplified Chinese characters. It combines utility features (character search, radicals, stroke counts, pinyin search) with learning features (personalized pinyin-recall practice) and is data-driven and customized per logged-in user.
 
-**Current version: v0.3.3**
+**Current version: v0.3.4**
 
 Recent major upgrade: Pinyin Recall now uses reading-level learning units for polyphonic characters, with unit-aware runtime prompts, persistence, answer logs, and profile progress. The app now fully consumes the reading-aware transition fields already added to Feng and HWXNet data (`WordsByPinyin`, `常用词组按拼音` / `common_phrases_by_pinyin`, and `英文解释按拼音` / `english_translations_by_pinyin`) for pinyin-recall behavior. Reported bad units from real authenticated users are now taken out of future Pinyin Recall circulation globally.
 
-Latest release: Add backup-first cleanup tooling to permanently remove confirmed low-learning-value reading units from HWXNet source data and from users' Pinyin Recall learning history, alongside the earlier AI-assisted review workflow and confirmed-removals artifact.
+Latest release: Add multi-period `每日练习统计` summaries on the 我的 page, with rolling `最近7天` / `最近1个月` / `最近1季度` plus `累计` totals, active-day counts, and category breakdowns.
 
 ---
 

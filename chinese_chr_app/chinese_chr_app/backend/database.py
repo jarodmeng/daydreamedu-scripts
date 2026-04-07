@@ -7,7 +7,7 @@ Uses Psycopg 3 (psycopg[binary]>=3.1) for Python 3.13+ compatibility.
 
 import json
 import os
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional, Tuple
 
 from english_translations import (
@@ -846,6 +846,99 @@ def get_pinyin_recall_daily_stats(user_id: str, days: int = 30) -> List[Dict[str
             }
             for r in rows
         ]
+    finally:
+        conn.close()
+
+
+def _build_pinyin_recall_practice_summary(
+    daily_rows: List[Dict[str, Any]],
+    today_utc: Optional[date] = None,
+) -> List[Dict[str, Any]]:
+    """Aggregate UTC day-level practice rows into rolling summary windows."""
+    if not daily_rows:
+        return []
+
+    today = today_utc or datetime.now(timezone.utc).date()
+    windows = [
+        ("last_7_days", "最近7天", 7),
+        ("last_30_days", "最近1个月", 30),
+        ("last_90_days", "最近1季度", 90),
+        ("lifetime", "累计", None),
+    ]
+    summary: List[Dict[str, Any]] = []
+
+    for key, label, days in windows:
+        if days is None:
+            selected_rows = daily_rows
+        else:
+            cutoff = today - timedelta(days=days - 1)
+            selected_rows = [
+                row for row in daily_rows
+                if isinstance(row.get("date"), date) and row["date"] >= cutoff
+            ]
+
+        answered = sum(int(row.get("answered") or 0) for row in selected_rows)
+        correct = sum(int(row.get("correct") or 0) for row in selected_rows)
+
+        by_category = {}
+        for category in (
+            PINYIN_RECALL_CATEGORY_NEW,
+            PINYIN_RECALL_CATEGORY_CONFIRM,
+            PINYIN_RECALL_CATEGORY_REVISE,
+        ):
+            cat_answered = sum(int(row.get(f"{category}_answered") or 0) for row in selected_rows)
+            cat_correct = sum(int(row.get(f"{category}_correct") or 0) for row in selected_rows)
+            by_category[category] = {
+                "answered": cat_answered,
+                "correct": cat_correct,
+            }
+
+        summary.append(
+            {
+                "key": key,
+                "label": label,
+                "active_days": len(selected_rows),
+                "answered": answered,
+                "correct": correct,
+                "accuracy_pct": round((correct / answered) * 100) if answered > 0 else 0,
+                "by_category": by_category,
+            }
+        )
+
+    return summary
+
+
+def get_pinyin_recall_practice_summary(user_id: str) -> List[Dict[str, Any]]:
+    """Return rolling and lifetime practice summaries grouped from UTC day-level stats."""
+    conn = _get_connection()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                SELECT
+                    DATE(created_at AT TIME ZONE 'UTC') AS date,
+                    COUNT(*) AS answered,
+                    SUM(CASE WHEN correct THEN 1 ELSE 0 END)::int AS correct,
+                    COUNT(*) FILTER (WHERE category = %s) AS 新字_answered,
+                    COALESCE(SUM(CASE WHEN correct AND category = %s THEN 1 ELSE 0 END), 0)::int AS 新字_correct,
+                    COUNT(*) FILTER (WHERE category = %s) AS 巩固_answered,
+                    COALESCE(SUM(CASE WHEN correct AND category = %s THEN 1 ELSE 0 END), 0)::int AS 巩固_correct,
+                    COUNT(*) FILTER (WHERE category = %s) AS 重测_answered,
+                    COALESCE(SUM(CASE WHEN correct AND category = %s THEN 1 ELSE 0 END), 0)::int AS 重测_correct
+                FROM pinyin_recall_item_answered
+                WHERE user_id = %s
+                GROUP BY DATE(created_at AT TIME ZONE 'UTC')
+                ORDER BY date DESC
+                """,
+                (
+                    PINYIN_RECALL_CATEGORY_NEW, PINYIN_RECALL_CATEGORY_NEW,
+                    PINYIN_RECALL_CATEGORY_CONFIRM, PINYIN_RECALL_CATEGORY_CONFIRM,
+                    PINYIN_RECALL_CATEGORY_REVISE, PINYIN_RECALL_CATEGORY_REVISE,
+                    user_id.strip(),
+                ),
+            )
+            rows = cur.fetchall()
+        return _build_pinyin_recall_practice_summary(rows)
     finally:
         conn.close()
 

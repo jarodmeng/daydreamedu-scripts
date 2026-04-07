@@ -1144,6 +1144,7 @@ def get_profile_progress():
         viewed_count = db.get_character_views_count_for_user(user.user_id)
         viewed_recent = db.get_character_views_recent_for_user(user.user_id, limit=50)
         daily_stats = db.get_pinyin_recall_daily_stats(user.user_id, days=30)
+        practice_summary = db.get_pinyin_recall_practice_summary(user.user_id)
         category_trend = db.get_pinyin_recall_category_daily_trend(user.user_id, days=60)
         category_counts = db.get_pinyin_recall_category_counts(user.user_id)
         learned_count = category_counts["learned"]
@@ -1166,6 +1167,7 @@ def get_profile_progress():
                 "learned_normal": category_counts.get("learned_normal", 0),
             },
             "daily_stats": daily_stats,
+            "practice_summary": practice_summary,
             "category_trend": category_trend,
         })
     except Exception as e:

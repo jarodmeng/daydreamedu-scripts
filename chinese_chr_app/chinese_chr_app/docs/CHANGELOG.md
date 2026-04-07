@@ -6,6 +6,12 @@ Release history and version notes. Newest releases are at the top.
 
 ---
 
+## [v0.3.4]
+
+- **Profile multi-period practice summaries (#37):** Add a `阶段汇总` subsection inside `每日练习统计` on the 我的 page with rolling `最近7天`, `最近1个月`, `最近1季度`, and `累计` summary rows.
+- **Profile progress API extension:** `GET /api/profile/progress` now returns `practice_summary` alongside `daily_stats`, including `活跃天数`, totals, accuracy, and `新字` / `巩固` / `重测` breakdowns for each period.
+- **Coverage and UI polish:** Reuse the existing daily-stat category cell style for the new summary table, keep the daily detail table below it, and add focused backend plus Playwright coverage for both populated and empty-history states.
+
 ## [v0.3.3]
 
 - **AI review + operator confirmation for low-learning-value units:** Add a dedicated workflow to review enabled polyphonic units, save true/false-positive decisions, and produce a confirmed-removals artifact.

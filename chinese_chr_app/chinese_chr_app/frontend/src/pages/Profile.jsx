@@ -15,6 +15,23 @@ import './Profile.css'
 const API_BASE = import.meta.env.VITE_API_URL || ''
 const TOTAL_UNITS_FALLBACK = 3664
 
+function formatCategoryStats(answered, correct) {
+  if (answered <= 0) return null
+  const pct = Math.round((correct / answered) * 100)
+  return { ratio: `${correct}/${answered}`, pct }
+}
+
+function CategoryStatCell({ answered, correct }) {
+  const value = formatCategoryStats(answered, correct)
+  if (!value) return <td className="profile-stat-category">–</td>
+  return (
+    <td className="profile-stat-category" title={`${value.ratio} = ${value.pct}%`}>
+      <span className="profile-stat-category-ratio">{value.ratio}</span>
+      <span className="profile-stat-category-pct">{value.pct}%</span>
+    </td>
+  )
+}
+
 export default function Profile() {
   const { user, accessToken, profile, profileLoading, updateDisplayName } = useAuth()
   const [progress, setProgress] = useState(null)
@@ -116,6 +133,8 @@ export default function Profile() {
   const learnedNormal = proficiency?.learned_normal ?? 0
   const pct = (n) => (totalUnits > 0 ? Math.round((n / totalUnits) * 100) : 0)
   const categoryTrend = progress?.category_trend ?? []
+  const practiceSummary = progress?.practice_summary ?? []
+  const hasPracticeHistory = practiceSummary.length > 0 || (progress?.daily_stats?.length ?? 0) > 0
 
   return (
     <main className="profile-page">
@@ -316,55 +335,82 @@ export default function Profile() {
             {/* Daily stats */}
             <section className="profile-section">
               <h2>每日练习统计</h2>
-              {progress.daily_stats?.length > 0 ? (
+              {hasPracticeHistory ? (
                 <div className="profile-daily-table-wrap">
-                  <table className="profile-daily-table">
-                    <thead>
-                      <tr>
-                        <th>日期</th>
-                        <th>答题数</th>
-                        <th>正确数</th>
-                        <th>正确率</th>
-                        <th>新字</th>
-                        <th>巩固</th>
-                        <th>重测</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {progress.daily_stats.map((row) => {
-                        const acc = row.answered > 0
-                          ? Math.round((row.correct / row.answered) * 100)
-                          : 0
-                        const bc = row.by_category || {}
-                        const fmt = (a, c) => {
-                          if (a <= 0) return null
-                          const pct = Math.round((c / a) * 100)
-                          return { ratio: `${c}/${a}`, pct }
-                        }
-                        const CatCell = ({ a, c }) => {
-                          const v = fmt(a, c)
-                          if (!v) return <td className="profile-stat-category">–</td>
-                          return (
-                            <td className="profile-stat-category" title={`${v.ratio} = ${v.pct}%`}>
-                              <span className="profile-stat-category-ratio">{v.ratio}</span>
-                              <span className="profile-stat-category-pct">{v.pct}%</span>
-                            </td>
-                          )
-                        }
-                        return (
-                          <tr key={row.date}>
-                            <td>{row.date}</td>
-                            <td>{row.answered}</td>
-                            <td>{row.correct}</td>
-                            <td>{acc}%</td>
-                            <CatCell a={bc['新字']?.answered ?? 0} c={bc['新字']?.correct ?? 0} />
-                            <CatCell a={bc['巩固']?.answered ?? 0} c={bc['巩固']?.correct ?? 0} />
-                            <CatCell a={bc['重测']?.answered ?? 0} c={bc['重测']?.correct ?? 0} />
+                  {practiceSummary.length > 0 && (
+                    <div className="profile-practice-summary">
+                      <h3 className="profile-practice-summary-heading">阶段汇总</h3>
+                      <table className="profile-daily-table profile-summary-table">
+                        <thead>
+                          <tr>
+                            <th>时间范围</th>
+                            <th>活跃天数</th>
+                            <th>答题数</th>
+                            <th>正确数</th>
+                            <th>正确率</th>
+                            <th>新字</th>
+                            <th>巩固</th>
+                            <th>重测</th>
                           </tr>
-                        )
-                      })}
-                    </tbody>
-                  </table>
+                        </thead>
+                        <tbody>
+                          {practiceSummary.map((row) => {
+                            const bc = row.by_category || {}
+                            return (
+                              <tr key={row.key || row.label}>
+                                <td>{row.label}</td>
+                                <td>{row.active_days}</td>
+                                <td>{row.answered}</td>
+                                <td>{row.correct}</td>
+                                <td>{row.accuracy_pct}%</td>
+                                <CategoryStatCell answered={bc['新字']?.answered ?? 0} correct={bc['新字']?.correct ?? 0} />
+                                <CategoryStatCell answered={bc['巩固']?.answered ?? 0} correct={bc['巩固']?.correct ?? 0} />
+                                <CategoryStatCell answered={bc['重测']?.answered ?? 0} correct={bc['重测']?.correct ?? 0} />
+                              </tr>
+                            )
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+
+                  {progress.daily_stats?.length > 0 && (
+                    <>
+                      <h3 className="profile-practice-summary-heading">按日明细</h3>
+                      <table className="profile-daily-table">
+                        <thead>
+                          <tr>
+                            <th>日期</th>
+                            <th>答题数</th>
+                            <th>正确数</th>
+                            <th>正确率</th>
+                            <th>新字</th>
+                            <th>巩固</th>
+                            <th>重测</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {progress.daily_stats.map((row) => {
+                            const acc = row.answered > 0
+                              ? Math.round((row.correct / row.answered) * 100)
+                              : 0
+                            const bc = row.by_category || {}
+                            return (
+                              <tr key={row.date}>
+                                <td>{row.date}</td>
+                                <td>{row.answered}</td>
+                                <td>{row.correct}</td>
+                                <td>{acc}%</td>
+                                <CategoryStatCell answered={bc['新字']?.answered ?? 0} correct={bc['新字']?.correct ?? 0} />
+                                <CategoryStatCell answered={bc['巩固']?.answered ?? 0} correct={bc['巩固']?.correct ?? 0} />
+                                <CategoryStatCell answered={bc['重测']?.answered ?? 0} correct={bc['重测']?.correct ?? 0} />
+                              </tr>
+                            )
+                          })}
+                        </tbody>
+                      </table>
+                    </>
+                  )}
                 </div>
               ) : (
                 <p className="profile-empty">暂无拼音记忆练习记录。</p>

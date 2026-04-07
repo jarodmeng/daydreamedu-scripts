@@ -106,12 +106,22 @@ test.describe('Profile page', () => {
 
     // Daily stats section should have at least one row from the game we just played
     await expect(page.getByRole('heading', { name: '每日练习统计' })).toBeVisible();
-    const table = page.locator('.profile-daily-table');
-    await expect(table).toBeVisible();
-    for (const header of ['日期', '答题数', '正确数', '正确率', '新字', '巩固', '重测']) {
-      await expect(table.getByRole('columnheader', { name: header })).toBeVisible();
+    await expect(page.getByRole('heading', { name: '阶段汇总' })).toBeVisible();
+    const summaryTable = page.locator('.profile-summary-table');
+    await expect(summaryTable).toBeVisible();
+    for (const header of ['时间范围', '活跃天数', '答题数', '正确数', '正确率', '新字', '巩固', '重测']) {
+      await expect(summaryTable.getByRole('columnheader', { name: header })).toBeVisible();
     }
-    const rows = table.locator('tbody tr');
+    for (const label of ['最近7天', '最近1个月', '最近1季度', '累计']) {
+      await expect(summaryTable.getByText(label)).toBeVisible();
+    }
+    const table = page.locator('.profile-daily-table');
+    await expect(table.nth(1)).toBeVisible();
+    const dailyTable = table.nth(1);
+    for (const header of ['日期', '答题数', '正确数', '正确率', '新字', '巩固', '重测']) {
+      await expect(dailyTable.getByRole('columnheader', { name: header })).toBeVisible();
+    }
+    const rows = dailyTable.locator('tbody tr');
     await expect(rows.first()).toBeVisible();
   });
 });
