@@ -1,0 +1,734 @@
+[
+  {
+    "unit_id": "丁|zheng1",
+    "decision_reason": "This reading has very limited support with only one phrase and lacks additional common usage context, making it low-learning value.",
+    "confidence": 0.9,
+    "chunk_id": "chunk:0001"
+  },
+  {
+    "unit_id": "且|ju1",
+    "decision_reason": "The reading has insufficient practical usage with only one phrase, making it less valuable for learners.",
+    "confidence": 0.9,
+    "chunk_id": "chunk:0001"
+  },
+  {
+    "unit_id": "丽|li2",
+    "decision_reason": "Only one rare phrase and historical context make it less significant for learners.",
+    "confidence": 0.9,
+    "chunk_id": "chunk:0003"
+  },
+  {
+    "unit_id": "仅|jin4",
+    "decision_reason": "This reading is under-supported by phrases and lacks common usage, making it unsuitable for learners.",
+    "confidence": 0.9,
+    "chunk_id": "chunk:0001"
+  },
+  {
+    "unit_id": "令|ling2",
+    "decision_reason": "The reading is supported by inadequate evidence, with only one example phrase.",
+    "confidence": 0.9,
+    "chunk_id": "chunk:0002"
+  },
+  {
+    "unit_id": "价|jie4",
+    "decision_reason": "Insufficient supporting phrases and low common usage make this reading not suitable for circulation.",
+    "confidence": 0.9,
+    "chunk_id": "chunk:0002"
+  },
+  {
+    "unit_id": "价|jie5",
+    "decision_reason": "Low exposure and minimal evidence make this reading unlikely to assist learners effectively.",
+    "confidence": 0.9,
+    "chunk_id": "chunk:0002"
+  },
+  {
+    "unit_id": "估|gu4",
+    "decision_reason": "Only one supporting phrase with no basic meanings, making it less useful for recall.",
+    "confidence": 0.8,
+    "chunk_id": "chunk:0004"
+  },
+  {
+    "unit_id": "似|shi4",
+    "decision_reason": "Similar to others, it provides insufficient supporting phrases for practical learning use.",
+    "confidence": 0.9,
+    "chunk_id": "chunk:0002"
+  },
+  {
+    "unit_id": "体|ti1",
+    "decision_reason": "Only one example phrase and no basic meanings, suggesting low practical use for learners.",
+    "confidence": 0.8,
+    "chunk_id": "chunk:0004"
+  },
+  {
+    "unit_id": "侧|zhai1",
+    "decision_reason": "This reading has sparse examples and lacks strong common usage, which diminishes its value for teaching and recall.",
+    "confidence": 0.8,
+    "chunk_id": "chunk:0006"
+  },
+  {
+    "unit_id": "倘|chang2",
+    "decision_reason": "Only one common phrase and no sufficient supporting examples, indicating low utility.",
+    "confidence": 0.8,
+    "chunk_id": "chunk:0009"
+  },
+  {
+    "unit_id": "倡|chang1",
+    "decision_reason": "Only one example phrase and low exposure to learners create low learning value.",
+    "confidence": 0.8,
+    "chunk_id": "chunk:0009"
+  },
+  {
+    "unit_id": "冒|mo4",
+    "decision_reason": "This reading has very limited usage and lacks common phrases, reducing its learner utility.",
+    "confidence": 0.9,
+    "chunk_id": "chunk:0007"
+  },
+  {
+    "unit_id": "凉|liang4",
+    "decision_reason": "Only one example phrase and no frequent usage indicate low value for learners.",
+    "confidence": 0.8,
+    "chunk_id": "chunk:0009"
+  },
+  {
+    "unit_id": "凹|wa1",
+    "decision_reason": "This reading has minimal evidence, with only one supporting phrase and lacks common exposure.",
+    "confidence": 0.9,
+    "chunk_id": "chunk:0002"
+  },
+  {
+    "unit_id": "刷|shua4",
+    "decision_reason": "This reading has low general exposure with limited examples and fewer common phrases to support learning.",
+    "confidence": 0.8,
+    "chunk_id": "chunk:0006"
+  },
+  {
+    "unit_id": "卒|cu4",
+    "decision_reason": "Lacks strong example support and is connected primarily to a literary term, making it less relevant for practical learning.",
+    "confidence": 0.8,
+    "chunk_id": "chunk:0006"
+  },
+  {
+    "unit_id": "单|chan2",
+    "decision_reason": "This reading relates primarily to a historical term with very limited modern context and usage, thus it is low-value for learners.",
+    "confidence": 0.9,
+    "chunk_id": "chunk:0006"
+  },
+  {
+    "unit_id": "叉|cha2",
+    "decision_reason": "The reading has limited context and only one supporting phrase, which fails to establish practical learner value.",
+    "confidence": 0.9,
+    "chunk_id": "chunk:0001"
+  },
+  {
+    "unit_id": "叉|cha3",
+    "decision_reason": "With only one example phrase and no common usage, this reading lacks relevance for learners.",
+    "confidence": 0.9,
+    "chunk_id": "chunk:0001"
+  },
+  {
+    "unit_id": "叶|xie2",
+    "decision_reason": "With very limited phrases, this reading has low utility for learners in a recall game context.",
+    "confidence": 0.9,
+    "chunk_id": "chunk:0001"
+  },
+  {
+    "unit_id": "各|ge3",
+    "decision_reason": "Very limited supporting phrases and dialectal usage make it low-value for learners.",
+    "confidence": 0.9,
+    "chunk_id": "chunk:0003"
+  },
+  {
+    "unit_id": "吵|chao1",
+    "decision_reason": "Lack of common usage in example phrases lowers its utility for learners.",
+    "confidence": 0.9,
+    "chunk_id": "chunk:0003"
+  },
+  {
+    "unit_id": "咋|ze2",
+    "decision_reason": "Lacks example phrases and basic meanings, limiting utility for learners.",
+    "confidence": 0.0,
+    "chunk_id": "chunk:0005"
+  },
+  {
+    "unit_id": "咋|zha1",
+    "decision_reason": "Rare usage with minimal contextual support suggests it is not learner-friendly.",
+    "confidence": 0.0,
+    "chunk_id": "chunk:0005"
+  },
+  {
+    "unit_id": "咋|zha4",
+    "decision_reason": "Only one example in evidence; does not support a useful learning context.",
+    "confidence": 0.0,
+    "chunk_id": "chunk:0005"
+  },
+  {
+    "unit_id": "咱|zan5",
+    "decision_reason": "Despite its dialectal roots, the reading lacks general usage examples, lowering learner value.",
+    "confidence": 0.7,
+    "chunk_id": "chunk:0007"
+  },
+  {
+    "unit_id": "哈|ha4",
+    "decision_reason": "This reading provides limited basic phrases and may not be practical for learners.",
+    "confidence": 0.9,
+    "chunk_id": "chunk:0007"
+  },
+  {
+    "unit_id": "嗒|ta4",
+    "decision_reason": "This reading has limited phrases and weak supporting meanings, making it low-value.",
+    "confidence": 0.8,
+    "chunk_id": "chunk:0014"
+  },
+  {
+    "unit_id": "嘲|zhao1",
+    "decision_reason": "The reading has limited applications with only one supporting phrase and little relevant context for learners.",
+    "confidence": 0.9,
+    "chunk_id": "chunk:0013"
+  },
+  {
+    "unit_id": "嚓|ca1",
+    "decision_reason": "This reading has only one example phrase and no clear basic meanings, making it low-value.",
+    "confidence": 0.8,
+    "chunk_id": "chunk:0014"
+  },
+  {
+    "unit_id": "嚣|ao2",
+    "decision_reason": "This reading lacks supporting basic meanings and examples, rendering it less useful.",
+    "confidence": 0.9,
+    "chunk_id": "chunk:0014"
+  },
+  {
+    "unit_id": "嚷|rang1",
+    "decision_reason": "This reading has limited phrases and no concrete basic meanings to support learner recall.",
+    "confidence": 0.8,
+    "chunk_id": "chunk:0014"
+  },
+  {
+    "unit_id": "囊|nang1",
+    "decision_reason": "This reading has minimal example phrases and lacks strong learner appeal.",
+    "confidence": 0.8,
+    "chunk_id": "chunk:0014"
+  },
+  {
+    "unit_id": "坊|fang2",
+    "decision_reason": "Only one supporting phrase and specialized meaning make it low-value for learners.",
+    "confidence": 0.9,
+    "chunk_id": "chunk:0003"
+  },
+  {
+    "unit_id": "坏|pei1",
+    "decision_reason": "Only one rare phrase and specialization limit its usefulness for learners.",
+    "confidence": 0.9,
+    "chunk_id": "chunk:0003"
+  },
+  {
+    "unit_id": "堡|pu4",
+    "decision_reason": "Reading primarily represents a specialized or archaic term used in place names.",
+    "confidence": 0.6,
+    "chunk_id": "chunk:0011"
+  },
+  {
+    "unit_id": "夫|fu2",
+    "decision_reason": "Despite having some phrases, its context is largely literary and not applicable for practical learning.",
+    "confidence": 0.9,
+    "chunk_id": "chunk:0001"
+  },
+  {
+    "unit_id": "娆|rao3",
+    "decision_reason": "This reading has very few phrases and low relevance for learners, justifying exclusion.",
+    "confidence": 0.9,
+    "chunk_id": "chunk:0014"
+  },
+  {
+    "unit_id": "家|jia5",
+    "decision_reason": "Limited common phrases; meanings are specialized and less likely to be familiar to young learners.",
+    "confidence": 0.8,
+    "chunk_id": "chunk:0010"
+  },
+  {
+    "unit_id": "寻|xin2",
+    "decision_reason": "Lack of basic meanings and only one example phrase reduce its learner utility.",
+    "confidence": 0.9,
+    "chunk_id": "chunk:0003"
+  },
+  {
+    "unit_id": "尉|yu4",
+    "decision_reason": "Limited example phrases; significantly low exposure for learners.",
+    "confidence": 0.9,
+    "chunk_id": "chunk:0010"
+  },
+  {
+    "unit_id": "尾|yi3",
+    "decision_reason": "Very little support and context for this reading, indicating it's of low value for learners.",
+    "confidence": 0.8,
+    "chunk_id": "chunk:0004"
+  },
+  {
+    "unit_id": "尿|sui1",
+    "decision_reason": "Only a few phrases and has limited practical use, making it less effective for learning.",
+    "confidence": 0.8,
+    "chunk_id": "chunk:0004"
+  },
+  {
+    "unit_id": "屯|zhun1",
+    "decision_reason": "Only one supporting phrase and limited context make this reading of low utility for learners.",
+    "confidence": 0.9,
+    "chunk_id": "chunk:0001"
+  },
+  {
+    "unit_id": "岗|gang1",
+    "decision_reason": "Has very limited phrases and lacks basic meanings, indicating low practicality for learners.",
+    "confidence": 0.8,
+    "chunk_id": "chunk:0004"
+  },
+  {
+    "unit_id": "恶|wu1",
+    "decision_reason": "Very specific usages and limited examples make this reading less relevant for learners.",
+    "confidence": 0.9,
+    "chunk_id": "chunk:0008"
+  },
+  {
+    "unit_id": "扎|zha2",
+    "decision_reason": "Supported by very few phrases and lacks common usage, this reading presents low learner value.",
+    "confidence": 0.9,
+    "chunk_id": "chunk:0001"
+  },
+  {
+    "unit_id": "打|da2",
+    "decision_reason": "Limited to one phrase, this reading fails to provide enough learner-facing applications.",
+    "confidence": 0.9,
+    "chunk_id": "chunk:0001"
+  },
+  {
+    "unit_id": "扛|gang1",
+    "decision_reason": "This reading has only one example phrase, showing it has low learning value for recall.",
+    "confidence": 0.9,
+    "chunk_id": "chunk:0002"
+  },
+  {
+    "unit_id": "扳|pan1",
+    "decision_reason": "Limited evidence with only one common phrase makes this reading low-value.",
+    "confidence": 0.9,
+    "chunk_id": "chunk:0003"
+  },
+  {
+    "unit_id": "抡|lun2",
+    "decision_reason": "Only one rare phrase and negligible basic meanings reduce its practical value for learners.",
+    "confidence": 0.9,
+    "chunk_id": "chunk:0003"
+  },
+  {
+    "unit_id": "拂|bi4",
+    "decision_reason": "Lack of clear supporting phrases and presence of only one example, indicating low value for learning.",
+    "confidence": 0.0,
+    "chunk_id": "chunk:0005"
+  },
+  {
+    "unit_id": "拆|ca1",
+    "decision_reason": "Only one supporting phrase and dialectal in nature, indicating low learner relevance.",
+    "confidence": 0.0,
+    "chunk_id": "chunk:0005"
+  },
+  {
+    "unit_id": "拓|ta4",
+    "decision_reason": "Limited example phrases with rare usage, indicating low learner value.",
+    "confidence": 0.0,
+    "chunk_id": "chunk:0005"
+  },
+  {
+    "unit_id": "拗|ao3",
+    "decision_reason": "Only one example phrase present, indicating limited utility in learner recall.",
+    "confidence": 0.0,
+    "chunk_id": "chunk:0005"
+  },
+  {
+    "unit_id": "拧|ning2",
+    "decision_reason": "Limited example phrases and no common usage, suggesting low familiarity for learners.",
+    "confidence": 0.0,
+    "chunk_id": "chunk:0005"
+  },
+  {
+    "unit_id": "拽|zhuai1",
+    "decision_reason": "Only one example phrase exists with minimal context, which limits its educational utility for learners.",
+    "confidence": 0.9,
+    "chunk_id": "chunk:0006"
+  },
+  {
+    "unit_id": "拾|she4",
+    "decision_reason": "This reading is tied to a very specific action with limited contemporary usage, making it less useful for learners.",
+    "confidence": 0.9,
+    "chunk_id": "chunk:0006"
+  },
+  {
+    "unit_id": "擞|sou4",
+    "decision_reason": "This reading is exceptionally specialized with no strong examples or meanings, indicating its low value.",
+    "confidence": 0.9,
+    "chunk_id": "chunk:0014"
+  },
+  {
+    "unit_id": "服|fu4",
+    "decision_reason": "With only one specific example related to medicine and no strong common phrases, this reading offers limited educational utility.",
+    "confidence": 0.9,
+    "chunk_id": "chunk:0006"
+  },
+  {
+    "unit_id": "柜|ju3",
+    "decision_reason": "Insufficient supporting phrases; very specialized meaning suggesting low exposure for learners.",
+    "confidence": 0.0,
+    "chunk_id": "chunk:0005"
+  },
+  {
+    "unit_id": "栅|shan1",
+    "decision_reason": "It is specialized and lacks sufficient example phrases to be beneficial for learners.",
+    "confidence": 0.8,
+    "chunk_id": "chunk:0007"
+  },
+  {
+    "unit_id": "核|hu2",
+    "decision_reason": "This reading has limited examples and phrases, making it low-value in a learning context.",
+    "confidence": 0.9,
+    "chunk_id": "chunk:0008"
+  },
+  {
+    "unit_id": "桔|jie2",
+    "decision_reason": "Has very few phrases and is contextually narrow, limiting its utility for learners.",
+    "confidence": 0.9,
+    "chunk_id": "chunk:0008"
+  },
+  {
+    "unit_id": "氓|meng2",
+    "decision_reason": "Limited to a historical or literary context, this reading lacks contemporary relevance or common usage for learners.",
+    "confidence": 0.9,
+    "chunk_id": "chunk:0006"
+  },
+  {
+    "unit_id": "汗|han2",
+    "decision_reason": "Only one example phrase and no basic meanings make it impractical for learners.",
+    "confidence": 0.9,
+    "chunk_id": "chunk:0003"
+  },
+  {
+    "unit_id": "汤|shang1",
+    "decision_reason": "Only one supporting phrase and archaic usage limit its relevance for learners.",
+    "confidence": 0.9,
+    "chunk_id": "chunk:0003"
+  },
+  {
+    "unit_id": "派|pa1",
+    "decision_reason": "Lacks clear basic meanings and widespread usage. Only has one supporting phrase, making it less useful for learners.",
+    "confidence": 0.9,
+    "chunk_id": "chunk:0008"
+  },
+  {
+    "unit_id": "渐|jian1",
+    "decision_reason": "Lacks strong common phrases and high exposure; less familiar meanings.",
+    "confidence": 0.8,
+    "chunk_id": "chunk:0010"
+  },
+  {
+    "unit_id": "溅|jian1",
+    "decision_reason": "Lacks clear example phrases and the associated basic meaning is indicated as rare or non-standard.",
+    "confidence": 0.9,
+    "chunk_id": "chunk:0012"
+  },
+  {
+    "unit_id": "番|pan1",
+    "decision_reason": "Reading is specific to a place name, limiting its usefulness for learners.",
+    "confidence": 0.7,
+    "chunk_id": "chunk:0011"
+  },
+  {
+    "unit_id": "疟|yao4",
+    "decision_reason": "Similar to its sibling, it has very low support with minimal example phrases, making it less valuable for learners.",
+    "confidence": 0.9,
+    "chunk_id": "chunk:0006"
+  },
+  {
+    "unit_id": "症|zheng1",
+    "decision_reason": "Only one common phrase and insufficient supporting examples lead to low learner value.",
+    "confidence": 0.8,
+    "chunk_id": "chunk:0009"
+  },
+  {
+    "unit_id": "瘪|bie1",
+    "decision_reason": "Lacks substantial supporting phrases, only has one example, which limits its value for learner comprehension.",
+    "confidence": 0.9,
+    "chunk_id": "chunk:0013"
+  },
+  {
+    "unit_id": "碌|liu4",
+    "decision_reason": "The reading has very limited use and mostly outdated reference, suitable meanings are rare.",
+    "confidence": 0.9,
+    "chunk_id": "chunk:0012"
+  },
+  {
+    "unit_id": "秘|bi4",
+    "decision_reason": "Only one common supporting phrase with no further evidence of use, indicating low exposure.",
+    "confidence": 0.8,
+    "chunk_id": "chunk:0009"
+  },
+  {
+    "unit_id": "稍|shao4",
+    "decision_reason": "Limited examples and phrases suggest it's not essential for learners.",
+    "confidence": 0.8,
+    "chunk_id": "chunk:0011"
+  },
+  {
+    "unit_id": "簸|bo4",
+    "decision_reason": "This reading has minimal phrase usage and lacks supporting basic meanings.",
+    "confidence": 0.8,
+    "chunk_id": "chunk:0014"
+  },
+  {
+    "unit_id": "糊|hu1",
+    "decision_reason": "The reading is not supported by clear basic meanings and contains only one example, indicating low learning value.",
+    "confidence": 0.9,
+    "chunk_id": "chunk:0013"
+  },
+  {
+    "unit_id": "约|yao1",
+    "decision_reason": "Sparse examples and minimal relevance to learners decrease its value.",
+    "confidence": 0.9,
+    "chunk_id": "chunk:0003"
+  },
+  {
+    "unit_id": "纹|wen4",
+    "decision_reason": "Sparse examples and no common phrases limit its utility for learners in recall games.",
+    "confidence": 0.8,
+    "chunk_id": "chunk:0004"
+  },
+  {
+    "unit_id": "绰|chao1",
+    "decision_reason": "Only one supporting phrase; lacks common usage in children's language.",
+    "confidence": 0.9,
+    "chunk_id": "chunk:0010"
+  },
+  {
+    "unit_id": "综|zeng4",
+    "decision_reason": "Reading has limited practical phrases and is overly specialized, primarily referring to a weaving device.",
+    "confidence": 0.8,
+    "chunk_id": "chunk:0011"
+  },
+  {
+    "unit_id": "绿|lu4",
+    "decision_reason": "Reading is primarily used in specific contexts or names rather than in common speech.",
+    "confidence": 0.7,
+    "chunk_id": "chunk:0011"
+  },
+  {
+    "unit_id": "缴|zhuo2",
+    "decision_reason": "Insufficient supporting evidence with only one example phrase, limiting its utility for learners.",
+    "confidence": 0.9,
+    "chunk_id": "chunk:0013"
+  },
+  {
+    "unit_id": "胖|pan2",
+    "decision_reason": "Limited practical usage with only one example and no common phrases, which reduces its learner value.",
+    "confidence": 0.9,
+    "chunk_id": "chunk:0008"
+  },
+  {
+    "unit_id": "胳|ge2",
+    "decision_reason": "Only one example phrase with low context, indicating diminished learner recall relevance.",
+    "confidence": 0.8,
+    "chunk_id": "chunk:0009"
+  },
+  {
+    "unit_id": "腊|xi1",
+    "decision_reason": "The reading has very limited practical use with few associated phrases and archaic meanings.",
+    "confidence": 0.9,
+    "chunk_id": "chunk:0012"
+  },
+  {
+    "unit_id": "般|bo1",
+    "decision_reason": "Lack of basic meanings and minimal example phrases show low practical value for learners.",
+    "confidence": 0.9,
+    "chunk_id": "chunk:0009"
+  },
+  {
+    "unit_id": "般|pan2",
+    "decision_reason": "Lack of basic meanings with only two unclear example phrases suggests low utility for learners.",
+    "confidence": 0.9,
+    "chunk_id": "chunk:0009"
+  },
+  {
+    "unit_id": "节|jie1",
+    "decision_reason": "Only one supporting phrase available and lacks practical relevance, indicating low learning value.",
+    "confidence": 0.9,
+    "chunk_id": "chunk:0001"
+  },
+  {
+    "unit_id": "荤|xun1",
+    "decision_reason": "This reading lacks meaning and example phrases, making it not useful for learners.",
+    "confidence": 0.9,
+    "chunk_id": "chunk:0007"
+  },
+  {
+    "unit_id": "荫|yin4",
+    "decision_reason": "Although it has some phrases, the evidence suggests a low value for basic language learning.",
+    "confidence": 0.8,
+    "chunk_id": "chunk:0007"
+  },
+  {
+    "unit_id": "菌|jun4",
+    "decision_reason": "Only one example phrase; lacks common usage and exposure.",
+    "confidence": 0.9,
+    "chunk_id": "chunk:0010"
+  },
+  {
+    "unit_id": "蕉|qiao2",
+    "decision_reason": "The reading's evidence is sparse with only one common phrase and lacks practical significance for learners.",
+    "confidence": 0.9,
+    "chunk_id": "chunk:0013"
+  },
+  {
+    "unit_id": "藉|ji2",
+    "decision_reason": "This reading is rare with limited example usage and lacks strong learner-facing phrases.",
+    "confidence": 0.8,
+    "chunk_id": "chunk:0014"
+  },
+  {
+    "unit_id": "虎|hu4",
+    "decision_reason": "Absence of meaning and basic phrases suggests this reading is not practical for learners.",
+    "confidence": 0.0,
+    "chunk_id": "chunk:0005"
+  },
+  {
+    "unit_id": "虾|ha2",
+    "decision_reason": "This reading has insufficient basic meanings or frequent usage, making it less valuable for recall.",
+    "confidence": 0.8,
+    "chunk_id": "chunk:0007"
+  },
+  {
+    "unit_id": "蚂|ma1",
+    "decision_reason": "It has limited supporting phrases and basic meanings which makes it poor for learning.",
+    "confidence": 0.9,
+    "chunk_id": "chunk:0007"
+  },
+  {
+    "unit_id": "蚌|beng4",
+    "decision_reason": "Only one common supporting phrase and no widespread usage, making it low learning value.",
+    "confidence": 0.8,
+    "chunk_id": "chunk:0009"
+  },
+  {
+    "unit_id": "解|jie4",
+    "decision_reason": "Has few practical applications in learner contexts despite having some phrases.",
+    "confidence": 0.8,
+    "chunk_id": "chunk:0012"
+  },
+  {
+    "unit_id": "识|zhi4",
+    "decision_reason": "Limited supportive phrases and examples suggest a poor fit for teaching and recall purposes.",
+    "confidence": 0.8,
+    "chunk_id": "chunk:0004"
+  },
+  {
+    "unit_id": "语|yu4",
+    "decision_reason": "This reading has minimal supporting phrases and is not commonly encountered in typical learning contexts.",
+    "confidence": 0.9,
+    "chunk_id": "chunk:0008"
+  },
+  {
+    "unit_id": "读|dou4",
+    "decision_reason": "Only one example phrase; does not provide strong learner-facing meanings or common usage.",
+    "confidence": 0.9,
+    "chunk_id": "chunk:0010"
+  },
+  {
+    "unit_id": "谜|mei4",
+    "decision_reason": "No clear definitions of reading-specific meanings; very limited common phrases.",
+    "confidence": 0.9,
+    "chunk_id": "chunk:0010"
+  },
+  {
+    "unit_id": "贾|gu3",
+    "decision_reason": "Lacks basic meanings and examples, making it less practical for learners compared to other readings.",
+    "confidence": 0.9,
+    "chunk_id": "chunk:0008"
+  },
+  {
+    "unit_id": "蹬|deng4",
+    "decision_reason": "This reading lacks basic meanings and has few example phrases, which diminishes its learner value.",
+    "confidence": 0.9,
+    "chunk_id": "chunk:0014"
+  },
+  {
+    "unit_id": "蹲|cun2",
+    "decision_reason": "This reading has limited examples and no strong supporting phrases, indicating low value.",
+    "confidence": 0.8,
+    "chunk_id": "chunk:0014"
+  },
+  {
+    "unit_id": "这|zhei4",
+    "decision_reason": "Only three examples without clear learner-facing utility, making it low-value for recall.",
+    "confidence": 0.8,
+    "chunk_id": "chunk:0004"
+  },
+  {
+    "unit_id": "迫|pai3",
+    "decision_reason": "This reading is tied to a specialized term (howitzer) with no compelling phrases, reducing its practical learning value.",
+    "confidence": 0.9,
+    "chunk_id": "chunk:0006"
+  },
+  {
+    "unit_id": "邪|ye2",
+    "decision_reason": "This reading has only one example phrase, showing it has low exposure and practical value.",
+    "confidence": 0.9,
+    "chunk_id": "chunk:0002"
+  },
+  {
+    "unit_id": "雀|qiao1",
+    "decision_reason": "Limited to one example phrase and low exposure; less familiar for children.",
+    "confidence": 0.9,
+    "chunk_id": "chunk:0010"
+  },
+  {
+    "unit_id": "雅|ya1",
+    "decision_reason": "Reading-specific meanings are unclear and commonly used phrases are lacking.",
+    "confidence": 0.8,
+    "chunk_id": "chunk:0011"
+  },
+  {
+    "unit_id": "雨|yu4",
+    "decision_reason": "Absence of common phrases; weak learner-facing context renders it low-value.",
+    "confidence": 0.0,
+    "chunk_id": "chunk:0005"
+  },
+  {
+    "unit_id": "靡|mi3",
+    "decision_reason": "This reading has weak supporting phrases and lacks common usage, indicating low educational value.",
+    "confidence": 0.9,
+    "chunk_id": "chunk:0014"
+  },
+  {
+    "unit_id": "颤|zhan4",
+    "decision_reason": "This reading lacks meaningful supporting phrases and is otherwise unappealing for learners.",
+    "confidence": 0.9,
+    "chunk_id": "chunk:0014"
+  },
+  {
+    "unit_id": "食|si4",
+    "decision_reason": "Despite the examples, this reading does not have enough common phrases to justify inclusion.",
+    "confidence": 0.8,
+    "chunk_id": "chunk:0007"
+  },
+  {
+    "unit_id": "食|yi4",
+    "decision_reason": "This reading has a very narrow context, specifically tied to a person's name, with no common phrases making it low-value for learners.",
+    "confidence": 0.9,
+    "chunk_id": "chunk:0008"
+  },
+  {
+    "unit_id": "饮|yin4",
+    "decision_reason": "Lacks basic meanings and has very limited supporting phrases, indicating low learner value.",
+    "confidence": 0.8,
+    "chunk_id": "chunk:0004"
+  },
+  {
+    "unit_id": "龟|qiu1",
+    "decision_reason": "Very limited example and context for this reading, indicating low usability for learning.",
+    "confidence": 0.8,
+    "chunk_id": "chunk:0004"
+  }
+]

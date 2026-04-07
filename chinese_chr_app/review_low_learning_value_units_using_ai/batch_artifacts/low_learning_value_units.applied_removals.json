@@ -1,0 +1,1309 @@
+{
+  "confirmed_units_count": 122,
+  "removed_unit_ids": [
+    "丁|zheng1",
+    "且|ju1",
+    "丽|li2",
+    "仅|jin4",
+    "令|ling2",
+    "价|jie4",
+    "价|jie5",
+    "估|gu4",
+    "似|shi4",
+    "体|ti1",
+    "侧|zhai1",
+    "倘|chang2",
+    "倡|chang1",
+    "冒|mo4",
+    "凉|liang4",
+    "凹|wa1",
+    "刷|shua4",
+    "卒|cu4",
+    "单|chan2",
+    "叉|cha2",
+    "叉|cha3",
+    "叶|xie2",
+    "各|ge3",
+    "吵|chao1",
+    "咋|ze2",
+    "咋|zha1",
+    "咋|zha4",
+    "咱|zan5",
+    "哈|ha4",
+    "嗒|ta4",
+    "嘲|zhao1",
+    "嚓|ca1",
+    "嚣|ao2",
+    "嚷|rang1",
+    "囊|nang1",
+    "坊|fang2",
+    "坏|pei1",
+    "堡|pu4",
+    "夫|fu2",
+    "娆|rao3",
+    "家|jia5",
+    "寻|xin2",
+    "尉|yu4",
+    "尾|yi3",
+    "尿|sui1",
+    "屯|zhun1",
+    "岗|gang1",
+    "恶|wu1",
+    "扎|zha2",
+    "打|da2",
+    "扛|gang1",
+    "扳|pan1",
+    "抡|lun2",
+    "拂|bi4",
+    "拆|ca1",
+    "拓|ta4",
+    "拗|ao3",
+    "拧|ning2",
+    "拽|zhuai1",
+    "拾|she4",
+    "擞|sou4",
+    "服|fu4",
+    "柜|ju3",
+    "栅|shan1",
+    "核|hu2",
+    "桔|jie2",
+    "氓|meng2",
+    "汗|han2",
+    "汤|shang1",
+    "派|pa1",
+    "渐|jian1",
+    "溅|jian1",
+    "番|pan1",
+    "疟|yao4",
+    "症|zheng1",
+    "瘪|bie1",
+    "碌|liu4",
+    "秘|bi4",
+    "稍|shao4",
+    "簸|bo4",
+    "糊|hu1",
+    "约|yao1",
+    "纹|wen4",
+    "绰|chao1",
+    "综|zeng4",
+    "绿|lu4",
+    "缴|zhuo2",
+    "胖|pan2",
+    "胳|ge2",
+    "腊|xi1",
+    "般|bo1",
+    "般|pan2",
+    "节|jie1",
+    "荤|xun1",
+    "荫|yin4",
+    "菌|jun4",
+    "蕉|qiao2",
+    "藉|ji2",
+    "虎|hu4",
+    "虾|ha2",
+    "蚂|ma1",
+    "蚌|beng4",
+    "解|jie4",
+    "识|zhi4",
+    "语|yu4",
+    "读|dou4",
+    "谜|mei4",
+    "贾|gu3",
+    "蹬|deng4",
+    "蹲|cun2",
+    "这|zhei4",
+    "迫|pai3",
+    "邪|ye2",
+    "雀|qiao1",
+    "雅|ya1",
+    "雨|yu4",
+    "靡|mi3",
+    "颤|zhan4",
+    "食|si4",
+    "食|yi4",
+    "饮|yin4",
+    "龟|qiu1"
+  ],
+  "source_json": "/Users/jarodm/github/jarodmeng/daydreamedu-scripts/chinese_chr_app/data/extracted_characters_hwxnet.json",
+  "output_json": null,
+  "local_json_backup": null,
+  "db_sync": {
+    "backup_table": "hwxnet_characters_backup_20260407_043703",
+    "rows_upserted": 116
+  },
+  "totals": {
+    "characters_changed": 116,
+    "removed_pinyin_entries": 0,
+    "removed_basic_meanings": 0,
+    "removed_phrase_buckets": 0,
+    "removed_gloss_buckets": 0
+  },
+  "characters": [
+    {
+      "character": "丁",
+      "removed_readings": [
+        "zhēng"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "且",
+      "removed_readings": [
+        "jū"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "丽",
+      "removed_readings": [
+        "lí"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "仅",
+      "removed_readings": [
+        "jìn"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "令",
+      "removed_readings": [
+        "líng"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "价",
+      "removed_readings": [
+        "jie",
+        "jiè"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "估",
+      "removed_readings": [
+        "gù"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "似",
+      "removed_readings": [
+        "shì"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "体",
+      "removed_readings": [
+        "tī"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "侧",
+      "removed_readings": [
+        "zhāi"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "倘",
+      "removed_readings": [
+        "cháng"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "倡",
+      "removed_readings": [
+        "chāng"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "冒",
+      "removed_readings": [
+        "mò"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "凉",
+      "removed_readings": [
+        "liàng"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "凹",
+      "removed_readings": [
+        "wā"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "刷",
+      "removed_readings": [
+        "shuà"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "卒",
+      "removed_readings": [
+        "cù"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "单",
+      "removed_readings": [
+        "chán"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "叉",
+      "removed_readings": [
+        "chá",
+        "chǎ"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "叶",
+      "removed_readings": [
+        "xié"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "各",
+      "removed_readings": [
+        "gě"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "吵",
+      "removed_readings": [
+        "chāo"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "咋",
+      "removed_readings": [
+        "zhà",
+        "zhā",
+        "zé"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "咱",
+      "removed_readings": [
+        "zan"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "哈",
+      "removed_readings": [
+        "hà"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "嗒",
+      "removed_readings": [
+        "tà"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "嘲",
+      "removed_readings": [
+        "zhāo"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "嚓",
+      "removed_readings": [
+        "cā"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "嚣",
+      "removed_readings": [
+        "áo"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "嚷",
+      "removed_readings": [
+        "rāng"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "囊",
+      "removed_readings": [
+        "nāng"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "坊",
+      "removed_readings": [
+        "fáng"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "坏",
+      "removed_readings": [
+        "pēi"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "堡",
+      "removed_readings": [
+        "pù"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "夫",
+      "removed_readings": [
+        "fú"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "娆",
+      "removed_readings": [
+        "rǎo"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "家",
+      "removed_readings": [
+        "jia"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "寻",
+      "removed_readings": [
+        "xín"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "尉",
+      "removed_readings": [
+        "yù"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "尾",
+      "removed_readings": [
+        "yǐ"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "尿",
+      "removed_readings": [
+        "suī"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "屯",
+      "removed_readings": [
+        "zhūn"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "岗",
+      "removed_readings": [
+        "gāng"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "恶",
+      "removed_readings": [
+        "wū"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "扎",
+      "removed_readings": [
+        "zhá"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "打",
+      "removed_readings": [
+        "dá"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "扛",
+      "removed_readings": [
+        "gāng"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "扳",
+      "removed_readings": [
+        "pān"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "抡",
+      "removed_readings": [
+        "lún"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "拂",
+      "removed_readings": [
+        "bì"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "拆",
+      "removed_readings": [
+        "cā"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "拓",
+      "removed_readings": [
+        "tà"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "拗",
+      "removed_readings": [
+        "ǎo"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "拧",
+      "removed_readings": [
+        "níng"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "拽",
+      "removed_readings": [
+        "zhuāi"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "拾",
+      "removed_readings": [
+        "shè"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "擞",
+      "removed_readings": [
+        "sòu"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "服",
+      "removed_readings": [
+        "fù"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "柜",
+      "removed_readings": [
+        "jǔ"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "栅",
+      "removed_readings": [
+        "shān"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "核",
+      "removed_readings": [
+        "hú"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "桔",
+      "removed_readings": [
+        "jié"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "氓",
+      "removed_readings": [
+        "méng"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "汗",
+      "removed_readings": [
+        "hán"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "汤",
+      "removed_readings": [
+        "shāng"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "派",
+      "removed_readings": [
+        "pā"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "渐",
+      "removed_readings": [
+        "jiān"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "溅",
+      "removed_readings": [
+        "jiān"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "番",
+      "removed_readings": [
+        "pān"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "疟",
+      "removed_readings": [
+        "yào"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "症",
+      "removed_readings": [
+        "zhēng"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "瘪",
+      "removed_readings": [
+        "biē"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "碌",
+      "removed_readings": [
+        "liù"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "秘",
+      "removed_readings": [
+        "bì"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "稍",
+      "removed_readings": [
+        "shào"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "簸",
+      "removed_readings": [
+        "bò"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "糊",
+      "removed_readings": [
+        "hū"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "约",
+      "removed_readings": [
+        "yāo"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "纹",
+      "removed_readings": [
+        "wèn"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "绰",
+      "removed_readings": [
+        "chāo"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "综",
+      "removed_readings": [
+        "zèng"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "绿",
+      "removed_readings": [
+        "lù"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "缴",
+      "removed_readings": [
+        "zhuó"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "胖",
+      "removed_readings": [
+        "pán"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "胳",
+      "removed_readings": [
+        "gé"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "腊",
+      "removed_readings": [
+        "xī"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "般",
+      "removed_readings": [
+        "bō",
+        "pán"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "节",
+      "removed_readings": [
+        "jiē"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "荤",
+      "removed_readings": [
+        "xūn"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "荫",
+      "removed_readings": [
+        "yìn"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "菌",
+      "removed_readings": [
+        "jùn"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "蕉",
+      "removed_readings": [
+        "qiáo"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "藉",
+      "removed_readings": [
+        "jí"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "虎",
+      "removed_readings": [
+        "hù"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "虾",
+      "removed_readings": [
+        "há"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "蚂",
+      "removed_readings": [
+        "mā"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "蚌",
+      "removed_readings": [
+        "bèng"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "解",
+      "removed_readings": [
+        "jiè"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "识",
+      "removed_readings": [
+        "zhì"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "语",
+      "removed_readings": [
+        "yù"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "读",
+      "removed_readings": [
+        "dòu"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "谜",
+      "removed_readings": [
+        "mèi"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "贾",
+      "removed_readings": [
+        "gǔ"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "蹬",
+      "removed_readings": [
+        "dèng"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "蹲",
+      "removed_readings": [
+        "cún"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "这",
+      "removed_readings": [
+        "zhèi"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "迫",
+      "removed_readings": [
+        "pǎi"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "邪",
+      "removed_readings": [
+        "yé"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "雀",
+      "removed_readings": [
+        "qiāo"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "雅",
+      "removed_readings": [
+        "yā"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "雨",
+      "removed_readings": [
+        "yù"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "靡",
+      "removed_readings": [
+        "mǐ"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "颤",
+      "removed_readings": [
+        "zhàn"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "食",
+      "removed_readings": [
+        "sì",
+        "yì"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "饮",
+      "removed_readings": [
+        "yìn"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    },
+    {
+      "character": "龟",
+      "removed_readings": [
+        "qiū"
+      ],
+      "removed_pinyin_entries": 0,
+      "removed_basic_meanings": 0,
+      "removed_phrase_buckets": 0,
+      "removed_gloss_buckets": 0
+    }
+  ]
+}
