@@ -4,6 +4,20 @@ All notable changes to the pdf_file_manager utility are documented here.
 
 ---
 
+## [v0.2.7] — Book answer mappings
+
+- Added first-class `book_answer_mappings` support for mapping one registered `doc_type='book'` unit file to an inclusive page range in one registered `doc_type='book'` answer file from the same `group_type='book'` collection.
+- Added Python API methods `set_book_answer_mapping`, `get_book_answer_mapping`, `list_book_answer_mappings`, `delete_book_answer_mapping`, and `import_book_answer_mappings_from_json`.
+- Added MCP tools `pdf_set_book_answer_mapping`, `pdf_get_book_answer_mapping`, `pdf_list_book_answer_mappings`, and `pdf_delete_book_answer_mapping`.
+- Added operation-log entries for create/update/delete of mappings: `book_answer_mapping_set`, `book_answer_mapping_update`, and `book_answer_mapping_delete`.
+- Imported the validated pilot ground-truth JSON files for:
+  - `Science Practice Primary 5 and 6`
+  - `Power Pack Science PSLE`
+  - `Power Pack Chinese PSLE`
+  - `Power Pack Math PSLE`
+  - `Power Pack English PSLE` practice subset
+- Updated `README.md`, `ARCHITECTURE.md`, `SPEC.md`, and Proposal 7 to document the new relation and its constraints.
+
 ## [v0.2.6] — Registry path repair and `file_type` updates
 
 ### 1. `rename_file` external path sync

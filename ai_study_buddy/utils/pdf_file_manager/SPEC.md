@@ -118,6 +118,18 @@ Open the PDF in macOS Preview (`open <path>`). Raises `FileNotFoundError` if no 
 
 Query `operation_log`. All parameters optional. If `log_id` is set, return at most one entry with that id (empty list if not found). Otherwise results ordered `performed_at ASC`.
 
+#### `get_book_answer_mapping(unit_file_id_or_path) -> BookAnswerMapping | None`
+
+Return the current book-answer mapping for one registered book unit file, or `None` when no mapping exists.
+
+#### `list_book_answer_mappings(book_group_id=None, answer_file_id_or_path=None, source=None) -> list[BookAnswerMapping]`
+
+Return current book-answer mappings, optionally filtered by:
+
+- `book_group_id`: must refer to a `group_type='book'` file group; filters by mapped unit membership
+- `answer_file_id_or_path`: filters to mappings that point at one specific answer file
+- `source`: filters by provenance such as `manual_verified` or `imported_ground_truth`
+
 ---
 
 ### U — Update
@@ -181,6 +193,24 @@ Clears `anchor_id` if pointed here. Writes `group_remove` log entry.
 
 #### `set_file_group_anchor(group_id, file_id)`
 Writes `group_anchor_set` log entry.
+
+#### `set_book_answer_mapping(unit_file_id_or_path, answer_file_id_or_path, answer_page_start, answer_page_end, starts_mid_page=False, ends_mid_page=False, source=None, notes=None) -> BookAnswerMapping`
+
+Create or update the current mapping for a registered book unit file. This is an upsert keyed by `unit_file_id`.
+
+Validation:
+
+- `answer_page_start <= answer_page_end`
+- both files must exist
+- both files must have `file_type='main'`
+- both files must have `doc_type='book'`
+- both files must belong to the same `group_type='book'` file group
+
+Writes `book_answer_mapping_set` for first insert and `book_answer_mapping_update` for later updates.
+
+#### `delete_book_answer_mapping(unit_file_id_or_path)`
+
+Delete the current mapping for a registered book unit file. Raises `NotFoundError` if no mapping exists. Writes `book_answer_mapping_delete`.
 
 #### `update_file_group_notes(group_id, notes) -> FileGroup`
 Writes `group_update_notes` log entry.
@@ -272,6 +302,9 @@ Manage scan roots. `student_id` links a root to a student so discovered files ar
 | `group_anchor_set` | `set_file_group_anchor` | ✓ | ✓ | old group record | new group record |
 | `group_update_notes` | `update_file_group_notes` | — | ✓ | old group record | new group record |
 | `group_delete` | `delete_file_group` | — | ✓ | group record + members | NULL |
+| `book_answer_mapping_set` | first `set_book_answer_mapping` for a unit | ✓ (unit) | ✓ (book group) | NULL | mapping payload |
+| `book_answer_mapping_update` | later `set_book_answer_mapping` for the same unit | ✓ (unit) | ✓ (book group) | old mapping payload | new mapping payload |
+| `book_answer_mapping_delete` | `delete_book_answer_mapping` | ✓ (unit) | ✓ (book group) | mapping payload | NULL |
 
 **Reads are not logged.**
 
@@ -333,6 +366,17 @@ no_raw    = mgr.find_files(file_type="main", has_raw=False)
 mgr.link_to_template(winston_completed.id, blank_wa2.id, inherit_metadata=True)
 tpl = mgr.get_template(winston_completed.id)
 all_completions = mgr.get_completions(blank_wa2.id)
+
+# Map a book unit to pages in its answer file
+mapping = mgr.set_book_answer_mapping(
+    unit_file.id,
+    answer_file.id,
+    35,
+    40,
+    starts_mid_page=True,
+    source="manual_verified",
+)
+same_book_mappings = mgr.list_book_answer_mappings(book_group_id=book_group.id)
 ```
 
 For all returned data class shapes (`PdfFile`, `FileGroup`, `FileGroupMember`, and others), see [DATA_MODEL.md](./DATA_MODEL.md).
@@ -359,6 +403,8 @@ pdf_get_template
 pdf_get_completions
 pdf_get_file_group
 pdf_list_file_groups
+pdf_get_book_answer_mapping
+pdf_list_book_answer_mappings
 pdf_get_file_group_membership
 pdf_suggest_groups
 pdf_get_operation_log
@@ -376,6 +422,8 @@ pdf_create_file_group
 pdf_add_to_file_group
 pdf_remove_from_file_group
 pdf_set_file_group_anchor
+pdf_set_book_answer_mapping
+pdf_delete_book_answer_mapping
 pdf_link_to_template
 pdf_link_goodnotes_template_for_file
 pdf_link_goodnotes_templates_for_root
@@ -418,6 +466,9 @@ python3 ai_study_buddy/utils/pdf_file_manager/pdf_file_manager_mcp_server.py --d
 |-----------|-----------|
 | `register_file` on a non-existent path | Raise `FileNotFoundError` |
 | `register_file` on an already-registered path | Raise `AlreadyRegisteredError` |
+| `set_book_answer_mapping` with a non-book file or raw file | Raise `ValueError` |
+| `set_book_answer_mapping` where unit and answer do not share a `group_type='book'` group | Raise `ValueError` |
+| `delete_book_answer_mapping` when no mapping exists for the unit | Raise `NotFoundError` |
 | `compress_and_register` on a file with `file_type != 'unknown'` | Raise `ValueError` |
 | `compress_and_register` and the `_raw_` rename destination already exists | Raise `ValueError`; abort; no changes |
 | `delete_file` and file already absent from disk | Log warning; proceed with registry removal and `delete` log entry |

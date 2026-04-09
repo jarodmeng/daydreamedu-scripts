@@ -10,8 +10,10 @@ Use this mental model when classifying files and building groups:
 
 - File-level metadata lives in `pdf_files.metadata` (for example `content_folder`, `grade_or_scope`, `unit`, `chinese_variant`, `exam_date`).
 - Group-level identity lives in `file_groups` (`label`, `group_type`, `anchor_id`, `notes`).
+- Book-answer coverage lives in `book_answer_mappings` (unit file, answer file, inclusive page range, split-page flags, provenance).
 - Per-member function labels are represented canonically by `pdf_files.metadata.unit`.
 - For `doc_type='book'`: `metadata.unit` is the per-file chapter/unit label, while the shared book identity belongs in the `book` group's `label`.
+- For `doc_type='book'` answer coverage: the shared book identity still belongs to the `book` group, while page-level answer coverage belongs in `book_answer_mappings`.
 
 ## Exam group completeness (compulsory `metadata.unit`)
 
@@ -96,7 +98,7 @@ class FileRelation:
     id: str
     source_id: str
     target_id: str
-    relation_type: str       # 'raw_source' | 'main_version'
+    relation_type: str       # 'raw_source' | 'main_version' | 'template_for' | 'completed_from'
     created_at: str
 
 @dataclass
@@ -116,6 +118,22 @@ class FileGroupMember:
     role: str | None
     added_at: str
     file: PdfFile
+
+@dataclass
+class BookAnswerMapping:
+    id: str
+    unit_file_id: str
+    answer_file_id: str
+    answer_page_start: int
+    answer_page_end: int
+    starts_mid_page: bool
+    ends_mid_page: bool
+    source: str | None
+    notes: str | None
+    created_at: str
+    updated_at: str
+    unit_file: PdfFile
+    answer_file: PdfFile
 
 @dataclass
 class SuggestedGroup:

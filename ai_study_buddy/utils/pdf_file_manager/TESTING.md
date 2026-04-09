@@ -9,7 +9,7 @@ Tests are defined at the **utility level**: one test suite for the pdf_file_mana
 | Level | What | Examples |
 |-------|------|----------|
 | **Unit** | Pure logic and small helpers with minimal or mocked I/O | Path → subject, student, is_template inference (`_infer_from_path`); metadata merge; validation (e.g. `subject` allowed values); `operation_log` payload shape. Use an in-memory SQLite DB or mocks where needed. |
-| **Integration** | `PdfFileManager` methods against a real SQLite DB and real (temp) files on disk | Schema creation and migrations; `register_file` then `get_file`; `scan_for_new_files` on a temp dir with a few PDFs; `compress_and_register` with a temp PDF using the real `compress_pdf`; `update_metadata`, `find_files` filters; file groups and relations; `get_operation_log` after a few operations. |
+| **Integration** | `PdfFileManager` methods against a real SQLite DB and real (temp) files on disk | Schema creation and migrations; `register_file` then `get_file`; `scan_for_new_files` on a temp dir with a few PDFs; `compress_and_register` with a temp PDF using the real `compress_pdf`; `update_metadata`, `find_files` filters; file groups, relations, and book answer mappings; `get_operation_log` after a few operations. |
 
 **Out of scope:** Tests that touch the real registry path or real scan roots (e.g. `~/.../DaydreamEdu`). Manual or one-off scripts against real data are not part of this plan.
 
@@ -30,8 +30,8 @@ Tests are defined at the **utility level**: one test suite for the pdf_file_mana
 | **1. Foundation** | Schema creation (tables exist, constraints); `PdfFileManager` init with default and custom path; that a C/U/D helper writes a row to `operation_log` (e.g. via one minimal mutating path if you add it, or a dedicated “test write” used only in tests). |
 | **2. Config & file lifecycle** | `add_student` / `list_students`; `add_scan_root` / `remove_scan_root` / `list_scan_roots`; `register_file` (path, file_type inference, duplicate path); `compress_and_register` (register-if-missing, then compress; use real `compress_pdf`); `scan_for_new_files` on a temp dir (with and without `dry_run`). |
 | **3. Read / update / delete** | `get_file`, `find_files` (each filter); `update_metadata` (merge behaviour, validation); `rename_file` / `move_file` (disk + DB); `delete_file` (with/without `keep_related`); `open_file` (path exists vs missing). |
-| **4. Relations & groups** | `link_files` / `unlink_files`, `get_related_files`; `link_to_template` / `unlink_template` (including validation), `get_template` / `get_completions`; file group CRUD and `suggest_groups` (with fixture data). |
-| **5. Audit & machine interface** | `get_operation_log` (filters, `log_id`); MCP wrapper tests (serialization, error mapping, handler registries, tool behavior); MCP server tests (FastMCP registration and entrypoint wiring). |
+| **4. Relations & groups** | `link_files` / `unlink_files`, `get_related_files`; `link_to_template` / `unlink_template` (including validation), `get_template` / `get_completions`; file group CRUD, book answer mappings, and `suggest_groups` (with fixture data). |
+| **5. Audit & machine interface** | `get_operation_log` (filters, `log_id`); MCP wrapper tests (serialization, error mapping, handler registries, tool behavior, including book answer mapping tools); MCP server tests (FastMCP registration and entrypoint wiring). |
 
 Prefer adding tests in the same phase as the feature (or immediately after) so each phase is verifiable before moving on.
 
@@ -43,14 +43,15 @@ These tests give confidence that Phase 1 (Foundation) is complete. All use a **t
 
 | # | Test | What it proves |
 |---|------|----------------|
-| **1** | **Schema exists after init** | Create `PdfFileManager(db_path=<temp path>)`. Query SQLite: `SELECT name FROM sqlite_master WHERE type='table' ORDER BY name`. Assert the list equals `['file_group_members', 'file_groups', 'file_relations', 'operation_log', 'pdf_files', 'scan_roots', 'students']` (or equivalent for your schema). Proves: DB file is created and all seven tables exist. |
+| **1** | **Schema exists after init** | Create `PdfFileManager(db_path=<temp path>)`. Query SQLite: `SELECT name FROM sqlite_master WHERE type='table' ORDER BY name`. Assert the list equals `['book_answer_mappings', 'file_group_members', 'file_groups', 'file_relations', 'operation_log', 'pdf_files', 'scan_roots', 'students']` (or equivalent for your schema). Proves: DB file is created and all core tables exist. |
 | **2** | **Schema shape (operation_log)** | Using the same DB, `PRAGMA table_info(operation_log)`. Assert columns include `id`, `operation`, `file_id`, `group_id`, `performed_at`, `performed_by`, `before_state`, `after_state`, `notes`. Proves: operation log table is fit for use. |
 | **3** | **Schema shape (pdf_files)** | `PRAGMA table_info(pdf_files)`. Assert columns include `id`, `path`, `file_type`, `doc_type`, `student_id`, `subject`, `is_template`, `metadata`, `has_raw`, etc. Proves: core file table matches spec. |
+| **3b** | **Schema shape (book_answer_mappings)** | `PRAGMA table_info(book_answer_mappings)`. Assert columns include `unit_file_id`, `answer_file_id`, `answer_page_start`, `answer_page_end`, `starts_mid_page`, `ends_mid_page`, `source`, `notes`, `created_at`, `updated_at`. Proves: the dedicated mapping relation exists and matches spec. |
 | **4** | **Custom DB path** | Create `PdfFileManager(db_path=<path_to_new_file>)`. Assert the file exists at that path and contains the tables (e.g. same as test 1). Proves: manager uses the given path and creates schema. |
 | **5** | **Default DB path** | Create `PdfFileManager()` (no args). Assert a DB is created at the default location (e.g. from env or repo-relative `ai_study_buddy/db/pdf_registry.db`). Proves: default config works. |
 | **6** | **Operation log write** | Call the code path that writes to `operation_log` (e.g. an internal `_log_operation(operation='test', ...)` or the same helper that future C/U/D will use). Then run `SELECT operation, file_id, performed_at FROM operation_log`. Assert one row with the expected `operation`. Proves: every future C/U/D can record history. |
 
-**Passing all six** means: the DB and schema are correct, the manager can be constructed with default or custom path, and the logging hook is in place. Phase 1 is then safe to call done.
+**Passing all Phase 1 tests** means: the DB and schema are correct, the manager can be constructed with default or custom path, and the logging hook is in place. Phase 1 is then safe to call done.
 
 ---
 
@@ -187,7 +188,7 @@ These tests give confidence that Phase 4 (Relations & groups) is complete. Use a
 | **4.6** | **unlink_template** | After link, `unlink_template(completed_id)`. `get_template(completed_id)` is None; `get_completions(template_id)` empty. Proves: unlink. |
 | **4.7** | **link_to_template validation** | `link_to_template(completed_id, template_id)` when completed already linked, or template has `is_template=False`, or completed has `is_template=True`, raises `ValueError`. Proves: validation. |
 
-### File group CRUD
+### File group CRUD and book answer mappings
 
 | # | Test | What it proves |
 |---|------|----------------|
@@ -198,21 +199,32 @@ These tests give confidence that Phase 4 (Relations & groups) is complete. Use a
 | **4.12** | **set_file_group_anchor and get_file_group_membership** | Add file, `set_file_group_anchor(group_id, file_id)`. Group's `anchor_id` set. `get_file_group_membership(file_id)` returns groups containing this file. Proves: anchor + membership. |
 | **4.13** | **delete_file_group** | Create group, add member. `delete_file_group(group_id)`. Group gone; member file still in registry (get_file). Proves: group deleted, files kept. |
 
+### Book answer mappings
+
+| # | Test | What it proves |
+|---|------|----------------|
+| **4.14** | **set_book_answer_mapping and get_book_answer_mapping** | Register one book unit file and one book answer file, add both to the same `group_type='book'` group, then set a mapping. `get_book_answer_mapping(unit)` returns the same row. Proves: create + read for the dedicated relation. |
+| **4.15** | **set_book_answer_mapping upserts by unit** | Set a mapping for one unit, then set it again with a different answer-page range or answer file in the same book group. Assert only one current row exists for that unit and the latest values are returned. Proves: one-row-per-unit current-state behavior. |
+| **4.16** | **list_book_answer_mappings filters** | Create mappings across two book groups or answer files, then filter by `book_group_id`, `answer_file_id_or_path`, and `source`. Proves: query surface is expressive enough for registry workflows. |
+| **4.17** | **book answer mapping validation** | Attempt to map a raw file, a non-`book` file, or files from different `group_type='book'` groups. Raises `ValueError`. Proves: v1 guard rails are enforced. |
+| **4.18** | **delete_book_answer_mapping** | Create a mapping, then delete it. `get_book_answer_mapping(unit)` returns `None`, and `operation_log` includes `book_answer_mapping_delete`. Proves: delete path and audit trail. |
+| **4.19** | **import_book_answer_mappings_from_json** | Create a temp ground-truth JSON file whose `book_label`, `answer_file`, and `unit_file` values match registered members of one book group. Import it and assert resulting rows use `source='imported_ground_truth'`. Proves: the validated JSON workflow can be brought into the registry directly. |
+
 ### suggest_groups
 
 | # | Test | What it proves |
 |---|------|----------------|
-| **4.14** | **suggest_groups returns candidates** | Register 2+ files (copy fixture PDF to temp with different names). Set each: `doc_type='exam'`, `student_id='w'`, `subject='science'`, `metadata={'exam_date': '2025-11-12'}`. `suggest_groups()` returns at least one suggestion with 2+ candidate_files and matching match_basis. Proves: suggest. |
-| **4.15** | **suggest_groups unclassified excluded** | Same 2 files but leave one with `doc_type='unknown'`. Suggestions only include classified; or empty if none match. Proves: only exam + metadata. |
+| **4.20** | **suggest_groups returns candidates** | Register 2+ files (copy fixture PDF to temp with different names). Set each: `doc_type='exam'`, `student_id='w'`, `subject='science'`, `metadata={'exam_date': '2025-11-12'}`. `suggest_groups()` returns at least one suggestion with 2+ candidate_files and matching match_basis. Proves: suggest. |
+| **4.21** | **suggest_groups unclassified excluded** | Same 2 files but leave one with `doc_type='unknown'`. Suggestions only include classified; or empty if none match. Proves: only exam + metadata. |
 
 ### open_file_group
 
 | # | Test | What it proves |
 |---|------|----------------|
-| **4.16** | **open_file_group no anchor raises** | Create group, add member, do not set anchor. `open_file_group(group_id)` raises `ConfigError`. Proves: guard. |
-| **4.17** | **open_file_group with anchor** | Set anchor. Mock subprocess (like Phase 3 open_file). `open_file_group(group_id)` completes without error. Proves: happy path. |
+| **4.22** | **open_file_group no anchor raises** | Create group, add member, do not set anchor. `open_file_group(group_id)` raises `ConfigError`. Proves: guard. |
+| **4.23** | **open_file_group with anchor** | Set anchor. Mock subprocess (like Phase 3 open_file). `open_file_group(group_id)` completes without error. Proves: happy path. |
 
-**Passing all Phase 4 tests** (4.1–4.17) means: raw↔main and template↔completed relations work, file group CRUD and membership do too, `suggest_groups` returns candidates from classified exam files, and `open_file_group` enforces anchor. Phase 4 is then safe to call done.
+**Passing all Phase 4 tests** (4.1–4.23) means: raw↔main and template↔completed relations work, file group CRUD and membership do too, book answer mappings are enforced and queryable, JSON ground-truth imports can populate them, `suggest_groups` returns candidates from classified exam files, and `open_file_group` enforces anchor. Phase 4 is then safe to call done.
 
 ---
 
@@ -237,7 +249,7 @@ These tests give confidence that Phase 5 (Audit & machine interface) is complete
 |---|------|----------------|
 | **5.7** | **MCP wrapper serialization and error mapping** | Call wrapper helpers and representative tools from `test_mcp_tools.py`; assert dataclasses become JSON-safe dicts/lists and errors map to structured payloads. Proves: the MCP contract is machine-safe. |
 | **5.8** | **MCP tool registries expose expected surfaces** | Assert read-only, safe mutation, and file-system mutation handler registries contain the expected tool names and callable handlers. Proves: the supported tool surface is explicit and discoverable. |
-| **5.9** | **MCP wrapper tool behavior on temp DB/files** | Exercise representative read, relation/group, mutation, and file-system tool calls against temp DBs/dirs. Proves: the MCP wrapper preserves manager behavior end-to-end. |
+| **5.9** | **MCP wrapper tool behavior on temp DB/files** | Exercise representative read, relation/group, book-answer-mapping, mutation, and file-system tool calls against temp DBs/dirs. Proves: the MCP wrapper preserves manager behavior end-to-end. |
 | **5.10** | **FastMCP registration and entrypoint wiring** | Use the fake FastMCP-style server in `test_mcp_server.py` to assert tool registration and `main(...)` launch wiring. Proves: the runnable MCP server boundary is correctly assembled without requiring a live long-running server in tests. |
 
 **Passing all Phase 5 tests** (5.1–5.10) means: `get_operation_log` supports all filters and log_id, and the supported Python/MCP machine interface is verified at the wrapper and server-registration levels. Phase 5 is then safe to call done.

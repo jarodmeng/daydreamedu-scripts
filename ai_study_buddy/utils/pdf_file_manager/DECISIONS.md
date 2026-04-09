@@ -4,6 +4,65 @@ Decisions that shaped the design of this utility. Each entry records what was de
 
 ---
 
+## D-011 — Book answer mappings are a dedicated relation table, not metadata or plain group membership
+
+**Date:** 2026-04-09
+**Status:** Decided
+**Affects:** `ARCHITECTURE.md`, `SPEC.md`, `README.md`, `CHANGELOG.md`, `DATA_MODEL.md`, `schema.sql`, `pdf_file_manager.py`, MCP wrapper/server modules
+
+### Context
+
+Book files are already represented as:
+
+- per-file rows in `pdf_files`
+- shared book identity in `file_groups` with `group_type='book'`
+
+That was enough to register units and answer files under one logical book, but not enough to represent:
+
+> “This specific book unit is covered by pages X-Y of that specific answer file, with optional mid-page boundaries.”
+
+Early pilot work stored this mapping in external ground-truth JSON files. That worked for experimentation, but it left the registry unable to answer simple questions such as:
+
+- which answer pages cover this unit?
+- which units in this book still have no mapping?
+- which mappings came from imported ground truth vs later manual edits?
+
+### Decision
+
+1. **Represent book answer coverage in a dedicated `book_answer_mappings` table.**  
+   This is a first-class relation layer separate from file-local metadata, file groups, and simpler file-to-file relations.
+
+2. **Make the table current-state, one row per unit.**  
+   `unit_file_id` is unique. `set_book_answer_mapping(...)` upserts by unit, replacing the current row for that unit when needed.
+
+3. **Keep v1 strict.**  
+   Both mapped files must be:
+   - registered
+   - `file_type='main'`
+   - `doc_type='book'`
+   - members of the same `group_type='book'` file group
+
+4. **Keep intentional no-answer cases implicit in v1.**  
+   No row means either “not mapped yet” or “intentionally no mapping.” A separate explicit exclusion state can be added later if needed.
+
+5. **Record provenance, but not confidence, in v1.**  
+   `source` remains useful for values such as `manual_verified`, `manual_corrected`, and `imported_ground_truth`. `confidence` is deferred.
+
+6. **Use `operation_log` for history.**  
+   The mapping table stores only the current row; create/update/delete actions are logged via dedicated operation types.
+
+### Consequences
+
+- `book_answer_mappings` is now the canonical place for unit → answer-page coverage.
+- `file_groups` still carry shared book identity, not page-range coverage.
+- `pdf_files.metadata` stays file-local and does not need cross-file answer references.
+- New Python API methods: `set_book_answer_mapping`, `get_book_answer_mapping`, `list_book_answer_mappings`, `delete_book_answer_mapping`, `import_book_answer_mappings_from_json`.
+- New MCP tools: `pdf_set_book_answer_mapping`, `pdf_get_book_answer_mapping`, `pdf_list_book_answer_mappings`, `pdf_delete_book_answer_mapping`.
+- New audit operations: `book_answer_mapping_set`, `book_answer_mapping_update`, `book_answer_mapping_delete`.
+- Validated pilot ground-truth JSON files can now be imported directly into the registry instead of living only as sidecar artifacts.
+
+---
+
 ## D-010 — Prefer MCP over a built-in CLI; remove the partial CLI layer
 
 **Date:** 2026-03-10

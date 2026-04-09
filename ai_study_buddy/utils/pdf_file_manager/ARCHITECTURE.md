@@ -147,6 +147,22 @@ CREATE TABLE file_group_members (
     PRIMARY KEY (group_id, file_id)
 );
 
+-- Per-unit answer coverage inside a book
+CREATE TABLE book_answer_mappings (
+    id                TEXT PRIMARY KEY,
+    unit_file_id      TEXT NOT NULL UNIQUE REFERENCES pdf_files(id) ON DELETE CASCADE,
+    answer_file_id    TEXT NOT NULL REFERENCES pdf_files(id) ON DELETE CASCADE,
+    answer_page_start INTEGER NOT NULL,
+    answer_page_end   INTEGER NOT NULL,
+    starts_mid_page   BOOLEAN NOT NULL DEFAULT 0,
+    ends_mid_page     BOOLEAN NOT NULL DEFAULT 0,
+    source            TEXT,
+    notes             TEXT,
+    created_at        TEXT NOT NULL,
+    updated_at        TEXT NOT NULL,
+    CHECK(answer_page_start <= answer_page_end)
+);
+
 -- Append-only audit log: every state-mutating operation (C/U/D). Never deleted.
 -- file_id and group_id are plain TEXT with no FK constraints so entries survive
 -- after the referenced rows are deleted.
@@ -181,6 +197,25 @@ CREATE TABLE scan_roots (
 | `completed_from` | completed file | template file | "I was completed from this template" |
 
 Both directions for raw↔main and template↔completed are written as separate rows. A template can have many `template_for` rows (one per student completion); a completed file has at most one `completed_from` row.
+
+### Book answer mappings
+
+`book_answer_mappings` stores the current answer coverage for a registered `doc_type='book'` unit file inside a registered `doc_type='book'` answer file from the same `group_type='book'` collection.
+
+- One row per `unit_file_id` (`UNIQUE(unit_file_id)`).
+- Both unit and answer files must be `file_type='main'`.
+- Both files must be `doc_type='book'`.
+- Both files must share at least one `group_type='book'` membership.
+- `answer_page_start` / `answer_page_end` are inclusive page bounds.
+- `starts_mid_page` / `ends_mid_page` mark split boundaries that land inside a page.
+- `source` records provenance such as `manual_verified`, `manual_corrected`, or `imported_ground_truth`.
+
+This relation is intentionally separate from:
+
+- `file_groups`, which express shared book identity and membership
+- `file_relations`, which express simpler pairwise links such as raw↔main and template↔completion
+
+History is represented in `operation_log`, not in versioned rows inside `book_answer_mappings`.
 
 **Raw/main invariant metadata:** A linked raw/main pair represents one logical document in two file forms. The following fields are treated as document-level and should normally match across the pair:
 

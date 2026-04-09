@@ -1,8 +1,8 @@
 # pdf_file_manager
 
-**Version: v0.2.6**
+**Version: v0.2.7**
 
-A local utility that keeps a SQLite registry of PDF files in the study archive. It tracks exams, worksheets, books, book exercises, activities, notes, and templates (with optional completed variants), and keeps on-disk paths and database records in sync. You can scan one or more folders for new PDFs, optionally compress and archive originals, classify documents by type and metadata, group multi-file documents (e.g. exam booklets or book folders), and link completions to templates. Every state-mutating operation is recorded in an append-only operation log.
+A local utility that keeps a SQLite registry of PDF files in the study archive. It tracks exams, worksheets, books, book exercises, activities, notes, and templates (with optional completed variants), keeps on-disk paths and database records in sync, and now supports first-class book unit → answer-page mappings inside `group_type='book'` collections. You can scan one or more folders for new PDFs, optionally compress and archive originals, classify documents by type and metadata, group multi-file documents (e.g. exam booklets or book folders), link completions to templates, and query or import validated book-answer coverage. Every state-mutating operation is recorded in an append-only operation log.
 
 **Typical workflow:** Add scan roots (e.g. Google Drive folders) and students → run **scan** on the exact folder you want to ingest → **classify** with `doc_type`, `subject`, and metadata → use **suggest-groups** for exams, or let scan infer/group `.../Book/<book name>/...` folders as books, then link templates as needed. Only main files are ingested by the pipeline; raw archives are kept for traceability.
 
@@ -52,8 +52,8 @@ The full implemented surface lives in [`pdf_file_manager.py`](./pdf_file_manager
 
 The MCP layer currently exposes:
 
-- Read-only tools: `pdf_get_file`, `pdf_find_files`, `pdf_get_file_by_path`, `pdf_list_students`, `pdf_list_scan_roots`, `pdf_get_related_files`, `pdf_get_template`, `pdf_get_completions`, `pdf_get_file_group`, `pdf_list_file_groups`, `pdf_get_file_group_membership`, `pdf_suggest_groups`, `pdf_get_operation_log`, `pdf_report_coverage`
-- Safe mutations: `pdf_add_student`, `pdf_add_scan_root`, `pdf_remove_scan_root`, `pdf_update_metadata`, `pdf_create_file_group`, `pdf_add_to_file_group`, `pdf_remove_from_file_group`, `pdf_set_file_group_anchor`, `pdf_link_to_template`, `pdf_link_goodnotes_template_for_file`, `pdf_link_goodnotes_templates_for_root`, `pdf_unlink_template`, `pdf_link_files`, `pdf_unlink_files`
+- Read-only tools: `pdf_get_file`, `pdf_find_files`, `pdf_get_file_by_path`, `pdf_list_students`, `pdf_list_scan_roots`, `pdf_get_related_files`, `pdf_get_template`, `pdf_get_completions`, `pdf_get_file_group`, `pdf_list_file_groups`, `pdf_get_book_answer_mapping`, `pdf_list_book_answer_mappings`, `pdf_get_file_group_membership`, `pdf_suggest_groups`, `pdf_get_operation_log`, `pdf_report_coverage`
+- Safe mutations: `pdf_add_student`, `pdf_add_scan_root`, `pdf_remove_scan_root`, `pdf_update_metadata`, `pdf_create_file_group`, `pdf_add_to_file_group`, `pdf_remove_from_file_group`, `pdf_set_file_group_anchor`, `pdf_set_book_answer_mapping`, `pdf_delete_book_answer_mapping`, `pdf_link_to_template`, `pdf_link_goodnotes_template_for_file`, `pdf_link_goodnotes_templates_for_root`, `pdf_unlink_template`, `pdf_link_files`, `pdf_unlink_files`
 - File-system mutations: `pdf_scan_for_new_files`, `pdf_register_file`, `pdf_compress_and_register`, `pdf_rename_file`, `pdf_move_file`, `pdf_delete_file`, `pdf_open_file`, `pdf_open_file_group`
 
 GoodNotes-specific support:

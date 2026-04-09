@@ -44,6 +44,13 @@ For `doc_type='book'` files:
 
 `pdf_update_metadata` merges metadata keys; it does not replace the full metadata object. It accepts the same optional fields as the Python `update_metadata` API, including optional **`file_type`** (`main`, `raw`, or `unknown`) for registry repairs (for example promoting a compressed main row from `unknown` to `main`).
 
+For `doc_type='book'` answer coverage:
+
+- page-range coverage lives in `book_answer_mappings`, not in `pdf_files.metadata`
+- use `pdf_get_book_answer_mapping` / `pdf_list_book_answer_mappings` to read it
+- use `pdf_set_book_answer_mapping` / `pdf_delete_book_answer_mapping` to mutate it
+- the mapping requires both files to be registered `main` files with `doc_type='book'` in the same `group_type='book'` file group
+
 ## Transports
 
 ### stdio
@@ -91,6 +98,13 @@ Example `stdio` style MCP client command:
 - For general agent use: `--tool-mode readonly`
 - For local maintenance workflows you trust: default tool mode
 - Prefer `stdio` unless the client specifically benefits from HTTP transport
+
+## Tool additions to know about
+
+Recent book-answer mapping tools:
+
+- readonly: `pdf_get_book_answer_mapping`, `pdf_list_book_answer_mappings`
+- safe mutation: `pdf_set_book_answer_mapping`, `pdf_delete_book_answer_mapping`
 
 ## Notes
 
