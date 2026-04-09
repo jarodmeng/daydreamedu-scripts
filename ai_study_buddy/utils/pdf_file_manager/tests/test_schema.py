@@ -13,6 +13,12 @@ from conftest import EXPECTED_TABLES, OPERATION_LOG_COLUMNS, PDF_FILES_COLUMNS
 from pdf_file_manager import PdfFileManager
 
 
+BOOK_ANSWER_MAPPING_COLUMNS = {
+    "id", "unit_file_id", "answer_file_id", "answer_page_start", "answer_page_end",
+    "starts_mid_page", "ends_mid_page", "source", "notes", "created_at", "updated_at",
+}
+
+
 def test_schema_exists_after_init():
     """Create manager with temp DB; assert all seven tables exist."""
     with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as f:
@@ -64,6 +70,22 @@ def test_schema_shape_pdf_files():
         }
         conn.close()
         assert PDF_FILES_COLUMNS <= cols
+    finally:
+        Path(tmp).unlink(missing_ok=True)
+
+
+def test_schema_shape_book_answer_mappings():
+    with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as f:
+        tmp = f.name
+    try:
+        mgr = PdfFileManager(db_path=tmp)
+        mgr._get_connection()
+        conn = sqlite3.connect(tmp)
+        cols = {
+            r[1] for r in conn.execute("PRAGMA table_info(book_answer_mappings)").fetchall()
+        }
+        conn.close()
+        assert BOOK_ANSWER_MAPPING_COLUMNS <= cols
     finally:
         Path(tmp).unlink(missing_ok=True)
 

@@ -154,6 +154,46 @@ def test_pdf_relations_template_groups_and_log_tools():
         Path(db_path).unlink(missing_ok=True)
 
 
+def test_pdf_book_answer_mapping_tools():
+    with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as f:
+        db_path = f.name
+    try:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            mgr = PdfFileManager(db_path=db_path)
+            group = mgr.create_file_group("Science book", group_type="book")
+            unit = mgr.register_file(_make_pdf(root / "unit.pdf"), file_type="main", doc_type="book", subject="science")
+            answer = mgr.register_file(_make_pdf(root / "answers.pdf"), file_type="main", doc_type="book", subject="science")
+            mgr.add_to_file_group(group.id, unit.id)
+            mgr.add_to_file_group(group.id, answer.id)
+
+            tools = PdfFileManagerMcpTools(db_path=db_path)
+            created = tools.pdf_set_book_answer_mapping(
+                unit_file_id_or_path=unit.id,
+                answer_file_id_or_path=answer.id,
+                answer_page_start=3,
+                answer_page_end=5,
+                starts_mid_page=True,
+                source="manual_verified",
+            )
+            fetched = tools.pdf_get_book_answer_mapping(unit_file_id_or_path=unit.id)
+            listed = tools.pdf_list_book_answer_mappings(book_group_id=group.id)
+            deleted = tools.pdf_delete_book_answer_mapping(unit_file_id_or_path=unit.id)
+            missing = tools.pdf_get_book_answer_mapping(unit_file_id_or_path=unit.id)
+
+            assert created["ok"] is True
+            assert created["result"]["answer_page_start"] == 3
+            assert created["result"]["unit_file"]["id"] == unit.id
+            assert fetched["result"]["answer_file"]["id"] == answer.id
+            assert listed["result"][0]["unit_file_id"] == unit.id
+            assert deleted["ok"] is True
+            assert deleted["result"] is None
+            assert missing["ok"] is True
+            assert missing["result"] is None
+    finally:
+        Path(db_path).unlink(missing_ok=True)
+
+
 def test_pdf_suggest_groups_and_report_coverage():
     with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as f:
         db_path = f.name
@@ -219,6 +259,7 @@ def test_readonly_tool_registry_matches_expected_surface():
     names = list_readonly_tool_names()
     assert sorted(handlers.keys()) == sorted(names)
     assert "pdf_get_file" in names
+    assert "pdf_get_book_answer_mapping" in names
     assert "pdf_report_coverage" in names
     assert all(callable(handler) for handler in handlers.values())
 
@@ -228,6 +269,7 @@ def test_safe_mutation_tool_registry_matches_expected_surface():
     names = list_safe_mutation_tool_names()
     assert sorted(handlers.keys()) == sorted(names)
     assert "pdf_add_student" in names
+    assert "pdf_set_book_answer_mapping" in names
     assert "pdf_unlink_files" in names
     assert all(callable(handler) for handler in handlers.values())
 
@@ -291,7 +333,8 @@ def test_safe_mutation_group_and_relation_tools():
 
             assert link["result"]["relation_type"] == "raw_source"
             assert group["result"]["group_type"] == "exam"
-            assert member["result"]["role"] == "paper_1"
+            assert member["result"]["role"] is None
+            assert member["result"]["file"]["metadata"]["unit"] == "paper_1"
             assert anchor == {"ok": True, "result": None}
             assert template_link["result"]["relation_type"] == "template_for"
             assert unlink_template == {"ok": True, "result": None}

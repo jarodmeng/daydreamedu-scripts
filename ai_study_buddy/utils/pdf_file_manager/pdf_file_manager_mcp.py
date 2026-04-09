@@ -173,6 +173,23 @@ class PdfFileManagerMcpTools:
     def pdf_list_file_groups(self, group_type: str | None = None) -> dict[str, Any]:
         return self._call(self._manager().list_file_groups, group_type=group_type)
 
+    def pdf_get_book_answer_mapping(self, *, unit_file_id_or_path: str) -> dict[str, Any]:
+        return self._call(self._manager().get_book_answer_mapping, unit_file_id_or_path)
+
+    def pdf_list_book_answer_mappings(
+        self,
+        *,
+        book_group_id: str | None = None,
+        answer_file_id_or_path: str | None = None,
+        source: str | None = None,
+    ) -> dict[str, Any]:
+        return self._call(
+            self._manager().list_book_answer_mappings,
+            book_group_id=book_group_id,
+            answer_file_id_or_path=answer_file_id_or_path,
+            source=source,
+        )
+
     def pdf_get_file_group_membership(self, file_id: str) -> dict[str, Any]:
         return self._call(self._manager().get_file_group_membership, file_id)
 
@@ -266,6 +283,33 @@ class PdfFileManagerMcpTools:
 
     def pdf_set_file_group_anchor(self, *, group_id: str, file_id: str) -> dict[str, Any]:
         return self._call(self._manager().set_file_group_anchor, group_id=group_id, file_id=file_id)
+
+    def pdf_set_book_answer_mapping(
+        self,
+        *,
+        unit_file_id_or_path: str,
+        answer_file_id_or_path: str,
+        answer_page_start: int,
+        answer_page_end: int,
+        starts_mid_page: bool = False,
+        ends_mid_page: bool = False,
+        source: str | None = None,
+        notes: str | None = None,
+    ) -> dict[str, Any]:
+        return self._call(
+            self._manager().set_book_answer_mapping,
+            unit_file_id_or_path,
+            answer_file_id_or_path,
+            answer_page_start,
+            answer_page_end,
+            starts_mid_page=starts_mid_page,
+            ends_mid_page=ends_mid_page,
+            source=source,
+            notes=notes,
+        )
+
+    def pdf_delete_book_answer_mapping(self, *, unit_file_id_or_path: str) -> dict[str, Any]:
+        return self._call(self._manager().delete_book_answer_mapping, unit_file_id_or_path)
 
     def pdf_link_to_template(
         self,
@@ -423,6 +467,8 @@ READONLY_TOOL_NAMES = [
     "pdf_get_completions",
     "pdf_get_file_group",
     "pdf_list_file_groups",
+    "pdf_get_book_answer_mapping",
+    "pdf_list_book_answer_mappings",
     "pdf_get_file_group_membership",
     "pdf_suggest_groups",
     "pdf_get_operation_log",
@@ -439,6 +485,8 @@ SAFE_MUTATION_TOOL_NAMES = [
     "pdf_add_to_file_group",
     "pdf_remove_from_file_group",
     "pdf_set_file_group_anchor",
+    "pdf_set_book_answer_mapping",
+    "pdf_delete_book_answer_mapping",
     "pdf_link_to_template",
     "pdf_link_goodnotes_template_for_file",
     "pdf_link_goodnotes_templates_for_root",

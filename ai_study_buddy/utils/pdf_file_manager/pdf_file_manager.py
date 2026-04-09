@@ -122,6 +122,22 @@ class FileGroup:
     members: list[FileGroupMember]
 
 @dataclass
+class BookAnswerMapping:
+    id: str
+    unit_file_id: str
+    answer_file_id: str
+    answer_page_start: int
+    answer_page_end: int
+    starts_mid_page: bool
+    ends_mid_page: bool
+    source: str | None
+    notes: str | None
+    created_at: str
+    updated_at: str
+    unit_file: PdfFile
+    answer_file: PdfFile
+
+@dataclass
 class SuggestedGroup:
     group_type: str
     candidate_files: list[PdfFile]
@@ -369,6 +385,29 @@ class PdfFileManager:
             notes=row["notes"],
         )
 
+    def _row_to_book_answer_mapping(self, row: sqlite3.Row) -> BookAnswerMapping:
+        unit_file = self.get_file(row["unit_file_id"])
+        answer_file = self.get_file(row["answer_file_id"])
+        if unit_file is None:
+            raise NotFoundError(f"Mapped unit file not found: {row['unit_file_id']}")
+        if answer_file is None:
+            raise NotFoundError(f"Mapped answer file not found: {row['answer_file_id']}")
+        return BookAnswerMapping(
+            id=row["id"],
+            unit_file_id=row["unit_file_id"],
+            answer_file_id=row["answer_file_id"],
+            answer_page_start=row["answer_page_start"],
+            answer_page_end=row["answer_page_end"],
+            starts_mid_page=bool(row["starts_mid_page"]),
+            ends_mid_page=bool(row["ends_mid_page"]),
+            source=row["source"],
+            notes=row["notes"],
+            created_at=row["created_at"],
+            updated_at=row["updated_at"],
+            unit_file=unit_file,
+            answer_file=answer_file,
+        )
+
     def _resolve_file_record(self, file_id_or_path):
         """Return (id, path, row) for a file by id or path; raise NotFoundError if absent."""
         conn = self._get_connection()
@@ -382,6 +421,35 @@ class PdfFileManager:
         if not row:
             raise NotFoundError(f"File not found: {file_id_or_path}")
         return row["id"], row["path"], row
+
+    def _book_group_ids_for_file(self, file_id: str) -> set[str]:
+        conn = self._get_connection()
+        rows = conn.execute(
+            """
+            SELECT fgm.group_id
+            FROM file_group_members fgm
+            JOIN file_groups fg ON fg.id = fgm.group_id
+            WHERE fgm.file_id = ? AND fg.group_type = 'book'
+            """,
+            (file_id,),
+        ).fetchall()
+        return {row["group_id"] for row in rows}
+
+    def _validate_book_answer_mapping_files(self, unit_file_id: str, answer_file_id: str) -> str:
+        unit_file = self.get_file(unit_file_id)
+        if unit_file is None:
+            raise NotFoundError(f"File not found: {unit_file_id}")
+        answer_file = self.get_file(answer_file_id)
+        if answer_file is None:
+            raise NotFoundError(f"File not found: {answer_file_id}")
+        if unit_file.file_type != "main" or answer_file.file_type != "main":
+            raise ValueError("Book answer mappings require both files to have file_type='main'")
+        if unit_file.doc_type != "book" or answer_file.doc_type != "book":
+            raise ValueError("Book answer mappings require both files to have doc_type='book'")
+        shared_group_ids = self._book_group_ids_for_file(unit_file_id) & self._book_group_ids_for_file(answer_file_id)
+        if not shared_group_ids:
+            raise ValueError("Unit and answer file must belong to the same group_type='book' file group")
+        return sorted(shared_group_ids)[0]
 
     # ---------------------------------------------------------------------------
     # Student management
@@ -1985,6 +2053,232 @@ class PdfFileManager:
                 )
             )
         return out
+
+    def set_book_answer_mapping(
+        self,
+        unit_file_id_or_path: str | Path,
+        answer_file_id_or_path: str | Path,
+        answer_page_start: int,
+        answer_page_end: int,
+        starts_mid_page: bool = False,
+        ends_mid_page: bool = False,
+        source: str | None = None,
+        notes: str | None = None,
+    ) -> BookAnswerMapping:
+        if answer_page_start > answer_page_end:
+            raise ValueError("answer_page_start must be <= answer_page_end")
+        unit_file_id, _, _ = self._resolve_file_record(unit_file_id_or_path)
+        answer_file_id, _, _ = self._resolve_file_record(answer_file_id_or_path)
+        book_group_id = self._validate_book_answer_mapping_files(unit_file_id, answer_file_id)
+        conn = self._get_connection()
+        existing = conn.execute(
+            "SELECT * FROM book_answer_mappings WHERE unit_file_id = ?",
+            (unit_file_id,),
+        ).fetchone()
+        now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+        after_payload = {
+            "unit_file_id": unit_file_id,
+            "answer_file_id": answer_file_id,
+            "answer_page_start": answer_page_start,
+            "answer_page_end": answer_page_end,
+            "starts_mid_page": bool(starts_mid_page),
+            "ends_mid_page": bool(ends_mid_page),
+            "source": source,
+            "notes": notes,
+        }
+        if existing is None:
+            mapping_id = str(uuid.uuid4())
+            conn.execute(
+                """
+                INSERT INTO book_answer_mappings (
+                    id, unit_file_id, answer_file_id, answer_page_start, answer_page_end,
+                    starts_mid_page, ends_mid_page, source, notes, created_at, updated_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    mapping_id,
+                    unit_file_id,
+                    answer_file_id,
+                    answer_page_start,
+                    answer_page_end,
+                    1 if starts_mid_page else 0,
+                    1 if ends_mid_page else 0,
+                    source,
+                    notes,
+                    now,
+                    now,
+                ),
+            )
+            conn.commit()
+            self._log_operation(
+                "book_answer_mapping_set",
+                file_id=unit_file_id,
+                group_id=book_group_id,
+                after_state=json.dumps(after_payload),
+            )
+        else:
+            before_payload = {
+                "unit_file_id": existing["unit_file_id"],
+                "answer_file_id": existing["answer_file_id"],
+                "answer_page_start": existing["answer_page_start"],
+                "answer_page_end": existing["answer_page_end"],
+                "starts_mid_page": bool(existing["starts_mid_page"]),
+                "ends_mid_page": bool(existing["ends_mid_page"]),
+                "source": existing["source"],
+                "notes": existing["notes"],
+            }
+            mapping_id = existing["id"]
+            conn.execute(
+                """
+                UPDATE book_answer_mappings
+                SET answer_file_id = ?, answer_page_start = ?, answer_page_end = ?,
+                    starts_mid_page = ?, ends_mid_page = ?, source = ?, notes = ?, updated_at = ?
+                WHERE unit_file_id = ?
+                """,
+                (
+                    answer_file_id,
+                    answer_page_start,
+                    answer_page_end,
+                    1 if starts_mid_page else 0,
+                    1 if ends_mid_page else 0,
+                    source,
+                    notes,
+                    now,
+                    unit_file_id,
+                ),
+            )
+            conn.commit()
+            self._log_operation(
+                "book_answer_mapping_update",
+                file_id=unit_file_id,
+                group_id=book_group_id,
+                before_state=json.dumps(before_payload),
+                after_state=json.dumps(after_payload),
+            )
+        row = conn.execute(
+            "SELECT * FROM book_answer_mappings WHERE id = ?",
+            (mapping_id,),
+        ).fetchone()
+        assert row is not None
+        return self._row_to_book_answer_mapping(row)
+
+    def get_book_answer_mapping(self, unit_file_id_or_path: str | Path) -> BookAnswerMapping | None:
+        unit_file_id, _, _ = self._resolve_file_record(unit_file_id_or_path)
+        conn = self._get_connection()
+        row = conn.execute(
+            "SELECT * FROM book_answer_mappings WHERE unit_file_id = ?",
+            (unit_file_id,),
+        ).fetchone()
+        if row is None:
+            return None
+        return self._row_to_book_answer_mapping(row)
+
+    def list_book_answer_mappings(
+        self,
+        *,
+        book_group_id: str | None = None,
+        answer_file_id_or_path: str | Path | None = None,
+        source: str | None = None,
+    ) -> list[BookAnswerMapping]:
+        conn = self._get_connection()
+        sql = "SELECT bam.* FROM book_answer_mappings bam"
+        params: list[object] = []
+        if book_group_id is not None:
+            group = self.get_file_group(book_group_id)
+            if group.group_type != "book":
+                raise ValueError("book_group_id must refer to a group_type='book' file group")
+            sql += " JOIN file_group_members fgm ON fgm.file_id = bam.unit_file_id"
+        sql += " WHERE 1=1"
+        if book_group_id is not None:
+            sql += " AND fgm.group_id = ?"
+            params.append(book_group_id)
+        if answer_file_id_or_path is not None:
+            answer_file_id, _, _ = self._resolve_file_record(answer_file_id_or_path)
+            sql += " AND bam.answer_file_id = ?"
+            params.append(answer_file_id)
+        if source is not None:
+            sql += " AND bam.source = ?"
+            params.append(source)
+        sql += " ORDER BY bam.created_at ASC"
+        rows = conn.execute(sql, params).fetchall()
+        return [self._row_to_book_answer_mapping(row) for row in rows]
+
+    def delete_book_answer_mapping(self, unit_file_id_or_path: str | Path) -> None:
+        unit_file_id, _, _ = self._resolve_file_record(unit_file_id_or_path)
+        conn = self._get_connection()
+        row = conn.execute(
+            "SELECT * FROM book_answer_mappings WHERE unit_file_id = ?",
+            (unit_file_id,),
+        ).fetchone()
+        if row is None:
+            raise NotFoundError(f"Book answer mapping not found for unit file: {unit_file_id_or_path}")
+        book_group_ids = self._book_group_ids_for_file(unit_file_id)
+        before_payload = {
+            "unit_file_id": row["unit_file_id"],
+            "answer_file_id": row["answer_file_id"],
+            "answer_page_start": row["answer_page_start"],
+            "answer_page_end": row["answer_page_end"],
+            "starts_mid_page": bool(row["starts_mid_page"]),
+            "ends_mid_page": bool(row["ends_mid_page"]),
+            "source": row["source"],
+            "notes": row["notes"],
+        }
+        conn.execute(
+            "DELETE FROM book_answer_mappings WHERE unit_file_id = ?",
+            (unit_file_id,),
+        )
+        conn.commit()
+        self._log_operation(
+            "book_answer_mapping_delete",
+            file_id=unit_file_id,
+            group_id=sorted(book_group_ids)[0] if book_group_ids else None,
+            before_state=json.dumps(before_payload),
+        )
+
+    def import_book_answer_mappings_from_json(
+        self,
+        json_path: str | Path,
+        *,
+        source: str = "imported_ground_truth",
+    ) -> list[BookAnswerMapping]:
+        payload = json.loads(Path(json_path).read_text(encoding="utf-8"))
+        book_label = payload.get("book_label")
+        answer_file_name = payload.get("answer_file")
+        mappings = payload.get("mappings") or []
+        if not book_label or not answer_file_name:
+            raise ValueError("Ground-truth JSON must include book_label and answer_file")
+        groups = [group for group in self.list_file_groups(group_type="book") if group.label == book_label]
+        if not groups:
+            raise NotFoundError(f"Book file group not found for label: {book_label}")
+        if len(groups) > 1:
+            raise ValueError(f"Multiple book file groups found for label: {book_label}")
+        group = groups[0]
+        members_by_name = {member.file.name: member.file for member in group.members}
+        answer_file = members_by_name.get(answer_file_name)
+        if answer_file is None:
+            raise NotFoundError(f"Answer file not found in book group '{book_label}': {answer_file_name}")
+
+        imported: list[BookAnswerMapping] = []
+        for item in mappings:
+            unit_file_name = item.get("unit_file")
+            if not unit_file_name:
+                raise ValueError("Each mapping row must include unit_file")
+            unit_file = members_by_name.get(unit_file_name)
+            if unit_file is None:
+                raise NotFoundError(f"Unit file not found in book group '{book_label}': {unit_file_name}")
+            imported.append(
+                self.set_book_answer_mapping(
+                    unit_file.id,
+                    answer_file.id,
+                    int(item["answer_page_start"]),
+                    int(item["answer_page_end"]),
+                    starts_mid_page=bool(item.get("starts_mid_page", False)),
+                    ends_mid_page=bool(item.get("ends_mid_page", False)),
+                    source=source,
+                    notes=item.get("notes") or None,
+                )
+            )
+        return imported
 
     def ensure_book_group_from_path(self, path: str | Path) -> FileGroup:
         target = Path(path).resolve()

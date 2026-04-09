@@ -12,6 +12,7 @@ if str(_util_dir) not in sys.path:
 FIXTURE_ROOT = _tests_dir / "fixtures" / "daydreamedu_fixture"
 
 EXPECTED_TABLES = [
+    "book_answer_mappings",
     "file_group_members",
     "file_groups",
     "file_relations",

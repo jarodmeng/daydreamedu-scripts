@@ -60,6 +60,28 @@ CREATE TABLE IF NOT EXISTS file_group_members (
     PRIMARY KEY (group_id, file_id)
 );
 
+-- Per-unit answer coverage inside a book
+CREATE TABLE IF NOT EXISTS book_answer_mappings (
+    id                TEXT PRIMARY KEY,
+    unit_file_id      TEXT NOT NULL UNIQUE REFERENCES pdf_files(id) ON DELETE CASCADE,
+    answer_file_id    TEXT NOT NULL REFERENCES pdf_files(id) ON DELETE CASCADE,
+    answer_page_start INTEGER NOT NULL,
+    answer_page_end   INTEGER NOT NULL,
+    starts_mid_page   BOOLEAN NOT NULL DEFAULT 0,
+    ends_mid_page     BOOLEAN NOT NULL DEFAULT 0,
+    source            TEXT,
+    notes             TEXT,
+    created_at        TEXT NOT NULL,
+    updated_at        TEXT NOT NULL,
+    CHECK(answer_page_start <= answer_page_end)
+);
+
+CREATE INDEX IF NOT EXISTS idx_book_answer_mappings_answer_file_id
+    ON book_answer_mappings(answer_file_id);
+
+CREATE INDEX IF NOT EXISTS idx_book_answer_mappings_source
+    ON book_answer_mappings(source);
+
 -- Append-only audit log (no FK so entries survive deletes)
 CREATE TABLE IF NOT EXISTS operation_log (
     id           TEXT PRIMARY KEY,
