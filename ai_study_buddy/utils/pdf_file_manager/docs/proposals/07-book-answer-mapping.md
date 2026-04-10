@@ -4,6 +4,28 @@
 
 ---
 
+## Implementation status
+
+**Baseline:** [`pdf_file_manager` v0.2.7](../../CHANGELOG.md) (see changelog entry *Book answer mappings*). This section is the source of truth for **proposal vs shipped**.
+
+| Area | Status |
+| --- | --- |
+| `book_answer_mappings` table + invariants (same book group, `doc_type='book'`, `file_type='main'`, upsert by unit) | **Implemented** |
+| Operation log: `book_answer_mapping_set`, `book_answer_mapping_update`, `book_answer_mapping_delete` | **Implemented** |
+| Python: `set` / `get` / `list` / `delete` / `import_book_answer_mappings_from_json` | **Implemented** |
+| MCP: `pdf_set_book_answer_mapping`, `pdf_get_book_answer_mapping`, `pdf_list_book_answer_mappings`, `pdf_delete_book_answer_mapping` | **Implemented** |
+| MCP: `pdf_import_book_answer_mappings_from_json` | **Not implemented** (still “potential future” below) |
+| Python: `list_unmapped_book_units` | **Not implemented** |
+| CLI `pdf_file_manager book-answer …` | **Not implemented** |
+| Companion table / flag for “known unmapped by design” | **Not implemented** (v1 uses *no row*) |
+| Phase 3: model runs writing directly to registry | **Not implemented** |
+
+**Ground-truth JSON:** Bulk import is supported via **`import_book_answer_mappings_from_json`** (Python only). The pilot files under `split_book_answer_by_unit_using_ai/pilot_ground_truth/` used in v0.2.7 are listed in [Phase 2](#phase-2) below; **`power_pack_english_psle_situational_writing_ground_truth.json`** is an additional validated artifact in the same format and can be imported the same way once the answer and unit PDFs are registered in the book group.
+
+**Docs:** [Documentation update plan](#documentation-update-plan) — most items were done for v0.2.7; this proposal file was not originally toggled to “done”; this section records that.
+
+---
+
 ## Motivation
 
 We now have several successful pilot runs that can map:
@@ -60,6 +82,8 @@ Without a first-class place for that mapping:
 ## Proposal
 
 Add a first-class **book answer mapping** relation to the registry.
+
+**Status:** The storage model, invariants, and core Python API below are **implemented** (v0.2.7). See [Implementation status](#implementation-status) for MCP/CLI/import gaps.
 
 ### Concept
 
@@ -127,35 +151,38 @@ So the clean model is:
 
 ## Suggested API surface
 
+*Cross-check [Implementation status](#implementation-status) above.*
+
 ### Python API
 
-Add helper methods such as:
+**Implemented (v0.2.7):**
 
 - `set_book_answer_mapping(unit_file_id_or_path, answer_file_id_or_path, answer_page_start, answer_page_end, starts_mid_page=False, ends_mid_page=False, source=None, notes=None)`
 - `get_book_answer_mapping(unit_file_id_or_path)`
 - `list_book_answer_mappings(book_group_id=None, answer_file_id_or_path=None, source=None)`
 - `delete_book_answer_mapping(unit_file_id_or_path)`
+- `import_book_answer_mappings_from_json(json_path, *, source='imported_ground_truth')` — reads the same shape as pilot ground-truth JSON (`book_label`, `answer_file`, `mappings[]`).
 
-Optional higher-level helpers:
+**Not implemented:**
 
-- `list_unmapped_book_units(book_group_id)`
+- `list_unmapped_book_units(book_group_id)` (optional higher-level helper; callers can diff group members against `list_book_answer_mappings` today).
 
 ### MCP tool surface
 
-Expose structured tools such as:
+**Implemented (v0.2.7):**
 
 - `pdf_set_book_answer_mapping`
 - `pdf_get_book_answer_mapping`
 - `pdf_list_book_answer_mappings`
 - `pdf_delete_book_answer_mapping`
 
-Potential future tool:
+**Not implemented:**
 
-- `pdf_import_book_answer_mappings_from_json`
+- `pdf_import_book_answer_mappings_from_json` — no MCP wrapper yet; use Python `import_book_answer_mappings_from_json` or repeated `pdf_set_book_answer_mapping`.
 
 ### CLI
 
-Optional but helpful:
+**Not implemented** (optional but helpful):
 
 - `pdf_file_manager book-answer set ...`
 - `pdf_file_manager book-answer get ...`
@@ -172,7 +199,7 @@ For v1, the table is a **current-state** view rather than a historical ledger:
 - `set_book_answer_mapping(...)` should upsert by `unit_file_id`
 - updates and deletes should be recorded in `operation_log`
 
-Suggested `source` values:
+Suggested `source` values (free-form `TEXT` in DB; **no enum enforcement** in v0.2.7):
 
 - `model_generated`
 - `model_generated_gpt54`
@@ -225,94 +252,93 @@ For v1, no row is the intended representation.
 
 ### Phase 1
 
-Add the table and basic CRUD API with upsert-by-unit behavior and operation-log entries for create, update, and delete.
+**Done (v0.2.7).** Table `book_answer_mappings`, CRUD + upsert-by-unit, operation-log entries for create, update, and delete.
 
 ### Phase 2
 
-Import already validated ground-truth mappings from:
+**Partially done.** Python `import_book_answer_mappings_from_json` is **implemented**; loading each file into a given registry is an **operational** step (files must exist in the book group with matching basenames).
 
-- `science_practice_primary_5_and_6_ground_truth.json`
-- `power_pack_science_psle_ground_truth.json`
-- `power_pack_chinese_psle_ground_truth.json`
-- `power_pack_math_psle_ground_truth.json`
-- `power_pack_english_psle_practice_ground_truth.json`
+Validated ground-truth JSON under `split_book_answer_by_unit_using_ai/pilot_ground_truth/`:
+
+- `science_practice_primary_5_and_6_ground_truth.json` — used in v0.2.7 rollout
+- `power_pack_science_psle_ground_truth.json` — used in v0.2.7 rollout
+- `power_pack_chinese_psle_ground_truth.json` — used in v0.2.7 rollout
+- `power_pack_math_psle_ground_truth.json` — used in v0.2.7 rollout
+- `power_pack_english_psle_practice_ground_truth.json` — used in v0.2.7 rollout
+- `power_pack_english_psle_situational_writing_ground_truth.json` — same import path; **not** called out in the v0.2.7 changelog list (added later)
 
 Mark imported mappings with:
 
-- `source='imported_ground_truth'`
+- `source='imported_ground_truth'` (default for `import_book_answer_mappings_from_json`)
 
 ### Phase 3
 
-Have future model runs write first-pass mappings into the registry directly, then promote them to verified/corrected after manual review.
+**Not done.** Have future model runs write first-pass mappings into the registry directly, then promote them to verified/corrected after manual review.
 
 ---
 
 ## Documentation update plan
 
-Update these docs if the proposal is implemented:
+**Status:** Core product docs were updated for **v0.2.7** as planned. This proposal was left as the design record; [Implementation status](#implementation-status) above reconciles it with what shipped.
 
-- `README.md`
-- `ARCHITECTURE.md`
-- `SPEC.md`
-- `DECISIONS.md`
-- `CHANGELOG.md`
-- `MCP.md`
+| Doc | Status (v0.2.7) |
+| --- | --- |
+| `README.md` | **Done** — book answer mappings, MCP tool list |
+| `ARCHITECTURE.md` | **Done** — table and placement vs groups/relations |
+| `SPEC.md` | **Done** — API contract for CRUD mappings |
+| `DECISIONS.md` | **Done** — decision entry for dedicated table |
+| `CHANGELOG.md` | **Done** — v0.2.7 entry |
+| `MCP.md` | **Done** — four mapping tools (**not** import MCP) |
+| `07-book-answer-mapping.md` (this file) | **Updated** — implementation status section |
 
-Planned documentation updates:
+Planned content (original intent — largely reflected in the updated docs above):
 
-- `README.md`
-  - mention that book units can now be linked to answer files through page-range mappings
-  - add a short example of querying a unit’s answer coverage
-- `ARCHITECTURE.md`
-  - document the new `book_answer_mappings` relation/table
-  - explain how it sits alongside `pdf_files`, `file_groups`, and existing file relations
-  - note that mixed books can map different unit subsets to different answer files
-- `SPEC.md`
-  - describe the new mapping data model and invariants
-  - define accepted CRUD operations
-  - document expected behavior for unmapped units and intentionally excluded units
-- `DECISIONS.md`
-  - add a short decision entry explaining why book answer-page coverage is stored as a dedicated relation table instead of file metadata
-- `CHANGELOG.md`
-  - record the addition of book answer mapping support
-- `MCP.md`
-  - add the new MCP tools
-  - document the machine-facing contract for querying and updating book answer mappings
+- `README.md` — book units linked to answer files via page-range mappings; query via API/MCP
+- `ARCHITECTURE.md` — `book_answer_mappings`; mixed books with multiple answer files
+- `SPEC.md` — data model, invariants, unmapped = no row
+- `DECISIONS.md` — why not `pdf_files.metadata`
+- `CHANGELOG.md` — version history
+- `MCP.md` — machine-facing CRUD; import remains Python-only until a fifth tool exists
 
 ---
 
 ## Test plan
 
+**Automated coverage (v0.2.7):** See `tests/test_book_answer_mappings.py` and MCP tests in `tests/test_mcp_tools.py` / `tests/test_mcp_server.py` for CRUD, filters, upsert logging, validation errors, **`import_book_answer_mappings_from_json`**, and the four MCP mapping tools.
+
 ### Data model tests
 
-- Create one valid mapping row between a unit file and answer file in the same book group.
-- Reject invalid page ranges where `start > end`.
-- Reject mapping rows for missing file ids.
-- Reject duplicate rows for the same `unit_file_id` if uniqueness is enforced.
+- Create one valid mapping row between a unit file and answer file in the same book group. **Covered** (synthetic fixtures).
+- Reject invalid page ranges where `start > end`. **Enforced** in `set_book_answer_mapping` (`ValueError`); **no dedicated pytest** in `test_book_answer_mappings.py` at time of writing.
+- Reject mapping rows for missing file ids. **Partially** (NotFound / wrong group paths).
+- Reject duplicate rows for the same `unit_file_id` if uniqueness is enforced. **Covered** via upsert behavior (same unit updates one row).
 
 ### API tests
 
-- `set_book_answer_mapping(...)` creates a row.
-- Repeating the same call updates the row if the API is upsert-style.
-- `get_book_answer_mapping(...)` returns the correct row.
-- `list_book_answer_mappings(...)` filters by book group and answer file correctly.
-- `delete_book_answer_mapping(...)` removes the row.
+- `set_book_answer_mapping(...)` creates a row. **Covered**
+- Repeating the same call updates the row if the API is upsert-style. **Covered**
+- `get_book_answer_mapping(...)` returns the correct row. **Covered**
+- `list_book_answer_mappings(...)` filters by book group and answer file correctly. **Covered**
+- `delete_book_answer_mapping(...)` removes the row. **Covered**
 
 ### Registry consistency tests
 
-- Mapping unit and answer files in the same `group_type='book'` works.
-- Mapping files across unrelated books is rejected or flagged clearly.
-- Mapping to a non-book file is rejected or flagged clearly.
+- Mapping unit and answer files in the same `group_type='book'` works. **Covered**
+- Mapping files across unrelated books is rejected or flagged clearly. **Covered** (`ValueError`)
+- Mapping to a non-book file is rejected or flagged clearly. **Covered** (`ValueError`)
 
 ### Real-example fixture tests
 
-Use at least one known mapping from each validated pilot:
+**Not required by current test suite** (uses temp DBs and small PDFs). Optional follow-up: fixture-backed tests using real pilot filenames.
+
+Pilot books with validated JSON:
 
 - `Science Practice Primary 5 and 6`
 - `Power Pack Science PSLE`
 - `Power Pack Chinese PSLE`
 - `Power Pack Math PSLE`
 - `Power Pack English PSLE` practice subset
+- `Power Pack English PSLE` situational-writing subset (`power_pack_english_psle_situational_writing_ground_truth.json`)
 
 ---
 
