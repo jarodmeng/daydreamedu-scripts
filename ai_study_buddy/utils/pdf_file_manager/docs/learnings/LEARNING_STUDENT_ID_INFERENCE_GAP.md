@@ -50,3 +50,5 @@ Make student inference a first-class part of registration and scan processing:
 ### Implementation status
 
 Implemented in the utility after this learning was recorded.
+
+**Follow-up (v0.2.8):** Explicit `roots=[...]` scans now join resolved paths to configured `scan_roots`, so a folder added as a scan root with `student_id` keeps that assignment when passed as an override. `dry_run=True` scan results use full path inference on returned `PdfFile` previews (see `CHANGELOG.md` v0.2.8).

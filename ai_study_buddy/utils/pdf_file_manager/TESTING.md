@@ -100,8 +100,9 @@ These tests give confidence that Phase 2 (Config & file lifecycle) is complete. 
 | **2.13** | **scan without dry_run registers and compresses** | Same setup; `scan_for_new_files(dry_run=False)`. Assert one row in `pdf_files` (the main file); `student_id` set from scan root if root had `student_id`. Proves: full scan flow. |
 | **2.14** | **scan with no roots raises** | New manager, no roots added. `scan_for_new_files()` (no override) raises `ConfigError` (or equivalent) pointing to config add-root. Proves: guard rail. |
 | **2.15** | **scan ignores nested subfolders** | Add one PDF directly inside the scan root and another in a nested child folder. `scan_for_new_files(...)` should process only the direct child PDF. Proves: scan roots are non-recursive and nested folders must be passed explicitly. |
+| **2.16** | **scan dry_run preview matches inference** | GoodNotes-style path with book inference; `scan_for_new_files(roots=[root], dry_run=True)`. Assert returned `PdfFile` has inferred `doc_type`, `subject`, `metadata`, and `student_id` (from configured scan root or email segment). Proves: dry-run previews are not stub rows. |
 
-**Passing all 15** (2.1–2.15) means: students and scan roots are configurable, `register_file` and its guards work, `compress_and_register` does register-then-compress (using the real `compress_pdf`), and `scan_for_new_files` respects dry_run, requires roots, and only processes direct PDF children of each root. Phase 2 is then safe to call done.
+**Passing all 16** (2.1–2.16) means: students and scan roots are configurable, `register_file` and its guards work, `compress_and_register` does register-then-compress (using the real `compress_pdf`), and `scan_for_new_files` respects dry_run, requires roots, and only processes direct PDF children of each root. Phase 2 is then safe to call done.
 
 ---
 

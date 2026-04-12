@@ -16,11 +16,13 @@ This document specifies the **operations** (Python API and MCP tool layer), **op
 
 #### `scan_for_new_files(roots=None, min_savings_pct=10, dry_run=False) -> list[ScanResult]`
 
-Walk configured scan roots (or override list), find direct-child `*.pdf` files in each root, compare against the registry, and process any that are new. `scan_for_new_files(...)` does **not** recurse into nested subfolders; callers that want nested folders processed must pass those folders explicitly as roots. If `dry_run=True`, no disk or database changes are made; the return value describes what would have been done for each would-be-processed file.
+Walk configured scan roots (or override list), find direct-child `*.pdf` files in each root, compare against the registry, and process any that are new. `scan_for_new_files(...)` does **not** recurse into nested subfolders; callers that want nested folders processed must pass those folders explicitly as roots. If `dry_run=True`, no disk or database changes are made; the return value describes what would have been done for each would-be-processed file. In dry-run mode, each `ScanResult.file` is still populated with **inferred** fields (`doc_type`, `subject`, `is_template`, `metadata`, and `file_type` where applicable) so previews match a real run rather than placeholder `unknown` / empty metadata.
+
+When `roots` is a non-empty override list, each resolved absolute path is looked up against configured `scan_roots` rows so that a matching registered root’s `student_id` is used for files under that path—the same as when scanning all configured roots without an override.
 
 Student assignment precedence during scan:
 
-1. explicit/configured `scan_root.student_id`
+1. explicit/configured `scan_root.student_id` (including when the root comes from the `roots=[...]` override and that path is registered as a scan root)
 2. fallback inference from a registered `students.email` path segment
 
 **Book-aware behavior:** For paths under `.../Book/<book name>/...`, scan applies path inference so files are registered with `doc_type='book'`, infers `metadata.unit` from filename where possible, and syncs a `group_type='book'` file group for that folder using `<book name>` as the group label. Only `main` files are added to the book group.

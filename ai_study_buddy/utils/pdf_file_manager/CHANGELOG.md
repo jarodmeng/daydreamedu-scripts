@@ -4,6 +4,13 @@ All notable changes to the pdf_file_manager utility are documented here.
 
 ---
 
+## [v0.2.8] — Scan dry-run preview and explicit-root student_id
+
+- **`scan_for_new_files(..., dry_run=True)`:** Returned `PdfFile` previews now use the same path inference as a real run (`doc_type`, `subject`, `is_template`, `metadata`, inferred `file_type` where applicable) instead of placeholder `unknown` rows with empty metadata.
+- **Explicit `roots=[...]`:** Each resolved path is matched against configured `scan_roots` so a registered scan root’s `student_id` applies when the caller passes that folder explicitly (same precedence as when scanning all configured roots: configured root `student_id`, then email-segment inference).
+- Tests: `test_scan_dry_run_explicit_configured_root_uses_scan_root_student_id`, `test_scan_dry_run_explicit_goodnotes_root_infers_student_id_without_configured_scan_root`, `test_scan_dry_run_book_root_reports_inferred_book_metadata` in `tests/test_scan.py`.
+- Docs: `README.md`, `SPEC.md`, `ARCHITECTURE.md`, `TESTING.md`, `MCP.md`, `docs/learnings/LEARNING_STUDENT_ID_INFERENCE_GAP.md`.
+
 ## [v0.2.7] — Book answer mappings
 
 - Added first-class `book_answer_mappings` support for mapping one registered `doc_type='book'` unit file to an inclusive page range in one registered `doc_type='book'` answer file from the same `group_type='book'` collection.

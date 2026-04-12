@@ -187,6 +187,8 @@ CREATE TABLE scan_roots (
 );
 ```
 
+**Explicit `roots` override:** `scan_for_new_files(roots=[...])` still resolves each path and pairs it with `student_id` from any **matching** `scan_roots.path` entry (normalized absolute path). Callers that pass a folder explicitly therefore get the same configured student as when that folder is scanned as part of the default configured-root walk.
+
 ### Relation types
 
 | `relation_type` | Source | Target | Meaning |

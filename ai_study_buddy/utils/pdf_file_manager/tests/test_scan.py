@@ -184,6 +184,63 @@ def test_scan_explicit_student_root_infers_student_id_without_configured_scan_ro
         assert results[0].file.student_id == "winston"
 
 
+def test_scan_dry_run_explicit_configured_root_uses_scan_root_student_id():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmpdir = Path(tmpdir)
+        root = tmpdir / "GoodNotes" / "Singapore Primary English" / "winston.ry.meng@gmail.com" / "PSLE" / "Book" / "English Practice 1000"
+        root.mkdir(parents=True, exist_ok=True)
+        pdf_path = root / "c_EPO_Vocabulary_Cloze_01.pdf"
+        pdf_path.write_bytes(b"pdf")
+        db_path = tmpdir / "registry.db"
+        mgr = PdfFileManager(db_path=str(db_path))
+        mgr.add_student("winston", "Winston Meng", "winston.ry.meng@gmail.com")
+        mgr.add_scan_root(root, student_id="winston")
+
+        results = mgr.scan_for_new_files(roots=[root], dry_run=True)
+        assert len(results) == 1
+        assert results[0].file.student_id == "winston"
+
+
+def test_scan_dry_run_explicit_goodnotes_root_infers_student_id_without_configured_scan_root():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmpdir = Path(tmpdir)
+        root = tmpdir / "GoodNotes" / "Singapore Primary Math" / "winston.ry.meng@gmail.com" / "P6" / "Exam"
+        root.mkdir(parents=True, exist_ok=True)
+        pdf_path = root / "c_P6_WA1_practice_paper_1.pdf"
+        pdf_path.write_bytes(b"pdf")
+        db_path = tmpdir / "registry.db"
+        mgr = PdfFileManager(db_path=str(db_path))
+        mgr.add_student("winston", "Winston Meng", "winston.ry.meng@gmail.com")
+
+        results = mgr.scan_for_new_files(roots=[root], dry_run=True)
+        assert len(results) == 1
+        assert results[0].file.student_id == "winston"
+
+
+def test_scan_dry_run_book_root_reports_inferred_book_metadata():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmpdir = Path(tmpdir)
+        root = tmpdir / "GoodNotes" / "Singapore Primary English" / "winston.ry.meng@gmail.com" / "PSLE" / "Book" / "English Practice 1000"
+        root.mkdir(parents=True, exist_ok=True)
+        pdf_path = root / "c_EPO_Vocabulary_Cloze_01.pdf"
+        pdf_path.write_bytes(b"pdf")
+        db_path = tmpdir / "registry.db"
+        mgr = PdfFileManager(db_path=str(db_path))
+        mgr.add_student("winston", "Winston Meng", "winston.ry.meng@gmail.com")
+
+        results = mgr.scan_for_new_files(roots=[root], dry_run=True)
+        assert len(results) == 1
+        preview = results[0].file
+        assert preview.file_type == "main"
+        assert preview.student_id == "winston"
+        assert preview.subject == "english"
+        assert preview.doc_type == "book"
+        assert preview.is_template is False
+        assert (preview.metadata or {}).get("content_folder") == "Book"
+        assert (preview.metadata or {}).get("grade_or_scope") == "PSLE"
+        assert (preview.metadata or {}).get("unit") == "EPO_Vocabulary_Cloze_01"
+
+
 def test_scan_explicit_goodnotes_root_infers_student_id_without_configured_scan_root(monkeypatch):
     with tempfile.TemporaryDirectory() as tmpdir:
         tmpdir = Path(tmpdir)

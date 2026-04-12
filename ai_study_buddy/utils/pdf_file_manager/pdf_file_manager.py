@@ -995,9 +995,33 @@ class PdfFileManager:
         dry_run: bool = False,
         on_file_start: Callable[[Path], None] | None = None,
     ) -> list[ScanResult]:
+        def _build_dry_run_preview(file_type: str, pdf_path: Path, inferred: dict, inferred_student_id: str | None) -> PdfFile:
+            metadata = inferred.get("metadata")
+            return PdfFile(
+                id="",
+                name=pdf_path.name,
+                path=str(pdf_path.resolve()),
+                file_type=file_type,
+                doc_type=inferred.get("doc_type") or "unknown",
+                student_id=inferred_student_id,
+                subject=inferred.get("subject"),
+                is_template=bool(inferred.get("is_template", False)),
+                size_bytes=None,
+                page_count=None,
+                has_raw=False,
+                metadata=metadata if metadata else None,
+                added_at="",
+                updated_at="",
+                notes=None,
+            )
+
         conn = self._get_connection()
         if roots is not None:
-            root_entries = [ (str(Path(p).resolve()), None) for p in roots ]
+            configured_scan_roots = {r.path: r.student_id for r in self.list_scan_roots()}
+            root_entries = [
+                (resolved_path, configured_scan_roots.get(resolved_path))
+                for resolved_path in (str(Path(p).resolve()) for p in roots)
+            ]
         else:
             scan_roots_list = self.list_scan_roots()
             if not scan_roots_list:
@@ -1101,7 +1125,7 @@ class PdfFileManager:
                 if _looks_like_compressed_main_name(name):
                     if dry_run:
                         results.append(ScanResult(
-                            file=PdfFile(id="", name=name, path=path_str, file_type="main", doc_type="unknown", student_id=root_student_id, subject=None, is_template=False, size_bytes=None, page_count=None, has_raw=False, metadata=None, added_at="", updated_at="", notes=None),
+                            file=_build_dry_run_preview("main", pdf_path, inferred, inferred_student_id),
                             raw_archive=None,
                             compressed=False,
                         ))
@@ -1125,7 +1149,7 @@ class PdfFileManager:
                     continue
                 if dry_run:
                     results.append(ScanResult(
-                        file=PdfFile(id="", name=name, path=path_str, file_type="unknown", doc_type="unknown", student_id=root_student_id, subject=None, is_template=False, size_bytes=None, page_count=None, has_raw=False, metadata=None, added_at="", updated_at="", notes=None),
+                        file=_build_dry_run_preview("unknown", pdf_path, inferred, inferred_student_id),
                         raw_archive=None,
                         compressed=False,
                     ))
