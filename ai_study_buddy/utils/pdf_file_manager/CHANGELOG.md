@@ -4,6 +4,12 @@ All notable changes to the pdf_file_manager utility are documented here.
 
 ---
 
+## [v0.2.9] — Cross-book answer mappings
+
+- Relaxed `book_answer_mappings` validation so registered `doc_type='book'` main files can map across different `group_type='book'` collections.
+- Updated focused tests for cross-book mapping behavior in `tests/test_book_answer_mappings.py`.
+- Updated `README.md`, `SPEC.md`, and `MCP.md` to document the relaxed constraint.
+
 ## [v0.2.8] — Scan dry-run preview and explicit-root student_id
 
 - **`scan_for_new_files(..., dry_run=True)`:** Returned `PdfFile` previews now use the same path inference as a real run (`doc_type`, `subject`, `is_template`, `metadata`, inferred `file_type` where applicable) instead of placeholder `unknown` rows with empty metadata.

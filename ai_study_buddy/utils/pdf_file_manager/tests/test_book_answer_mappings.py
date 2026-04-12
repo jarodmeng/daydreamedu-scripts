@@ -163,7 +163,7 @@ def test_delete_book_answer_mapping_logs_and_removes_row():
         Path(db_path).unlink(missing_ok=True)
 
 
-def test_set_book_answer_mapping_requires_same_book_group_and_book_files():
+def test_set_book_answer_mapping_allows_cross_book_group_mapping_for_book_files():
     with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as f:
         db_path = f.name
     try:
@@ -177,8 +177,9 @@ def test_set_book_answer_mapping_requires_same_book_group_and_book_files():
             mgr.add_to_file_group(science_group.id, science_unit)
             mgr.add_to_file_group(math_group.id, math_answer)
 
-            with pytest.raises(ValueError, match="same group_type='book'"):
-                mgr.set_book_answer_mapping(science_unit, math_answer, 1, 2)
+            mapping = mgr.set_book_answer_mapping(science_unit, math_answer, 1, 2)
+            assert mapping.unit_file_id == science_unit
+            assert mapping.answer_file_id == math_answer
 
             notes_file = mgr.register_file(
                 _make_pdf(root / "notes.pdf"),

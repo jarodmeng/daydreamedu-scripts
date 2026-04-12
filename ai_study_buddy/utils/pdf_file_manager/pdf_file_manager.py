@@ -435,7 +435,7 @@ class PdfFileManager:
         ).fetchall()
         return {row["group_id"] for row in rows}
 
-    def _validate_book_answer_mapping_files(self, unit_file_id: str, answer_file_id: str) -> str:
+    def _validate_book_answer_mapping_files(self, unit_file_id: str, answer_file_id: str) -> str | None:
         unit_file = self.get_file(unit_file_id)
         if unit_file is None:
             raise NotFoundError(f"File not found: {unit_file_id}")
@@ -447,9 +447,15 @@ class PdfFileManager:
         if unit_file.doc_type != "book" or answer_file.doc_type != "book":
             raise ValueError("Book answer mappings require both files to have doc_type='book'")
         shared_group_ids = self._book_group_ids_for_file(unit_file_id) & self._book_group_ids_for_file(answer_file_id)
-        if not shared_group_ids:
-            raise ValueError("Unit and answer file must belong to the same group_type='book' file group")
-        return sorted(shared_group_ids)[0]
+        if shared_group_ids:
+            return sorted(shared_group_ids)[0]
+        unit_group_ids = self._book_group_ids_for_file(unit_file_id)
+        if unit_group_ids:
+            return sorted(unit_group_ids)[0]
+        answer_group_ids = self._book_group_ids_for_file(answer_file_id)
+        if answer_group_ids:
+            return sorted(answer_group_ids)[0]
+        return None
 
     # ---------------------------------------------------------------------------
     # Student management

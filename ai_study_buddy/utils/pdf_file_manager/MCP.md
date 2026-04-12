@@ -49,7 +49,7 @@ For `doc_type='book'` answer coverage:
 - page-range coverage lives in `book_answer_mappings`, not in `pdf_files.metadata`
 - use `pdf_get_book_answer_mapping` / `pdf_list_book_answer_mappings` to read it
 - use `pdf_set_book_answer_mapping` / `pdf_delete_book_answer_mapping` to mutate it
-- the mapping requires both files to be registered `main` files with `doc_type='book'` in the same `group_type='book'` file group
+- the mapping requires both files to be registered `main` files with `doc_type='book'`; they may belong to different `group_type='book'` file groups
 
 ## Transports
 

@@ -206,7 +206,7 @@ Validation:
 - both files must exist
 - both files must have `file_type='main'`
 - both files must have `doc_type='book'`
-- both files must belong to the same `group_type='book'` file group
+- both files may come from different `group_type='book'` file groups
 
 Writes `book_answer_mapping_set` for first insert and `book_answer_mapping_update` for later updates.
 
