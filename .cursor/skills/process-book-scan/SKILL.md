@@ -32,18 +32,19 @@ Treat scanned-book boundary detection as a visual layout task first and an OCR t
 
 The primary way to "read" the first pages of a scanned book is:
 
-1. render a small page range to PNG images with `pdftoppm`
-2. inspect those PNGs directly as images
-3. read the `Contents`, divider pages, titles, and visible printed page numbers from the rendered images
+1. establish the printed-page offset (§1), using a small render or user input as needed
+2. render a small page range to PNG images with `pdftoppm`
+3. inspect those PNGs directly as images
+4. read the `Contents`, divider pages, titles, and visible printed page numbers from the rendered images
 
 In other words, prefer human-style visual inspection of rendered page images over trying to turn the whole scan into machine-readable text first.
 
 Do not start by OCRing large page ranges. For scanned books, that is usually slower and less reliable than inspecting a small set of rendered page images. The fastest dependable path is usually:
 
-1. Render a small front range such as pages `1-12`.
-2. Find the `Contents` page visually.
-3. Read the printed start pages from the contents.
-4. Verify the printed-page-to-PDF-page offset with a few spot checks.
+1. Establish the printed-page-to-PDF-page offset (see §1 — ask the user first when applicable). This often needs only `pdfinfo`, a small render, or a user-provided number you verify.
+2. Render a small front range such as pages `1-12`.
+3. Find the `Contents` page visually.
+4. Read the printed start pages from the contents.
 5. Convert printed boundaries into PDF boundaries.
 6. Use OCR only on specific difficult pages if the contents or divider text is hard to read.
 
@@ -53,44 +54,7 @@ If `pdftotext` returns blank output or mostly form-feed characters, assume the P
 
 Use this workflow by default unless the PDF already has high-quality embedded text.
 
-### 1. Inspect the file and render only a small front range
-
-Start with the total page count and a small render window. Do not render the whole book yet.
-
-```bash
-pdfinfo "book.pdf"
-pdftoppm -f 1 -l 12 -png "book.pdf" /tmp/book-scan
-```
-
-Look through those rendered pages for:
-
-- `Preface`
-- `Contents`
-- section divider pages such as `Section A`
-- chapter or unit start pages
-- visible printed page numbers on the page footer or header
-
-### 2. Prefer visual TOC detection over bulk OCR
-
-The contents page often gives most or all unit starts immediately. Read it from the rendered page image first.
-
-When the page is legible to the eye but OCR is noisy, continue reading the rendered image directly instead of forcing more OCR. The rendered PNG is the source of truth unless there is a specific reason to extract text.
-
-Do not bulk-OCR the first 20, 50, or 200 pages just because the book is scanned. That usually wastes time and still leaves ambiguity.
-
-Only OCR a specific page when:
-
-- the contents text is hard to read visually
-- the scan is faint
-- a title page is visually unclear
-
-Example targeted OCR:
-
-```bash
-tesseract /tmp/book-scan-004.png stdout --psm 6
-```
-
-### 3. Build a printed-page to PDF-page mapping
+### 1. Build a printed-page to PDF-page mapping
 
 The goal is to find a single, consistent offset
 
@@ -98,7 +62,31 @@ The goal is to find a single, consistent offset
 
 for the whole book, then reuse it everywhere (including `Extra` replacements).
 
-#### 3a. Fast, small-offset method: visually locate printed page 1
+#### 1a. Ask the user before inferring the offset
+
+In interactive runs, **do not** run `pdftoppm`, OCR, or offset math until you have gone through the questions below **in the conversation with the user**. Describing this section internally is not enough — **you must actually ask** (or clearly restate what you need and wait for a reply when the task requires user input). If the user has already answered in the same thread, reuse those answers. If there is no reply and the task must proceed, infer the offset using §1b/§1c, then report that fallback and confidence in the final response.
+
+**Question A — offset known?** Ask whether they already know the **offset** for this book, using the same definition as everywhere else in this skill:
+
+`offset = pdf_page - printed_page`
+
+(one number for the whole book). Example phrasing: *“Do you already know the printed-page ↔ PDF-page offset for this book (i.e. `pdf_page = printed_page + offset`)? If yes, what is `offset`?”*
+
+**After Question A:**
+
+1. **If they give a number:** treat it as a hypothesis, not gospel. **Verify** it with a few spot checks (e.g. find printed page `1` or match a contents line to a rendered page). If checks agree, use their offset. If not, say what failed and only then fall back to inferring (§1b–§1c) or ask them to double-check.
+
+2. **If they do not know the offset:** ask **Question B** before you infer.
+
+**Question B — where are page numbers?** Ask **where the printed page number usually appears** on each page (e.g. footer vs header, left/center/right, odd/even pages different, or “no printed numbers on divider pages”). Example phrasing: *“Where does the printed page number usually appear in this scan — footer, header, which corner, and does it differ on odd/even pages?”*
+
+**After Question B:**
+
+3. **If they answer:** use that layout hint when rendering small ranges — look in the stated region first when matching printed numbers to PDF pages.
+
+4. **If they skip or decline** (no answer): infer **where** page numbers appear by **visual inspection** of rendered pages (see §2 for rendering; use §1b or §1c for the offset).
+
+#### 1b. Fast, small-offset method: visually locate printed page 1
 
 For many workbooks, the offset is small (e.g. 2–4 pages of front matter). Instead of OCRing, do this:
 
@@ -120,7 +108,7 @@ For many workbooks, the offset is small (e.g. 2–4 pages of front matter). Inst
 
 This is usually faster and more reliable than trying to OCR page numbers.
 
-#### 3b. TOC-based method (when helpful)
+#### 1c. TOC-based method (when helpful)
 
 You can also use the contents page together with visible printed page numbers on real content pages:
 
@@ -131,6 +119,43 @@ You can also use the contents page together with visible printed page numbers on
 Verify the offset from at least two or three spots, not just the first chapter. Once verified, convert all printed starts with:
 
 `pdf_start = printed_start + offset`
+
+### 2. Inspect the file and render only a small front range
+
+Start with the total page count and a small render window. Do not render the whole book yet.
+
+```bash
+pdfinfo "book.pdf"
+pdftoppm -f 1 -l 12 -png "book.pdf" /tmp/book-scan
+```
+
+Look through those rendered pages for:
+
+- `Preface`
+- `Contents`
+- section divider pages such as `Section A`
+- chapter or unit start pages
+- visible printed page numbers on the page footer or header
+
+### 3. Prefer visual TOC detection over bulk OCR
+
+The contents page often gives most or all unit starts immediately. Read it from the rendered page image first.
+
+When the page is legible to the eye but OCR is noisy, continue reading the rendered image directly instead of forcing more OCR. The rendered PNG is the source of truth unless there is a specific reason to extract text.
+
+Do not bulk-OCR the first 20, 50, or 200 pages just because the book is scanned. That usually wastes time and still leaves ambiguity.
+
+Only OCR a specific page when:
+
+- the contents text is hard to read visually
+- the scan is faint
+- a title page is visually unclear
+
+Example targeted OCR:
+
+```bash
+tesseract /tmp/book-scan-004.png stdout --psm 6
+```
 
 ### 4. Verify with deeper spot checks
 
@@ -171,6 +196,7 @@ Poor OCR use:
 
 ## Fast Decision Rules
 
+- Before inferring the printed-page offset: **ask Question A first in chat** (§1a). If the user does not know, ask Question B; do not skip straight to renders. If the user already answered in-thread, reuse. Verify a user-supplied offset with spot checks.
 - If `pdftotext` is blank: stop text extraction and switch to images.
 - If the TOC is readable visually: use it directly.
 - If the TOC groups multiple units: inspect actual divider/title pages for each grouped unit.
@@ -198,15 +224,15 @@ Rules:
 
 Procedure:
 
-1. Determine the mapping from printed book page to PDF page.
-2. Do not assume offset `0`; verify it from the book by contents pages, visible page numbers, or page images.
+1. Determine the mapping from printed book page to PDF page (follow §1a: ask if the user knows the offset before inferring).
+2. Do not assume offset `0`. If the user gave an offset, verify it; if not, infer and verify using contents pages, visible page numbers, or page images (§1b–§1c).
 3. When PDF pages are identified, rebuild the whole-book PDF with the replacement pages inserted in place of the original pages.
 4. Prefer writing to a temp output first, then replace the merged book only after success.
 5. Verify the rebuilt PDF by checking total page count and spot-comparing replacement pages against the `Extra` source PDFs.
 
 ## Split Workflow
 
-1. Inspect the front matter and contents pages first.
+1. Establish or confirm the printed-page offset (§1), then inspect the front matter and contents pages.
 2. Detect whether `Preface + TOC` should be split separately or combined.
 3. Extract section or unit starts from the contents page.
 4. When the TOC groups multiple units together, inspect page images to find each individual unit start.
@@ -246,7 +272,7 @@ After merge or split:
 - confirm representative page counts with `pdfinfo`
 - for splits, ensure that the **sum of all split page counts exactly equals** the page count of the original merged PDF (no gaps, no overlaps)
 - for `Extra` replacements, verify the inserted pages visually or by rendered-image comparison
-- mention any inferred page offset explicitly in the final response
+- mention the page offset explicitly in the final response (user-provided and verified, or inferred)
 
 ## Reuse
 
