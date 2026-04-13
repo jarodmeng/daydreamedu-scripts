@@ -1,0 +1,231 @@
+{
+  "book_label": "Science Practice Primary 5 and 6",
+  "answer_file": "_c_Science Practice Primary 5 and 6 - 26 Answers.pdf",
+  "mappings": [
+    {
+      "unit_index": 1,
+      "unit_file": "_c_Science Practice Primary 5 and 6 - 01 Cycles - Topical Test 1 Reproduction in Plants.pdf",
+      "answer_page_start": 1,
+      "answer_page_end": 2,
+      "starts_mid_page": false,
+      "ends_mid_page": true,
+      "notes": "Page 2 is a split page; the lower portion starts Topical Test 2."
+    },
+    {
+      "unit_index": 2,
+      "unit_file": "_c_Science Practice Primary 5 and 6 - 02 Cycles - Topical Test 2 Reproduction in Humans.pdf",
+      "answer_page_start": 2,
+      "answer_page_end": 3,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Page 2 begins after the previous section; page 3 is a split page."
+    },
+    {
+      "unit_index": 3,
+      "unit_file": "_c_Science Practice Primary 5 and 6 - 03 Cycles - Topical Test 3 Water and Changes of State.pdf",
+      "answer_page_start": 3,
+      "answer_page_end": 4,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Page 3 begins after the previous section; page 4 is a split page."
+    },
+    {
+      "unit_index": 4,
+      "unit_file": "_c_Science Practice Primary 5 and 6 - 04 Cycles - Topical Test 4 The Water Cycle.pdf",
+      "answer_page_start": 4,
+      "answer_page_end": 6,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Page 4 begins after the previous section; page 6 is a split page."
+    },
+    {
+      "unit_index": 5,
+      "unit_file": "_c_Science Practice Primary 5 and 6 - 05 Cycles - Thematic Test.pdf",
+      "answer_page_start": 6,
+      "answer_page_end": 7,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Starts in the lower portion of page 6 and continues into page 7, where the next section begins mid-page."
+    },
+    {
+      "unit_index": 6,
+      "unit_file": "_c_Science Practice Primary 5 and 6 - 06 Systems - Topical Test 1 The Plant Transport System.pdf",
+      "answer_page_start": 7,
+      "answer_page_end": 8,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Starts mid-page on page 7 after the Cycles Thematic Test; page 8 is a split page and the lower portion starts Topical Test 2."
+    },
+    {
+      "unit_index": 7,
+      "unit_file": "_c_Science Practice Primary 5 and 6 - 07 Systems - Topical Test 2 Air and the Respiratory System.pdf",
+      "answer_page_start": 8,
+      "answer_page_end": 9,
+      "starts_mid_page": true,
+      "ends_mid_page": false,
+      "notes": "Starts on the lower portion of page 8; next section starts at top of page 10."
+    },
+    {
+      "unit_index": 8,
+      "unit_file": "_c_Science Practice Primary 5 and 6 - 08 Systems - Topical Test 3 The Circulatory System.pdf",
+      "answer_page_start": 10,
+      "answer_page_end": 11,
+      "starts_mid_page": false,
+      "ends_mid_page": true,
+      "notes": "Page 11 is a split page; the lower portion starts Topical Test 4."
+    },
+    {
+      "unit_index": 9,
+      "unit_file": "_c_Science Practice Primary 5 and 6 - 09 Systems - Topical Test 4 The Unit of Life.pdf",
+      "answer_page_start": 11,
+      "answer_page_end": 12,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Starts on the lower portion of page 11; page 12 is a split page."
+    },
+    {
+      "unit_index": 10,
+      "unit_file": "_c_Science Practice Primary 5 and 6 - 10 Systems - Topical Test 5 Electrical Systems.pdf",
+      "answer_page_start": 12,
+      "answer_page_end": 14,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Starts on the lower portion of page 12; page 14 is a split page."
+    },
+    {
+      "unit_index": 11,
+      "unit_file": "_c_Science Practice Primary 5 and 6 - 11 Systems - Topical Test 6 Using Electricity.pdf",
+      "answer_page_start": 14,
+      "answer_page_end": 15,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Starts on the right portion of page 14; page 15 is a split page."
+    },
+    {
+      "unit_index": 12,
+      "unit_file": "_c_Science Practice Primary 5 and 6 - 12 Systems - Thematic Test.pdf",
+      "answer_page_start": 15,
+      "answer_page_end": 17,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Starts on the lower portion of page 15; page 17 is a split page."
+    },
+    {
+      "unit_index": 13,
+      "unit_file": "_c_Science Practice Primary 5 and 6 - 13 Energy - Topical Test 1 Energy in Food.pdf",
+      "answer_page_start": 17,
+      "answer_page_end": 18,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Starts on the lower portion of page 17; page 18 is a split page."
+    },
+    {
+      "unit_index": 14,
+      "unit_file": "_c_Science Practice Primary 5 and 6 - 14 Energy - Topical Test 2 Forms and Uses of Energy.pdf",
+      "answer_page_start": 18,
+      "answer_page_end": 19,
+      "starts_mid_page": true,
+      "ends_mid_page": false,
+      "notes": "Starts on the lower portion of page 18 and runs to the end of page 19."
+    },
+    {
+      "unit_index": 15,
+      "unit_file": "_c_Science Practice Primary 5 and 6 - 15 Energy - Topical Test 3 Sources of Energy.pdf",
+      "answer_page_start": 20,
+      "answer_page_end": 21,
+      "starts_mid_page": false,
+      "ends_mid_page": true,
+      "notes": "Starts at the top of page 20; page 21 is a split page."
+    },
+    {
+      "unit_index": 16,
+      "unit_file": "_c_Science Practice Primary 5 and 6 - 16 Energy - Thematic Test.pdf",
+      "answer_page_start": 21,
+      "answer_page_end": 22,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Starts on the lower portion of page 21; page 22 is a split page."
+    },
+    {
+      "unit_index": 17,
+      "unit_file": "_c_Science Practice Primary 5 and 6 - 17 Interactions - Topical Test 1 Forces.pdf",
+      "answer_page_start": 22,
+      "answer_page_end": 24,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Verified from existing marking report; page 24 is split and only the top portion belongs to this unit."
+    },
+    {
+      "unit_index": 18,
+      "unit_file": "_c_Science Practice Primary 5 and 6 - 18 Interactions - Topical Test 2 Living Together.pdf",
+      "answer_page_start": 24,
+      "answer_page_end": 25,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Starts on page 24 after the Forces answers end; page 25 is a split page."
+    },
+    {
+      "unit_index": 19,
+      "unit_file": "_c_Science Practice Primary 5 and 6 - 19 Interactions - Topical Test 3 Food Chains and Food Webs.pdf",
+      "answer_page_start": 25,
+      "answer_page_end": 26,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Starts on the lower portion of page 25; page 26 is a split page."
+    },
+    {
+      "unit_index": 20,
+      "unit_file": "_c_Science Practice Primary 5 and 6 - 20 Interactions - Topical Test 4 Adaptations.pdf",
+      "answer_page_start": 26,
+      "answer_page_end": 28,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Starts on the lower portion of page 26; page 28 is a split page."
+    },
+    {
+      "unit_index": 21,
+      "unit_file": "_c_Science Practice Primary 5 and 6 - 21 Interactions - Topical Test 5 Man's Impact on His Environment.pdf",
+      "answer_page_start": 28,
+      "answer_page_end": 29,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Starts on page 28; page 29 is a split page."
+    },
+    {
+      "unit_index": 22,
+      "unit_file": "_c_Science Practice Primary 5 and 6 - 22 Interactions - Thematic Test.pdf",
+      "answer_page_start": 29,
+      "answer_page_end": 30,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Starts on the lower portion of page 29; page 30 is a split page."
+    },
+    {
+      "unit_index": 23,
+      "unit_file": "_c_Science Practice Primary 5 and 6 - 23 Mock Examination 1.pdf",
+      "answer_page_start": 30,
+      "answer_page_end": 33,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Starts on the lower portion of page 30; page 33 is a split page."
+    },
+    {
+      "unit_index": 24,
+      "unit_file": "_c_Science Practice Primary 5 and 6 - 24 Mock Examination 2.pdf",
+      "answer_page_start": 33,
+      "answer_page_end": 36,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Starts on the right portion of page 33; page 36 is a split page."
+    },
+    {
+      "unit_index": 25,
+      "unit_file": "_c_Science Practice Primary 5 and 6 - 25 Mock Examination 3.pdf",
+      "answer_page_start": 36,
+      "answer_page_end": 39,
+      "starts_mid_page": true,
+      "ends_mid_page": false,
+      "notes": "Starts on the right portion of page 36 and runs to the end of the answers file."
+    }
+  ]
+}

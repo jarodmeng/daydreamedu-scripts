@@ -1,0 +1,217 @@
+{
+  "book_label": "Power Pack English PSLE",
+  "answer_file": "_c_PP English Practice Answers.pdf",
+  "mappings": [
+    {
+      "unit_index": 1,
+      "unit_file": "_c_PP English Practice 1.pdf",
+      "unit_label": "Practice 1",
+      "answer_page_start": 1,
+      "answer_page_end": 7,
+      "starts_mid_page": false,
+      "ends_mid_page": true,
+      "notes": ""
+    },
+    {
+      "unit_index": 2,
+      "unit_file": "_c_PP English Practice 2.pdf",
+      "unit_label": "Practice 2",
+      "answer_page_start": 7,
+      "answer_page_end": 13,
+      "starts_mid_page": true,
+      "ends_mid_page": false,
+      "notes": ""
+    },
+    {
+      "unit_index": 3,
+      "unit_file": "_c_PP English Practice 3.pdf",
+      "unit_label": "Practice 3",
+      "answer_page_start": 14,
+      "answer_page_end": 19,
+      "starts_mid_page": false,
+      "ends_mid_page": true,
+      "notes": ""
+    },
+    {
+      "unit_index": 4,
+      "unit_file": "_c_PP English Practice 4.pdf",
+      "unit_label": "Practice 4",
+      "answer_page_start": 19,
+      "answer_page_end": 24,
+      "starts_mid_page": true,
+      "ends_mid_page": false,
+      "notes": ""
+    },
+    {
+      "unit_index": 5,
+      "unit_file": "_c_PP English Practice 5.pdf",
+      "unit_label": "Practice 5",
+      "answer_page_start": 25,
+      "answer_page_end": 29,
+      "starts_mid_page": false,
+      "ends_mid_page": false,
+      "notes": ""
+    },
+    {
+      "unit_index": 6,
+      "unit_file": "_c_PP English Practice 6.pdf",
+      "unit_label": "Practice 6",
+      "answer_page_start": 30,
+      "answer_page_end": 35,
+      "starts_mid_page": false,
+      "ends_mid_page": true,
+      "notes": ""
+    },
+    {
+      "unit_index": 7,
+      "unit_file": "_c_PP English Practice 7.pdf",
+      "unit_label": "Practice 7",
+      "answer_page_start": 35,
+      "answer_page_end": 40,
+      "starts_mid_page": true,
+      "ends_mid_page": false,
+      "notes": "Corrected after manual visual verification against the answer pages."
+    },
+    {
+      "unit_index": 8,
+      "unit_file": "_c_PP English Practice 8.pdf",
+      "unit_label": "Practice 8",
+      "answer_page_start": 41,
+      "answer_page_end": 46,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": ""
+    },
+    {
+      "unit_index": 9,
+      "unit_file": "_c_PP English Practice 9.pdf",
+      "unit_label": "Practice 9",
+      "answer_page_start": 46,
+      "answer_page_end": 51,
+      "starts_mid_page": true,
+      "ends_mid_page": false,
+      "notes": "Corrected after manual visual verification against the answer pages. Page 52 is blank and does not belong to Practice 9."
+    },
+    {
+      "unit_index": 10,
+      "unit_file": "_c_PP English Practice 10.pdf",
+      "unit_label": "Practice 10",
+      "answer_page_start": 53,
+      "answer_page_end": 57,
+      "starts_mid_page": false,
+      "ends_mid_page": false,
+      "notes": "Corrected after manual visual verification against the answer pages. Practice 10 starts on page 53."
+    },
+    {
+      "unit_index": 11,
+      "unit_file": "_c_PP English Practice 11.pdf",
+      "unit_label": "Practice 11",
+      "answer_page_start": 58,
+      "answer_page_end": 63,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": ""
+    },
+    {
+      "unit_index": 12,
+      "unit_file": "_c_PP English Practice 12.pdf",
+      "unit_label": "Practice 12",
+      "answer_page_start": 63,
+      "answer_page_end": 68,
+      "starts_mid_page": true,
+      "ends_mid_page": false,
+      "notes": ""
+    },
+    {
+      "unit_index": 13,
+      "unit_file": "_c_PP English Practice 13.pdf",
+      "unit_label": "Practice 13",
+      "answer_page_start": 69,
+      "answer_page_end": 74,
+      "starts_mid_page": false,
+      "ends_mid_page": true,
+      "notes": ""
+    },
+    {
+      "unit_index": 14,
+      "unit_file": "_c_PP English Practice 14.pdf",
+      "unit_label": "Practice 14",
+      "answer_page_start": 74,
+      "answer_page_end": 79,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": ""
+    },
+    {
+      "unit_index": 15,
+      "unit_file": "_c_PP English Practice 15.pdf",
+      "unit_label": "Practice 15",
+      "answer_page_start": 79,
+      "answer_page_end": 85,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": ""
+    },
+    {
+      "unit_index": 16,
+      "unit_file": "_c_PP English Practice 16.pdf",
+      "unit_label": "Practice 16",
+      "answer_page_start": 85,
+      "answer_page_end": 90,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": ""
+    },
+    {
+      "unit_index": 17,
+      "unit_file": "_c_PP English Practice 17.pdf",
+      "unit_label": "Practice 17",
+      "answer_page_start": 90,
+      "answer_page_end": 95,
+      "starts_mid_page": true,
+      "ends_mid_page": false,
+      "notes": ""
+    },
+    {
+      "unit_index": 18,
+      "unit_file": "_c_PP English Practice 18.pdf",
+      "unit_label": "Practice 18",
+      "answer_page_start": 96,
+      "answer_page_end": 102,
+      "starts_mid_page": false,
+      "ends_mid_page": false,
+      "notes": ""
+    }
+  ],
+  "excluded_units": [
+    {
+      "unit_file": "_c_PP English Overview.pdf",
+      "unit_label": "Overview"
+    },
+    {
+      "unit_file": "_c_PP English Situational Writing Practice 1.pdf",
+      "unit_label": "Situational Writing Practice 1"
+    },
+    {
+      "unit_file": "_c_PP English Situational Writing Practice 2.pdf",
+      "unit_label": "Situational Writing Practice 2"
+    },
+    {
+      "unit_file": "_c_PP English Situational Writing Practice 3.pdf",
+      "unit_label": "Situational Writing Practice 3"
+    },
+    {
+      "unit_file": "_c_PP English Situational Writing Practice 4.pdf",
+      "unit_label": "Situational Writing Practice 4"
+    },
+    {
+      "unit_file": "_c_PP English Situational Writing Practice 5.pdf",
+      "unit_label": "Situational Writing Practice 5"
+    }
+  ],
+  "notes": [
+    "Constructed from the first successful whole-book synchronous Gemini 2.5 Pro boundary run on the Practice 1-18 subset, then manually corrected for Practices 7, 9, and 10 after direct visual verification.",
+    "This ground truth covers only the main Practice 1-18 answer file.",
+    "Situational Writing Practice 1-5 belongs to a separate answer file and is intentionally excluded here."
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "book_label": "Power Pack English PSLE",
+  "answer_file": "_c_PP English Situational Writing Practice Answers.pdf",
+  "mappings": [
+    {
+      "unit_index": 1,
+      "unit_file": "_c_PP English Situational Writing Practice 1.pdf",
+      "unit_label": "Situational Writing Practice 1",
+      "answer_page_start": 1,
+      "answer_page_end": 1,
+      "starts_mid_page": false,
+      "ends_mid_page": false,
+      "notes": ""
+    },
+    {
+      "unit_index": 2,
+      "unit_file": "_c_PP English Situational Writing Practice 2.pdf",
+      "unit_label": "Situational Writing Practice 2",
+      "answer_page_start": 2,
+      "answer_page_end": 2,
+      "starts_mid_page": false,
+      "ends_mid_page": false,
+      "notes": ""
+    },
+    {
+      "unit_index": 3,
+      "unit_file": "_c_PP English Situational Writing Practice 3.pdf",
+      "unit_label": "Situational Writing Practice 3",
+      "answer_page_start": 3,
+      "answer_page_end": 3,
+      "starts_mid_page": false,
+      "ends_mid_page": true,
+      "notes": "Promoted from the Gemini batch result after manual review confirmed the page ranges were correct. The assembler validation reported a false-positive structural warning because Practice 3 was inferred as the page-start unit rather than emitted as a fresh boundary event."
+    },
+    {
+      "unit_index": 4,
+      "unit_file": "_c_PP English Situational Writing Practice 4.pdf",
+      "unit_label": "Situational Writing Practice 4",
+      "answer_page_start": 3,
+      "answer_page_end": 4,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": ""
+    },
+    {
+      "unit_index": 5,
+      "unit_file": "_c_PP English Situational Writing Practice 5.pdf",
+      "unit_label": "Situational Writing Practice 5",
+      "answer_page_start": 4,
+      "answer_page_end": 4,
+      "starts_mid_page": true,
+      "ends_mid_page": false,
+      "notes": ""
+    }
+  ],
+  "excluded_units": [],
+  "notes": [
+    "This ground truth was promoted from the Gemini batch result for the situational-writing answer file.",
+    "Validation reported a false-positive missing unit warning for unit 3, but manual review confirmed that the assembled page ranges were correct."
+  ]
+}

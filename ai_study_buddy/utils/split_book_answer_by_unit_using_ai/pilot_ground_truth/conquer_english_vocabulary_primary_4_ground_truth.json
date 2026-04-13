@@ -1,0 +1,906 @@
+{
+  "book_label": "Conquer English Vocabulary Primary 4",
+  "answer_file": "_c_Conquer English Vocabulary Primary 4 - 101 Answers.pdf",
+  "mappings": [
+    {
+      "unit_index": 1,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 001 Exercise 001.pdf",
+      "answer_page_start": 1,
+      "answer_page_end": 1,
+      "starts_mid_page": false,
+      "ends_mid_page": true,
+      "notes": "Exercise 001 starts at the top of answer page 1; later exercises on the same page follow below or in adjacent columns."
+    },
+    {
+      "unit_index": 2,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 002 Exercise 002.pdf",
+      "answer_page_start": 1,
+      "answer_page_end": 1,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 002 appears within answer page 1, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 3,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 003 Exercise 003.pdf",
+      "answer_page_start": 1,
+      "answer_page_end": 1,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 003 appears within answer page 1, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 4,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 004 Exercise 004.pdf",
+      "answer_page_start": 1,
+      "answer_page_end": 1,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 004 appears within answer page 1, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 5,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 005 Exercise 005.pdf",
+      "answer_page_start": 1,
+      "answer_page_end": 1,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 005 appears within answer page 1, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 6,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 006 Exercise 006.pdf",
+      "answer_page_start": 1,
+      "answer_page_end": 1,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 006 appears within answer page 1, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 7,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 007 Exercise 007.pdf",
+      "answer_page_start": 1,
+      "answer_page_end": 1,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 007 appears within answer page 1, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 8,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 008 Exercise 008.pdf",
+      "answer_page_start": 1,
+      "answer_page_end": 1,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 008 appears within answer page 1, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 9,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 009 Exercise 009.pdf",
+      "answer_page_start": 1,
+      "answer_page_end": 1,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 009 appears within answer page 1, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 10,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 010 Exercise 010.pdf",
+      "answer_page_start": 1,
+      "answer_page_end": 1,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 010 appears within answer page 1, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 11,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 011 Exercise 011.pdf",
+      "answer_page_start": 1,
+      "answer_page_end": 1,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 011 appears within answer page 1, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 12,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 012 Exercise 012.pdf",
+      "answer_page_start": 1,
+      "answer_page_end": 1,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 012 appears within answer page 1, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 13,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 013 Exercise 013.pdf",
+      "answer_page_start": 1,
+      "answer_page_end": 1,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 013 appears within answer page 1, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 14,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 014 Exercise 014.pdf",
+      "answer_page_start": 1,
+      "answer_page_end": 1,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 014 appears within answer page 1, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 15,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 015 Exercise 015.pdf",
+      "answer_page_start": 1,
+      "answer_page_end": 1,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 015 appears within answer page 1, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 16,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 016 Exercise 016.pdf",
+      "answer_page_start": 1,
+      "answer_page_end": 1,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 016 appears within answer page 1, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 17,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 017 Exercise 017.pdf",
+      "answer_page_start": 1,
+      "answer_page_end": 1,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 017 appears within answer page 1, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 18,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 018 Exercise 018.pdf",
+      "answer_page_start": 1,
+      "answer_page_end": 1,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 018 appears within answer page 1, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 19,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 019 Exercise 019.pdf",
+      "answer_page_start": 1,
+      "answer_page_end": 1,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 019 appears within answer page 1, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 20,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 020 Exercise 020.pdf",
+      "answer_page_start": 1,
+      "answer_page_end": 1,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 020 appears within answer page 1, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 21,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 021 Exercise 021.pdf",
+      "answer_page_start": 1,
+      "answer_page_end": 1,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 021 appears within answer page 1, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 22,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 022 Exercise 022.pdf",
+      "answer_page_start": 1,
+      "answer_page_end": 1,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 022 appears within answer page 1, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 23,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 023 Exercise 023.pdf",
+      "answer_page_start": 1,
+      "answer_page_end": 1,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 023 appears within answer page 1, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 24,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 024 Exercise 024.pdf",
+      "answer_page_start": 1,
+      "answer_page_end": 1,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 024 appears within answer page 1, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 25,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 025 Exercise 025.pdf",
+      "answer_page_start": 1,
+      "answer_page_end": 1,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 025 appears within answer page 1, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 26,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 026 Exercise 026.pdf",
+      "answer_page_start": 1,
+      "answer_page_end": 1,
+      "starts_mid_page": true,
+      "ends_mid_page": false,
+      "notes": "Exercise 026 starts lower on answer page 1 after earlier exercises and runs to the end of that page."
+    },
+    {
+      "unit_index": 27,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 027 Exercise 027.pdf",
+      "answer_page_start": 2,
+      "answer_page_end": 2,
+      "starts_mid_page": false,
+      "ends_mid_page": true,
+      "notes": "Exercise 027 starts at the top of answer page 2; later exercises on the same page follow below or in adjacent columns."
+    },
+    {
+      "unit_index": 28,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 028 Exercise 028.pdf",
+      "answer_page_start": 2,
+      "answer_page_end": 2,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 028 appears within answer page 2, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 29,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 029 Exercise 029.pdf",
+      "answer_page_start": 2,
+      "answer_page_end": 2,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 029 appears within answer page 2, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 30,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 030 Exercise 030.pdf",
+      "answer_page_start": 2,
+      "answer_page_end": 2,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 030 appears within answer page 2, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 31,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 031 Exercise 031.pdf",
+      "answer_page_start": 2,
+      "answer_page_end": 2,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 031 appears within answer page 2, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 32,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 032 Exercise 032.pdf",
+      "answer_page_start": 2,
+      "answer_page_end": 2,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 032 appears within answer page 2, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 33,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 033 Exercise 033.pdf",
+      "answer_page_start": 2,
+      "answer_page_end": 2,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 033 appears within answer page 2, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 34,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 034 Exercise 034.pdf",
+      "answer_page_start": 2,
+      "answer_page_end": 2,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 034 appears within answer page 2, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 35,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 035 Exercise 035.pdf",
+      "answer_page_start": 2,
+      "answer_page_end": 2,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 035 appears within answer page 2, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 36,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 036 Exercise 036.pdf",
+      "answer_page_start": 2,
+      "answer_page_end": 2,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 036 appears within answer page 2, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 37,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 037 Exercise 037.pdf",
+      "answer_page_start": 2,
+      "answer_page_end": 2,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 037 appears within answer page 2, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 38,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 038 Exercise 038.pdf",
+      "answer_page_start": 2,
+      "answer_page_end": 2,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 038 appears within answer page 2, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 39,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 039 Exercise 039.pdf",
+      "answer_page_start": 2,
+      "answer_page_end": 2,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 039 appears within answer page 2, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 40,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 040 Exercise 040.pdf",
+      "answer_page_start": 2,
+      "answer_page_end": 2,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 040 appears within answer page 2, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 41,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 041 Exercise 041.pdf",
+      "answer_page_start": 2,
+      "answer_page_end": 2,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 041 appears within answer page 2, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 42,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 042 Exercise 042.pdf",
+      "answer_page_start": 2,
+      "answer_page_end": 2,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 042 appears within answer page 2, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 43,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 043 Exercise 043.pdf",
+      "answer_page_start": 2,
+      "answer_page_end": 2,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 043 appears within answer page 2, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 44,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 044 Exercise 044.pdf",
+      "answer_page_start": 2,
+      "answer_page_end": 2,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 044 appears within answer page 2, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 45,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 045 Exercise 045.pdf",
+      "answer_page_start": 2,
+      "answer_page_end": 2,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 045 appears within answer page 2, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 46,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 046 Exercise 046.pdf",
+      "answer_page_start": 2,
+      "answer_page_end": 2,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 046 appears within answer page 2, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 47,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 047 Exercise 047.pdf",
+      "answer_page_start": 2,
+      "answer_page_end": 2,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 047 appears within answer page 2, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 48,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 048 Exercise 048.pdf",
+      "answer_page_start": 2,
+      "answer_page_end": 2,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 048 appears within answer page 2, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 49,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 049 Exercise 049.pdf",
+      "answer_page_start": 2,
+      "answer_page_end": 2,
+      "starts_mid_page": true,
+      "ends_mid_page": false,
+      "notes": "Exercise 049 starts lower on answer page 2 after earlier exercises and runs to the end of that page."
+    },
+    {
+      "unit_index": 50,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 050 Exercise 050.pdf",
+      "answer_page_start": 3,
+      "answer_page_end": 3,
+      "starts_mid_page": false,
+      "ends_mid_page": true,
+      "notes": "Exercise 050 starts at the top of answer page 3; later exercises on the same page follow below or in adjacent columns."
+    },
+    {
+      "unit_index": 51,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 051 Exercise 051.pdf",
+      "answer_page_start": 3,
+      "answer_page_end": 3,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 051 appears within answer page 3, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 52,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 052 Exercise 052.pdf",
+      "answer_page_start": 3,
+      "answer_page_end": 3,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 052 appears within answer page 3, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 53,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 053 Exercise 053.pdf",
+      "answer_page_start": 3,
+      "answer_page_end": 3,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 053 appears within answer page 3, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 54,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 054 Exercise 054.pdf",
+      "answer_page_start": 3,
+      "answer_page_end": 3,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 054 appears within answer page 3, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 55,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 055 Exercise 055.pdf",
+      "answer_page_start": 3,
+      "answer_page_end": 3,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 055 appears within answer page 3, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 56,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 056 Exercise 056.pdf",
+      "answer_page_start": 3,
+      "answer_page_end": 3,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 056 appears within answer page 3, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 57,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 057 Exercise 057.pdf",
+      "answer_page_start": 3,
+      "answer_page_end": 3,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 057 appears within answer page 3, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 58,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 058 Exercise 058.pdf",
+      "answer_page_start": 3,
+      "answer_page_end": 3,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 058 appears within answer page 3, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 59,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 059 Exercise 059.pdf",
+      "answer_page_start": 3,
+      "answer_page_end": 3,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 059 appears within answer page 3, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 60,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 060 Exercise 060.pdf",
+      "answer_page_start": 3,
+      "answer_page_end": 3,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 060 appears within answer page 3, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 61,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 061 Exercise 061.pdf",
+      "answer_page_start": 3,
+      "answer_page_end": 3,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 061 appears within answer page 3, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 62,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 062 Exercise 062.pdf",
+      "answer_page_start": 3,
+      "answer_page_end": 3,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 062 appears within answer page 3, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 63,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 063 Exercise 063.pdf",
+      "answer_page_start": 3,
+      "answer_page_end": 3,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 063 appears within answer page 3, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 64,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 064 Exercise 064.pdf",
+      "answer_page_start": 3,
+      "answer_page_end": 3,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 064 appears within answer page 3, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 65,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 065 Exercise 065.pdf",
+      "answer_page_start": 3,
+      "answer_page_end": 3,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 065 appears within answer page 3, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 66,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 066 Exercise 066.pdf",
+      "answer_page_start": 3,
+      "answer_page_end": 3,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 066 appears within answer page 3, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 67,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 067 Exercise 067.pdf",
+      "answer_page_start": 3,
+      "answer_page_end": 3,
+      "starts_mid_page": true,
+      "ends_mid_page": false,
+      "notes": "Exercise 067 starts lower on answer page 3 after earlier exercises and runs to the end of that page."
+    },
+    {
+      "unit_index": 68,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 068 Exercise 068.pdf",
+      "answer_page_start": 4,
+      "answer_page_end": 4,
+      "starts_mid_page": false,
+      "ends_mid_page": true,
+      "notes": "Exercise 068 starts at the top of answer page 4; later exercises on the same page follow below or in adjacent columns."
+    },
+    {
+      "unit_index": 69,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 069 Exercise 069.pdf",
+      "answer_page_start": 4,
+      "answer_page_end": 4,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 069 appears within answer page 4, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 70,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 070 Exercise 070.pdf",
+      "answer_page_start": 4,
+      "answer_page_end": 4,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 070 appears within answer page 4, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 71,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 071 Exercise 071.pdf",
+      "answer_page_start": 4,
+      "answer_page_end": 4,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 071 appears within answer page 4, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 72,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 072 Exercise 072.pdf",
+      "answer_page_start": 4,
+      "answer_page_end": 4,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 072 appears within answer page 4, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 73,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 073 Exercise 073.pdf",
+      "answer_page_start": 4,
+      "answer_page_end": 4,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 073 appears within answer page 4, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 74,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 074 Exercise 074.pdf",
+      "answer_page_start": 4,
+      "answer_page_end": 4,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 074 appears within answer page 4, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 75,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 075 Exercise 075.pdf",
+      "answer_page_start": 4,
+      "answer_page_end": 4,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 075 appears within answer page 4, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 76,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 076 Exercise 076.pdf",
+      "answer_page_start": 4,
+      "answer_page_end": 4,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 076 appears within answer page 4, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 77,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 077 Exercise 077.pdf",
+      "answer_page_start": 4,
+      "answer_page_end": 4,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 077 appears within answer page 4, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 78,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 078 Exercise 078.pdf",
+      "answer_page_start": 4,
+      "answer_page_end": 4,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 078 appears within answer page 4, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 79,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 079 Exercise 079.pdf",
+      "answer_page_start": 4,
+      "answer_page_end": 4,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 079 appears within answer page 4, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 80,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 080 Exercise 080.pdf",
+      "answer_page_start": 4,
+      "answer_page_end": 4,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 080 appears within answer page 4, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 81,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 081 Exercise 081.pdf",
+      "answer_page_start": 4,
+      "answer_page_end": 4,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 081 appears within answer page 4, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 82,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 082 Exercise 082.pdf",
+      "answer_page_start": 4,
+      "answer_page_end": 4,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 082 appears within answer page 4, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 83,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 083 Exercise 083.pdf",
+      "answer_page_start": 4,
+      "answer_page_end": 4,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 083 appears within answer page 4, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 84,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 084 Exercise 084.pdf",
+      "answer_page_start": 4,
+      "answer_page_end": 4,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 084 appears within answer page 4, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 85,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 085 Exercise 085.pdf",
+      "answer_page_start": 4,
+      "answer_page_end": 4,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 085 appears within answer page 4, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 86,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 086 Exercise 086.pdf",
+      "answer_page_start": 4,
+      "answer_page_end": 4,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 086 appears within answer page 4, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 87,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 087 Exercise 087.pdf",
+      "answer_page_start": 4,
+      "answer_page_end": 4,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 087 appears within answer page 4, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 88,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 088 Exercise 088.pdf",
+      "answer_page_start": 4,
+      "answer_page_end": 4,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 088 appears within answer page 4, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 89,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 089 Exercise 089.pdf",
+      "answer_page_start": 4,
+      "answer_page_end": 4,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 089 appears within answer page 4, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 90,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 090 Exercise 090.pdf",
+      "answer_page_start": 4,
+      "answer_page_end": 4,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 090 appears within answer page 4, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 91,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 091 Exercise 091.pdf",
+      "answer_page_start": 4,
+      "answer_page_end": 4,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 091 appears within answer page 4, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 92,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 092 Exercise 092.pdf",
+      "answer_page_start": 4,
+      "answer_page_end": 4,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 092 appears within answer page 4, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 93,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 093 Exercise 093.pdf",
+      "answer_page_start": 4,
+      "answer_page_end": 4,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 093 appears within answer page 4, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 94,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 094 Exercise 094.pdf",
+      "answer_page_start": 4,
+      "answer_page_end": 4,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 094 appears within answer page 4, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 95,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 095 Exercise 095.pdf",
+      "answer_page_start": 4,
+      "answer_page_end": 4,
+      "starts_mid_page": true,
+      "ends_mid_page": false,
+      "notes": "Exercise 095 starts lower on answer page 4 after earlier exercises and runs to the end of that page."
+    },
+    {
+      "unit_index": 96,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 096 Exercise 096.pdf",
+      "answer_page_start": 5,
+      "answer_page_end": 5,
+      "starts_mid_page": false,
+      "ends_mid_page": true,
+      "notes": "Exercise 096 starts at the top of answer page 5; later exercises on the same page follow below or in adjacent columns."
+    },
+    {
+      "unit_index": 97,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 097 Exercise 097.pdf",
+      "answer_page_start": 5,
+      "answer_page_end": 5,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 097 appears within answer page 5, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 98,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 098 Exercise 098.pdf",
+      "answer_page_start": 5,
+      "answer_page_end": 5,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 098 appears within answer page 5, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 99,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 099 Exercise 099.pdf",
+      "answer_page_start": 5,
+      "answer_page_end": 5,
+      "starts_mid_page": true,
+      "ends_mid_page": true,
+      "notes": "Exercise 099 appears within answer page 5, between earlier and later exercises on the same page."
+    },
+    {
+      "unit_index": 100,
+      "unit_file": "_c_Conquer English Vocabulary Primary 4 - 100 Exercise 100.pdf",
+      "answer_page_start": 5,
+      "answer_page_end": 5,
+      "starts_mid_page": true,
+      "ends_mid_page": false,
+      "notes": "Exercise 100 starts lower on answer page 5 after earlier exercises and runs to the end of that page."
+    }
+  ]
+}
