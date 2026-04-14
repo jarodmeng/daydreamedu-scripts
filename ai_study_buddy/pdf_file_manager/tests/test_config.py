@@ -153,3 +153,77 @@ def test_resolve_daydreamedu_root_none_when_unconfigured(monkeypatch):
     fake = Path("/nonexistent/local_daydreamedu_root_no_such_file_12345.txt")
     monkeypatch.setattr(pfm_module, "_LOCAL_DAYDREAMEDU_ROOT_FILE", fake)
     assert pfm_module.resolve_daydreamedu_root() is None
+
+
+# ---------------------------------------------------------------------------
+# resolve_goodnotes_root
+# ---------------------------------------------------------------------------
+
+
+def test_resolve_goodnotes_root_from_env(tmp_path, monkeypatch):
+    g = tmp_path / "GoodNotes"
+    g.mkdir()
+    monkeypatch.setenv("GOODNOTES_ROOT", str(g))
+    monkeypatch.delenv("DAYDREAMEDU_ROOT", raising=False)
+    assert pfm_module.resolve_goodnotes_root() == g.resolve()
+
+
+def test_resolve_goodnotes_root_env_overrides_file_and_sibling(tmp_path, monkeypatch):
+    env_dir = tmp_path / "gn_from_env"
+    env_dir.mkdir()
+    file_dir = tmp_path / "gn_from_file"
+    file_dir.mkdir()
+    cfg = tmp_path / "local_goodnotes_root.txt"
+    cfg.write_text(str(file_dir), encoding="utf-8")
+    monkeypatch.setattr(pfm_module, "_LOCAL_GOODNOTES_ROOT_FILE", cfg)
+    monkeypatch.setenv("GOODNOTES_ROOT", str(env_dir))
+    # Even with DaydreamEdu + sibling GoodNotes, env wins
+    dd = tmp_path / "DaydreamEdu"
+    dd.mkdir()
+    sibling = tmp_path / "GoodNotes"
+    sibling.mkdir()
+    monkeypatch.setenv("DAYDREAMEDU_ROOT", str(dd))
+    assert pfm_module.resolve_goodnotes_root() == env_dir.resolve()
+
+
+def test_resolve_goodnotes_root_from_file(tmp_path, monkeypatch):
+    g = tmp_path / "GoodNotes"
+    g.mkdir()
+    cfg = tmp_path / "local_goodnotes_root.txt"
+    cfg.write_text(f"# comment\n\n{g}\n", encoding="utf-8")
+    monkeypatch.setattr(pfm_module, "_LOCAL_GOODNOTES_ROOT_FILE", cfg)
+    monkeypatch.delenv("GOODNOTES_ROOT", raising=False)
+    monkeypatch.delenv("DAYDREAMEDU_ROOT", raising=False)
+    assert pfm_module.resolve_goodnotes_root() == g.resolve()
+
+
+def test_resolve_goodnotes_root_sibling_of_daydreamedu(tmp_path, monkeypatch):
+    dd = tmp_path / "DaydreamEdu"
+    dd.mkdir()
+    gn = tmp_path / "GoodNotes"
+    gn.mkdir()
+    monkeypatch.setenv("DAYDREAMEDU_ROOT", str(dd))
+    monkeypatch.delenv("GOODNOTES_ROOT", raising=False)
+    fake_cfg = Path("/nonexistent/local_goodnotes_root_no_such_file_67890.txt")
+    monkeypatch.setattr(pfm_module, "_LOCAL_GOODNOTES_ROOT_FILE", fake_cfg)
+    assert pfm_module.resolve_goodnotes_root() == gn.resolve()
+
+
+def test_resolve_goodnotes_root_none_when_unconfigured(monkeypatch, tmp_path):
+    monkeypatch.delenv("GOODNOTES_ROOT", raising=False)
+    monkeypatch.delenv("DAYDREAMEDU_ROOT", raising=False)
+    fake_gn = Path("/nonexistent/local_goodnotes_root_no_such_file_67890.txt")
+    monkeypatch.setattr(pfm_module, "_LOCAL_GOODNOTES_ROOT_FILE", fake_gn)
+    fake_dd = Path("/nonexistent/local_daydreamedu_root_no_such_file_12345.txt")
+    monkeypatch.setattr(pfm_module, "_LOCAL_DAYDREAMEDU_ROOT_FILE", fake_dd)
+    assert pfm_module.resolve_goodnotes_root() is None
+
+
+def test_resolve_goodnotes_root_none_when_sibling_missing(monkeypatch, tmp_path):
+    dd = tmp_path / "DaydreamEdu"
+    dd.mkdir()
+    monkeypatch.setenv("DAYDREAMEDU_ROOT", str(dd))
+    monkeypatch.delenv("GOODNOTES_ROOT", raising=False)
+    fake_gn = Path("/nonexistent/local_goodnotes_root_no_such_file_67890.txt")
+    monkeypatch.setattr(pfm_module, "_LOCAL_GOODNOTES_ROOT_FILE", fake_gn)
+    assert pfm_module.resolve_goodnotes_root() is None

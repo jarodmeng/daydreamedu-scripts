@@ -1,12 +1,14 @@
 # pdf_file_manager
 
-**Version: v0.2.9**
+**Version: v0.2.10**
 
 A local utility that keeps a SQLite registry of PDF files in the study archive. It tracks exams, worksheets, books, book exercises, activities, notes, and templates (with optional completed variants), keeps on-disk paths and database records in sync, and now supports first-class book unit → answer-page mappings inside `group_type='book'` collections. You can scan one or more folders for new PDFs, optionally compress and archive originals, classify documents by type and metadata, group multi-file documents (e.g. exam booklets or book folders), link completions to templates, and query or import validated book-answer coverage. Every state-mutating operation is recorded in an append-only operation log.
 
 **Typical workflow:** Add scan roots (e.g. Google Drive folders) and students → run **scan** on the exact folder you want to ingest → **classify** with `doc_type`, `subject`, and metadata → use **suggest-groups** for exams, or let scan infer/group `.../Book/<book name>/...` folders as books, then link templates as needed. Only main files are ingested by the pipeline; raw archives are kept for traceability.
 
 **DaydreamEdu folder on disk:** Set `DAYDREAMEDU_ROOT` or create `local_daydreamedu_root.txt` (gitignored; copy from [`local_daydreamedu_root.example.txt`](./local_daydreamedu_root.example.txt)). Call **`resolve_daydreamedu_root()`** in [`pdf_file_manager.py`](./pdf_file_manager.py) to read it. See [ARCHITECTURE.md § Local DaydreamEdu root](./ARCHITECTURE.md#local-daydreamedu-root-not-in-git).
+
+**GoodNotes folder on disk:** Set `GOODNOTES_ROOT` or create `local_goodnotes_root.txt` (gitignored; copy from [`local_goodnotes_root.example.txt`](./local_goodnotes_root.example.txt)), or rely on sibling discovery when `GoodNotes` sits next to the resolved DaydreamEdu root. Call **`resolve_goodnotes_root()`** in [`pdf_file_manager.py`](./pdf_file_manager.py). See [ARCHITECTURE.md § Local GoodNotes root](./ARCHITECTURE.md#local-goodnotes-root-not-in-git).
 
 **Raw/main parity:** Linked raw and main records represent the same logical document in two file forms. Document-level metadata such as `subject`, `doc_type`, `student_id`, `is_template`, and core metadata fields is expected to stay in sync across the pair. The manager now enforces that parity during metadata updates and includes a repair helper for older drift.
 

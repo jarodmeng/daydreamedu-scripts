@@ -4,6 +4,11 @@ All notable changes to the pdf_file_manager utility are documented here.
 
 ---
 
+## [v0.2.10] — GoodNotes root resolution
+
+- Added **`resolve_goodnotes_root()`** with **`GOODNOTES_ROOT`**, gitignored **`local_goodnotes_root.txt`** (see [`local_goodnotes_root.example.txt`](./local_goodnotes_root.example.txt)), and **sibling discovery** (`DaydreamEdu`’s parent + `GoodNotes`) when the DaydreamEdu root is already configured.
+- Updated repo [`.gitignore`](../../.gitignore), [`ARCHITECTURE.md`](./ARCHITECTURE.md), [`README.md`](./README.md), [`SPEC.md`](./SPEC.md), and the Cursor [`pdf-file-manager`](../../.cursor/skills/pdf-file-manager/SKILL.md) skill; tests in `tests/test_config.py`.
+
 ## [v0.2.9] — Cross-book answer mappings
 
 - Relaxed `book_answer_mappings` validation so registered `doc_type='book'` main files can map across different `group_type='book'` collections.

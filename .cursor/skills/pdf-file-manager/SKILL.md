@@ -32,6 +32,7 @@ The SQLite file and schema are implementation details. Touch them directly only 
 |--------|------------|
 | **Registry DB** | Default `ai_study_buddy/db/pdf_registry.db` (repo-relative). Override with **`PDF_REGISTRY_PATH`** or MCP server **`--db`**. |
 | **DaydreamEdu root on disk** | Not in Git. **`DAYDREAMEDU_ROOT`** (highest priority) or **`local_daydreamedu_root.txt`** in this package (gitignored; copy from [`local_daydreamedu_root.example.txt`](../../../ai_study_buddy/pdf_file_manager/local_daydreamedu_root.example.txt)). In code: **`resolve_daydreamedu_root()`** in [`pdf_file_manager.py`](../../../ai_study_buddy/pdf_file_manager/pdf_file_manager.py). See [ARCHITECTURE.md § Local DaydreamEdu root](../../../ai_study_buddy/pdf_file_manager/ARCHITECTURE.md#local-daydreamedu-root-not-in-git). |
+| **GoodNotes root on disk** | **`GOODNOTES_ROOT`** or **`local_goodnotes_root.txt`** (gitignored; copy from [`local_goodnotes_root.example.txt`](../../../ai_study_buddy/pdf_file_manager/local_goodnotes_root.example.txt)), else sibling **`…/GoodNotes`** next to the resolved DaydreamEdu root when that directory exists. In code: **`resolve_goodnotes_root()`**. See [ARCHITECTURE.md § Local GoodNotes root](../../../ai_study_buddy/pdf_file_manager/ARCHITECTURE.md#local-goodnotes-root-not-in-git). |
 
 ## Primary entry points
 

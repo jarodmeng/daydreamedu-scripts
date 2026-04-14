@@ -333,6 +333,7 @@ mgr.add_scan_root(
 )
 mgr.add_scan_root(
     "/path/to/My Drive/DaydreamEdu"  # or os.environ["DAYDREAMEDU_ROOT"], or resolve_daydreamedu_root()
+    # GoodNotes scan roots: os.environ["GOODNOTES_ROOT"], local_goodnotes_root.txt, or resolve_goodnotes_root()
 )
 
 # Scan + auto-compress

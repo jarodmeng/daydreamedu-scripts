@@ -215,6 +215,46 @@ def resolve_daydreamedu_root() -> Path | None:
     return None
 
 
+_GOODNOTES_ROOT_ENV = "GOODNOTES_ROOT"
+_LOCAL_GOODNOTES_ROOT_FILE = Path(__file__).resolve().parent / "local_goodnotes_root.txt"
+
+
+def resolve_goodnotes_root() -> Path | None:
+    """Return the local GoodNotes sync folder if configured or discoverable.
+
+    Resolution order:
+
+    1. Environment variable ``GOODNOTES_ROOT`` (absolute path).
+    2. ``local_goodnotes_root.txt`` in this package directory (gitignored):
+       first non-empty, non-comment line is the path.
+    3. If ``resolve_daydreamedu_root()`` returns ``D`` and ``D.parent / "GoodNotes"``
+       exists and is a directory, return that path (typical layout: ``My
+       Drive/DaydreamEdu`` and ``My Drive/GoodNotes`` as siblings).
+
+    Returns ``None`` if unset, missing, or the resolved path is not an existing
+    directory. The registry and scan logic do not call this; it is for scripts,
+    agents, and docs.
+    """
+    env = os.environ.get(_GOODNOTES_ROOT_ENV, "").strip()
+    if env:
+        p = Path(env).expanduser().resolve()
+        return p if p.is_dir() else None
+    if _LOCAL_GOODNOTES_ROOT_FILE.is_file():
+        text = _LOCAL_GOODNOTES_ROOT_FILE.read_text(encoding="utf-8")
+        for line in text.splitlines():
+            line = line.strip()
+            if not line or line.startswith("#"):
+                continue
+            p = Path(line).expanduser().resolve()
+            return p if p.is_dir() else None
+    dd = resolve_daydreamedu_root()
+    if dd is not None:
+        sibling = (dd.parent / "GoodNotes").resolve()
+        if sibling.is_dir():
+            return sibling
+    return None
+
+
 def _schema_sql() -> str:
     schema_file = Path(__file__).resolve().parent / "schema.sql"
     return schema_file.read_text()

@@ -1,0 +1,13 @@
+# Copy this file to local_goodnotes_root.txt (same folder) and replace the
+# line below with your real Google Drive → GoodNotes absolute path.
+# That file is gitignored and will not be pushed to GitHub.
+#
+# If GoodNotes lives next to DaydreamEdu under the same parent (e.g.
+# My Drive/DaydreamEdu and My Drive/GoodNotes), you can omit this file and
+# rely on resolve_goodnotes_root() sibling discovery once DAYDREAMEDU_ROOT or
+# local_daydreamedu_root.txt is set.
+#
+# Example shape (macOS Google Drive):
+# /Users/you/Library/CloudStorage/GoogleDrive-youraccount@gmail.com/My Drive/GoodNotes
+
+/path/to/your/My Drive/GoodNotes
