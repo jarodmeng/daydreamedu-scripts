@@ -94,6 +94,11 @@ def identify_front_matter(files):
         unit = unit.replace("_", " ").replace("-", " ")
         if "front matter" in unit or "preface + toc" in unit or "front matter" in name or "preface + toc" in name:
             return file
+        # e.g. "01 - Preface and Table of Contents" (Math Model Drawing P3/P4)
+        if "preface" in unit and "table of contents" in unit:
+            return file
+        if "preface" in name and "table of contents" in name:
+            return file
     raise ValueError("Could not identify front matter file")
 
 

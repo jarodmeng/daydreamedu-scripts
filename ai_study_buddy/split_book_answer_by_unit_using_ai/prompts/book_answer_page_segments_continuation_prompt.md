@@ -1,4 +1,4 @@
-# Book Answer Page Segment Prompt (Continuation Ownership, Attempt 24)
+# Book Answer Page Segment Prompt v0.1
 
 This prompt defines a constrained page-segmentation schema where continuation
 ownership is a separate scalar field.
