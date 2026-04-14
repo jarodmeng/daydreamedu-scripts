@@ -1,0 +1,699 @@
+{
+  "book_label": "Math Model Drawing Made Easy and Inspiring Primary 3 and 4",
+  "answer_file": "_c_Math Model Drawing Made Easy and Inspiring Primary 3 and 4 - 77 - Worked Solutions.pdf",
+  "mappings": [
+    {
+      "unit_index": 2,
+      "answer_page_start": 1,
+      "answer_page_end": 2,
+      "starts_mid_page": false,
+      "ends_mid_page": true
+    },
+    {
+      "unit_index": 3,
+      "answer_page_start": 2,
+      "answer_page_end": 2,
+      "starts_mid_page": true,
+      "ends_mid_page": true
+    },
+    {
+      "unit_index": 4,
+      "answer_page_start": 2,
+      "answer_page_end": 3,
+      "starts_mid_page": true,
+      "ends_mid_page": true
+    },
+    {
+      "unit_index": 5,
+      "answer_page_start": 3,
+      "answer_page_end": 3,
+      "starts_mid_page": true,
+      "ends_mid_page": true
+    },
+    {
+      "unit_index": 6,
+      "answer_page_start": 3,
+      "answer_page_end": 3,
+      "starts_mid_page": true,
+      "ends_mid_page": false
+    },
+    {
+      "unit_index": 7,
+      "answer_page_start": 4,
+      "answer_page_end": 4,
+      "starts_mid_page": false,
+      "ends_mid_page": true
+    },
+    {
+      "unit_index": 8,
+      "answer_page_start": 4,
+      "answer_page_end": 5,
+      "starts_mid_page": true,
+      "ends_mid_page": true
+    },
+    {
+      "unit_index": 9,
+      "answer_page_start": 5,
+      "answer_page_end": 5,
+      "starts_mid_page": true,
+      "ends_mid_page": true
+    },
+    {
+      "unit_index": 10,
+      "answer_page_start": 5,
+      "answer_page_end": 6,
+      "starts_mid_page": true,
+      "ends_mid_page": true
+    },
+    {
+      "unit_index": 11,
+      "answer_page_start": 6,
+      "answer_page_end": 6,
+      "starts_mid_page": true,
+      "ends_mid_page": true
+    },
+    {
+      "unit_index": 12,
+      "answer_page_start": 6,
+      "answer_page_end": 7,
+      "starts_mid_page": true,
+      "ends_mid_page": true
+    },
+    {
+      "unit_index": 13,
+      "answer_page_start": 7,
+      "answer_page_end": 8,
+      "starts_mid_page": true,
+      "ends_mid_page": true
+    },
+    {
+      "unit_index": 14,
+      "answer_page_start": 8,
+      "answer_page_end": 9,
+      "starts_mid_page": true,
+      "ends_mid_page": false
+    },
+    {
+      "unit_index": 15,
+      "answer_page_start": 10,
+      "answer_page_end": 10,
+      "starts_mid_page": false,
+      "ends_mid_page": true
+    },
+    {
+      "unit_index": 16,
+      "answer_page_start": 10,
+      "answer_page_end": 10,
+      "starts_mid_page": true,
+      "ends_mid_page": false
+    },
+    {
+      "unit_index": 17,
+      "answer_page_start": 11,
+      "answer_page_end": 11,
+      "starts_mid_page": false,
+      "ends_mid_page": true
+    },
+    {
+      "unit_index": 18,
+      "answer_page_start": 11,
+      "answer_page_end": 11,
+      "starts_mid_page": true,
+      "ends_mid_page": true
+    },
+    {
+      "unit_index": 19,
+      "answer_page_start": 11,
+      "answer_page_end": 12,
+      "starts_mid_page": true,
+      "ends_mid_page": true
+    },
+    {
+      "unit_index": 20,
+      "answer_page_start": 12,
+      "answer_page_end": 12,
+      "starts_mid_page": true,
+      "ends_mid_page": false
+    },
+    {
+      "unit_index": 21,
+      "answer_page_start": 13,
+      "answer_page_end": 13,
+      "starts_mid_page": false,
+      "ends_mid_page": true
+    },
+    {
+      "unit_index": 22,
+      "answer_page_start": 13,
+      "answer_page_end": 14,
+      "starts_mid_page": true,
+      "ends_mid_page": true
+    },
+    {
+      "unit_index": 23,
+      "answer_page_start": 14,
+      "answer_page_end": 14,
+      "starts_mid_page": true,
+      "ends_mid_page": true
+    },
+    {
+      "unit_index": 24,
+      "answer_page_start": 14,
+      "answer_page_end": 15,
+      "starts_mid_page": true,
+      "ends_mid_page": true
+    },
+    {
+      "unit_index": 25,
+      "answer_page_start": 15,
+      "answer_page_end": 15,
+      "starts_mid_page": true,
+      "ends_mid_page": true
+    },
+    {
+      "unit_index": 26,
+      "answer_page_start": 15,
+      "answer_page_end": 16,
+      "starts_mid_page": true,
+      "ends_mid_page": true
+    },
+    {
+      "unit_index": 27,
+      "answer_page_start": 16,
+      "answer_page_end": 16,
+      "starts_mid_page": true,
+      "ends_mid_page": true
+    },
+    {
+      "unit_index": 28,
+      "answer_page_start": 16,
+      "answer_page_end": 17,
+      "starts_mid_page": true,
+      "ends_mid_page": true
+    },
+    {
+      "unit_index": 29,
+      "answer_page_start": 17,
+      "answer_page_end": 18,
+      "starts_mid_page": true,
+      "ends_mid_page": true
+    },
+    {
+      "unit_index": 30,
+      "answer_page_start": 18,
+      "answer_page_end": 20,
+      "starts_mid_page": true,
+      "ends_mid_page": true
+    },
+    {
+      "unit_index": 31,
+      "answer_page_start": 20,
+      "answer_page_end": 22,
+      "starts_mid_page": true,
+      "ends_mid_page": true
+    },
+    {
+      "unit_index": 32,
+      "answer_page_start": 22,
+      "answer_page_end": 23,
+      "starts_mid_page": true,
+      "ends_mid_page": true
+    },
+    {
+      "unit_index": 33,
+      "answer_page_start": 23,
+      "answer_page_end": 23,
+      "starts_mid_page": true,
+      "ends_mid_page": true
+    },
+    {
+      "unit_index": 34,
+      "answer_page_start": 23,
+      "answer_page_end": 23,
+      "starts_mid_page": true,
+      "ends_mid_page": false
+    },
+    {
+      "unit_index": 35,
+      "answer_page_start": 24,
+      "answer_page_end": 24,
+      "starts_mid_page": false,
+      "ends_mid_page": true
+    },
+    {
+      "unit_index": 36,
+      "answer_page_start": 24,
+      "answer_page_end": 25,
+      "starts_mid_page": true,
+      "ends_mid_page": true
+    },
+    {
+      "unit_index": 37,
+      "answer_page_start": 25,
+      "answer_page_end": 25,
+      "starts_mid_page": true,
+      "ends_mid_page": true
+    },
+    {
+      "unit_index": 38,
+      "answer_page_start": 25,
+      "answer_page_end": 26,
+      "starts_mid_page": true,
+      "ends_mid_page": true
+    },
+    {
+      "unit_index": 39,
+      "answer_page_start": 26,
+      "answer_page_end": 26,
+      "starts_mid_page": true,
+      "ends_mid_page": false
+    },
+    {
+      "unit_index": 40,
+      "answer_page_start": 27,
+      "answer_page_end": 27,
+      "starts_mid_page": false,
+      "ends_mid_page": true
+    },
+    {
+      "unit_index": 41,
+      "answer_page_start": 27,
+      "answer_page_end": 27,
+      "starts_mid_page": true,
+      "ends_mid_page": false
+    },
+    {
+      "unit_index": 42,
+      "answer_page_start": 28,
+      "answer_page_end": 28,
+      "starts_mid_page": false,
+      "ends_mid_page": true
+    },
+    {
+      "unit_index": 43,
+      "answer_page_start": 28,
+      "answer_page_end": 28,
+      "starts_mid_page": true,
+      "ends_mid_page": false
+    },
+    {
+      "unit_index": 44,
+      "answer_page_start": 29,
+      "answer_page_end": 29,
+      "starts_mid_page": false,
+      "ends_mid_page": true
+    },
+    {
+      "unit_index": 45,
+      "answer_page_start": 29,
+      "answer_page_end": 30,
+      "starts_mid_page": true,
+      "ends_mid_page": true
+    },
+    {
+      "unit_index": 46,
+      "answer_page_start": 30,
+      "answer_page_end": 30,
+      "starts_mid_page": true,
+      "ends_mid_page": true
+    },
+    {
+      "unit_index": 47,
+      "answer_page_start": 30,
+      "answer_page_end": 32,
+      "starts_mid_page": true,
+      "ends_mid_page": true
+    },
+    {
+      "unit_index": 48,
+      "answer_page_start": 32,
+      "answer_page_end": 33,
+      "starts_mid_page": true,
+      "ends_mid_page": true
+    },
+    {
+      "unit_index": 49,
+      "answer_page_start": 33,
+      "answer_page_end": 35,
+      "starts_mid_page": true,
+      "ends_mid_page": true
+    },
+    {
+      "unit_index": 50,
+      "answer_page_start": 35,
+      "answer_page_end": 37,
+      "starts_mid_page": true,
+      "ends_mid_page": true
+    },
+    {
+      "unit_index": 51,
+      "answer_page_start": 37,
+      "answer_page_end": 38,
+      "starts_mid_page": true,
+      "ends_mid_page": true
+    },
+    {
+      "unit_index": 52,
+      "answer_page_start": 38,
+      "answer_page_end": 38,
+      "starts_mid_page": true,
+      "ends_mid_page": true
+    },
+    {
+      "unit_index": 53,
+      "answer_page_start": 38,
+      "answer_page_end": 39,
+      "starts_mid_page": true,
+      "ends_mid_page": true
+    },
+    {
+      "unit_index": 54,
+      "answer_page_start": 39,
+      "answer_page_end": 39,
+      "starts_mid_page": true,
+      "ends_mid_page": true
+    },
+    {
+      "unit_index": 55,
+      "answer_page_start": 39,
+      "answer_page_end": 39,
+      "starts_mid_page": true,
+      "ends_mid_page": false
+    },
+    {
+      "unit_index": 56,
+      "answer_page_start": 40,
+      "answer_page_end": 40,
+      "starts_mid_page": false,
+      "ends_mid_page": true
+    },
+    {
+      "unit_index": 57,
+      "answer_page_start": 40,
+      "answer_page_end": 40,
+      "starts_mid_page": true,
+      "ends_mid_page": true
+    },
+    {
+      "unit_index": 58,
+      "answer_page_start": 40,
+      "answer_page_end": 41,
+      "starts_mid_page": true,
+      "ends_mid_page": true
+    },
+    {
+      "unit_index": 59,
+      "answer_page_start": 41,
+      "answer_page_end": 43,
+      "starts_mid_page": true,
+      "ends_mid_page": true
+    },
+    {
+      "unit_index": 60,
+      "answer_page_start": 43,
+      "answer_page_end": 44,
+      "starts_mid_page": true,
+      "ends_mid_page": true
+    },
+    {
+      "unit_index": 61,
+      "answer_page_start": 44,
+      "answer_page_end": 45,
+      "starts_mid_page": true,
+      "ends_mid_page": true
+    },
+    {
+      "unit_index": 62,
+      "answer_page_start": 45,
+      "answer_page_end": 46,
+      "starts_mid_page": true,
+      "ends_mid_page": true
+    },
+    {
+      "unit_index": 63,
+      "answer_page_start": 46,
+      "answer_page_end": 46,
+      "starts_mid_page": true,
+      "ends_mid_page": true
+    },
+    {
+      "unit_index": 64,
+      "answer_page_start": 46,
+      "answer_page_end": 47,
+      "starts_mid_page": true,
+      "ends_mid_page": true
+    },
+    {
+      "unit_index": 65,
+      "answer_page_start": 47,
+      "answer_page_end": 48,
+      "starts_mid_page": true,
+      "ends_mid_page": true
+    },
+    {
+      "unit_index": 66,
+      "answer_page_start": 48,
+      "answer_page_end": 48,
+      "starts_mid_page": true,
+      "ends_mid_page": true
+    },
+    {
+      "unit_index": 67,
+      "answer_page_start": 48,
+      "answer_page_end": 49,
+      "starts_mid_page": true,
+      "ends_mid_page": true
+    },
+    {
+      "unit_index": 68,
+      "answer_page_start": 49,
+      "answer_page_end": 52,
+      "starts_mid_page": true,
+      "ends_mid_page": false
+    },
+    {
+      "unit_index": 69,
+      "answer_page_start": 53,
+      "answer_page_end": 55,
+      "starts_mid_page": false,
+      "ends_mid_page": true
+    },
+    {
+      "unit_index": 70,
+      "answer_page_start": 55,
+      "answer_page_end": 57,
+      "starts_mid_page": true,
+      "ends_mid_page": true
+    },
+    {
+      "unit_index": 71,
+      "answer_page_start": 57,
+      "answer_page_end": 59,
+      "starts_mid_page": true,
+      "ends_mid_page": true
+    },
+    {
+      "unit_index": 72,
+      "answer_page_start": 59,
+      "answer_page_end": 60,
+      "starts_mid_page": true,
+      "ends_mid_page": true
+    },
+    {
+      "unit_index": 73,
+      "answer_page_start": 60,
+      "answer_page_end": 62,
+      "starts_mid_page": true,
+      "ends_mid_page": true
+    },
+    {
+      "unit_index": 74,
+      "answer_page_start": 62,
+      "answer_page_end": 64,
+      "starts_mid_page": true,
+      "ends_mid_page": true
+    },
+    {
+      "unit_index": 75,
+      "answer_page_start": 64,
+      "answer_page_end": 66,
+      "starts_mid_page": true,
+      "ends_mid_page": true
+    },
+    {
+      "unit_index": 76,
+      "answer_page_start": 66,
+      "answer_page_end": 68,
+      "starts_mid_page": true,
+      "ends_mid_page": false
+    }
+  ],
+  "global_notes": [
+    "These ranges were assembled deterministically from continuation-aware per-page segments.",
+    "starts_mid_page means the unit was not the first assembled unit on its first answer page.",
+    "ends_mid_page means the unit was not the last assembled unit on its last answer page."
+  ],
+  "validation": {
+    "manifest_unit_indices": [
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      49,
+      50,
+      51,
+      52,
+      53,
+      54,
+      55,
+      56,
+      57,
+      58,
+      59,
+      60,
+      61,
+      62,
+      63,
+      64,
+      65,
+      66,
+      67,
+      68,
+      69,
+      70,
+      71,
+      72,
+      73,
+      74,
+      75,
+      76
+    ],
+    "ordered_seen_unit_indices": [
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      49,
+      50,
+      51,
+      52,
+      53,
+      54,
+      55,
+      56,
+      57,
+      58,
+      59,
+      60,
+      61,
+      62,
+      63,
+      64,
+      65,
+      66,
+      67,
+      68,
+      69,
+      70,
+      71,
+      72,
+      73,
+      74,
+      75,
+      76
+    ],
+    "pages_with_no_registry_units": [],
+    "missing_unit_indices_within_detected_span": [],
+    "non_monotonic_jump_detected": false,
+    "continuation_rule_violations": [],
+    "continuation_substitution_suspicions": [],
+    "mapping_count": 75
+  },
+  "_thought_summary": "**Comprehensive Analysis of Primary School Math Book Answer Pages**\n\nRight, here’s my thinking. I've been asked to break down these answer pages, meticulously identifying certain structural elements. My goal is to extract key pieces of information from each page and organize it according to this specified schema:\n\n1.  **`continued_unit_index`**: which dictates continuation from previous pages.\n2.  **`non_registry_prefix`**: any content before the first proper unit heading.\n3.  **`visible_heading_labels`**: all the headings in the book.\n4.  **`visible_unit_indices`**: the numbered indices of those headings.\n5.  **`notes`**: for clarifications and edge cases.\n\nI'm using the provided `unit_files` to map headings to their corresponding indices.\n\nNow, page-by-page, this is what I see:\n\n*   **Pages 1 to 7**: These deal with the \"Introduction\" and \"Unit 1\" sections. Initially, I had to ensure I properly interpreted the various practice subsections within the broader unit. I had to rethink the structure of \"Introduction\" and its relation to \"Unit 1.\" The sub-headings \"Practice A\" through \"Practice F\" all belong to the \"Introduction\" unit, and then we have \"Unit 1.\"\n*   **Pages 8 to 9**: Further \"Unit 1\" reviews. Here it's about following the flow, matching the headings to the index, and checking for continuations.\n*   **Pages 10 to 21**: This involves “Unit 2”. These pages are similar to the first pages, breaking down into “Practices” and “Reviews” within this unit.\n*   **Pages 22 to 34**: Similar analysis on “Unit 3”, and the same logic applies to ensure heading labels match.\n*   **Pages 35 to 43**: Now we deal with \"Unit 4\" and its constituent \"Practices\".\n*   **Pages 44 to 49**: We have \"Unit 5\".\n*   **Pages 50 to 52**: Further continuation for the end of “Unit 5” and then we begin “Unit 6”.\n*   **Pages 53 to 68**: \"Unit 6\" has a slightly different format – “Tests” instead of “Practices” – but the process remains the same. Track the unit changes, identify the headings, and note any continuations.\n\nThe key to it is this: On each page, I verify what's *visible*, and how to link that back to what I *know* from the `unit_files` manifest, and whether the first unit visible is a continuation.\n\nThe most complex part arises on **page 29 (PDF 335)**, specifically because of the missing \"Practice 3.13\" and the \"Practice 3.14\" heading. The page starts with content that *visually* continues from the previous page's \"Practice 3.12\" (unit 43), but the next visible heading is \"Practice 3.14\" (unit 45), skipping 3.13. My instructions state that the *`continued_unit_index`* must be the immediate predecessor of the first *visible* unit index. This has led me to make the assumption that the content at the top of the page somehow belongs to 3.13 (index 44). While it's a bit of an interpretive leap based on the visuals, it is the only way to satisfy the given constraint of \"immediate predecessor\".\n\nIn all other cases, the logic is rather straightforward: identify the first new heading on the page, see if there is content above it (which should then point me to a \"continued\" state if it flows from the previous page) and map it back using my manifest, while noting the cases for continuations. This applies to most of the pages from page 1 to 68.\n\nSo, in essence, I have rigorously applied a pattern across these pages."
+}

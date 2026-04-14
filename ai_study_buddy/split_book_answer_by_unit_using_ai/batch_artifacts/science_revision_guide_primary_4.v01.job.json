@@ -1,0 +1,40 @@
+{
+  "input_jsonl": "ai_study_buddy/split_book_answer_by_unit_using_ai/batch_artifacts/science_revision_guide_primary_4.v01.jsonl",
+  "uploaded_file": {
+    "name": "files/2yr3769isq7k",
+    "display_name": null,
+    "mime_type": "jsonl",
+    "size_bytes": 7673265,
+    "create_time": "2026-04-14T07:54:17.414996+00:00",
+    "expiration_time": "2026-04-16T07:54:16.171532+00:00",
+    "update_time": "2026-04-14T07:54:17.414996+00:00",
+    "sha256_hash": "MTllYjBlZjk5YjZjZjg5MzMzNzZjYzU3MmI0MTY0Y2RhZDJhNDkzOGVkMjkzYmU4Zjk0NWEwOGI1MTQ0ODIzNA==",
+    "uri": "https://generativelanguage.googleapis.com/v1beta/files/2yr3769isq7k",
+    "download_uri": null,
+    "state": "ACTIVE",
+    "source": "UPLOADED",
+    "video_metadata": null,
+    "error": null
+  },
+  "job": {
+    "name": "batches/dzpj5rrxewqjcmh05omty2dyvsj4m7tflacb",
+    "display_name": "batch-science_revision_guide_primary_4.v01",
+    "state": "JOB_STATE_SUCCEEDED",
+    "error": null,
+    "create_time": "2026-04-14T07:54:18.421600+00:00",
+    "start_time": null,
+    "end_time": "2026-04-14T08:43:37.793549+00:00",
+    "update_time": "2026-04-14T08:43:37.793549+00:00",
+    "model": "models/gemini-2.5-pro",
+    "src": null,
+    "dest": {
+      "format": null,
+      "gcs_uri": null,
+      "bigquery_uri": null,
+      "file_name": "files/batch-dzpj5rrxewqjcmh05omty2dyvsj4m7tflacb",
+      "inlined_responses": null,
+      "inlined_embed_content_responses": null
+    },
+    "completion_stats": null
+  }
+}
