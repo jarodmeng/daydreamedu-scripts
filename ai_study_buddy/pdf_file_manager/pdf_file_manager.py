@@ -531,6 +531,8 @@ class PdfFileManager:
 
     def add_scan_root(self, path: str, student_id: str | None = None) -> ScanRoot:
         path = str(Path(path).resolve())
+        if student_id is None:
+            student_id = self._infer_student_id_from_path(path)
         conn = self._get_connection()
         root_id = str(uuid.uuid4())
         now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")

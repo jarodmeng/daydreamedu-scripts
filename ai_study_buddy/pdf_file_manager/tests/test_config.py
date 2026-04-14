@@ -119,6 +119,60 @@ def test_ensure_scan_root_idempotent_returns_existing():
         Path(tmp).unlink(missing_ok=True)
 
 
+def test_add_scan_root_infers_student_id_from_path_when_omitted():
+    with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as f:
+        tmp = f.name
+    try:
+        mgr = PdfFileManager(db_path=tmp)
+        mgr.add_student("winston", "Winston", email="winston.ry.meng@gmail.com")
+        r = mgr.add_scan_root(
+            "/tmp/DaydreamEdu/Singapore Primary English/winston.ry.meng@gmail.com/P6/Exam"
+        )
+        assert r.student_id == "winston"
+    finally:
+        Path(tmp).unlink(missing_ok=True)
+
+
+def test_add_scan_root_keeps_explicit_student_id_over_inference():
+    with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as f:
+        tmp = f.name
+    try:
+        mgr = PdfFileManager(db_path=tmp)
+        mgr.add_student("winston", "Winston", email="winston.ry.meng@gmail.com")
+        r = mgr.add_scan_root(
+            "/tmp/DaydreamEdu/Singapore Primary English/winston.ry.meng@gmail.com/P6/Exam",
+            student_id="manual",
+        )
+        assert r.student_id == "manual"
+    finally:
+        Path(tmp).unlink(missing_ok=True)
+
+
+def test_add_scan_root_without_student_email_keeps_none():
+    with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as f:
+        tmp = f.name
+    try:
+        mgr = PdfFileManager(db_path=tmp)
+        r = mgr.add_scan_root("/tmp/DaydreamEdu/Singapore Primary English/P6/Exam")
+        assert r.student_id is None
+    finally:
+        Path(tmp).unlink(missing_ok=True)
+
+
+def test_ensure_scan_root_infers_student_id_when_creating():
+    with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as f:
+        tmp = f.name
+    try:
+        mgr = PdfFileManager(db_path=tmp)
+        mgr.add_student("emma", "Emma", email="emma.rs.meng@gmail.com")
+        r = mgr.ensure_scan_root(
+            "/tmp/GoodNotes/Singapore Primary Science/emma.rs.meng@gmail.com/P4/Exam"
+        )
+        assert r.student_id == "emma"
+    finally:
+        Path(tmp).unlink(missing_ok=True)
+
+
 def test_resolve_daydreamedu_root_from_env(tmp_path, monkeypatch):
     d = tmp_path / "dd"
     d.mkdir()

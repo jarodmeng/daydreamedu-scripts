@@ -1,6 +1,6 @@
 # pdf_file_manager
 
-**Version: v0.2.10**
+**Version: v0.2.11**
 
 A local utility that keeps a SQLite registry of PDF files in the study archive. It tracks exams, worksheets, books, book exercises, activities, notes, and templates (with optional completed variants), keeps on-disk paths and database records in sync, and now supports first-class book unit → answer-page mappings inside `group_type='book'` collections. You can scan one or more folders for new PDFs, optionally compress and archive originals, classify documents by type and metadata, group multi-file documents (e.g. exam booklets or book folders), link completions to templates, and query or import validated book-answer coverage. Every state-mutating operation is recorded in an append-only operation log.
 
@@ -12,7 +12,7 @@ A local utility that keeps a SQLite registry of PDF files in the study archive. 
 
 **Raw/main parity:** Linked raw and main records represent the same logical document in two file forms. Document-level metadata such as `subject`, `doc_type`, `student_id`, `is_template`, and core metadata fields is expected to stay in sync across the pair. The manager now enforces that parity during metadata updates and includes a repair helper for older drift.
 
-**Student inference:** When `student_id` is not supplied explicitly by a configured scan root or direct API call, the manager can now fall back to matching registered `students.email` path segments so student-scoped scans do not silently leave `student_id` unset.
+**Student inference:** When `student_id` is not supplied explicitly by a configured scan root or direct API call, the manager can now fall back to matching registered `students.email` path segments so student-scoped scans do not silently leave `student_id` unset. New scan roots created without `student_id` now also auto-infer and persist `student_id` from a unique matching email segment in the root path.
 
 **Integrity validation:** Use [`scripts/validate_pdf_registry_integrity.py`](./scripts/validate_pdf_registry_integrity.py) to reproducibly audit the registry for lingering `doc_type='unknown'` files, missing `student_id` in student-scoped folders, and raw/main invariant metadata drift.
 

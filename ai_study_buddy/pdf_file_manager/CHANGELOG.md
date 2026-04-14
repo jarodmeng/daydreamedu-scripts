@@ -4,6 +4,14 @@ All notable changes to the pdf_file_manager utility are documented here.
 
 ---
 
+## [v0.2.11] — Scan-root student_id auto-inference
+
+- `add_scan_root(path, student_id=None)` now auto-infers and stores `student_id` from a unique matching registered `students.email` segment in the scan-root path.
+- Explicit `student_id` still takes precedence; ambiguous/no-match paths continue to store `student_id=None`.
+- `ensure_scan_root(...)` now inherits this behavior when creating a missing scan root, while preserving idempotent no-change behavior for existing rows.
+- Added tests for infer-on-add, explicit override precedence, no-email fallback, and ensure-create inference in `tests/test_config.py`.
+- Updated `README.md` and `SPEC.md` to document scan-root `student_id` precedence and persistence behavior.
+
 ## [v0.2.10] — GoodNotes root resolution
 
 - Added **`resolve_goodnotes_root()`** with **`GOODNOTES_ROOT`**, gitignored **`local_goodnotes_root.txt`** (see [`local_goodnotes_root.example.txt`](./local_goodnotes_root.example.txt)), and **sibling discovery** (`DaydreamEdu`’s parent + `GoodNotes`) when the DaydreamEdu root is already configured.

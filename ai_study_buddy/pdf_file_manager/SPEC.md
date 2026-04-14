@@ -282,6 +282,12 @@ Register a student. `id` is a short human-readable string (e.g. `'winston'`).
 #### `add_scan_root(path, student_id=None)` / `remove_scan_root(path)` / `list_scan_roots() -> list[ScanRoot]`
 Manage scan roots. `student_id` links a root to a student so discovered files are auto-tagged. Config changes are not logged.
 
+For `add_scan_root(path, student_id=None)`, `student_id` precedence is:
+
+1. Explicit `student_id` argument (if provided)
+2. Inference from a unique registered `students.email` path segment
+3. `None` if no unique match exists
+
 ---
 
 ## Operation types
