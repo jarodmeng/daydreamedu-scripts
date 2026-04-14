@@ -15,9 +15,9 @@ The learnings here are based on the following scripts present at the time of wri
 - `_link_p5_worksheet1_template.py`
 - `_link_p6_wa1_template.py`
 - `_scan_chinese_p6_psle_general.py`
-- `_scan_chinese_winston_selected_leaves.py`
+- `_scan_chinese_fixture_selected_leaves.py`
 - `_scan_english_p6_psle_general.py`
-- `_scan_english_winston_selected_leaves.py`
+- `_scan_english_fixture_selected_leaves.py`
 - `_scan_math_selected_leaves.py`
 - `_scan_p5_chinese_exercise_activity.py`
 - `_scan_p5_english_activity.py`
@@ -228,10 +228,10 @@ mgr = PdfFileManager()  # Optionally PdfFileManager(db_path=".../custom.db")
 ```python
 STUDENT_ID = "winston"
 if mgr.get_student(STUDENT_ID) is None:
-    mgr.add_student(STUDENT_ID, "Winston Meng", "winston.ry.meng@gmail.com")
+    mgr.add_student(STUDENT_ID, "Test Student", "<student email>")
 ```
 
-This is done once per script when scanning under `.../winston.ry.meng@gmail.com/...`.
+This is done once per script when scanning under `.../<student email>/...`.
 
 **3. Ensure scan roots**
 
@@ -247,7 +247,7 @@ if not any(r.path == root_str for r in existing_roots):
 Rules observed for `student_id`:
 
 - Subject‑level/general templates (e.g. `.../Singapore Primary Math/P6/Exam`): `student_id=None`.
-- Student‑folders (e.g. `.../winston.ry.meng@gmail.com/P5/Exercise`): `student_id="winston"`.
+- Student‑folders (e.g. `.../<student email>/P5/Exercise`): `student_id="winston"`.
 
 **4. Scan: dry run first, then real scan with progress**
 

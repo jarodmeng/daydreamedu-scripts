@@ -77,7 +77,7 @@ python3 ai_study_buddy/pdf_file_manager/pdf_file_manager_mcp_server.py --db /pat
 
 The registry DB (`ai_study_buddy/db/pdf_registry.db`) is gitignored. To back it up to the cloud **without** committing it to GitHub, copy it into a folder that syncs to the cloud (e.g. Google Drive on your Mac):
 
-1. **Default backup location:** `~/genrong.meng@gmail.com - Google Drive/My Drive/DaydreamEdu/db`. No setup needed unless you want a different destination (set `PDF_REGISTRY_BACKUP_DIR` or use `--dest`).
+1. **Default backup location:** `<DaydreamEdu root>/db`, where the DaydreamEdu root comes from `DAYDREAMEDU_ROOT` or the first path line in `pdf_file_manager/local_daydreamedu_root.txt` (see `resolve_daydreamedu_root()`). Override with `PDF_REGISTRY_BACKUP_DIR` or `--dest` if needed.
 
 2. **Run the backup script** from the repo root or from `ai_study_buddy/`:
    ```bash

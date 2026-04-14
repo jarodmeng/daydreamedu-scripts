@@ -43,11 +43,11 @@ Representative examples:
 - `.../Singapore Primary Math/P6/Exam/_raw_p6.math.wa2.1.pdf`
 - `.../Singapore Primary Math/P6/Exam/_c_p6.math.wa2.1.pdf`
 
-- `.../Singapore Primary English/winston.ry.meng@gmail.com/P6/Exam/_raw_P6 English Term 1 Weighted Review.pdf`
-- `.../Singapore Primary English/winston.ry.meng@gmail.com/P6/Exam/_c_P6 English Term 1 Weighted Review.pdf`
+- `.../Singapore Primary English/<student email>/P6/Exam/_raw_P6 English Term 1 Weighted Review.pdf`
+- `.../Singapore Primary English/<student email>/P6/Exam/_c_P6 English Term 1 Weighted Review.pdf`
 
-- `.../Singapore Primary Science/winston.ry.meng@gmail.com/P6/Exam/_raw_P6 Science Weighted Review practice paper 1.pdf`
-- `.../Singapore Primary Science/winston.ry.meng@gmail.com/P6/Exam/_c_P6 Science Weighted Review practice paper 1.pdf`
+- `.../Singapore Primary Science/<student email>/P6/Exam/_raw_P6 Science Weighted Review practice paper 1.pdf`
+- `.../Singapore Primary Science/<student email>/P6/Exam/_c_P6 Science Weighted Review practice paper 1.pdf`
 
 The `23` `is_template` mismatches split into two path buckets:
 

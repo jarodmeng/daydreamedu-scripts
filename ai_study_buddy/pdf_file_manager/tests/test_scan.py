@@ -12,6 +12,7 @@ _tests_dir = Path(__file__).resolve().parent
 if str(_tests_dir) not in sys.path:
     sys.path.insert(0, str(_tests_dir))
 from conftest import FIXTURE_ROOT, fixture_has_pdfs
+from constants import STUDENT_DISPLAY_NAME, STUDENT_FOLDER_EMAIL
 from pdf_file_manager import PdfFileManager, ConfigError, CompressResult
 
 
@@ -135,7 +136,7 @@ def test_scan_for_new_files_goodnotes_uses_preserve_input(monkeypatch):
     """scan_for_new_files should treat GoodNotes paths as preserve_input=True (no rename/move of originals)."""
     with tempfile.TemporaryDirectory() as tmpdir:
         tmpdir = Path(tmpdir)
-        goodnotes_root = tmpdir / "GoodNotes" / "Singapore Primary Math" / "winston.ry.meng@gmail.com" / "P6" / "Exam"
+        goodnotes_root = tmpdir / "GoodNotes" / "Singapore Primary Math" / STUDENT_FOLDER_EMAIL / "P6" / "Exam"
         goodnotes_root.mkdir(parents=True, exist_ok=True)
         pdf_path = goodnotes_root / "P6 WA1 practice paper 1 (empty) (attempt).pdf"
         pdf_path.write_bytes(b"pdf")
@@ -166,13 +167,13 @@ def test_scan_for_new_files_goodnotes_uses_preserve_input(monkeypatch):
 def test_scan_explicit_student_root_infers_student_id_without_configured_scan_root(monkeypatch):
     with tempfile.TemporaryDirectory() as tmpdir:
         tmpdir = Path(tmpdir)
-        exam_root = tmpdir / "DaydreamEdu" / "Singapore Primary English" / "winston.ry.meng@gmail.com" / "P6" / "Exam"
+        exam_root = tmpdir / "DaydreamEdu" / "Singapore Primary English" / STUDENT_FOLDER_EMAIL / "P6" / "Exam"
         exam_root.mkdir(parents=True, exist_ok=True)
         pdf_path = exam_root / "paper.pdf"
         pdf_path.write_bytes(b"pdf")
         db_path = tmpdir / "registry.db"
         mgr = PdfFileManager(db_path=str(db_path))
-        mgr.add_student("winston", "Winston Meng", "winston.ry.meng@gmail.com")
+        mgr.add_student("winston", STUDENT_DISPLAY_NAME, STUDENT_FOLDER_EMAIL)
 
         def _spy(file_id_or_path, *args, **kwargs):
             registered = mgr.register_file(file_id_or_path, file_type="main", doc_type="unknown")
@@ -187,13 +188,13 @@ def test_scan_explicit_student_root_infers_student_id_without_configured_scan_ro
 def test_scan_dry_run_explicit_configured_root_uses_scan_root_student_id():
     with tempfile.TemporaryDirectory() as tmpdir:
         tmpdir = Path(tmpdir)
-        root = tmpdir / "GoodNotes" / "Singapore Primary English" / "winston.ry.meng@gmail.com" / "PSLE" / "Book" / "English Practice 1000"
+        root = tmpdir / "GoodNotes" / "Singapore Primary English" / STUDENT_FOLDER_EMAIL / "PSLE" / "Book" / "English Practice 1000"
         root.mkdir(parents=True, exist_ok=True)
         pdf_path = root / "c_EPO_Vocabulary_Cloze_01.pdf"
         pdf_path.write_bytes(b"pdf")
         db_path = tmpdir / "registry.db"
         mgr = PdfFileManager(db_path=str(db_path))
-        mgr.add_student("winston", "Winston Meng", "winston.ry.meng@gmail.com")
+        mgr.add_student("winston", STUDENT_DISPLAY_NAME, STUDENT_FOLDER_EMAIL)
         mgr.add_scan_root(root, student_id="winston")
 
         results = mgr.scan_for_new_files(roots=[root], dry_run=True)
@@ -204,13 +205,13 @@ def test_scan_dry_run_explicit_configured_root_uses_scan_root_student_id():
 def test_scan_dry_run_explicit_goodnotes_root_infers_student_id_without_configured_scan_root():
     with tempfile.TemporaryDirectory() as tmpdir:
         tmpdir = Path(tmpdir)
-        root = tmpdir / "GoodNotes" / "Singapore Primary Math" / "winston.ry.meng@gmail.com" / "P6" / "Exam"
+        root = tmpdir / "GoodNotes" / "Singapore Primary Math" / STUDENT_FOLDER_EMAIL / "P6" / "Exam"
         root.mkdir(parents=True, exist_ok=True)
         pdf_path = root / "c_P6_WA1_practice_paper_1.pdf"
         pdf_path.write_bytes(b"pdf")
         db_path = tmpdir / "registry.db"
         mgr = PdfFileManager(db_path=str(db_path))
-        mgr.add_student("winston", "Winston Meng", "winston.ry.meng@gmail.com")
+        mgr.add_student("winston", STUDENT_DISPLAY_NAME, STUDENT_FOLDER_EMAIL)
 
         results = mgr.scan_for_new_files(roots=[root], dry_run=True)
         assert len(results) == 1
@@ -220,13 +221,13 @@ def test_scan_dry_run_explicit_goodnotes_root_infers_student_id_without_configur
 def test_scan_dry_run_book_root_reports_inferred_book_metadata():
     with tempfile.TemporaryDirectory() as tmpdir:
         tmpdir = Path(tmpdir)
-        root = tmpdir / "GoodNotes" / "Singapore Primary English" / "winston.ry.meng@gmail.com" / "PSLE" / "Book" / "English Practice 1000"
+        root = tmpdir / "GoodNotes" / "Singapore Primary English" / STUDENT_FOLDER_EMAIL / "PSLE" / "Book" / "English Practice 1000"
         root.mkdir(parents=True, exist_ok=True)
         pdf_path = root / "c_EPO_Vocabulary_Cloze_01.pdf"
         pdf_path.write_bytes(b"pdf")
         db_path = tmpdir / "registry.db"
         mgr = PdfFileManager(db_path=str(db_path))
-        mgr.add_student("winston", "Winston Meng", "winston.ry.meng@gmail.com")
+        mgr.add_student("winston", STUDENT_DISPLAY_NAME, STUDENT_FOLDER_EMAIL)
 
         results = mgr.scan_for_new_files(roots=[root], dry_run=True)
         assert len(results) == 1
@@ -244,13 +245,13 @@ def test_scan_dry_run_book_root_reports_inferred_book_metadata():
 def test_scan_explicit_goodnotes_root_infers_student_id_without_configured_scan_root(monkeypatch):
     with tempfile.TemporaryDirectory() as tmpdir:
         tmpdir = Path(tmpdir)
-        goodnotes_root = tmpdir / "GoodNotes" / "Singapore Primary Math" / "winston.ry.meng@gmail.com" / "P6" / "Exam"
+        goodnotes_root = tmpdir / "GoodNotes" / "Singapore Primary Math" / STUDENT_FOLDER_EMAIL / "P6" / "Exam"
         goodnotes_root.mkdir(parents=True, exist_ok=True)
         pdf_path = goodnotes_root / "P6 WA1 practice paper 1 (attempt).pdf"
         pdf_path.write_bytes(b"pdf")
         db_path = tmpdir / "registry.db"
         mgr = PdfFileManager(db_path=str(db_path))
-        mgr.add_student("winston", "Winston Meng", "winston.ry.meng@gmail.com")
+        mgr.add_student("winston", STUDENT_DISPLAY_NAME, STUDENT_FOLDER_EMAIL)
 
         def _spy(file_id_or_path, *args, **kwargs):
             registered = mgr.register_file(file_id_or_path, file_type="main", doc_type="unknown")
@@ -265,7 +266,7 @@ def test_scan_explicit_goodnotes_root_infers_student_id_without_configured_scan_
 def test_scan_roots_only_process_direct_pdf_children(monkeypatch):
     with tempfile.TemporaryDirectory() as tmpdir:
         tmpdir = Path(tmpdir)
-        root = tmpdir / "GoodNotes" / "Singapore Primary Math" / "winston.ry.meng@gmail.com" / "P6" / "Book" / "Model Drawing"
+        root = tmpdir / "GoodNotes" / "Singapore Primary Math" / STUDENT_FOLDER_EMAIL / "P6" / "Book" / "Model Drawing"
         nested = root / "Not completed"
         root.mkdir(parents=True, exist_ok=True)
         nested.mkdir(parents=True, exist_ok=True)

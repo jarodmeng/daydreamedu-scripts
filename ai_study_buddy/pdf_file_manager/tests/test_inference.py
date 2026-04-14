@@ -12,6 +12,7 @@ _tests_dir = Path(__file__).resolve().parent
 if str(_tests_dir) not in sys.path:
     sys.path.insert(0, str(_tests_dir))
 from conftest import FIXTURE_ROOT, fixture_has_pdfs
+from constants import STUDENT_DISPLAY_NAME, STUDENT_FOLDER_EMAIL
 from pdf_file_manager import PdfFileManager
 
 
@@ -109,7 +110,9 @@ def test_infer_from_path_is_template_true_when_general_scope():
 
 def test_infer_from_path_is_template_false_when_student_email_in_path():
     """Path containing @ (student email folder) → is_template=False (student-specific)."""
-    path = Path("/Drive/DaydreamEdu/Singapore Primary Math/winston.ry.meng@gmail.com/P6/Exam/paper.pdf")
+    path = Path(
+        f"/Drive/DaydreamEdu/Singapore Primary Math/{STUDENT_FOLDER_EMAIL}/P6/Exam/paper.pdf"
+    )
     out = PdfFileManager._infer_from_path(path)
     assert out.get("is_template") is False
 
@@ -117,12 +120,20 @@ def test_infer_from_path_is_template_false_when_student_email_in_path():
 def test_register_file_infers_student_id_from_registered_student_email_folder():
     with tempfile.TemporaryDirectory() as tmpdir:
         tmpdir = Path(tmpdir)
-        pdf_path = tmpdir / "DaydreamEdu" / "Singapore Primary Science" / "winston.ry.meng@gmail.com" / "P5" / "Exam" / "paper.pdf"
+        pdf_path = (
+            tmpdir
+            / "DaydreamEdu"
+            / "Singapore Primary Science"
+            / STUDENT_FOLDER_EMAIL
+            / "P5"
+            / "Exam"
+            / "paper.pdf"
+        )
         pdf_path.parent.mkdir(parents=True, exist_ok=True)
         pdf_path.write_bytes(b"pdf")
         db_path = tmpdir / "registry.db"
         mgr = PdfFileManager(db_path=str(db_path))
-        mgr.add_student("winston", "Winston Meng", "winston.ry.meng@gmail.com")
+        mgr.add_student("winston", STUDENT_DISPLAY_NAME, STUDENT_FOLDER_EMAIL)
 
         registered = mgr.register_file(pdf_path)
         assert registered.student_id == "winston"
@@ -183,15 +194,14 @@ def test_scan_applies_inference_to_new_files():
         tmpdir = Path(tmpdir)
         # Use fixture layout: .../Singapore Primary Science/.../P5/Exam/...
         shutil.copytree(FIXTURE_ROOT, tmpdir / "fixture", dirs_exist_ok=True)
-        # scan_for_new_files only considers direct *.pdf children of the root
-        root = str(
-            tmpdir
-            / "fixture"
-            / "Singapore Primary Science"
-            / "winston.ry.meng@gmail.com"
-            / "P5"
-            / "Exam"
+        science = tmpdir / "fixture" / "Singapore Primary Science"
+        student_dirs = [p for p in science.iterdir() if p.is_dir() and "@" in p.name]
+        assert student_dirs, (
+            "Fixture needs Singapore Primary Science/<email-shaped folder>/P5/Exam "
+            "(see tests/fixtures/daydreamedu_fixture/README.md)"
         )
+        # scan_for_new_files only considers direct *.pdf children of the root
+        root = str(student_dirs[0] / "P5" / "Exam")
         with tempfile.NamedTemporaryFile(suffix=".db", delete=False, dir=tmpdir) as f:
             db_path = f.name
         try:
@@ -206,13 +216,15 @@ def test_scan_applies_inference_to_new_files():
             ).fetchall()
             conn.close()
             assert len(rows) >= 1
-            # Fixture is under .../Singapore Primary Science/winston.ry.meng@gmail.com/P5/Exam → has @ so is_template=False
+            # Fixture is under .../Singapore Primary Science/<email-shaped>/P5/Exam → has @ so is_template=False
             with_inference = [r for r in rows if r[2] and r[3] and r[2] != "unknown" and r[3] != "unknown"]
             assert len(with_inference) >= 1, "Expected at least one main file with subject and doc_type inferred from path"
             for r in with_inference:
                 assert r[2] == "science"
                 assert r[3] == "exam"
-                assert r[4] == 0, "Expected is_template=0 (path contains student email winston.ry.meng@gmail.com)"
+                assert r[4] == 0, (
+                    "Expected is_template=0 (path contains student-scoped email folder segment)"
+                )
         finally:
             Path(db_path).unlink(missing_ok=True)
 

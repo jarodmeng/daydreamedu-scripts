@@ -3,6 +3,7 @@ from pathlib import Path
 
 import pytest
 
+from constants import STUDENT_FOLDER_EMAIL
 from pdf_file_manager import NotFoundError, PdfFileManager
 
 
@@ -22,7 +23,7 @@ def test_resolve_goodnotes_template_math_wa1_student_scope():
         gn_path = (
             goodnotes
             / "Singapore Primary Math"
-            / "winston.ry.meng@gmail.com"
+            / STUDENT_FOLDER_EMAIL
             / "P6"
             / "Exam"
             / "P6 WA1 practice paper 1 (empty) (attempt).pdf"
@@ -33,7 +34,7 @@ def test_resolve_goodnotes_template_math_wa1_student_scope():
         dd_tpl = (
             daydream
             / "Singapore Primary Math"
-            / "winston.ry.meng@gmail.com"
+            / STUDENT_FOLDER_EMAIL
             / "P6"
             / "Exam"
             / "_c_P6 WA1 practice paper 1 (empty).pdf"
@@ -54,7 +55,7 @@ def test_resolve_goodnotes_template_math_p6_general_scope():
         gn_path = (
             goodnotes
             / "Singapore Primary Math"
-            / "winston.ry.meng@gmail.com"
+            / STUDENT_FOLDER_EMAIL
             / "P6"
             / "Exam"
             / "p6.math.wa1.1 (attempt).pdf"
@@ -85,7 +86,7 @@ def test_resolve_goodnotes_template_english_epo_attempt_general_scope():
         gn_path = (
             goodnotes
             / "Singapore Primary English"
-            / "winston.ry.meng@gmail.com"
+            / STUDENT_FOLDER_EMAIL
             / "PSLE"
             / "Exercise"
             / "EPO_Comprehension_Cloze_04 (attempt).pdf"
@@ -115,7 +116,7 @@ def test_resolve_goodnotes_template_science_reviewed_student_scope():
         gn_path = (
             goodnotes
             / "Singapore Primary Science"
-            / "winston.ry.meng@gmail.com"
+            / STUDENT_FOLDER_EMAIL
             / "P6"
             / "Exam"
             / "c_P6 Science Weighted Review 1 (reviewed).pdf"
@@ -125,7 +126,7 @@ def test_resolve_goodnotes_template_science_reviewed_student_scope():
         dd_tpl = (
             daydream
             / "Singapore Primary Science"
-            / "winston.ry.meng@gmail.com"
+            / STUDENT_FOLDER_EMAIL
             / "P6"
             / "Exam"
             / "_c_P6 Science Weighted Review 1.pdf"
@@ -145,7 +146,7 @@ def test_resolve_goodnotes_template_raises_when_no_match():
         gn_path = (
             goodnotes
             / "Singapore Primary English"
-            / "winston.ry.meng@gmail.com"
+            / STUDENT_FOLDER_EMAIL
             / "P6"
             / "Exam"
             / "Nonexistent Paper 1 (reviewed).pdf"
@@ -167,7 +168,7 @@ def test_link_goodnotes_template_for_file_links_registered_template():
             base
             / "GoodNotes"
             / "Singapore Primary Chinese"
-            / "winston.ry.meng@gmail.com"
+            / STUDENT_FOLDER_EMAIL
             / "P6"
             / "Exam"
             / "_c_p6.chinese.wa1.1 (attempt).pdf"
@@ -206,7 +207,7 @@ def test_link_goodnotes_template_for_file_can_auto_fix_template_flag():
             base
             / "GoodNotes"
             / "Singapore Primary English"
-            / "winston.ry.meng@gmail.com"
+            / STUDENT_FOLDER_EMAIL
             / "P6"
             / "Exam"
             / "_c_P6 English Term 1 Weighted Review (reviewed).pdf"
@@ -215,7 +216,7 @@ def test_link_goodnotes_template_for_file_can_auto_fix_template_flag():
             base
             / "DaydreamEdu"
             / "Singapore Primary English"
-            / "winston.ry.meng@gmail.com"
+            / STUDENT_FOLDER_EMAIL
             / "P6"
             / "Exam"
             / "_c_P6 English Term 1 Weighted Review.pdf"
@@ -243,7 +244,7 @@ def test_link_goodnotes_template_for_file_fails_when_resolved_template_not_regis
             base
             / "GoodNotes"
             / "Singapore Primary Math"
-            / "winston.ry.meng@gmail.com"
+            / STUDENT_FOLDER_EMAIL
             / "P6"
             / "Exam"
             / "_c_p6.math.wa1.1 (attempt).pdf"
@@ -276,7 +277,7 @@ def test_link_goodnotes_template_for_file_is_idempotent_for_same_template():
             base
             / "GoodNotes"
             / "Singapore Primary Science"
-            / "winston.ry.meng@gmail.com"
+            / STUDENT_FOLDER_EMAIL
             / "P6"
             / "Exam"
             / "_c_P6 Science Weighted Review 1 (reviewed).pdf"
@@ -285,7 +286,7 @@ def test_link_goodnotes_template_for_file_is_idempotent_for_same_template():
             base
             / "DaydreamEdu"
             / "Singapore Primary Science"
-            / "winston.ry.meng@gmail.com"
+            / STUDENT_FOLDER_EMAIL
             / "P6"
             / "Exam"
             / "_c_P6 Science Weighted Review 1.pdf"
@@ -310,7 +311,7 @@ def test_link_goodnotes_templates_for_root_dry_run_reports_actions():
         db_path = base / "registry.db"
         mgr = PdfFileManager(db_path=str(db_path))
 
-        root = base / "GoodNotes" / "Singapore Primary Chinese" / "winston.ry.meng@gmail.com" / "P6" / "Exam"
+        root = base / "GoodNotes" / "Singapore Primary Chinese" / STUDENT_FOLDER_EMAIL / "P6" / "Exam"
         goodnotes_main = root / "_c_p6.chinese.wa1.1 (attempt).pdf"
         template_path = (
             base

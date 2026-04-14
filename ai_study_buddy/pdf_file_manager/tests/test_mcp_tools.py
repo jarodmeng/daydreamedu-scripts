@@ -11,8 +11,9 @@ if str(_tests_dir) not in sys.path:
 if str(_util_dir) not in sys.path:
     sys.path.insert(0, str(_util_dir))
 
-from pdf_file_manager import ConfigError, PdfFileManager
 from conftest import FIXTURE_ROOT, fixture_has_pdfs
+from constants import STUDENT_DISPLAY_NAME, STUDENT_FOLDER_EMAIL
+from pdf_file_manager import ConfigError, PdfFileManager
 from pdf_file_manager_mcp import (
     PdfFileManagerMcpTools,
     error_to_mcp_response,
@@ -92,7 +93,7 @@ def test_pdf_find_files_and_list_helpers():
             root = Path(tmpdir)
             pdf_path = _make_pdf(root / "math.pdf")
             mgr = PdfFileManager(db_path=db_path)
-            mgr.add_student("winston", "Winston")
+            mgr.add_student("winston", STUDENT_DISPLAY_NAME)
             mgr.add_scan_root(str(root), student_id="winston")
             mgr.register_file(pdf_path, doc_type="worksheet", student_id="winston", subject="math")
 
@@ -201,7 +202,7 @@ def test_pdf_suggest_groups_and_report_coverage():
         with tempfile.TemporaryDirectory() as tmpdir:
             root = Path(tmpdir)
             mgr = PdfFileManager(db_path=db_path)
-            mgr.add_student("winston", "Winston")
+            mgr.add_student("winston", STUDENT_DISPLAY_NAME)
             mgr.add_scan_root(str(root), student_id="winston")
             first = mgr.register_file(_make_pdf(root / "_c_first.pdf"), file_type="main", doc_type="exam", student_id="winston", subject="science", metadata={"exam_date": "2025-11-12"})
             second = mgr.register_file(_make_pdf(root / "_c_second.pdf"), file_type="main", doc_type="exam", student_id="winston", subject="science", metadata={"exam_date": "2025-11-12"})
@@ -285,7 +286,9 @@ def test_safe_mutation_tools_create_and_update_records():
             file_record = mgr.register_file(pdf_path)
             tools = PdfFileManagerMcpTools(db_path=db_path)
 
-            student = tools.pdf_add_student(id="winston", name="Winston", email="w@example.com")
+            student = tools.pdf_add_student(
+                id="winston", name=STUDENT_DISPLAY_NAME, email="w@example.com"
+            )
             scan_root = tools.pdf_add_scan_root(path=str(root), student_id="winston")
             updated = tools.pdf_update_metadata(
                 file_id_or_path=file_record.id,
@@ -350,7 +353,7 @@ def test_safe_mutation_goodnotes_template_tools():
     try:
         with tempfile.TemporaryDirectory() as tmpdir:
             root = Path(tmpdir)
-            goodnotes_root = root / "GoodNotes" / "Singapore Primary Chinese" / "winston.ry.meng@gmail.com" / "P6" / "Exam"
+            goodnotes_root = root / "GoodNotes" / "Singapore Primary Chinese" / STUDENT_FOLDER_EMAIL / "P6" / "Exam"
             daydream_root = root / "DaydreamEdu" / "Singapore Primary Chinese" / "P6" / "Exam"
             goodnotes_root.mkdir(parents=True, exist_ok=True)
             daydream_root.mkdir(parents=True, exist_ok=True)

@@ -10,7 +10,8 @@ Usage:
   python3 ai_study_buddy/pdf_file_manager/scripts/backup_pdf_registry.py --timestamp
 
 Backup runs only when the source DB has changed since the last backup (by mtime/size).
-Use --force to copy anyway. Default backup dir: .../My Drive/DaydreamEdu/db
+Use --force to copy anyway. Default backup dir: ``<DaydreamEdu root>/db`` (see
+``DAYDREAMEDU_ROOT`` / ``local_daydreamedu_root.txt`` in pdf_file_manager).
 
 Each run appends one line to pdf_registry_backup.log in the backup directory (so you can
 see that the script ran even when it skipped because there were no changes).
@@ -27,6 +28,22 @@ from zoneinfo import ZoneInfo
 
 
 SINGAPORE_TZ = ZoneInfo("Asia/Singapore")
+
+
+def _default_backup_dir() -> Path | None:
+    """Backup destination: env override, else ``DaydreamEdu_root / db`` if root is configured."""
+    env = os.environ.get("PDF_REGISTRY_BACKUP_DIR", "").strip()
+    if env:
+        return Path(env).expanduser()
+    pkg_dir = Path(__file__).resolve().parent.parent
+    if str(pkg_dir) not in sys.path:
+        sys.path.insert(0, str(pkg_dir))
+    import pdf_file_manager as pfm  # noqa: E402
+
+    dd = pfm.resolve_daydreamedu_root()
+    if dd is None:
+        return None
+    return dd / "db"
 
 
 def repo_root() -> Path:
@@ -64,13 +81,14 @@ def main() -> int:
         action="store_true",
         help="Write a timestamped copy (e.g. pdf_registry_2025-03-10_14-30-00.db) so you keep history.",
     )
-    default_backup_dir = os.environ.get("PDF_REGISTRY_BACKUP_DIR") or (
-        Path.home() / "genrong.meng@gmail.com - Google Drive/My Drive/DaydreamEdu/db"
-    )
+    default_backup_dir = _default_backup_dir()
     parser.add_argument(
         "--dest",
         default=default_backup_dir,
-        help="Backup directory (default: env PDF_REGISTRY_BACKUP_DIR or DaydreamEdu/db in Google Drive).",
+        help=(
+            "Backup directory (default: PDF_REGISTRY_BACKUP_DIR, else "
+            "<DaydreamEdu root>/db from DAYDREAMEDU_ROOT or local_daydreamedu_root.txt)."
+        ),
     )
     parser.add_argument(
         "--force",

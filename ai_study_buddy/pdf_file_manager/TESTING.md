@@ -18,7 +18,7 @@ Tests are defined at the **utility level**: one test suite for the pdf_file_mana
 ## Test data strategy
 
 - **Database:** Use a temporary SQLite file (e.g. `tempfile.NamedTemporaryFile(suffix=".db")` or `:memory:`) for every test or test class. Never use `ai_study_buddy/db/pdf_registry.db` or `PDF_REGISTRY_PATH` in tests.
-- **Files:** Create temporary directories and, when tests need PDFs, the **DaydreamEdu fixture** under `tests/fixtures/daydreamedu_fixture/` (scaled-down repo layout with two real PDFs in `Singapore Primary Science/winston.ry.meng@gmail.com/P5/Exam/`; see that folder's README). Copy the fixture into a temp dir before scan/compress so the fixture stays pristine. Use `tempfile.TemporaryDirectory()` (or the equivalent) so tests don’t leave artifacts.
+- **Files:** Create temporary directories and, when tests need PDFs, the **DaydreamEdu fixture** under `tests/fixtures/daydreamedu_fixture/` (scaled-down repo layout with two real PDFs in `Singapore Primary Science/<student email>/P5/Exam/`; see that folder's README). Copy the fixture into a temp dir before scan/compress so the fixture stays pristine. Use `tempfile.TemporaryDirectory()` (or the equivalent) so tests don’t leave artifacts.
 - **compress_pdf:** Tests always use the **real** `compress_pdf` utility (no mocks). Integration tests that call `compress_and_register` or `scan_for_new_files` depend on it.
 
 ---
@@ -63,7 +63,7 @@ These tests give confidence that Phase 2 (Config & file lifecycle) is complete. 
 
 | # | Test | What it proves |
 |---|------|----------------|
-| **2.1** | **add_student then list_students** | `add_student("w", "Winston", email="w@x.com")`; `list_students()` returns a list of one; that entry has `id`, `name`, `email`. Proves: student row is created and readable. |
+| **2.1** | **add_student then list_students** | `add_student("w", "Test Student", email="w@x.com")`; `list_students()` returns a list of one; that entry has `id`, `name`, `email`. Proves: student row is created and readable. |
 | **2.2** | **list_students empty at first** | New manager, `list_students()` returns empty list. Proves: no stray data. |
 
 ### Scan roots

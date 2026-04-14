@@ -2,14 +2,14 @@
 
 A small copy of the real DaydreamEdu folder structure and two real PDFs, used by Phase 2+ tests for `register_file`, `compress_and_register`, and `scan_for_new_files` (with the real `compress_pdf` utility).
 
-**Note:** The PDF files in this tree are listed in the repo `.gitignore` and are not committed. To populate the fixture locally, copy the two PDFs from the real drive into `Singapore Primary Science/winston.ry.meng@gmail.com/P5/Exam/` (see TESTING.md or the paths below).
+**Note:** The PDF files in this tree are listed in the repo `.gitignore` and are not committed. To populate the fixture locally, copy the two PDFs from the real drive into `Singapore Primary Science/student.fixture@example.com/P5/Exam/` (that segment matches `STUDENT_FOLDER_EMAIL` in `tests/constants.py`; any single directory name containing `@` under `Singapore Primary Science` works for tests that copy this tree).
 
 ## Layout
 
 ```
 daydreamedu_fixture/
 └── Singapore Primary Science/
-    └── winston.ry.meng@gmail.com/
+    └── student.fixture@example.com/
         └── P5/
             └── Exam/
                 ├── p5.science.012.Primary 5 Science 2025 EOY.pdf

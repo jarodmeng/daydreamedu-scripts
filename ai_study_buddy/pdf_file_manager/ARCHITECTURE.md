@@ -36,10 +36,10 @@ If none of the above apply, `resolve_goodnotes_root()` returns `None`.
 | Level | Folder meaning | Examples |
 |-------|----------------|----------|
 | **L1** | Subject | May be short (`Chinese`, `Math`) or longer (`Singapore Primary English`, `Singapore Primary Math`). Inference matches the subject word (e.g. "English" → `english`). |
-| **L2** | Student (email-named) or general scope | Student: `winston.ry.meng@gmail.com` (then has Px/PSLE inside). General: any non-email segment — `P3`, `P4`, `P5`, `P6`, `PSLE`, `Archive` — **files under general scope are templates** (`is_template=True`). |
+| **L2** | Student (email-named) or general scope | Student: `<student email>` (then has Px/PSLE inside). General: any non-email segment — `P3`, `P4`, `P5`, `P6`, `PSLE`, `Archive` — **files under general scope are templates** (`is_template=True`). |
 | **L3** | Content type | `Exam`, `Exercise`, `Book`, `Activity`, `Note` |
 
-So a full path might be: `DaydreamEdu/Singapore Primary Math/winston.ry.meng@gmail.com/P6/Exam/...` or `DaydreamEdu/Singapore Primary Science/P6/Exercise/...`. Student-specific folders are named by the student's email; the file manager can map that path segment to `student_id` via the `students.email` column when present. **Shallow paths:** Some files (e.g. answer keys) sit directly under L1 with no L2/L3; for those, only subject (and optionally filename-based `source_book`) can be inferred; `content_folder`, `grade_or_scope`, and `is_template` are left unset or for human classification.
+So a full path might be: `DaydreamEdu/Singapore Primary Math/<student email>/P6/Exam/...` or `DaydreamEdu/Singapore Primary Science/P6/Exercise/...`. Student-specific folders are named by the student's email; the file manager can map that path segment to `student_id` via the `students.email` column when present. **Shallow paths:** Some files (e.g. answer keys) sit directly under L1 with no L2/L3; for those, only subject (and optionally filename-based `source_book`) can be inferred; `content_folder`, `grade_or_scope`, and `is_template` are left unset or for human classification.
 
 **L3 content types (folder → doc_type / metadata):**
 

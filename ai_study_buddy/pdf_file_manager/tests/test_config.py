@@ -18,8 +18,8 @@ def test_add_student_then_list_students():
         tmp = f.name
     try:
         mgr = PdfFileManager(db_path=tmp)
-        s = mgr.add_student("w", "Winston", email="w@x.com")
-        assert s.id == "w" and s.name == "Winston" and s.email == "w@x.com"
+        s = mgr.add_student("w", "Test Student", email="w@x.com")
+        assert s.id == "w" and s.name == "Test Student" and s.email == "w@x.com"
         lst = mgr.list_students()
         assert len(lst) == 1
         assert lst[0].id == "w" and lst[0].email == "w@x.com"
@@ -72,8 +72,8 @@ def test_ensure_student_creates_when_missing():
         tmp = f.name
     try:
         mgr = PdfFileManager(db_path=tmp)
-        s = mgr.ensure_student("w", "Winston", email="w@x.com")
-        assert s.id == "w" and s.name == "Winston" and s.email == "w@x.com"
+        s = mgr.ensure_student("w", "Test Student", email="w@x.com")
+        assert s.id == "w" and s.name == "Test Student" and s.email == "w@x.com"
         assert mgr.get_student("w") is not None
     finally:
         Path(tmp).unlink(missing_ok=True)
@@ -84,9 +84,9 @@ def test_ensure_student_idempotent_returns_existing():
         tmp = f.name
     try:
         mgr = PdfFileManager(db_path=tmp)
-        mgr.add_student("w", "Winston", email="w@x.com")
+        mgr.add_student("w", "Test Student", email="w@x.com")
         s = mgr.ensure_student("w", "Other", email="other@x.com")
-        assert s.id == "w" and s.name == "Winston" and s.email == "w@x.com"
+        assert s.id == "w" and s.name == "Test Student" and s.email == "w@x.com"
         assert len(mgr.list_students()) == 1
     finally:
         Path(tmp).unlink(missing_ok=True)

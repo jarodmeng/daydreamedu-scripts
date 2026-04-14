@@ -6,9 +6,9 @@
 
 ## 1. GoodNotes folder and file categories (recap)
 
-**Location:** `.../GoodNotes/Singapore Primary Math/winston.ry.meng@gmail.com/P6/Exam`
+**Location:** `.../GoodNotes/Singapore Primary Math/<student email>/P6/Exam`
 
-**Mirrored structure:** Same hierarchy under `.../DaydreamEdu/Singapore Primary Math/winston.ry.meng@gmail.com/P6/Exam` (and under `.../DaydreamEdu/.../P6/Exam` for template-only paths) holds the **source** files (templates, scored papers, compressed combined). GoodNotes outputs sync **into** the GoodNotes tree.
+**Mirrored structure:** Same hierarchy under `.../DaydreamEdu/Singapore Primary Math/<student email>/P6/Exam` (and under `.../DaydreamEdu/.../P6/Exam` for template-only paths) holds the **source** files (templates, scored papers, compressed combined). GoodNotes outputs sync **into** the GoodNotes tree.
 
 | Category | Example GoodNotes file | Source (DaydreamEdu) | Workflow |
 |----------|------------------------|----------------------|----------|
@@ -50,7 +50,7 @@ For ingestion, the **canonical “completion” to ingest** is the GoodNotes PDF
 ### 2.3 Recommended registration flow (minimal manual work)
 
 1. **Ensure DaydreamEdu sources are registered.**  
-   All relevant templates and main files under `DaydreamEdu/.../P6/Exam` and `DaydreamEdu/.../winston.ry.meng/.../P6/Exam` should already be in the registry. Mark templates with `is_template=True`, completions (if any) with `is_template=False`.
+   All relevant templates and main files under `DaydreamEdu/.../P6/Exam` and `DaydreamEdu/.../<student email>/.../P6/Exam` should already be in the registry. Mark templates with `is_template=True`, completions (if any) with `is_template=False`.
 
 2. **Add GoodNotes folder as a register-only scan root** (or handle it via a dedicated registration script) with `student_id` set if desired. For this root:
    - GoodNotes files are **only registered** (`register_file` + `_infer_from_path`); **no `compress_and_register`** and no renames/moves under `GoodNotes/`.
@@ -186,4 +186,4 @@ Template resolution uses the **main file’s basename** (the file that is the co
 | `p6.math.wa1.K (empty) (attempt).pdf`           | `_c_p6.math.wa1.K.pdf` (same K) |
 | `P6 Math WA1 (reviewed).pdf` or `c_P6 Math WA1 (reviewed).pdf` | `_c_P6 Math WA1.pdf` |
 
-Path: DaydreamEdu base path is the same hierarchy under the DaydreamEdu root (e.g. `.../DaydreamEdu/Singapore Primary Math/winston.ry.meng@gmail.com/P6/Exam` for category 1/2/4, and `.../DaydreamEdu/Singapore Primary Math/P6/Exam` for category 3). Resolver takes the **main** file path (in GoodNotes tree), strips `_c_` from basename for matching, maps to template basename, then builds the DaydreamEdu path by replacing the “GoodNotes” path segment with “DaydreamEdu”.
+Path: DaydreamEdu base path is the same hierarchy under the DaydreamEdu root (e.g. `.../DaydreamEdu/Singapore Primary Math/<student email>/P6/Exam` for category 1/2/4, and `.../DaydreamEdu/Singapore Primary Math/P6/Exam` for category 3). Resolver takes the **main** file path (in GoodNotes tree), strips `_c_` from basename for matching, maps to template basename, then builds the DaydreamEdu path by replacing the “GoodNotes” path segment with “DaydreamEdu”.

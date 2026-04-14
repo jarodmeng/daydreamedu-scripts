@@ -321,8 +321,8 @@ mgr = PdfFileManager()
 mgr = PdfFileManager(db_path="/custom/path/registry.db")
 
 # One-time setup
-mgr.add_student("winston", name="Winston Meng", email="winston.ry.meng@gmail.com")
-mgr.add_student("emma",    name="Emma Meng",    email="emma.rs.meng@gmail.com")
+mgr.add_student("winston", name="Test Student A", email="<student email>")
+mgr.add_student("emma",    name="Test Student B", email="<student email>")
 mgr.add_scan_root(
     "/path/to/GoogleDrive-studentA@example.com/My Drive/Student A documents",
     student_id="winston"

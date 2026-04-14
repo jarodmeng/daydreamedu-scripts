@@ -8,15 +8,15 @@ The issue was visible in both `DaydreamEdu` and `GoodNotes` trees and was subtle
 
 An audit of Winston-scoped paths found:
 
-- `644` files under `.../winston.ry.meng@gmail.com/...`
+- `644` files under `.../<student email>/...`
 - `490` with `student_id='winston'`
 - `154` with `student_id` missing
 
 The missing set clustered into three batches:
 
-- `2026-03-09`: `73` files under `DaydreamEdu/.../Singapore Primary English/winston.ry.meng@gmail.com/...`
-- `2026-03-10`: `49` files under `DaydreamEdu/.../Singapore Primary Science/winston.ry.meng@gmail.com/...`
-- `2026-03-11`: `32` files under `GoodNotes/.../winston.ry.meng@gmail.com/...`
+- `2026-03-09`: `73` files under `DaydreamEdu/.../Singapore Primary English/<student email>/...`
+- `2026-03-10`: `49` files under `DaydreamEdu/.../Singapore Primary Science/<student email>/...`
+- `2026-03-11`: `32` files under `GoodNotes/.../<student email>/...`
 
 The operation log showed these files were first created by normal `register`/`compress` activity rather than later metadata updates.
 

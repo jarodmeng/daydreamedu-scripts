@@ -4,6 +4,7 @@ import sys
 import tempfile
 from pathlib import Path
 
+from constants import STUDENT_DISPLAY_NAME, STUDENT_FOLDER_EMAIL
 from pdf_file_manager import PdfFileManager
 
 
@@ -19,7 +20,7 @@ def test_integrity_validator_reports_known_issue_types():
         tmpdir = Path(tmpdir)
         db_path = tmpdir / "registry.db"
         mgr = PdfFileManager(db_path=str(db_path))
-        mgr.add_student("winston", "Winston Meng", "winston.ry.meng@gmail.com")
+        mgr.add_student("winston", STUDENT_DISPLAY_NAME, STUDENT_FOLDER_EMAIL)
 
         unknown_pdf = tmpdir / "unknown.pdf"
         unknown_pdf.write_bytes(b"%PDF-1.0\n")
@@ -29,7 +30,7 @@ def test_integrity_validator_reports_known_issue_types():
             tmpdir
             / "DaydreamEdu"
             / "Singapore Primary English"
-            / "winston.ry.meng@gmail.com"
+            / STUDENT_FOLDER_EMAIL
             / "P6"
             / "Exam"
             / "student.pdf"

@@ -2,7 +2,7 @@
 
 **Status:** Implemented (2026-03)  
 **Date:** 2026-03-03  
-**Context:** User data (e.g. Emma) showed accumulated 普通已学字 with no 巩固 tests for consecutive days, and excessive 新字 (80 in one day) despite learning debt. Root cause: (1) in Expansion/Consolidation modes, 在学字 take all review slots first, crowding out 巩固; (2) Active Load excludes 普通已学字, so users with many 已学字 but fewer 在学字 stay in Expansion mode.
+**Context:** User data (e.g. one learner's profile) showed accumulated 普通已学字 with no 巩固 tests for consecutive days, and excessive 新字 (80 in one day) despite learning debt. Root cause: (1) in Expansion/Consolidation modes, 在学字 take all review slots first, crowding out 巩固; (2) Active Load excludes 普通已学字, so users with many 已学字 but fewer 在学字 stay in Expansion mode.
 
 **References:**
 - [PROPOSAL_Queue_By_Five_Score_Categories.md](PROPOSAL_Queue_By_Five_Score_Categories.md) — current five-band queue, Active Load, Expansion/Consolidation/Rescue modes
@@ -96,9 +96,9 @@ In Expansion and Consolidation, reserve slots for 普通已学字 + 掌握字 **
 
 ## 4. Verification
 
-One-off Supabase script to verify Emma's state:
+One-off Supabase script to verify learner state for a given account:
 
-- Resolve `emma.rs.meng@gmail.com` → `user_id`
+- Resolve `<user@example.com>` (or the live user's email) → `user_id`
 - From `pinyin_recall_character_bank`:
   - Active Load and Total Load for mode prediction
   - Counts per band (难字, 普通在学字, 普通已学字, 掌握字)

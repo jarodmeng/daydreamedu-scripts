@@ -4,7 +4,7 @@ Generate the current missing reading-level priorities for one user.
 
 Usage (run from backend/):
   python3 scripts/pinyin_recall/generate_missing_user_priorities_from_readings.py \
-    --email emma.rs.meng@gmail.com \
+    --email <user@example.com> \
     --readings-json ../../../ai_study_buddy/docs/notes/p4_4a_dictation_2026_category_ii_readings.json \
     --output-json /tmp/emma_priorities.json
 """
