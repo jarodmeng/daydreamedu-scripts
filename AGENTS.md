@@ -2,11 +2,11 @@
 
 ### Overview
 
-This is a monorepo with two full-stack web apps and several utility/script projects. See `README.md` for folder layout.
+This is a monorepo with two full-stack web apps and several utility/script projects. See `README.md` for layout of all top-level folders (including `ai_study_buddy/`, `coding_classes/`, `utility_scripts/`, and `archive/`).
 
 | App | Backend | Frontend | DB required? |
 |-----|---------|----------|-------------|
-| **Chinese chr app** (`chinese_chr_app/chinese_chr_app/`) | Flask :5001 | React+Vite :3000 | Yes (`DATABASE_URL`/`SUPABASE_URL` required; DB-only runtime) |
+| **Chinese chr app** (`chinese_chr_app/chinese_chr_app/`) | Flask :5001 | React+Vite :3000 | Yes (`SUPABASE_URL` and either `DATABASE_URL` or `SUPABASE_DB_URL`; DB-only runtime) |
 | **Math multiplication** (`math_multiplication/`) | Flask :5001 | React+Vite :3000 | Yes (`DATABASE_URL` required) |
 
 Both apps share ports 5001/3000 — only one can run at a time.
@@ -36,7 +36,7 @@ cd chinese_chr_app/chinese_chr_app/frontend && \
   VITE_E2E_AUTH_BYPASS=1 npm run dev
 ```
 
-Without DB credentials, the backend will now fail on startup (DB-only runtime). `GCS_BUCKET_NAME` is still optional; without it the backend serves local PNGs.
+Without `SUPABASE_URL` and a Postgres URL (`DATABASE_URL` or `SUPABASE_DB_URL`), the backend fails on startup (DB-only runtime). `GCS_BUCKET_NAME` is still optional; without it the backend serves local PNGs.
 
 The Vite dev server proxies `/api` to `http://localhost:5001` automatically.
 
@@ -69,7 +69,7 @@ Combined, these allow full testing of Profile, Pinyin Recall game, and progress 
 
 **Note (updated):** The frontend E2E auth bypass is now authoritative (the fake session is not overwritten by Supabase `onAuthStateChange`). You can still unset frontend Supabase vars as defense-in-depth / to reduce confusion in local testing:
 - Optional hardening: don't pass `VITE_SUPABASE_URL`/`VITE_SUPABASE_ANON_KEY` to the frontend: `env -u VITE_SUPABASE_URL -u VITE_SUPABASE_ANON_KEY VITE_E2E_AUTH_BYPASS=1 npm run dev`
-- Or pass them to the backend only (the backend reads `DATABASE_URL` and `SUPABASE_URL` independently of the frontend)
+- Or pass them to the backend only (the backend reads `SUPABASE_URL` and either `DATABASE_URL` or `SUPABASE_DB_URL`, independently of the frontend)
 
 The backend can still read real Supabase tables even when the frontend doesn't have Supabase vars — the `/api` proxy connects directly.
 
