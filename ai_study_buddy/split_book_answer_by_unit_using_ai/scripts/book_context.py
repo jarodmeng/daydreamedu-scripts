@@ -11,9 +11,9 @@ from pathlib import Path
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 ROOT = SCRIPT_DIR.parent
-# /<repo>/ai_study_buddy/utils/split_book_answer_by_unit_using_ai
-#                         ^ parents[2] = <repo>
-REPO_ROOT = ROOT.parents[2]
+# /<repo>/ai_study_buddy/split_book_answer_by_unit_using_ai
+#                         ^ parents[1] = <repo>
+REPO_ROOT = ROOT.parents[1]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 

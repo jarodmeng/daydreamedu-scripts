@@ -43,36 +43,36 @@ After iterative attempts, the continuation-aware page-segments design (finalized
 From repo root:
 
 ```bash
-python3 ai_study_buddy/utils/split_book_answer_by_unit_using_ai/scripts/build_gemini_page_segments_continuation_batch_input.py \
+python3 ai_study_buddy/split_book_answer_by_unit_using_ai/scripts/build_gemini_page_segments_continuation_batch_input.py \
   --book-label "Science Practice Primary 5 and 6" \
-  --output ai_study_buddy/utils/split_book_answer_by_unit_using_ai/batch_artifacts/science_practice_primary_5_and_6.v01.jsonl
+  --output ai_study_buddy/split_book_answer_by_unit_using_ai/batch_artifacts/science_practice_primary_5_and_6.v01.jsonl
 
-python3 ai_study_buddy/utils/split_book_answer_by_unit_using_ai/scripts/submit_gemini_batch.py \
-  ai_study_buddy/utils/split_book_answer_by_unit_using_ai/batch_artifacts/science_practice_primary_5_and_6.v01.jsonl \
-  --job-info ai_study_buddy/utils/split_book_answer_by_unit_using_ai/batch_artifacts/science_practice_primary_5_and_6.v01.job.json \
-  --job-name-file ai_study_buddy/utils/split_book_answer_by_unit_using_ai/batch_artifacts/science_practice_primary_5_and_6.v01.job_name.txt
+python3 ai_study_buddy/split_book_answer_by_unit_using_ai/scripts/submit_gemini_batch.py \
+  ai_study_buddy/split_book_answer_by_unit_using_ai/batch_artifacts/science_practice_primary_5_and_6.v01.jsonl \
+  --job-info ai_study_buddy/split_book_answer_by_unit_using_ai/batch_artifacts/science_practice_primary_5_and_6.v01.job.json \
+  --job-name-file ai_study_buddy/split_book_answer_by_unit_using_ai/batch_artifacts/science_practice_primary_5_and_6.v01.job_name.txt
 
-python3 ai_study_buddy/utils/split_book_answer_by_unit_using_ai/scripts/check_gemini_batch_status.py \
-  --job-info ai_study_buddy/utils/split_book_answer_by_unit_using_ai/batch_artifacts/science_practice_primary_5_and_6.v01.job.json \
+python3 ai_study_buddy/split_book_answer_by_unit_using_ai/scripts/check_gemini_batch_status.py \
+  --job-info ai_study_buddy/split_book_answer_by_unit_using_ai/batch_artifacts/science_practice_primary_5_and_6.v01.job.json \
   --poll --poll-interval 30 \
-  --output ai_study_buddy/utils/split_book_answer_by_unit_using_ai/batch_artifacts/science_practice_primary_5_and_6.v01.output.jsonl
+  --output ai_study_buddy/split_book_answer_by_unit_using_ai/batch_artifacts/science_practice_primary_5_and_6.v01.output.jsonl
 
-python3 ai_study_buddy/utils/split_book_answer_by_unit_using_ai/scripts/process_gemini_batch_output.py \
-  -i ai_study_buddy/utils/split_book_answer_by_unit_using_ai/batch_artifacts/science_practice_primary_5_and_6.v01.output.jsonl \
-  -o ai_study_buddy/utils/split_book_answer_by_unit_using_ai/batch_artifacts/science_practice_primary_5_and_6.v01.processed.json
+python3 ai_study_buddy/split_book_answer_by_unit_using_ai/scripts/process_gemini_batch_output.py \
+  -i ai_study_buddy/split_book_answer_by_unit_using_ai/batch_artifacts/science_practice_primary_5_and_6.v01.output.jsonl \
+  -o ai_study_buddy/split_book_answer_by_unit_using_ai/batch_artifacts/science_practice_primary_5_and_6.v01.processed.json
 
-python3 ai_study_buddy/utils/split_book_answer_by_unit_using_ai/scripts/assemble_ranges_from_page_segments_continuation.py \
+python3 ai_study_buddy/split_book_answer_by_unit_using_ai/scripts/assemble_ranges_from_page_segments_continuation.py \
   --custom-id book:science_practice_primary_5_and_6:page_segments_continuation_gemini:p1_39 \
-  --processed ai_study_buddy/utils/split_book_answer_by_unit_using_ai/batch_artifacts/science_practice_primary_5_and_6.v01.processed.json \
-  --output ai_study_buddy/utils/split_book_answer_by_unit_using_ai/batch_artifacts/science_practice_primary_5_and_6.v01.assembled.json
+  --processed ai_study_buddy/split_book_answer_by_unit_using_ai/batch_artifacts/science_practice_primary_5_and_6.v01.processed.json \
+  --output ai_study_buddy/split_book_answer_by_unit_using_ai/batch_artifacts/science_practice_primary_5_and_6.v01.assembled.json
 ```
 
 ## Optional: compare to ground truth
 
 ```bash
-python3 ai_study_buddy/utils/split_book_answer_by_unit_using_ai/scripts/compare_with_ground_truth.py \
-  --processed ai_study_buddy/utils/split_book_answer_by_unit_using_ai/batch_artifacts/science_practice_primary_5_and_6.v01.assembled.json \
-  --ground-truth ai_study_buddy/utils/split_book_answer_by_unit_using_ai/pilot_ground_truth/science_practice_primary_5_and_6_ground_truth.json
+python3 ai_study_buddy/split_book_answer_by_unit_using_ai/scripts/compare_with_ground_truth.py \
+  --processed ai_study_buddy/split_book_answer_by_unit_using_ai/batch_artifacts/science_practice_primary_5_and_6.v01.assembled.json \
+  --ground-truth ai_study_buddy/split_book_answer_by_unit_using_ai/pilot_ground_truth/science_practice_primary_5_and_6_ground_truth.json
 ```
 
 ## Notes

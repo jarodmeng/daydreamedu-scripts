@@ -20,7 +20,7 @@
 | Companion table / flag for “known unmapped by design” | **Not implemented** (v1 uses *no row*) |
 | Phase 3: model runs writing directly to registry | **Not implemented** |
 
-**Ground-truth JSON:** Bulk import is supported via **`import_book_answer_mappings_from_json`** (Python only). The pilot files under `split_book_answer_by_unit_using_ai/pilot_ground_truth/` used in v0.2.7 are listed in [Phase 2](#phase-2) below; **`power_pack_english_psle_situational_writing_ground_truth.json`** is an additional validated artifact in the same format and can be imported the same way once the answer and unit PDFs are registered in the book group.
+**Ground-truth JSON:** Bulk import is supported via **`import_book_answer_mappings_from_json`** (Python only). The pilot files under `ai_study_buddy/split_book_answer_by_unit_using_ai/pilot_ground_truth/` used in v0.2.7 are listed in [Phase 2](#phase-2) below; **`power_pack_english_psle_situational_writing_ground_truth.json`** is an additional validated artifact in the same format and can be imported the same way once the answer and unit PDFs are registered in the book group.
 
 **Docs:** [Documentation update plan](#documentation-update-plan) — most items were done for v0.2.7; this proposal file was not originally toggled to “done”; this section records that.
 
@@ -35,7 +35,7 @@ We now have several successful pilot runs that can map:
 - with an inclusive answer-page range
 - plus split-page boundary flags for starts/ends that happen mid-page
 
-Examples already validated in `split_book_answer_by_unit_using_ai/` include:
+Examples already validated in `ai_study_buddy/split_book_answer_by_unit_using_ai/` include:
 
 - `Science Practice Primary 5 and 6`
 - `Power Pack Science PSLE`
@@ -258,7 +258,7 @@ For v1, no row is the intended representation.
 
 **Partially done.** Python `import_book_answer_mappings_from_json` is **implemented**; loading each file into a given registry is an **operational** step (files must exist in the book group with matching basenames).
 
-Validated ground-truth JSON under `split_book_answer_by_unit_using_ai/pilot_ground_truth/`:
+Validated ground-truth JSON under `ai_study_buddy/split_book_answer_by_unit_using_ai/pilot_ground_truth/`:
 
 - `science_practice_primary_5_and_6_ground_truth.json` — used in v0.2.7 rollout
 - `power_pack_science_psle_ground_truth.json` — used in v0.2.7 rollout
