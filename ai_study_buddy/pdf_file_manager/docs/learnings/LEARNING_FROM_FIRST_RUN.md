@@ -2,7 +2,7 @@
 
 This document captures the main patterns and lessons from the first round of one‑off scripts built on top of `pdf_file_manager` (now housed under `scripts/archive/`). **Proposals 1–4 have been implemented** as of v0.1.1; see [CHANGELOG.md](../../CHANGELOG.md) § v0.1.1 and the [proposals](../proposals) folder.
 
-The learnings here are based on the following scripts present at the time of writing (all paths are under `ai_study_buddy/utils/pdf_file_manager/scripts/archive/`):
+The learnings here are based on the following scripts present at the time of writing (all paths are under `ai_study_buddy/pdf_file_manager/scripts/archive/`):
 
 - `_bootstrap_exam_scan.py`
 - `_bootstrap_p5_chinese_exams.py`

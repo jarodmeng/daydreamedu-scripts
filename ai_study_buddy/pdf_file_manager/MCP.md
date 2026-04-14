@@ -7,7 +7,7 @@ This document describes how to run and connect to the `pdf_file_manager` MCP ser
 Run the server with:
 
 ```bash
-python3 ai_study_buddy/utils/pdf_file_manager/pdf_file_manager_mcp_server.py --db /path/to/pdf_registry.db
+python3 ai_study_buddy/pdf_file_manager/pdf_file_manager_mcp_server.py --db /path/to/pdf_registry.db
 ```
 
 If `--db` is omitted, the manager uses its normal default DB resolution.
@@ -22,7 +22,7 @@ The server supports two tool exposure modes:
 Example readonly launch:
 
 ```bash
-python3 ai_study_buddy/utils/pdf_file_manager/pdf_file_manager_mcp_server.py \
+python3 ai_study_buddy/pdf_file_manager/pdf_file_manager_mcp_server.py \
   --db /path/to/pdf_registry.db \
   --tool-mode readonly
 ```
@@ -58,7 +58,7 @@ For `doc_type='book'` answer coverage:
 `stdio` is the default and is the best choice for most local MCP client integrations.
 
 ```bash
-python3 ai_study_buddy/utils/pdf_file_manager/pdf_file_manager_mcp_server.py \
+python3 ai_study_buddy/pdf_file_manager/pdf_file_manager_mcp_server.py \
   --db /path/to/pdf_registry.db \
   --tool-mode readonly
 ```
@@ -68,7 +68,7 @@ python3 ai_study_buddy/utils/pdf_file_manager/pdf_file_manager_mcp_server.py \
 Use HTTP when the client expects a networked MCP server process.
 
 ```bash
-python3 ai_study_buddy/utils/pdf_file_manager/pdf_file_manager_mcp_server.py \
+python3 ai_study_buddy/pdf_file_manager/pdf_file_manager_mcp_server.py \
   --db /path/to/pdf_registry.db \
   --transport http \
   --host 127.0.0.1 \
@@ -84,7 +84,7 @@ Example `stdio` style MCP client command:
 {
   "command": "python3",
   "args": [
-    "ai_study_buddy/utils/pdf_file_manager/pdf_file_manager_mcp_server.py",
+    "ai_study_buddy/pdf_file_manager/pdf_file_manager_mcp_server.py",
     "--db",
     "/path/to/pdf_registry.db",
     "--tool-mode",

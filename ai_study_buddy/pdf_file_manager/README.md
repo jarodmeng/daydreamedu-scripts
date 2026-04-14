@@ -68,7 +68,7 @@ GoodNotes-specific support:
 Run the MCP server with:
 
 ```bash
-python3 ai_study_buddy/utils/pdf_file_manager/pdf_file_manager_mcp_server.py --db /path/to/pdf_registry.db
+python3 ai_study_buddy/pdf_file_manager/pdf_file_manager_mcp_server.py --db /path/to/pdf_registry.db
 ```
 
 ## Database backup
@@ -79,7 +79,7 @@ The registry DB (`ai_study_buddy/db/pdf_registry.db`) is gitignored. To back it 
 
 2. **Run the backup script** from the repo root or from `ai_study_buddy/`:
    ```bash
-   python3 ai_study_buddy/utils/pdf_file_manager/scripts/backup_pdf_registry.py
+   python3 ai_study_buddy/pdf_file_manager/scripts/backup_pdf_registry.py
    ```
    Use `--timestamp` to keep dated copies (e.g. `pdf_registry_2025-03-10_14-30-00+0800.db`) instead of overwriting. Backup log entries and timestamped filenames use Singapore time.
 
@@ -90,7 +90,7 @@ To back up automatically when the Mac wakes from sleep (only if the DB changed),
 
 ```bash
 brew install sleepwatcher
-./ai_study_buddy/utils/pdf_file_manager/scripts/install_run_on_wake.sh
+./ai_study_buddy/pdf_file_manager/scripts/install_run_on_wake.sh
 ```
 
 This installs a user LaunchAgent that runs the backup after each wake. The backup script still skips when unchanged. To remove: `launchctl unload ~/Library/LaunchAgents/com.daydreamedu.pdf-registry-backup-on-wake.plist` and edit or remove `~/.wakeup`.

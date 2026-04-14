@@ -16,8 +16,9 @@ from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
-# Ensure we can import compress_pdf from sibling utils folder
-_utils_dir = Path(__file__).resolve().parent.parent
+# Ensure we can import compress_pdf from ai_study_buddy/utils/compress_pdf
+_ai_study_buddy_dir = Path(__file__).resolve().parent.parent
+_utils_dir = _ai_study_buddy_dir / "utils"
 if str(_utils_dir) not in sys.path:
     sys.path.insert(0, str(_utils_dir))
 

@@ -15,7 +15,7 @@ Scanned files may live in one or more folders (e.g. different Google Drive accou
 The absolute path to your synced **DaydreamEdu** folder depends on your Google account and machine and must **not** be committed. Configure it locally using either:
 
 1. **Environment variable** `DAYDREAMEDU_ROOT` — absolute path to the `DaydreamEdu` directory (highest priority).
-2. **File** `local_daydreamedu_root.txt` in this package directory (`ai_study_buddy/utils/pdf_file_manager/`) — gitignored; copy from [`local_daydreamedu_root.example.txt`](./local_daydreamedu_root.example.txt), put **one path per line** (first non-comment line wins). Lines starting with `#` are ignored.
+2. **File** `local_daydreamedu_root.txt` in this package directory (`ai_study_buddy/pdf_file_manager/`) — gitignored; copy from [`local_daydreamedu_root.example.txt`](./local_daydreamedu_root.example.txt), put **one path per line** (first non-comment line wins). Lines starting with `#` are ignored.
 
 In Python, call **`resolve_daydreamedu_root()`** from [`pdf_file_manager.py`](./pdf_file_manager.py) to obtain a `Path` or `None`. Use that when building paths, moving or scanning PDFs, or passing explicit `roots` to `scan_for_new_files`, unless the user gives another path. Do not guess under `Library/CloudStorage/GoogleDrive-*` without this configuration.
 

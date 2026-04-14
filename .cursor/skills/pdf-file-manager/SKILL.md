@@ -5,7 +5,7 @@ description: Use the AI Study Buddy `pdf_file_manager` utility for PDF registry 
 
 # PDF File Manager
 
-Use this skill for PDF registry work in `ai_study_buddy/utils/pdf_file_manager`.
+Use this skill for PDF registry work in `ai_study_buddy/pdf_file_manager`.
 
 ## Core Rule
 
@@ -13,7 +13,7 @@ Do not read or write the registry through raw SQLite queries when answering user
 
 Prefer, in order:
 
-1. The Python utility in [pdf_file_manager.py](../../../ai_study_buddy/utils/pdf_file_manager/pdf_file_manager.py).
+1. The Python utility in [pdf_file_manager.py](../../../ai_study_buddy/pdf_file_manager/pdf_file_manager.py).
 2. The MCP `pdf_*` tools when they are available in the session.
 
 The SQLite file is an implementation detail. Use it only for low-level utility development on `pdf_file_manager` itself, not for normal registry lookups or mutations.
@@ -22,13 +22,13 @@ This preference is intentional: after repeated use, the direct Python utility ha
 
 ## Primary Entry Points
 
-- Source of truth: [pdf_file_manager.py](../../../ai_study_buddy/utils/pdf_file_manager/pdf_file_manager.py)
-- MCP wrapper: [pdf_file_manager_mcp.py](../../../ai_study_buddy/utils/pdf_file_manager/pdf_file_manager_mcp.py)
-- MCP server docs: [MCP.md](../../../ai_study_buddy/utils/pdf_file_manager/MCP.md)
-- Overview and conventions: [README.md](../../../ai_study_buddy/utils/pdf_file_manager/README.md)
-- **DaydreamEdu root on disk:** Not stored in Git. Read via `DAYDREAMEDU_ROOT` env or `ai_study_buddy/utils/pdf_file_manager/local_daydreamedu_root.txt` (gitignored; copy from `local_daydreamedu_root.example.txt`), or call `resolve_daydreamedu_root()` from [`pdf_file_manager.py`](../../../ai_study_buddy/utils/pdf_file_manager/pdf_file_manager.py). See [ARCHITECTURE.md § Local DaydreamEdu root](../../../ai_study_buddy/utils/pdf_file_manager/ARCHITECTURE.md#local-daydreamedu-root-not-in-git).
-- Full operation contract: [SPEC.md](../../../ai_study_buddy/utils/pdf_file_manager/SPEC.md)
-- Units and exam completeness rules: [DATA_MODEL.md](../../../ai_study_buddy/utils/pdf_file_manager/DATA_MODEL.md) (see **Exam group completeness**)
+- Source of truth: [pdf_file_manager.py](../../../ai_study_buddy/pdf_file_manager/pdf_file_manager.py)
+- MCP wrapper: [pdf_file_manager_mcp.py](../../../ai_study_buddy/pdf_file_manager/pdf_file_manager_mcp.py)
+- MCP server docs: [MCP.md](../../../ai_study_buddy/pdf_file_manager/MCP.md)
+- Overview and conventions: [README.md](../../../ai_study_buddy/pdf_file_manager/README.md)
+- **DaydreamEdu root on disk:** Not stored in Git. Read via `DAYDREAMEDU_ROOT` env or `ai_study_buddy/pdf_file_manager/local_daydreamedu_root.txt` (gitignored; copy from `local_daydreamedu_root.example.txt`), or call `resolve_daydreamedu_root()` from [`pdf_file_manager.py`](../../../ai_study_buddy/pdf_file_manager/pdf_file_manager.py). See [ARCHITECTURE.md § Local DaydreamEdu root](../../../ai_study_buddy/pdf_file_manager/ARCHITECTURE.md#local-daydreamedu-root-not-in-git).
+- Full operation contract: [SPEC.md](../../../ai_study_buddy/pdf_file_manager/SPEC.md)
+- Units and exam completeness rules: [DATA_MODEL.md](../../../ai_study_buddy/pdf_file_manager/DATA_MODEL.md) (see **Exam group completeness**)
 
 ## Lookup Workflow
 
@@ -149,7 +149,7 @@ When filling missing `unit`:
 
 When checking whether an **`exam` group has a full set** of exam PDFs, use **compulsory** `metadata.unit` values only (aggregate from non-template **`main`** members). Optional units must not be treated as required.
 
-Authoritative table: [DATA_MODEL.md — Exam group completeness](../../../ai_study_buddy/utils/pdf_file_manager/DATA_MODEL.md#exam-group-completeness-compulsory-metadataunit).
+Authoritative table: [DATA_MODEL.md — Exam group completeness](../../../ai_study_buddy/pdf_file_manager/DATA_MODEL.md#exam-group-completeness-compulsory-metadataunit).
 
 Summary:
 
@@ -171,4 +171,4 @@ Keep this distinction clear in responses:
 - Say which supported interface you used: `PdfFileManager` or MCP tool.
 - If the user asks whether files "exist in the registry," answer path-exact registration first.
 - If you also find same-name matches elsewhere, call that out separately instead of conflating it with exact-path registration.
-- If you need deeper behavior details, read only the relevant sections of [README.md](../../../ai_study_buddy/utils/pdf_file_manager/README.md), [MCP.md](../../../ai_study_buddy/utils/pdf_file_manager/MCP.md), or [SPEC.md](../../../ai_study_buddy/utils/pdf_file_manager/SPEC.md).
+- If you need deeper behavior details, read only the relevant sections of [README.md](../../../ai_study_buddy/pdf_file_manager/README.md), [MCP.md](../../../ai_study_buddy/pdf_file_manager/MCP.md), or [SPEC.md](../../../ai_study_buddy/pdf_file_manager/SPEC.md).

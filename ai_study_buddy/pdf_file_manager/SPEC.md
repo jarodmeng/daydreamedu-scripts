@@ -457,7 +457,7 @@ pdf_open_file_group
 Run it with:
 
 ```bash
-python3 ai_study_buddy/utils/pdf_file_manager/pdf_file_manager_mcp_server.py --db /path/to/pdf_registry.db
+python3 ai_study_buddy/pdf_file_manager/pdf_file_manager_mcp_server.py --db /path/to/pdf_registry.db
 ```
 
 ---

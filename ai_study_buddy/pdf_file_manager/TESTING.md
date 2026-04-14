@@ -261,7 +261,7 @@ These tests give confidence that Phase 5 (Audit & machine interface) is complete
 
 - **Runner:** Use **pytest** (or the repo’s existing test runner if one is standard). Place tests in a `tests/` directory under `pdf_file_manager/` (e.g. `tests/test_manager.py`, `tests/test_inference.py`).
 - **Isolation:** Each test (or each class) should create its own temp DB and temp dirs; no shared state with the real registry or real scan roots.
-- **CI:** If the repo runs CI, add a step that runs the pdf_file_manager test suite (e.g. `pytest ai_study_buddy/utils/pdf_file_manager/tests/`).
+- **CI:** If the repo runs CI, add a step that runs the pdf_file_manager test suite (e.g. `pytest ai_study_buddy/pdf_file_manager/tests/`).
 
 ---
 

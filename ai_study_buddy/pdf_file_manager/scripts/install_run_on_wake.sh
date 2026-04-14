@@ -4,7 +4,7 @@
 
 set -e
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-REPO_ROOT="$(cd "$SCRIPT_DIR/../../../../" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../../../" && pwd)"
 WAKE_SCRIPT="$SCRIPT_DIR/run_backup_on_wake.sh"
 LAUNCH_AGENTS="$HOME/Library/LaunchAgents"
 PLIST_ID="com.daydreamedu.pdf-registry-backup-on-wake"

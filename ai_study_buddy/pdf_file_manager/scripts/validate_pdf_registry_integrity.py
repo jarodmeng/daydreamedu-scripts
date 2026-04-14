@@ -9,9 +9,9 @@ ad hoc investigation:
 3. linked raw/main pairs whose invariant metadata has drifted
 
 Usage:
-  python3 ai_study_buddy/utils/pdf_file_manager/scripts/validate_pdf_registry_integrity.py
-  python3 ai_study_buddy/utils/pdf_file_manager/scripts/validate_pdf_registry_integrity.py --json
-  python3 ai_study_buddy/utils/pdf_file_manager/scripts/validate_pdf_registry_integrity.py --db /path/to/pdf_registry.db
+  python3 ai_study_buddy/pdf_file_manager/scripts/validate_pdf_registry_integrity.py
+  python3 ai_study_buddy/pdf_file_manager/scripts/validate_pdf_registry_integrity.py --json
+  python3 ai_study_buddy/pdf_file_manager/scripts/validate_pdf_registry_integrity.py --db /path/to/pdf_registry.db
 """
 
 from __future__ import annotations
@@ -42,7 +42,7 @@ INVARIANT_METADATA_KEYS = (
 
 
 def repo_root() -> Path:
-    return SCRIPT_DIR.parent.parent.parent.parent
+    return SCRIPT_DIR.parent.parent.parent
 
 
 def default_db_path() -> Path:

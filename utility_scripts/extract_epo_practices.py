@@ -19,7 +19,7 @@ def _daydreamedu_root() -> Path:
     if env:
         return Path(env).expanduser().resolve()
     repo = Path(__file__).resolve().parents[1]
-    local_file = repo / "ai_study_buddy" / "utils" / "pdf_file_manager" / "local_daydreamedu_root.txt"
+    local_file = repo / "ai_study_buddy" / "pdf_file_manager" / "local_daydreamedu_root.txt"
     if local_file.is_file():
         for line in local_file.read_text(encoding="utf-8").splitlines():
             line = line.strip()
@@ -27,7 +27,7 @@ def _daydreamedu_root() -> Path:
                 return Path(line).expanduser().resolve()
     print(
         "Set DAYDREAMEDU_ROOT to your DaydreamEdu folder, or create "
-        "ai_study_buddy/utils/pdf_file_manager/local_daydreamedu_root.txt (see local_daydreamedu_root.example.txt).",
+        "ai_study_buddy/pdf_file_manager/local_daydreamedu_root.txt (see local_daydreamedu_root.example.txt).",
         file=sys.stderr,
     )
     sys.exit(1)

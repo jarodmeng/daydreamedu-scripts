@@ -6,8 +6,8 @@ already ignored via .gitignore; this script copies it to a directory that
 syncs to the cloud (e.g. Google Drive on your Mac).
 
 Usage:
-  python3 ai_study_buddy/utils/pdf_file_manager/scripts/backup_pdf_registry.py
-  python3 ai_study_buddy/utils/pdf_file_manager/scripts/backup_pdf_registry.py --timestamp
+  python3 ai_study_buddy/pdf_file_manager/scripts/backup_pdf_registry.py
+  python3 ai_study_buddy/pdf_file_manager/scripts/backup_pdf_registry.py --timestamp
 
 Backup runs only when the source DB has changed since the last backup (by mtime/size).
 Use --force to copy anyway. Default backup dir: .../My Drive/DaydreamEdu/db
@@ -30,8 +30,8 @@ SINGAPORE_TZ = ZoneInfo("Asia/Singapore")
 
 
 def repo_root() -> Path:
-    # Script lives in ai_study_buddy/utils/pdf_file_manager/scripts/; repo root is 4 levels up.
-    return Path(__file__).resolve().parent.parent.parent.parent.parent
+    # Script lives in ai_study_buddy/pdf_file_manager/scripts/; repo root is 3 levels up.
+    return Path(__file__).resolve().parent.parent.parent.parent
 
 
 def default_db_path() -> Path:
