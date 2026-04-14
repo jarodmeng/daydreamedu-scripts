@@ -1,174 +1,197 @@
 ---
 name: pdf-file-manager
-description: Use the AI Study Buddy `pdf_file_manager` utility for PDF registry and file-management work. Use this when the user asks whether PDFs are in the registry, wants files registered, scanned, linked, moved, renamed, grouped, or matched between GoodNotes and DaydreamEdu. Prefer the `PdfFileManager` Python API first, use MCP `pdf_*` tools second, and do not query the SQLite database directly.
+description: Use the AI Study Buddy `pdf_file_manager` utility (SQLite registry + append-only operation log) for PDF registry work—students/scan roots, scan/register/compress, metadata and file_type repair, raw↔main and template↔completion links, GoodNotes template resolution, file groups (including exams and books), book unit→answer-page mappings, coverage and audit queries. Prefer `PdfFileManager` in [pdf_file_manager.py](../../../ai_study_buddy/pdf_file_manager/pdf_file_manager.py); use MCP `pdf_*` tools when appropriate. Do not query the registry SQLite DB directly for normal work.
 ---
 
 # PDF File Manager
 
-Use this skill for PDF registry work in `ai_study_buddy/pdf_file_manager`.
+Use this skill for registry-backed PDF work under [`ai_study_buddy/pdf_file_manager/`](../../../ai_study_buddy/pdf_file_manager/).
 
-## Core Rule
+**What it is:** A local library (`PdfFileManager`) plus an MCP server that keep **`pdf_files`**, relations, **`file_groups`**, and **`book_answer_mappings`** aligned with on-disk paths. Every mutation is recorded in **`operation_log`**. The package tracks exams, worksheets, books, book exercises, activities, practice, notes, and templates (with optional completions), including **first-class book unit → answer-page ranges** (not stored in `pdf_files.metadata`).
 
-Do not read or write the registry through raw SQLite queries when answering user requests about registered files or performing registry operations.
+**Current package version** is stated in [README.md](../../../ai_study_buddy/pdf_file_manager/README.md) (header). Behaviour details: [SPEC.md](../../../ai_study_buddy/pdf_file_manager/SPEC.md), [DATA_MODEL.md](../../../ai_study_buddy/pdf_file_manager/DATA_MODEL.md), [ARCHITECTURE.md](../../../ai_study_buddy/pdf_file_manager/ARCHITECTURE.md).
+
+## Core rule
+
+Do **not** read or write the registry with raw SQLite when answering questions about registered files or performing registry operations.
 
 Prefer, in order:
 
-1. The Python utility in [pdf_file_manager.py](../../../ai_study_buddy/pdf_file_manager/pdf_file_manager.py).
-2. The MCP `pdf_*` tools when they are available in the session.
+1. **`PdfFileManager`** in [pdf_file_manager.py](../../../ai_study_buddy/pdf_file_manager/pdf_file_manager.py).
+2. **MCP `pdf_*` tools** from [pdf_file_manager_mcp.py](../../../ai_study_buddy/pdf_file_manager/pdf_file_manager_mcp.py) when the session exposes them.
 
-The SQLite file is an implementation detail. Use it only for low-level utility development on `pdf_file_manager` itself, not for normal registry lookups or mutations.
+The SQLite file and schema are implementation details. Touch them directly only when **developing or debugging `pdf_file_manager` itself**, not for normal lookups or mutations.
 
-This preference is intentional: after repeated use, the direct Python utility has proven easier to inspect, less awkward to filter, and more reliable for nuanced registry work than going through MCP.
+**Why Python first:** After repeated use, the direct API is easier to filter, script, and combine (loops, batch fixes, imports) than chaining many MCP calls—especially for nuanced registry work.
 
-## Primary Entry Points
+**Built-in CLI:** The old package CLI was **removed**; automation should use **`PdfFileManager`** or MCP. See [README.md § Implemented interfaces](../../../ai_study_buddy/pdf_file_manager/README.md#implemented-interfaces).
 
-- Source of truth: [pdf_file_manager.py](../../../ai_study_buddy/pdf_file_manager/pdf_file_manager.py)
-- MCP wrapper: [pdf_file_manager_mcp.py](../../../ai_study_buddy/pdf_file_manager/pdf_file_manager_mcp.py)
-- MCP server docs: [MCP.md](../../../ai_study_buddy/pdf_file_manager/MCP.md)
-- Overview and conventions: [README.md](../../../ai_study_buddy/pdf_file_manager/README.md)
-- **DaydreamEdu root on disk:** Not stored in Git. Read via `DAYDREAMEDU_ROOT` env or `ai_study_buddy/pdf_file_manager/local_daydreamedu_root.txt` (gitignored; copy from `local_daydreamedu_root.example.txt`), or call `resolve_daydreamedu_root()` from [`pdf_file_manager.py`](../../../ai_study_buddy/pdf_file_manager/pdf_file_manager.py). See [ARCHITECTURE.md § Local DaydreamEdu root](../../../ai_study_buddy/pdf_file_manager/ARCHITECTURE.md#local-daydreamedu-root-not-in-git).
-- Full operation contract: [SPEC.md](../../../ai_study_buddy/pdf_file_manager/SPEC.md)
-- Units and exam completeness rules: [DATA_MODEL.md](../../../ai_study_buddy/pdf_file_manager/DATA_MODEL.md) (see **Exam group completeness**)
+## Default paths and environment
 
-## Lookup Workflow
+| Concern | Resolution |
+|--------|------------|
+| **Registry DB** | Default `ai_study_buddy/db/pdf_registry.db` (repo-relative). Override with **`PDF_REGISTRY_PATH`** or MCP server **`--db`**. |
+| **DaydreamEdu root on disk** | Not in Git. **`DAYDREAMEDU_ROOT`** (highest priority) or **`local_daydreamedu_root.txt`** in this package (gitignored; copy from [`local_daydreamedu_root.example.txt`](../../../ai_study_buddy/pdf_file_manager/local_daydreamedu_root.example.txt)). In code: **`resolve_daydreamedu_root()`** in [`pdf_file_manager.py`](../../../ai_study_buddy/pdf_file_manager/pdf_file_manager.py). See [ARCHITECTURE.md § Local DaydreamEdu root](../../../ai_study_buddy/pdf_file_manager/ARCHITECTURE.md#local-daydreamedu-root-not-in-git). |
 
-For exact-path questions:
+## Primary entry points
 
-1. Call `PdfFileManager().get_file_by_path(path)`.
-2. If direct Python access is unavailable, use MCP `pdf_get_file_by_path`.
+| Artifact | Role |
+|----------|------|
+| [pdf_file_manager.py](../../../ai_study_buddy/pdf_file_manager/pdf_file_manager.py) | **Source of truth** for behaviour: `PdfFileManager`, path inference, scan/compress, groups, book mappings. |
+| [pdf_file_manager_mcp.py](../../../ai_study_buddy/pdf_file_manager/pdf_file_manager_mcp.py) | MCP tool implementations; maps to `PdfFileManager` (one manager instance per tool call). |
+| [pdf_file_manager_mcp_server.py](../../../ai_study_buddy/pdf_file_manager/pdf_file_manager_mcp_server.py) | Runnable FastMCP entrypoint (`--db`, `--tool-mode`, `--transport`, etc.). |
+| [MCP.md](../../../ai_study_buddy/pdf_file_manager/MCP.md) | Transports, **`readonly` vs `default`** tool modes, metadata/group/mapping notes. |
+| [README.md](../../../ai_study_buddy/pdf_file_manager/README.md) | Overview, full **`pdf_*` tool list**, GoodNotes scan rules, backup pointers. |
+| [SPEC.md](../../../ai_study_buddy/pdf_file_manager/SPEC.md) | Operation contract, scan/compress edge cases, rename/move semantics. |
+| [DATA_MODEL.md](../../../ai_study_buddy/pdf_file_manager/DATA_MODEL.md) | Fields, dataclasses, **exam group completeness** (compulsory `metadata.unit`). |
+| [TESTING.md](../../../ai_study_buddy/pdf_file_manager/TESTING.md) | How tests are organised; when to add tests for registry changes. |
+| [scripts/validate_pdf_registry_integrity.py](../../../ai_study_buddy/pdf_file_manager/scripts/validate_pdf_registry_integrity.py) | Reproducible audits: `unknown` doc types, missing `student_id` in student-scoped paths, raw/main metadata drift. |
+| [scripts/backup_pdf_registry.py](../../../ai_study_buddy/pdf_file_manager/scripts/backup_pdf_registry.py) | Optional cloud backup of the gitignored DB (see README). |
 
-For filename or metadata questions:
+## MCP server
 
-1. Call `PdfFileManager().find_files(...)`.
-2. If direct Python access is unavailable, use MCP `pdf_find_files`.
-3. Be explicit about whether a result is an exact-path match or only a same-name match elsewhere in the registry.
+Run from repo root (paths as in [README.md](../../../ai_study_buddy/pdf_file_manager/README.md)):
 
-For scan-root or student context:
+```bash
+python3 ai_study_buddy/pdf_file_manager/pdf_file_manager_mcp_server.py --db /path/to/pdf_registry.db
+```
 
-- Prefer the matching Python methods.
-- Use `pdf_list_scan_roots` and `pdf_list_students` as fallback.
+- **`--tool-mode readonly`:** read-only tools only—preferred when the agent should inspect but not mutate ([MCP.md](../../../ai_study_buddy/pdf_file_manager/MCP.md)).
+- **`--tool-mode default` (default):** readonly + safe registry mutations + filesystem mutations (scan, register, compress, rename, move, delete, open).
+- Responses are JSON-shaped: success **`{ "ok": true, "result": ... }`**, structured errors **`{ "ok": false, "error": { "type", "message" } }`**.
 
-## Mutation Workflow
+### Tool buckets (names only; parameters match Python APIs)
 
-Prefer these supported operations instead of ad hoc filesystem or DB changes:
+- **Readonly:** `pdf_get_file`, `pdf_find_files`, `pdf_get_file_by_path`, `pdf_list_students`, `pdf_list_scan_roots`, `pdf_get_related_files`, `pdf_get_template`, `pdf_get_completions`, `pdf_get_file_group`, `pdf_list_file_groups`, `pdf_get_book_answer_mapping`, `pdf_list_book_answer_mappings`, `pdf_get_file_group_membership`, `pdf_suggest_groups`, `pdf_get_operation_log`, `pdf_report_coverage`, **`pdf_resolve_goodnotes_template`**
+- **Safe mutations (no path I/O beyond DB):** students/scan roots, `pdf_update_metadata`, groups (`pdf_create_file_group`, `pdf_add_to_file_group`, `pdf_remove_from_file_group`, `pdf_set_file_group_anchor`), book mappings (`pdf_set_book_answer_mapping`, `pdf_delete_book_answer_mapping`), template and raw/main links (`pdf_link_to_template`, `pdf_unlink_template`, `pdf_link_files`, `pdf_unlink_files`), GoodNotes template link helpers
+- **Filesystem mutations:** `pdf_scan_for_new_files`, `pdf_register_file`, `pdf_compress_and_register`, `pdf_rename_file`, `pdf_move_file`, `pdf_delete_file`, `pdf_open_file`, `pdf_open_file_group`
 
-- Register one file: `PdfFileManager.register_file(...)`, fallback `pdf_register_file`
-- Scan folders for new PDFs: `PdfFileManager.scan_for_new_files(...)`, fallback `pdf_scan_for_new_files`
-- GoodNotes-safe compression and registration: `PdfFileManager.compress_and_register(... preserve_input=True)` when working under a `GoodNotes/` path, fallback `pdf_compress_and_register`
-- Update classification or metadata: prefer `PdfFileManager.update_metadata(...)` (optional `file_type` to promote or repair `main` / `raw` / `unknown`), fallback `pdf_update_metadata`
-- Link raw/main files: prefer `PdfFileManager.link_files(...)`, fallback `pdf_link_files`
-- Link completed files to templates: prefer `PdfFileManager.link_to_template(...)`, fallback `pdf_link_to_template`
-- Resolve and link GoodNotes templates: prefer `PdfFileManager.link_goodnotes_template_for_file(...)` or `PdfFileManager.link_goodnotes_templates_for_root(...)`, fallback MCP equivalents
-- Rename, move, or delete registered files: use the corresponding Python API method first, or the matching `pdf_*` tool as fallback, so the registry stays in sync. If the PDF was already renamed on disk, `rename_file` can update `path` / `name` (and `size_bytes` when the target is a file) without moving files again — see `SPEC.md` § `rename_file`.
+Authoritative duplicate list: [README.md § MCP](../../../ai_study_buddy/pdf_file_manager/README.md#mcp).
 
-Important sequencing rule:
+## Python API surface (and gaps vs MCP)
 
-- Do not run registration/scan and GoodNotes template-linking in parallel.
-- `link_goodnotes_templates_for_root(...)` queries the registry for already-registered `main` files under the root. If a scan is still in progress, the linker may only see a partial subset and skip files that have not been committed to the registry yet.
-- For GoodNotes capture flows, run in this order: scan/register first, then link templates, then verify the resulting registrations and links.
+Use **`PdfFileManager`** for everything MCP exposes, plus **Python-only** helpers when you need them:
+
+- **`repair_main_raw_metadata_drift()`** — batch-fix document-level drift between linked raw/main rows ([CHANGELOG v0.2.6](../../../ai_study_buddy/pdf_file_manager/CHANGELOG.md)).
+- **`import_book_answer_mappings_from_json(...)`** — bulk import validated mapping JSON (no MCP wrapper).
+- **`ensure_book_group_from_path`**, **`delete_file_group`**, **`update_file_group_notes`** — group lifecycle/edits not exposed as MCP tools.
+- **`link_template_by_paths`**, **`ensure_student`**, **`ensure_scan_root`** — convenience wrappers.
+- **`PdfFileManager.find_leaf_dirs`** — static helper used with coverage analysis (MCP exposes **`pdf_report_coverage`** / `report_coverage` instead).
+
+## Lookup workflow
+
+- **By UUID:** `get_file(file_id)` → MCP `pdf_get_file`.
+- **By absolute path:** `get_file_by_path(path)` → `pdf_get_file_by_path`.
+- **Search:** `find_files(query=..., file_type=..., doc_type=..., student_id=..., subject=..., is_template=..., has_raw=...)` → `pdf_find_files`. Treat **`query`** as case-insensitive substring on **`name`** only ([SPEC.md](../../../ai_study_buddy/pdf_file_manager/SPEC.md)).
+- **Relations:** `get_related_files`, `get_template`, `get_completions` (and MCP equivalents).
+- **Group membership:** `get_file_group_membership` / `pdf_get_file_group_membership`.
+
+Be explicit: **exact-path registration** vs **same-name match elsewhere** in the registry.
+
+## Scan, register, and compress
+
+- **`scan_for_new_files`** walks **configured scan roots** or an explicit **`roots=[...]`** override. It picks up only **direct `*.pdf` children** of each root—**no recursion**; pass nested folders explicitly if needed ([README.md](../../../ai_study_buddy/pdf_file_manager/README.md), [SPEC.md](../../../ai_study_buddy/pdf_file_manager/SPEC.md)).
+- **`dry_run=True`:** no disk/DB writes; returned rows use **the same path inference** as a real run (not placeholder `unknown` everywhere) ([CHANGELOG v0.2.8](../../../ai_study_buddy/pdf_file_manager/CHANGELOG.md)).
+- **Student assignment:** configured **`scan_root.student_id`** wins; else infer from a path segment matching **`students.email`** ([ARCHITECTURE.md](../../../ai_study_buddy/pdf_file_manager/ARCHITECTURE.md)).
+- **Book folders:** Under `.../Book/<book name>/...`, scan sets `doc_type='book'`, infers **`metadata.unit`** where possible, and syncs a **`group_type='book'`** group labelled with the book name ([SPEC.md](../../../ai_study_buddy/pdf_file_manager/SPEC.md)).
+- **GoodNotes:** Paths under a **`GoodNotes/`** segment use **`preserve_input=True`** for scan-driven compress and for **`compress_and_register`**—originals stay put; **`_c_`** mains are created alongside and linked raw↔main ([README.md](../../../ai_study_buddy/pdf_file_manager/README.md)).
+
+## Metadata and `update_metadata`
+
+- **`pdf_update_metadata` / `update_metadata`** merge **`metadata`** keys; they do **not** replace the entire JSON object ([MCP.md](../../../ai_study_buddy/pdf_file_manager/MCP.md)).
+- Optional **`file_type`** (`main` / `raw` / `unknown`) supports promotion/repair without re-running compression ([CHANGELOG v0.2.6](../../../ai_study_buddy/pdf_file_manager/CHANGELOG.md)).
+- Linked **raw/main** pairs: document-level fields are kept in **parity** on update; a single update on a linked main can propagate to the raw ([README.md § Raw/main parity](../../../ai_study_buddy/pdf_file_manager/README.md)).
+
+## File groups, templates, and GoodNotes
+
+- **Exam grouping:** create/list groups, add mains, set anchor—`create_file_group` / `add_to_file_group` / `set_file_group_anchor` (and MCP). **`suggest_groups` / `pdf_suggest_groups`** proposes exam groupings from metadata.
+- **Template ↔ completion:** `link_to_template` / `unlink_template`; MCP `pdf_link_to_template`, `pdf_unlink_template`.
+- **GoodNotes → DaydreamEdu:** **`resolve_goodnotes_template_path`** / **`pdf_resolve_goodnotes_template`** resolves a GoodNotes main path to the mirrored **`_c_`** template path. **`link_goodnotes_template_for_file`** and **`link_goodnotes_templates_for_root`** resolve and link; they **do not auto-register** templates that exist only on disk ([README.md](../../../ai_study_buddy/pdf_file_manager/README.md), [MCP.md](../../../ai_study_buddy/pdf_file_manager/MCP.md)).
+
+**Sequencing:** Do **not** run **scan/register** and **`link_goodnotes_templates_for_root`** in parallel—the linker only sees files **already committed** to the registry. Order: **scan/register → link templates → verify**.
+
+## Book answer-page mappings
+
+Coverage for **`doc_type='book'`** units lives in **`book_answer_mappings`** (unit file, answer file, inclusive page range, optional split-page flags, provenance)—**not** in `pdf_files.metadata` ([DATA_MODEL.md](../../../ai_study_buddy/pdf_file_manager/DATA_MODEL.md), [MCP.md](../../../ai_study_buddy/pdf_file_manager/MCP.md)).
+
+- Read: `get_book_answer_mapping`, `list_book_answer_mappings` / MCP `pdf_get_book_answer_mapping`, `pdf_list_book_answer_mappings`.
+- Write: `set_book_answer_mapping`, `delete_book_answer_mapping` / MCP `pdf_set_book_answer_mapping`, `pdf_delete_book_answer_mapping`.
+- Both files must be registered **`main`** rows with **`doc_type='book'`**. As of **v0.2.9**, mappings may span **different** `group_type='book'` groups ([CHANGELOG](../../../ai_study_buddy/pdf_file_manager/CHANGELOG.md)).
+- Bulk import: Python **`import_book_answer_mappings_from_json`** only.
+
+## Diagnostics and audit
+
+- **`report_coverage` / `pdf_report_coverage`:** leaf directories vs scan roots vs registry ([README.md](../../../ai_study_buddy/pdf_file_manager/README.md)).
+- **`get_operation_log` / `pdf_get_operation_log`:** filter by file, group, operation type, since, or single `log_id`.
+- **`scripts/validate_pdf_registry_integrity.py`:** offline integrity pass ([README.md](../../../ai_study_buddy/pdf_file_manager/README.md)).
+
+## Mutation workflow (quick map)
+
+Prefer these over ad hoc `mv` + manual DB edits:
+
+| Task | Python | MCP fallback |
+|------|--------|----------------|
+| Register one file | `register_file` | `pdf_register_file` |
+| Scan folders | `scan_for_new_files` | `pdf_scan_for_new_files` |
+| GoodNotes-safe compress | `compress_and_register(..., preserve_input=True)` | `pdf_compress_and_register` |
+| Classify / metadata / `file_type` | `update_metadata` | `pdf_update_metadata` |
+| Raw ↔ main | `link_files` / `unlink_files` | `pdf_link_files` / `pdf_unlink_files` |
+| Completion ↔ template | `link_to_template` / `unlink_template` | `pdf_link_to_template` / `pdf_unlink_template` |
+| GoodNotes template link | `link_goodnotes_template_for_file`, `link_goodnotes_templates_for_root` | MCP equivalents |
+| Rename / move / delete (registry + disk rules) | `rename_file`, `move_file`, `delete_file` | `pdf_rename_file`, `pdf_move_file`, `pdf_delete_file` |
+| Book answer range | `set_book_answer_mapping`, `delete_book_answer_mapping` | MCP equivalents |
+
+**Rename nuance:** If the file was already renamed on disk, **`rename_file`** can sync **`path` / `name`** (and **`size_bytes`** when the target exists as a file) without moving again—see [SPEC.md](../../../ai_study_buddy/pdf_file_manager/SPEC.md) § `rename_file`. **`rename_file` does not automatically rename the paired `_raw_`**—handle separately if needed.
+
+---
+
+## Domain workflows (metadata `unit` and naming)
+
+The following are **operational conventions** for agents; authoritative completeness rules remain in [DATA_MODEL.md — Exam group completeness](../../../ai_study_buddy/pdf_file_manager/DATA_MODEL.md#exam-group-completeness-compulsory-metadataunit).
 
 ### Exam `unit` inference fallback (`题目` / `答案` / `作文`)
 
-`scan_for_new_files(...)` currently auto-infers `metadata.unit` for `doc_type='book'`, but not for exam files. For Chinese exam folders, when a user expects per-file unit labels and they are missing, run a post-scan metadata pass on `main` files:
+`scan_for_new_files` auto-infers **`metadata.unit`** for `doc_type='book'`, not for all exam files. For Chinese exam folders when per-file **`unit`** is missing, post-scan on **`main`** files only:
 
-1. Filter to the intended scope (for example one exam folder, one student, or one batch).
-2. Only update files where `metadata.unit` is missing/empty.
-3. Infer from filename keywords:
-   - `questions` (`题目`)
-   - `answers` (`答案`)
-   - `composition` (`作文`)
-4. Write using `PdfFileManager.update_metadata(..., metadata={"unit": <value>})` (or MCP `pdf_update_metadata`).
-5. Report coverage (updated count, already-set count, unmapped count) and list any unmapped files for manual review.
+1. Scope to the intended folder/batch.
+2. Only rows with missing/empty **`metadata.unit`**.
+3. Infer from filename keywords: `questions` (`题目`), `answers` (`答案`), `composition` (`作文`).
+4. `update_metadata(..., metadata={"unit": <value>})` or `pdf_update_metadata`.
+5. Report coverage and unmapped files.
 
-Use this fallback only when it matches user intent. Do not overwrite existing non-empty `metadata.unit` unless the user explicitly asks.
+Do **not** overwrite existing **`unit`** unless the user asks.
 
-### Math exam-group `unit` fallback (`Paper 1` / `Paper 2`)
+### Math exam-group `unit` (`Paper 1` / `Paper 2`)
 
-For math exam files, when a file is already in an `exam` group and `metadata.unit` is missing, infer `unit` from filename markers:
+For math exams in an **`exam`** group with missing **`unit`**: `(Paper 1)` → `Paper 1`, `(Paper 2)` → `Paper 2`. Restrict to **`file_type='main'`**, exam **`group_type`**, fill empty **`unit`** only unless asked.
 
-- `(... (Paper 1) ...)` -> `Paper 1`
-- `(... (Paper 2) ...)` -> `Paper 2`
+### Science booklets (`(Booklet A)` / `(Booklet B)`)
 
-Recommended guardrails:
+Canonical **`metadata.unit`:** `Booklet A`, `Booklet B` (filename markers **`(Booklet A)`** / **`(Booklet B)`**). **`update_metadata` on a linked main copies metadata to the paired raw**—usually update mains only. Align markers on **`_c_` / `_raw_`** stems. On case-insensitive APFS, use a **short intermediate rename** when fixing casing-only changes.
 
-1. Restrict to `file_type='main'`.
-2. Restrict to files with exam-group membership (`group_type='exam'`).
-3. Only fill missing/empty `metadata.unit`.
-4. Skip files not in exam groups (for example `(Paper 1) (empty)` templates) unless the user explicitly asks.
+### English exam naming and `unit` (`.p5.english.<ddd>`)
 
-### Science exam booklet tags and `unit` (`(Booklet A)` / `(Booklet B)`)
-
-Science exams that split across two physical booklets use a **filename marker** so main and raw pairs stay distinguishable:
-
-- **`(Booklet A)`** and **`(Booklet B)`** in the basename (capital **B** in “Booklet”; match the exact strings).
-- **Canonical `metadata.unit`** for those files: `Booklet A` and `Booklet B` (no parentheses—same pattern as Math’s `Paper 1` / `Paper 2` values).
-
-When `metadata.unit` is missing and the user expects per-booklet labels:
-
-1. Restrict to `file_type='main'` and exam-group membership (`group_type='exam'`), unless the user expands scope.
-2. Infer from the filename: `(Booklet A)` → `Booklet A`, `(Booklet B)` → `Booklet B`.
-3. Write with `PdfFileManager.update_metadata(..., metadata={"unit": <value>})` (or `pdf_update_metadata`). **`update_metadata` on a linked main copies the same `metadata` to the paired raw**, so you normally only need to update mains.
-4. Only fill missing/empty `metadata.unit` unless the user explicitly asks to overwrite.
-
-**Naming hygiene:** Keep the booklet marker aligned on `_c_` and `_raw_` stems (same title + same `(Booklet …)`) so registry tools and drift checks stay simple.
-
-**macOS / APFS:** Default volumes are often **case-insensitive**. Renaming only to change `(booklet a)` → `(Booklet A)` can fail as “destination exists.” Use a **short intermediate filename**, then rename to the final name.
-
-### English exam naming and `unit` (parenthetical tags, `.p5.english.<ddd>`)
-
-For Singapore Primary English **exam** PDFs under DaydreamEdu, prefer this shape so titles read first and the **scan index** stays at the **tail**:
-
-- **Main:** `_c_<Title>.p5.english.<ddd>.pdf`
-- **Raw:** `_raw_<Title>.p5.english.<ddd>.pdf`
-
-**`<Title>` pattern:** lead with the exam context, then **one parenthetical tag** for the paper or component (aligned with “`<exam family> (<tag>)`”):
-
-- **`EoY (Paper 1)`**, **`EoY (Paper 2 Booklet A)`**, **`EoY (Paper 2 Booklet B)`** — for Paper 2 split across booklets, keep **booklet inside the same pair of parentheses** as Paper 2 (not a second `(…)` group).
-- **`EoY (Listening Comprehension)`**, **`EoY (Oral)`**
-- **Practice papers:** same tags but with an **`EoY Practice`** prefix, e.g. **`EoY Practice (Paper 1)`**, **`EoY Practice (Paper 2 Booklet A)`**.
-
-**Official vs practice** in the registry is usually two **`exam` groups** (labels like “P5 English EoY” vs “P5 English EoY Practice”); the **`EoY` / `EoY Practice`** prefix in the filename should stay consistent with the group you assign.
-
-**`metadata.unit` for English exam mains:** set to the **literal text inside the parentheses** (no surrounding `()`), for example:
-
-- `(Paper 1)` → `Paper 1`
-- `(Paper 2 Booklet B)` → `Paper 2 Booklet B`
-- `(Listening Comprehension)` → `Listening Comprehension`
-- `(Oral)` → `Oral`
-
-When filling missing `unit`:
-
-1. Restrict to `file_type='main'` and exam-group membership unless the user says otherwise.
-2. Parse the tag from the basename (typically a single `(...)` segment after `_c_`).
-3. Write with `PdfFileManager.update_metadata(..., metadata={"unit": <value>})`. **`update_metadata` on a linked main propagates the same `metadata` to the paired raw**, so you usually update mains only.
-4. Only fill missing/empty `metadata.unit` unless the user explicitly asks to overwrite.
-
-**Legacy names:** older registrations may use `_c_p5.english.<ddd>.<Title>.pdf` (index before title). Renaming to put **`.p5.english.<ddd>`** at the end should go through **`PdfFileManager.rename_file`** so paths stay correct in the registry.
+Prefer **`_c_<Title>.p5.english.<ddd>.pdf`** / **`_raw_<Title>.p5.english.<ddd>.pdf`** with a **single parenthetical tag** in `<Title>`; set **`metadata.unit`** to the **literal text inside the parentheses** (no `()`). Official vs practice = separate **`exam`** groups; keep filename prefix consistent with the group label.
 
 ### Exam group completeness (compulsory `unit`)
 
-When checking whether an **`exam` group has a full set** of exam PDFs, use **compulsory** `metadata.unit` values only (aggregate from non-template **`main`** members). Optional units must not be treated as required.
+When checking if an **`exam`** group is complete, use **compulsory** `metadata.unit` values from non-template **`main`** members only. Summary:
 
-Authoritative table: [DATA_MODEL.md — Exam group completeness](../../../ai_study_buddy/pdf_file_manager/DATA_MODEL.md#exam-group-completeness-compulsory-metadataunit).
-
-Summary:
-
-- **chinese** (华文 and 高华): `questions`, `answers` — `composition` is optional
+- **chinese:** `questions`, `answers` — `composition` optional
 - **math:** `Paper 1`, `Paper 2`
-- **english:** `Paper 1`, `Paper 2 Booklet A`, `Paper 2 Booklet B` — `Oral` and `Listening Comprehension` are optional
+- **english:** `Paper 1`, `Paper 2 Booklet A`, `Paper 2 Booklet B` — `Oral`, `Listening Comprehension` optional
 - **science:** `Booklet A`, `Booklet B`
+
+Full table: [DATA_MODEL.md](../../../ai_study_buddy/pdf_file_manager/DATA_MODEL.md).
 
 ## GoodNotes vs DaydreamEdu
 
-Keep this distinction clear in responses:
+- A GoodNotes PDF may exist on disk but **not** be registered at that path.
+- A DaydreamEdu **`_c_` / `_raw_`** file may already be registered under a mirrored path.
+- For GoodNotes inputs, **do not** rename/move the original during compression—use the GoodNotes-safe flow above.
 
-- A GoodNotes file may exist on disk but not be registered by that exact path.
-- A matching DaydreamEdu `_c_` or `_raw_` file may already exist in the registry under a mirrored or book-organized folder.
-- For GoodNotes paths, do not rename or move the original input during compression. Use the utility's GoodNotes-safe flow so the original remains in place and `_c_` mains are created alongside it.
+## Response discipline
 
-## Response Discipline
-
-- Say which supported interface you used: `PdfFileManager` or MCP tool.
-- If the user asks whether files "exist in the registry," answer path-exact registration first.
-- If you also find same-name matches elsewhere, call that out separately instead of conflating it with exact-path registration.
-- If you need deeper behavior details, read only the relevant sections of [README.md](../../../ai_study_buddy/pdf_file_manager/README.md), [MCP.md](../../../ai_study_buddy/pdf_file_manager/MCP.md), or [SPEC.md](../../../ai_study_buddy/pdf_file_manager/SPEC.md).
+- State whether you used **`PdfFileManager`** or **MCP `pdf_*`**.
+- For “in the registry?”: answer **path-exact** registration first; list **same-name** matches separately.
+- For deeper behaviour, cite the relevant section of [README.md](../../../ai_study_buddy/pdf_file_manager/README.md), [MCP.md](../../../ai_study_buddy/pdf_file_manager/MCP.md), or [SPEC.md](../../../ai_study_buddy/pdf_file_manager/SPEC.md) rather than guessing.
