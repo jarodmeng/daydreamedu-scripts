@@ -2,7 +2,7 @@
 """
 Merge raw scanned PDFs in a folder into a single PDF, ordered by filename index.
 
-Assumptions / conventions (aligned with doc_info_store):
+Assumptions / conventions (aligned with archive/doc_info_store):
 - Only include "raw scanned files" whose basename starts with 'p' (case-insensitive)
 - Ignore derived variants like 'c.p5.math.001....pdf'
 - Ignore hidden files like '.DS_Store'
@@ -102,9 +102,9 @@ def _ensure_fitz() -> None:
     if fitz is None:
         raise SystemExit(
             "Missing dependency PyMuPDF. Install with:\n"
-            "  pip install -r question_splitter/requirements.txt\n"
+            "  pip install -r archive/question_splitter/requirements.txt\n"
             "or\n"
-            "  pip install -r doc_info_store/requirements.txt\n"
+            "  pip install -r archive/doc_info_store/requirements.txt\n"
             f"\nOriginal import error: {_FITZ_IMPORT_ERR}"
         )
 
@@ -154,8 +154,8 @@ def main() -> int:
     ap.add_argument(
         "-o",
         "--output-dir",
-        default="doc_info_store/out",
-        help="Output directory (default: doc_info_store/out)",
+        default="archive/doc_info_store/out",
+        help="Output directory (default: archive/doc_info_store/out)",
     )
     ap.add_argument(
         "--output-name",

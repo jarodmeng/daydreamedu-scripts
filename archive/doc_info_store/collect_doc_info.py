@@ -105,9 +105,9 @@ def _safe_pdf_page_count(path: Path) -> Optional[int]:
     if fitz is None:
         raise SystemExit(
             "Missing dependency PyMuPDF. Install with:\n"
-            "  pip install -r question_splitter/requirements.txt\n"
+            "  pip install -r archive/question_splitter/requirements.txt\n"
             "or\n"
-            "  pip install -r doc_info_store/requirements.txt\n"
+            "  pip install -r archive/doc_info_store/requirements.txt\n"
             f"\nOriginal import error: {_FITZ_IMPORT_ERR}"
         )
     try:
@@ -246,8 +246,8 @@ def main() -> int:
     ap.add_argument(
         "-o",
         "--output-csv",
-        default="doc_info_store/out/doc_info.csv",
-        help="Output CSV path (default: doc_info_store/out/doc_info.csv)",
+        default="archive/doc_info_store/out/doc_info.csv",
+        help="Output CSV path (default: archive/doc_info_store/out/doc_info.csv)",
     )
     ap.add_argument("--json", dest="output_json", default=None, help="Optional output JSON path.")
     ap.add_argument(

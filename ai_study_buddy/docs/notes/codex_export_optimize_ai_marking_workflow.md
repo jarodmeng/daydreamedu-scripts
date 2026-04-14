@@ -1244,12 +1244,12 @@ If you want, I can turn this into:
 # Context from my IDE setup:
 
 ## Open tabs:
-- README.md: question_splitter/README.md
+- README.md: archive/question_splitter/README.md
 - README.md: ai_study_buddy/pdf_file_manager/README.md
 - 07-book-answer-mapping.md: ai_study_buddy/pdf_file_manager/docs/proposals/07-book-answer-mapping.md
 
 ## My request for Codex:
-there's a [question_splitter](question_splitter) utility. can we build on top of it? I think v1 will be to make it work for math/science questions.
+there's a [question_splitter](../../../archive/question_splitter) utility. can we build on top of it? I think v1 will be to make it work for math/science questions.
 
 
 ### Assistant — *commentary* (2026-04-09T16:08:09.032Z)
