@@ -42,6 +42,12 @@ Resolve these items before doing any grading:
 3. the mapped answer file
 4. the mapped answer page range
 
+Registration/link precondition (required):
+
+- If the completion file is not registered, register it first as the completion `main` file.
+- After registration, link the completion to its template file.
+- Do not start marking until both registration and template-link are confirmed.
+
 Preferred interface (authoritative for now):
 
 - Direct `PdfFileManager` calls:
