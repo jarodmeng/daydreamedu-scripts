@@ -1,0 +1,117 @@
+#!/usr/bin/env python3
+"""Apply tiered retention for pdf_registry timestamped backups.
+
+Policy:
+- 0..hot_days: keep raw .db files in backup directory.
+- (hot_days..cold_days]: move to coldstorage/ as .zst and remove raw .db.
+- > cold_days: remove backups from both hot and cold tiers.
+"""
+
+from __future__ import annotations
+
+import argparse
+import os
+import shutil
+import subprocess
+import sys
+from datetime import datetime, timezone
+from pathlib import Path
+
+
+def _default_backup_dir() -> Path | None:
+    env = os.environ.get("PDF_REGISTRY_BACKUP_DIR", "").strip()
+    if env:
+        return Path(env).expanduser()
+
+    pkg_dir = Path(__file__).resolve().parent.parent
+    if str(pkg_dir) not in sys.path:
+        sys.path.insert(0, str(pkg_dir))
+    import pdf_file_manager as pfm  # noqa: E402
+
+    dd = pfm.resolve_daydreamedu_root()
+    if dd is None:
+        return None
+    return dd / "db"
+
+
+def _age_days(path: Path, now_ts: float) -> float:
+    return (now_ts - path.stat().st_mtime) / 86400.0
+
+
+def _compress_zstd(src: Path, dest: Path) -> None:
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    subprocess.run(
+        ["zstd", "-19", "--quiet", "-o", str(dest), str(src)],
+        check=True,
+    )
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description="Apply tiered backup retention for pdf_registry backups.")
+    parser.add_argument("--backups-dir", default=_default_backup_dir(), help="Backup directory path.")
+    parser.add_argument("--hot-days", type=int, default=7, help="Keep raw .db backups up to this age.")
+    parser.add_argument(
+        "--cold-days",
+        type=int,
+        default=60,
+        help="Keep compressed .zst backups up to this age; older backups are pruned.",
+    )
+    args = parser.parse_args()
+
+    if args.hot_days < 0 or args.cold_days < 0 or args.hot_days >= args.cold_days:
+        print("Invalid retention: require 0 <= hot-days < cold-days.", file=sys.stderr)
+        return 2
+
+    if not args.backups_dir:
+        print("No backup directory configured. Set PDF_REGISTRY_BACKUP_DIR or pass --backups-dir.", file=sys.stderr)
+        return 1
+
+    if not shutil.which("zstd"):
+        print("zstd not found in PATH. Install zstd first (e.g. brew install zstd).", file=sys.stderr)
+        return 1
+
+    backup_dir = Path(args.backups_dir).expanduser().resolve()
+    backup_dir.mkdir(parents=True, exist_ok=True)
+    cold_dir = backup_dir / "coldstorage"
+    cold_dir.mkdir(parents=True, exist_ok=True)
+
+    now_ts = datetime.now(timezone.utc).timestamp()
+
+    hot_raw_files = sorted(backup_dir.glob("pdf_registry_*.db"))
+    cold_files = sorted(cold_dir.glob("pdf_registry_*.db.zst"))
+
+    compressed = 0
+    removed_hot = 0
+    removed_cold = 0
+
+    for raw in hot_raw_files:
+        age = _age_days(raw, now_ts)
+        if age > args.cold_days:
+            raw.unlink(missing_ok=True)
+            removed_hot += 1
+            continue
+        if age > args.hot_days:
+            cold_target = cold_dir / f"{raw.name}.zst"
+            if not cold_target.exists():
+                _compress_zstd(raw, cold_target)
+                compressed += 1
+            raw.unlink(missing_ok=True)
+            removed_hot += 1
+
+    for cold in cold_files:
+        age = _age_days(cold, now_ts)
+        if age > args.cold_days:
+            cold.unlink(missing_ok=True)
+            removed_cold += 1
+
+    print(
+        "Tiering complete: "
+        f"compressed={compressed}, "
+        f"removed_hot={removed_hot}, "
+        f"removed_cold={removed_cold}"
+    )
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

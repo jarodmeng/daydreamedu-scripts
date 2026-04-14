@@ -4,6 +4,17 @@ All notable changes to the pdf_file_manager utility are documented here.
 
 ---
 
+## [v0.2.12] — Tiered backup retention on wake
+
+- Added `scripts/apply_backup_tiering.py` to enforce tiered backup retention for timestamped registry backups:
+  - keep `0-7` day backups as raw `.db` files in the backup root
+  - move `7-60` day backups to `coldstorage/` as `.db.zst` files
+  - prune backups older than 60 days
+- Updated `scripts/run_backup_on_wake.sh` to run both steps on wake:
+  1. `backup_pdf_registry.py --timestamp`
+  2. `apply_backup_tiering.py --hot-days 7 --cold-days 60`
+- Keeps wake-driven backups cloud-friendly while controlling long-term storage growth.
+
 ## [v0.2.11] — Scan-root student_id auto-inference
 
 - `add_scan_root(path, student_id=None)` now auto-infers and stores `student_id` from a unique matching registered `students.email` segment in the scan-root path.

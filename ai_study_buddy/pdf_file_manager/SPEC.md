@@ -528,4 +528,7 @@ python3 ai_study_buddy/pdf_file_manager/pdf_file_manager_mcp_server.py --db /pat
 | `operation_log` writes on all C/U/D operations | ✅ Implemented |
 | `get_operation_log` query | ✅ Implemented |
 | MCP wrapper and FastMCP entrypoint | ✅ Implemented |
+| Backup utility (`backup_pdf_registry.py`) | ✅ Implemented |
+| Backup tiering utility (`apply_backup_tiering.py`) | ✅ Implemented |
+| Wake automation (`run_backup_on_wake.sh`) with timestamp + tiering | ✅ Implemented |
 | Built-in CLI layer | ❌ Removed |

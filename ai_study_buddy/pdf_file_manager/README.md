@@ -1,6 +1,6 @@
 # pdf_file_manager
 
-**Version: v0.2.11**
+**Version: v0.2.12**
 
 A local utility that keeps a SQLite registry of PDF files in the study archive. It tracks exams, worksheets, books, book exercises, activities, notes, and templates (with optional completed variants), keeps on-disk paths and database records in sync, and now supports first-class book unit → answer-page mappings inside `group_type='book'` collections. You can scan one or more folders for new PDFs, optionally compress and archive originals, classify documents by type and metadata, group multi-file documents (e.g. exam booklets or book folders), link completions to templates, and query or import validated book-answer coverage. Every state-mutating operation is recorded in an append-only operation log.
 
@@ -85,6 +85,12 @@ The registry DB (`ai_study_buddy/db/pdf_registry.db`) is gitignored. To back it 
    ```
    Use `--timestamp` to keep dated copies (e.g. `pdf_registry_2025-03-10_14-30-00+0800.db`) instead of overwriting. Backup log entries and timestamped filenames use Singapore time.
 
+3. **Optional retention tiering (recommended):**
+   ```bash
+   python3 ai_study_buddy/pdf_file_manager/scripts/apply_backup_tiering.py --hot-days 7 --cold-days 60
+   ```
+   This keeps recent backups (`0-7` days) as raw `.db` files in the backup root, moves `7-60` day backups into `coldstorage/` as `.db.zst`, and removes backups older than 60 days.
+
 Once the file is inside your Google Drive folder, it will sync to the cloud automatically.
 
 **Run backup on wake (optional)**  
@@ -95,4 +101,9 @@ brew install sleepwatcher
 ./ai_study_buddy/pdf_file_manager/scripts/install_run_on_wake.sh
 ```
 
-This installs a user LaunchAgent that runs the backup after each wake. The backup script still skips when unchanged. To remove: `launchctl unload ~/Library/LaunchAgents/com.daydreamedu.pdf-registry-backup-on-wake.plist` and edit or remove `~/.wakeup`.
+This installs a user LaunchAgent that runs wake maintenance after each wake:
+
+1. timestamped backup (`backup_pdf_registry.py --timestamp`)
+2. tiering/prune (`apply_backup_tiering.py --hot-days 7 --cold-days 60`)
+
+The backup step still skips when unchanged. To remove: `launchctl unload ~/Library/LaunchAgents/com.daydreamedu.pdf-registry-backup-on-wake.plist` and edit or remove `~/.wakeup`.
