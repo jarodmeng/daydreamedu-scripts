@@ -4,6 +4,19 @@ All notable changes to the pdf_file_manager utility are documented here.
 
 ---
 
+## [v0.3.0] — Package-standardized imports and invocation
+
+- Standardized `PdfFileManager` usage on package paths:
+  - canonical import: `from ai_study_buddy.pdf_file_manager.pdf_file_manager import ...`
+  - package re-export: `from ai_study_buddy.pdf_file_manager import ...`
+- Added `ai_study_buddy/pdf_file_manager/__init__.py` public exports for manager types, exceptions, and root resolvers.
+- Migrated runtime, scripts, MCP modules, and test suite away from bare `from pdf_file_manager import ...` imports and related `sys.path` manipulation used only for import resolution.
+- Updated operational docs to align with package invocation:
+  - `README.md`, `MCP.md`, `SPEC.md`, `DECISIONS.md`, and learning notes
+  - Cursor command/skill guidance under `.cursor/` for registry tasks
+- Canonical startup guidance now prefers module invocation from repo root (for example `python3 -m ai_study_buddy.pdf_file_manager.pdf_file_manager_mcp_server ...`).
+- Bare import style remains deprecated for transitional compatibility and is planned for full removal after migration stabilization.
+
 ## [v0.2.12] — Tiered backup retention on wake
 
 - Added `scripts/apply_backup_tiering.py` to enforce tiered backup retention for timestamped registry backups:

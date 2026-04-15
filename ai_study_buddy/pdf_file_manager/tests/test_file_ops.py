@@ -2,18 +2,15 @@
 
 import shutil
 import sqlite3
-import sys
 import tempfile
 from pathlib import Path
 from unittest.mock import patch
 
 import pytest
 
-_tests_dir = Path(__file__).resolve().parent
-if str(_tests_dir) not in sys.path:
-    sys.path.insert(0, str(_tests_dir))
-from conftest import FIXTURE_ROOT, fixture_has_pdfs
-from pdf_file_manager import PdfFileManager
+from ai_study_buddy.pdf_file_manager.pdf_file_manager import PdfFileManager
+
+from .conftest import FIXTURE_ROOT, fixture_has_pdfs
 
 
 def test_rename_file_renames_on_disk_and_in_db():
@@ -268,7 +265,7 @@ def test_open_file_path_exists():
         try:
             mgr = PdfFileManager(db_path=db_path)
             reg = mgr.register_file(pdfs[0])
-            with patch("pdf_file_manager.subprocess.run") as mock_run:
+            with patch("ai_study_buddy.pdf_file_manager.pdf_file_manager.subprocess.run") as mock_run:
                 mgr.open_file(reg.id)
             mock_run.assert_called_once()
         finally:

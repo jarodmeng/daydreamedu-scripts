@@ -218,7 +218,7 @@ This section summarizes how the one‑off scripts use `PdfFileManager` and what 
 - In almost all scripts:
 
 ```python
-from pdf_file_manager import PdfFileManager
+from ai_study_buddy.pdf_file_manager.pdf_file_manager import PdfFileManager
 
 mgr = PdfFileManager()  # Optionally PdfFileManager(db_path=".../custom.db")
 ```

@@ -1,18 +1,15 @@
 # File group CRUD, suggest_groups, open_file_group. See TESTING.md § Phase 4 (groups).
 
 import shutil
-import sys
 import tempfile
 from pathlib import Path
 from unittest.mock import patch
 
 import pytest
 
-_tests_dir = Path(__file__).resolve().parent
-if str(_tests_dir) not in sys.path:
-    sys.path.insert(0, str(_tests_dir))
-from conftest import FIXTURE_ROOT, fixture_has_pdfs
-from pdf_file_manager import PdfFileManager, ConfigError
+from ai_study_buddy.pdf_file_manager.pdf_file_manager import ConfigError, PdfFileManager
+
+from .conftest import FIXTURE_ROOT, fixture_has_pdfs
 
 
 def test_create_file_group_and_get_file_group():
@@ -236,7 +233,7 @@ def test_open_file_group_with_anchor():
             g = mgr.create_file_group("G", group_type="exam")
             mgr.add_to_file_group(g.id, m1)
             mgr.set_file_group_anchor(g.id, m1)
-            with patch("pdf_file_manager.subprocess.run"):
+            with patch("ai_study_buddy.pdf_file_manager.pdf_file_manager.subprocess.run"):
                 mgr.open_file_group(g.id)
         finally:
             Path(db_path).unlink(missing_ok=True)

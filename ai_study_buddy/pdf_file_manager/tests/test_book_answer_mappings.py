@@ -1,18 +1,10 @@
-import sys
 import tempfile
 import json
 from pathlib import Path
 
 import pytest
 
-_tests_dir = Path(__file__).resolve().parent
-_util_dir = _tests_dir.parent
-if str(_tests_dir) not in sys.path:
-    sys.path.insert(0, str(_tests_dir))
-if str(_util_dir) not in sys.path:
-    sys.path.insert(0, str(_util_dir))
-
-from pdf_file_manager import NotFoundError, PdfFileManager
+from ai_study_buddy.pdf_file_manager.pdf_file_manager import NotFoundError, PdfFileManager
 
 
 def _make_pdf(path: Path) -> Path:

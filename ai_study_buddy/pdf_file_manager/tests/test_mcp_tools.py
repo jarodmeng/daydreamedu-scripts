@@ -1,20 +1,10 @@
-import sys
 import tempfile
 from pathlib import Path
 
 import pytest
 
-_tests_dir = Path(__file__).resolve().parent
-_util_dir = _tests_dir.parent
-if str(_tests_dir) not in sys.path:
-    sys.path.insert(0, str(_tests_dir))
-if str(_util_dir) not in sys.path:
-    sys.path.insert(0, str(_util_dir))
-
-from conftest import FIXTURE_ROOT, fixture_has_pdfs
-from constants import STUDENT_DISPLAY_NAME, STUDENT_FOLDER_EMAIL
-from pdf_file_manager import ConfigError, PdfFileManager
-from pdf_file_manager_mcp import (
+from ai_study_buddy.pdf_file_manager.pdf_file_manager import ConfigError, PdfFileManager
+from ai_study_buddy.pdf_file_manager.pdf_file_manager_mcp import (
     PdfFileManagerMcpTools,
     error_to_mcp_response,
     get_filesystem_mutation_tool_handlers,
@@ -25,6 +15,9 @@ from pdf_file_manager_mcp import (
     list_safe_mutation_tool_names,
     serialize_for_mcp,
 )
+
+from .conftest import FIXTURE_ROOT, fixture_has_pdfs
+from .constants import STUDENT_DISPLAY_NAME, STUDENT_FOLDER_EMAIL
 
 
 def _make_pdf(path: Path) -> Path:
@@ -489,7 +482,7 @@ def test_filesystem_mutation_tools_open_file_and_open_group():
                 def fake_run(args, check):
                     calls.append((args, check))
 
-                mp.setattr("pdf_file_manager.subprocess.run", fake_run)
+                mp.setattr("ai_study_buddy.pdf_file_manager.pdf_file_manager.subprocess.run", fake_run)
                 opened_file = tools.pdf_open_file(file_id_or_path=file_record.id)
                 opened_group = tools.pdf_open_file_group(group_id=group.id)
 

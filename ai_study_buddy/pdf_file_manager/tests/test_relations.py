@@ -1,17 +1,14 @@
 # get_related_files, link_files, unlink_files, link_to_template, unlink_template, get_template, get_completions. See TESTING.md § Phase 4 (relations).
 
 import shutil
-import sys
 import tempfile
 from pathlib import Path
 
 import pytest
 
-_tests_dir = Path(__file__).resolve().parent
-if str(_tests_dir) not in sys.path:
-    sys.path.insert(0, str(_tests_dir))
-from conftest import FIXTURE_ROOT, fixture_has_pdfs
-from pdf_file_manager import PdfFileManager, NotFoundError
+from ai_study_buddy.pdf_file_manager.pdf_file_manager import NotFoundError, PdfFileManager
+
+from .conftest import FIXTURE_ROOT, fixture_has_pdfs
 
 
 def test_get_related_files_after_compress():

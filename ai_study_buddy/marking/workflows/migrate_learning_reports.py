@@ -6,7 +6,6 @@ from datetime import datetime, timezone
 import json
 import re
 from pathlib import Path
-import sys
 
 from ai_study_buddy.marking.core.artifact_paths import build_marking_artifact_path, normalize_attempt_stem
 from ai_study_buddy.marking.core.artifact_schema import compute_percentage, validate_marking_artifact_dict
@@ -22,12 +21,7 @@ from ai_study_buddy.marking.core.models import (
     ReviewMeta,
 )
 from ai_study_buddy.marking.core.taxonomy import derive_skill_tags_from_embedding_label
-
-_PDF_MANAGER_PACKAGE_DIR = Path(__file__).resolve().parent.parent.parent / "pdf_file_manager"
-if str(_PDF_MANAGER_PACKAGE_DIR) not in sys.path:
-    sys.path.insert(0, str(_PDF_MANAGER_PACKAGE_DIR))
-
-from pdf_file_manager import PdfFileManager
+from ai_study_buddy.pdf_file_manager.pdf_file_manager import PdfFileManager
 
 _HEADER_RE = re.compile(r"^##\s+(?P<title>.+?)\s*$", re.MULTILINE)
 _RESULT_LINE_RE = re.compile(r"^- (?P<label>[^:]+): (?P<value>.+)$")

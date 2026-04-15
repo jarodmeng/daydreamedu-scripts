@@ -3,8 +3,9 @@ from pathlib import Path
 
 import pytest
 
-from constants import STUDENT_FOLDER_EMAIL
-from pdf_file_manager import NotFoundError, PdfFileManager
+from ai_study_buddy.pdf_file_manager.pdf_file_manager import NotFoundError, PdfFileManager
+
+from .constants import STUDENT_FOLDER_EMAIL
 
 
 def _touch(path: Path) -> None:

@@ -15,8 +15,8 @@ try:
         list_safe_mutation_tool_names,
     )
 except ImportError:
-    from pdf_file_manager import PdfFileManager
-    from pdf_file_manager_mcp import (
+    from ai_study_buddy.pdf_file_manager.pdf_file_manager import PdfFileManager
+    from ai_study_buddy.pdf_file_manager.pdf_file_manager_mcp import (
         get_filesystem_mutation_tool_handlers,
         get_readonly_tool_handlers,
         get_safe_mutation_tool_handlers,

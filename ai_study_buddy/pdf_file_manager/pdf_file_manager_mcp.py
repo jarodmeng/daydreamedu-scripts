@@ -17,7 +17,7 @@ try:
         PdfFileManager,
     )
 except ImportError:
-    from pdf_file_manager import (
+    from ai_study_buddy.pdf_file_manager.pdf_file_manager import (
         AlreadyRegisteredError,
         ConfigError,
         CoverageReport,

@@ -2,18 +2,15 @@
 
 import shutil
 import sqlite3
-import sys
 import tempfile
 from pathlib import Path
 
 import pytest
 
-_tests_dir = Path(__file__).resolve().parent
-if str(_tests_dir) not in sys.path:
-    sys.path.insert(0, str(_tests_dir))
-from conftest import FIXTURE_ROOT, fixture_has_pdfs
-from constants import STUDENT_DISPLAY_NAME, STUDENT_FOLDER_EMAIL
-from pdf_file_manager import PdfFileManager, ConfigError, CompressResult
+from ai_study_buddy.pdf_file_manager.pdf_file_manager import CompressResult, ConfigError, PdfFileManager
+
+from .conftest import FIXTURE_ROOT, fixture_has_pdfs
+from .constants import STUDENT_DISPLAY_NAME, STUDENT_FOLDER_EMAIL
 
 
 def test_scan_dry_run_does_not_write():

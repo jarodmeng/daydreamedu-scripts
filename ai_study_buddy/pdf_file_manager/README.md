@@ -1,6 +1,6 @@
 # pdf_file_manager
 
-**Version: v0.2.12**
+**Version: v0.3.0**
 
 A local utility that keeps a SQLite registry of PDF files in the study archive. It tracks exams, worksheets, books, book exercises, activities, notes, and templates (with optional completed variants), keeps on-disk paths and database records in sync, and now supports first-class book unit → answer-page mappings inside `group_type='book'` collections. You can scan one or more folders for new PDFs, optionally compress and archive originals, classify documents by type and metadata, group multi-file documents (e.g. exam booklets or book folders), link completions to templates, and query or import validated book-answer coverage. Every state-mutating operation is recorded in an append-only operation log.
 
@@ -50,6 +50,30 @@ Parent: [L4_INGESTION_PIPELINE](../../docs/L4_INGESTION_PIPELINE.md) — Utiliti
 
 The full implemented surface lives in [`pdf_file_manager.py`](./pdf_file_manager.py) via `PdfFileManager`.
 
+### Import and invocation
+
+Use package-style imports:
+
+```python
+from ai_study_buddy.pdf_file_manager.pdf_file_manager import PdfFileManager
+```
+
+or package re-exports:
+
+```python
+from ai_study_buddy.pdf_file_manager import PdfFileManager
+```
+
+The legacy bare import style (`from pdf_file_manager import ...`) is deprecated.
+
+For scripts and MCP server startup, prefer module invocation from the repo root:
+
+```bash
+python3 -m ai_study_buddy.pdf_file_manager.pdf_file_manager_mcp_server --db /path/to/pdf_registry.db
+```
+
+During transition, direct-file invocation can still work in many local setups, but module invocation is now the canonical path.
+
 ### MCP
 
 The MCP layer currently exposes:
@@ -70,7 +94,7 @@ GoodNotes-specific support:
 Run the MCP server with:
 
 ```bash
-python3 ai_study_buddy/pdf_file_manager/pdf_file_manager_mcp_server.py --db /path/to/pdf_registry.db
+python3 -m ai_study_buddy.pdf_file_manager.pdf_file_manager_mcp_server --db /path/to/pdf_registry.db
 ```
 
 ## Database backup
@@ -81,13 +105,13 @@ The registry DB (`ai_study_buddy/db/pdf_registry.db`) is gitignored. To back it 
 
 2. **Run the backup script** from the repo root or from `ai_study_buddy/`:
    ```bash
-   python3 ai_study_buddy/pdf_file_manager/scripts/backup_pdf_registry.py
+   python3 -m ai_study_buddy.pdf_file_manager.scripts.backup_pdf_registry
    ```
    Use `--timestamp` to keep dated copies (e.g. `pdf_registry_2025-03-10_14-30-00+0800.db`) instead of overwriting. Backup log entries and timestamped filenames use Singapore time.
 
 3. **Optional retention tiering (recommended):**
    ```bash
-   python3 ai_study_buddy/pdf_file_manager/scripts/apply_backup_tiering.py --hot-days 7 --cold-days 60
+   python3 -m ai_study_buddy.pdf_file_manager.scripts.apply_backup_tiering --hot-days 7 --cold-days 60
    ```
    This keeps recent backups (`0-7` days) as raw `.db` files in the backup root, moves `7-60` day backups into `coldstorage/` as `.db.zst`, and removes backups older than 60 days.
 

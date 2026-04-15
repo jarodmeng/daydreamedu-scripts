@@ -4,15 +4,9 @@ import sys
 import tempfile
 from pathlib import Path
 
-from constants import STUDENT_DISPLAY_NAME, STUDENT_FOLDER_EMAIL
-from pdf_file_manager import PdfFileManager
+from ai_study_buddy.pdf_file_manager.pdf_file_manager import PdfFileManager
 
-
-SCRIPT_PATH = (
-    Path(__file__).resolve().parent.parent
-    / "scripts"
-    / "validate_pdf_registry_integrity.py"
-)
+from .constants import STUDENT_DISPLAY_NAME, STUDENT_FOLDER_EMAIL
 
 
 def test_integrity_validator_reports_known_issue_types():
@@ -74,7 +68,14 @@ def test_integrity_validator_reports_known_issue_types():
         conn.commit()
 
         proc = subprocess.run(
-            [sys.executable, str(SCRIPT_PATH), "--db", str(db_path), "--json"],
+                [
+                    sys.executable,
+                    "-m",
+                    "ai_study_buddy.pdf_file_manager.scripts.validate_pdf_registry_integrity",
+                    "--db",
+                    str(db_path),
+                    "--json",
+                ],
             capture_output=True,
             text=True,
             check=False,

@@ -9,25 +9,20 @@ ad hoc investigation:
 3. linked raw/main pairs whose invariant metadata has drifted
 
 Usage:
-  python3 ai_study_buddy/pdf_file_manager/scripts/validate_pdf_registry_integrity.py
-  python3 ai_study_buddy/pdf_file_manager/scripts/validate_pdf_registry_integrity.py --json
-  python3 ai_study_buddy/pdf_file_manager/scripts/validate_pdf_registry_integrity.py --db /path/to/pdf_registry.db
+  python3 -m ai_study_buddy.pdf_file_manager.scripts.validate_pdf_registry_integrity
+  python3 -m ai_study_buddy.pdf_file_manager.scripts.validate_pdf_registry_integrity --json
+  python3 -m ai_study_buddy.pdf_file_manager.scripts.validate_pdf_registry_integrity --db /path/to/pdf_registry.db
 """
 
 from __future__ import annotations
 
 import argparse
 import json
-import sys
 from pathlib import Path
 
+from ai_study_buddy.pdf_file_manager.pdf_file_manager import PdfFileManager
 
 SCRIPT_DIR = Path(__file__).resolve().parent
-PDF_MANAGER_DIR = SCRIPT_DIR.parent
-if str(PDF_MANAGER_DIR) not in sys.path:
-    sys.path.insert(0, str(PDF_MANAGER_DIR))
-
-from pdf_file_manager import PdfFileManager  # noqa: E402
 
 
 INVARIANT_METADATA_KEYS = (

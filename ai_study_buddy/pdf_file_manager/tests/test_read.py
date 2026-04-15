@@ -1,17 +1,14 @@
 # get_file, find_files. See TESTING.md § Phase 3 (read).
 
 import shutil
-import sys
 import tempfile
 from pathlib import Path
 
 import pytest
 
-_tests_dir = Path(__file__).resolve().parent
-if str(_tests_dir) not in sys.path:
-    sys.path.insert(0, str(_tests_dir))
-from conftest import FIXTURE_ROOT, fixture_has_pdfs
-from pdf_file_manager import PdfFileManager
+from ai_study_buddy.pdf_file_manager.pdf_file_manager import PdfFileManager
+
+from .conftest import FIXTURE_ROOT, fixture_has_pdfs
 
 
 def test_get_file_by_id_returns_pdffile():

@@ -1,19 +1,11 @@
 # find_leaf_dirs, report_coverage, coverage CLI (Proposal 3).
 
-import sys
 import tempfile
 from pathlib import Path
 
 import pytest
 
-_tests_dir = Path(__file__).resolve().parent
-if str(_tests_dir) not in sys.path:
-    sys.path.insert(0, str(_tests_dir))
-from conftest import _util_dir
-if str(_util_dir) not in sys.path:
-    sys.path.insert(0, str(_util_dir))
-
-from pdf_file_manager import PdfFileManager, CoverageReport
+from ai_study_buddy.pdf_file_manager.pdf_file_manager import CoverageReport, PdfFileManager
 
 
 def test_find_leaf_dirs_empty_dir():

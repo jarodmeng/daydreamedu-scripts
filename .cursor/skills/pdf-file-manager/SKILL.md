@@ -54,7 +54,7 @@ The SQLite file and schema are implementation details. Touch them directly only 
 Run from repo root (paths as in [README.md](../../../ai_study_buddy/pdf_file_manager/README.md)):
 
 ```bash
-python3 ai_study_buddy/pdf_file_manager/pdf_file_manager_mcp_server.py --db /path/to/pdf_registry.db
+python3 -m ai_study_buddy.pdf_file_manager.pdf_file_manager_mcp_server --db /path/to/pdf_registry.db
 ```
 
 - **`--tool-mode readonly`:** read-only tools only—preferred when the agent should inspect but not mutate ([MCP.md](../../../ai_study_buddy/pdf_file_manager/MCP.md)).

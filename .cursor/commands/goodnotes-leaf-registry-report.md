@@ -20,7 +20,7 @@ When this command runs, produce a **summary report** comparing **leaf folders** 
 
 ## What to run
 
-Execute a short **Python one-shot** from the repo root: prepend `ai_study_buddy/pdf_file_manager` to `sys.path` (same as `scripts/validate_pdf_registry_integrity.py`), then `from pdf_file_manager import PdfFileManager, resolve_goodnotes_root`. Use the default registry path from the utility / `PDF_REGISTRY_PATH` if set.
+Execute a short **Python one-shot** from the repo root with package imports (no `sys.path` mutation): `from ai_study_buddy.pdf_file_manager import PdfFileManager, resolve_goodnotes_root`. Use the default registry path from the utility / `PDF_REGISTRY_PATH` if set.
 
 Collect:
 

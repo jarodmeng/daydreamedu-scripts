@@ -1,16 +1,12 @@
 # get_operation_log. See TESTING.md § Phase 5 (audit).
 
 import subprocess
-import sys
 import tempfile
 from pathlib import Path
 
 import pytest
 
-_tests_dir = Path(__file__).resolve().parent
-if str(_tests_dir) not in sys.path:
-    sys.path.insert(0, str(_tests_dir))
-from pdf_file_manager import PdfFileManager
+from ai_study_buddy.pdf_file_manager.pdf_file_manager import PdfFileManager
 
 
 def test_get_operation_log_no_filters_returns_all_ordered():

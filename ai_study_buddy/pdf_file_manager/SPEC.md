@@ -321,7 +321,7 @@ For `add_scan_root(path, student_id=None)`, `student_id` precedence is:
 ## Python library interface
 
 ```python
-from pdf_file_manager import PdfFileManager
+from ai_study_buddy.pdf_file_manager.pdf_file_manager import PdfFileManager
 
 mgr = PdfFileManager()
 mgr = PdfFileManager(db_path="/custom/path/registry.db")
@@ -464,7 +464,7 @@ pdf_open_file_group
 Run it with:
 
 ```bash
-python3 ai_study_buddy/pdf_file_manager/pdf_file_manager_mcp_server.py --db /path/to/pdf_registry.db
+python3 -m ai_study_buddy.pdf_file_manager.pdf_file_manager_mcp_server --db /path/to/pdf_registry.db
 ```
 
 ---

@@ -4,6 +4,47 @@ Decisions that shaped the design of this utility. Each entry records what was de
 
 ---
 
+## D-012 — Canonicalize package imports and module invocation for pdf_file_manager
+
+**Date:** 2026-04-15
+**Status:** Decided
+**Affects:** `README.md`, `MCP.md`, `SPEC.md`, `CHANGELOG.md`, learning docs, Cursor skills/commands, tests, scripts, MCP wrapper/server modules
+
+### Context
+
+`PdfFileManager` had mixed import styles across runtime code, scripts, tests, and documentation:
+
+- package-style imports under `ai_study_buddy.pdf_file_manager...`
+- bare imports (`from pdf_file_manager import ...`) enabled by local `sys.path` manipulation
+
+This led to execution-context coupling: behavior varied by current working directory and invocation style.
+
+### Decision
+
+1. **Package path is canonical.**  
+   Standard import guidance is:
+   - `from ai_study_buddy.pdf_file_manager.pdf_file_manager import ...`
+   - optionally via package re-export: `from ai_study_buddy.pdf_file_manager import ...`
+
+2. **Prefer module invocation for operational entrypoints.**  
+   Scripts and MCP server examples should use:
+   - `python3 -m ai_study_buddy.pdf_file_manager.<module>`
+
+3. **Deprecate bare imports and ad hoc path hacks for normal use.**  
+   Any remaining compatibility fallback is transitional and should have a clear removal condition.
+
+4. **Treat commands/skills/rules docs as contract surfaces.**  
+   Operational docs must be updated together with code so guidance does not regress to legacy patterns.
+
+### Consequences
+
+- Added package exports in `ai_study_buddy/pdf_file_manager/__init__.py`.
+- Runtime code, scripts, tests, and MCP modules now use package-style imports.
+- `README.md`, `MCP.md`, `SPEC.md`, and related operational docs now point to module invocation and canonical imports.
+- Cursor command/skill guidance for registry workflows is aligned to the same standard.
+
+---
+
 ## D-011 — Book answer mappings are a dedicated relation table, not metadata or plain group membership
 
 **Date:** 2026-04-09

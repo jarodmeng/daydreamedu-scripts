@@ -1,16 +1,12 @@
 # Students and scan roots (config). See TESTING.md § Phase 2 (students, scan roots).
 
-import sys
 import tempfile
 from pathlib import Path
 
 import pytest
 
-_tests_dir = Path(__file__).resolve().parent
-if str(_tests_dir) not in sys.path:
-    sys.path.insert(0, str(_tests_dir))
-import pdf_file_manager as pfm_module
-from pdf_file_manager import PdfFileManager
+import ai_study_buddy.pdf_file_manager.pdf_file_manager as pfm_module
+from ai_study_buddy.pdf_file_manager.pdf_file_manager import PdfFileManager
 
 
 def test_add_student_then_list_students():

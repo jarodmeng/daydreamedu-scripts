@@ -6,8 +6,8 @@ already ignored via .gitignore; this script copies it to a directory that
 syncs to the cloud (e.g. Google Drive on your Mac).
 
 Usage:
-  python3 ai_study_buddy/pdf_file_manager/scripts/backup_pdf_registry.py
-  python3 ai_study_buddy/pdf_file_manager/scripts/backup_pdf_registry.py --timestamp
+  python3 -m ai_study_buddy.pdf_file_manager.scripts.backup_pdf_registry
+  python3 -m ai_study_buddy.pdf_file_manager.scripts.backup_pdf_registry --timestamp
 
 Backup runs only when the source DB has changed since the last backup (by mtime/size).
 Use --force to copy anyway. Default backup dir: ``<DaydreamEdu root>/db`` (see
@@ -20,11 +20,12 @@ see that the script ran even when it skipped because there were no changes).
 import argparse
 import os
 import shutil
-import sys
 from datetime import datetime
 from pathlib import Path
 from typing import Optional
 from zoneinfo import ZoneInfo
+
+from ai_study_buddy.pdf_file_manager.pdf_file_manager import resolve_daydreamedu_root
 
 
 SINGAPORE_TZ = ZoneInfo("Asia/Singapore")
@@ -35,12 +36,7 @@ def _default_backup_dir() -> Path | None:
     env = os.environ.get("PDF_REGISTRY_BACKUP_DIR", "").strip()
     if env:
         return Path(env).expanduser()
-    pkg_dir = Path(__file__).resolve().parent.parent
-    if str(pkg_dir) not in sys.path:
-        sys.path.insert(0, str(pkg_dir))
-    import pdf_file_manager as pfm  # noqa: E402
-
-    dd = pfm.resolve_daydreamedu_root()
+    dd = resolve_daydreamedu_root()
     if dd is None:
         return None
     return dd / "db"

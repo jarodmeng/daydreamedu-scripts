@@ -1,22 +1,16 @@
 import builtins
-import sys
 from pathlib import Path
 
 import anyio
 import pytest
 from fastmcp import FastMCP
 
-_tests_dir = Path(__file__).resolve().parent
-_util_dir = _tests_dir.parent
-if str(_util_dir) not in sys.path:
-    sys.path.insert(0, str(_util_dir))
-
-from pdf_file_manager_mcp import (
+from ai_study_buddy.pdf_file_manager.pdf_file_manager_mcp import (
     list_filesystem_mutation_tool_names,
     list_readonly_tool_names,
     list_safe_mutation_tool_names,
 )
-from pdf_file_manager_mcp_server import (
+from ai_study_buddy.pdf_file_manager.pdf_file_manager_mcp_server import (
     DEFAULT_SERVER_NAME,
     TOOL_METADATA,
     _parse_args,
@@ -131,7 +125,10 @@ def test_main_runs_server_with_stdio_defaults(monkeypatch):
         assert tool_mode == "default"
         return fake_server
 
-    monkeypatch.setattr("pdf_file_manager_mcp_server.create_fastmcp_server", fake_create_fastmcp_server)
+    monkeypatch.setattr(
+        "ai_study_buddy.pdf_file_manager.pdf_file_manager_mcp_server.create_fastmcp_server",
+        fake_create_fastmcp_server,
+    )
     exit_code = main(["--db", "/tmp/pdf-registry.db"])
     assert exit_code == 0
     assert fake_server.run_calls == [("stdio", {"show_banner": True})]
@@ -144,7 +141,10 @@ def test_main_passes_tool_mode(monkeypatch):
         assert tool_mode == "readonly"
         return fake_server
 
-    monkeypatch.setattr("pdf_file_manager_mcp_server.create_fastmcp_server", fake_create_fastmcp_server)
+    monkeypatch.setattr(
+        "ai_study_buddy.pdf_file_manager.pdf_file_manager_mcp_server.create_fastmcp_server",
+        fake_create_fastmcp_server,
+    )
     exit_code = main(["--tool-mode", "readonly"])
     assert exit_code == 0
     assert fake_server.run_calls == [("stdio", {"show_banner": True})]
@@ -157,7 +157,10 @@ def test_main_runs_server_with_http_options(monkeypatch):
         assert tool_mode == "default"
         return fake_server
 
-    monkeypatch.setattr("pdf_file_manager_mcp_server.create_fastmcp_server", fake_create_fastmcp_server)
+    monkeypatch.setattr(
+        "ai_study_buddy.pdf_file_manager.pdf_file_manager_mcp_server.create_fastmcp_server",
+        fake_create_fastmcp_server,
+    )
     exit_code = main(
         [
             "--transport",

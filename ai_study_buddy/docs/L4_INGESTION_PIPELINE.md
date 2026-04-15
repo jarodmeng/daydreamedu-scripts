@@ -42,7 +42,14 @@ The pipeline flow is shaped by format realities in [L3_EXAM_FORMATS](./L3_EXAM_F
 
 ## What We Need to Produce
 
-A **question object** per question (or sub-part), stored in Postgres:
+A **question object** per question (or sub-part), stored in Postgres.
+
+Refinement: many English and Chinese formats contain a shared passage, dialogue, visual text, cloze paragraph, or table used by multiple questions. So the long-term schema should support:
+
+- `question_objects` as the atomic grading / retrieval / mastery unit
+- a reusable `stimulus_blocks` layer for shared printed context
+
+That lets us crop / OCR / embed a shared passage once, then link many question objects to it.
 
 ```sql
 CREATE TABLE documents (
@@ -80,10 +87,25 @@ CREATE TABLE pages (
   is_scanned      BOOLEAN
 );
 
+CREATE TABLE stimulus_blocks (
+  id                UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  document_id       UUID REFERENCES documents(id),
+  page_id           UUID REFERENCES pages(id),
+  stimulus_type     TEXT NOT NULL,       -- 'passage', 'visual_text', 'cloze_passage', 'dialogue', 'table', 'diagram', 'mcq_group'
+  display_label     TEXT,                -- 'Passage A', 'Section I passage', 'Visual text', etc.
+  printed_text      TEXT,                -- OCR / extracted text for the shared block
+  bbox              JSONB,               -- bounding box on source page
+  crop_path         TEXT,                -- shared crop image path
+  extraction_method TEXT,                -- 'manual', 'vision_llm', 'template', 'ocr_regex'
+  review_status     TEXT DEFAULT 'unreviewed',
+  created_at        TIMESTAMPTZ DEFAULT now()
+);
+
 CREATE TABLE question_objects (
   id                UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   document_id       UUID REFERENCES documents(id),
   page_id           UUID REFERENCES pages(id),
+  stimulus_id       UUID REFERENCES stimulus_blocks(id),
   section           TEXT,                -- 'A', 'B', 'BookletA', 'BookletB'
   question_type     TEXT NOT NULL,       -- 'mcq', 'short_answer', 'open_ended', 'cloze', 'editing', 'synthesis', 'dialogue_completion', 'composition_sw', 'composition_cw'
   question_number   TEXT NOT NULL,       -- '1', '6', '14'
@@ -101,7 +123,6 @@ CREATE TABLE question_objects (
   mcq_correct       SMALLINT,            -- correct option (e.g. 4) — MCQ only, if extractable
   rubric_scores     JSONB,               -- composition only: {"task_fulfillment": 6, "language_organisation": 8}
   teacher_feedback  TEXT,                -- qualitative teacher comments (e.g. "too general", "use evidence from the text")
-  passage_ref       UUID,                -- links comprehension questions to their shared passage (references another question_object or a passage table)
   skill_tags        TEXT[],
   error_tags        TEXT[],
   question_crop     TEXT,                -- image path: printed question region (includes diagrams)
@@ -126,9 +147,9 @@ Upload PDF
   → 3. Extract cover page metadata (total marks, sections, percentage, AL)
   → 4. Extract page-level scores (vision LLM reads score boxes where present)
   → 5. If OAS page exists: extract all MCQ answers in one call (OAS read)
-  → 6. Extract question structure (vision LLM identifies questions, sub-parts, marks, boundaries)
+  → 6. Extract structure (sections, shared stimuli, questions, sub-parts, marks, boundaries)
   → 7. Extract per-question results (ticks/crosses, answers, teacher corrections)
-  → 8. Crop question regions (question + diagrams, workings, feedback, corrections)
+  → 8. Crop shared stimuli and question regions (question + diagrams, workings, feedback, corrections)
   → 9. Tag skills (LLM suggests from skill graph, Jarod confirms)
   → 10. Tag errors for wrong/partial answers (LLM suggests, Jarod confirms)
   → 11. Jarod reviews in dashboard → corrections saved
@@ -184,21 +205,37 @@ One LLM call extracts all MCQ answers and their correctness. For a 12-question M
 
 **Fallback:** If the OAS is missing or unreadable, MCQ answers can be extracted from the booklet pages (Winston writes his choice in parentheses on each question page).
 
-### Step 6: Extract Question Structure
+### Step 6: Extract Structure
+
+This step should produce both:
+
+- **shared stimulus blocks** where relevant
+- **question objects** linked to those blocks
+
+The shared-stimulus layer matters most for:
+
+- English comprehension passages
+- Chinese 阅读理解 passages
+- cloze passages
+- visual texts / posters
+- tables, charts, and diagrams reused across several questions
 
 Send each question page image to Gemini Vision with a structured extraction prompt:
 
-> *"This is a page from a Singapore primary school [subject] exam. Identify every question and sub-part visible on this page. For each, extract:*
+> *"This is a page from a Singapore primary school [subject] exam. Identify any shared stimulus block visible on the page (passage, dialogue, cloze paragraph, visual text, table, or diagram) and every question or sub-part that depends on it. For each question, extract:*
 > - *question_number, sub_part (e.g. 'a', 'b', or null)*
 > - *question_type: 'mcq' (multiple choice), 'short_answer' (number/word in answer box), or 'open_ended' (written explanation)*
 > - *printed question text (brief summary if long)*
 > - *max_marks (from mark allocation like '(3)' or '[2]' or section header)*
 > - *approximate bounding box (coordinates as fraction of page dimensions)*
 > - *has_diagram (boolean — does this question include a printed diagram, graph, or table?)*
+> - *shared_stimulus_id or null if the question is standalone*
 >
 > *Return as JSON array."*
 
 **Subject-specific prompts matter.** Math papers have "Ans:" lines and parenthesized marks. Science papers have bracketed marks [1], [2] and experiment diagrams. The prompt should be adapted per subject for best results.
+
+For digital PDFs and stable templates, Python should try to detect structure first from text / layout cues and use the vision model only when confidence is low.
 
 ### Step 7: Extract Per-Question Results
 
@@ -218,16 +255,17 @@ Different extraction strategy depending on `question_type`:
 >
 > *Return: outcome (correct/wrong/partial), earned_marks, child_answer, teacher_answer (if any), has_method_marks (boolean)."*
 
-### Step 8: Crop Question Regions
+### Step 8: Crop Shared Stimuli and Question Regions
 
 Using the bounding boxes from step 4, crop each question into separate images:
 
+- **stimulus_crop** — shared passage / visual text / diagram crop used by multiple questions, when applicable
 - **question_crop** — the printed question text region only
 - **working_crop** — the area where the child wrote workings
 - **feedback_crop** — teacher's marks and corrections (if identifiable as a separate region; otherwise the full question block including all layers)
 - **correction_crop** — green ink correction workings (if present)
 
-In practice, for the MVP, a single crop of the entire question block (question + workings + feedback) is sufficient. Separating the layers can be a later refinement.
+In practice, for the MVP, a single crop of the entire question block (question + workings + feedback) is sufficient. Separating the layers can be a later refinement. But when multiple questions share the same printed context, the shared `stimulus_crop` should be stored once and linked to all dependent question objects.
 
 ### Step 9: Skill Tagging
 
@@ -254,6 +292,7 @@ Send the full question block (including workings and teacher feedback) as an ima
 The dashboard shows each ingested document with:
 
 - Page images with detected question boundaries overlaid
+- Shared stimulus boundaries (passages / visual texts / tables) and linked question groups
 - Extracted scores per question (pre-filled by the LLM)
 - Suggested skill tags and error tags
 - Quick-fix controls: adjust boundaries, edit marks, reassign tags, correct answers
@@ -409,7 +448,7 @@ Winston has ~4,000 pages of historical worksheets. Ingesting all of them manuall
 
 ## Utilities
 
-Pre-processing utilities that prepare raw PDFs for ingestion. Each utility lives in its own subfolder under `ai_study_buddy/utils/` and has a `SPEC.md` (and for pdf_file_manager, a full doc set) there.
+Pre-processing utilities that prepare raw PDFs for ingestion. Each such utility lives in its own subfolder under `ai_study_buddy/utils/` and has a `SPEC.md` there. The PDF registry tool (`pdf_file_manager`) lives at the `ai_study_buddy` top level — see [PDF File Manager](#pdf-file-manager-pdf_file_manager) below.
 
 ### Utility 1: PDF Compressor (`compress_pdf`)
 
@@ -424,20 +463,20 @@ python compress_pdf.py abc.pdf              # → _c_abc.pdf next to input
 python compress_pdf.py --batch /path/       # → compress all PDFs in directory
 ```
 
-### Utility 2: PDF File Manager (`pdf_file_manager`)
+### PDF File Manager (`pdf_file_manager`)
 
-**Location:** [`utils/pdf_file_manager/`](../utils/pdf_file_manager/) — `pdf_file_manager.py` + [`README.md`](../utils/pdf_file_manager/README.md), [`SPEC.md`](../utils/pdf_file_manager/SPEC.md), and supporting docs (ARCHITECTURE, TESTING, DECISIONS, CHANGELOG).
+**Location:** [`pdf_file_manager/`](../pdf_file_manager/) — `pdf_file_manager.py` + [`README.md`](../pdf_file_manager/README.md), [`SPEC.md`](../pdf_file_manager/SPEC.md), and supporting docs (ARCHITECTURE, TESTING, DECISIONS, CHANGELOG).
 
 **Purpose:** Keeps a SQLite registry of PDF files in the study archive. Tracks exams, worksheets, books, activities, notes, and templates (with optional completed variants), and keeps on-disk paths and database records in sync. Supports scan roots (for example Google Drive folders), scan/discovery (direct `*.pdf` children per root), optional compression via `compress_pdf`, classification (`doc_type`, `subject`, metadata including `chinese_variant`), exam/book grouping, and template/completion linking. The ingestion pipeline consumes `main` files from this registry. All state-changing operations are recorded in an append-only operation log.
 
-**Machine interface:** Prefer the Python API and MCP server over the old CLI. The MCP layer is implemented in [`utils/pdf_file_manager/pdf_file_manager_mcp.py`](../utils/pdf_file_manager/pdf_file_manager_mcp.py) with a FastMCP entrypoint in [`utils/pdf_file_manager/pdf_file_manager_mcp_server.py`](../utils/pdf_file_manager/pdf_file_manager_mcp_server.py). This is the intended structured interface for agents and automations.
+**Machine interface:** Prefer the Python API and MCP server over the old CLI. The MCP layer is implemented in [`pdf_file_manager/pdf_file_manager_mcp.py`](../pdf_file_manager/pdf_file_manager_mcp.py) with a FastMCP entrypoint in [`pdf_file_manager/pdf_file_manager_mcp_server.py`](../pdf_file_manager/pdf_file_manager_mcp_server.py). This is the intended structured interface for agents and automations.
 
 **CLI status:** The built-in CLI has been removed. Use the Python API directly or the MCP server.
 
 Run the MCP server with:
 
 ```bash
-python utils/pdf_file_manager/pdf_file_manager_mcp_server.py --db /path/to/registry.db
+python3 -m ai_study_buddy.pdf_file_manager.pdf_file_manager_mcp_server --db /path/to/registry.db
 ```
 
-See the [README](../utils/pdf_file_manager/README.md) and [SPEC](../utils/pdf_file_manager/SPEC.md) for the current Python and MCP contracts.
+See the [README](../pdf_file_manager/README.md) and [SPEC](../pdf_file_manager/SPEC.md) for the current Python and MCP contracts.
