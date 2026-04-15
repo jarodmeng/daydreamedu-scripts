@@ -1,0 +1,94 @@
+# AI Study Buddy Marking Package
+
+Canonical marking pipeline for AI Study Buddy. This package defines the
+`marking_result.v1` artifact contract and the JSON-first workflow:
+
+1. resolve context
+2. write canonical JSON artifact
+3. render markdown as a derived view
+4. support human note edits in the canonical JSON
+
+Current version: `v0.1.1`
+
+## Package Scope
+
+- Artifact naming and path conventions (`artifact_paths.py`)
+- Schema validation and score consistency checks (`artifact_schema.py`)
+- Canonical artifact writing (`artifact_writer.py`)
+- Legacy markdown migration (`migrate_learning_reports.py`)
+- Markdown rendering from canonical JSON (`report_renderer.py`)
+- Human note editing workflow (`edit_human_notes.py`)
+- Marking taxonomy constants/helpers (`taxonomy.py`)
+
+## Directory Layout
+
+- `api.py`: compact public API re-export surface
+- `core/`: models, schema, paths, writer, taxonomy, context resolution
+- `workflows/`: CLI/workflow modules for migration, rendering, and note editing
+- `schemas/marking_result.v1.schema.json`: canonical JSON schema
+- `tests/test_artifact_core.py`: core artifact and rendering tests
+- `tests/test_migration.py`: migration parser and migration flow tests
+
+## Quick Start
+
+From repository root:
+
+```bash
+# Migrate legacy markdown reports to canonical JSON artifacts
+python3 -m ai_study_buddy.marking.workflows.migrate_learning_reports --dry-run
+
+# Render markdown from an existing canonical artifact
+python3 -m ai_study_buddy.marking.workflows.report_renderer \
+  ai_study_buddy/context/marking_results/<student>/<subject>/<artifact>.json
+
+# Update human notes in a canonical artifact
+python3 -m ai_study_buddy.marking.workflows.edit_human_notes \
+  ai_study_buddy/context/marking_results/<student>/<subject>/<artifact>.json \
+  --summary-note "Reviewed with parent" \
+  --updated-by "tutor"
+```
+
+## Context Resolver Usage
+
+Path-first resolver entry point:
+
+```python
+from ai_study_buddy.marking import resolve_marking_context
+```
+
+Standard mapped-answer flow (already registered + linked + mapped):
+
+```python
+context = resolve_marking_context(
+    attempt_file_id_or_path="/abs/path/to/GoodNotes/.../c_unit_attempt.pdf",
+)
+```
+
+First-touch onboarding flow (auto-register + auto-link):
+
+```python
+context = resolve_marking_context(
+    attempt_file_id_or_path="/abs/path/to/GoodNotes/.../c_unit_attempt.pdf",
+    auto_register_attempt=True,
+    auto_link_template=True,
+)
+```
+
+Embedded-answer flow (weighted assessment papers with answer pages in the same paper):
+
+```python
+context = resolve_marking_context(
+    attempt_file_id_or_path="/abs/path/to/GoodNotes/.../c_weighted_assessment.pdf",
+    auto_register_attempt=True,
+    auto_link_template=True,
+    self_answer_pages=(9, 10),
+)
+```
+
+## Documentation Index
+
+- `ARCHITECTURE.md`: package architecture, context resolver contract, and implementation plan
+- `CHANGELOG.md`: package release history
+- `SPEC.md`: functional and data contract specification
+- `TESTING.md`: test strategy, commands, and quality gates
+

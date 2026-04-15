@@ -5,7 +5,10 @@ description: Mark a student's GoodNotes completion PDF against the registry-link
 
 # Mark GoodNotes Completion
 
-Use this workflow when the user wants a registered GoodNotes completion PDF visually graded against its mapped answer pages.
+Use this workflow when the user wants a GoodNotes completion PDF visually graded against either:
+
+- mapped answer pages (registry mapping), or
+- embedded answer pages in the same weighted-assessment paper.
 
 This skill is for JSON-first report generation and manual visual marking, not for changing registry data.
 
@@ -20,9 +23,12 @@ Use the `PdfFileManager` Python API as the primary interface. Do not query the r
 This workflow assumes:
 
 - the student's completion file is under a `GoodNotes/` path
-- the completion file is already registered as a `main` file
-- the GoodNotes file links to a DaydreamEdu template
-- the linked template has a book answer mapping
+- the completion file is under a `GoodNotes/` path
+- the file can be registered as a completion `main` file when missing
+- the completion can be linked to a DaydreamEdu template
+- answer source is either:
+  - linked-template book answer mapping, or
+  - explicit embedded answer page range (`self_answer_pages`)
 
 Typical request shapes:
 
@@ -44,9 +50,7 @@ Resolve these items before doing any grading:
 
 Registration/link precondition (required):
 
-- If the completion file is not registered, register it first as the completion `main` file.
-- After registration, link the completion to its template file.
-- Do not start marking until both registration and template-link are confirmed.
+- Do not start marking until completion registration and template-link are confirmed (directly or via resolver auto flags).
 
 Preferred interface (authoritative for now):
 
@@ -56,6 +60,19 @@ Preferred interface (authoritative for now):
   - `get_book_answer_mapping(...)`
 
 Use `ai_study_buddy.marking.resolve_marking_context(...)` as the preferred implementation path when available. Registry calls remain authoritative, but the business logic should live in `ai_study_buddy/marking/` rather than being duplicated ad hoc in the skill flow.
+
+MVP contract for this skill:
+
+1. Use natural-language request details (student, unit, book) only to fuzzy-search GoodNotes leaf folders and identify one unique completion PDF path.
+2. Once unique completion path is found, call `resolve_marking_context(...)` with:
+   - `attempt_file_id_or_path=<unique completion path>`
+   - `auto_register_attempt=True` when file may not be registered yet
+   - `auto_link_template=True` when template link may be missing
+3. For weighted assessment papers where answers are embedded in the same paper, pass:
+   - `self_answer_pages=(begin_page, end_page)`
+4. Treat resolver output as authoritative for template file, answer file, and answer page range.
+5. If fuzzy search is not unique, stop and ask for disambiguation before calling resolver.
+6. If embedded-answer mode is needed but answer-page range is unknown, ask the user to provide the page range before marking.
 
 Important reporting discipline:
 

@@ -1,0 +1,65 @@
+# Testing Guide (`v0.1.0`)
+
+This guide defines the testing workflow for `ai_study_buddy.marking`.
+
+## Test Scope
+
+Primary automated coverage lives in:
+
+- `ai_study_buddy/marking/tests/test_artifact_core.py`
+- `ai_study_buddy/marking/tests/test_migration.py`
+
+These tests cover:
+
+- schema loading and validation
+- artifact naming/path normalization
+- summary/row score consistency
+- disqualified scoring semantics
+- JSON write and markdown re-render behavior
+- human note update flow
+- legacy markdown migration parsing and batching options
+
+## Run Tests
+
+From repository root:
+
+```bash
+# Package-only tests
+python3 -m pytest ai_study_buddy/marking/tests -q
+
+# Core tests only
+python3 -m pytest ai_study_buddy/marking/tests/test_artifact_core.py -q
+
+# Migration tests only
+python3 -m pytest ai_study_buddy/marking/tests/test_migration.py -q
+```
+
+## Suggested Quality Gate
+
+Before merging marking-related changes:
+
+1. Run all package tests.
+2. Ensure no schema validation regressions.
+3. For migration/parser changes, run migration tests specifically.
+4. For renderer or note-edit changes, verify artifact-core tests pass.
+
+## Manual Verification Checklist
+
+Use this checklist when changing behavior that affects outputs:
+
+1. Generate or edit one canonical artifact JSON under
+   `context/marking_results/...`.
+2. Re-render markdown from that JSON and verify expected sections are present.
+3. Update a summary note and one question note via `edit_human_notes.py`.
+4. Confirm `review_meta.updated_at` and `review_meta.updated_by` were updated.
+5. Re-run schema validation (implicitly covered by write/update flows).
+
+## Regression Focus Areas
+
+Changes in these areas should receive extra scrutiny:
+
+- Prefix normalization and timestamp basename rules
+- `scoring_status` and disqualified row exclusion logic
+- Markdown parsing tolerance for legacy report variants
+- Context file-id/group backfill behavior when registry lookups fail
+

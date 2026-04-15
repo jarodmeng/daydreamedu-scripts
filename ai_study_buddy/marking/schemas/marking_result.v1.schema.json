@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://daydreamedu.local/schemas/marking_result.v1.schema.json",
+  "title": "marking_result.v1",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "created_at",
+    "updated_at",
+    "context",
+    "summary",
+    "question_results",
+    "review_meta",
+    "generation"
+  ],
+  "properties": {
+    "schema_version": { "const": "marking_result.v1" },
+    "created_at": { "type": "string", "minLength": 1 },
+    "updated_at": { "type": "string", "minLength": 1 },
+    "context": { "type": "object" },
+    "summary": { "type": "object" },
+    "question_results": { "type": "array" },
+    "review_meta": { "type": "object" },
+    "generation": { "type": "object" }
+  },
+  "additionalProperties": true
+}
