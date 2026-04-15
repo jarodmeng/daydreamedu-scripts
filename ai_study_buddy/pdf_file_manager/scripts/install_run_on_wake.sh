@@ -41,7 +41,7 @@ else
     echo "" >> "$WAKEUP"
     echo "# pdf_registry backup (DaydreamEdu)" >> "$WAKEUP"
   fi
-  echo "\"$WAKE_SCRIPT\" &" >> "$WAKEUP"
+  echo "\"$WAKE_SCRIPT\"" >> "$WAKEUP"
   chmod +x "$WAKEUP"
 fi
 
