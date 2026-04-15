@@ -269,6 +269,14 @@ Evidence rule:
 - for math in particular, visible workings are important for distinguishing concept gaps from calculation slips, wrong methods, incomplete methods, or misread questions
 - if workings are missing or illegible, lower confidence and avoid overstating root cause
 
+Incorrect-answer reasoning rule (required):
+
+- for any row marked incorrect (`❌`) or partial (`⚠️`), `diagnosis.reasoning` must explain both:
+  - why the correct answer is correct (text evidence, definition, method step, or key concept), and
+  - why the student's selected/written answer is not correct
+- do not write diagnosis reasoning as only an answer mismatch restatement (for example, avoid "student chose (1), correct is (2)" without explanation)
+- keep the explanation concise and evidence-based; if evidence is limited, state uncertainty explicitly
+
 ## Quality Bar
 
 Before finishing, verify:
