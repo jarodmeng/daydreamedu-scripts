@@ -66,3 +66,6 @@ ai_study_buddy/pdf_file_manager/local_daydreamedu_root.txt
 ai_study_buddy/pdf_file_manager/local_goodnotes_root.txt
 ai_study_buddy/pdf_file_manager/tests/fixtures/daydreamedu_fixture/**/*.pdf
 ai_study_buddy/pdf_file_manager/scripts/archive/
+
+# ---- split_book_answer_by_unit_using_ai (generated batch I/O) ----
+ai_study_buddy/split_book_answer_by_unit_using_ai/batch_artifacts/
