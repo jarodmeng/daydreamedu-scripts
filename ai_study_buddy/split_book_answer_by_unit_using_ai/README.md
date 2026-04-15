@@ -1,6 +1,6 @@
 # split_book_answer_by_unit_using_ai
 
-Version: **v0.1.1**
+Version: **v0.1.2**
 
 This utility detects answer-page ranges for per-unit files using a single production pipeline:
 
@@ -11,6 +11,8 @@ This utility detects answer-page ranges for per-unit files using a single produc
 5. Optionally compare against saved ground truth.
 
 **v0.1.1:** Continuation prompt clarified: `continued_unit_index` is the last answer-unit still continuing at the top of the page (skip manifest-only units with no answer section), with an explicit `08`→`10` example.
+
+**v0.1.2:** Added `benchmark_gemini_models.py` to run that pipeline across multiple Gemini models and print a quality/cost comparison table (see below).
 
 ## Why this MVP exists
 
@@ -31,6 +33,7 @@ After iterative attempts, the continuation-aware page-segments design (finalized
 - `scripts/process_gemini_batch_output.py`: Parse Gemini output JSONL.
 - `scripts/assemble_ranges_from_page_segments_continuation.py`: Deterministic range assembly.
 - `scripts/compare_with_ground_truth.py`: Optional validation against a saved truth JSON.
+- `scripts/benchmark_gemini_models.py`: Run the full pipeline across multiple Gemini models and print a quality/cost comparison table.
 - `pilot_ground_truth/*.json`: Preserved historical ground-truth records.
 - `batch_artifacts/`: Runtime output location (intentionally not curated as source).
 
@@ -75,6 +78,20 @@ python3 ai_study_buddy/split_book_answer_by_unit_using_ai/scripts/assemble_range
 python3 ai_study_buddy/split_book_answer_by_unit_using_ai/scripts/compare_with_ground_truth.py \
   --processed ai_study_buddy/split_book_answer_by_unit_using_ai/batch_artifacts/science_practice_primary_5_and_6.v01.assembled.json \
   --ground-truth ai_study_buddy/split_book_answer_by_unit_using_ai/pilot_ground_truth/science_practice_primary_5_and_6_ground_truth.json
+```
+
+## Benchmark model cost/quality (optional)
+
+Run one book against multiple models and get a summary table. By default, the
+benchmark submits all model batch jobs first, then polls/processes them:
+
+```bash
+python3 ai_study_buddy/split_book_answer_by_unit_using_ai/scripts/benchmark_gemini_models.py \
+  --book-label "Science Revision Guide Primary 4" \
+  --ground-truth ai_study_buddy/split_book_answer_by_unit_using_ai/pilot_ground_truth/science_revision_guide_primary_4_ground_truth.json \
+  --models models/gemini-2.5-pro,models/gemini-2.5-flash,models/gemini-2.5-flash-lite \
+  --no-include-thoughts \
+  --summary-out ai_study_buddy/split_book_answer_by_unit_using_ai/batch_artifacts/science_revision_model_benchmark.summary.json
 ```
 
 ## Notes

@@ -1,13 +1,13 @@
 ---
 name: mark-goodnote-completion
-description: Mark a student's GoodNotes completion PDF against the registry-linked DaydreamEdu template and mapped answer-page range, then write a markdown learning report under `ai_study_buddy/context/.../learning_reports/<student>/`. Use when the user wants a GoodNotes completion graded, marked, compared with worked solutions, or turned into a learning report.
+description: Mark a student's GoodNotes completion PDF against the registry-linked DaydreamEdu template and mapped answer-page range, then write a canonical JSON marking artifact under `ai_study_buddy/context/marking_results/<student>/<subject_context>/` and a derived markdown learning report under `ai_study_buddy/context/learning_reports/<student>/<subject_context>/`. Use when the user wants a GoodNotes completion graded, marked, compared with worked solutions, or turned into a learning report.
 ---
 
 # Mark GoodNotes Completion
 
 Use this workflow when the user wants a registered GoodNotes completion PDF visually graded against its mapped answer pages.
 
-This skill is for report-writing and manual visual marking, not for changing registry data.
+This skill is for JSON-first report generation and manual visual marking, not for changing registry data.
 
 ## Prerequisite
 
@@ -55,7 +55,7 @@ Preferred interface (authoritative for now):
   - `get_template(...)`
   - `get_book_answer_mapping(...)`
 
-Do not use the `ai_study_buddy.marking` package as the default path for this step. It is still under development and should be treated as optional/experimental until promoted as the primary workflow.
+Use `ai_study_buddy.marking.resolve_marking_context(...)` as the preferred implementation path when available. Registry calls remain authoritative, but the business logic should live in `ai_study_buddy/marking/` rather than being duplicated ad hoc in the skill flow.
 
 Important reporting discipline:
 
@@ -155,19 +155,37 @@ Non-negotiable rule:
 
 - Do not mark or "double confirm" an answer key from a mixed multi-exercise panel without isolating the target exercise block.
 
-### 5. Write the learning report
+### 5. Write the canonical JSON artifact first
 
-Write the final markdown report under:
+Write the canonical marking artifact under:
 
-`ai_study_buddy/context/<subject_context>/learning_reports/<student-name-lowercase>/`
-
-For this workflow, the relevant math path is usually:
-
-`ai_study_buddy/context/singapore_primary_math/learning_reports/winston/`
+`ai_study_buddy/context/marking_results/<student-name-lowercase>/<subject_context>/`
 
 Filename pattern:
 
-`<GoodNotes completion basename> - Marking Report.md`
+`<normalized attempt basename>__YYYYMMDD_HHMMSS.json`
+
+The canonical JSON must follow `marking_result.v1` and should include:
+
+- context
+- summary
+- `question_results` as gradable leaf units
+- `diagnosis` per result
+- co-located human-note fields
+
+### 6. Render the learning report from JSON
+
+Write the final markdown report under:
+
+`ai_study_buddy/context/learning_reports/<student-name-lowercase>/<subject_context>/`
+
+For this workflow, the relevant math path is usually:
+
+`ai_study_buddy/context/learning_reports/winston/singapore_primary_math/`
+
+Filename pattern:
+
+`<normalized attempt basename>__YYYYMMDD_HHMMSS - Marking Report.md`
 
 Use this exact structure:
 
@@ -204,9 +222,9 @@ Convention: `✅` = full marks, `⚠️` = partial credit, `❌` = zero marks.
 - Gradable scope for this unit file was treated as ...
 ```
 
-## Embedding Column
+## Skill Tags Column
 
-The `Embedding` column is a concise topic label for later retrieval. It does not need to come from an actual embedding model.
+The markdown report may render a concise display value from `skill_tags`. The canonical JSON should store `skill_tags` as normalized machine tags.
 
 Use the format:
 
@@ -219,10 +237,26 @@ For this math workflow, examples include:
 
 Keep labels short, concrete, and consistent across similar reports.
 
+## Diagnosis Guidance
+
+For each gradable result, the marking agent should populate:
+
+- `error_tags`
+- `diagnosis.mistake_type`
+- `diagnosis.reasoning`
+- `diagnosis.confidence`
+
+Evidence rule:
+
+- diagnosis must use the final answer and any visible workings, method steps, or corrections/annotations
+- for math in particular, visible workings are important for distinguishing concept gaps from calculation slips, wrong methods, incomplete methods, or misread questions
+- if workings are missing or illegible, lower confidence and avoid overstating root cause
+
 ## Quality Bar
 
 Before finishing, verify:
 
+- the JSON artifact exists and is the canonical source of truth
 - the report path matches the subject and student folder
 - the attempt file path is the GoodNotes completion, not the template
 - the template and answer file paths are correct
@@ -232,6 +266,7 @@ Before finishing, verify:
 - the final key list was checked in two passes, question-by-question
 - the score totals add up
 - the percentage is correct
+- the markdown report matches the JSON artifact
 
 ## Guardrails
 
@@ -243,11 +278,13 @@ Before finishing, verify:
 - If the answer mapping or template link is missing, stop and report the missing dependency instead of guessing.
 - If handwriting or page coverage is too unclear to grade reliably, say so and limit the report to confident items only.
 - Do not leave temporary rendered PNGs in tracked report folders; keep them under `ai_study_buddy/context/.tmp_*` and clean them up after marking.
+- Do not treat markdown as canonical data; always write JSON first.
 
 ## Output Expectations
 
 In the final user response:
 
+- give the path to the created JSON artifact
 - give the path to the created report
 - summarize the score briefly
 - mention the answer page range used

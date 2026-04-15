@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.1.2 - 2026-04-15
+
+### Added
+
+- `scripts/benchmark_gemini_models.py`: multi-model benchmark for the continuation pipeline; submits all configured Gemini batch jobs first (default), then polls, processes, and assembles per model; optional ground-truth comparison and printed cost/quality summary table.
+
+### Changed
+
+- `README.md`: document v0.1.2 and benchmark usage.
+
 ## v0.1.1 - 2026-04-15
 
 ### Changed
