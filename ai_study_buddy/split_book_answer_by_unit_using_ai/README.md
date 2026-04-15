@@ -1,6 +1,6 @@
 # split_book_answer_by_unit_using_ai
 
-Version: **v0.1.0 (MVP)**
+Version: **v0.1.1**
 
 This utility detects answer-page ranges for per-unit files using a single production pipeline:
 
@@ -9,6 +9,8 @@ This utility detects answer-page ranges for per-unit files using a single produc
 3. Parse batch output into structured JSON.
 4. Assemble deterministic per-unit page ranges (including split-page flags).
 5. Optionally compare against saved ground truth.
+
+**v0.1.1:** Continuation prompt clarified: `continued_unit_index` is the last answer-unit still continuing at the top of the page (skip manifest-only units with no answer section), with an explicit `08`→`10` example.
 
 ## Why this MVP exists
 

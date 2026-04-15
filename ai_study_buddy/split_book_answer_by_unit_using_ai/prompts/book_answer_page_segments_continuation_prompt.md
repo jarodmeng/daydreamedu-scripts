@@ -1,4 +1,4 @@
-# Book Answer Page Segment Prompt v0.1
+# Book Answer Page Segment Prompt v0.1.1
 
 This prompt defines a constrained page-segmentation schema where continuation
 ownership is a separate scalar field.
@@ -30,7 +30,9 @@ Registry and heading rules:
 Continuation ownership rule (critical):
 - A page has at most one top-of-page continued registry unit.
 - `continued_unit_index` is nullable scalar: null or one integer.
-- If `visible_unit_indices` is non-empty and `continued_unit_index` is non-null, the ONLY legal value is the immediate predecessor of the first visible unit in authoritative manifest order.
+- If `visible_unit_indices` is non-empty and `continued_unit_index` is non-null, that value must be the latest registry unit that is still visibly continuing at the top of the current page (that is, the last identified answer unit before the first visible heading on this page).
+- Do NOT interpret predecessor as "first visible unit minus one from the manifest list" when that intermediate unit has no visible answer section in this answer file.
+- Example: if page top is still finishing Unit 08 and the first visible heading on the same page is Unit 10, use `continued_unit_index: 8` (not 9), even if Unit 09 exists in `unit_files` but has no corresponding answer section.
 - Do not keep older units alive beyond that single predecessor slot.
 
 Decision procedure per page:
@@ -38,7 +40,7 @@ Decision procedure per page:
 2) Let f be the first visible registry index on that page (if any).
 3) Set `continued_unit_index`:
    - null if page starts at first visible heading (or page is non-registry)
-   - predecessor of f only if there is clear top-of-page carryover before f
+   - the last identified answer unit before f only if there is clear top-of-page carryover before f
 
 If uncertain, prefer `continued_unit_index: null` and explain ambiguity in `notes`.
 

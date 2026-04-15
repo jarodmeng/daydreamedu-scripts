@@ -85,6 +85,9 @@ def main() -> None:
     manifest_set = set(manifest)
 
     continuation_rule_violations: list[dict] = []
+    # Warnings: structural hints that may be false positives when manifest order
+    # includes units with no answer section (prompt v0.1.1 continuation semantics).
+    continuation_rule_warnings: list[dict] = []
     continuation_substitution_suspicions: list[dict] = []
     per_page_units: dict[int, list[int]] = {}
     ordered_seen: list[int] = []
@@ -173,13 +176,22 @@ def main() -> None:
             first_visible = visible[0]
             expected = predecessor_map.get(first_visible)
             if continued != expected:
-                continuation_rule_violations.append(
+                # Strict manifest predecessor often disagrees with "last identified
+                # answer unit before first visible heading" (e.g. unit 09 absent from
+                # answer key). Downgrade to warning, not error.
+                continuation_rule_warnings.append(
                     {
+                        "severity": "warning",
                         "answer_page": page,
-                        "reason": "continued_unit_not_predecessor_of_first_visible",
+                        "reason": "continued_unit_not_manifest_predecessor_of_first_visible",
                         "continued_unit_index": continued,
                         "first_visible_unit_index": first_visible,
-                        "expected_predecessor": expected,
+                        "manifest_immediate_predecessor": expected,
+                        "note": (
+                            "Manifest-order predecessor may not match continuation when "
+                            "intermediate manifest units have no answer section; compare "
+                            "to model page_segments and prompt v0.1.1 continuation rules."
+                        ),
                     }
                 )
 
@@ -287,6 +299,7 @@ def main() -> None:
             "missing_unit_indices_within_detected_span": missing_in_span,
             "non_monotonic_jump_detected": non_monotonic,
             "continuation_rule_violations": continuation_rule_violations,
+            "continuation_rule_warnings": continuation_rule_warnings,
             "continuation_substitution_suspicions": continuation_substitution_suspicions,
             "mapping_count": len(mappings),
         },

@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v0.1.1 - 2026-04-15
+
+### Changed
+
+- Continuation prompt (`prompts/book_answer_page_segments_continuation_prompt.md`): clarified `continued_unit_index` as the last answer-unit still continuing at the top of the page, including manifest units that have no answer section (explicit `08`→`10` example).
+- Assembler (`scripts/assemble_ranges_from_page_segments_continuation.py`): manifest-order predecessor mismatches (e.g. continued `08` before visible `10` when manifest `09` has no answer section) are recorded as **`continuation_rule_warnings`** with `severity: warning`, not **`continuation_rule_violations`**.
+
 ## v0.1.0 - 2026-04-13
 
 ### Added
