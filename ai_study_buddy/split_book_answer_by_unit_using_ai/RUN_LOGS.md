@@ -56,6 +56,96 @@ Append one block per **end-to-end** run of the continuation page-segments pipeli
 
 ## Runs
 
+### english_weekly_revision_primary_1.v02 — English Weekly Revision Primary 1
+
+| Field | Value |
+|--------|--------|
+| **Run id** | `english_weekly_revision_primary_1.v02` |
+| **Logged** | 2026-04-15 |
+| **Pipeline** | split_book_answer_by_unit_using_ai v0.1.3 |
+| **Registry book label** | `English Weekly Revision Primary 1` |
+| **Gemini model** | `models/gemini-2.5-pro` |
+| **Batch request key** | `book:english_weekly_revision_primary_1:page_segments_continuation_gemini:p1_10` |
+| **Answer pages in batch** | 1-10 |
+| **Units in manifest** | 42 |
+| **Gemini batch job** | `batches/xswdcwwi3uufdicoymay9m5p2nxamghl3xya` |
+| **Uploaded JSONL (API)** | `files/4bdu6p96blzt` |
+| **Status** | completed (`JOB_STATE_SUCCEEDED`). Output downloaded and processed with local `process_gemini_batch_output.py` + `assemble_ranges_from_page_segments_continuation.py`. |
+
+**Token usage**
+
+| Field | Value |
+|--------|--------|
+| **Input (prompt) tokens** | 8,308 (`promptTokenCount`; breakdown: 4,696 TEXT + 3,612 IMAGE) |
+| **Output (candidates) tokens** | 1,630 (`candidatesTokenCount`) |
+| **Thinking tokens** | 7,069 (`thoughtsTokenCount`) |
+| **Total tokens** | 17,007 (`totalTokenCount`) |
+| **Source** | `response.usageMetadata` on the single line in `batch_artifacts/english_weekly_revision_primary_1.v02.output.jsonl` |
+
+**Artifacts (repo-relative)**
+
+| Stage | Path |
+|--------|------|
+| Batch input JSONL | `batch_artifacts/english_weekly_revision_primary_1.v02.jsonl` |
+| Job metadata | `batch_artifacts/english_weekly_revision_primary_1.v02.job.json` |
+| Job name (one line) | `batch_artifacts/english_weekly_revision_primary_1.v02.job_name.txt` |
+| Raw batch output | `batch_artifacts/english_weekly_revision_primary_1.v02.output.jsonl` |
+| Processed JSON | `batch_artifacts/english_weekly_revision_primary_1.v02.processed.json` |
+| Assembled mappings | `batch_artifacts/english_weekly_revision_primary_1.v02.assembled.json` |
+| Ground truth JSON | `pilot_ground_truth/english_weekly_revision_primary_1_ground_truth.json` |
+| Ground truth table | `pilot_ground_truth/english_weekly_revision_primary_1_ground_truth_table.md` |
+
+**Notes**
+
+- Page 5 index alignment corrected: `visible_unit_indices` includes `[21, 22, 23]` for `Assessment 1`, `Practice 21`, `Practice 22`.
+- Validation is clean: no missing unit indices within detected span; assembled mapping count is 42.
+- Imported to `pdf_file_manager`: 42 mappings imported with source `ground_truth_english_weekly_revision_primary_1_v02` (v01 source fully replaced).
+
+### english_weekly_revision_primary_1.v01 — English Weekly Revision Primary 1
+
+| Field | Value |
+|--------|--------|
+| **Run id** | `english_weekly_revision_primary_1.v01` |
+| **Logged** | 2026-04-15 |
+| **Pipeline** | split_book_answer_by_unit_using_ai v0.1.2 |
+| **Registry book label** | `English Weekly Revision Primary 1` |
+| **Gemini model** | `models/gemini-2.5-pro` |
+| **Batch request key** | `book:english_weekly_revision_primary_1:page_segments_continuation_gemini:p1_10` |
+| **Answer pages in batch** | 1-10 |
+| **Units in manifest** | 42 |
+| **Gemini batch job** | `batches/dmilmvxzstraztchbeshxopi4h3teol1o9ku` |
+| **Uploaded JSONL (API)** | `files/cllckp9cpalj` |
+| **Status** | completed (`JOB_STATE_SUCCEEDED`). Output downloaded and processed with local `process_gemini_batch_output.py` + `assemble_ranges_from_page_segments_continuation.py`. |
+
+**Token usage**
+
+| Field | Value |
+|--------|--------|
+| **Input (prompt) tokens** | 7,995 (`promptTokenCount`; breakdown: 4,383 TEXT + 3,612 IMAGE) |
+| **Output (candidates) tokens** | 1,755 (`candidatesTokenCount`) |
+| **Thinking tokens** | 4,545 (`thoughtsTokenCount`) |
+| **Total tokens** | 14,295 (`totalTokenCount`) |
+| **Source** | `response.usageMetadata` on the single line in `batch_artifacts/english_weekly_revision_primary_1.v01.output.jsonl` |
+
+**Artifacts (repo-relative)**
+
+| Stage | Path |
+|--------|------|
+| Batch input JSONL | `batch_artifacts/english_weekly_revision_primary_1.v01.jsonl` |
+| Job metadata | `batch_artifacts/english_weekly_revision_primary_1.v01.job.json` |
+| Job name (one line) | `batch_artifacts/english_weekly_revision_primary_1.v01.job_name.txt` |
+| Raw batch output | `batch_artifacts/english_weekly_revision_primary_1.v01.output.jsonl` |
+| Processed JSON | `batch_artifacts/english_weekly_revision_primary_1.v01.processed.json` |
+| Assembled mappings | `batch_artifacts/english_weekly_revision_primary_1.v01.assembled.json` |
+| Ground truth JSON | `pilot_ground_truth/english_weekly_revision_primary_1_ground_truth.json` |
+| Ground truth table | `pilot_ground_truth/english_weekly_revision_primary_1_ground_truth_table.md` |
+
+**Notes**
+
+- Build completed with `unit_count: 42`, answer pages `1-10`, and request size `6.87 MB`.
+- Assembled mapping count is 41; validation reports missing unit index `41` within detected span.
+- Imported to `pdf_file_manager`: 41 mappings imported with source `ground_truth_english_weekly_revision_primary_1_v01`.
+
 ### science_thematic_tests_and_exam_practice_primary_4.v01 — Science Thematic Tests and Exam Practice Primary 4
 
 | Field | Value |

@@ -1,4 +1,4 @@
-# Book Answer Page Segment Prompt v0.1.1
+# Book Answer Page Segment Prompt v0.1.2
 
 This prompt defines a constrained page-segmentation schema where continuation
 ownership is a separate scalar field.
@@ -20,12 +20,18 @@ Layout rules:
 
 Registry and heading rules:
 - The provided `unit_files` list is authoritative for valid registry indices and order.
+- `unit_index` values are IDs from the manifest, not numbers parsed from heading text.
+- Always map each visible heading to a `unit_index` by looking it up in `unit_files` (by heading label/unit label), never by arithmetic on heading numbers.
+- Never infer `visible_unit_indices` from labels like `Practice 22` -> `22`; the correct manifest index may differ.
+- Never shift indices to "stay sequential" if a non-practice unit (for example `Assessment 1`) appears in the manifest.
+- If a heading cannot be matched confidently to one manifest unit, do not guess; omit that index and explain in `notes`.
 - `visible_heading_labels` should record visible labels in reading order (for example `Practice A`, `1.5`, `Review 1`, `3.1`).
 - `visible_unit_indices` must include only registry units whose heading is visibly present on that page.
 - Do NOT place continuation-only units in `visible_unit_indices`.
 - Introduction or other non-registry content can appear. Use `non_registry_prefix` if non-registry content appears before the first registry heading on a page.
 - If the page is fully non-registry, set `visible_unit_indices` to [] and `continued_unit_index` to null.
 - If an out-of-scope heading appears (for example Unit 3 while scope is Unit 1-2), include it in `visible_heading_labels` and `notes` only. Do not invent registry indices.
+- Offset example (important): if manifest has `21 Assessment 1`, `22 Practice 21`, `23 Practice 22`, then a page showing headings `Assessment 1`, `Practice 21`, `Practice 22` must output `visible_unit_indices: [21, 22, 23]`.
 
 Continuation ownership rule (critical):
 - A page has at most one top-of-page continued registry unit.
@@ -37,10 +43,14 @@ Continuation ownership rule (critical):
 
 Decision procedure per page:
 1) Identify `visible_unit_indices` in reading order from visible headings.
+   - For each heading, do manifest lookup first (`unit_files`), then write the matched `unit_index`.
 2) Let f be the first visible registry index on that page (if any).
 3) Set `continued_unit_index`:
    - null if page starts at first visible heading (or page is non-registry)
    - the last identified answer unit before f only if there is clear top-of-page carryover before f
+4) Final check before outputting page row:
+   - Confirm every `visible_unit_indices` entry is present in `unit_manifest_indices`.
+   - Confirm every `visible_heading_labels` registry heading has a corresponding manifest-matched index unless explicitly marked ambiguous in `notes`.
 
 If uncertain, prefer `continued_unit_index: null` and explain ambiguity in `notes`.
 

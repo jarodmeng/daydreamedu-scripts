@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## v0.1.2 - 2026-04-15
+## v0.1.3 - 2026-04-15
 
 ### Added
 
@@ -8,7 +8,13 @@
 
 ### Changed
 
-- `README.md`: document v0.1.2 and benchmark usage.
+- `README.md`: document v0.1.3 and benchmark usage.
+
+## v0.1.2 - 2026-04-15
+
+### Changed
+
+- Continuation prompt (`prompts/book_answer_page_segments_continuation_prompt.md`): tightened manifest-index discipline for `visible_unit_indices` and clarified that unit indices must be selected by `unit_files` lookup (not inferred from visible heading numbers), including an explicit assessment-offset example.
 
 ## v0.1.1 - 2026-04-15
 

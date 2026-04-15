@@ -1,6 +1,6 @@
 # split_book_answer_by_unit_using_ai
 
-Version: **v0.1.2**
+Version: **v0.1.3**
 
 This utility detects answer-page ranges for per-unit files using a single production pipeline:
 
@@ -12,7 +12,9 @@ This utility detects answer-page ranges for per-unit files using a single produc
 
 **v0.1.1:** Continuation prompt clarified: `continued_unit_index` is the last answer-unit still continuing at the top of the page (skip manifest-only units with no answer section), with an explicit `08`→`10` example.
 
-**v0.1.2:** Added `benchmark_gemini_models.py` to run that pipeline across multiple Gemini models and print a quality/cost comparison table (see below).
+**v0.1.2:** Prompt tightened for strict manifest-index mapping: `visible_unit_indices` must be selected by `unit_files` lookup (never inferred directly from heading numbers), including an assessment-offset example.
+
+**v0.1.3:** Added `benchmark_gemini_models.py` to run that pipeline across multiple Gemini models and print a quality/cost comparison table (see below).
 
 ## Why this MVP exists
 
