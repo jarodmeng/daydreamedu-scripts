@@ -27,9 +27,9 @@ Convention: `✅` = full marks, `❌` = zero marks.
 
 ## Report Context
 
-- Attempt file: `/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/GoodNotes/Singapore Primary English/emma.rs.meng@gmail.com/P4/Book/Conquer English Vocabulary Primary 4/c_Conquer English Vocabulary Primary 4 - 011 Exercise 011.pdf`
-- Template book file: `/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary English/P4/Book/Conquer English Vocabulary Primary 4/_c_Conquer English Vocabulary Primary 4 - 011 Exercise 011.pdf`
-- Book answer file: `/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary English/P4/Book/Conquer English Vocabulary Primary 4/_c_Conquer English Vocabulary Primary 4 - 101 Answers.pdf`
+- Attempt file: `GOODNOTES_ROOT/Singapore Primary English/<student_email>/P4/Book/Conquer English Vocabulary Primary 4/c_Conquer English Vocabulary Primary 4 - 011 Exercise 011.pdf`
+- Template book file: `DAYDREAMEDU_ROOT/Singapore Primary English/P4/Book/Conquer English Vocabulary Primary 4/_c_Conquer English Vocabulary Primary 4 - 011 Exercise 011.pdf`
+- Book answer file: `DAYDREAMEDU_ROOT/Singapore Primary English/P4/Book/Conquer English Vocabulary Primary 4/_c_Conquer English Vocabulary Primary 4 - 101 Answers.pdf`
 - Answer page range for this exercise: `1-1`
 - Answer page note: Exercise 011 appears within answer page 1, between earlier and later exercises on the same page.
 - Mapping source: `linked-template mapping + manual visual verification`

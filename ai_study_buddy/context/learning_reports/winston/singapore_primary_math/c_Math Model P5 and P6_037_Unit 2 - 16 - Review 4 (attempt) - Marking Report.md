@@ -29,9 +29,9 @@ Convention: `✅` = full marks, `⚠️` = partial credit, `❌` = zero marks.
 
 ## Report Context
 
-- Attempt file: `/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/GoodNotes/Singapore Primary Math/winston.ry.meng@gmail.com/P6/Book/Model Drawing Made Easy and Inspiring for P5 and P6/c_Math Model P5 and P6_037_Unit 2 - 16 - Review 4 (attempt).pdf`
-- Template book file: `/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Math/P6/Book/Model Drawing Made Easy and Inspiring for P5 and P6/_c_Math Model P5 and P6_037_Unit 2 - 16 - Review 4.pdf`
-- Book answer file: `/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Math/P6/Book/Model Drawing Made Easy and Inspiring for P5 and P6/_c_Math Model P5 and P6 Worked Solutions.pdf`
+- Attempt file: `GOODNOTES_ROOT/Singapore Primary Math/<student_email>/P6/Book/Model Drawing Made Easy and Inspiring for P5 and P6/c_Math Model P5 and P6_037_Unit 2 - 16 - Review 4 (attempt).pdf`
+- Template book file: `DAYDREAMEDU_ROOT/Singapore Primary Math/P6/Book/Model Drawing Made Easy and Inspiring for P5 and P6/_c_Math Model P5 and P6_037_Unit 2 - 16 - Review 4.pdf`
+- Book answer file: `DAYDREAMEDU_ROOT/Singapore Primary Math/P6/Book/Model Drawing Made Easy and Inspiring for P5 and P6/_c_Math Model P5 and P6 Worked Solutions.pdf`
 - Answer page range for this exercise: `31-33`
 - Mapping source: `Found on linked template file (not directly on completion): attempt24_full_human_verified_2026-04-13`
 

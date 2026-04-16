@@ -48,9 +48,9 @@ Convention: `✅` = full marks, `⚠️` = partial credit, `❌` = zero marks.
 
 ## Report Context
 
-- Attempt file: `/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/GoodNotes/Singapore Primary English/emma.rs.meng@gmail.com/P4/Exam/c_p4.english.wa1.2.pdf`
-- Template book file: `/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary English/P4/Exam/_c_p4.english.wa1.2.pdf`
-- Book answer file: `/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary English/P4/Exam/_c_p4.english.wa1.2.pdf`
+- Attempt file: `GOODNOTES_ROOT/Singapore Primary English/<student_email>/P4/Exam/c_p4.english.wa1.2.pdf`
+- Template book file: `DAYDREAMEDU_ROOT/Singapore Primary English/P4/Exam/_c_p4.english.wa1.2.pdf`
+- Book answer file: `DAYDREAMEDU_ROOT/Singapore Primary English/P4/Exam/_c_p4.english.wa1.2.pdf`
 - Answer page range for this exercise: `13-13`
 - Mapping source: `No registry book-answer mapping found; answers were taken directly from page 13 of the paper as requested.`
 

@@ -21,9 +21,9 @@ Convention: `OK` = full marks, `PART` = partial credit, `X` = zero marks, `DQ` =
 
 ## Report Context
 
-- Attempt file: `/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/GoodNotes/Singapore Primary Math/emma.rs.meng@gmail.com/P4/Book/Math Model Drawing Made Easy and Inspiring Primary 3 and 4/c_Math Model Drawing Made Easy and Inspiring Primary 3 and 4 - 20 - Unit 2 - Skill 2.6.pdf`
-- Template book file: `/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Math/P4/Book/Math Model Drawing Made Easy and Inspiring Primary 3 and 4/_c_Math Model Drawing Made Easy and Inspiring Primary 3 and 4 - 20 - Unit 2 - Skill 2.6.pdf`
-- Book answer file: `/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Math/P4/Book/Math Model Drawing Made Easy and Inspiring Primary 3 and 4/_c_Math Model Drawing Made Easy and Inspiring Primary 3 and 4 - 77 - Worked Solutions.pdf`
+- Attempt file: `GOODNOTES_ROOT/Singapore Primary Math/<student_email>/P4/Book/Math Model Drawing Made Easy and Inspiring Primary 3 and 4/c_Math Model Drawing Made Easy and Inspiring Primary 3 and 4 - 20 - Unit 2 - Skill 2.6.pdf`
+- Template book file: `DAYDREAMEDU_ROOT/Singapore Primary Math/P4/Book/Math Model Drawing Made Easy and Inspiring Primary 3 and 4/_c_Math Model Drawing Made Easy and Inspiring Primary 3 and 4 - 20 - Unit 2 - Skill 2.6.pdf`
+- Book answer file: `DAYDREAMEDU_ROOT/Singapore Primary Math/P4/Book/Math Model Drawing Made Easy and Inspiring Primary 3 and 4/_c_Math Model Drawing Made Easy and Inspiring Primary 3 and 4 - 77 - Worked Solutions.pdf`
 - Answer page range for this exercise: `12-12`
 - Mapping source: `ground_truth_math_model_drawing_p3_p4_v01`
 

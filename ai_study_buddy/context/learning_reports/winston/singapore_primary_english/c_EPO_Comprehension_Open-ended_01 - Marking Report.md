@@ -29,9 +29,9 @@ Convention: `✅` = full marks, `⚠️` = partial credit, `❌` = zero marks.
 
 ## Report Context
 
-- Attempt file: `/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/GoodNotes/Singapore Primary English/winston.ry.meng@gmail.com/PSLE/Book/English Practice 1000/c_EPO_Comprehension_Open-ended_01.pdf`
-- Template book file: `/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary English/PSLE/Book/English Practice 1000/_c_EPO_Comprehension_Open-ended_01.pdf`
-- Book answer file: `/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary English/PSLE/Book/English Practice 1000/_c_EPO_Answers.pdf`
+- Attempt file: `GOODNOTES_ROOT/Singapore Primary English/<student_email>/PSLE/Book/English Practice 1000/c_EPO_Comprehension_Open-ended_01.pdf`
+- Template book file: `DAYDREAMEDU_ROOT/Singapore Primary English/PSLE/Book/English Practice 1000/_c_EPO_Comprehension_Open-ended_01.pdf`
+- Book answer file: `DAYDREAMEDU_ROOT/Singapore Primary English/PSLE/Book/English Practice 1000/_c_EPO_Answers.pdf`
 - Answer page range for this exercise: `9-10`
 - Answer page note: Practice 121 spans answer pages 9-10. It begins mid-page on page 9 and ends before the bottom of page 10.
 - Mapping source: `gemini_page_segments_ground_truth`

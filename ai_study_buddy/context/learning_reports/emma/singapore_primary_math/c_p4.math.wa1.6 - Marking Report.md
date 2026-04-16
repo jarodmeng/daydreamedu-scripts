@@ -33,9 +33,9 @@ Convention: `✅` = full marks, `⚠️` = partial credit, `❌` = zero marks.
 
 ## Report Context
 
-- Attempt file: `/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/GoodNotes/Singapore Primary Math/emma.rs.meng@gmail.com/P4/Exam/c_p4.math.wa1.6.pdf`
-- Template book file: `/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Math/P4/Exam/_c_p4.math.wa1.6.pdf`
-- Book answer file: `/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/GoodNotes/Singapore Primary Math/emma.rs.meng@gmail.com/P4/Exam/c_p4.math.wa1.6.pdf` (embedded answer key pages)
+- Attempt file: `GOODNOTES_ROOT/Singapore Primary Math/<student_email>/P4/Exam/c_p4.math.wa1.6.pdf`
+- Template book file: `DAYDREAMEDU_ROOT/Singapore Primary Math/P4/Exam/_c_p4.math.wa1.6.pdf`
+- Book answer file: `GOODNOTES_ROOT/Singapore Primary Math/<student_email>/P4/Exam/c_p4.math.wa1.6.pdf` (embedded answer key pages)
 - Answer page range for this exercise: `9-10`
 - Mapping source: `No registry mapping available for this unregistered completion; answers were taken from the file's own embedded answer key on pages 9-10, verified in two isolated-crop passes.`
 

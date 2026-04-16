@@ -52,8 +52,8 @@ Convention: `✅` = full marks, `⚠️` = partial credit, `❌` = zero marks. T
 
 ## Report Context
 
-- Attempt file: `/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/GoodNotes/Singapore Primary Science/emma.rs.meng@gmail.com/P4/Book/Science Thematic Tests and Exam Practice Primary 4/c_Science Thematic Tests and Exam Practice Primary 4 - 01 Systems Thematic Test 1.pdf`
-- Template book file: `/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Science/P4/Book/Science Thematic Tests and Exam Practice Primary 4/_c_Science Thematic Tests and Exam Practice Primary 4 - 01 Systems Thematic Test 1.pdf`
-- Book answer file: `/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Science/P4/Book/Science Thematic Tests and Exam Practice Primary 4/_c_Science Thematic Tests and Exam Practice Primary 4 - 12 Answers.pdf`
+- Attempt file: `GOODNOTES_ROOT/Singapore Primary Science/<student_email>/P4/Book/Science Thematic Tests and Exam Practice Primary 4/c_Science Thematic Tests and Exam Practice Primary 4 - 01 Systems Thematic Test 1.pdf`
+- Template book file: `DAYDREAMEDU_ROOT/Singapore Primary Science/P4/Book/Science Thematic Tests and Exam Practice Primary 4/_c_Science Thematic Tests and Exam Practice Primary 4 - 01 Systems Thematic Test 1.pdf`
+- Book answer file: `DAYDREAMEDU_ROOT/Singapore Primary Science/P4/Book/Science Thematic Tests and Exam Practice Primary 4/_c_Science Thematic Tests and Exam Practice Primary 4 - 12 Answers.pdf`
 - Answer page range for this test: `1-2`
 - Answer page note: pages `1-2` of the answers file are the `Systems Thematic Test 1 Chapter 1: Plant System` answer section

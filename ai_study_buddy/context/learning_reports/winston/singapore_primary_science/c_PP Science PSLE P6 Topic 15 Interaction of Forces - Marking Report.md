@@ -49,8 +49,8 @@ Convention: `✅` = full marks, `⚠️` = partial credit, `❌` = zero marks. T
 
 ## Report Context
 
-- Attempt file: `/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/GoodNotes/Singapore Primary Science/winston.ry.meng@gmail.com/PSLE/Book/Power Pack Science PSLE/c_PP Science PSLE P6 Topic 15 Interaction of Forces.pdf`
-- Template book file: `/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Science/PSLE/Book/Power Pack Science PSLE/_c_PP Science PSLE P6 Topic 15 Interaction of Forces.pdf`
-- Book answer file: `/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Science/PSLE/Book/Power Pack Science PSLE/_c_PP Science PSLE Answers.pdf`
+- Attempt file: `GOODNOTES_ROOT/Singapore Primary Science/<student_email>/PSLE/Book/Power Pack Science PSLE/c_PP Science PSLE P6 Topic 15 Interaction of Forces.pdf`
+- Template book file: `DAYDREAMEDU_ROOT/Singapore Primary Science/PSLE/Book/Power Pack Science PSLE/_c_PP Science PSLE P6 Topic 15 Interaction of Forces.pdf`
+- Book answer file: `DAYDREAMEDU_ROOT/Singapore Primary Science/PSLE/Book/Power Pack Science PSLE/_c_PP Science PSLE Answers.pdf`
 - Answer page range for this chapter: `29-31`
 - Answer page note: page `31` is a split page; only the top portion belongs to `P6 Topic 15 Interaction of Forces`

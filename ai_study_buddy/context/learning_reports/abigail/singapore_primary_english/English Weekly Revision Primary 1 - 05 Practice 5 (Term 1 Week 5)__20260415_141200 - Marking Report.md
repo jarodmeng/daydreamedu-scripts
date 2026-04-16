@@ -35,9 +35,9 @@ Convention: `✅` = full marks, `⚠️` = partial credit, `❌` = zero marks.
 
 ## Report Context
 
-- Attempt file: `/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/GoodNotes/Singapore Primary English/abigail.rg.meng@gmail.com/P1/Book/English Weekly Revision Primary 1/c_English Weekly Revision Primary 1 - 05 Practice 5 (Term 1 Week 5).pdf`
-- Template book file: `/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary English/P1/Book/English Weekly Revision Primary 1/_c_English Weekly Revision Primary 1 - 05 Practice 5 (Term 1 Week 5).pdf`
-- Book answer file: `/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary English/P1/Book/English Weekly Revision Primary 1/_c_English Weekly Revision Primary 1 - 43 Answers.pdf`
+- Attempt file: `GOODNOTES_ROOT/Singapore Primary English/<student_email>/P1/Book/English Weekly Revision Primary 1/c_English Weekly Revision Primary 1 - 05 Practice 5 (Term 1 Week 5).pdf`
+- Template book file: `DAYDREAMEDU_ROOT/Singapore Primary English/P1/Book/English Weekly Revision Primary 1/_c_English Weekly Revision Primary 1 - 05 Practice 5 (Term 1 Week 5).pdf`
+- Book answer file: `DAYDREAMEDU_ROOT/Singapore Primary English/P1/Book/English Weekly Revision Primary 1/_c_English Weekly Revision Primary 1 - 43 Answers.pdf`
 - Answer page range for this exercise: `1-1`
 - Mapping source: `ground_truth_english_weekly_revision_primary_1_v02`
 

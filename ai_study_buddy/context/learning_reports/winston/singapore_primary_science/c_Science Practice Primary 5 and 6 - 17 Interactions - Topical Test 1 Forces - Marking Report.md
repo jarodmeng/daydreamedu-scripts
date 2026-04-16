@@ -47,8 +47,8 @@ Convention: `✅` = full marks, `⚠️` = partial credit, `❌` = zero marks. T
 
 ## Report Context
 
-- Attempt file: `/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/GoodNotes/Singapore Primary Science/winston.ry.meng@gmail.com/P6/Book/Science Practice Primary 5 and 6/c_Science Practice Primary 5 and 6 - 17 Interactions - Topical Test 1 Forces.pdf`
-- Template book file: `/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Science/P6/Book/Science Practice Primary 5 and 6/_c_Science Practice Primary 5 and 6 - 17 Interactions - Topical Test 1 Forces.pdf`
-- Book answer file: `/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Science/P6/Book/Science Practice Primary 5 and 6/_c_Science Practice Primary 5 and 6 - 26 Answers.pdf`
+- Attempt file: `GOODNOTES_ROOT/Singapore Primary Science/<student_email>/P6/Book/Science Practice Primary 5 and 6/c_Science Practice Primary 5 and 6 - 17 Interactions - Topical Test 1 Forces.pdf`
+- Template book file: `DAYDREAMEDU_ROOT/Singapore Primary Science/P6/Book/Science Practice Primary 5 and 6/_c_Science Practice Primary 5 and 6 - 17 Interactions - Topical Test 1 Forces.pdf`
+- Book answer file: `DAYDREAMEDU_ROOT/Singapore Primary Science/P6/Book/Science Practice Primary 5 and 6/_c_Science Practice Primary 5 and 6 - 26 Answers.pdf`
 - Answer page range for this test: `22-24`
 - Answer page note: page `24` is a split page; only the top portion belongs to `Interactions - Topical Test 1 Forces`

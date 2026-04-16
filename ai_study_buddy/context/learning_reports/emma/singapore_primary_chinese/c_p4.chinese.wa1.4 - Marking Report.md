@@ -31,9 +31,9 @@ Convention: `✅` = full marks, `⚠️` = partial credit, `❌` = zero marks.
 
 ## Report Context
 
-- Attempt file: `/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/GoodNotes/Singapore Primary Chinese/emma.rs.meng@gmail.com/P4/Exam/c_p4.chinese.wa1.4.pdf`
-- Template book file: `/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Chinese/P4/Exam/_c_p4.chinese.wa1.4.pdf`
-- Book answer file: `/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/GoodNotes/Singapore Primary Chinese/emma.rs.meng@gmail.com/P4/Exam/c_p4.chinese.wa1.4.pdf`
+- Attempt file: `GOODNOTES_ROOT/Singapore Primary Chinese/<student_email>/P4/Exam/c_p4.chinese.wa1.4.pdf`
+- Template book file: `DAYDREAMEDU_ROOT/Singapore Primary Chinese/P4/Exam/_c_p4.chinese.wa1.4.pdf`
+- Book answer file: `GOODNOTES_ROOT/Singapore Primary Chinese/<student_email>/P4/Exam/c_p4.chinese.wa1.4.pdf`
 - Answer page range for this exercise: `10-10`
 - Mapping source: `No registry book-answer mapping found for this exam file; answers were taken directly from page 10 of the completion file as requested.`
 
