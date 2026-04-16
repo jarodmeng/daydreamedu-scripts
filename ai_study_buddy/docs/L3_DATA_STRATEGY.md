@@ -22,6 +22,8 @@ This is the single most important design choice for cost control and tutoring qu
 
 **Don't think in PDFs or pages. Think in questions.**
 
+Refinement: for some subjects, especially English and Chinese comprehension, the system should think in **shared stimuli + questions** rather than flattening everything into isolated question crops. A passage, dialogue, visual text, cloze paragraph, or table may be reused by many question objects.
+
 A question object stores:
 
 | Field | Description |
@@ -30,9 +32,11 @@ A question object stores:
 | `grade` | e.g., P6 |
 | `paper_id` | e.g., "2026 WA1 PP3 Standard Math" |
 | `date` | e.g., 19 Feb 2026 |
-| `question_no` | e.g., 6, 14b |
-| `max_marks` | From paper structure |
+| `question_no` | e.g., 6, 15 |
+| `max_marks` | Total marks for this question (sum of sub-part marks if multi-part) |
 | `earned_marks` | From teacher marking / page subtotals |
+| `is_multi_part` | Whether the question has individually gradeable sub-parts |
+| `sub_parts` | Array of sub-part results (marks, answer, error tags per sub-part) |
 | `answer_region_bbox` | Bounding box for child's final answer |
 | `working_region_bbox` | Bounding box for child's workings |
 | `teacher_feedback_bbox` | Bounding box for teacher corrections/notes |
@@ -43,7 +47,17 @@ A question object stores:
 | `drive_file_id` | Reference back to the Drive PDF |
 | `page_number` | Which page in the PDF |
 
+The atomic unit is the **question** (Q15, Q33), not the sub-part. Multi-part questions (Q15(a), Q15(b), etc.) store sub-part detail inside the question's `sub_parts` array. This mirrors the `unit_question_index` schema — see [L4_QUESTION_INDEX_SCHEMA.md](./L4_QUESTION_INDEX_SCHEMA.md) for the full schema and the marking output schema.
+
 **Why this matters:** The tutor almost always works with one question crop + a few relevant chunks + the child's mastery summary. This keeps token usage and OCR usage bounded.
+
+### Shared-stimulus blocks
+
+Stimulus blocks are reserved for material shared across **different questions** (different question numbers). This is rare for science/math — in the 2023 PSLE pilot, zero stimulus blocks were needed because every diagram/table accompanies a single question.
+
+Stimulus blocks become important for English/Chinese comprehension, where a passage is referenced by multiple independently numbered questions (e.g., Q66–Q75 all depend on the same reading passage).
+
+Diagrams/tables that accompany a single question (even a multi-part question) are included in that question's `prompt_regions`, not as a separate stimulus block.
 
 ---
 
@@ -102,6 +116,8 @@ If the PDF has selectable text:
 2. Chunk by question numbers using regex cues (Q1, 1(a), "Section B", "[5]", etc.)
 3. Create question objects with page references
 
+For comprehension-style documents, also detect likely shared stimuli (passages, cloze paragraphs, visual texts) and link downstream question objects to them.
+
 **AI not required** unless the layout is unusual.
 
 #### Tier 2 — Scanned but structured (mostly rule-based)
@@ -109,7 +125,8 @@ For common school templates (like WA papers):
 1. Python renders pages to images
 2. Layout heuristics: find "Question X" anchors, detect mark brackets "[5]", detect score boxes
 3. Crop each question region + working region
-4. Store crops + minimal OCR of printed text only
+4. When a passage / diagram / visual text is shared across multiple questions, crop and store it once as a shared stimulus asset
+5. Store crops + minimal OCR of printed text only
 
 **AI used only for:** refining boundaries, reading score box values.
 
@@ -127,8 +144,8 @@ Call a vision-capable model on **cropped regions** (not whole pages):
 |------|------|-----|
 | 0. Preflight | Digital or scanned? How many pages? Known template? | Python |
 | 1. Page materialization | Render scanned pages to PNG; keep text for digital | Python |
-| 2. Page-level extraction | Section boundaries, question numbering, mark brackets; if low confidence → AI layout parser | Python-first |
-| 3. Create question objects | Page number, bounding boxes, max marks | Python |
+| 2. Page-level extraction | Section boundaries, question numbering, mark brackets, shared-stimulus candidates; if low confidence → AI layout parser | Python-first |
+| 3. Create question objects | Page number, bounding boxes, max marks, stimulus links | Python |
 | 4. Marking & score extraction | Score boxes ("2/4"), ticks/crosses, teacher corrections | AI or rules |
 | 5. Tagging | Skill tags (rules + taxonomy, optionally AI-proposed); error tags (AI-proposed, confirmed over time) | Hybrid |
 | 6. Persist + cache | Save JSON extraction, crops, indices, embeddings; update student model | Python |
@@ -139,6 +156,7 @@ Call a vision-capable model on **cropped regions** (not whole pages):
 
 Early on, the pipeline should output a **review screen** showing:
 - Detected questions with bounding boxes
+- Detected shared stimuli / passages with linked question groups
 - Extracted marks
 - Quick-fix UI for boundaries, marks, question numbering, tags
 

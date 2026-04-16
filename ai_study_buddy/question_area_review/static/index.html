@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Question Index Review Tool</title>
+    <link rel="stylesheet" href="/review.css" />
+  </head>
+  <body>
+    <div class="app">
+      <aside class="sidebar">
+        <h1>Question Index Review</h1>
+        <p class="subtitle" id="doc-meta">Loading review session...</p>
+
+        <div class="group progress-panel">
+          <div class="progress-row">
+            <strong id="progress-text">0 / 0 reviewed</strong>
+            <span id="index-status" class="pill">generated</span>
+          </div>
+          <div class="progress-bar"><div id="progress-fill"></div></div>
+        </div>
+
+        <div class="group nav-row">
+          <button id="back-btn" type="button">Back</button>
+          <button id="skip-btn" type="button">Skip</button>
+          <button id="next-unreviewed-btn" type="button">Next Unreviewed</button>
+        </div>
+
+        <div class="group action-row">
+          <button id="accept-btn" type="button" class="primary">Accept</button>
+          <button id="save-btn" type="button" class="accent">Save Adjustment</button>
+        </div>
+
+        <div class="group detail">
+          <div class="detail-head">
+            <h2 id="question-label">Question</h2>
+            <span id="review-status" class="pill pill-muted">unreviewed</span>
+          </div>
+          <div class="meta" id="question-meta"></div>
+          <p id="question-text"></p>
+        </div>
+
+        <div class="group detail">
+          <div class="detail-head">
+            <h2>Editable Region</h2>
+            <select id="edit-target-select"></select>
+          </div>
+          <div class="detail-head">
+            <select id="region-select"></select>
+          </div>
+          <div class="coords-grid">
+            <label>Page<input id="field-page" type="number" min="1" step="1" /></label>
+            <label>x1<input id="field-x1" type="number" min="0" max="1" step="0.001" /></label>
+            <label>y1<input id="field-y1" type="number" min="0" max="1" step="0.001" /></label>
+            <label>x2<input id="field-x2" type="number" min="0" max="1" step="0.001" /></label>
+            <label>y2<input id="field-y2" type="number" min="0" max="1" step="0.001" /></label>
+          </div>
+          <div class="hint">Drag inside the box to move it, or drag an edge or corner to resize.</div>
+        </div>
+
+        <div class="group detail">
+          <h2>Stimulus</h2>
+          <div id="stimulus-meta" class="meta">None</div>
+          <p id="stimulus-text">No linked stimulus block.</p>
+        </div>
+
+        <div class="group detail">
+          <h2>Shortcuts</h2>
+          <div class="shortcut-list">
+            <div><kbd>Enter</kbd> or <kbd>A</kbd> accept</div>
+            <div><kbd>S</kbd> save adjustment</div>
+            <div><kbd>→</kbd> skip</div>
+            <div><kbd>←</kbd> back</div>
+          </div>
+        </div>
+
+        <div class="group detail">
+          <h2>Save State</h2>
+          <div id="save-state" class="meta">No changes yet.</div>
+        </div>
+      </aside>
+
+      <main class="main">
+        <div class="review-grid">
+          <section class="panel">
+            <div class="panel-head">
+              <h2>Crop Preview</h2>
+              <div class="meta" id="crop-meta"></div>
+            </div>
+            <div class="crop-frame">
+              <canvas id="crop-canvas"></canvas>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-head">
+              <h2>Full Page</h2>
+              <div class="meta" id="page-meta"></div>
+            </div>
+            <div class="page-wrap" id="page-wrap">
+              <img id="page-image" class="page-image" alt="Current page" />
+              <div id="overlay" class="overlay"></div>
+            </div>
+          </section>
+        </div>
+      </main>
+    </div>
+
+    <script src="/review.js"></script>
+  </body>
+</html>
