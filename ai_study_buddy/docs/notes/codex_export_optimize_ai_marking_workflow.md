@@ -34,7 +34,7 @@ to do that
 3) find the book to which the unit file belongs to (this data is also in the registry)
 4) find the page range of the unit's answer in the book's answer file (now this informaton is in the registry too)
 5) visually inspect question 1-10 from Emma's working and also those questions' answers
-6) mark and generate a learning report like the ones in the [learning_reports](ai_study_buddy/context/singapore_primary_science/learning_reports) folder.
+6) mark and generate a learning report like the ones in the [learning_reports](ai_study_buddy/context/learning_reports) folder (per student and subject, e.g. `emma/singapore_primary_science/`).
 
 I wonder what can be done to make this process much more efficient and less costly (in terms of time and tokens).
 
@@ -325,7 +325,7 @@ Example output:
 
 ```json
 {
-  "student_id": "emma.rs.meng@gmail.com",
+  "student_id": "<Emma's email>",
   "student_name": "Emma",
   "attempt_file_id": "file_attempt_123",
   "attempt_file_path": "/.../GoodNotes/.../c_Science Practice Primary 5 and 6 - 17 Interactions - Topical Test 1 Forces.pdf",
@@ -486,7 +486,7 @@ Next good step would be adding tests for the resolver against your fixture regis
 - 07-book-answer-mapping.md: ai_study_buddy/pdf_file_manager/docs/proposals/07-book-answer-mapping.md
 
 ## My request for Codex:
-we need to think more carefully about question_start and question_end. this is assuming that each unit has continuously increasing question index. take a look at [c_Science Thematic Tests and Exam Practice Primary 4 - 01 Systems Thematic Test 1 - Marking Report.md](ai_study_buddy/context/singapore_primary_science/learning_reports/emma/c_Science Thematic Tests and Exam Practice Primary 4 - 01 Systems Thematic Test 1 - Marking Report.md)  Marking Table. Sometimes the question index restarts when it's a different section. In this example, the first section is MCQ and the second section is open-ended questions.
+we need to think more carefully about question_start and question_end. this is assuming that each unit has continuously increasing question index. take a look at [c_Science Thematic Tests and Exam Practice Primary 4 - 01 Systems Thematic Test 1 - Marking Report.md](ai_study_buddy/context/learning_reports/emma/singapore_primary_science/c_Science Thematic Tests and Exam Practice Primary 4 - 01 Systems Thematic Test 1 - Marking Report.md)  Marking Table. Sometimes the question index restarts when it's a different section. In this example, the first section is MCQ and the second section is open-ended questions.
 
 
 ### Assistant — *commentary* (2026-04-09T15:27:44.188Z)
@@ -503,7 +503,7 @@ I’m updating the import check to match the new contract. The resolver should n
 
 ### Assistant — *final_answer* (2026-04-09T15:28:20.713Z)
 
-You were right to flag that. Looking at the Marking Table in [c_Science Thematic Tests and Exam Practice Primary 4 - 01 Systems Thematic Test 1 - Marking Report.md](/Users/jarodm/github/jarodmeng/daydreamedu-scripts/ai_study_buddy/context/singapore_primary_science/learning_reports/emma/c_Science%20Thematic%20Tests%20and%20Exam%20Practice%20Primary%204%20-%2001%20Systems%20Thematic%20Test%201%20-%20Marking%20Report.md), the unit has both a first block `Q1` to `Q10` and then a restarted sequence like `Q1(a)`, `Q2(a)`, `Q6(c)(ii)`. So `question_start` / `question_end` was the wrong contract for the resolver.
+You were right to flag that. Looking at the Marking Table in [c_Science Thematic Tests and Exam Practice Primary 4 - 01 Systems Thematic Test 1 - Marking Report.md](/Users/jarodm/github/jarodmeng/daydreamedu-scripts/ai_study_buddy/context/learning_reports/emma/singapore_primary_science/c_Science%20Thematic%20Tests%20and%20Exam%20Practice%20Primary%204%20-%2001%20Systems%20Thematic%20Test%201%20-%20Marking%20Report.md), the unit has both a first block `Q1` to `Q10` and then a restarted sequence like `Q1(a)`, `Q2(a)`, `Q6(c)(ii)`. So `question_start` / `question_end` was the wrong contract for the resolver.
 
 I updated the new marking package to stop assuming a single continuous question index. `resolve_marking_context()` now accepts:
 - `question_request`: raw user wording like `"MCQ Q1-10"` or `"Section B Q1(a)-Q4(d)"`
