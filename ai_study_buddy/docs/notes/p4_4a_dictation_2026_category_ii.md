@@ -3,7 +3,7 @@
 **来源：** `四年级 上半年 听写词语.pdf`（PLMGS 2026 4A；ScanSnap 扫描件）  
 **字库：** 文末「HWXNet 字库对齐」表使用仓库内 [`chinese_chr_app/data/extracted_characters_hwxnet.json`](../../../chinese_chr_app/data/extracted_characters_hwxnet.json)（应用 HWXNet 字库，与 `hwxnet_characters` 同源内容）。  
 **读音数据：** category (ii) 的去重 **`character + reading`** 数据集见 [`p4_4a_dictation_2026_category_ii_readings.json`](./p4_4a_dictation_2026_category_ii_readings.json)。该 JSON 现为本笔记的**读音层级权威输出**。  
-**学习者：** Emma（`emma.rs.meng@gmail.com`）在中文识字应用中的 **拼音识读（Pinyin Recall）** 字库与 category (ii) 的交叉统计见下文 **「Emma · 拼音识读」** 一节。  
+**学习者：** Emma（`<Emma's email>`）在中文识字应用中的 **拼音识读（Pinyin Recall）** 字库与 category (ii) 的交叉统计见下文 **「Emma · 拼音识读」** 一节。  
 **说明：** **Category (i)** = 版式用字（如「听写二」「默写三」「日期」「姓名」「班级」、课文括号标题等）。**Category (ii)** = 听写句与默写句正文里的全部汉字（含句内非下划线部分；不含拼音行、不含手写英文批注）。
 
 下列正文为人工按扫描页整理，个别字形若与纸质版有异，以**学校发的纸质原件**为准。
@@ -232,7 +232,7 @@
 
 ## Emma · 拼音识读（Pinyin Recall）与 category (ii)
 
-**账号：** `emma.rs.meng@gmail.com`（Supabase Auth）  
+**账号：** `<Emma's email>`（Supabase Auth）  
 **数据来源：** 生产库表 `pinyin_recall_unit_bank`（[`database.py`](../../../chinese_chr_app/chinese_chr_app/backend/database.py) 中 `get_pinyin_recall_learning_state`）。一行对应一个 **reading unit**（`character` + 某一读音）；同一字多音会占多行。  
 **快照日期：** 2026-04-02（直连 Postgres 查询；日后更新请重新跑查询并改本节数字与列表）。
 
@@ -268,7 +268,7 @@
 
 </details>
 
-**刷新本节：** 在 `DATABASE_URL` / `SUPABASE_DB_URL` 可连库且能读 `auth.users` 时：用 `SELECT id FROM auth.users WHERE email = 'emma.rs.meng@gmail.com'` 得到 `user_id`，再查 `pinyin_recall_unit_bank` 的 `COUNT(*)`、`COUNT(DISTINCT character)`、`character` + `reading_key` + `score`，分别与 [`p4_4a_dictation_2026_category_ii_readings.json`](./p4_4a_dictation_2026_category_ii_readings.json) 的 **汉字集** 与 **`character + reading` 集** 求交/差及 **掌握**（`score >= 20`）统计后更新上表与折叠块。仓库内可参考 [`query_character_for_user.py`](../../../chinese_chr_app/chinese_chr_app/backend/scripts/utils/query_character_for_user.py) 的邮箱解析写法。
+**刷新本节：** 在 `DATABASE_URL` / `SUPABASE_DB_URL` 可连库且能读 `auth.users` 时：用 `SELECT id FROM auth.users WHERE email = $$<Emma's email>$$` 得到 `user_id`，再查 `pinyin_recall_unit_bank` 的 `COUNT(*)`、`COUNT(DISTINCT character)`、`character` + `reading_key` + `score`，分别与 [`p4_4a_dictation_2026_category_ii_readings.json`](./p4_4a_dictation_2026_category_ii_readings.json) 的 **汉字集** 与 **`character + reading` 集** 求交/差及 **掌握**（`score >= 20`）统计后更新上表与折叠块。仓库内可参考 [`query_character_for_user.py`](../../../chinese_chr_app/chinese_chr_app/backend/scripts/utils/query_character_for_user.py) 的邮箱解析写法。
 
 ---
 
