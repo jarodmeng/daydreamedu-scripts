@@ -20,6 +20,7 @@ see that the script ran even when it skipped because there were no changes).
 import argparse
 import os
 import shutil
+import sys
 from datetime import datetime
 from pathlib import Path
 from typing import Optional
