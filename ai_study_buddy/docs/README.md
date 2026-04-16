@@ -49,6 +49,7 @@ Actionable plans for building specific components. Each L4 doc drills into one d
 | Document | What it covers |
 |----------|---------------|
 | [INGESTION_PIPELINE](./L4_INGESTION_PIPELINE.md) | PDF-to-question-object pipeline: steps, tools, schema, review workflow, MVP scope |
+| [FILE_SYSTEM_MANAGEMENT](./L4_FILE_SYSTEM_MANAGEMENT.md) | Shared `ai_study_buddy.files` proposal for root resolution and policy-driven leaf-folder traversal across DaydreamEdu/GoodNotes |
 
 ## Sources and attribution
 
