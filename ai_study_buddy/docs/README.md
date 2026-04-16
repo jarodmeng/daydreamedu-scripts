@@ -44,12 +44,15 @@ Detailed documentation on specific aspects of the project.
 
 ### Level 4 — Implementation Proposals
 
-Actionable plans for building specific components. Each L4 doc drills into one deliverable with technology choices, schema, workflow, and MVP scope.
+Actionable plans for building specific components. Each L4 doc drills into one deliverable with technology choices, schema, workflow, and MVP scope (see the status callout at the top of each file for proposal vs shipped).
 
 | Document | What it covers |
 |----------|---------------|
 | [INGESTION_PIPELINE](./L4_INGESTION_PIPELINE.md) | PDF-to-question-object pipeline: steps, tools, schema, review workflow, MVP scope |
+| [QUESTION_INDEX_SCHEMA](./L4_QUESTION_INDEX_SCHEMA.md) | Proposal (v2): `unit_question_index` — per-template question layout and semantics (vision-LLM pass), bridge between registered template PDFs and enriched `question_objects` / embeddings |
 | [FILE_SYSTEM_MANAGEMENT](./L4_FILE_SYSTEM_MANAGEMENT.md) | Shared `ai_study_buddy.files` proposal for root resolution and policy-driven leaf-folder traversal across DaydreamEdu/GoodNotes |
+| [MARKING_RESULT_ARTIFACT](./L4_MARKING_RESULT_ARTIFACT.md) | `marking_result.v1` (implemented): file-canonical JSON marking artifact, human-editable review fields, markdown learning reports derived from JSON, GoodNotes-oriented workflow |
+| [STUDENT_MVP_EXPERIENCE](./L4_STUDENT_MVP_EXPERIENCE.md) | Proposal (v0.1): first student-facing MVP — picker, "my workings" (GoodNotes completions), marking readiness, opening per-question outcomes from canonical JSON |
 
 ## Sources and attribution
 
@@ -60,6 +63,7 @@ Each document draws from two sources, clearly labeled:
 
 ## How to edit these documents
 
+- **Follow proposal instructions for implementation proposals.** For any new or substantially updated proposal in this folder (especially `L4_*`), follow [PROPOSAL_WRITING_INSTRUCTIONS](./PROPOSAL_WRITING_INSTRUCTIONS.md), including the mandatory detailed implementation-monitoring TODO checklist.
 - **Resolve open questions.** Most documents end with an "Open Questions" section listing decisions that haven't been made yet. As you make decisions, move the answers into the relevant sections and remove them from the open questions list.
 - **Update as you build.** When design choices become implementation decisions, update the relevant document to reflect what was actually built (and why, if it differs from the original recommendation).
 - **Add new research.** If you have a conversation with another AI or do your own research, add findings to the relevant document with a clear attribution header (model name, date). Keep the raw transcript in `research/ai_chats/` with the naming convention `YYYYMMDD__<model>__<topic>.md`.
