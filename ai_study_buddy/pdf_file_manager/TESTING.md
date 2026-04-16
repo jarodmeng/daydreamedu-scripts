@@ -2,6 +2,8 @@
 
 Tests are defined at the **utility level**: one test suite for the pdf_file_manager, with unit and integration tests. No end-to-end tests against the real DaydreamEdu drive; all tests use temporary DBs and temp directories.
 
+**Related:** Root resolution and leaf-folder traversal live in **`ai_study_buddy/files/`**. See [`../files/TESTING.md`](../files/TESTING.md) for fixture layout and pytest commands.
+
 ---
 
 ## Test levels

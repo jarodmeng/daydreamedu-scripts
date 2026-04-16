@@ -6,9 +6,9 @@ A local utility that keeps a SQLite registry of PDF files in the study archive. 
 
 **Typical workflow:** Add scan roots (e.g. Google Drive folders) and students → run **scan** on the exact folder you want to ingest → **classify** with `doc_type`, `subject`, and metadata → use **suggest-groups** for exams, or let scan infer/group `.../Book/<book name>/...` folders as books, then link templates as needed. Only main files are ingested by the pipeline; raw archives are kept for traceability.
 
-**DaydreamEdu folder on disk:** Set `DAYDREAMEDU_ROOT` or create `local_daydreamedu_root.txt` (gitignored; copy from [`local_daydreamedu_root.example.txt`](./local_daydreamedu_root.example.txt)). Call **`resolve_daydreamedu_root()`** in [`pdf_file_manager.py`](./pdf_file_manager.py) to read it. See [ARCHITECTURE.md § Local DaydreamEdu root](./ARCHITECTURE.md#local-daydreamedu-root-not-in-git).
+**DaydreamEdu folder on disk:** Set `DAYDREAMEDU_ROOT` or create `ai_study_buddy/local_daydreamedu_root.txt` (gitignored; copy from [`../local_daydreamedu_root.example.txt`](../local_daydreamedu_root.example.txt)). Call **`resolve_daydreamedu_root()`** in [`../files/roots.py`](../files/roots.py) to read it. See [ARCHITECTURE.md § Local DaydreamEdu root](./ARCHITECTURE.md#local-daydreamedu-root-not-in-git).
 
-**GoodNotes folder on disk:** Set `GOODNOTES_ROOT` or create `local_goodnotes_root.txt` (gitignored; copy from [`local_goodnotes_root.example.txt`](./local_goodnotes_root.example.txt)), or rely on sibling discovery when `GoodNotes` sits next to the resolved DaydreamEdu root. Call **`resolve_goodnotes_root()`** in [`pdf_file_manager.py`](./pdf_file_manager.py). See [ARCHITECTURE.md § Local GoodNotes root](./ARCHITECTURE.md#local-goodnotes-root-not-in-git).
+**GoodNotes folder on disk:** Set `GOODNOTES_ROOT` or create `ai_study_buddy/local_goodnotes_root.txt` (gitignored; copy from [`../local_goodnotes_root.example.txt`](../local_goodnotes_root.example.txt)), or rely on sibling discovery when `GoodNotes` sits next to the resolved DaydreamEdu root. Call **`resolve_goodnotes_root()`** in [`../files/roots.py`](../files/roots.py). See [ARCHITECTURE.md § Local GoodNotes root](./ARCHITECTURE.md#local-goodnotes-root-not-in-git).
 
 **Raw/main parity:** Linked raw and main records represent the same logical document in two file forms. Document-level metadata such as `subject`, `doc_type`, `student_id`, `is_template`, and core metadata fields is expected to stay in sync across the pair. The manager now enforces that parity during metadata updates and includes a repair helper for older drift.
 
@@ -32,6 +32,7 @@ For a quick reference on file-level metadata vs group-level fields (including `m
 
 | Doc | Contents |
 |-----|----------|
+| [files package](../files/README.md) | Root resolution and leaf-folder traversal (`ai_study_buddy.files`): [SPEC](../files/SPEC.md), [TESTING](../files/TESTING.md), [CHANGELOG](../files/CHANGELOG.md) |
 | [ARCHITECTURE.md](./ARCHITECTURE.md) | Source folder layout, schema, file naming, metadata, integrations |
 | [DATA_MODEL.md](./DATA_MODEL.md) | File metadata fields, group fields, unit-vs-group semantics, returned data classes |
 | [MCP.md](./MCP.md) | MCP server transports, tool modes, and client connection examples |
@@ -101,7 +102,7 @@ python3 -m ai_study_buddy.pdf_file_manager.pdf_file_manager_mcp_server --db /pat
 
 The registry DB (`ai_study_buddy/db/pdf_registry.db`) is gitignored. To back it up to the cloud **without** committing it to GitHub, copy it into a folder that syncs to the cloud (e.g. Google Drive on your Mac):
 
-1. **Default backup location:** `<DaydreamEdu root>/db`, where the DaydreamEdu root comes from `DAYDREAMEDU_ROOT` or the first path line in `pdf_file_manager/local_daydreamedu_root.txt` (see `resolve_daydreamedu_root()`). Override with `PDF_REGISTRY_BACKUP_DIR` or `--dest` if needed.
+1. **Default backup location:** `<DaydreamEdu root>/db`, where the DaydreamEdu root comes from `DAYDREAMEDU_ROOT` or the first path line in `ai_study_buddy/local_daydreamedu_root.txt` (see `resolve_daydreamedu_root()`). Override with `PDF_REGISTRY_BACKUP_DIR` or `--dest` if needed.
 
 2. **Run the backup script** from the repo root or from `ai_study_buddy/`:
    ```bash

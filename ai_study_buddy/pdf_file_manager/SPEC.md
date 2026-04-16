@@ -338,8 +338,8 @@ mgr.add_scan_root(
     student_id="emma"
 )
 mgr.add_scan_root(
-    "/path/to/My Drive/DaydreamEdu"  # or os.environ["DAYDREAMEDU_ROOT"], or resolve_daydreamedu_root()
-    # GoodNotes scan roots: os.environ["GOODNOTES_ROOT"], local_goodnotes_root.txt, or resolve_goodnotes_root()
+    "/path/to/My Drive/DaydreamEdu"  # or os.environ["DAYDREAMEDU_ROOT"], or ai_study_buddy/files/roots.py::resolve_daydreamedu_root()
+    # GoodNotes scan roots: os.environ["GOODNOTES_ROOT"], ai_study_buddy/local_goodnotes_root.txt, or resolve_goodnotes_root()
 )
 
 # Scan + auto-compress

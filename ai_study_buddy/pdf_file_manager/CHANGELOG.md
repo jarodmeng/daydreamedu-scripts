@@ -4,12 +4,28 @@ All notable changes to the pdf_file_manager utility are documented here.
 
 ---
 
+## [v0.3.1] — Filesystem utilities extracted to `ai_study_buddy.files`
+
+- Moved root resolver ownership to `ai_study_buddy/files/roots.py`:
+  - `resolve_daydreamedu_root()`
+  - `resolve_goodnotes_root()`
+- Removed root resolver definitions/exports from `pdf_file_manager` and migrated Python call sites to the new module.
+- Added shared leaf-folder traversal helpers in `ai_study_buddy/files/leaf_folders.py`:
+  - `list_leaf_folders_under_root(...)`
+  - `list_daydreamedu_leaf_folders_under_root(...)`
+  - `list_goodnotes_leaf_folders_under_root(...)`
+- Moved local root config files from `ai_study_buddy/pdf_file_manager/` to `ai_study_buddy/`:
+  - `local_daydreamedu_root.txt` / `.example.txt`
+  - `local_goodnotes_root.txt` / `.example.txt`
+- Updated docs/commands/skills and backup scripts to use new resolver ownership and new local config file locations.
+- Added focused test coverage under `ai_study_buddy/files/tests/` (on-disk fixtures in `files/tests/fixtures/`) for root resolution and leaf-folder traversal.
+
 ## [v0.3.0] — Package-standardized imports and invocation
 
 - Standardized `PdfFileManager` usage on package paths:
   - canonical import: `from ai_study_buddy.pdf_file_manager.pdf_file_manager import ...`
   - package re-export: `from ai_study_buddy.pdf_file_manager import ...`
-- Added `ai_study_buddy/pdf_file_manager/__init__.py` public exports for manager types, exceptions, and root resolvers.
+- Added `ai_study_buddy/pdf_file_manager/__init__.py` public exports for manager types and exceptions.
 - Migrated runtime, scripts, MCP modules, and test suite away from bare `from pdf_file_manager import ...` imports and related `sys.path` manipulation used only for import resolution.
 - Updated operational docs to align with package invocation:
   - `README.md`, `MCP.md`, `SPEC.md`, `DECISIONS.md`, and learning notes
@@ -38,7 +54,7 @@ All notable changes to the pdf_file_manager utility are documented here.
 
 ## [v0.2.10] — GoodNotes root resolution
 
-- Added **`resolve_goodnotes_root()`** with **`GOODNOTES_ROOT`**, gitignored **`local_goodnotes_root.txt`** (see [`local_goodnotes_root.example.txt`](./local_goodnotes_root.example.txt)), and **sibling discovery** (`DaydreamEdu`’s parent + `GoodNotes`) when the DaydreamEdu root is already configured.
+- Added **`resolve_goodnotes_root()`** with **`GOODNOTES_ROOT`**, gitignored **`local_goodnotes_root.txt`** (see [`../local_goodnotes_root.example.txt`](../local_goodnotes_root.example.txt)), and **sibling discovery** (`DaydreamEdu`’s parent + `GoodNotes`) when the DaydreamEdu root is already configured.
 - Updated repo [`.gitignore`](../../.gitignore), [`ARCHITECTURE.md`](./ARCHITECTURE.md), [`README.md`](./README.md), [`SPEC.md`](./SPEC.md), and the Cursor [`pdf-file-manager`](../../.cursor/skills/pdf-file-manager/SKILL.md) skill; tests in `tests/test_config.py`.
 
 ## [v0.2.9] — Cross-book answer mappings
@@ -95,7 +111,7 @@ All notable changes to the pdf_file_manager utility are documented here.
 
 ### 1. Documentation change
 
-- Documented **local-only** configuration for the DaydreamEdu sync path: environment variable `DAYDREAMEDU_ROOT` and gitignored `local_daydreamedu_root.txt` (with [`local_daydreamedu_root.example.txt`](./local_daydreamedu_root.example.txt)), plus [`resolve_daydreamedu_root()`](./pdf_file_manager.py) in [`pdf_file_manager.py`](./pdf_file_manager.py). Updated [`ARCHITECTURE.md`](./ARCHITECTURE.md), [`README.md`](./README.md), and the Cursor [`pdf-file-manager`](../../.cursor/skills/pdf-file-manager/SKILL.md) skill so no personal paths are required in Git.
+- Documented **local-only** configuration for the DaydreamEdu sync path: environment variable `DAYDREAMEDU_ROOT` and gitignored `local_daydreamedu_root.txt` (with [`../local_daydreamedu_root.example.txt`](../local_daydreamedu_root.example.txt)), plus [`resolve_daydreamedu_root()`](../files/roots.py) in [`../files/roots.py`](../files/roots.py). Updated [`ARCHITECTURE.md`](./ARCHITECTURE.md), [`README.md`](./README.md), and the Cursor [`pdf-file-manager`](../../.cursor/skills/pdf-file-manager/SKILL.md) skill so no personal paths are required in Git.
 - Added [`DATA_MODEL.md`](./DATA_MODEL.md) as the dedicated reference for file/group field semantics, including `metadata.unit` vs group `label`/`group_type` and returned data class shapes.
 - Refactored [`SPEC.md`](./SPEC.md) to focus on API and operation contract details; moved data-model-heavy guidance and dataclass reference out to `DATA_MODEL.md`.
 - Updated [`README.md`](./README.md) docs navigation and cross-links so users and agents can find metadata/group semantics quickly without overloading the overview page.

@@ -16,7 +16,7 @@ import subprocess
 from datetime import datetime, timezone
 from pathlib import Path
 
-from ai_study_buddy.pdf_file_manager.pdf_file_manager import resolve_daydreamedu_root
+from ai_study_buddy.files.roots import resolve_daydreamedu_root
 
 
 def _default_backup_dir() -> Path | None:

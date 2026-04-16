@@ -11,7 +11,7 @@ Usage:
 
 Backup runs only when the source DB has changed since the last backup (by mtime/size).
 Use --force to copy anyway. Default backup dir: ``<DaydreamEdu root>/db`` (see
-``DAYDREAMEDU_ROOT`` / ``local_daydreamedu_root.txt`` in pdf_file_manager).
+``DAYDREAMEDU_ROOT`` / ``ai_study_buddy/local_daydreamedu_root.txt``).
 
 Each run appends one line to pdf_registry_backup.log in the backup directory (so you can
 see that the script ran even when it skipped because there were no changes).
@@ -25,7 +25,7 @@ from pathlib import Path
 from typing import Optional
 from zoneinfo import ZoneInfo
 
-from ai_study_buddy.pdf_file_manager.pdf_file_manager import resolve_daydreamedu_root
+from ai_study_buddy.files.roots import resolve_daydreamedu_root
 
 
 SINGAPORE_TZ = ZoneInfo("Asia/Singapore")
@@ -83,7 +83,7 @@ def main() -> int:
         default=default_backup_dir,
         help=(
             "Backup directory (default: PDF_REGISTRY_BACKUP_DIR, else "
-            "<DaydreamEdu root>/db from DAYDREAMEDU_ROOT or local_daydreamedu_root.txt)."
+            "<DaydreamEdu root>/db from DAYDREAMEDU_ROOT or ai_study_buddy/local_daydreamedu_root.txt)."
         ),
     )
     parser.add_argument(

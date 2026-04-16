@@ -24,8 +24,6 @@ from .pdf_file_manager import (
     ScanRoot,
     Student,
     SuggestedGroup,
-    resolve_daydreamedu_root,
-    resolve_goodnotes_root,
 )
 
 __all__ = [
@@ -46,6 +44,4 @@ __all__ = [
     "ScanRoot",
     "Student",
     "SuggestedGroup",
-    "resolve_daydreamedu_root",
-    "resolve_goodnotes_root",
 ]
