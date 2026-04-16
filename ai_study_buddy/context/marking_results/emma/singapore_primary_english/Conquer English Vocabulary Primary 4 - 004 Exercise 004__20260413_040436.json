@@ -1,0 +1,270 @@
+{
+  "schema_version": "marking_result.v1",
+  "created_at": "2026-04-13T04:04:36.408012Z",
+  "updated_at": "2026-04-13T04:04:36.408012Z",
+  "context": {
+    "student_id": "emma",
+    "student_name": "Emma",
+    "subject_context": "singapore_primary_english",
+    "attempt_file_id": "f3e1b84c-e283-4f4d-84e2-e220223258b9",
+    "attempt_file_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/GoodNotes/Singapore Primary English/emma.rs.meng@gmail.com/P4/Book/Conquer English Vocabulary Primary 4/c_Conquer English Vocabulary Primary 4 - 004 Exercise 004.pdf",
+    "template_file_id": "006bc4ab-67e1-415b-9e0b-84f02ae2a16f",
+    "template_file_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary English/P4/Book/Conquer English Vocabulary Primary 4/_c_Conquer English Vocabulary Primary 4 - 004 Exercise 004.pdf",
+    "book_group_id": "a777a5e9-653d-4c26-90f2-c3ab02db01e4",
+    "book_label": "Conquer English Vocabulary Primary 4",
+    "unit_file_id": "006bc4ab-67e1-415b-9e0b-84f02ae2a16f",
+    "unit_file_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary English/P4/Book/Conquer English Vocabulary Primary 4/_c_Conquer English Vocabulary Primary 4 - 004 Exercise 004.pdf",
+    "unit_label": "Conquer English Vocabulary Primary 4 - 004 Exercise 004",
+    "answer_file_id": "1729d0ac-2d6a-4b4d-b76d-8f57a27ffd90",
+    "answer_file_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary English/P4/Book/Conquer English Vocabulary Primary 4/_c_Conquer English Vocabulary Primary 4 - 101 Answers.pdf",
+    "answer_page_start": 1,
+    "answer_page_end": 1,
+    "starts_mid_page": false,
+    "ends_mid_page": false,
+    "answer_mapping_source": "linked-template mapping + manual visual verification",
+    "answer_mapping_notes": "Exercise 004 appears within answer page 1, between earlier and later exercises on the same page.",
+    "question_selection": {
+      "raw_text": null,
+      "canonical_refs": [],
+      "section_hint": null
+    }
+  },
+  "summary": {
+    "total_marks": 10,
+    "earned_marks": 5,
+    "percentage": 50.0,
+    "overall_assessment": "Emma showed developing understanding of this wildlife-themed vocabulary set. She answered 5 out of 10 correctly; the most useful revision targets are precision words like `heightened`, `tangled`, `endurance`, and `open concept`.",
+    "human_note": null
+  },
+  "question_results": [
+    {
+      "result_id": "Q1",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "(1)",
+      "correct_answer": "(1)",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Vocabulary",
+        "wildlife observation",
+        "stalked the deer without it knowing"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q2",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "(2)",
+      "correct_answer": "(2)",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Vocabulary",
+        "safety and defense",
+        "protect itself from enemies"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q3",
+      "max_marks": 1,
+      "earned_marks": 0,
+      "outcome": "wrong",
+      "student_answer": "(3)",
+      "correct_answer": "(4)",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Vocabulary",
+        "animal senses",
+        "heightened senses in the dark"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q4",
+      "max_marks": 1,
+      "earned_marks": 0,
+      "outcome": "wrong",
+      "student_answer": "(2)",
+      "correct_answer": "(4)",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Vocabulary",
+        "injury description",
+        "mangled remains"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q5",
+      "max_marks": 1,
+      "earned_marks": 0,
+      "outcome": "wrong",
+      "student_answer": "(1)",
+      "correct_answer": "(2)",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Vocabulary",
+        "stamina and persistence",
+        "endurance"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q6",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "(1)",
+      "correct_answer": "(1)",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Vocabulary",
+        "wildlife encounters",
+        "encounter a wild animal"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q7",
+      "max_marks": 1,
+      "earned_marks": 0,
+      "outcome": "wrong",
+      "student_answer": "(4)",
+      "correct_answer": "(3)",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Vocabulary",
+        "travel in the wild",
+        "safari on the African grasslands"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q8",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "(3)",
+      "correct_answer": "(3)",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Vocabulary",
+        "visual alertness",
+        "keep your eyes peeled"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q9",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "(2)",
+      "correct_answer": "(2)",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Vocabulary",
+        "behaviour",
+        "unpredictable animals"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q10",
+      "max_marks": 1,
+      "earned_marks": 0,
+      "outcome": "wrong",
+      "student_answer": "(4)",
+      "correct_answer": "(1)",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Vocabulary",
+        "zoo design",
+        "open concept enclosures"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    }
+  ],
+  "review_meta": {
+    "updated_at": null,
+    "updated_by": null
+  },
+  "generation": {
+    "produced_by": "migrate_learning_reports",
+    "mode": "migration_from_legacy_markdown",
+    "notes": "Migrated from legacy markdown learning report."
+  }
+}

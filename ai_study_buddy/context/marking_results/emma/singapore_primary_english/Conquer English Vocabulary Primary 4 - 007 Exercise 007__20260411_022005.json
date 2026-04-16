@@ -1,0 +1,270 @@
+{
+  "schema_version": "marking_result.v1",
+  "created_at": "2026-04-11T02:20:05.296036Z",
+  "updated_at": "2026-04-11T02:20:05.296036Z",
+  "context": {
+    "student_id": "emma",
+    "student_name": "Emma",
+    "subject_context": "singapore_primary_english",
+    "attempt_file_id": "6505d4e4-9def-4b16-ab3e-58db2999cb83",
+    "attempt_file_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/GoodNotes/Singapore Primary English/emma.rs.meng@gmail.com/P4/Book/Conquer English Vocabulary Primary 4/c_Conquer English Vocabulary Primary 4 - 007 Exercise 007.pdf",
+    "template_file_id": "0269da04-c28d-4db9-b69b-e137c428a7dd",
+    "template_file_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary English/P4/Book/Conquer English Vocabulary Primary 4/_c_Conquer English Vocabulary Primary 4 - 007 Exercise 007.pdf",
+    "book_group_id": "a777a5e9-653d-4c26-90f2-c3ab02db01e4",
+    "book_label": "Conquer English Vocabulary Primary 4",
+    "unit_file_id": "0269da04-c28d-4db9-b69b-e137c428a7dd",
+    "unit_file_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary English/P4/Book/Conquer English Vocabulary Primary 4/_c_Conquer English Vocabulary Primary 4 - 007 Exercise 007.pdf",
+    "unit_label": "Conquer English Vocabulary Primary 4 - 007 Exercise 007",
+    "answer_file_id": "1729d0ac-2d6a-4b4d-b76d-8f57a27ffd90",
+    "answer_file_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary English/P4/Book/Conquer English Vocabulary Primary 4/_c_Conquer English Vocabulary Primary 4 - 101 Answers.pdf",
+    "answer_page_start": 1,
+    "answer_page_end": 1,
+    "starts_mid_page": false,
+    "ends_mid_page": false,
+    "answer_mapping_source": "manual_verified",
+    "answer_mapping_notes": "Exercise 007 appears within answer page 1, between earlier and later exercises on the same page.",
+    "question_selection": {
+      "raw_text": null,
+      "canonical_refs": [],
+      "section_hint": null
+    }
+  },
+  "summary": {
+    "total_marks": 10,
+    "earned_marks": 9,
+    "percentage": 90.0,
+    "overall_assessment": "Emma did very well on this travel-themed vocabulary exercise. She handled almost all the context-based choices correctly and only missed the item where `translator` was needed for someone helping with language in Japan.",
+    "human_note": null
+  },
+  "question_results": [
+    {
+      "result_id": "Q1",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "(3)",
+      "correct_answer": "(3)",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Vocabulary",
+        "air travel",
+        "turbulent ride"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q2",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "(1)",
+      "correct_answer": "(1)",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Vocabulary",
+        "transport access",
+        "island accessible only by sea"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q3",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "(1)",
+      "correct_answer": "(1)",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Vocabulary",
+        "time passing",
+        "time whizzed past"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q4",
+      "max_marks": 1,
+      "earned_marks": 0,
+      "outcome": "wrong",
+      "student_answer": "(4)",
+      "correct_answer": "(2)",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Vocabulary",
+        "language support",
+        "translator"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q5",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "(3)",
+      "correct_answer": "(3)",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Vocabulary",
+        "scenery",
+        "rural landscape"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q6",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "(4)",
+      "correct_answer": "(4)",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Vocabulary",
+        "structures",
+        "moat around an enclosure"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q7",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "(3)",
+      "correct_answer": "(3)",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Vocabulary",
+        "travel planning",
+        "budget for a trip"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q8",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "(1)",
+      "correct_answer": "(1)",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Vocabulary",
+        "accidents",
+        "fatal accident"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q9",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "(4)",
+      "correct_answer": "(4)",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Vocabulary",
+        "familiarity",
+        "familiarise yourself with the itinerary"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q10",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "(2)",
+      "correct_answer": "(2)",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Vocabulary",
+        "road travel",
+        "detour"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    }
+  ],
+  "review_meta": {
+    "updated_at": null,
+    "updated_by": null
+  },
+  "generation": {
+    "produced_by": "migrate_learning_reports",
+    "mode": "migration_from_legacy_markdown",
+    "notes": "Migrated from legacy markdown learning report."
+  }
+}

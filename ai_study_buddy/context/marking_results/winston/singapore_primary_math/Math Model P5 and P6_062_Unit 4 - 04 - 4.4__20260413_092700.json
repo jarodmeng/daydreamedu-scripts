@@ -1,0 +1,116 @@
+{
+  "schema_version": "marking_result.v1",
+  "created_at": "2026-04-13T09:27:00.784659Z",
+  "updated_at": "2026-04-13T09:27:00.784659Z",
+  "context": {
+    "student_id": "winston",
+    "student_name": "Winston",
+    "subject_context": "singapore_primary_math",
+    "attempt_file_id": "b807df85-cdba-4426-8b03-e917a85817fc",
+    "attempt_file_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/GoodNotes/Singapore Primary Math/winston.ry.meng@gmail.com/P6/Book/Model Drawing Made Easy and Inspiring for P5 and P6/c_Math Model P5 and P6_062_Unit 4 - 04 - 4.4.pdf",
+    "template_file_id": "ab13231f-f8a8-4a97-9b0f-724d31c9f676",
+    "template_file_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Math/P6/Book/Model Drawing Made Easy and Inspiring for P5 and P6/_c_Math Model P5 and P6_062_Unit 4 - 04 - 4.4.pdf",
+    "book_group_id": "e887fae1-f787-4cc8-bb2b-d0dfbe8eba4b",
+    "book_label": "Model Drawing Made Easy and Inspiring for P5 and P6",
+    "unit_file_id": "ab13231f-f8a8-4a97-9b0f-724d31c9f676",
+    "unit_file_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Math/P6/Book/Model Drawing Made Easy and Inspiring for P5 and P6/_c_Math Model P5 and P6_062_Unit 4 - 04 - 4.4.pdf",
+    "unit_label": "Math Model P5 and P6_062_Unit 4 - 04 - 4.4",
+    "answer_file_id": "9e5797e2-5572-40bb-8a77-dd0336577820",
+    "answer_file_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Math/P6/Book/Model Drawing Made Easy and Inspiring for P5 and P6/_c_Math Model P5 and P6 Worked Solutions.pdf",
+    "answer_page_start": 59,
+    "answer_page_end": 60,
+    "starts_mid_page": false,
+    "ends_mid_page": false,
+    "answer_mapping_source": "attempt24_full_human_verified_2026-04-13",
+    "answer_mapping_notes": null,
+    "question_selection": {
+      "raw_text": null,
+      "canonical_refs": [],
+      "section_hint": null
+    }
+  },
+  "summary": {
+    "total_marks": 3,
+    "earned_marks": 3,
+    "percentage": 100.0,
+    "overall_assessment": "Winston showed strong understanding across this practice and converted percentage/ratio relationships correctly in most questions.",
+    "human_note": null
+  },
+  "question_results": [
+    {
+      "result_id": "Q1",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "$10.80",
+      "correct_answer": "$10.80",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Percentage",
+        "successive deductions",
+        "remainder after two stages"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q2",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "1 m 68 cm",
+      "correct_answer": "1 m 68 cm",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Percentage",
+        "remainder partition",
+        "convert units back to length"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q3",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "2 kg 550 g",
+      "correct_answer": "2 kg 550 g",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Percentage",
+        "remainder partition",
+        "convert grams to kg and g"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    }
+  ],
+  "review_meta": {
+    "updated_at": null,
+    "updated_by": null
+  },
+  "generation": {
+    "produced_by": "migrate_learning_reports",
+    "mode": "migration_from_legacy_markdown",
+    "notes": "Migrated from legacy markdown learning report."
+  }
+}

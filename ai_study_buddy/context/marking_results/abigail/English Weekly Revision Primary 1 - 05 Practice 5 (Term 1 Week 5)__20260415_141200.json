@@ -1,0 +1,450 @@
+{
+  "schema_version": "marking_result.v1",
+  "created_at": "2026-04-15T14:12:00.658681Z",
+  "updated_at": "2026-04-15T14:12:00.658681Z",
+  "context": {
+    "student_id": "abigail",
+    "student_name": "Abigail",
+    "subject_context": "singapore_primary_english",
+    "attempt_file_id": "4d2eba39-04b7-47d7-b10b-e1b92b299f29",
+    "attempt_file_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/GoodNotes/Singapore Primary English/abigail.rg.meng@gmail.com/P1/Book/English Weekly Revision Primary 1/c_English Weekly Revision Primary 1 - 05 Practice 5 (Term 1 Week 5).pdf",
+    "template_file_id": "c14aee07-1171-4022-bcea-ff4230aa98b5",
+    "template_file_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary English/P1/Book/English Weekly Revision Primary 1/_c_English Weekly Revision Primary 1 - 05 Practice 5 (Term 1 Week 5).pdf",
+    "book_group_id": "52741773-7b69-4804-a2df-c349d181ff23",
+    "book_label": "English Weekly Revision Primary 1",
+    "unit_file_id": "c14aee07-1171-4022-bcea-ff4230aa98b5",
+    "unit_file_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary English/P1/Book/English Weekly Revision Primary 1/_c_English Weekly Revision Primary 1 - 05 Practice 5 (Term 1 Week 5).pdf",
+    "unit_label": "05 Practice 5 (Term 1 Week 5)",
+    "answer_file_id": "86bb80e4-7675-4105-a8ed-109ffa2d1ce9",
+    "answer_file_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary English/P1/Book/English Weekly Revision Primary 1/_c_English Weekly Revision Primary 1 - 43 Answers.pdf",
+    "answer_page_start": 1,
+    "answer_page_end": 1,
+    "starts_mid_page": true,
+    "ends_mid_page": false,
+    "answer_mapping_source": "ground_truth_english_weekly_revision_primary_1_v02",
+    "answer_mapping_notes": "Practice 5 answer key is in the lower-right section of answer page 1, so marking used an isolated crop of that block.",
+    "question_selection": {
+      "raw_text": null,
+      "canonical_refs": [],
+      "section_hint": null
+    }
+  },
+  "summary": {
+    "total_marks": 18,
+    "earned_marks": 16,
+    "percentage": 88.89,
+    "overall_assessment": "Abigail showed strong overall performance across grammar, vocabulary, and comprehension for this practice. Most items were accurate, with only two misses: one vocabulary item on animal sounds and one comprehension item that answered with a specific time instead of describing the usual arrival timing.",
+    "human_note": null
+  },
+  "question_results": [
+    {
+      "result_id": "Section A Q1",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "(1)",
+      "correct_answer": "(1)",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Grammar",
+        "proper nouns",
+        "day names capitalisation"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Section A Q2",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "(2)",
+      "correct_answer": "(2)",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Grammar",
+        "proper nouns",
+        "person names capitalisation"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Section A Q3",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "(3)",
+      "correct_answer": "(3)",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Grammar",
+        "proper nouns",
+        "month names capitalisation"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Section A Q4",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "(4)",
+      "correct_answer": "(4)",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Grammar",
+        "proper nouns",
+        "title and surname capitalisation"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Section A Q5",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "(2)",
+      "correct_answer": "(2)",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Grammar",
+        "proper nouns",
+        "first names capitalisation"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Section B Q1",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "(2)",
+      "correct_answer": "(2)",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Vocabulary",
+        "verbs in context",
+        "daily actions"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Section B Q2",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "(3)",
+      "correct_answer": "(3)",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Vocabulary",
+        "occupations",
+        "tool-job matching"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Section B Q3",
+      "max_marks": 1,
+      "earned_marks": 0,
+      "outcome": "wrong",
+      "student_answer": "(1)",
+      "correct_answer": "(4)",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [
+        "vocabulary_gap"
+      ],
+      "skill_tags": [
+        "Vocabulary",
+        "animal sounds",
+        "word meaning precision"
+      ],
+      "diagnosis": {
+        "mistake_type": "vocabulary_gap",
+        "reasoning": "Selected \"cooed\" instead of the expected \"squawked\" for a parrot sound.",
+        "confidence": "high"
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Section B Q4",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "(4)",
+      "correct_answer": "(4)",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Vocabulary",
+        "nature words",
+        "flower-related words"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Section B Q5",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "(2)",
+      "correct_answer": "(2)",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Vocabulary",
+        "nouns in context",
+        "garden vocabulary"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Section C Q1",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "2 p.m.",
+      "correct_answer": "2 p.m.",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Comprehension",
+        "detail recall",
+        "time identification"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Section C Q2",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "to see why is her mother still not here",
+      "correct_answer": "Eileen wanted to check the time because her mother had not arrived yet.",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Comprehension",
+        "inference",
+        "reason for action"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Section C Q3",
+      "max_marks": 1,
+      "earned_marks": 0,
+      "outcome": "wrong",
+      "student_answer": "I Think it is 2.56pm.",
+      "correct_answer": "Her mother would usually be at school before dismissal / school ended.",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [
+        "misread_question"
+      ],
+      "skill_tags": [
+        "Comprehension",
+        "detail recall",
+        "routine timing"
+      ],
+      "diagnosis": {
+        "mistake_type": "misread_question",
+        "reasoning": "Answer gives a specific clock time, but the question asks when her mother would normally arrive in relation to dismissal.",
+        "confidence": "high"
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Section C Q4(a)",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "True",
+      "correct_answer": "True",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Comprehension",
+        "true-false",
+        "main-event tracking"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Section C Q4(b)",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "False",
+      "correct_answer": "False",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Comprehension",
+        "true-false",
+        "emotional-state evidence"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Section C Q4(c)",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "False",
+      "correct_answer": "False",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Comprehension",
+        "true-false",
+        "event sequence with helper"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Section C Q4(d)",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "True",
+      "correct_answer": "True",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Comprehension",
+        "true-false",
+        "cause of delay"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Section C Q5",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "2, 1, 3",
+      "correct_answer": "2, 1, 3",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Comprehension",
+        "sequencing",
+        "story chronology"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    }
+  ],
+  "review_meta": {
+    "updated_at": null,
+    "updated_by": null
+  },
+  "generation": {
+    "produced_by": "codex_manual_visual_marking",
+    "mode": "manual_visual_comparison",
+    "notes": "Answer key verified with two isolated visual crops before scoring."
+  }
+}

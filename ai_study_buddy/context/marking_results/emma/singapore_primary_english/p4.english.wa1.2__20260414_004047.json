@@ -1,0 +1,732 @@
+{
+  "schema_version": "marking_result.v1",
+  "created_at": "2026-04-14T00:40:47.163656Z",
+  "updated_at": "2026-04-14T00:40:47.163656Z",
+  "context": {
+    "student_id": "emma",
+    "student_name": "Emma",
+    "subject_context": "singapore_primary_english",
+    "attempt_file_id": "7b3d98b3-b54c-4353-bd94-10993b5e4aa9",
+    "attempt_file_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/GoodNotes/Singapore Primary English/emma.rs.meng@gmail.com/P4/Exam/c_p4.english.wa1.2.pdf",
+    "template_file_id": "20e97636-387a-4141-82dc-a277c35cf9a8",
+    "template_file_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary English/P4/Exam/_c_p4.english.wa1.2.pdf",
+    "book_group_id": null,
+    "book_label": null,
+    "unit_file_id": "20e97636-387a-4141-82dc-a277c35cf9a8",
+    "unit_file_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary English/P4/Exam/_c_p4.english.wa1.2.pdf",
+    "unit_label": "p4.english.wa1.2",
+    "answer_file_id": "20e97636-387a-4141-82dc-a277c35cf9a8",
+    "answer_file_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary English/P4/Exam/_c_p4.english.wa1.2.pdf",
+    "answer_page_start": 13,
+    "answer_page_end": 13,
+    "starts_mid_page": false,
+    "ends_mid_page": false,
+    "answer_mapping_source": "No registry book-answer mapping found; answers were taken directly from page 13 of the paper as requested.",
+    "answer_mapping_notes": null,
+    "question_selection": {
+      "raw_text": null,
+      "canonical_refs": [],
+      "section_hint": null
+    }
+  },
+  "summary": {
+    "total_marks": 40,
+    "earned_marks": 35,
+    "percentage": 87.5,
+    "overall_assessment": "Emma shows strong performance in sentence transformation and comprehension, with most losses coming from early multiple-choice grammar/vocabulary items and one partially developed long-answer response.",
+    "human_note": null
+  },
+  "question_results": [
+    {
+      "result_id": "Q1",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "2",
+      "correct_answer": "2",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Grammar MCQ",
+        "tense agreement",
+        "present simple"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q2",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "1",
+      "correct_answer": "1",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Grammar MCQ",
+        "past tense",
+        "verb form"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q3",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "2",
+      "correct_answer": "2",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Grammar MCQ",
+        "prepositions",
+        "movement"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q4",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "1",
+      "correct_answer": "1",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Grammar MCQ",
+        "relative pronouns",
+        "who"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q5",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "1",
+      "correct_answer": "1",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Grammar MCQ",
+        "subject-verb agreement",
+        "singular noun phrase"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q6",
+      "max_marks": 1,
+      "earned_marks": 0,
+      "outcome": "wrong",
+      "student_answer": "3",
+      "correct_answer": "4",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Grammar MCQ",
+        "past continuous",
+        "interrupted action"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q7",
+      "max_marks": 1,
+      "earned_marks": 0,
+      "outcome": "wrong",
+      "student_answer": "2",
+      "correct_answer": "4",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Grammar MCQ",
+        "present perfect",
+        "plural subject"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q8",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "4",
+      "correct_answer": "4",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Grammar MCQ",
+        "demonstratives",
+        "plural far"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q9",
+      "max_marks": 1,
+      "earned_marks": 0,
+      "outcome": "wrong",
+      "student_answer": "4",
+      "correct_answer": "1",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Grammar MCQ",
+        "conjunctions",
+        "result"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q10",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "4",
+      "correct_answer": "4",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Grammar MCQ",
+        "connectors",
+        "contrast despite"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q11",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "4",
+      "correct_answer": "4",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Vocabulary MCQ",
+        "word choice",
+        "phenomena"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q12",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "4",
+      "correct_answer": "4",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Vocabulary MCQ",
+        "collocation",
+        "further examination"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q13",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "3",
+      "correct_answer": "3",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Vocabulary MCQ",
+        "context meaning",
+        "vanished"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q14",
+      "max_marks": 1,
+      "earned_marks": 0,
+      "outcome": "wrong",
+      "student_answer": "4",
+      "correct_answer": "1",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Vocabulary MCQ",
+        "verb choice",
+        "willed himself"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q15",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "2",
+      "correct_answer": "2",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Vocabulary MCQ",
+        "feelings",
+        "relieved"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q16",
+      "max_marks": 1,
+      "earned_marks": 0,
+      "outcome": "wrong",
+      "student_answer": "3",
+      "correct_answer": "4",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Vocabulary MCQ",
+        "adverbs",
+        "gracefully"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q17",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "C",
+      "correct_answer": "C",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Grammar cloze",
+        "pronouns",
+        "possessive adjective"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q18",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "E",
+      "correct_answer": "E",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Grammar cloze",
+        "pronouns",
+        "object pronoun"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q19",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "H",
+      "correct_answer": "H",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Grammar cloze",
+        "pronouns",
+        "subject pronoun"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q20",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "G",
+      "correct_answer": "G",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Grammar cloze",
+        "pronouns",
+        "subject pronoun plural"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q21",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "A",
+      "correct_answer": "A",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Grammar cloze",
+        "pronouns",
+        "dummy subject"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q22",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "D",
+      "correct_answer": "D",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Grammar cloze",
+        "possessive adjectives",
+        "their"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q23",
+      "max_marks": 2,
+      "earned_marks": 2,
+      "outcome": "correct",
+      "student_answer": "While my cousin enjoys reading, I prefer cycling.",
+      "correct_answer": "While my cousin enjoys reading, I prefer cycling.",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Synthesis",
+        "connectors",
+        "while clause"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q24",
+      "max_marks": 2,
+      "earned_marks": 2,
+      "outcome": "correct",
+      "student_answer": "Even though David was sick, he wanted to play soccer.",
+      "correct_answer": "Even though David was sick, he wanted to play soccer.",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Synthesis",
+        "concession",
+        "even though"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q25",
+      "max_marks": 2,
+      "earned_marks": 2,
+      "outcome": "correct",
+      "student_answer": "Due to Mrs Raju's encouragement, Sandra recited the poem confidently.",
+      "correct_answer": "Due to MRS Raju's encouragement, Sandra recited the poem confidently.",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Synthesis",
+        "cause phrase",
+        "due to"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q26",
+      "max_marks": 2,
+      "earned_marks": 2,
+      "outcome": "correct",
+      "student_answer": "Aunty Rose told Mr Tan that she would send him the recipe for the apple pie.",
+      "correct_answer": "Aunty Rose told Mr Tan she would send him the recipe for the apple pie.",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Synthesis",
+        "reported speech",
+        "pronoun shift"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q27",
+      "max_marks": 2,
+      "earned_marks": 2,
+      "outcome": "correct",
+      "student_answer": "i) writer loves art; ii) writer is a great artist",
+      "correct_answer": "i) The writer had a love for art. ii) The writer was a great artist.",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Comprehension",
+        "detail retrieval",
+        "reasons"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q28",
+      "max_marks": 2,
+      "earned_marks": 2,
+      "outcome": "correct",
+      "student_answer": "a) arrogant, b) embarrassed",
+      "correct_answer": "a) arrogant, b) embarrassed",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Comprehension",
+        "character feelings",
+        "contextual inference"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q29",
+      "max_marks": 2,
+      "earned_marks": 2,
+      "outcome": "correct",
+      "student_answer": "Both marked false, with matching reasons from text",
+      "correct_answer": "a) False (results a week later), b) False (forgot paintbrushes)",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Comprehension",
+        "true false with evidence",
+        "textual support"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q30",
+      "max_marks": 2,
+      "earned_marks": 2,
+      "outcome": "correct",
+      "student_answer": "He lost last year and did not want to lose again to Natalie",
+      "correct_answer": "The writer had a miserable loss last year and did not want to lose again.",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Comprehension",
+        "phrase interpretation",
+        "paraphrase"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q31",
+      "max_marks": 2,
+      "earned_marks": 2,
+      "outcome": "correct",
+      "student_answer": "He still lent Natalie paintbrushes",
+      "correct_answer": "He lent Natalie his paintbrushes instead of watching her lose.",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Comprehension",
+        "character trait with evidence",
+        "kindness/helpfulness"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    }
+  ],
+  "review_meta": {
+    "updated_at": null,
+    "updated_by": null
+  },
+  "generation": {
+    "produced_by": "migrate_learning_reports",
+    "mode": "migration_from_legacy_markdown",
+    "notes": "Migrated from legacy markdown learning report."
+  }
+}

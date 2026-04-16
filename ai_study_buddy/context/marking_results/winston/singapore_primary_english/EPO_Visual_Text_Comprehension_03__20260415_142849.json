@@ -1,0 +1,160 @@
+{
+  "schema_version": "marking_result.v1",
+  "created_at": "2026-04-15T14:28:49.161491Z",
+  "updated_at": "2026-04-15T14:28:49.161491Z",
+  "context": {
+    "student_id": "winston",
+    "student_name": "Winston",
+    "subject_context": "singapore_primary_english",
+    "attempt_file_id": "cb4ed1ad-58b0-4402-83d2-8c55d4c8b5f1",
+    "attempt_file_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/GoodNotes/Singapore Primary English/winston.ry.meng@gmail.com/PSLE/Book/English Practice 1000/c_EPO_Visual_Text_Comprehension_03.pdf",
+    "template_file_id": "c2ebc929-3d8d-444a-924a-f90a2f265682",
+    "template_file_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary English/PSLE/Book/English Practice 1000/_c_EPO_Visual_Text_Comprehension_03.pdf",
+    "book_group_id": "2d4cda5a-e0dd-46d7-a5fd-62aa2be30829",
+    "book_label": "English Practice 1000",
+    "unit_file_id": "c2ebc929-3d8d-444a-924a-f90a2f265682",
+    "unit_file_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary English/PSLE/Book/English Practice 1000/_c_EPO_Visual_Text_Comprehension_03.pdf",
+    "unit_label": "Visual_Text_Comprehension_03",
+    "answer_file_id": "44ad5e11-d1fd-4b77-b8f5-9234f806ef0a",
+    "answer_file_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary English/PSLE/Book/English Practice 1000/_c_EPO_Answers.pdf",
+    "answer_page_start": 3,
+    "answer_page_end": 3,
+    "starts_mid_page": true,
+    "ends_mid_page": true,
+    "answer_mapping_source": "gemini_page_segments_ground_truth",
+    "answer_mapping_notes": "Practice 048 appears within answer page 3, between earlier and later practices on the same page.",
+    "question_selection": {
+      "raw_text": null,
+      "canonical_refs": [],
+      "section_hint": null
+    }
+  },
+  "summary": {
+    "total_marks": 5,
+    "earned_marks": 4,
+    "percentage": 80.0,
+    "overall_assessment": "Winston scored 4/5 for Visual Text Comprehension Practice 3. The mistakes are isolated option mismatches; accuracy remains generally strong.",
+    "human_note": null
+  },
+  "question_results": [
+    {
+      "result_id": "Q1",
+      "max_marks": 1,
+      "earned_marks": 0,
+      "outcome": "wrong",
+      "student_answer": "(2)",
+      "correct_answer": "(4)",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Comprehension",
+        "visual text comprehension",
+        "mcq interpretation"
+      ],
+      "diagnosis": {
+        "mistake_type": "other",
+        "reasoning": "Option (4) is correct because the poster in Text 1 is about public awareness of mental health stigma. Option (2) is too broad; while kindness is encouraged, the poster's specific purpose is to inform readers about stigma and its impact.",
+        "confidence": "high"
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q2",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "(1)",
+      "correct_answer": "(1)",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Comprehension",
+        "visual text comprehension",
+        "mcq interpretation"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q3",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "(4)",
+      "correct_answer": "(4)",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Comprehension",
+        "visual text comprehension",
+        "mcq interpretation"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q4",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "(3)",
+      "correct_answer": "(3)",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Comprehension",
+        "visual text comprehension",
+        "mcq interpretation"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q5",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "(4)",
+      "correct_answer": "(4)",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Comprehension",
+        "visual text comprehension",
+        "mcq interpretation"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    }
+  ],
+  "review_meta": {
+    "updated_at": null,
+    "updated_by": null
+  },
+  "generation": {
+    "produced_by": "codex_skill_mark_goodnote_completion",
+    "mode": "manual_visual_comparison",
+    "notes": "Attempt pages were visually compared against isolated answer-key crops from EPO_Answers page 3 (two-pass verification)."
+  }
+}

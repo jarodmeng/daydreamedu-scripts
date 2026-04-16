@@ -1,0 +1,160 @@
+{
+  "schema_version": "marking_result.v1",
+  "created_at": "2026-04-13T09:27:00.788936Z",
+  "updated_at": "2026-04-13T09:27:00.788936Z",
+  "context": {
+    "student_id": "winston",
+    "student_name": "Winston",
+    "subject_context": "singapore_primary_math",
+    "attempt_file_id": "324a1fdd-5a6c-4a29-9c3e-5fbfc6b913af",
+    "attempt_file_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/GoodNotes/Singapore Primary Math/winston.ry.meng@gmail.com/P6/Book/Model Drawing Made Easy and Inspiring for P5 and P6/c_Math Model P5 and P6_063_Unit 4 - 05 - 4.5.pdf",
+    "template_file_id": "7337aad9-69a0-45fc-81c4-1e8d2331d335",
+    "template_file_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Math/P6/Book/Model Drawing Made Easy and Inspiring for P5 and P6/_c_Math Model P5 and P6_063_Unit 4 - 05 - 4.5.pdf",
+    "book_group_id": "e887fae1-f787-4cc8-bb2b-d0dfbe8eba4b",
+    "book_label": "Model Drawing Made Easy and Inspiring for P5 and P6",
+    "unit_file_id": "7337aad9-69a0-45fc-81c4-1e8d2331d335",
+    "unit_file_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Math/P6/Book/Model Drawing Made Easy and Inspiring for P5 and P6/_c_Math Model P5 and P6_063_Unit 4 - 05 - 4.5.pdf",
+    "unit_label": "Math Model P5 and P6_063_Unit 4 - 05 - 4.5",
+    "answer_file_id": "9e5797e2-5572-40bb-8a77-dd0336577820",
+    "answer_file_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Math/P6/Book/Model Drawing Made Easy and Inspiring for P5 and P6/_c_Math Model P5 and P6 Worked Solutions.pdf",
+    "answer_page_start": 60,
+    "answer_page_end": 60,
+    "starts_mid_page": false,
+    "ends_mid_page": false,
+    "answer_mapping_source": "attempt24_full_human_verified_2026-04-13",
+    "answer_mapping_notes": null,
+    "question_selection": {
+      "raw_text": null,
+      "canonical_refs": [],
+      "section_hint": null
+    }
+  },
+  "summary": {
+    "total_marks": 5,
+    "earned_marks": 4,
+    "percentage": 80.0,
+    "overall_assessment": "Winston understood most of the practice, with errors mainly from arithmetic/precision or ratio-order details rather than model setup.",
+    "human_note": null
+  },
+  "question_results": [
+    {
+      "result_id": "Q1",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "$600",
+      "correct_answer": "$600",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Percentage",
+        "discount reverse calculation",
+        "discounted to original price"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q2",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "$60.50",
+      "correct_answer": "$60.50",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Percentage",
+        "discount reverse calculation",
+        "discounted to original price"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q3(a)",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "$550",
+      "correct_answer": "$550",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Percentage",
+        "reverse from discounted amount",
+        "original price"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q3(b)",
+      "max_marks": 1,
+      "earned_marks": 0,
+      "outcome": "wrong",
+      "student_answer": "$412",
+      "correct_answer": "$412.50",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Percentage",
+        "recompute with new discount rate",
+        "apply 75% to original"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q4",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "$840",
+      "correct_answer": "$840",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Percentage",
+        "GST reverse calculation",
+        "inclusive to before-tax price"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    }
+  ],
+  "review_meta": {
+    "updated_at": null,
+    "updated_by": null
+  },
+  "generation": {
+    "produced_by": "migrate_learning_reports",
+    "mode": "migration_from_legacy_markdown",
+    "notes": "Migrated from legacy markdown learning report."
+  }
+}
