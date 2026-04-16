@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any
 
 from ai_study_buddy.marking.core.artifact_paths import build_learning_report_path
+from ai_study_buddy.marking.core.path_privacy import resolve_marking_artifact_paths
 from ai_study_buddy.marking.core.artifact_schema import validate_marking_artifact_dict
 from ai_study_buddy.marking.core.models import MarkingArtifact
 from ai_study_buddy.marking.core.taxonomy import prettify_skill_tags
@@ -38,6 +39,7 @@ def _row_icon(outcome: str) -> str:
 
 def render_marking_report_markdown(data: dict[str, Any]) -> str:
     validate_marking_artifact_dict(data)
+    data = resolve_marking_artifact_paths(data)
 
     context = data["context"]
     summary = data["summary"]

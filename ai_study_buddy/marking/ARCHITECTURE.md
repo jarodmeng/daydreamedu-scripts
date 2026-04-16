@@ -42,6 +42,7 @@ Current package modules are grouped into three layers.
 - `artifact_schema.py`: schema loading, validation, and score consistency checks
 - `artifact_paths.py`: canonical path and basename derivation
 - `artifact_writer.py`: canonical JSON write path
+- `path_privacy.py`: canonical path sanitization and runtime placeholder expansion
 - `taxonomy.py`: diagnosis/error taxonomy normalization and helpers
 
 ### B. Workflow layer (`workflows/`)
@@ -69,6 +70,7 @@ The current flagship use case is the `mark-goodnote-completion` skill flow:
    - template's book group
    - mapped answer file and answer page range
 5. Marking workflow uses this context to grade and produce artifacts (JSON first, markdown derived).
+6. Canonical artifact writer sanitizes path fields before persistence; renderer expands placeholders for runtime readability when configuration/registry data exists.
 
 MVP variant (weighted assessment / embedded answers):
 

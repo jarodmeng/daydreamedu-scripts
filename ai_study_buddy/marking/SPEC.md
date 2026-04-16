@@ -1,4 +1,4 @@
-# Marking Package Specification (`v0.1.0`)
+# Marking Package Specification (`v0.1.2`)
 
 ## Purpose
 
@@ -49,6 +49,19 @@ The package guarantees:
 - Markdown learning report is generated from canonical JSON.
 - Rendering is idempotent for unchanged JSON input.
 - Markdown is not treated as source-of-truth data.
+- Renderer may resolve canonical placeholders to local runtime paths for display:
+  - `GOODNOTES_ROOT` and `DAYDREAMEDU_ROOT` via configured roots
+  - `<student_email>` via `student_id` lookup when available
+
+### 3.1) Path privacy rules (`v0.1.2`)
+
+- Canonical artifact context path fields (`attempt/template/unit/answer`) must be
+  persisted in a privacy-safe normalized form.
+- Write-time normalization rules:
+  - GoodNotes absolute local prefix -> `GOODNOTES_ROOT`
+  - DaydreamEdu absolute local prefix -> `DAYDREAMEDU_ROOT`
+  - email-shaped segments -> `<student_email>`
+- The placeholder form is canonical for persisted JSON artifacts.
 
 ### 4) Human review rules
 
@@ -176,7 +189,7 @@ Normative algorithm (MVP, path-first):
 - `core/artifact_schema.py`: schema loading/validation and scoring utilities
 - `core/artifact_paths.py`: naming/path builder utilities
 
-## Non-Goals for `v0.1.0`
+## Non-Goals for `v0.1.2`
 
 - Bounding-box or crop-region evidence storage in artifact rows
 - Database-first canonical storage

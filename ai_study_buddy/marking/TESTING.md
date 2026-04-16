@@ -1,4 +1,4 @@
-# Testing Guide (`v0.1.0`)
+# Testing Guide (`v0.1.2`)
 
 This guide defines the testing workflow for `ai_study_buddy.marking`.
 
@@ -16,6 +16,7 @@ These tests cover:
 - summary/row score consistency
 - disqualified scoring semantics
 - JSON write and markdown re-render behavior
+- path sanitization at write time and placeholder expansion at read/render time
 - human note update flow
 - legacy markdown migration parsing and batching options
 
@@ -52,7 +53,9 @@ Use this checklist when changing behavior that affects outputs:
 2. Re-render markdown from that JSON and verify expected sections are present.
 3. Update a summary note and one question note via `edit_human_notes.py`.
 4. Confirm `review_meta.updated_at` and `review_meta.updated_by` were updated.
-5. Re-run schema validation (implicitly covered by write/update flows).
+5. Verify path placeholders are persisted in JSON (`GOODNOTES_ROOT` / `DAYDREAMEDU_ROOT` / `<student_email>`).
+6. Verify render output expands placeholders when roots/student email can be resolved.
+7. Re-run schema validation (implicitly covered by write/update flows).
 
 ## Regression Focus Areas
 
@@ -60,6 +63,7 @@ Changes in these areas should receive extra scrutiny:
 
 - Prefix normalization and timestamp basename rules
 - `scoring_status` and disqualified row exclusion logic
+- Path privacy normalization and placeholder expansion fallback behavior
 - Markdown parsing tolerance for legacy report variants
 - Context file-id/group backfill behavior when registry lookups fail
 

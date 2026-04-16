@@ -20,6 +20,10 @@ from ai_study_buddy.marking.core.artifact_schema import (
     validate_marking_artifact_dict,
 )
 from ai_study_buddy.marking.core.artifact_writer import write_marking_artifact
+from ai_study_buddy.marking.core.path_privacy import (
+    resolve_marking_artifact_paths,
+    sanitize_marking_artifact_paths,
+)
 from ai_study_buddy.marking.workflows.edit_human_notes import update_human_notes
 from ai_study_buddy.marking.core.models import (
     ArtifactQuestionResult,
@@ -207,3 +211,58 @@ def test_update_human_notes_updates_review_meta(tmp_path):
     assert payload["summary"]["human_note"] == "Parent reviewed this attempt."
     assert payload["question_results"][1]["human_note"] == "Needs to mention both forces."
     assert payload["review_meta"]["updated_by"] == "jarod"
+
+
+def test_write_marking_artifact_sanitizes_context_paths(tmp_path):
+    artifact = _sample_artifact()
+    updated = replace(
+        artifact,
+        context=replace(
+            artifact.context,
+            attempt_file_path="/Users/me/Library/CloudStorage/GoogleDrive-owner@example.com/My Drive/GoodNotes/Singapore Primary Science/winston.ry.meng@gmail.com/P6/Book/c_test.pdf",
+            template_file_path="/Users/me/Library/CloudStorage/GoogleDrive-owner@example.com/My Drive/DaydreamEdu/Singapore Primary Science/P6/Book/_c_test.pdf",
+            unit_file_path="/Users/me/Library/CloudStorage/GoogleDrive-owner@example.com/My Drive/DaydreamEdu/Singapore Primary Science/P6/Book/_c_test.pdf",
+            answer_file_path="/Users/me/Library/CloudStorage/GoogleDrive-owner@example.com/My Drive/DaydreamEdu/Singapore Primary Science/P6/Book/_c_answers.pdf",
+        ),
+    )
+    written = write_marking_artifact(updated, context_root=tmp_path)
+    payload = json.loads(written.read_text(encoding="utf-8"))
+    assert payload["context"]["attempt_file_path"].startswith("GOODNOTES_ROOT/")
+    assert "<student_email>" in payload["context"]["attempt_file_path"]
+    assert payload["context"]["template_file_path"].startswith("DAYDREAMEDU_ROOT/")
+    assert "@example.com" not in payload["context"]["attempt_file_path"]
+
+
+def test_resolve_marking_artifact_paths_expands_placeholders(monkeypatch):
+    payload = _sample_artifact().to_dict()
+    payload["context"]["student_id"] = "winston"
+    payload["context"]["attempt_file_path"] = (
+        "GOODNOTES_ROOT/Singapore Primary Science/<student_email>/P6/Book/c_test.pdf"
+    )
+    payload["context"]["template_file_path"] = "DAYDREAMEDU_ROOT/Singapore Primary Science/P6/Book/_c_test.pdf"
+
+    from ai_study_buddy.marking.core import path_privacy
+
+    monkeypatch.setattr(path_privacy, "resolve_goodnotes_root", lambda: Path("/tmp/GoodNotes"))
+    monkeypatch.setattr(path_privacy, "resolve_daydreamedu_root", lambda: Path("/tmp/DaydreamEdu"))
+    monkeypatch.setattr(path_privacy, "_resolve_student_email", lambda student_id: "winston.ry.meng@gmail.com")
+
+    resolved = resolve_marking_artifact_paths(payload)
+    assert resolved["context"]["attempt_file_path"] == (
+        "/tmp/GoodNotes/Singapore Primary Science/winston.ry.meng@gmail.com/P6/Book/c_test.pdf"
+    )
+    assert resolved["context"]["template_file_path"] == (
+        "/tmp/DaydreamEdu/Singapore Primary Science/P6/Book/_c_test.pdf"
+    )
+
+
+def test_sanitize_marking_artifact_paths_scrubs_emails():
+    payload = _sample_artifact().to_dict()
+    payload["context"]["attempt_file_path"] = (
+        "/Users/me/Library/CloudStorage/GoogleDrive-owner@example.com/My Drive/GoodNotes/"
+        "Singapore Primary Science/winston.ry.meng@gmail.com/P6/Book/c_test.pdf"
+    )
+    sanitized = sanitize_marking_artifact_paths(payload)
+    assert sanitized["context"]["attempt_file_path"] == (
+        "GOODNOTES_ROOT/Singapore Primary Science/<student_email>/P6/Book/c_test.pdf"
+    )

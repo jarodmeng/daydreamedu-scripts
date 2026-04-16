@@ -8,13 +8,14 @@ Canonical marking pipeline for AI Study Buddy. This package defines the
 3. render markdown as a derived view
 4. support human note edits in the canonical JSON
 
-Current version: `v0.1.1`
+Current version: `v0.1.2`
 
 ## Package Scope
 
 - Artifact naming and path conventions (`artifact_paths.py`)
 - Schema validation and score consistency checks (`artifact_schema.py`)
 - Canonical artifact writing (`artifact_writer.py`)
+- Path privacy sanitization and placeholder resolution (`path_privacy.py`)
 - Legacy markdown migration (`migrate_learning_reports.py`)
 - Markdown rendering from canonical JSON (`report_renderer.py`)
 - Human note editing workflow (`edit_human_notes.py`)
@@ -47,6 +48,18 @@ python3 -m ai_study_buddy.marking.workflows.edit_human_notes \
   --summary-note "Reviewed with parent" \
   --updated-by "tutor"
 ```
+
+## Path Privacy Behavior (`v0.1.2+`)
+
+- Canonical JSON remains the source of truth, but path fields are now persisted in a PII-safe form.
+- During artifact write, context path fields are sanitized:
+  - GoodNotes absolute prefix -> `GOODNOTES_ROOT`
+  - DaydreamEdu absolute prefix -> `DAYDREAMEDU_ROOT`
+  - email segments -> `<student_email>`
+- During markdown render, placeholders are resolved back when possible:
+  - roots are resolved from env/config via `ai_study_buddy.files.roots`
+  - `<student_email>` is resolved from `context.student_id` via `PdfFileManager`
+- If resolution data is unavailable, placeholders are preserved (render still succeeds).
 
 ## Context Resolver Usage
 

@@ -2,6 +2,27 @@
 
 All notable changes to `ai_study_buddy.marking` are documented in this file.
 
+## [0.1.2] - 2026-04-16
+
+Small privacy hardening release for canonical artifact paths.
+
+### Added
+
+- `core/path_privacy.py` with shared helpers to:
+  - sanitize canonical artifact context paths at write time
+  - resolve placeholder paths back to local paths at read/render time
+- Artifact-core tests for write-time path sanitization and read-time placeholder expansion.
+
+### Changed
+
+- `write_marking_artifact(...)` now writes PII-safe context paths:
+  - absolute GoodNotes prefixes are normalized to `GOODNOTES_ROOT`
+  - absolute DaydreamEdu prefixes are normalized to `DAYDREAMEDU_ROOT`
+  - email-shaped path segments are replaced with `<student_email>`
+- `render_marking_report_markdown(...)` now resolves placeholders for display:
+  - root placeholders from configured roots (`files/roots.py`)
+  - `<student_email>` via student lookup from `PdfFileManager` using `context.student_id` when available
+
 ## [0.1.1] - 2026-04-15
 
 Small MVP enhancement release for context resolution and skill alignment.
