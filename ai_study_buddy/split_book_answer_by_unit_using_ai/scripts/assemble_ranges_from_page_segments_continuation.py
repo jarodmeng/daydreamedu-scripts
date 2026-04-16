@@ -86,7 +86,7 @@ def main() -> None:
 
     continuation_rule_violations: list[dict] = []
     # Warnings: structural hints that may be false positives when manifest order
-    # includes units with no answer section (prompt v0.1.1 continuation semantics).
+    # includes units with no answer section (prompt v2 continuation semantics).
     continuation_rule_warnings: list[dict] = []
     continuation_substitution_suspicions: list[dict] = []
     per_page_units: dict[int, list[int]] = {}
@@ -190,7 +190,7 @@ def main() -> None:
                         "note": (
                             "Manifest-order predecessor may not match continuation when "
                             "intermediate manifest units have no answer section; compare "
-                            "to model page_segments and prompt v0.1.1 continuation rules."
+                            "to model page_segments and prompt v2 continuation rules."
                         ),
                     }
                 )

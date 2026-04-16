@@ -1,4 +1,4 @@
-# Book Answer Page Segment Prompt v0.1.2
+# Book Answer Page Segment Prompt v5
 
 This prompt defines a constrained page-segmentation schema where continuation
 ownership is a separate scalar field.
@@ -12,11 +12,14 @@ Your task is to inspect each answer page and describe page structure with two se
 1) visible registry headings on the current page
 2) top-of-page continuation ownership from the previous page
 
+Downstream assembly derives per-unit `starts_mid_page` / `ends_mid_page` from these fields. Treating a unit that **actually begins at the physical top of the answer body** as if it were **continuing from the previous page** (via `continued_unit_index`) is a common failure mode on dense two-column pages.
+
 Work visually from the provided page images. Do NOT rely on OCR assumptions. Use visible section headings, practice labels, layout breaks, and continuity of answer content.
 
 Layout rules:
 - Answer pages are often two columns. Follow visible reading order, usually down the left column and then down the right column unless the scan clearly shows a different order.
 - Dense pages can contain multiple heading transitions. Do not collapse them.
+- Trailing blank-page rule: if the last page(s) in the provided answer page window are fully blank (no visible answer content and no visible headings), treat them as non-contributory and do not extend any unit's final `answer_page_end` just because the file has those trailing blank pages.
 
 Registry and heading rules:
 - The provided `unit_files` list is authoritative for valid registry indices and order.
@@ -40,6 +43,14 @@ Continuation ownership rule (critical):
 - Do NOT interpret predecessor as "first visible unit minus one from the manifest list" when that intermediate unit has no visible answer section in this answer file.
 - Example: if page top is still finishing Unit 08 and the first visible heading on the same page is Unit 10, use `continued_unit_index: 8` (not 9), even if Unit 09 exists in `unit_files` but has no corresponding answer section.
 - Do not keep older units alive beyond that single predecessor slot.
+
+Top-of-page vs continuation (operational):
+- For this task, "top of the answer page" means the top of the **main answer print area** (below any small running headers or horizontal rules that repeat every page). Judge carryover relative to that band, not the physical sheet edge.
+- Use `continued_unit_index` **only** for **answer-body tail** from the previous page: lines or blocks that are **visibly the same unit's answers** continuing, **before** the first **matched registry heading** for this page appears in **reading order** (left column then right column unless the scan clearly differs).
+- If the first reading-order content inside that answer body is already a **matched registry heading** for unit f (Practice / Assessment / section label tied to `unit_files`), treat unit f as **starting at the page top** for segmentation purposes: set `continued_unit_index: null` unless there is unmistakable **same-unit** answer content **above** that heading in the layout (not merely generic worksheet lines or numbers).
+- **Do not** set `continued_unit_index` just because answers are dense, small, or lack a large banner; require a **visual continuation** of the **same** unit's answer block from the previous page. When the previous page already ended that unit with a complete practice block and this page opens with a new practice heading, prefer **null**.
+- On **two-column** pages: determine continuation only from content **before** the first matched heading in reading order. If the **left column** begins with a new matched registry heading aligned with other unit starts on neighboring pages, **do not** let unrelated content in the **right column** (or tail from the previous page's right column) force a non-null `continued_unit_index` for the whole page.
+- If torn between "clean top-of-page new unit" vs "tail continues", prefer **`continued_unit_index: null`** and explain the ambiguity in `notes`.
 
 Decision procedure per page:
 1) Identify `visible_unit_indices` in reading order from visible headings.

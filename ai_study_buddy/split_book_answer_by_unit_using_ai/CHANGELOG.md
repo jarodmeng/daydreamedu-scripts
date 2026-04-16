@@ -1,26 +1,29 @@
 # CHANGELOG
 
-## v0.1.3 - 2026-04-15
-
-### Added
-
-- `scripts/benchmark_gemini_models.py`: multi-model benchmark for the continuation pipeline; submits all configured Gemini batch jobs first (default), then polls, processes, and assembles per model; optional ground-truth comparison and printed cost/quality summary table.
+## v0.1.4 - 2026-04-16
 
 ### Changed
 
-- `README.md`: document v0.1.3 and benchmark usage.
+- Continuation prompt (`prompts/book_answer_page_segments_continuation_prompt.md`, **prompt v5**): operational rules for **top-of-page vs `continued_unit_index`**, including two-column reading order, “answer-body tail” vs matched heading at body top, link to downstream `starts_mid_page` / `ends_mid_page`, and a stronger bias toward `null` when ambiguous.
+
+## v0.1.3 - 2026-04-16
+
+### Changed
+
+- Continuation prompt (`prompts/book_answer_page_segments_continuation_prompt.md`, **prompt v4**): clarified trailing blank-page handling for unit ranges. If a trailing answer page is fully blank and contains no answer content or headings, it should not extend the final unit range (content-based end-page policy).
+- `README.md`: documented prompt v4 trailing-blank-page policy.
 
 ## v0.1.2 - 2026-04-15
 
 ### Changed
 
-- Continuation prompt (`prompts/book_answer_page_segments_continuation_prompt.md`): tightened manifest-index discipline for `visible_unit_indices` and clarified that unit indices must be selected by `unit_files` lookup (not inferred from visible heading numbers), including an explicit assessment-offset example.
+- Continuation prompt (`prompts/book_answer_page_segments_continuation_prompt.md`, **prompt v3**): tightened manifest-index discipline for `visible_unit_indices` and clarified that unit indices must be selected by `unit_files` lookup (not inferred from visible heading numbers), including an explicit assessment-offset example.
 
 ## v0.1.1 - 2026-04-15
 
 ### Changed
 
-- Continuation prompt (`prompts/book_answer_page_segments_continuation_prompt.md`): clarified `continued_unit_index` as the last answer-unit still continuing at the top of the page, including manifest units that have no answer section (explicit `08`→`10` example).
+- Continuation prompt (`prompts/book_answer_page_segments_continuation_prompt.md`, **prompt v2**): clarified `continued_unit_index` as the last answer-unit still continuing at the top of the page, including manifest units that have no answer section (explicit `08`→`10` example).
 - Assembler (`scripts/assemble_ranges_from_page_segments_continuation.py`): manifest-order predecessor mismatches (e.g. continued `08` before visible `10` when manifest `09` has no answer section) are recorded as **`continuation_rule_warnings`** with `severity: warning`, not **`continuation_rule_violations`**.
 
 ## v0.1.0 - 2026-04-13
