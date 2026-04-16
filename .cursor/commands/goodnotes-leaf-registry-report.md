@@ -4,8 +4,8 @@ When this command runs, produce a **summary report** comparing **leaf folders** 
 
 ## Rules
 
-- Follow `.cursor/skills/pdf-file-manager/SKILL.md`: use **`PdfFileManager`** from `ai_study_buddy/pdf_file_manager/pdf_file_manager.py` (and `resolve_goodnotes_root()`). Do **not** query the SQLite registry with ad hoc SQL for this task.
-- Resolve the GoodNotes root with `resolve_goodnotes_root()` (uses `GOODNOTES_ROOT`, `ai_study_buddy/pdf_file_manager/local_goodnotes_root.txt`, or sibling discovery). If it returns `None`, say so and stop.
+- Follow `.cursor/skills/pdf-file-manager/SKILL.md`: use **`PdfFileManager`** from `ai_study_buddy/pdf_file_manager/pdf_file_manager.py` and root resolution from `ai_study_buddy/files/roots.py` (`resolve_goodnotes_root()`). Do **not** query the SQLite registry with ad hoc SQL for this task.
+- Resolve the GoodNotes root with `resolve_goodnotes_root()` (uses `GOODNOTES_ROOT`, `ai_study_buddy/local_goodnotes_root.txt`, or sibling discovery). If it returns `None`, say so and stop.
 
 ## Definitions
 
@@ -20,7 +20,7 @@ When this command runs, produce a **summary report** comparing **leaf folders** 
 
 ## What to run
 
-Execute a short **Python one-shot** from the repo root with package imports (no `sys.path` mutation): `from ai_study_buddy.pdf_file_manager import PdfFileManager, resolve_goodnotes_root`. Use the default registry path from the utility / `PDF_REGISTRY_PATH` if set.
+Execute a short **Python one-shot** from the repo root with package imports (no `sys.path` mutation): `from ai_study_buddy.pdf_file_manager import PdfFileManager` and `from ai_study_buddy.files.roots import resolve_goodnotes_root`. Use the default registry path from the utility / `PDF_REGISTRY_PATH` if set.
 
 Collect:
 

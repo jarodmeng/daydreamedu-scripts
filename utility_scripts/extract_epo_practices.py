@@ -6,28 +6,21 @@ Output: EPO_<section>_<practice index>.pdf and EPO_Answers.pdf
 """
 
 import csv
-import os
 import re
 import sys
 from pathlib import Path
 
+from ai_study_buddy.files.roots import resolve_daydreamedu_root
 from pypdf import PdfReader, PdfWriter
 
 
 def _daydreamedu_root() -> Path:
-    env = os.environ.get("DAYDREAMEDU_ROOT", "").strip()
-    if env:
-        return Path(env).expanduser().resolve()
-    repo = Path(__file__).resolve().parents[1]
-    local_file = repo / "ai_study_buddy" / "pdf_file_manager" / "local_daydreamedu_root.txt"
-    if local_file.is_file():
-        for line in local_file.read_text(encoding="utf-8").splitlines():
-            line = line.strip()
-            if line and not line.startswith("#"):
-                return Path(line).expanduser().resolve()
+    root = resolve_daydreamedu_root()
+    if root is not None:
+        return root
     print(
         "Set DAYDREAMEDU_ROOT to your DaydreamEdu folder, or create "
-        "ai_study_buddy/pdf_file_manager/local_daydreamedu_root.txt (see local_daydreamedu_root.example.txt).",
+        "ai_study_buddy/local_daydreamedu_root.txt (see local_daydreamedu_root.example.txt).",
         file=sys.stderr,
     )
     sys.exit(1)
