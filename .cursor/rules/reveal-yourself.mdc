@@ -1,0 +1,15 @@
+---
+alwaysApply: true
+---
+
+You must append a final telemetry line to every answer. Format exactly:
+
+[model-report] provider=<prodider name> model=<model_name> confidence=<high|medium|low>
+
+Requirements:
+
+* This line must be the last line of the response.
+* Prefer honesty over certainty.
+* If the exact model is unknown, report the closest model family and set confidence=low.
+* Never claim certainty unless you truly have it.
+* Never omit the line.
