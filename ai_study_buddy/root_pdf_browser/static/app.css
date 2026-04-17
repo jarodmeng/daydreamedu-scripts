@@ -1,0 +1,379 @@
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  font-size: 14px;
+  color: #1a1a1a;
+  background: #f4f4f5;
+}
+
+#layout {
+  display: flex;
+  height: 100%;
+  min-height: 0;
+  --sidebar-width: 320px;
+}
+
+#sidebar {
+  width: var(--sidebar-width);
+  flex-shrink: 0;
+  min-width: 200px;
+  max-width: min(920px, 90vw);
+  border-right: 1px solid #d4d4d8;
+  background: #fafafa;
+  padding: 12px 10px;
+  overflow: auto;
+}
+
+#splitter {
+  flex: 0 0 6px;
+  margin-left: -3px;
+  margin-right: -3px;
+  z-index: 2;
+  cursor: col-resize;
+  background: transparent;
+  position: relative;
+}
+
+#splitter::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+  transform: translateX(-50%);
+  background: #d4d4d8;
+}
+
+#splitter:hover::after,
+#splitter:focus-visible::after {
+  background: #3b82f6;
+  width: 2px;
+}
+
+#splitter:focus-visible {
+  outline: none;
+}
+
+#sidebar h1 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 8px;
+}
+
+.bookmarks-section {
+  margin-bottom: 14px;
+  padding: 10px;
+  border: 1px solid #e4e4e7;
+  border-radius: 8px;
+  background: #fffbeb;
+}
+
+.bookmarks-section-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.bookmarks-heading {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.bookmarks-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.btn-secondary {
+  font: inherit;
+  font-size: 0.75rem;
+  padding: 4px 8px;
+  border: 1px solid #d4d4d8;
+  border-radius: 6px;
+  background: #fff;
+  cursor: pointer;
+  color: #3f3f46;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: #f4f4f5;
+  border-color: #a1a1aa;
+}
+
+.btn-secondary:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.bookmarks-empty {
+  margin: 0;
+  font-size: 0.75rem;
+  color: #71717a;
+}
+
+.bookmarks-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.bookmarks-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 6px 0;
+  border-top: 1px solid #fde68a;
+  font-size: 0.75rem;
+}
+
+.bookmarks-list li:first-child {
+  border-top: none;
+  padding-top: 2px;
+}
+
+.bookmarks-list li.bm-item.is-current-view {
+  background: #dbeafe;
+  border-radius: 6px;
+  box-shadow: inset 3px 0 0 0 #2563eb;
+  border-top-color: transparent;
+}
+
+.bookmarks-list li.bm-item.is-current-view + li {
+  border-top-color: #fde68a;
+}
+
+.bookmarks-list li.bm-item.is-current-view .bm-open {
+  color: #1e40af;
+  font-weight: 600;
+}
+
+.bookmarks-list .bm-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.bookmarks-list .bm-open {
+  font: inherit;
+  font-size: 0.75rem;
+  padding: 0;
+  border: none;
+  background: none;
+  color: #2563eb;
+  cursor: pointer;
+  text-align: left;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  line-height: 1.35;
+}
+
+.bookmarks-list .bm-open:hover {
+  text-decoration: underline;
+}
+
+.bookmarks-list .bm-meta {
+  display: block;
+  margin-top: 2px;
+  color: #71717a;
+  font-size: 0.6875rem;
+  overflow-wrap: anywhere;
+  word-break: break-all;
+}
+
+.bookmarks-list .bm-remove {
+  flex: 0 0 auto;
+  font: inherit;
+  font-size: 1rem;
+  line-height: 1;
+  padding: 2px 6px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: #71717a;
+  cursor: pointer;
+}
+
+.bookmarks-list .bm-remove:hover {
+  background: #fef3c7;
+  color: #b91c1c;
+}
+
+.pdf-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.bookmark-toggle {
+  flex: 0 0 1.5rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  margin-top: 2px;
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+  color: #a1a1aa;
+}
+
+.bookmark-toggle:hover {
+  background: #f4f4f5;
+  color: #ca8a04;
+}
+
+.bookmark-toggle[aria-pressed="true"] {
+  color: #ca8a04;
+}
+
+.pdf-row .pdf-link {
+  flex: 1;
+  min-width: 0;
+  width: auto;
+  padding-left: 4px;
+}
+
+.pdf-row.is-current-view {
+  margin: 2px 0;
+  padding: 4px 6px 4px 2px;
+  border-radius: 6px;
+  background: #dbeafe;
+  box-shadow: inset 3px 0 0 0 #2563eb;
+}
+
+.pdf-row.is-current-view .pdf-link {
+  color: #1e40af;
+  font-weight: 600;
+}
+
+.pdf-row.is-current-view .bookmark-toggle {
+  color: #ca8a04;
+}
+
+.root-block {
+  margin-bottom: 16px;
+  border: 1px solid #e4e4e7;
+  border-radius: 8px;
+  background: #fff;
+  overflow: hidden;
+}
+
+.root-block h2 {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  margin: 0;
+  padding: 8px 10px;
+  background: #f4f4f5;
+  border-bottom: 1px solid #e4e4e7;
+}
+
+.root-path {
+  font-size: 0.6875rem;
+  color: #71717a;
+  word-break: break-all;
+  padding: 6px 10px;
+  border-bottom: 1px solid #e4e4e7;
+}
+
+.tree {
+  padding: 6px 4px 8px;
+  margin: 0;
+  list-style: none;
+}
+
+.tree ul {
+  list-style: none;
+  margin: 0;
+  padding-left: 14px;
+}
+
+.tree details {
+  margin: 2px 0;
+}
+
+.tree summary {
+  cursor: pointer;
+  user-select: none;
+  padding: 2px 4px;
+  border-radius: 4px;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.tree summary:hover {
+  background: #f4f4f5;
+}
+
+.tree .pdf-link {
+  display: block;
+  padding: 2px 4px 2px 18px;
+  margin: 1px 0;
+  border: none;
+  background: none;
+  font: inherit;
+  color: #2563eb;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 4px;
+  width: 100%;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  hyphens: auto;
+  line-height: 1.35;
+}
+
+.tree .pdf-link:hover {
+  background: #eff6ff;
+}
+
+.tree .empty-folder {
+  color: #a1a1aa;
+  font-size: 0.75rem;
+  padding: 2px 4px 2px 18px;
+}
+
+.tree .load-error {
+  color: #b91c1c;
+  font-size: 0.75rem;
+  padding: 2px 4px;
+}
+
+#viewer {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  background: #52525b;
+}
+
+#empty {
+  margin: auto;
+  padding: 24px;
+  color: #e4e4e7;
+  text-align: center;
+}
+
+#pdf-frame {
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+  border: none;
+  background: #3f3f46;
+}
+
+#pdf-frame:focus {
+  outline: 2px solid #93c5fd;
+  outline-offset: -2px;
+}

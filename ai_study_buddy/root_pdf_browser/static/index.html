@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Root PDF browser</title>
+  <link rel="stylesheet" href="/app.css">
+</head>
+<body>
+  <div id="layout">
+    <aside id="sidebar" aria-label="Folder trees">
+      <h1>Root PDF browser</h1>
+      <section id="bookmarks-section" class="bookmarks-section" aria-label="Bookmarked PDFs">
+        <div class="bookmarks-section-head">
+          <h2 class="bookmarks-heading">Bookmarks</h2>
+          <div class="bookmarks-toolbar">
+            <button type="button" id="bookmarks-export" class="btn-secondary" disabled>Export paths…</button>
+            <button type="button" id="bookmarks-clear" class="btn-secondary" disabled>Clear all</button>
+          </div>
+        </div>
+        <p id="bookmarks-empty" class="bookmarks-empty">No bookmarks yet. Use the star next to a PDF in the tree.</p>
+        <ul id="bookmarks-list" class="bookmarks-list" hidden></ul>
+      </section>
+      <p id="roots-loading">Loading roots…</p>
+      <div id="roots-container" hidden></div>
+    </aside>
+    <div id="splitter" role="separator" aria-orientation="vertical" aria-label="Resize sidebar" title="Drag to resize sidebar" tabindex="0"></div>
+    <main id="viewer" aria-label="PDF viewer">
+      <p id="empty">Select a PDF from the left.</p>
+      <iframe id="pdf-frame" title="PDF" tabindex="0" hidden></iframe>
+    </main>
+  </div>
+  <script src="/app.js"></script>
+</body>
+</html>
