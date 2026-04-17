@@ -1,6 +1,6 @@
 # pdf_file_manager
 
-**Version: v0.3.0**
+**Version: v0.3.2**
 
 A local utility that keeps a SQLite registry of PDF files in the study archive. It tracks exams, worksheets, books, book exercises, activities, notes, and templates (with optional completed variants), keeps on-disk paths and database records in sync, and now supports first-class book unit → answer-page mappings inside `group_type='book'` collections. You can scan one or more folders for new PDFs, optionally compress and archive originals, classify documents by type and metadata, group multi-file documents (e.g. exam booklets or book folders), link completions to templates, and query or import validated book-answer coverage. Every state-mutating operation is recorded in an append-only operation log.
 
@@ -89,7 +89,7 @@ GoodNotes-specific support:
 - `scan_for_new_files` automatically uses `preserve_input=True` for any path under a `GoodNotes/` segment.
 - `scan_for_new_files` scans only direct `*.pdf` children of each supplied root. It does not recurse into nested subfolders; pass nested folders explicitly if you want them processed.
 - With `dry_run=True`, each returned `PdfFile` reflects path inference (subject, `doc_type`, metadata, etc.) as if the scan had run for real. When `roots=[...]` is passed, paths that match a configured scan root still receive that root’s `student_id`.
-- `resolve_goodnotes_template_path` (and the MCP tool `pdf_resolve_goodnotes_template`) resolve GoodNotes main paths to the corresponding DaydreamEdu `_c_` template/source paths based on folder mirroring and naming conventions.
+- `resolve_goodnotes_template_path` (and the MCP tool `pdf_resolve_goodnotes_template`) resolve GoodNotes main paths to DaydreamEdu `_c_` template/source paths in the mirrored **general-scope** folder only (templates are policy-constrained to general scope; student-scope folders are not searched).
 - `link_goodnotes_template_for_file` and `link_goodnotes_templates_for_root` resolve and link DaydreamEdu templates for registered GoodNotes mains. They do not auto-register missing resolved templates; they fail clearly instead.
 
 Run the MCP server with:

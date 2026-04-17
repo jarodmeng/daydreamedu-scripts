@@ -4,6 +4,13 @@ All notable changes to the pdf_file_manager utility are documented here.
 
 ---
 
+## [v0.3.2] — GoodNotes template resolver: general-scope only
+
+- Updated `resolve_goodnotes_template_path` policy to search only the mirrored **general-scope** DaydreamEdu folder for `_c_` template/source files.
+- Removed student-scope DaydreamEdu fallback from resolver behavior to enforce canonical template storage in general scope.
+- Updated GoodNotes resolver/linking tests to reflect the policy and added coverage for the same-basename shadowing case.
+- Updated docs (`README.md`, `MCP.md`, `SPEC.md`) to document the general-scope-only template lookup rule.
+
 ## [v0.3.1] — Filesystem utilities extracted to `ai_study_buddy.files`
 
 - Moved root resolver ownership to `ai_study_buddy/files/roots.py`:

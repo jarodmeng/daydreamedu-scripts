@@ -1299,6 +1299,36 @@ class PdfFileManager:
         self._log_operation("rename", file_id=file_id, before_state=json.dumps({"path": file_path}), after_state=json.dumps({"path": str(new_path.resolve()), "name": new_name}))
         return self.get_file(file_id)
 
+    def _reapply_path_scope_fields(self, file_id: str, pdf_path: Path) -> None:
+        """Refresh student_id, subject, doc_type, is_template, and path-derived metadata from the file path."""
+        conn = self._get_connection()
+        row = conn.execute("SELECT * FROM pdf_files WHERE id = ?", (file_id,)).fetchone()
+        if not row:
+            return
+        inferred = self._infer_from_path(pdf_path)
+        student_id = self._infer_student_id_from_path(pdf_path)
+        subject = inferred.get("subject", row["subject"])
+        doc_type = inferred.get("doc_type") or row["doc_type"]
+        self._validate_doc_type(doc_type)
+        if "is_template" in inferred:
+            is_template = 1 if inferred["is_template"] else 0
+        else:
+            is_template = row["is_template"]
+        current_meta = row["metadata"]
+        if isinstance(current_meta, str):
+            current_meta = json.loads(current_meta) if current_meta else {}
+        else:
+            current_meta = dict(current_meta) if current_meta else {}
+        merged_meta = {**current_meta, **(inferred.get("metadata") or {})}
+        meta_json = json.dumps(merged_meta) if merged_meta else None
+        now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+        conn.execute(
+            """UPDATE pdf_files SET student_id = ?, subject = ?, doc_type = ?, is_template = ?, metadata = ?, updated_at = ?
+               WHERE id = ?""",
+            (student_id, subject, doc_type, is_template, meta_json, now, file_id),
+        )
+        conn.commit()
+
     def move_file(self, file_id_or_path, new_dir: str | Path) -> PdfFile:
         file_id, file_path, row = self._resolve_file_record(file_id_or_path)
         old_path = Path(file_path)
@@ -1321,6 +1351,7 @@ class PdfFileManager:
         )
         conn.commit()
         self._log_operation("move", file_id=file_id, before_state=json.dumps({"path": file_path}), after_state=json.dumps({"path": str(new_path)}))
+        self._reapply_path_scope_fields(file_id, new_path)
         return self.get_file(file_id)
 
     def delete_file(
@@ -1663,12 +1694,13 @@ class PdfFileManager:
         except ValueError as exc:
             raise ValueError(f"Path does not contain a 'GoodNotes' segment: {p}") from exc
 
-        # Student-scoped DaydreamEdu directory: replace GoodNotes with DaydreamEdu
+        # Build DaydreamEdu path components from GoodNotes path.
         daydream_parts = parts.copy()
         daydream_parts[idx] = "DaydreamEdu"
-        student_dir = Path(*daydream_parts[:-1])
 
-        # General-scope DaydreamEdu directory: drop the student email segment
+        # General-scope DaydreamEdu directory: drop the student email segment.
+        # Policy: templates are only valid under general scope; student scope is
+        # not searched for template resolution.
         general_dir: Path | None = None
         if len(daydream_parts) >= idx + 3:
             # Heuristic: the first segment after subject that contains '@' is the student
@@ -1679,9 +1711,13 @@ class PdfFileManager:
                     general_dir = Path(*general_parts[:-1])
                     break
 
-        search_dirs = [student_dir]
-        if general_dir is not None and general_dir != student_dir:
-            search_dirs.append(general_dir)
+        if general_dir is None:
+            raise ValueError(
+                f"Could not resolve GoodNotes template for {name}: "
+                "unable to derive a general-scope DaydreamEdu directory"
+            )
+
+        search_dirs = [general_dir]
 
         # Try each candidate basename in each candidate directory
         for d in search_dirs:

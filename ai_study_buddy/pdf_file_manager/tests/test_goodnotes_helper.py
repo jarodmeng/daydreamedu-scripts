@@ -13,8 +13,8 @@ def _touch(path: Path) -> None:
     path.write_bytes(b"pdf")
 
 
-def test_resolve_goodnotes_template_math_wa1_student_scope():
-    """P6 WA1 practice paper (empty) (attempt) under student scope should map to student-scoped DaydreamEdu _c_ template."""
+def test_resolve_goodnotes_template_math_wa1_requires_general_scope_template():
+    """P6 WA1 attempt should fail when only student-scoped DaydreamEdu template exists."""
     with tempfile.TemporaryDirectory() as tmpdir:
         base = Path(tmpdir)
         goodnotes = base / "GoodNotes"
@@ -31,7 +31,7 @@ def test_resolve_goodnotes_template_math_wa1_student_scope():
         )
         _touch(gn_path)
 
-        # DaydreamEdu template (student scoped)
+        # DaydreamEdu template only in student scope (invalid by policy)
         dd_tpl = (
             daydream
             / "Singapore Primary Math"
@@ -42,8 +42,8 @@ def test_resolve_goodnotes_template_math_wa1_student_scope():
         )
         _touch(dd_tpl)
 
-        resolved = PdfFileManager.resolve_goodnotes_template_path(gn_path)
-        assert resolved == dd_tpl
+        with pytest.raises(ValueError):
+            PdfFileManager.resolve_goodnotes_template_path(gn_path)
 
 
 def test_resolve_goodnotes_template_math_p6_general_scope():
@@ -77,6 +77,46 @@ def test_resolve_goodnotes_template_math_p6_general_scope():
         assert resolved == dd_tpl
 
 
+def test_resolve_goodnotes_template_prefers_general_when_same_basename_in_student():
+    """Student mirror may hold a filled `_c_*.pdf` with the same basename as the general blank; prefer general."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        base = Path(tmpdir)
+        goodnotes = base / "GoodNotes"
+        daydream = base / "DaydreamEdu"
+
+        gn_path = (
+            goodnotes
+            / "Singapore Primary Math"
+            / STUDENT_FOLDER_EMAIL
+            / "P6"
+            / "Exam"
+            / "_c_P6 WA1 practice paper 1 (attempt).pdf"
+        )
+        _touch(gn_path)
+
+        student_dup = (
+            daydream
+            / "Singapore Primary Math"
+            / STUDENT_FOLDER_EMAIL
+            / "P6"
+            / "Exam"
+            / "_c_P6 WA1 practice paper 1.pdf"
+        )
+        _touch(student_dup)
+
+        general_tpl = (
+            daydream
+            / "Singapore Primary Math"
+            / "P6"
+            / "Exam"
+            / "_c_P6 WA1 practice paper 1.pdf"
+        )
+        _touch(general_tpl)
+
+        resolved = PdfFileManager.resolve_goodnotes_template_path(gn_path)
+        assert resolved == general_tpl
+
+
 def test_resolve_goodnotes_template_english_epo_attempt_general_scope():
     """EPO_* (attempt) under English PSLE/Exercise should map to general-scope DaydreamEdu _c_EPO_*.pdf."""
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -107,8 +147,8 @@ def test_resolve_goodnotes_template_english_epo_attempt_general_scope():
         assert resolved == dd_tpl
 
 
-def test_resolve_goodnotes_template_science_reviewed_student_scope():
-    """Reviewed Science file with c_ prefix should map to student-scoped DaydreamEdu _c_ template."""
+def test_resolve_goodnotes_template_science_reviewed_general_scope():
+    """Reviewed Science file with c_ prefix should map to general-scope DaydreamEdu _c_ template."""
     with tempfile.TemporaryDirectory() as tmpdir:
         base = Path(tmpdir)
         goodnotes = base / "GoodNotes"
@@ -127,7 +167,6 @@ def test_resolve_goodnotes_template_science_reviewed_student_scope():
         dd_tpl = (
             daydream
             / "Singapore Primary Science"
-            / STUDENT_FOLDER_EMAIL
             / "P6"
             / "Exam"
             / "_c_P6 Science Weighted Review 1.pdf"
@@ -217,7 +256,6 @@ def test_link_goodnotes_template_for_file_can_auto_fix_template_flag():
             base
             / "DaydreamEdu"
             / "Singapore Primary English"
-            / STUDENT_FOLDER_EMAIL
             / "P6"
             / "Exam"
             / "_c_P6 English Term 1 Weighted Review.pdf"
@@ -287,7 +325,6 @@ def test_link_goodnotes_template_for_file_is_idempotent_for_same_template():
             base
             / "DaydreamEdu"
             / "Singapore Primary Science"
-            / STUDENT_FOLDER_EMAIL
             / "P6"
             / "Exam"
             / "_c_P6 Science Weighted Review 1.pdf"

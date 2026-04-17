@@ -259,7 +259,7 @@ Remove the completed↔template relation for this file. Writes an `unlink_templa
 
 #### `link_goodnotes_template_for_file(main_path, auto_fix_template=True, inherit_metadata=True) -> GoodNotesTemplateLinkOutcome`
 
-Resolve the matching DaydreamEdu `_c_` template path for one registered GoodNotes main file, optionally auto-fix `is_template=True` on that already-registered resolved target, then call `link_to_template`. Raises `NotFoundError` if the completion is not registered or if the resolved template exists on disk but is not registered. Raises `ValueError` if the path is not under `GoodNotes/`, if the completion is not a non-template `main`, if the resolved template is not a `main`, or if the completion is already linked to a different template.
+Resolve the matching DaydreamEdu `_c_` template path for one registered GoodNotes main file, optionally auto-fix `is_template=True` on that already-registered resolved target, then call `link_to_template`. Template resolution is **general-scope only**: the mirrored DaydreamEdu folder with the student-email segment removed is searched; student-scope DaydreamEdu folders are not searched. Raises `NotFoundError` if the completion is not registered or if the resolved template exists on disk but is not registered. Raises `ValueError` if the path is not under `GoodNotes/`, if the completion is not a non-template `main`, if a general-scope template path cannot be derived or found, if the resolved template is not a `main`, or if the completion is already linked to a different template.
 
 #### `link_goodnotes_templates_for_root(root, dry_run=False, auto_fix_template=True, inherit_metadata=True) -> list[GoodNotesTemplateLinkOutcome]`
 
