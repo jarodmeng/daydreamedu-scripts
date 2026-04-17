@@ -1,0 +1,138 @@
+---
+name: reprocess-wa-exam-template
+description: >-
+  Reprocesses student scanned weighted assessment/exam PDFs into cleaned
+  general-scope templates and links student completion files to those templates.
+  Use when school-returned papers are scanned with writing, usually as `_raw_`
+  files, and the user wants a merged file for external cleanup followed by
+  template/completion registry linking.
+---
+
+# Reprocess WA/Exam Template (MVP)
+
+## When this skill applies
+
+- Student scanned school papers (weighted assessments or exams) include handwriting and must be cleaned.
+- Files are currently student completion files and should end with template-linked completion records.
+- User wants to clean one merged file externally, not multiple files.
+
+## Required inputs (ask if missing)
+
+1. Path to the list txt file (absolute paths, one PDF per line; `#` comments allowed).
+2. Confirmation of external-cleaning handoff path (default output convention is used unless user overrides).
+
+## Input conventions and derivation rules
+
+- Do not ask for student email as a required input in MVP.
+- Derive student scope and destination paths directly from each listed path.
+- The target doc type is inferred from the same folder structure as the source student-scope files (for example `Exam` or `Weighted Assessment`) and reused for general-scope outputs.
+- All listed files in one run should share one subject + one grade + one doc type. If mixed, stop and ask.
+- Canonical source layout for each listed path is:
+  - `DAYDREAMEDU_ROOT/<subject>/<student_email>/<grade>/<doc_type>/<filename>.pdf`
+  - with `<grade>` in `P1`-`P6`, `PSLE`, or `Archive`.
+- Canonical general template destination layout is:
+  - `DAYDREAMEDU_ROOT/<subject>/<grade>/<doc_type>/<filename_without_raw_prefix>.pdf`
+- If any listed path does not match the canonical source layout exactly, stop and ask; do not infer by guesswork.
+- Derive `<doc label>` for merged/cleaned artifacts from stable shared scope:
+  - default: `<subject> <grade> <doc_type>`
+  - if user provides a custom label/path, use that instead.
+
+## Fail-fast validation (run before Phase A actions)
+
+1. Parse and normalize all list entries (`expanduser().resolve()`), preserving txt order.
+2. Reject immediately if any item:
+   - is not under `DAYDREAMEDU_ROOT`;
+   - is not a `.pdf`;
+   - does not exist as a file;
+   - does not match the canonical source layout above.
+3. Compute shared tuple `(subject, student_email, grade, doc_type)` from all rows:
+   - if more than one unique tuple is present, stop and ask to split into separate runs.
+4. Check canonical basename mapping:
+   - working basename = strip exactly one leading `_raw_` when present;
+   - if two different source rows map to the same working basename, stop and ask.
+5. Compute destination collision checks before moving:
+   - any existing destination completion/template file path => stop and ask;
+   - any existing merged/cleaned artifact at intended path => stop and ask (or require explicit replacement instruction).
+6. Only proceed to Phase A after all checks pass.
+
+## Prerequisites
+
+- Read and follow [`pdf-file-manager`](../pdf-file-manager/SKILL.md) for registry operations.
+- Resolve DaydreamEdu root via `resolve_daydreamedu_root()` from [`ai_study_buddy/files/roots.py`](../../../ai_study_buddy/files/roots.py).
+- Use shell `mv` for file moves (no copy+delete workflow for moves).
+- For deletions, move to Trash (`mv <path> ~/.Trash/`), never `rm`.
+
+## Workflow
+
+### Phase A — Prepare, move, and merge (mandatory)
+
+1. Validate list file:
+   - Read lines in order, skip blank/comment lines.
+   - Apply all rules from "Fail-fast validation"; do not continue on partial validity.
+2. Derive normalized target metadata from paths:
+   - Subject, student segment, grade, doc type, and basename.
+   - Basename convention: if file starts with `_raw_`, strip one `_raw_` for working completion filename.
+3. Move completion files into the canonical student-scope destination if needed:
+   - Use `mv` only.
+   - Stop on collisions; do not overwrite silently.
+4. Merge all files in list order into one PDF (mandatory):
+   - Output: `DAYDREAMEDU_ROOT/<doc label> - merged.pdf` (or user-provided override).
+   - Verify merged page count equals sum of source page counts.
+5. Stop for external cleanup:
+   - User cleans the merged file outside this workflow.
+   - Expected cleaned artifact default: `DAYDREAMEDU_ROOT/<doc label> - cleaned.pdf`.
+
+### Phase B — Split cleaned output, place templates, scan, and link
+
+1. Validate cleaned PDF exists and page count matches expected merged total.
+2. Derive per-file split boundaries from student completion files in original txt order:
+   - For each canonical basename `<name>.pdf`, check student folder in this order:
+     1. `<student_dir>/<name>.pdf`
+     2. `<student_dir>/_c_<name>.pdf`
+   - Use the first existing candidate to compute page count.
+   - If neither exists for any entry, stop and ask.
+3. Split cleaned PDF by those derived per-file page counts in original txt order.
+4. Move split cleaned files into matching general-scope folder for inferred subject + grade + doc type:
+   - Keep canonical basenames (without `_raw_`).
+5. Run `PdfFileManager().scan_for_new_files` on:
+   - The affected general-scope folder.
+   - The matching student-scope folder.
+6. Ensure template/completion status:
+   - General files become/are registered with `is_template=true`.
+   - Student files remain `is_template=false`.
+7. Link completion to template:
+   - Match by canonical basename in corresponding student/general folders.
+   - Completion main path should use `_c_` naming where present (`_c_<name>.pdf`).
+   - Template main path should use `_c_` naming where present (`_c_<name>.pdf`).
+   - Call `link_to_template(completed_id=<student_main_id>, template_id=<general_main_id>, inherit_metadata=True)`.
+
+## Verification checklist (required)
+
+- Every intended general main file is present and registered as template (`is_template=true`).
+- Every intended student main file is present and registered as completion (`is_template=false`).
+- Every student completion in scope resolves a template link to the matching general template file.
+- No unexpected duplicate template candidates for the same canonical basename.
+
+## Rerun and failure handling
+
+- If a completion already has a template link, skip and record unless user asks to relink.
+- If cleaned split counts do not match expected source counts, stop and ask (no guessed boundaries).
+- If destination files already exist, stop and ask before replacing.
+
+## Cleanup
+
+- After successful Phase B, move temporary artifacts to Trash when present:
+  - `DAYDREAMEDU_ROOT/<doc label> - merged.pdf`
+  - `DAYDREAMEDU_ROOT/<doc label> - cleaned.pdf`
+
+## Observed in live run
+
+- In real WA/Exam student folders, completion files may exist only as `_c_*.pdf` plus `_raw_*.pdf`, without plain `<name>.pdf`.
+- Phase B boundary detection must therefore support `<student_dir>/<name>.pdf` first, then `_c_<name>.pdf` fallback.
+- Template linking should target main files (`_c_*.pdf`) on both student and general sides when available.
+
+## MVP constraints
+
+- This MVP optimizes for recurring WA/Exam runs with one coherent batch.
+- It does not yet include advanced registry cleanups used in the two-part "student completion from general" workflow.
+- If future runs need book-group or mapping repair semantics, extend this skill with an "advanced mode" section.
