@@ -12,6 +12,7 @@ Stable **`#`**: **1** = oldest, **higher = newer** (never renumber). Rows are **
 
 | # | Run id | Run name |
 |---|--------|----------|
+| 14 | `conquer_exam_terry_chew_p5_lessons_p1_37.v01` | Conquer Exam Standard Mathematics Problem Sums with Terry Chew Primary 5 (lessons only, answer p1–37, Gemini 2.5 Pro) |
 | 13 | `math_model_drawing_p5_p6.v02_openai_gpt5_4_reason_medium` | Model Drawing Made Easy and Inspiring for P5 and P6 (OpenAI gpt-5.4, reasoning medium) |
 | 12 | `math_model_drawing_p3_p4.v02_openai_gpt5_4` | Math Model Drawing P3/P4 (Benchmark Test 03, OpenAI) |
 | 11 | `english_weekly_revision_primary_1.v5_openai_gpt54mini` | English Weekly Revision Primary 1 (prompt v5 + gpt-5.4-mini) |
@@ -29,6 +30,51 @@ Stable **`#`**: **1** = oldest, **higher = newer** (never renumber). Rows are **
 ---
 
 ## Runs
+
+### 14. conquer_exam_terry_chew_p5_lessons_p1_37.v01 — Conquer Exam Standard Mathematics Problem Sums with Terry Chew Primary 5 (lessons, Gemini)
+
+| Field | Value |
+|--------|--------|
+| **Run id** | `conquer_exam_terry_chew_p5_lessons_p1_37.v01` |
+| **Logged** | 2026-04-17 |
+| **Pipeline** | split_book_answer_by_unit_using_ai **prompt v5** (Gemini Batch, continuation page-segments) |
+| **Registry book label** | `Conquer Exam Standard Mathematics Problem Sums with Terry Chew Primary 5` |
+| **Pre-run registry fix** | Removed **7** duplicate book-group members: student-mirror `_c_` lesson PDFs under `winston.ry.meng@gmail.com/.../P5/Book/...` (kept general `…/Singapore Primary Math/P5/Book/...` template rows). |
+| **Manifest filters** | `--unit-include-substring Lesson` and `--unit-exclude-substring Story` (**28** units). |
+| **Model** | `models/gemini-2.5-pro` |
+| **Batch request key** | `book:conquer_exam_standard_mathematics_problem_sums_with_terry_chew_primary_5:page_segments_continuation_gemini:p1_37` |
+| **Answer pages in batch** | 1–37 |
+| **Units in manifest** | 28 |
+| **Gemini batch job** | `batches/y1zp7nmih580v541g0l7sceatsxyzvr3zol1` |
+| **Uploaded JSONL (API)** | `files/j60238k61bic` |
+| **Status** | completed (`JOB_STATE_SUCCEEDED`; `job.end_time` `2026-04-17T04:50:02.969492+00:00`). |
+
+**Token usage** (from `response.usageMetadata` in `…v01.output.jsonl`)
+
+| Field | Value |
+|--------|--------|
+| **Prompt tokens** | 14,511 |
+| **Thoughts tokens** | 5,312 |
+| **Candidates tokens** | 3,320 |
+| **Total tokens** | 23,143 |
+
+**Artifacts (repo-relative)**
+
+| Stage | Path |
+|--------|--------|
+| Batch input JSONL | `batch_artifacts/conquer_exam_terry_chew_p5_lessons_p1_37.v01.jsonl` |
+| Job metadata | `batch_artifacts/conquer_exam_terry_chew_p5_lessons_p1_37.v01.job.json` |
+| Job name (one line) | `batch_artifacts/conquer_exam_terry_chew_p5_lessons_p1_37.v01.job_name.txt` |
+| Raw batch output | `batch_artifacts/conquer_exam_terry_chew_p5_lessons_p1_37.v01.output.jsonl` |
+| Processed JSON | `batch_artifacts/conquer_exam_terry_chew_p5_lessons_p1_37.v01.processed.json` |
+| Assembled mappings | `batch_artifacts/conquer_exam_terry_chew_p5_lessons_p1_37.v01.assembled.json` |
+| Ground-truth JSON | `pilot_ground_truth/conquer_exam_terry_chew_p5_lessons_ground_truth.json` |
+| Ground-truth table | `pilot_ground_truth/conquer_exam_terry_chew_p5_lessons_ground_truth_table.md` |
+
+**Notes**
+
+- **Import:** `PdfFileManager.import_book_answer_mappings_from_json` with source `ground_truth_conquer_exam_terry_chew_p5_lessons_p1_37_v01` — **28** rows imported; `list_book_answer_mappings(book_group_id=…)` shows **28** mappings for this book group.
+- **Human validation (2026-04-17):** Manual review of all **28** lesson mappings (answer pages 1–37, split-page flags) — **confirmed correct** end-to-end.
 
 ### 13. math_model_drawing_p5_p6.v02_openai_gpt5_4_reason_medium — Model Drawing Made Easy and Inspiring for P5 and P6 (OpenAI)
 
