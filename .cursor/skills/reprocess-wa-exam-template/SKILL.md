@@ -97,6 +97,10 @@ description: >-
 5. Run `PdfFileManager().scan_for_new_files` on:
    - The affected general-scope folder.
    - The matching student-scope folder.
+   - After scan, resolve main candidates in this order for both sides:
+     1. `<dir>/_c_<name>.pdf`
+     2. `<dir>/<name>.pdf`
+   - Note: scan/compress may materialize `_raw_` + `_c_` pairs from plain split files; do not assume the pre-scan plain path remains the main file.
 6. Ensure template/completion status:
    - General files become/are registered with `is_template=true`.
    - Student files remain `is_template=false`.
@@ -112,6 +116,7 @@ description: >-
 - Every intended student main file is present and registered as completion (`is_template=false`).
 - Every student completion in scope resolves a template link to the matching general template file.
 - No unexpected duplicate template candidates for the same canonical basename.
+- Verification should be identity-based in the registry (resolved main path + linked template id), not strict string equality against the pre-scan plain split filename.
 
 ## Rerun and failure handling
 
@@ -130,6 +135,7 @@ description: >-
 - In real WA/Exam student folders, completion files may exist only as `_c_*.pdf` plus `_raw_*.pdf`, without plain `<name>.pdf`.
 - Phase B boundary detection must therefore support `<student_dir>/<name>.pdf` first, then `_c_<name>.pdf` fallback.
 - Template linking should target main files (`_c_*.pdf`) on both student and general sides when available.
+- In general-scope Phase B runs, scan/compress can replace a newly split plain file with `_raw_` and `_c_`; post-scan linking/verification should resolve `_c_` first, then plain.
 
 ## MVP constraints
 
