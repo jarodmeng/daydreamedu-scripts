@@ -34,7 +34,12 @@ def _fmt_percentage(value: Any) -> str:
 
 
 def _row_icon(outcome: str) -> str:
-    return {"correct": "OK", "partial": "PART", "wrong": "X", "disqualified": "DQ"}.get(outcome, "?")
+    # Emoji legend:
+    # - ✅ full marks
+    # - ⚠️ partial credit
+    # - ❌ zero marks
+    # - 🚫 disqualified / excluded
+    return {"correct": "✅", "partial": "⚠️", "wrong": "❌", "disqualified": "🚫"}.get(outcome, "❓")
 
 
 def render_marking_report_markdown(data: dict[str, Any]) -> str:
@@ -64,7 +69,7 @@ def render_marking_report_markdown(data: dict[str, Any]) -> str:
             "",
             "## Marking Table",
             "",
-            "Convention: `OK` = full marks, `PART` = partial credit, `X` = zero marks, `DQ` = disqualified/excluded.",
+            "Convention: `✅` = full marks, `⚠️` = partial credit, `❌` = zero marks, `🚫` = disqualified/excluded.",
             "",
             "| Name | Scoring status | Student answer | Correct answer | Total marks | Obtained marks | Skill tags | Diagnosis | Human note |",
             "| --- | --- | --- | --- | ---: | ---: | --- | --- | --- |",

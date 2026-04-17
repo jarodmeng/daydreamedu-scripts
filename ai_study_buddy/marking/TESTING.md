@@ -1,6 +1,6 @@
-# Testing Guide (`v0.1.2`)
+# Testing Guide
 
-This guide defines the testing workflow for `ai_study_buddy.marking`.
+This guide defines the testing workflow for `ai_study_buddy.marking`. Package release version: see `README.md` / `CHANGELOG.md`.
 
 ## Test Scope
 

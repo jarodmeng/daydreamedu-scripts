@@ -1,4 +1,6 @@
-# Marking Package Specification (`v0.1.2`)
+# Marking Package Specification
+
+Package release version: see **Current version** in `README.md` and entries in `CHANGELOG.md`.
 
 ## Purpose
 
@@ -21,6 +23,8 @@ The package guarantees:
   `ai_study_buddy/context/marking_results/<student>/<subject_context>/<attempt_basename>.json`
 - Derived markdown path:
   `ai_study_buddy/context/learning_reports/<student>/<subject_context>/<attempt_basename> - Marking Report.md`
+- Ephemeral page renders, verification crops, and per-run `_*.py` helpers (not part of this package) live under:
+  `ai_study_buddy/context/.marking_scratch/<scratch_slug>/` — see `.cursor/skills/mark-goodnote-completion/SKILL.md`.
 
 ## Core Functional Requirements
 
@@ -189,7 +193,7 @@ Normative algorithm (MVP, path-first):
 - `core/artifact_schema.py`: schema loading/validation and scoring utilities
 - `core/artifact_paths.py`: naming/path builder utilities
 
-## Non-Goals for `v0.1.2`
+## Non-Goals
 
 - Bounding-box or crop-region evidence storage in artifact rows
 - Database-first canonical storage

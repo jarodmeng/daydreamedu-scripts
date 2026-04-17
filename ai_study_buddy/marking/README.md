@@ -8,7 +8,7 @@ Canonical marking pipeline for AI Study Buddy. This package defines the
 3. render markdown as a derived view
 4. support human note edits in the canonical JSON
 
-Current version: `v0.1.2`
+Current version: `v0.1.4`
 
 ## Package Scope
 
@@ -29,6 +29,8 @@ Current version: `v0.1.2`
 - `schemas/marking_result.v1.schema.json`: canonical JSON schema
 - `tests/test_artifact_core.py`: core artifact and rendering tests
 - `tests/test_migration.py`: migration parser and migration flow tests
+
+Per-run renders, answer crops, and disposable `_mark_*.py` / `_render_*.py` helpers live under `ai_study_buddy/context/.marking_scratch/<scratch_slug>/` (see `.cursor/skills/mark-goodnote-completion/SKILL.md`), not in this package root.
 
 ## Quick Start
 

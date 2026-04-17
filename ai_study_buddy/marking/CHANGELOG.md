@@ -2,6 +2,26 @@
 
 All notable changes to `ai_study_buddy.marking` are documented in this file.
 
+Committed changes under `ai_study_buddy/marking/` should add an entry here and bump **Current version** in `README.md` (semver: **patch** for docs or small renderer tweaks, **minor** for schema or public API changes). `SPEC.md` / `TESTING.md` titles do not carry the package version.
+
+## [0.1.4] - 2026-04-17
+
+### Documentation
+
+- `SPEC.md` / `TESTING.md`: removed semver from titles; version is tracked in `README.md` and this changelog only.
+
+## [0.1.3] - 2026-04-17
+
+Small documentation and report-rendering polish.
+
+### Changed
+
+- `workflows/report_renderer.py`: marking table uses ✅ / ⚠️ / ❌ / 🚫 icons (and legend text updated) instead of `OK` / `PART` / `X` / `DQ`, aligned with the mark-goodnote-completion skill.
+
+### Documentation
+
+- `SPEC.md` and `README.md`: document ephemeral per-run renders, crops, and `_*.py` helpers under `ai_study_buddy/context/.marking_scratch/`; README clarifies they are not kept at the package root.
+
 ## [0.1.2] - 2026-04-16
 
 Small privacy hardening release for canonical artifact paths.
