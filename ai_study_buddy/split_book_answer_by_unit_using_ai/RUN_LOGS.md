@@ -12,6 +12,7 @@ Stable **`#`**: **1** = oldest, **higher = newer** (never renumber). Rows are **
 
 | # | Run id | Run name |
 |---|--------|----------|
+| 13 | `math_model_drawing_p5_p6.v02_openai_gpt5_4_reason_medium` | Model Drawing Made Easy and Inspiring for P5 and P6 (OpenAI gpt-5.4, reasoning medium) |
 | 12 | `math_model_drawing_p3_p4.v02_openai_gpt5_4` | Math Model Drawing P3/P4 (Benchmark Test 03, OpenAI) |
 | 11 | `english_weekly_revision_primary_1.v5_openai_gpt54mini` | English Weekly Revision Primary 1 (prompt v5 + gpt-5.4-mini) |
 | 10 | `english_weekly_revision_primary_1.v5_openai_gpt5_4` | English Weekly Revision Primary 1 (prompt v5 + gpt-5.4) |
@@ -28,6 +29,51 @@ Stable **`#`**: **1** = oldest, **higher = newer** (never renumber). Rows are **
 ---
 
 ## Runs
+
+### 13. math_model_drawing_p5_p6.v02_openai_gpt5_4_reason_medium — Model Drawing Made Easy and Inspiring for P5 and P6 (OpenAI)
+
+| Field | Value |
+|--------|--------|
+| **Run id** | `math_model_drawing_p5_p6.v02_openai_gpt5_4_reason_medium` |
+| **Logged** | 2026-04-17 |
+| **Pipeline** | split_book_answer_by_unit_using_ai **prompt v5** (OpenAI batch variant, `reasoning.effort=medium`) |
+| **Registry book label** | `Model Drawing Made Easy and Inspiring for P5 and P6` |
+| **Model** | `gpt-5.4` (job `model`: `gpt-5.4-2026-03-05`) |
+| **Batch request key** | `book:model_drawing_made_easy_and_inspiring_for_p5_and_p6:page_segments_continuation_openai:p1_138` |
+| **Answer pages in batch** | 1–138 |
+| **Units in manifest** | 110 |
+| **OpenAI batch job** | `batch_69e18a49d3c08190b774598ee50fdd84` |
+| **Uploaded JSONL (API)** | `file-H4LpfNgjSC5hCxxQPqRu1G` |
+| **Status** | completed (`status: completed`; request_counts: `total=1, completed=1, failed=0`). |
+
+**Token usage**
+
+| Field | Value |
+|--------|--------|
+| **Input tokens** | 413,252 (`usage.input_tokens`) |
+| **Cached input tokens** | 0 (`usage.input_tokens_details.cached_tokens`) |
+| **Output tokens** | 16,397 (`usage.output_tokens`) |
+| **Reasoning tokens** | 10,026 (`usage.output_tokens_details.reasoning_tokens`) |
+| **Total tokens** | 429,649 (`usage.total_tokens`) |
+| **Source** | `batch.usage` in `batch_artifacts/math_model_drawing_p5_p6.v02_openai_gpt5_4_reason_medium.job.json` |
+
+**Artifacts (repo-relative)**
+
+| Stage | Path |
+|--------|--------|
+| Batch input JSONL | `batch_artifacts/math_model_drawing_p5_p6.v01_openai_gpt5_4_reason_medium.jsonl` (reused for v02 submit) |
+| Job metadata | `batch_artifacts/math_model_drawing_p5_p6.v02_openai_gpt5_4_reason_medium.job.json` |
+| Job id (one line) | `batch_artifacts/math_model_drawing_p5_p6.v02_openai_gpt5_4_reason_medium.job_id.txt` |
+| Raw batch output | `batch_artifacts/math_model_drawing_p5_p6.v02_openai_gpt5_4_reason_medium.output.jsonl` |
+| Processed JSON | `batch_artifacts/math_model_drawing_p5_p6.v02_openai_gpt5_4_reason_medium.processed.json` |
+| Assembled mappings | `batch_artifacts/math_model_drawing_p5_p6.v02_openai_gpt5_4_reason_medium.assembled.json` |
+| Pilot ground-truth compare | `batch_artifacts/math_model_drawing_p5_p6.v02_openai_gpt5_4_reason_medium.compare.json` |
+
+**Notes**
+
+- **Benchmark Test 04:** compare target is `pilot_ground_truth/model_drawing_made_easy_p5_p6_ground_truth.json` (**Gemini-derived** anchor, **110** units; same shape as other pilot compares).
+- Assembled vs pilot ground truth: **`83/110` exact** (range + split flags), **`86/110` range-only**, **`27`** mismatches incl. flags; predicted unit count **`110`** (no dropped index). See `…compare.json` for per-unit deltas.
+- Build for this book was ~`57.8` MiB batch input (138 answer pages as JPEGs).
 
 ### 12. math_model_drawing_p3_p4.v02_openai_gpt5_4 — Math Model Drawing Made Easy and Inspiring Primary 3 and 4 (Benchmark Test 03)
 
