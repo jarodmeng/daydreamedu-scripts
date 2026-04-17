@@ -43,4 +43,4 @@ Convention: `✅` = full marks, `⚠️` = partial credit, `❌` = zero marks.
 - Gradable scope covers Questions `1-14` (full visible paper coverage for this completion).
 - Completion file registration and template linking were confirmed before marking.
 - Q12 used the requested rubric split: `内容 2` + `表达 2` (awarded `内容 1/2`, `表达 1/2`).
-- Required key verification was done in two visual passes using isolated page-10 key crops, including strict Q12 crops (`answer_q12_crop_v2` and `answer_q12_crop_v3_strict`) under `ai_study_buddy/context/.tmp_mark_emma_chinese_wa1_4/`.
+- Required key verification was done in two visual passes using isolated page-10 key crops, including strict Q12 crops (`answer_q12_crop_v2` and `answer_q12_crop_v3_strict`) under the per-run folder in `ai_study_buddy/context/.marking_scratch/` (see mark-goodnote-completion skill).

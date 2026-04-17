@@ -1,0 +1,118 @@
+{
+  "schema_version": "marking_result.v1",
+  "created_at": "2026-04-16T12:47:28.235638+00:00",
+  "updated_at": "2026-04-16T12:47:28.235638+00:00",
+  "context": {
+    "student_id": "emma",
+    "student_name": "Emma Meng",
+    "subject_context": "singapore_primary_math",
+    "attempt_file_id": "8a32e3f3-1a6f-4c98-bf9a-781d36ac20a5",
+    "attempt_file_path": "GOODNOTES_ROOT/Singapore Primary Math/<student_email>/P4/Book/Math Model Drawing Made Easy and Inspiring Primary 3 and 4/c_Math Model Drawing Made Easy and Inspiring Primary 3 and 4 - 19 - Unit 2 - Skill 2.5.pdf",
+    "template_file_id": "20fb897e-3391-4e42-88e5-adaf6ea44627",
+    "template_file_path": "DAYDREAMEDU_ROOT/Singapore Primary Math/P4/Book/Math Model Drawing Made Easy and Inspiring Primary 3 and 4/_c_Math Model Drawing Made Easy and Inspiring Primary 3 and 4 - 19 - Unit 2 - Skill 2.5.pdf",
+    "book_group_id": "038cc11d-e193-4c29-8fd8-dab76bb63d07",
+    "book_label": "Math Model Drawing Made Easy and Inspiring Primary 3 and 4",
+    "unit_file_id": "20fb897e-3391-4e42-88e5-adaf6ea44627",
+    "unit_file_path": "DAYDREAMEDU_ROOT/Singapore Primary Math/P4/Book/Math Model Drawing Made Easy and Inspiring Primary 3 and 4/_c_Math Model Drawing Made Easy and Inspiring Primary 3 and 4 - 19 - Unit 2 - Skill 2.5.pdf",
+    "unit_label": "19 - Unit 2 - Skill 2.5",
+    "answer_file_id": "5749741e-5668-4680-ade8-390912326b60",
+    "answer_file_path": "DAYDREAMEDU_ROOT/Singapore Primary Math/P4/Book/Math Model Drawing Made Easy and Inspiring Primary 3 and 4/_c_Math Model Drawing Made Easy and Inspiring Primary 3 and 4 - 77 - Worked Solutions.pdf",
+    "answer_page_start": 11,
+    "answer_page_end": 12,
+    "starts_mid_page": true,
+    "ends_mid_page": true,
+    "answer_mapping_source": "ground_truth_math_model_drawing_p3_p4_v01",
+    "answer_mapping_notes": null,
+    "question_selection": {
+      "raw_text": null,
+      "canonical_refs": [],
+      "section_hint": null
+    }
+  },
+  "summary": {
+    "total_marks": 3,
+    "earned_marks": 2,
+    "percentage": 66.66666666666666,
+    "overall_assessment": "Emma showed a solid grasp of the grouping idea in Practice 2.5. She correctly modelled and costed the mixed game-set and doll offer in Q1, and her model for the juice problem in Q3 matches the worked solution. In Q2, however, a slip in adding the two scaled masses led to an under-count of the total mass. Taking a moment to re-check the final addition against the intermediate totals (2800 g and 1280 g) would likely have caught this error.",
+    "human_note": null
+  },
+  "question_results": [
+    {
+      "result_id": "Q1",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "$135",
+      "correct_answer": "$135",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Ratio",
+        "grouping offers",
+        "mixed-cost comparison (3 for $10, 4 for $25)"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q2",
+      "max_marks": 1,
+      "earned_marks": 0,
+      "outcome": "wrong",
+      "student_answer": "3248 g",
+      "correct_answer": "4080 g",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [
+        "computation_error"
+      ],
+      "skill_tags": [
+        "Ratio",
+        "mass and unit value",
+        "scaling unequal groups then combining totals"
+      ],
+      "diagnosis": {
+        "mistake_type": "computation_error",
+        "reasoning": "She correctly found 14 groups of yellow marbles and 8 groups of blue marbles and used 200 g and 160 g per group, but when adding the two masses she effectively added 2800 g and 448 g instead of 2800 g and 1280 g, dropping a factor of 10 in the blue-marble total.",
+        "confidence": "high"
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q3",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "9500 ml; 9 l 500 ml",
+      "correct_answer": "9500 ml; 9 l 500 ml",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Ratio",
+        "volume and unit value",
+        "two-capacity containers with total-volume comparison"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    }
+  ],
+  "review_meta": {
+    "updated_at": null,
+    "updated_by": null
+  },
+  "generation": {
+    "produced_by": "mark_goodnote_completion",
+    "mode": "manual_visual_marking",
+    "notes": "Manually graded from Emma's GoodNotes completion for 'Math Model Drawing Made Easy and Inspiring Primary 3 and 4 - 19 - Unit 2 - Skill 2.5' against the mapped worked-solution pages (11\u201312)."
+  }
+}

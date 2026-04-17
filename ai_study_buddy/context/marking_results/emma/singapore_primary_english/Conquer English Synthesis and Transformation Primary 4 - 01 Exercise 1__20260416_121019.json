@@ -1,0 +1,250 @@
+{
+  "schema_version": "marking_result.v1",
+  "created_at": "2026-04-16T12:10:19.483392Z",
+  "updated_at": "2026-04-16T12:10:19.483392Z",
+  "context": {
+    "student_id": "emma",
+    "student_name": null,
+    "subject_context": "singapore_primary_english",
+    "attempt_file_id": "3879a5b4-8c92-40e9-871a-612832fa008f",
+    "attempt_file_path": "GOODNOTES_ROOT/Singapore Primary English/<student_email>/P4/Book/Conquer English Synthesis and Transformation Primary 4/c_Conquer English Synthesis and Transformation Primary 4 - 01 Exercise 1.pdf",
+    "template_file_id": "473793f4-97f1-4c9b-b75d-a203fc6e153d",
+    "template_file_path": "DAYDREAMEDU_ROOT/Singapore Primary English/P4/Book/Conquer English Synthesis and Transformation Primary 4/_c_Conquer English Synthesis and Transformation Primary 4 - 01 Exercise 1.pdf",
+    "book_group_id": "fbec8ba0-85b9-462b-8cb9-b65c5280dfb0",
+    "book_label": "Conquer English Synthesis and Transformation Primary 4",
+    "unit_file_id": "473793f4-97f1-4c9b-b75d-a203fc6e153d",
+    "unit_file_path": "DAYDREAMEDU_ROOT/Singapore Primary English/P4/Book/Conquer English Synthesis and Transformation Primary 4/_c_Conquer English Synthesis and Transformation Primary 4 - 01 Exercise 1.pdf",
+    "unit_label": "01 Exercise 1",
+    "answer_file_id": "451d78fb-62e3-49e5-87b4-60a14fa33464",
+    "answer_file_path": "DAYDREAMEDU_ROOT/Singapore Primary English/P4/Book/Conquer English Synthesis and Transformation Primary 4/_c_Conquer English Synthesis and Transformation Primary 4 - 071 Answers.pdf",
+    "answer_page_start": 2,
+    "answer_page_end": 2,
+    "starts_mid_page": false,
+    "ends_mid_page": true,
+    "answer_mapping_source": "ground_truth_conquer_english_synthesis_transformation_primary_4_v01",
+    "answer_mapping_notes": null,
+    "question_selection": {
+      "raw_text": null,
+      "canonical_refs": [],
+      "section_hint": null
+    }
+  },
+  "summary": {
+    "total_marks": 10,
+    "earned_marks": 10,
+    "percentage": 100.0,
+    "overall_assessment": "Excellent work: all ten 'until' sentences convey the correct meaning with natural phrasing.",
+    "human_note": null
+  },
+  "question_results": [
+    {
+      "result_id": "Q1",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "We stayed at the beach until it was evening.",
+      "correct_answer": "We stayed at the beach until it was evening.",
+      "scoring_status": "counted",
+      "feedback": "Good sentence with correct use of 'until'.",
+      "error_tags": [],
+      "skill_tags": [
+        "Grammar > connectors > until"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": "Student's sentence meaning matches the model answer and uses 'until' correctly.",
+        "confidence": "high"
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q2",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "We continued working until we were tired.",
+      "correct_answer": "We continued working until we were tired.",
+      "scoring_status": "counted",
+      "feedback": "Good sentence with correct use of 'until'.",
+      "error_tags": [],
+      "skill_tags": [
+        "Grammar > connectors > until"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": "Student's sentence meaning matches the model answer and uses 'until' correctly.",
+        "confidence": "high"
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q3",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "Tom ate until he was full.",
+      "correct_answer": "Tom ate until he was full.",
+      "scoring_status": "counted",
+      "feedback": "Good sentence with correct use of 'until'.",
+      "error_tags": [],
+      "skill_tags": [
+        "Grammar > connectors > until"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": "Student's sentence meaning matches the model answer and uses 'until' correctly.",
+        "confidence": "high"
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q4",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "Martha practised the song until she became good at it.",
+      "correct_answer": "Martha practised the song until she became good at it.",
+      "scoring_status": "counted",
+      "feedback": "Good sentence with correct use of 'until'.",
+      "error_tags": [],
+      "skill_tags": [
+        "Grammar > connectors > until"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": "Student's sentence meaning matches the model answer and uses 'until' correctly.",
+        "confidence": "high"
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q5",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "We swam in the sea until the sun went down.",
+      "correct_answer": "We swam in the sea until the sun went down.",
+      "scoring_status": "counted",
+      "feedback": "Good sentence with correct use of 'until'.",
+      "error_tags": [],
+      "skill_tags": [
+        "Grammar > connectors > until"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": "Student's sentence meaning matches the model answer and uses 'until' correctly.",
+        "confidence": "high"
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q6",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "We searched the forest until we found the treasure.",
+      "correct_answer": "We searched the forest until we found the treasure.",
+      "scoring_status": "counted",
+      "feedback": "Good sentence with correct use of 'until'.",
+      "error_tags": [],
+      "skill_tags": [
+        "Grammar > connectors > until"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": "Student's sentence meaning matches the model answer and uses 'until' correctly.",
+        "confidence": "high"
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q7",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "I scrubbed the blouse until the stain came out.",
+      "correct_answer": "I scrubbed the blouse until the stain came out.",
+      "scoring_status": "counted",
+      "feedback": "Good sentence with correct use of 'until'.",
+      "error_tags": [],
+      "skill_tags": [
+        "Grammar > connectors > until"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": "Student's sentence meaning matches the model answer and uses 'until' correctly.",
+        "confidence": "high"
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q8",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "I was reading the book until I got to the last chapter.",
+      "correct_answer": "I was reading the book until I got to the last chapter.",
+      "scoring_status": "counted",
+      "feedback": "Good sentence with correct use of 'until'.",
+      "error_tags": [],
+      "skill_tags": [
+        "Grammar > connectors > until"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": "Student's sentence meaning matches the model answer and uses 'until' correctly.",
+        "confidence": "high"
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q9",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "The baby kept crying until his mother carried him.",
+      "correct_answer": "The baby kept crying until his mother carried him.",
+      "scoring_status": "counted",
+      "feedback": "Good sentence with correct use of 'until'.",
+      "error_tags": [],
+      "skill_tags": [
+        "Grammar > connectors > until"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": "Student's sentence meaning matches the model answer and uses 'until' correctly.",
+        "confidence": "high"
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q10",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "The children slept until the alarm clock rang.",
+      "correct_answer": "The children slept until the alarm clock rang.",
+      "scoring_status": "counted",
+      "feedback": "Good sentence with correct use of 'until'.",
+      "error_tags": [],
+      "skill_tags": [
+        "Grammar > connectors > until"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": "Student's sentence meaning matches the model answer and uses 'until' correctly.",
+        "confidence": "high"
+      },
+      "human_note": null
+    }
+  ],
+  "review_meta": {
+    "updated_at": null,
+    "updated_by": null
+  },
+  "generation": {
+    "produced_by": "cursor-agent",
+    "mode": "manual-visual-marking",
+    "notes": null
+  }
+}

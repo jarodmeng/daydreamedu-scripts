@@ -1,0 +1,896 @@
+{
+  "schema_version": "marking_result.v1",
+  "created_at": "2026-04-16T12:51:58.386420+00:00",
+  "updated_at": "2026-04-16T12:51:58.386420+00:00",
+  "context": {
+    "student_id": "winston",
+    "student_name": "Winston Meng",
+    "subject_context": "singapore_primary_math",
+    "attempt_file_id": "19153d42-d9b4-448b-98c3-f72ab13a10b3",
+    "attempt_file_path": "GOODNOTES_ROOT/Singapore Primary Math/<student_email>/PSLE/Book/Power Pack Math PSLE/c_PP Math PSLE Part D P6 Topical Practice Circles.pdf",
+    "template_file_id": "d151922c-8cdd-4b37-bb71-92726375c23b",
+    "template_file_path": "DAYDREAMEDU_ROOT/Singapore Primary Math/PSLE/Book/Power Pack Math PSLE/_c_PP Math PSLE Part D P6 Topical Practice Circles.pdf",
+    "book_group_id": "c8db9e09-8b03-4fdf-afb8-d1933faa3251",
+    "book_label": "Power Pack Math PSLE",
+    "unit_file_id": "d151922c-8cdd-4b37-bb71-92726375c23b",
+    "unit_file_path": "DAYDREAMEDU_ROOT/Singapore Primary Math/PSLE/Book/Power Pack Math PSLE/_c_PP Math PSLE Part D P6 Topical Practice Circles.pdf",
+    "unit_label": "Part D P6 Topical Practice Circles",
+    "answer_file_id": "e0616031-6213-4360-bc5b-3ca42ead819e",
+    "answer_file_path": "DAYDREAMEDU_ROOT/Singapore Primary Math/PSLE/Book/Power Pack Math PSLE/_c_PP Math PSLE Worked Solutions.pdf",
+    "answer_page_start": 54,
+    "answer_page_end": 58,
+    "starts_mid_page": true,
+    "ends_mid_page": true,
+    "answer_mapping_source": "imported_ground_truth",
+    "answer_mapping_notes": null,
+    "question_selection": {
+      "raw_text": null,
+      "canonical_refs": [],
+      "section_hint": null
+    }
+  },
+  "summary": {
+    "total_marks": 38,
+    "earned_marks": 33,
+    "percentage": 86.8421052631579,
+    "overall_assessment": "Winston showed a strong grasp of P6 circles overall, scoring 30 out of 35. His work on straightforward circumference and area questions was consistently accurate, and he handled many composite-figure problems well. The main gaps appeared in a handful of more complex shaded-area and perimeter questions (Q14, Q22, Q26, Q30 and Q33b), where careful diagrams and step-by-step checks of what region is included or excluded would help avoid over- or under-counting.",
+    "human_note": null
+  },
+  "question_results": [
+    {
+      "result_id": "Q1",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "12 cm",
+      "correct_answer": "12 cm",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Circles",
+        "diameter and radius",
+        "radius to diameter"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q2",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "66 cm",
+      "correct_answer": "66 cm",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Circles",
+        "circumference",
+        "use C = \u03c0d with \u03c0 = 22/7"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q3",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "154 m\u00b2",
+      "correct_answer": "154 m\u00b2",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Circles",
+        "area",
+        "area of circle with \u03c0 = 22/7"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q4",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "25.12 cm\u00b2",
+      "correct_answer": "25.12 cm\u00b2",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Circles",
+        "area",
+        "area of semicircle"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q5",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "35.7 cm",
+      "correct_answer": "35.7 cm",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Circles",
+        "perimeter",
+        "perimeter of quarter circle with radius and straight sides"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q6",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "154 cm\u00b2",
+      "correct_answer": "154 cm\u00b2",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Circles",
+        "area",
+        "composite figure with quarter circle and semicircle"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q7",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "85 cm\u00b2",
+      "correct_answer": "85 cm\u00b2",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Circles",
+        "area",
+        "triangle plus quarter circles"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q8",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "(30 - 5/2 \u03c0) cm\u00b2 (\u2248 22.15 cm\u00b2)",
+      "correct_answer": "(30 - 5/2 \u03c0) cm\u00b2",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Circles",
+        "area",
+        "leave answer in terms of \u03c0"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q9",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "(400 - 100\u03c0) cm\u00b2",
+      "correct_answer": "(400 - 100\u03c0) cm\u00b2",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Circles",
+        "area",
+        "square minus semicircle and quarter circles"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q10",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "1200\u03c0 cm\u00b2",
+      "correct_answer": "1200\u03c0 cm\u00b2",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Circles",
+        "area",
+        "difference of two circles"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q11",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "157 cm",
+      "correct_answer": "157 cm",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Circles",
+        "circumference",
+        "C = \u03c0d with \u03c0 = 3.14"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q12",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "14 cm",
+      "correct_answer": "14 cm",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Circles",
+        "diameter and radius",
+        "find diameter from circumference"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q13",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "308 cm\u00b2",
+      "correct_answer": "308 cm\u00b2",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Circles",
+        "area",
+        "area of semicircle with radius 14 cm"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q14",
+      "max_marks": 1,
+      "earned_marks": 0,
+      "outcome": "wrong",
+      "student_answer": "33.5 cm",
+      "correct_answer": "38.5 cm",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [
+        "computation_error"
+      ],
+      "skill_tags": [
+        "Circles",
+        "radius from circumference",
+        "two-step conversion via diameter then radius"
+      ],
+      "diagnosis": {
+        "mistake_type": "computation_error",
+        "reasoning": "The circumference 242 cm gives a diameter of 77 cm using C = \u03c0d with \u03c0 = 22/7; the radius is then 77 \u00f7 2 = 38.5 cm. Winston first found 77 cm correctly but then divided by 2 incorrectly to get 33.5 cm instead of 38.5 cm.",
+        "confidence": "high"
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q15",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "2464 m\u00b2",
+      "correct_answer": "2464 m\u00b2",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Circles",
+        "area",
+        "area of circle with diameter 56 m"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q16",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "628 cm\u00b2",
+      "correct_answer": "628 cm\u00b2",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Circles",
+        "area",
+        "area of semicircle from diameter 40 cm"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q17",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "164 cm",
+      "correct_answer": "164 cm",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Circles",
+        "perimeter",
+        "rectangle plus two quarter-circle arcs"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q18",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "238 cm\u00b2",
+      "correct_answer": "238 cm\u00b2",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Circles",
+        "area",
+        "rectangle plus two semicircles"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q19",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "115.5 m\u00b2",
+      "correct_answer": "115.5 m\u00b2",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Circles",
+        "area",
+        "semicircle and quarter circle composite"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q20",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "157 cm\u00b2",
+      "correct_answer": "157 cm\u00b2",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Circles",
+        "area",
+        "two semicircles and a quarter circle"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q21",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "28 cm",
+      "correct_answer": "28 cm",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Circles",
+        "radius from distance",
+        "use circumference over number of rounds"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q22",
+      "max_marks": 1,
+      "earned_marks": 0,
+      "outcome": "wrong",
+      "student_answer": "616 cm\u00b2",
+      "correct_answer": "154 cm\u00b2",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [
+        "concept_gap"
+      ],
+      "skill_tags": [
+        "Circles",
+        "area",
+        "three semicircles composite area"
+      ],
+      "diagnosis": {
+        "mistake_type": "concept_gap",
+        "reasoning": "The shaded region is the combined area of three semicircles, which equals the area of one full circle of radius 7 cm, 154 cm\u00b2. Winston appears to have treated intermediate working as the final area and did not subtract correctly to match the target shaded region.",
+        "confidence": "medium"
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q23",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "43 cm\u00b2",
+      "correct_answer": "43 cm\u00b2",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Circles",
+        "area",
+        "rectangle minus two quarter circles"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q24",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "86 cm\u00b2",
+      "correct_answer": "86 cm\u00b2",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Circles",
+        "area",
+        "square minus four quarter circles"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q25",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "235.5 cm\u00b2",
+      "correct_answer": "235.5 cm\u00b2",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Circles",
+        "area",
+        "circle and triangle composite"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q26",
+      "max_marks": 1,
+      "earned_marks": 0,
+      "outcome": "wrong",
+      "student_answer": "185.5 cm",
+      "correct_answer": "285.5 cm",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [
+        "computation_error"
+      ],
+      "skill_tags": [
+        "Circles",
+        "perimeter",
+        "two semicircles perimeter with straight segment"
+      ],
+      "diagnosis": {
+        "mistake_type": "computation_error",
+        "reasoning": "The correct perimeter adds the curved parts of both semicircles and the straight base, giving 285.5 cm. Winston's working combines these lengths incorrectly and drops about 100 cm compared with the worked solution.",
+        "confidence": "medium"
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q27",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "210 cm\u00b2",
+      "correct_answer": "210 cm\u00b2",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Circles",
+        "area",
+        "quadrant minus right-angled triangle"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q28",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "partial",
+      "student_answer": "553 cm\u00b2",
+      "correct_answer": "553 cm\u00b2",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Circles",
+        "area",
+        "square minus semicircle and quarter circle"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": "Awarded full marks, but handwriting makes the leading digit look ambiguous. A school marker could decide not to give credit if the 5 is not clearly distinguishable from other digits."
+    },
+    {
+      "result_id": "Q29",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "309.6 cm\u00b2 (\u2248 309.52 cm\u00b2)",
+      "correct_answer": "309.52 cm\u00b2",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Circles",
+        "area",
+        "two semicircles plus triangle"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q30",
+      "max_marks": 1,
+      "earned_marks": 0,
+      "outcome": "wrong",
+      "student_answer": "136.96 cm\u00b2",
+      "correct_answer": "72.96 cm\u00b2",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [
+        "concept_gap"
+      ],
+      "skill_tags": [
+        "Circles",
+        "area",
+        "square, circle and inner square composite"
+      ],
+      "diagnosis": {
+        "mistake_type": "concept_gap",
+        "reasoning": "The shaded part should be the large square minus the circle plus the small inner square, which leads to 72.96 cm\u00b2. Winston's working overcounts the circular region, giving almost double the correct shaded area.",
+        "confidence": "medium"
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q31",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "40 m",
+      "correct_answer": "40 m",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Circles",
+        "perimeter",
+        "two semicircles perimeter"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q32a",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "616 cm\u00b2",
+      "correct_answer": "616 cm\u00b2",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Circles",
+        "area",
+        "area of circle from diameter"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q32b",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "3136 cm\u00b2",
+      "correct_answer": "3136 cm\u00b2",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Circles",
+        "area",
+        "rectangle built from four equal circles"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q33a",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "98 cm\u00b2",
+      "correct_answer": "98 cm\u00b2",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Circles",
+        "area",
+        "right-angled triangle in a quarter circle"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q33b",
+      "max_marks": 1,
+      "earned_marks": 0,
+      "outcome": "wrong",
+      "student_answer": "252 cm\u00b2",
+      "correct_answer": "140 cm\u00b2",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [
+        "concept_gap"
+      ],
+      "skill_tags": [
+        "Circles",
+        "area",
+        "shaded region in rectangle with quarter circle"
+      ],
+      "diagnosis": {
+        "mistake_type": "concept_gap",
+        "reasoning": "The shaded part should be the rectangle minus the quarter-circle segment, giving 140 cm\u00b2. Winston combines triangle and circular areas in a way that more than doubles the correct shaded area.",
+        "confidence": "medium"
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q34",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "8624 cm\u00b2",
+      "correct_answer": "8624 cm\u00b2",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Circles",
+        "area",
+        "difference of three semicircles and largest semicircle"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q35a",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "\u2248 83.88 cm\u00b2",
+      "correct_answer": "83.88 cm\u00b2",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Circles",
+        "area",
+        "square plus three-quarter circle"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q35b",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "33.55 cm",
+      "correct_answer": "33.55 cm",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [
+        "Circles",
+        "perimeter",
+        "square side plus three-quarter arc"
+      ],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    }
+  ],
+  "review_meta": {
+    "updated_at": null,
+    "updated_by": null
+  },
+  "generation": {
+    "produced_by": "mark_goodnote_completion",
+    "mode": "manual_visual_marking",
+    "notes": "Manually graded from Winston's GoodNotes completion for 'Power Pack Math PSLE Part D P6 Topical Practice Circles' against the mapped worked-solution pages (54\u201358)."
+  }
+}
