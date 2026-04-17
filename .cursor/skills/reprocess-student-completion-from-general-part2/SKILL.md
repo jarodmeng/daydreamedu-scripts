@@ -13,6 +13,8 @@ description: >-
 
 # Reprocess student completion from general (part 2 — after cleaning)
 
+> Preferred workflow: use the unified skill [`reprocess-student-completion-from-general`](../reprocess-student-completion-from-general/SKILL.md). Keep this part-2 skill for backward compatibility and narrow/legacy runs.
+
 ## When this skill applies
 
 - **Part 1** is already done: mistaken `_raw_` files were moved into the student's DaydreamEdu tree (basename **without** `_raw_`), registry rows for the old general paths were cleared (**including** general-scope **`group_type='book'`** membership and any **`book_answer_mappings`** for those unit mains—see part 1 step 3), and a **merged** PDF was produced for cleaning.

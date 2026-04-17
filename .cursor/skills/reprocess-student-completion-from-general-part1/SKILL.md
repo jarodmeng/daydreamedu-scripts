@@ -13,6 +13,8 @@ description: >-
 
 # Reprocess student completion from general (part 1 — before cleaning)
 
+> Preferred workflow: use the unified skill [`reprocess-student-completion-from-general`](../reprocess-student-completion-from-general/SKILL.md). Keep this part-1 skill for backward compatibility and narrow/legacy runs.
+
 ## When this skill applies
 
 - The user supplies a **`.txt` file** (one absolute path per line, `#` comments allowed) listing PDFs that live under **general-scope** DaydreamEdu (`…/<subject>/<grade>/Book/<book>/…`) with **`_raw_` prefixes**, but those files are **actually a student's completions** (wrong scope).
