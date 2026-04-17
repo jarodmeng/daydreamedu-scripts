@@ -3,7 +3,8 @@ name: reprocess-student-completion-from-general-part1
 description: >-
   Moves mistaken general-scope `_raw_` book PDFs (actually a student's filled work)
   into that student's DaydreamEdu mirror folder, strips the `_raw_` basename prefix,
-  removes their registry rows (main + raw), and writes `<book folder name> - merged.pdf`
+  removes their registry rows (main + raw), clears general-scope book `file_groups`
+  membership (and unit answer mappings when present), and writes `<book folder name> - merged.pdf`
   at the literal `DAYDREAMEDU_ROOT` for out-of-band cleaning. Use when the user provides
   a text file listing absolute paths to `_raw_*.pdf` files under a general-scope
   `…/<subject>/<grade>/Book/<book>/` tree, or asks to start the
@@ -61,15 +62,26 @@ If any listed path already contains a student email segment between subject and 
 - For each source path, compute destination directory with **`mkdir -p`**, then **`mv source dest`**.
 - If destination exists, **stop** without overwriting.
 
-### 3) Registry — remove old general-scope rows
+### 3) Registry — remove old general-scope rows **and** book group membership
 
-For each **original** (pre-move) raw path from the list:
+`scan_for_new_files` ends by calling **`ensure_book_group_from_path`** for each touched book folder. That helper **only adds** mains whose path lies under the general `…/Book/<book name>/` folder; it **does not remove** stale `file_group_members` rows. If the **`pdf_files`** rows are not fully cleared, or group membership is out of sync, a later re-scan can leave **duplicate “units”** in the same `group_type='book'` group. Step 3 must therefore clean **both** the file rows/relations **and** the general-scope **book file group** for this run.
+
+**Once per run (before the per-file loop):**
+
+1. Infer **`<book name>`** from the list paths using the same rule as step 4 (`…/Book/<book name>/…`).
+2. Resolve the **general-scope book group**: `PdfFileManager().list_file_groups(group_type='book')` and pick the group whose **`label`** equals **`<book name>`**. If **zero** or **more than one** match, **stop** and ask (ambiguous label).
+
+**For each** **original** (pre-move) raw path from the list:
 
 1. `PdfFileManager().get_file_by_path(original_raw_path)`.
 2. If **not** found, log and continue (path may never have been registered or was removed earlier).
 3. If found and `file_type == 'raw'`, locate the linked **`main`** via **`get_related_files`** / `raw_source` (see [`pdf_file_manager.py`](../../../ai_study_buddy/pdf_file_manager/pdf_file_manager.py)).
-4. If a linked **`main`** exists: **`delete_file(main_id, keep_related=False, notes=…)`** so the **main row and raw row** and **`raw_source` relations** are removed together.  
-   - This attempts **`os.remove`** on registered paths; after **part 1** disk moves, old raw paths are usually absent on disk, so **`os.remove`** may only log a warning—expected.
+4. If a linked **`main`** exists (call its id **`main_id`**):
+   1. **`remove_from_file_group(general_book_group.id, main_id)`** so this main is dropped from the **`file_groups` / `file_group_members`** book registry even if later steps differ. Safe to call when not a member (SQL delete is a no-op).
+   2. If a **`book_answer_mapping`** exists for that unit, **`delete_book_answer_mapping(main_id)`**; if none exists, **`NotFoundError`** is expected—skip.
+   3. **`delete_file(main_id, keep_related=False, notes=…)`** so the **main row and raw row** and **`raw_source` relations** are removed together.  
+      - `delete_file` also issues **`DELETE FROM file_group_members WHERE file_id = ?`** for that main; calling **`remove_from_file_group` first** still matters so the book group is explicitly updated (anchor cleared when needed) and the workflow does not rely on scan-time sync alone—`ensure_book_group_from_path` never evicts stale members by path.
+      - This attempts **`os.remove`** on registered paths; after **part 1** disk moves, old raw paths are usually absent on disk, so **`os.remove`** may only log a warning—expected.
 5. Else (**raw** only, no linked **main**): **`delete_file(raw_id, keep_related=False, …)`** or stop and clarify with the user if orphan removal is unsafe.
 
 ### 4) Merge — output location and naming

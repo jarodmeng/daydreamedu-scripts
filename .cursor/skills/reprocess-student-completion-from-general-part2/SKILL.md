@@ -5,16 +5,17 @@ description: >-
   unit PDFs (names from the original list without `_raw_`), moves them into the
   general-scope book folder, re-scans general + student book folders with
   pdf_file_manager, links each student `_c_` main to its general template main,
-  verifies metadata, then removes top-level `DAYDREAMEDU_ROOT` merged/cleaned
-  artifacts to Trash. Use when the user supplies the cleaned PDF path plus the same
-  txt file used in part 1 listing the original general-scope `_raw_` paths.
+  verifies metadata and general book `file_groups` membership (no duplicate units),
+  then removes top-level `DAYDREAMEDU_ROOT` merged/cleaned artifacts to Trash.
+  Use when the user supplies the cleaned PDF path plus the same txt file used in
+  part 1 listing the original general-scope `_raw_` paths.
 ---
 
 # Reprocess student completion from general (part 2 — after cleaning)
 
 ## When this skill applies
 
-- **Part 1** is already done: mistaken `_raw_` files were moved into the student's DaydreamEdu tree (basename **without** `_raw_`), registry rows for the old general paths were cleared, and a **merged** PDF was produced for cleaning.
+- **Part 1** is already done: mistaken `_raw_` files were moved into the student's DaydreamEdu tree (basename **without** `_raw_`), registry rows for the old general paths were cleared (**including** general-scope **`group_type='book'`** membership and any **`book_answer_mappings`** for those unit mains—see part 1 step 3), and a **merged** PDF was produced for cleaning.
 - The user supplies:
   1. **Path to the cleaned PDF** (typically `DAYDREAMEDU_ROOT/<book name> - cleaned.pdf` at the **literal top level** of DaydreamEdu—confirm if different).
   2. **The same `.txt` list** used in part 1 (absolute paths to the **original** general-scope `_raw_` files, in the desired **split/merge order**).
@@ -85,6 +86,16 @@ PdfFileManager().scan_for_new_files(roots=[general_book_dir, student_book_dir], 
 - **`metadata.unit`** sensible for book inference.
 - **`get_file_group_membership(main_id)`** includes a **`group_type='book'`** group labelled with the book name.
 
+**General book group — no duplicate units**
+
+- Resolve the same general book group as part 1: **`list_file_groups(group_type='book')`** where **`label`** equals **`<book name>`** from the list (one match expected).
+- After scan, **`get_file_group(group_id).members`** should contain **exactly one `main`** per list line (same **N** as the txt), each path under **`general_book_dir`**. If the member count is **> N** or any basename appears twice, part 1 registry/group cleanup was incomplete or an extra PDF sits in the general folder—**stop** and reconcile before relying on links or mappings.
+
+**`book_answer_mappings` (optional follow-up)**
+
+- Part 1 **`delete_book_answer_mapping`** removed per-unit answer coverage for those mains. New mains get **new** `pdf_files` ids after re-scan, so **old mapping rows cannot “come back”** automatically.
+- If this book relied on registry answer mappings, re-apply them with the usual tools (e.g. **`import_book_answer_mappings_from_json`** / **`set_book_answer_mapping`** per **[`pdf-file-manager`](../pdf-file-manager/SKILL.md)** and **`SPEC.md`**) using the **new** unit file ids or paths—outside the default part 2 loop unless the user asks.
+
 **Student folder** — for each unit:
 
 - Raw + main: **`is_template=False`**, **`student_id`** set to the registry’s short id for that student (non-null).
@@ -103,6 +114,7 @@ PdfFileManager().scan_for_new_files(roots=[general_book_dir, student_book_dir], 
 
 ## Failure modes
 
+- **Book group has duplicate or extra mains** after step 4 → see step 6 “no duplicate units”; fix registry + folder contents before proceeding.
 - **Page total mismatch** after cleaning → user may have added/removed pages; do not guess split boundaries.
 - **Multiple books in one txt** → unsupported without splitting the workflow per book.
 - **Destination PDF already exists** in general folder → stop; user must resolve collisions.
