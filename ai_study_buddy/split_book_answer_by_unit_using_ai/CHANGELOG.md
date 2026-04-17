@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v0.1.5 - 2026-04-17
+
+### Changed
+
+- `scripts/book_context.py`: `parse_unit_index` accepts **3-digit** unit numbers in filenames (e.g. `... - 100 ...`) and **1–3 digit** leading unit numbers from file metadata, matching more export naming styles.
+- `scripts/check_openai_batch_status.py`: when a batch finishes, optionally fetch provider **error JSONL** via `--errors` (default path derived from `--output`); tolerate missing `output_file_id` when an error file is present, with a clear stderr warning and exit code.
+
 ## v0.1.4 - 2026-04-16
 
 ### Changed

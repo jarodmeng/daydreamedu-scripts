@@ -144,7 +144,8 @@ def parse_unit_index(file) -> int:
     if match:
         return int(match.group(1))
 
-    match = re.search(r" - (\d{2}) ", file.name)
+    # Many book exports use `... - 01 ...` but some have `... - 100 ...`
+    match = re.search(r" - (\d{2,3}) ", file.name)
     if match:
         return int(match.group(1))
 
@@ -152,7 +153,7 @@ def parse_unit_index(file) -> int:
         unit = file.metadata.get("unit") or ""
         unit_norm = unit.strip().lower()
 
-        match = re.match(r"(\d{2})\b", unit)
+        match = re.match(r"(\d{1,3})\b", unit)
         if match:
             return int(match.group(1))
         match = re.search(r"\btopic\s+(\d+)\b", unit, re.IGNORECASE)

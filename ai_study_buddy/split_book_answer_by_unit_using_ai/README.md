@@ -1,6 +1,6 @@
 # split_book_answer_by_unit_using_ai
 
-Version: **v0.1.4**
+Version: **v0.1.5**
 
 This utility detects answer-page ranges for per-unit files using a single production pipeline:
 
@@ -17,6 +17,8 @@ This utility detects answer-page ranges for per-unit files using a single produc
 **v0.1.3:** Prompt v4 clarified trailing blank-page policy: trailing fully blank answer pages should not extend the final unit range.
 
 **v0.1.4:** Prompt v5 sharpens top-of-page vs continuation (`continued_unit_index`) for dense scans and two-column layouts.
+
+**v0.1.5:** `book_context.parse_unit_index` accepts more filename/metadata unit-number shapes; OpenAI batch status helper can save provider error JSONL and handles completed batches without successful output more clearly.
 
 ## Why this MVP exists
 

@@ -58,6 +58,13 @@ def main() -> None:
     )
     parser.add_argument("--poll", action="store_true", help="Poll until the batch reaches a terminal state")
     parser.add_argument("--poll-interval", type=int, default=30, help="Polling interval in seconds")
+    parser.add_argument(
+        "--errors",
+        type=Path,
+        default=None,
+        help="When the batch completes with failures, save provider error JSONL here "
+        "(default: same basename as --output with .errors.jsonl)",
+    )
     args = parser.parse_args()
 
     api_key = os.getenv("OPENAI_API_KEY")
@@ -95,12 +102,34 @@ def main() -> None:
 
     if status == "completed" and args.output is not None:
         out_id = batch.get("output_file_id")
-        if not out_id:
-            raise SystemExit("Error: Batch completed but output_file_id is missing")
+        err_id = batch.get("error_file_id")
         args.output.parent.mkdir(parents=True, exist_ok=True)
-        body = _get_bytes(url=f"https://api.openai.com/v1/files/{out_id}/content", api_key=api_key)
-        args.output.write_bytes(body)
-        print(f"Saved output to {args.output}")
+        if out_id:
+            body = _get_bytes(url=f"https://api.openai.com/v1/files/{out_id}/content", api_key=api_key)
+            args.output.write_bytes(body)
+            print(f"Saved output to {args.output}")
+        err_path = args.errors
+        if err_id:
+            if err_path is None:
+                name = args.output.name
+                if name.endswith(".output.jsonl"):
+                    err_path = args.output.with_name(name.replace(".output.jsonl", ".errors.jsonl"))
+                else:
+                    err_path = args.output.with_name(f"{args.output.stem}.errors.jsonl")
+            err_path.parent.mkdir(parents=True, exist_ok=True)
+            body = _get_bytes(url=f"https://api.openai.com/v1/files/{err_id}/content", api_key=api_key)
+            err_path.write_bytes(body)
+            print(f"Saved error details to {err_path}")
+        if not out_id:
+            rc = batch.get("request_counts") or {}
+            print(
+                f"Warning: batch status=completed but output_file_id is missing "
+                f"(request_counts={rc}). See error file if present.",
+                file=sys.stderr,
+            )
+            if err_id:
+                raise SystemExit("Error: batch finished without successful output (see errors JSONL above)")
+            raise SystemExit("Error: Batch completed but output_file_id and error_file_id are both missing")
     elif status != "completed" and args.output is not None:
         print(f"Batch did not complete successfully (status={status}); not downloading output", file=sys.stderr)
 
