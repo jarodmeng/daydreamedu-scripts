@@ -122,6 +122,14 @@ Use the visible content on the attempt pages to decide:
 - whether each question has sub-parts like `(a)` and `(b)`
 - whether the student wrote enough to grade
 
+Cross-check the **question count** before marking:
+
+- From the attempt pages, list all question labels you can see (for example Q1–Q10, Q33(a), Q33(b)).
+- From the isolated answer-key crop for the same exercise, list all corresponding answer entries.
+- Confirm that the two lists match exactly in both **labels** and **count** before you start filling `question_results`.
+- If the user has asked you to grade only a subset (for example "only Q1–Q5"), explicitly record that subset in `context.question_selection.raw_text` and ensure only those questions appear in `question_results`.
+- If you discover additional questions while marking (for example a Q35 on a later page), stop and update the lists so that the final JSON and report cover **all intended questions** and no more.
+
 Do not grade:
 
 - worked examples printed in the template
