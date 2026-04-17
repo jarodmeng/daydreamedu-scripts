@@ -34,14 +34,19 @@ Collect:
    - scan-root + some direct PDFs unregistered
    - non-scan-root + all direct PDFs registered
    - non-scan-root + some direct PDFs unregistered
-7. Full folder table for all leaf folders included in this report (which already excludes excluded leaf folders): relative path, scan-root (`yes`/`no`), `unregistered/total` direct PDFs, and list of unregistered basenames (empty list if none).
+7. Full folder table for all leaf folders included in this report (which already excludes excluded leaf folders): relative path, scan-root (`yes`/`no`), `unregistered/total` direct PDFs, and list of unregistered basenames (empty list if none). Keep this data available, but do not print it by default.
 
 ## Report format (for the user)
+
+Default output (unless the user explicitly asks for details):
 
 1. One-line **context**: GoodNotes root path, registry DB path used.
 2. **Summary** with the counts above, including the 4-bucket registration breakdown by scan-root status.
 3. **Excluded leaf folders** section (if present): relative path and `unregistered/total`, plus unregistered basenames.
-4. **Full table** of all included leaf folders (not only problematic ones): relative path, scan-root flag, `unregistered/total`, unregistered basenames.
-5. **Footnote**: matching is **exact path**; if files moved on disk without updating the registry, old paths may still be "registered" while new locations appear unregistered (mention only if relevant).
+4. **Footnote**: matching is **exact path**; if files moved on disk without updating the registry, old paths may still be "registered" while new locations appear unregistered (mention only if relevant).
+
+Detailed output (only when explicitly requested by the user):
+
+5. **Full table** of all included leaf folders (not only problematic ones): relative path, scan-root flag, `unregistered/total`, unregistered basenames.
 
 Keep the final reply scannable; do not dump thousands of lines unless the data is that large.
