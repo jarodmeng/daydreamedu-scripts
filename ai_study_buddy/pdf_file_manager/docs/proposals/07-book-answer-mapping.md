@@ -13,8 +13,8 @@
 | `book_answer_mappings` table + invariants (same book group, `doc_type='book'`, `file_type='main'`, upsert by unit) | **Implemented** |
 | Operation log: `book_answer_mapping_set`, `book_answer_mapping_update`, `book_answer_mapping_delete` | **Implemented** |
 | Python: `set` / `get` / `list` / `delete` / `import_book_answer_mappings_from_json` | **Implemented** |
-| MCP: `pdf_set_book_answer_mapping`, `pdf_get_book_answer_mapping`, `pdf_list_book_answer_mappings`, `pdf_delete_book_answer_mapping` | **Implemented** |
-| MCP: `pdf_import_book_answer_mappings_from_json` | **Not implemented** (still “potential future” below) |
+| (Historical) MCP: `pdf_set_book_answer_mapping`, `pdf_get_book_answer_mapping`, `pdf_list_book_answer_mappings`, `pdf_delete_book_answer_mapping` | **Implemented at the time** |
+| (Historical) MCP: `pdf_import_book_answer_mappings_from_json` | **Not implemented** (still “potential future” below) |
 | Python: `list_unmapped_book_units` | **Not implemented** |
 | CLI `pdf_file_manager book-answer …` | **Not implemented** |
 | Companion table / flag for “known unmapped by design” | **Not implemented** (v1 uses *no row*) |
@@ -83,7 +83,7 @@ Without a first-class place for that mapping:
 
 Add a first-class **book answer mapping** relation to the registry.
 
-**Status:** The storage model, invariants, and core Python API below are **implemented** (v0.2.7). See [Implementation status](#implementation-status) for MCP/CLI/import gaps.
+**Status:** The storage model, invariants, and core Python API below are **implemented** (v0.2.7). See [Implementation status](#implementation-status) for historical interface notes and import gaps.
 
 ### Concept
 
@@ -288,7 +288,7 @@ Mark imported mappings with:
 | `SPEC.md` | **Done** — API contract for CRUD mappings |
 | `DECISIONS.md` | **Done** — decision entry for dedicated table |
 | `CHANGELOG.md` | **Done** — v0.2.7 entry |
-| `MCP.md` | **Done** — four mapping tools (**not** import MCP) |
+| Historical MCP interface doc | **Done** — four mapping tools (**not** import MCP) |
 | `07-book-answer-mapping.md` (this file) | **Updated** — implementation status section |
 
 Planned content (original intent — largely reflected in the updated docs above):
@@ -298,13 +298,13 @@ Planned content (original intent — largely reflected in the updated docs above
 - `SPEC.md` — data model, invariants, unmapped = no row
 - `DECISIONS.md` — why not `pdf_files.metadata`
 - `CHANGELOG.md` — version history
-- `MCP.md` — machine-facing CRUD; import remains Python-only until a fifth tool exists
+- Historical MCP interface doc — machine-facing CRUD; import remained Python-only until a fifth tool existed
 
 ---
 
 ## Test plan
 
-**Automated coverage (v0.2.7):** See `tests/test_book_answer_mappings.py` and MCP tests in `tests/test_mcp_tools.py` / `tests/test_mcp_server.py` for CRUD, filters, upsert logging, validation errors, **`import_book_answer_mappings_from_json`**, and the four MCP mapping tools.
+**Automated coverage (v0.2.7):** See `tests/test_book_answer_mappings.py` for CRUD, filters, upsert logging, validation errors, and **`import_book_answer_mappings_from_json`**.
 
 ### Data model tests
 

@@ -8,7 +8,7 @@ Decisions that shaped the design of this utility. Each entry records what was de
 
 **Date:** 2026-04-15
 **Status:** Decided
-**Affects:** `README.md`, `MCP.md`, `SPEC.md`, `CHANGELOG.md`, learning docs, Cursor skills/commands, tests, scripts, MCP wrapper/server modules
+**Affects:** `README.md`, `SPEC.md`, `CHANGELOG.md`, learning docs, Cursor skills/commands, tests, scripts
 
 ### Context
 
@@ -27,7 +27,7 @@ This led to execution-context coupling: behavior varied by current working direc
    - optionally via package re-export: `from ai_study_buddy.pdf_file_manager import ...`
 
 2. **Prefer module invocation for operational entrypoints.**  
-   Scripts and MCP server examples should use:
+   Scripts and examples should use:
    - `python3 -m ai_study_buddy.pdf_file_manager.<module>`
 
 3. **Deprecate bare imports and ad hoc path hacks for normal use.**  
@@ -39,8 +39,8 @@ This led to execution-context coupling: behavior varied by current working direc
 ### Consequences
 
 - Added package exports in `ai_study_buddy/pdf_file_manager/__init__.py`.
-- Runtime code, scripts, tests, and MCP modules now use package-style imports.
-- `README.md`, `MCP.md`, `SPEC.md`, and related operational docs now point to module invocation and canonical imports.
+- Runtime code, scripts, and tests now use package-style imports.
+- `README.md`, `SPEC.md`, and related operational docs now point to module invocation and canonical imports.
 - Cursor command/skill guidance for registry workflows is aligned to the same standard.
 
 ---
@@ -49,7 +49,7 @@ This led to execution-context coupling: behavior varied by current working direc
 
 **Date:** 2026-04-09
 **Status:** Decided
-**Affects:** `ARCHITECTURE.md`, `SPEC.md`, `README.md`, `CHANGELOG.md`, `DATA_MODEL.md`, `schema.sql`, `pdf_file_manager.py`, MCP wrapper/server modules
+**Affects:** `ARCHITECTURE.md`, `SPEC.md`, `README.md`, `CHANGELOG.md`, `DATA_MODEL.md`, `schema.sql`, `pdf_file_manager.py`
 
 ### Context
 
@@ -98,38 +98,38 @@ Early pilot work stored this mapping in external ground-truth JSON files. That w
 - `file_groups` still carry shared book identity, not page-range coverage.
 - `pdf_files.metadata` stays file-local and does not need cross-file answer references.
 - New Python API methods: `set_book_answer_mapping`, `get_book_answer_mapping`, `list_book_answer_mappings`, `delete_book_answer_mapping`, `import_book_answer_mappings_from_json`.
-- New MCP tools: `pdf_set_book_answer_mapping`, `pdf_get_book_answer_mapping`, `pdf_list_book_answer_mappings`, `pdf_delete_book_answer_mapping`.
+- (Historical) Added MCP tools: `pdf_set_book_answer_mapping`, `pdf_get_book_answer_mapping`, `pdf_list_book_answer_mappings`, `pdf_delete_book_answer_mapping`.
 - New audit operations: `book_answer_mapping_set`, `book_answer_mapping_update`, `book_answer_mapping_delete`.
 - Validated pilot ground-truth JSON files can now be imported directly into the registry instead of living only as sidecar artifacts.
 
 ---
 
-## D-010 — Prefer MCP over a built-in CLI; remove the partial CLI layer
+## D-010 — Remove the built-in CLI layer
 
 **Date:** 2026-03-10
 **Status:** Decided
-**Affects:** `SPEC.md`, `README.md`, `TESTING.md`, `CHANGELOG.md`, MCP wrapper/server modules, `pdf_file_manager.py`
+**Affects:** `SPEC.md`, `README.md`, `TESTING.md`, `CHANGELOG.md`, `pdf_file_manager.py`
 
 ### Context
 
-The Python library had grown into the real contract for the utility, while the built-in CLI remained a partial surface. That created maintenance debt: every new capability either had to be duplicated in argparse handlers and human-oriented output, or left out of the CLI entirely. The new MCP layer provides a structured machine interface with JSON-safe returns, explicit error mapping, and a better fit for agent use than shelling out to a text CLI.
+The Python library had grown into the real contract for the utility, while the built-in CLI remained a partial surface. That created maintenance debt: every new capability either had to be duplicated in argparse handlers and human-oriented output, or left out of the CLI entirely.
 
 ### Decision
 
-1. **Treat the Python API plus MCP server as the supported interfaces.**  
-   `PdfFileManager` remains the source of truth for business logic. The MCP wrapper and FastMCP server are the preferred machine-facing contract.
+1. **Treat the Python API as the supported interface.**  
+   `PdfFileManager` remains the source of truth for business logic.
 
 2. **Remove the built-in CLI layer from `pdf_file_manager.py`.**  
    The CLI offered limited benefit relative to its upkeep cost and duplicated a weaker form of the machine interface.
 
-3. **Record MCP-specific tests as the interface-level verification.**  
-   Wrapper and server-registration tests are now part of the supported testing story.
+3. **Record Python API tests as the interface-level verification.**  
+   Manager integration tests are part of the supported testing story.
 
 ### Consequences
 
 - The argparse entrypoint and CLI smoke tests are removed.
-- Current-facing docs describe Python + MCP as the present contract.
-- Machine-interface validation now focuses on `test_mcp_tools.py` and `test_mcp_server.py` in addition to the manager integration tests.
+- Current-facing docs describe Python API as the present contract.
+- Machine-interface validation focuses on manager integration tests.
 - If a human-facing CLI is needed again later, it should be justified as a separate product surface rather than maintained by accident.
 
 ---

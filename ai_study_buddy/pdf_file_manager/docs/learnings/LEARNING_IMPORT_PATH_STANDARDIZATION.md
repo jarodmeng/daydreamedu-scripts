@@ -26,7 +26,7 @@ from ai_study_buddy.pdf_file_manager import PdfFileManager
 ## Operational guidance
 
 - Prefer module invocation from repo root for scripts and server startup:
-  - `python3 -m ai_study_buddy.pdf_file_manager.pdf_file_manager_mcp_server ...`
+  - (Historical) legacy module-based MCP server invocation
   - `python3 -m ai_study_buddy.pdf_file_manager.scripts.backup_pdf_registry ...`
 - Avoid `sys.path.insert(...)` for import resolution in normal usage.
 
@@ -40,4 +40,4 @@ from ai_study_buddy.pdf_file_manager import PdfFileManager
 
 ## Outcome
 
-Import behavior is now deterministic across scripts, tests, MCP tooling, and docs, reducing environment-dependent failures.
+Import behavior is now deterministic across scripts, tests, and docs, reducing environment-dependent failures.

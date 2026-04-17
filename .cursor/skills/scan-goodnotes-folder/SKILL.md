@@ -7,7 +7,7 @@ description: Register a GoodNotes PDF folder in the AI Study Buddy registry, ver
 
 Use this workflow for one explicit GoodNotes folder at a time.
 
-Prefer the `pdf_file_manager` utility through its Python API or the MCP `pdf_*` tools. Do not query the registry SQLite database directly for normal lookup or mutation work.
+Prefer the `pdf_file_manager` utility through its Python API only. Do not query the registry SQLite database directly for normal lookup or mutation work.
 
 ## Scope
 
@@ -32,12 +32,10 @@ Important scan behavior:
 Check whether the exact folder is already configured as a scan root.
 
 - Python: `PdfFileManager().list_scan_roots()`
-- MCP: `pdf_list_scan_roots`
 
 If missing, add that exact folder as a scan root. When the folder is student-specific, set `student_id`.
 
 - Python: `PdfFileManager().add_scan_root(path, student_id=...)`
-- MCP: `pdf_add_scan_root`
 
 Do not assume a parent or sibling root is enough; use the exact leaf folder the user wants scanned.
 
@@ -46,7 +44,6 @@ Do not assume a parent or sibling root is enough; use the exact leaf folder the 
 Run a dry run on the explicit folder first.
 
 - Python: `PdfFileManager().scan_for_new_files(roots=[root], dry_run=True)`
-- MCP: `pdf_scan_for_new_files`
 
 Report:
 
@@ -61,7 +58,6 @@ For `.../Book/<book name>/...` paths, expect `doc_type='book'`. For student-emai
 If the dry run looks correct, run the real scan on that same explicit root.
 
 - Python: `PdfFileManager().scan_for_new_files(roots=[root], dry_run=False)`
-- MCP: `pdf_scan_for_new_files`
 
 After the scan, summarize:
 
@@ -78,7 +74,6 @@ After registration, link the GoodNotes mains to their mirrored DaydreamEdu templ
 
 - One file: `PdfFileManager().link_goodnotes_template_for_file(main_path, auto_fix_template=True, inherit_metadata=True)`
 - One folder: `PdfFileManager().link_goodnotes_templates_for_root(root, dry_run=False, auto_fix_template=True, inherit_metadata=True)`
-- MCP fallbacks: `pdf_link_goodnotes_template_for_file`, `pdf_link_goodnotes_templates_for_root`
 
 Preferred order:
 
@@ -91,7 +86,6 @@ Preferred order:
 Useful helper:
 
 - Python: `PdfFileManager().resolve_goodnotes_template_path(main_path)`
-- MCP: `pdf_resolve_goodnotes_template`
 
 ## Response Checklist
 

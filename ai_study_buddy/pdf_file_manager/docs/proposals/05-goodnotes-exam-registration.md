@@ -96,7 +96,7 @@ No change to the relation type is required; we only broaden the semantic of “t
 | Gap | Option A — Better functions | Option B — Organize files / naming |
 |-----|-----------------------------|------------------------------------|
 | **Register-only semantics for GoodNotes tree** | Treat any path containing a `GoodNotes` segment as “no-compress”: in scan logic, call `register_file` + `_infer_from_path` but never `compress_and_register` there (or equivalently, expose a `register_only` flag on scan roots). | Keep GoodNotes-only content under a clearly named `GoodNotes/` segment so the rule is easy to apply. |
-| **Resolving template path from main file basename** | Use the helper `PdfFileManager.resolve_goodnotes_template_path(main_path)` (or MCP wrapper) to normalise `_c_`/`c_`, strip `(attempt)/(reviewed)`, and return the DaydreamEdu `_c_` path; caller then uses `link_template_by_paths(completed_path, template_path)`. | Keep the mirrored folder structure and strict naming convention so the mapping is deterministic and documentable. |
+| **Resolving template path from main file basename** | Use the helper `PdfFileManager.resolve_goodnotes_template_path(main_path)` to normalise `_c_`/`c_`, strip `(attempt)/(reviewed)`, and return the DaydreamEdu `_c_` path; caller then uses `link_template_by_paths(completed_path, template_path)`. | Keep the mirrored folder structure and strict naming convention so the mapping is deterministic and documentable. |
 | **Linking many pairs after scan** | **Batch link by convention:** e.g. `link_goodnotes_completions(goodnotes_dir)` or a script that (1) finds GoodNotes mains that have no `completed_from` yet, (2) calls `resolve_goodnotes_template_path` for each, (3) calls `link_template_by_paths(main_path, template_path)`. Run after each scan or on demand. | Same naming/organization as above so the resolver is reliable. |
 
 ### 3.3 Recommended direction
@@ -105,7 +105,7 @@ No change to the relation type is required; we only broaden the semantic of “t
   - Treat it as a **register-only scan root** (scan calls `register_file` but skips `compress_and_register` under any `GoodNotes/` segment), or
   - Use a small **GoodNotes registration script** that enumerates PDFs under `GoodNotes/...`, calls `register_file` + `_infer_from_path`, and never renames/moves them.
 - **After scan/registration:** Run a **template-linking step** that targets GoodNotes mains (under the GoodNotes root, `file_type='main'`, no `completed_from` yet). For each, call `resolve_goodnotes_template_path(main_path)` to get the DaydreamEdu `_c_` path, then `link_template_by_paths(main_path, template_path)`.
-- **Implementation:** Either a small script that uses the Python API, or an MCP-backed tool that wraps `resolve_goodnotes_template_path` + `link_template_by_paths`. This keeps disk mutations (compress/rename) confined to the DaydreamEdu side while still giving full linkage between GoodNotes completions and their sources.
+- **Implementation:** Use a small script that uses the Python API to wrap `resolve_goodnotes_template_path` + `link_template_by_paths`. This keeps disk mutations (compress/rename) confined to the DaydreamEdu side while still giving full linkage between GoodNotes completions and their sources.
 
 ### 3.4 Summary table
 
@@ -171,7 +171,7 @@ Overall: **Current scan and register/compress behaviour is sufficient for the Da
    - Run the existing dry-run script that prints `GoodNotes basename → DaydreamEdu template path` using `resolve_goodnotes_template_path`, and confirm all mappings look correct (as already done for Winston’s P6 WA1 files).
 3. **Add batch-linking script** and run it in dry-run, then live mode, on Winston’s GoodNotes P6 Exam folder.
 4. **Document GoodNotes scan root configuration**:
-   - Add a short “GoodNotes scan root” note to `MCP.md` / `ARCHITECTURE.md` indicating that any `GoodNotes/` path should use register-only semantics (no rename of originals) and optionally GoodNotes-safe compression.
+   - Add a short “GoodNotes scan root” note to `ARCHITECTURE.md` indicating that any `GoodNotes/` path should use register-only semantics (no rename of originals) and optionally GoodNotes-safe compression.
 
 ---
 

@@ -77,7 +77,7 @@ The backend can still read real Supabase tables even when the frontend doesn't h
 
 For AI Study Buddy PDF registry and file-management tasks, use the skill at `.cursor/skills/pdf-file-manager/SKILL.md`.
 
-Prefer the `ai_study_buddy/pdf_file_manager` utility through its MCP `pdf_*` tools or the `PdfFileManager` Python API. Do not query the registry SQLite database directly for normal lookup or mutation work.
+Prefer the `ai_study_buddy/pdf_file_manager` utility through the `PdfFileManager` Python API. Do not query the registry SQLite database directly for normal lookup or mutation work.
 
 **Student work misfiled under general-scope `_raw_` book paths** (list txt → move into student folder → registry cleanup → merge → external clean → split back → re-scan → template links): use the two-part skills `.cursor/skills/reprocess-student-completion-from-general-part1/SKILL.md` and `.cursor/skills/reprocess-student-completion-from-general-part2/SKILL.md`.
 

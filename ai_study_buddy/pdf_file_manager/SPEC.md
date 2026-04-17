@@ -1,12 +1,12 @@
 # pdf_file_manager — Specification
 
-> API, MCP contract, operation contract, and implementation status.
+> API, operation contract, and implementation status.
 >
 > See [README.md](./README.md) for overview; [DATA_MODEL.md](./DATA_MODEL.md) for field-level data model reference; [ARCHITECTURE.md](./ARCHITECTURE.md) for schema and integrations.
 >
 > Decision log: [DECISIONS.md](./DECISIONS.md)
 
-This document specifies the **operations** (Python API and MCP tool layer), **operation types** (for the audit log), **edge cases**, and **implementation status**. Data classes and field semantics live in [DATA_MODEL.md](./DATA_MODEL.md). All schema details are in ARCHITECTURE.md.
+This document specifies the **operations** (Python API), **operation types** (for the audit log), **edge cases**, and **implementation status**. Data classes and field semantics live in [DATA_MODEL.md](./DATA_MODEL.md). All schema details are in ARCHITECTURE.md.
 
 ---
 
@@ -392,83 +392,6 @@ For all returned data class shapes (`PdfFile`, `FileGroup`, `FileGroupMember`, a
 
 ---
 
-## MCP interface
-
-The preferred machine-facing interface is the MCP wrapper:
-
-- Tool layer: [`pdf_file_manager_mcp.py`](./pdf_file_manager_mcp.py)
-- FastMCP entrypoint: [`pdf_file_manager_mcp_server.py`](./pdf_file_manager_mcp_server.py)
-
-### Read-only MCP tools
-
-```text
-pdf_get_file
-pdf_find_files
-pdf_get_file_by_path
-pdf_list_students
-pdf_list_scan_roots
-pdf_get_related_files
-pdf_get_template
-pdf_get_completions
-pdf_get_file_group
-pdf_list_file_groups
-pdf_get_book_answer_mapping
-pdf_list_book_answer_mappings
-pdf_get_file_group_membership
-pdf_suggest_groups
-pdf_get_operation_log
-pdf_report_coverage
-```
-
-### Safe mutation MCP tools
-
-```text
-pdf_add_student
-pdf_add_scan_root
-pdf_remove_scan_root
-pdf_update_metadata
-pdf_create_file_group
-pdf_add_to_file_group
-pdf_remove_from_file_group
-pdf_set_file_group_anchor
-pdf_set_book_answer_mapping
-pdf_delete_book_answer_mapping
-pdf_link_to_template
-pdf_link_goodnotes_template_for_file
-pdf_link_goodnotes_templates_for_root
-pdf_unlink_template
-pdf_link_files
-pdf_unlink_files
-```
-
-### File-system mutation MCP tools
-
-```text
-pdf_scan_for_new_files
-pdf_register_file
-pdf_compress_and_register
-pdf_rename_file
-pdf_move_file
-pdf_delete_file
-pdf_open_file
-pdf_open_file_group
-```
-
-### MCP behavior notes
-
-- The MCP layer instantiates `PdfFileManager` per tool call.
-- Return values are normalized to JSON-safe dictionaries/lists.
-- Structured errors are returned for `AlreadyRegisteredError`, `NotFoundError`, `ConfigError`, `ValueError`, and `FileNotFoundError`.
-- The MCP server currently registers all three tool groups by default.
-
-Run it with:
-
-```bash
-python3 -m ai_study_buddy.pdf_file_manager.pdf_file_manager_mcp_server --db /path/to/pdf_registry.db
-```
-
----
-
 ## Edge cases and guard rails
 
 | Situation | Behaviour |
@@ -485,7 +408,7 @@ python3 -m ai_study_buddy.pdf_file_manager.pdf_file_manager_mcp_server --db /pat
 | `rename_file` and source path missing but destination path already exists | DB-only sync: update `name`, `path`, `updated_at`; if destination is a file, refresh `size_bytes`; write `rename` log |
 | `update_metadata` with invalid `file_type` | Raise `ValueError`; must be `main`, `raw`, or `unknown` |
 | `update_metadata` promoting `unknown` → `main` with `doc_type` / `subject` / `metadata` on a linked main | Invariant fields sync to raw using the **updated** `file_type` |
-| `scan_for_new_files` with no scan roots configured | Raise `ConfigError` pointing to adding a scan root programmatically or via the MCP/config layer |
+| `scan_for_new_files` with no scan roots configured | Raise `ConfigError` pointing to adding a scan root programmatically or through manager configuration |
 | `_raw_` file found during scan but main file not registered | Register as `file_type='raw'`; skip auto-link; warn to run `link` manually |
 | Two files have the same `name` but different `path` | Both are valid distinct entries |
 | Database file does not exist at startup | Auto-created with schema on first use |
@@ -527,7 +450,6 @@ python3 -m ai_study_buddy.pdf_file_manager.pdf_file_manager_mcp_server --db /pat
 | `suggest_groups` | ✅ Implemented |
 | `operation_log` writes on all C/U/D operations | ✅ Implemented |
 | `get_operation_log` query | ✅ Implemented |
-| MCP wrapper and FastMCP entrypoint | ✅ Implemented |
 | Backup utility (`backup_pdf_registry.py`) | ✅ Implemented |
 | Backup tiering utility (`apply_backup_tiering.py`) | ✅ Implemented |
 | Wake automation (`run_backup_on_wake.sh`) with timestamp + tiering | ✅ Implemented |

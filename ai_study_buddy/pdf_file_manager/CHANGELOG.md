@@ -4,6 +4,13 @@ All notable changes to the pdf_file_manager utility are documented here.
 
 ---
 
+## [v0.3.3] — Remove MCP interface, Python API only
+
+- Removed MCP implementation modules from the package (`pdf_file_manager_mcp.py`, `pdf_file_manager_mcp_server.py`).
+- Removed MCP-focused tests (`tests/test_mcp_tools.py`, `tests/test_mcp_server.py`).
+- Retired `MCP.md` and updated package docs (`README.md`, `SPEC.md`, `TESTING.md`) to document Python `PdfFileManager` as the only supported machine interface.
+- Migration note: remove stale `pdf_file_manager` MCP server entries from local Cursor/Codex MCP configuration.
+
 ## [v0.3.2] — GoodNotes template resolver: general-scope only
 
 - Updated `resolve_goodnotes_template_path` policy to search only the mirrored **general-scope** DaydreamEdu folder for `_c_` template/source files.

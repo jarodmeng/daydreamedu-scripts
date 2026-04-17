@@ -16,7 +16,7 @@ A local utility that keeps a SQLite registry of PDF files in the study archive. 
 
 **Integrity validation:** Use [`scripts/validate_pdf_registry_integrity.py`](./scripts/validate_pdf_registry_integrity.py) to reproducibly audit the registry for lingering `doc_type='unknown'` files, missing `student_id` in student-scoped folders, and raw/main invariant metadata drift.
 
-**Machine interface:** The preferred machine-facing contract is now the MCP wrapper in [`pdf_file_manager_mcp.py`](./pdf_file_manager_mcp.py) plus the runnable FastMCP entrypoint in [`pdf_file_manager_mcp_server.py`](./pdf_file_manager_mcp_server.py). The Python library in [`pdf_file_manager.py`](./pdf_file_manager.py) remains the source of truth for business logic. The old built-in CLI has been removed to avoid maintaining a second, partial interface.
+**Machine interface:** The supported machine-facing contract is the Python API in [`pdf_file_manager.py`](./pdf_file_manager.py) via `PdfFileManager`. The old built-in CLI has been removed to avoid maintaining a second, partial interface.
 
 ---
 
@@ -35,8 +35,7 @@ For a quick reference on file-level metadata vs group-level fields (including `m
 | [files package](../files/README.md) | Root resolution and leaf-folder traversal (`ai_study_buddy.files`): [SPEC](../files/SPEC.md), [TESTING](../files/TESTING.md), [CHANGELOG](../files/CHANGELOG.md) |
 | [ARCHITECTURE.md](./ARCHITECTURE.md) | Source folder layout, schema, file naming, metadata, integrations |
 | [DATA_MODEL.md](./DATA_MODEL.md) | File metadata fields, group fields, unit-vs-group semantics, returned data classes |
-| [MCP.md](./MCP.md) | MCP server transports, tool modes, and client connection examples |
-| [SPEC.md](./SPEC.md) | API, MCP contract, operation contract, implementation status |
+| [SPEC.md](./SPEC.md) | API, operation contract, implementation status |
 | [TESTING.md](./TESTING.md) | Test levels, test data strategy, when to add tests |
 | [DECISIONS.md](./DECISIONS.md) | Decision log |
 | [CHANGELOG.md](./CHANGELOG.md) | Version history |
@@ -67,21 +66,11 @@ from ai_study_buddy.pdf_file_manager import PdfFileManager
 
 The legacy bare import style (`from pdf_file_manager import ...`) is deprecated.
 
-For scripts and MCP server startup, prefer module invocation from the repo root:
+For scripts, prefer module invocation from the repo root (example):
 
 ```bash
-python3 -m ai_study_buddy.pdf_file_manager.pdf_file_manager_mcp_server --db /path/to/pdf_registry.db
+python3 -m ai_study_buddy.pdf_file_manager.scripts.validate_pdf_registry_integrity
 ```
-
-During transition, direct-file invocation can still work in many local setups, but module invocation is now the canonical path.
-
-### MCP
-
-The MCP layer currently exposes:
-
-- Read-only tools: `pdf_get_file`, `pdf_find_files`, `pdf_get_file_by_path`, `pdf_list_students`, `pdf_list_scan_roots`, `pdf_get_related_files`, `pdf_get_template`, `pdf_get_completions`, `pdf_get_file_group`, `pdf_list_file_groups`, `pdf_get_book_answer_mapping`, `pdf_list_book_answer_mappings`, `pdf_get_file_group_membership`, `pdf_suggest_groups`, `pdf_get_operation_log`, `pdf_report_coverage`
-- Safe mutations: `pdf_add_student`, `pdf_add_scan_root`, `pdf_remove_scan_root`, `pdf_update_metadata`, `pdf_create_file_group`, `pdf_add_to_file_group`, `pdf_remove_from_file_group`, `pdf_set_file_group_anchor`, `pdf_set_book_answer_mapping`, `pdf_delete_book_answer_mapping`, `pdf_link_to_template`, `pdf_link_goodnotes_template_for_file`, `pdf_link_goodnotes_templates_for_root`, `pdf_unlink_template`, `pdf_link_files`, `pdf_unlink_files`
-- File-system mutations: `pdf_scan_for_new_files`, `pdf_register_file`, `pdf_compress_and_register`, `pdf_rename_file`, `pdf_move_file`, `pdf_delete_file`, `pdf_open_file`, `pdf_open_file_group`
 
 GoodNotes-specific support:
 
@@ -89,14 +78,8 @@ GoodNotes-specific support:
 - `scan_for_new_files` automatically uses `preserve_input=True` for any path under a `GoodNotes/` segment.
 - `scan_for_new_files` scans only direct `*.pdf` children of each supplied root. It does not recurse into nested subfolders; pass nested folders explicitly if you want them processed.
 - With `dry_run=True`, each returned `PdfFile` reflects path inference (subject, `doc_type`, metadata, etc.) as if the scan had run for real. When `roots=[...]` is passed, paths that match a configured scan root still receive that root’s `student_id`.
-- `resolve_goodnotes_template_path` (and the MCP tool `pdf_resolve_goodnotes_template`) resolve GoodNotes main paths to DaydreamEdu `_c_` template/source paths in the mirrored **general-scope** folder only (templates are policy-constrained to general scope; student-scope folders are not searched).
+- `resolve_goodnotes_template_path` resolves GoodNotes main paths to DaydreamEdu `_c_` template/source paths in the mirrored **general-scope** folder only (templates are policy-constrained to general scope; student-scope folders are not searched).
 - `link_goodnotes_template_for_file` and `link_goodnotes_templates_for_root` resolve and link DaydreamEdu templates for registered GoodNotes mains. They do not auto-register missing resolved templates; they fail clearly instead.
-
-Run the MCP server with:
-
-```bash
-python3 -m ai_study_buddy.pdf_file_manager.pdf_file_manager_mcp_server --db /path/to/pdf_registry.db
-```
 
 ## Database backup
 

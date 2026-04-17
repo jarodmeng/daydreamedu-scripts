@@ -15,7 +15,7 @@ The legacy style often requires local `sys.path` mutation, which makes execution
   - `from ai_study_buddy.pdf_file_manager.pdf_file_manager import ...`
 - Remove unnecessary `sys.path` hacks that only exist to support bare imports.
 - Keep migration low-risk with staged rollout and clear compatibility guardrails.
-- Keep scripts and MCP entrypoints working during transition.
+- Keep scripts (and then-current MCP entrypoints) working during transition.
 
 ## Non-goals
 
@@ -40,7 +40,7 @@ Implementation must not be considered complete if core code is migrated but oper
 1. **Mixed import styles exist** in production code, scripts, tests, and docs.
 2. **`sys.path.insert(...)` scaffolding** appears in multiple files to make legacy imports work.
 3. **Some modules are already package-style**, confirming the new direction is viable.
-4. **`pdf_file_manager_mcp.py` uses fallback imports** (relative first, then bare import) for runtime flexibility.
+4. **(Historical)** legacy MCP modules used fallback imports (relative first, then bare import) for runtime flexibility.
 
 ## Proposed Approach
 
@@ -123,7 +123,7 @@ Some scripts are run directly via file path. For these:
 - Prefer package imports and run from repo root with `python3 -m ...` where practical.
 - If direct-file invocation must stay supported in the short term, keep a small guarded compatibility fallback and mark it transitional.
 
-### Handling MCP modules
+### Handling historical MCP modules
 
 For modules that currently support multiple invocation modes:
 
@@ -188,7 +188,7 @@ This proposal has been implemented in the repository.
 - [x] Migrate `ai_study_buddy/pdf_file_manager/scripts/*.py` to package-style imports where appropriate.
 - [x] For scripts that must remain directly executable, keep only minimal, explicit transitional fallback logic.
 - [x] Document intended invocation mode (`python3 -m ...` preferred) per script.
-- [x] Review `pdf_file_manager_mcp.py` and `pdf_file_manager_mcp_server.py` fallback behavior.
+- [x] Review fallback behavior for legacy MCP modules (historical).
 - [x] Add TODO comments for any temporary fallback branches with removal condition. (No temporary fallback retained after migration.)
 - [x] Validate MCP server/module import startup after migration.
 
@@ -210,7 +210,7 @@ This proposal has been implemented in the repository.
   - transitional compatibility notes
   - before/after migration examples
 - [x] Update `DECISIONS.md` with an explicit decision record that package-style imports are canonical and bare imports are deprecated (including rationale and compatibility timeline).
-- [x] Update `MCP.md` to align server invocation and migration guidance with package-standardized usage (including preferred module invocation and any transitional compatibility notes).
+- [x] Update MCP documentation to align server invocation and migration guidance with package-standardized usage (historical).
 - [x] Update `SPEC.md` import snippets and remove legacy examples.
 - [x] Update `docs/learnings/LEARNING_FROM_FIRST_RUN.md` (and add a migration learning note if needed).
 

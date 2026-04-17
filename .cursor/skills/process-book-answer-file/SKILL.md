@@ -24,7 +24,7 @@ Use this workflow when the user wants a full unit-to-answer-page mapping run fro
 
 ## Guardrails
 
-- Prefer `PdfFileManager` APIs or `pdf_*` tools; do not query registry SQLite directly for normal operations.
+- Prefer `PdfFileManager` APIs; do not query registry SQLite directly for normal operations.
 - Keep all run artifacts under `ai_study_buddy/split_book_answer_by_unit_using_ai/batch_artifacts/`.
 - Log every run in `ai_study_buddy/split_book_answer_by_unit_using_ai/RUN_LOGS.md`.
 - If the batch has not finished, do not invent token usage; mark pending.

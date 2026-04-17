@@ -469,14 +469,8 @@ python compress_pdf.py --batch /path/       # → compress all PDFs in directory
 
 **Purpose:** Keeps a SQLite registry of PDF files in the study archive. Tracks exams, worksheets, books, activities, notes, and templates (with optional completed variants), and keeps on-disk paths and database records in sync. Supports scan roots (for example Google Drive folders), scan/discovery (direct `*.pdf` children per root), optional compression via `compress_pdf`, classification (`doc_type`, `subject`, metadata including `chinese_variant`), exam/book grouping, and template/completion linking. The ingestion pipeline consumes `main` files from this registry. All state-changing operations are recorded in an append-only operation log.
 
-**Machine interface:** Prefer the Python API and MCP server over the old CLI. The MCP layer is implemented in [`pdf_file_manager/pdf_file_manager_mcp.py`](../pdf_file_manager/pdf_file_manager_mcp.py) with a FastMCP entrypoint in [`pdf_file_manager/pdf_file_manager_mcp_server.py`](../pdf_file_manager/pdf_file_manager_mcp_server.py). This is the intended structured interface for agents and automations.
+**Machine interface:** Use the Python API (`PdfFileManager`) as the structured interface for agents and automations.
 
-**CLI status:** The built-in CLI has been removed. Use the Python API directly or the MCP server.
+**CLI status:** The built-in CLI has been removed. Use the Python API directly.
 
-Run the MCP server with:
-
-```bash
-python3 -m ai_study_buddy.pdf_file_manager.pdf_file_manager_mcp_server --db /path/to/registry.db
-```
-
-See the [README](../pdf_file_manager/README.md) and [SPEC](../pdf_file_manager/SPEC.md) for the current Python and MCP contracts.
+See the [README](../pdf_file_manager/README.md) and [SPEC](../pdf_file_manager/SPEC.md) for the current Python contract.

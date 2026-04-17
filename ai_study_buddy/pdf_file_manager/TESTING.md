@@ -33,7 +33,7 @@ Tests are defined at the **utility level**: one test suite for the pdf_file_mana
 | **2. Config & file lifecycle** | `add_student` / `list_students`; `add_scan_root` / `remove_scan_root` / `list_scan_roots`; `register_file` (path, file_type inference, duplicate path); `compress_and_register` (register-if-missing, then compress; use real `compress_pdf`); `scan_for_new_files` on a temp dir (with and without `dry_run`). |
 | **3. Read / update / delete** | `get_file`, `find_files` (each filter); `update_metadata` (merge behaviour, validation); `rename_file` / `move_file` (disk + DB); `delete_file` (with/without `keep_related`); `open_file` (path exists vs missing). |
 | **4. Relations & groups** | `link_files` / `unlink_files`, `get_related_files`; `link_to_template` / `unlink_template` (including validation), `get_template` / `get_completions`; file group CRUD, book answer mappings, and `suggest_groups` (with fixture data). |
-| **5. Audit & machine interface** | `get_operation_log` (filters, `log_id`); MCP wrapper tests (serialization, error mapping, handler registries, tool behavior, including book answer mapping tools); MCP server tests (FastMCP registration and entrypoint wiring). |
+| **5. Audit** | `get_operation_log` (filters, `log_id`) and operation-log integrity checks across representative manager workflows. |
 
 Prefer adding tests in the same phase as the feature (or immediately after) so each phase is verifiable before moving on.
 
@@ -233,7 +233,7 @@ These tests give confidence that Phase 4 (Relations & groups) is complete. Use a
 
 ## Phase 5: tests that confirm success
 
-These tests give confidence that Phase 5 (Audit & machine interface) is complete. Use a **temporary** DB. For `get_operation_log`, perform a few operations (e.g. register, update_metadata, create_file_group) then assert on the log. MCP tests exercise the supported machine-facing contract directly; no real drive and no long-running server process are required.
+These tests give confidence that Phase 5 (Audit) is complete. Use a **temporary** DB. For `get_operation_log`, perform a few operations (e.g. register, update_metadata, create_file_group) then assert on the log.
 
 ### get_operation_log
 
@@ -246,16 +246,7 @@ These tests give confidence that Phase 5 (Audit & machine interface) is complete
 | **5.5** | **get_operation_log log_id returns one or empty** | Get any log entry id from a previous call. `get_operation_log(log_id=that_id)` returns a list of length 1 with that entry. `get_operation_log(log_id='nonexistent-uuid')` returns empty list. Proves: log_id lookup. |
 | **5.6** | **get_operation_log since filter** | Perform two operations; note time in between or use a past `since`. Assert entries after `since` are included (or all if since is old). Proves: since filter. |
 
-### MCP wrapper and server tests
-
-| # | Test | What it proves |
-|---|------|----------------|
-| **5.7** | **MCP wrapper serialization and error mapping** | Call wrapper helpers and representative tools from `test_mcp_tools.py`; assert dataclasses become JSON-safe dicts/lists and errors map to structured payloads. Proves: the MCP contract is machine-safe. |
-| **5.8** | **MCP tool registries expose expected surfaces** | Assert read-only, safe mutation, and file-system mutation handler registries contain the expected tool names and callable handlers. Proves: the supported tool surface is explicit and discoverable. |
-| **5.9** | **MCP wrapper tool behavior on temp DB/files** | Exercise representative read, relation/group, book-answer-mapping, mutation, and file-system tool calls against temp DBs/dirs. Proves: the MCP wrapper preserves manager behavior end-to-end. |
-| **5.10** | **FastMCP registration and entrypoint wiring** | Use the fake FastMCP-style server in `test_mcp_server.py` to assert tool registration and `main(...)` launch wiring. Proves: the runnable MCP server boundary is correctly assembled without requiring a live long-running server in tests. |
-
-**Passing all Phase 5 tests** (5.1–5.10) means: `get_operation_log` supports all filters and log_id, and the supported Python/MCP machine interface is verified at the wrapper and server-registration levels. Phase 5 is then safe to call done.
+**Passing all Phase 5 tests** (5.1–5.6) means: `get_operation_log` supports all filters and log_id, and audit behavior is verified through manager-level workflows. Phase 5 is then safe to call done.
 
 ---
 
