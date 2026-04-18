@@ -4,7 +4,11 @@ from pathlib import Path
 
 import pytest
 
-from ai_study_buddy.root_pdf_browser.serve import list_dir_children, safe_resolve_under_root
+from ai_study_buddy.root_pdf_browser.serve import (
+    _content_disposition_inline,
+    list_dir_children,
+    safe_resolve_under_root,
+)
 
 
 def test_safe_resolve_normal_child(tmp_path: Path) -> None:
@@ -68,3 +72,14 @@ def test_list_dir_children_lists_pdf_only(tmp_path: Path) -> None:
     dirs, pdfs = list_dir_children(root, "")
     assert dirs == ["d"]
     assert pdfs == ["a.PDF"]
+
+
+def test_content_disposition_ascii_filename_roundtrips() -> None:
+    got = _content_disposition_inline("worksheet.pdf")
+    assert got == 'inline; filename="worksheet.pdf"; filename*=UTF-8\'\'worksheet.pdf'
+
+
+def test_content_disposition_chinese_filename_is_utf8_encoded() -> None:
+    got = _content_disposition_inline("华文 测验1.pdf")
+    assert 'filename="?? ??1.pdf"' in got
+    assert "filename*=UTF-8''%E5%8D%8E%E6%96%87%20%E6%B5%8B%E9%AA%8C1.pdf" in got

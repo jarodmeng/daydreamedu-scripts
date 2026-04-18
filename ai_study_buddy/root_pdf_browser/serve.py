@@ -11,7 +11,7 @@ import time
 import webbrowser
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from urllib.parse import parse_qs, urlparse
+from urllib.parse import parse_qs, quote, urlparse
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 if str(_REPO_ROOT) not in sys.path:
@@ -89,6 +89,14 @@ def list_dir_children(root: Path, rel: str) -> tuple[list[str], list[str]] | Non
     dirs.sort(key=str.lower)
     pdfs.sort(key=str.lower)
     return dirs, pdfs
+
+
+def _content_disposition_inline(filename: str) -> str:
+    """Return a Content-Disposition value safe for UTF-8 filenames."""
+    # Keep the fallback strictly ASCII for old clients.
+    fallback_ascii = filename.encode("ascii", "replace").decode("ascii").replace('"', "")
+    utf8_encoded = quote(filename, safe="")
+    return f'inline; filename="{fallback_ascii}"; filename*=UTF-8\'\'{utf8_encoded}'
 
 
 class RootPdfHandler(BaseHTTPRequestHandler):
@@ -172,11 +180,11 @@ class RootPdfHandler(BaseHTTPRequestHandler):
             except OSError:
                 self.send_error(500, "Read failed")
                 return
-            disp = target.name.replace('"', "")
+            disp = _content_disposition_inline(target.name)
             self.send_response(200)
             self.send_header("Content-Type", "application/pdf")
             self.send_header("Content-Length", str(len(data)))
-            self.send_header("Content-Disposition", f'inline; filename="{disp}"')
+            self.send_header("Content-Disposition", disp)
             self.end_headers()
             self.wfile.write(data)
             return
@@ -207,11 +215,11 @@ class RootPdfHandler(BaseHTTPRequestHandler):
         except OSError:
             self.send_error(500, "Stat failed")
             return
-        disp = target.name.replace('"', "")
+        disp = _content_disposition_inline(target.name)
         self.send_response(200)
         self.send_header("Content-Type", "application/pdf")
         self.send_header("Content-Length", str(length))
-        self.send_header("Content-Disposition", f'inline; filename="{disp}"')
+        self.send_header("Content-Disposition", disp)
         self.end_headers()
 
 
