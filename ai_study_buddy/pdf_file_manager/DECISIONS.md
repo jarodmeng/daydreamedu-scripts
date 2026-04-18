@@ -158,7 +158,7 @@ All scanned files were consolidated into a single root: `DaydreamEdu` (Google Dr
 
 6. **General-scope folders = templates** — Files under L2 general-scope folders (P5, P6, PSLE, Archive) are blank/master copies with no student content. Set `is_template=True` when inferring from path; files under student (email-named) folders get `is_template=False`.
 
-7. **Higher Chinese is not a separate subject** — Do not add `higher_chinese` to the subject enum. Subject remains `chinese` for both foundation (华文) and higher (高华). For Chinese files, use optional `metadata.chinese_variant`: `'foundation'` or `'higher'`. This keeps subject as a single dimension and treats foundation vs. higher as Chinese-specific metadata.
+7. **Higher Chinese is not a separate subject** — Do not add `higher_chinese` to the subject enum. Subject remains `chinese` for both **Standard 华文** and **Higher Chinese (高华)**. For Chinese files, use optional `metadata.chinese_variant`: `'standard'` (**Standard** 华文 exam files — not SEAB Foundation Chinese Language) or `'higher'`. The legacy spelling `foundation` is invalid in stored JSON. This keeps subject as a single dimension and treats variant as Chinese-specific metadata.
 
 ### Consequences
 

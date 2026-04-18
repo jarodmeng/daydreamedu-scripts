@@ -4,6 +4,14 @@ All notable changes to the pdf_file_manager utility are documented here.
 
 ---
 
+## [v0.3.4] — `chinese_variant`: `standard` replaces legacy `foundation`
+
+- **Standard 华文 vs 高华:** Stored `metadata.chinese_variant` for mainstream Chinese exam files is **`standard`** (not `foundation`, which collided with SEAB “Foundation Chinese Language”).
+- **Strict validation:** The legacy value `"foundation"` in `metadata.chinese_variant` is invalid — **`InvalidMetadataError`** on read (`get_file`, `find_files`, …) and on persist (`register_file`, `update_metadata`, …). Fix rows in SQLite or pass `chinese_variant="standard"`.
+- **Inference:** `_infer_from_path` sets `chinese_variant='standard'` for `华文` / `.chinese.` exam filenames (unchanged detection rules).
+- **Integrity script:** `validate_pdf_registry_integrity` reports rows with `chinese_variant=foundation`; raw/main drift compares stored JSON as before.
+- **Cleanup:** Removed the one-time `migrate_chinese_variant_foundation_to_standard()` helper after registry migration.
+
 ## [v0.3.3] — Remove MCP interface, Python API only
 
 - Removed MCP implementation modules from the package (`pdf_file_manager_mcp.py`, `pdf_file_manager_mcp_server.py`).
@@ -201,7 +209,7 @@ All notable changes to the pdf_file_manager utility are documented here.
 Merges all prior **Unreleased** changes (inference) and implements the four API/CLI proposals from `docs/learnings/LEARNING_FROM_FIRST_RUN.md` and `docs/proposals/`.
 
 - **Path-based is_template inference:** `_infer_from_path` sets `is_template` from the path (student folder vs grade/scope). Scan applies this via `update_metadata`. See ARCHITECTURE § Folder-based inference; tests in `test_inference.py`.
-- **Chinese exam variant inference:** For `subject='chinese'` and `doc_type='exam'`, `_infer_from_path` infers `metadata.chinese_variant` from the filename (`higher` / `foundation`). Documented in ARCHITECTURE § Metadata schemas; tests in `test_inference.py`.
+- **Chinese exam variant inference:** For `subject='chinese'` and `doc_type='exam'`, `_infer_from_path` infers `metadata.chinese_variant` from the filename (`higher` / `standard`; invalid legacy `foundation` rejected — see v0.3.4). Documented in ARCHITECTURE § Metadata schemas; tests in `test_inference.py`.
 - **Proposal 1 — Ensure students and scan roots:** `ensure_student(student_id, name, email=None)` and `ensure_scan_root(path, student_id=None)`; idempotent helpers. Tests in `test_config.py`.
 - **Proposal 2 — Scan CLI:** `pdf_file_manager scan [--root PATH ...] [--dry-run] [--min-savings-pct N] [--progress]`; uses configured scan roots when `--root` omitted; `ConfigError` when no roots. Tests in `test_cli.py`.
 - **Proposal 3 — Coverage / read‑only registry paths:** `find_leaf_dirs(base)` (static), `report_coverage(base_path=None, from_registry=False)` returning `CoverageReport`; `coverage` CLI with `--base` and `--from-registry`. Tests in `test_coverage.py` and `test_cli.py`.

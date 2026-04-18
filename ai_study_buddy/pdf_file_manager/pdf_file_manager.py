@@ -35,6 +35,9 @@ class NotFoundError(Exception):
 class ConfigError(Exception):
     """Configuration error (e.g. no scan roots)."""
 
+class InvalidMetadataError(ValueError):
+    """metadata JSON contains an invalid value (e.g. legacy chinese_variant)."""
+
 # ---------------------------------------------------------------------------
 # Data classes
 # ---------------------------------------------------------------------------
@@ -166,6 +169,42 @@ class GoodNotesTemplateLinkOutcome:
 
 def _looks_like_compressed_main_name(name: str) -> bool:
     return name.startswith("_c_") or name.startswith("c_")
+
+
+def _reject_invalid_chinese_variant_in_metadata(metadata: dict | None) -> None:
+    """Raise InvalidMetadataError if metadata uses the invalid legacy spelling for Standard 华文.
+
+    The string ``foundation`` must not appear in ``metadata.chinese_variant`` — it collided with
+    SEAB Foundation Chinese Language. Use ``standard`` for Chinese Language (Standard) / 华文 exams.
+    """
+    if not metadata:
+        return
+    if metadata.get("chinese_variant") == "foundation":
+        raise InvalidMetadataError(
+            'Invalid metadata.chinese_variant "foundation": use "standard" for Standard 华文 '
+            "(Chinese Language Standard). Fix the stored JSON or pass chinese_variant=\"standard\"."
+        )
+
+
+def _metadata_json_for_persist(metadata: dict | None) -> str | None:
+    if metadata is None:
+        return None
+    d = dict(metadata)
+    _reject_invalid_chinese_variant_in_metadata(d)
+    return json.dumps(d)
+
+
+def _metadata_json_from_sql_value(raw_meta) -> str | None:
+    """Serialize DB metadata column for INSERT/UPDATE with chinese_variant validation."""
+    if raw_meta is None:
+        return None
+    if isinstance(raw_meta, str):
+        d = json.loads(raw_meta) if raw_meta else {}
+    else:
+        d = dict(raw_meta) if raw_meta else {}
+    _reject_invalid_chinese_variant_in_metadata(d)
+    return json.dumps(d)
+
 
 # Default registry path: ai_study_buddy/db/pdf_registry.db relative to repo root.
 # Repo root = directory that contains "ai_study_buddy" (found by walking up from this file).
@@ -337,6 +376,8 @@ class PdfFileManager:
         meta = row["metadata"]
         if isinstance(meta, str):
             meta = json.loads(meta) if meta else None
+        if meta is not None:
+            _reject_invalid_chinese_variant_in_metadata(meta)
         return PdfFile(
             id=row["id"],
             name=row["name"],
@@ -657,7 +698,7 @@ class PdfFileManager:
         existing = conn.execute("SELECT id FROM pdf_files WHERE path = ?", (str(path),)).fetchone()
         if existing:
             raise AlreadyRegisteredError(f"Already registered: {path}")
-        meta_json = json.dumps(metadata) if metadata is not None else None
+        meta_json = _metadata_json_for_persist(metadata)
         if subject is not None and subject not in ("english", "math", "science", "chinese"):
             raise ValueError(f"subject must be one of english, math, science, chinese; got {subject!r}")
         self._validate_doc_type(doc_type)
@@ -765,7 +806,7 @@ class PdfFileManager:
                     (
                         raw_id, raw_name, str(raw_path), row["doc_type"], row["student_id"], row["subject"],
                         1 if row["is_template"] else 0,
-                        raw_size, result.pages, row["metadata"], now, now, row["notes"],
+                        raw_size, result.pages, _metadata_json_from_sql_value(row["metadata"]), now, now, row["notes"],
                     ),
                 )
             conn.execute(
@@ -777,7 +818,7 @@ class PdfFileManager:
                     main_id, main_name, str(main_path), row["doc_type"], row["student_id"], row["subject"],
                     1 if row["is_template"] else 0,
                     result.compressed_size, result.pages,
-                    row["metadata"], now, now, row["notes"],
+                    _metadata_json_from_sql_value(row["metadata"]), now, now, row["notes"],
                 ),
             )
             rel_id1, rel_id2 = str(uuid.uuid4()), str(uuid.uuid4())
@@ -948,7 +989,7 @@ class PdfFileManager:
             if p in ("P3", "P4", "P5", "P6", "PSLE", "Archive"):
                 out.setdefault("metadata", {})["grade_or_scope"] = p
                 break
-        # Chinese exam variant (foundation vs higher) from filename.
+        # Chinese exam variant (Standard 华文 vs 高华) from filename. Stored as 'standard'|'higher'.
         # Applies only when subject is chinese and doc_type is exam.
         if out.get("subject") == "chinese" and out.get("doc_type") == "exam":
             name = resolved.name
@@ -957,7 +998,7 @@ class PdfFileManager:
             if "高华" in name or ".hc." in lower:
                 variant = "higher"
             elif "华文" in name or ".chinese." in lower:
-                variant = "foundation"
+                variant = "standard"  # Chinese Language (Standard) / 华文 — not SEAB Foundation Chinese Language
             if variant:
                 out.setdefault("metadata", {})["chinese_variant"] = variant
         return out
@@ -1096,7 +1137,14 @@ class PdfFileManager:
                         raw_size = pdf_path.stat().st_size if pdf_path.exists() else None
                         conn.execute(
                             "UPDATE pdf_files SET student_id = ?, subject = ?, doc_type = ?, metadata = ?, size_bytes = ? WHERE id = ?",
-                            (main_row["student_id"], main_row["subject"], main_row["doc_type"], main_row["metadata"], raw_size, raw_id),
+                            (
+                                main_row["student_id"],
+                                main_row["subject"],
+                                main_row["doc_type"],
+                                _metadata_json_from_sql_value(main_row["metadata"]),
+                                raw_size,
+                                raw_id,
+                            ),
                         )
                         conn.commit()
                     continue
@@ -1214,6 +1262,7 @@ class PdfFileManager:
             else:
                 current = dict(current) if current else {}
             merged = {**current, **metadata}
+            _reject_invalid_chinese_variant_in_metadata(merged)
             updates.append("metadata = ?")
             params.append(json.dumps(merged) if merged else None)
         if notes is not None:
@@ -1320,6 +1369,7 @@ class PdfFileManager:
         else:
             current_meta = dict(current_meta) if current_meta else {}
         merged_meta = {**current_meta, **(inferred.get("metadata") or {})}
+        _reject_invalid_chinese_variant_in_metadata(merged_meta)
         meta_json = json.dumps(merged_meta) if merged_meta else None
         now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
         conn.execute(
@@ -1589,6 +1639,7 @@ class PdfFileManager:
             if template.metadata and isinstance(template.metadata, dict):
                 comp_meta = completed.metadata if isinstance(completed.metadata, dict) else {}
                 merged = {**template.metadata, **(comp_meta or {})}
+                _reject_invalid_chinese_variant_in_metadata(merged)
                 updates.append("metadata = ?")
                 params.append(json.dumps(merged) if merged else None)
             if updates:

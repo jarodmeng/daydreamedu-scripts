@@ -37,7 +37,7 @@ These are common keys used in `PdfFile.metadata`:
 - `content_folder` (path-derived): `Exam`, `Exercise`, `Book`, `Activity`, `Note`
 - `grade_or_scope` (path-derived): `P3`, `P4`, `P5`, `P6`, `PSLE`, `Archive`
 - `unit` (all grouped content): per-file function/unit label (for example `paper1`, `answers`, `Part D Topical Practice Fractions`)
-- `chinese_variant` (Chinese exam files): `foundation` or `higher`
+- `chinese_variant` (Chinese exam files): `standard` (**Standard** 华文 / non-HC) or `higher` (高华) — not the same as SEAB “Foundation Chinese Language”. The legacy spelling `foundation` is **invalid** and must not appear in stored JSON (`InvalidMetadataError` on load/persist).
 - `exam_date`, `paper_type`, `school`, `topic`: optional workflow fields
 
 Important behavior:

@@ -1,5 +1,6 @@
 # Path-based inference (_infer_from_path and application during scan). See ARCHITECTURE.md.
 
+import json
 import shutil
 import sqlite3
 import tempfile
@@ -7,7 +8,7 @@ from pathlib import Path
 
 import pytest
 
-from ai_study_buddy.pdf_file_manager.pdf_file_manager import PdfFileManager
+from ai_study_buddy.pdf_file_manager.pdf_file_manager import InvalidMetadataError, PdfFileManager
 
 from .conftest import FIXTURE_ROOT, fixture_has_pdfs
 from .constants import STUDENT_DISPLAY_NAME, STUDENT_FOLDER_EMAIL
@@ -147,8 +148,8 @@ def test_infer_from_path_is_template_true_when_at_in_drive_segment_only():
     assert out.get("metadata", {}).get("grade_or_scope") == "P6"
 
 
-def test_infer_from_path_sets_chinese_variant_foundation_for_chinese_exam():
-    """Chinese exam filename with 华文/.chinese. sets metadata.chinese_variant='foundation'."""
+def test_infer_from_path_sets_chinese_variant_standard_for_chinese_exam():
+    """Chinese exam filename with 华文/.chinese. sets metadata.chinese_variant='standard'."""
     path = Path(
         "/fake/DaydreamEdu/Singapore Primary Chinese/P6/Exam/华文 期末考试 (题目).p5.chinese.013.pdf"
     )
@@ -156,7 +157,7 @@ def test_infer_from_path_sets_chinese_variant_foundation_for_chinese_exam():
     assert out.get("subject") == "chinese"
     assert out.get("doc_type") == "exam"
     meta = out.get("metadata") or {}
-    assert meta.get("chinese_variant") == "foundation"
+    assert meta.get("chinese_variant") == "standard"
 
 
 def test_infer_from_path_sets_chinese_variant_higher_for_chinese_exam():
@@ -169,6 +170,50 @@ def test_infer_from_path_sets_chinese_variant_higher_for_chinese_exam():
     assert out.get("doc_type") == "exam"
     meta = out.get("metadata") or {}
     assert meta.get("chinese_variant") == "higher"
+
+
+def test_register_file_rejects_invalid_chinese_variant_foundation():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmpdir = Path(tmpdir)
+        pdf_path = tmpdir / "x.pdf"
+        pdf_path.write_bytes(b"%PDF-1.4")
+        db_path = tmpdir / "registry.db"
+        mgr = PdfFileManager(db_path=str(db_path))
+        mgr.add_student("s", "S")
+        with pytest.raises(InvalidMetadataError, match="foundation"):
+            mgr.register_file(
+                pdf_path,
+                file_type="main",
+                student_id="s",
+                subject="chinese",
+                doc_type="exam",
+                metadata={"chinese_variant": "foundation"},
+            )
+
+
+def test_get_file_raises_when_stored_metadata_has_chinese_variant_foundation():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmpdir = Path(tmpdir)
+        pdf_path = tmpdir / "x.pdf"
+        pdf_path.write_bytes(b"%PDF-1.4")
+        db_path = tmpdir / "registry.db"
+        mgr = PdfFileManager(db_path=str(db_path))
+        mgr.add_student("s", "S")
+        registered = mgr.register_file(
+            pdf_path,
+            file_type="main",
+            student_id="s",
+            subject="chinese",
+            doc_type="exam",
+            metadata={"chinese_variant": "standard"},
+        )
+        mgr._get_connection().execute(
+            "UPDATE pdf_files SET metadata = ? WHERE id = ?",
+            (json.dumps({"chinese_variant": "foundation"}), registered.id),
+        )
+        mgr._get_connection().commit()
+        with pytest.raises(InvalidMetadataError, match="foundation"):
+            mgr.get_file(registered.id)
 
 
 def test_infer_from_path_does_not_set_chinese_variant_for_non_exam():

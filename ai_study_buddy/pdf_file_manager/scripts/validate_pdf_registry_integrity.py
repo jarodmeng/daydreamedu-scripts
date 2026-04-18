@@ -7,6 +7,7 @@ ad hoc investigation:
 1. files still marked with doc_type='unknown'
 2. files under a registered student's email folder that are missing student_id
 3. linked raw/main pairs whose invariant metadata has drifted
+4. metadata.chinese_variant set to invalid legacy value ``foundation`` (must be ``standard`` for Standard 华文)
 
 Usage:
   python3 -m ai_study_buddy.pdf_file_manager.scripts.validate_pdf_registry_integrity
@@ -53,6 +54,29 @@ def collect_unknown_doc_type(mgr: PdfFileManager) -> list[dict]:
         }
         for f in mgr.find_files(doc_type="unknown")
     ]
+
+
+def collect_invalid_chinese_variant_foundation(mgr: PdfFileManager) -> list[dict]:
+    """Rows where metadata.chinese_variant is the invalid legacy value ``foundation``."""
+    conn = mgr._get_connection()
+    rows = conn.execute(
+        "SELECT id, path, file_type, metadata FROM pdf_files WHERE metadata IS NOT NULL"
+    ).fetchall()
+    bad: list[dict] = []
+    for row in rows:
+        try:
+            m = json.loads(row["metadata"]) if row["metadata"] else {}
+        except json.JSONDecodeError:
+            continue
+        if isinstance(m, dict) and m.get("chinese_variant") == "foundation":
+            bad.append(
+                {
+                    "id": row["id"],
+                    "path": row["path"],
+                    "file_type": row["file_type"],
+                }
+            )
+    return bad
 
 
 def collect_missing_student_id(mgr: PdfFileManager) -> list[dict]:
@@ -135,17 +159,20 @@ def build_report(mgr: PdfFileManager) -> dict:
     unknown_doc_type = collect_unknown_doc_type(mgr)
     missing_student_id = collect_missing_student_id(mgr)
     main_raw_drift = collect_main_raw_metadata_drift(mgr)
+    invalid_chinese_variant_foundation = collect_invalid_chinese_variant_foundation(mgr)
     return {
         "db_path": str(Path(mgr.db_path).resolve()),
         "summary": {
             "unknown_doc_type": len(unknown_doc_type),
             "missing_student_id": len(missing_student_id),
             "main_raw_metadata_drift": len(main_raw_drift),
+            "invalid_chinese_variant_foundation": len(invalid_chinese_variant_foundation),
         },
         "checks": {
             "unknown_doc_type": unknown_doc_type,
             "missing_student_id": missing_student_id,
             "main_raw_metadata_drift": main_raw_drift,
+            "invalid_chinese_variant_foundation": invalid_chinese_variant_foundation,
         },
     }
 
@@ -170,6 +197,10 @@ def _print_human_report(report: dict, *, limit: int) -> None:
         print(f"- raw={item['raw_path']}")
         print(f"  main={item['main_path']}")
         print(f"  fields={field_names}")
+
+    print("\nInvalid metadata.chinese_variant=foundation (use 'standard' for Standard 华文):")
+    for item in report["checks"]["invalid_chinese_variant_foundation"][:limit]:
+        print(f"- {item['path']} [{item['file_type']}] id={item['id']}")
 
 
 def main() -> int:
