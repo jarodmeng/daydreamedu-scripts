@@ -158,7 +158,7 @@ POC simplification: `marking_id` is intentionally omitted from v1 because filesy
       "correct_answer": "(2)",
       "feedback": null,
       "error_tags": [],
-      "skill_tags": ["Forces", "fair test", "control variables"],
+      "skill_tags": ["Interactions > Interaction of Forces > Magnets"],
       "diagnosis": {
         "mistake_type": null,
         "reasoning": null,
@@ -244,7 +244,25 @@ Per gradable result, `diagnosis` captures the marking agent's interpretation of 
 3. `confidence`: optional confidence score or qualitative value.
 
 `error_tags` remain available as concise machine tags; `diagnosis` adds explanatory depth.
-`skill_tags` are stored as human-readable phrases (not underscore-normalized slugs).
+
+### `skill_tags` (`question_results[].skill_tags`)
+
+- **Type:** array of strings (empty `[]` is valid).
+- **Rendering:** markdown reports use `prettify_skill_tags` (see `ai_study_buddy/marking/core/taxonomy.py`). When **each** element contains ` > ` (full path per element), multiple elements are joined with **`"; "`**; otherwise elements are joined with **` > `** (legacy: one hierarchy level per array index).
+- **Authoritative workflow rules:** `.cursor/skills/mark-goodnote-completion/SKILL.md` (Skill Tags Column).
+
+**By `subject_context` (new writes):**
+
+| Context | `skill_tags` policy |
+|---------|---------------------|
+| `singapore_primary_math` | One string per syllabus topic path: `Strand > Sub-strand > Topic` (vocabulary: `ai_study_buddy/context/subject_understandings/singapore_primary_math/syllabus_understanding.md`). Prefer one element per row; use several full-path strings when a question clearly spans multiple topics. |
+| `singapore_primary_science` | One string per unit path: `Theme > Chapter > Topic` (vocabulary + Index: `ai_study_buddy/context/subject_understandings/singapore_primary_science/syllabus_understanding.md`). Use `—` as the third segment when the Index has no topic. |
+| `singapore_primary_english`, `singapore_primary_chinese`, `singapore_primary_higher_chinese` | Use **`[]`** for now. |
+| Other / future | Legacy multi-segment hierarchy **or** `[]` as agreed per subject. |
+
+**Legacy artifacts:** older JSON may still store three separate strings for one math path, science slug triples, or English vocabulary tags; do not rewrite files in bulk. Prefer the conventions above for new marking runs.
+
+**Question index:** `skill_tags` on `unit_question_index` entries are a separate concern (often slug-style retrieval tags); see [L4_QUESTION_INDEX_SCHEMA](./L4_QUESTION_INDEX_SCHEMA.md). They are not automatically the same shape as marking-result `skill_tags`.
 
 Diagnostic evidence rule:
 

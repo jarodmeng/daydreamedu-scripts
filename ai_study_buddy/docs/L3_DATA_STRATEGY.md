@@ -42,7 +42,7 @@ A question object stores:
 | `teacher_feedback_bbox` | Bounding box for teacher corrections/notes |
 | `attempt_outcome` | correct / wrong / partial |
 | `error_tags` | e.g., `fraction-of-remainder`, `ratio-inversion` |
-| `skill_tags` | e.g., `fractions-of-remainder`, `model-drawing` |
+| `skill_tags` | Planned DB mirror of marking tags; for **GoodNotes `marking_result.v1` JSON** use subject conventions in [L4_MARKING_RESULT_ARTIFACT](./L4_MARKING_RESULT_ARTIFACT.md) (math/science syllabus paths; English/Chinese empty for now), not ad-hoc slugs unless the row is question-index metadata |
 | `assets` | Pointers to cropped images (not full pages) |
 | `drive_file_id` | Reference back to the Drive PDF |
 | `page_number` | Which page in the PDF |

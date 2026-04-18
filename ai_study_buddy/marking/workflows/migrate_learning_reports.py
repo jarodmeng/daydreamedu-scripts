@@ -239,6 +239,8 @@ def parse_legacy_learning_report(report_path: str | Path) -> tuple[MarkingArtifa
         outcome, result_id = _parse_outcome(row.get("Name", ""), obtained_row_marks, total_row_marks)
         scoring_status = "excluded_disqualified" if outcome == "disqualified" else "counted"
         embedding_label = row.get("Embedding", "")
+        # Legacy markdown migration: split Embedding "a > b > c" into a 3-tuple. New marks
+        # should use syllabus path strings per L4_MARKING_RESULT_ARTIFACT / mark-goodnote skill.
         skill_tags = ()
         if scoring_status == "counted":
             skill_tags = derive_skill_tags_from_embedding_label(embedding_label)

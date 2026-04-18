@@ -54,6 +54,13 @@ class Diagnosis:
 
 @dataclass(frozen=True)
 class ArtifactQuestionResult:
+    """Per-question row in ``marking_result.v1``.
+
+    ``skill_tags``: array of strings; subject policy in ``ai_study_buddy/docs/L4_MARKING_RESULT_ARTIFACT.md``
+    (math/science: full path per element with `` > ``; English/Chinese/HC: prefer empty;
+    legacy data may use one hierarchy segment per tuple element).
+    """
+
     result_id: str
     max_marks: int
     earned_marks: int

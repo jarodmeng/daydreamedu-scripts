@@ -3,6 +3,8 @@
 **session_id:** `019d72bc-8297-7960-a55f-170f7f7581d6`  
 **source:** `~/.codex/sessions/2026/04/09/rollout-2026-04-09T22-54-10-019d72bc-8297-7960-a55f-170f7f7581d6.jsonl`  
 
+**Note (later alignment):** `skill_tags` in exported snippets reflect early slug-style ideas. Current **GoodNotes `marking_result.v1`** conventions are documented in `ai_study_buddy/docs/L4_MARKING_RESULT_ARTIFACT.md` (syllabus paths for primary math/science; empty for English/Chinese for now).
+
 ---
 
 ## Session meta

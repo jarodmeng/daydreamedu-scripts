@@ -287,7 +287,7 @@ Convention: `✅` = full marks, `⚠️` = partial credit, `❌` = zero marks.
 
 | Name | Student answer | Correct answer | Total marks | Obtained marks | Embedding |
 | --- | --- | --- | ---: | ---: | --- |
-| ✅ Q1(a) | `...` | `...` | 1 | 1 | `Topic > skill > subskill` |
+| ✅ Q1(a) | `...` | `...` | 1 | 1 | `Number and Algebra > Ratio > Ratio` |
 
 ## Report Context
 
@@ -305,18 +305,98 @@ Convention: `✅` = full marks, `⚠️` = partial credit, `❌` = zero marks.
 
 ## Skill Tags Column
 
-The markdown report may render a concise display value from `skill_tags`. The canonical JSON should store `skill_tags` as normalized machine tags.
+The markdown report renders `skill_tags` via `prettify_skill_tags`. In canonical JSON, `skill_tags` is an **array of strings** (tuple in code).
 
-Use the format:
+Syllabus-aligned tagging (path **per array element**, multiple paths joined with **`"; "`** in the report) is defined **per subject** below. Do **not** mix taxonomies (e.g. do not use math strands for science, or science themes for math).
 
-`Topic > skill > subskill`
+For **Singapore primary English** (`singapore_primary_english`), **Chinese** (`singapore_primary_chinese`), and **Higher Chinese** (`singapore_primary_higher_chinese` when used), keep **`skill_tags` empty** for now: use `[]` on every `question_results` row (no legacy segments either). The report embedding cell will show blank until a taxonomy is adopted.
 
-For this math workflow, examples include:
+### Singapore primary math (`singapore_primary_math`) only
 
-- `Ratio > unit value > difference between two parts`
-- `Ratio > equalizing amounts > transfer is half the difference`
+Treat `skill_tags` as an **array of syllabus topics**, not as “hierarchy split across array indices”.
 
-Keep labels short, concrete, and consistent across similar reports.
+**Canonical shape (each array element):**
+
+```text
+<strand> > <sub-strand> > <topic>
+```
+
+- Use a **single** space before and after each `>` (i.e. ` > ` between levels).
+- **Strand**, **sub-strand**, and **topic** spellings come from  
+  `ai_study_buddy/context/subject_understandings/singapore_primary_math/syllabus_understanding.md`  
+  (same rules as before: three strands; sub-strand headings; topic from Skills-table **Topic** column or matching `#### Topic:`).
+
+**Examples** — JSON stores **one string per topic path**:
+
+```json
+"skill_tags": ["Number and Algebra > Ratio > Ratio"]
+```
+
+```json
+"skill_tags": ["Measurement and Geometry > Area and Volume > Area of Triangle"]
+```
+
+**Multiple topics** (e.g. a single question visibly assesses two digest topics): use **multiple strings**, each a full path. The report joins them with **`"; "`** (semicolon + space), not ` > `, so each path stays readable:
+
+```json
+"skill_tags": [
+  "Number and Algebra > Whole numbers > Four Operations (whole numbers)",
+  "Measurement and Geometry > Geometry > Angles"
+]
+```
+
+→ table cell: `Number and Algebra > Whole numbers > Four Operations (whole numbers); Measurement and Geometry > Geometry > Angles`
+
+**Rules**
+
+- **Do not** use three separate array entries for strand / sub-strand / topic (old pattern). For math, **one entry = one full path**.
+- **Do not** invent non-syllabus middle or tail segments inside a path.
+- If mapping is uncertain, prefer **one** closest path and explain in `diagnosis` / `human_note` rather than guessing two unrelated paths.
+
+### Singapore primary science (`singapore_primary_science`) only
+
+Use the same **path-per-element** convention as math: each `skill_tags` entry is one full path string; several entries → joined with **`"; "`** in the report.
+
+**Canonical shape (each array element):**
+
+```text
+<theme> > <chapter> > <topic>
+```
+
+- Use a **single** space before and after each `>` (i.e. ` > ` between levels).
+- **Theme**, **chapter**, and **topic** spellings come from the **Index** table (and matching unit metadata) in:
+
+`ai_study_buddy/context/subject_understandings/singapore_primary_science/syllabus_understanding.md`
+
+**Themes** (top-level): `Diversity`, `Cycles`, `Systems`, `Interactions`, `Energy` — match the digest exactly.
+
+**Chapter** and **topic** are the **Chapter** and **Topic** columns from that Index. Where the Index shows **—** for topic (chapter only), use **`—`** as the third segment so the path still has three levels (e.g. `Systems > Electrical System > —`).
+
+**Examples**
+
+```json
+"skill_tags": ["Interactions > Interaction of Forces > Magnets"]
+```
+
+```json
+"skill_tags": ["Energy > Energy Forms and Uses > Photosynthesis"]
+```
+
+```json
+"skill_tags": ["Diversity > Diversity of Materials > —"]
+```
+
+**Rules**
+
+- **Do not** use three array slots for theme / chapter / topic; **one entry = one full path**.
+- **Do not** invent chapters or topics outside the digest (this file is Standard-track outcomes only).
+- If a question spans two units, use **two** full-path strings; if uncertain, one path + `human_note`.
+
+### Other subjects (not Singapore primary math, science, English, or Chinese)
+
+Do **not** use math **strand / sub-strand / topic** unless the context is `singapore_primary_math`. Do **not** use science **theme / chapter / topic** unless the context is `singapore_primary_science`.
+
+For contexts **outside** those four (e.g. another subject or future `subject_context` values), you may use **legacy** `skill_tags`: a short ordered list where **array order is the hierarchy** (coarse → fine); `prettify_skill_tags` joins those segments with ` > `—unless the user asks for empty tags there too.
 
 ## Diagnosis Guidance
 

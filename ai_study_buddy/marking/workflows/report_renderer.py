@@ -86,6 +86,7 @@ def render_marking_report_markdown(data: dict[str, Any]) -> str:
             diagnosis_text = diagnosis["mistake_type"]
             if diagnosis.get("reasoning"):
                 diagnosis_text += f": {diagnosis['reasoning']}"
+        # Join policy: see prettify_skill_tags (path-per-element vs legacy hierarchy).
         skill_text = prettify_skill_tags(row.get("skill_tags", []))
         lines.append(
             "| {name} | {scoring_status} | {student_answer} | {correct_answer} | {total_marks} | {obtained_marks} | {skill_tags} | {diagnosis} | {human_note} |".format(

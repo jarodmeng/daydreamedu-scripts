@@ -8,7 +8,10 @@ from ai_study_buddy.marking.workflows.migrate_learning_reports import (
     migrate_learning_reports,
     parse_legacy_learning_report,
 )
-from ai_study_buddy.marking.core.taxonomy import derive_skill_tags_from_embedding_label
+from ai_study_buddy.marking.core.taxonomy import (
+    derive_skill_tags_from_embedding_label,
+    prettify_skill_tags,
+)
 
 migrate_module = importlib.import_module("ai_study_buddy.marking.workflows.migrate_learning_reports")
 
@@ -250,3 +253,26 @@ def test_derive_skill_tags_strips_markdown_link_wrapper():
         "[Plant systems > weak stems > support and climbing for light](/tmp/example.md#L1)"
     )
     assert tags == ("Plant systems", "weak stems", "support and climbing for light")
+
+
+def test_prettify_skill_tags_legacy_hierarchy_across_elements():
+    assert (
+        prettify_skill_tags(("Number and Algebra", "Ratio", "Ratio"))
+        == "Number and Algebra > Ratio > Ratio"
+    )
+
+
+def test_prettify_skill_tags_math_path_per_element():
+    assert prettify_skill_tags(["Number and Algebra > Ratio > Ratio"]) == (
+        "Number and Algebra > Ratio > Ratio"
+    )
+    assert (
+        prettify_skill_tags(
+            [
+                "Number and Algebra > Whole numbers > Four Operations (whole numbers)",
+                "Measurement and Geometry > Geometry > Angles",
+            ]
+        )
+        == "Number and Algebra > Whole numbers > Four Operations (whole numbers); "
+        "Measurement and Geometry > Geometry > Angles"
+    )

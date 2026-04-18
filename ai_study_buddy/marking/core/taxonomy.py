@@ -56,4 +56,23 @@ def derive_skill_tags_from_embedding_label(label: str) -> tuple[str, ...]:
 
 
 def prettify_skill_tags(skill_tags: tuple[str, ...] | list[str]) -> str:
-    return " > ".join(skill_tags)
+    """Join ``skill_tags`` for markdown tables.
+
+    **Legacy (hierarchy across elements):** each array entry is one level, e.g.
+    ``("Forces", "effects of force", "direction")`` → ``Forces > effects of force > direction``.
+
+    **Path per element:** when *every* non-empty tag contains ``" > "`` (typical for
+    syllabus-aligned marking: e.g. Singapore primary math ``strand > sub-strand > topic``,
+    or science ``theme > chapter > topic``), multiple entries are joined with ``"; "`` so
+    internal `` > `` are not flattened into one ambiguous path. Some contexts use the
+    legacy shape (one hierarchy level per array element); subjects without a taxonomy
+    may use an empty list.
+    """
+    tags = [str(t).strip() for t in skill_tags if str(t).strip()]
+    if not tags:
+        return ""
+    if len(tags) == 1:
+        return tags[0]
+    if all(" > " in t for t in tags):
+        return "; ".join(tags)
+    return " > ".join(tags)
