@@ -27,7 +27,7 @@ The goal for Phase 1 is not full automation. It's: **get the current multi-stude
 
 ## Format-Driven Extraction Implications
 
-The pipeline flow is shaped by format realities in [L3_EXAM_FORMATS](./L3_EXAM_FORMATS.md). Keep detailed exam-structure background there; use this section for implementation decisions only.
+The pipeline flow is shaped by format realities in [L3_EXAM_FORMATS](./L3_EXAM_FORMATS.md) and per-subject notes under `context/subject_understandings/`. Keep detailed exam-structure background there; use this section for implementation decisions only.
 
 1. **Vision-LLM-first architecture (steps 2, 4, 5, 6, 7).** OCR stays supplementary because we must parse layered markings, OAS bubbles, and handwritten answer regions.
 2. **Dual extraction path by question modality (steps 5 vs 7).** MCQ/OAS and free-response questions need different extraction logic, schemas, and review patterns.
@@ -61,7 +61,7 @@ CREATE TABLE documents (
   paper_type    TEXT,                   -- 'wa', 'exam', 'worksheet', 'past_year', 'practice'
   school        TEXT,                   -- 'st_gabriels', 'si_ling', etc. (for template learning)
   grade         TEXT,                   -- 'p6'
-  chinese_variant TEXT,                 -- 'foundation' | 'higher' (only when subject='chinese')
+  chinese_variant TEXT,                 -- 'standard' | 'higher' (only when subject='chinese'; 'standard' = Standard 华文 — not SEAB Foundation Chinese Language; do not use legacy 'foundation')
   date          DATE,
   total_marks   SMALLINT,
   earned_marks  SMALLINT,
@@ -193,7 +193,7 @@ Send each question page image to Gemini Vision with a focused prompt:
 
 This gives us `pages.earned_marks` and `pages.available_marks`. Summing across pages cross-checks against the document total.
 
-**Note:** Not all pages have score boxes. Math papers have them on every page. Science MCQ pages do not (scoring is via OAS). The LLM returns null for pages without score boxes.
+**Note:** Not all pages have score boxes. Math **Paper 1 Booklet A** (MCQ) often has no per-page score box (scoring is via OAS); **Booklet B** and **Paper 2** are more likely to have them. Science MCQ pages do not (scoring is via OAS). The LLM returns null for pages without score boxes.
 
 ### Step 5: Extract MCQ Answers from OAS (if present)
 
@@ -201,7 +201,7 @@ If the paper has an OAS page, this is the most efficient extraction step in the 
 
 > *"This is an Optical Answer Sheet (OAS) from a school exam. It has a grid of numbered rows (1, 2, 3...) with ovals labeled (1), (2), (3), (4). For each row that has a shaded oval, extract: question_number, chosen_option (the shaded number), is_correct (true if there is a red tick next to it). Return as JSON array."*
 
-One LLM call extracts all MCQ answers and their correctness. For a 12-question MCQ section, this creates 12 question objects with `question_type = 'mcq'`, `mcq_chosen`, and `outcome` in a single call.
+One LLM call extracts all MCQ answers and their correctness. For example, a PSLE Science Booklet A has **28** MCQs on one OAS; a smaller WA might have 12. Each shaded row yields `question_type = 'mcq'`, `mcq_chosen`, and `outcome` in one call.
 
 **Fallback:** If the OAS is missing or unreadable, MCQ answers can be extracted from the booklet pages (Winston writes his choice in parentheses on each question page).
 
@@ -233,7 +233,7 @@ Send each question page image to Gemini Vision with a structured extraction prom
 >
 > *Return as JSON array."*
 
-**Subject-specific prompts matter.** Math papers have "Ans:" lines and parenthesized marks. Science papers have bracketed marks [1], [2] and experiment diagrams. The prompt should be adapted per subject for best results.
+**Subject-specific prompts matter.** Math papers have "Ans:" lines; **Paper 2** uses square-bracket marks `[n]` per sub-part; **Paper 1 Booklet B** uses short-answer lines and 2-mark items. Science papers have bracketed marks [1], [2] and experiment diagrams. The prompt should be adapted per subject for best results.
 
 For digital PDFs and stable templates, Python should try to detect structure first from text / layout cues and use the vision model only when confidence is low.
 
@@ -314,12 +314,12 @@ Once questions are confirmed, the Student Model updates automatically:
 
 ## Per-Subject Extraction Notes
 
-Detailed paper structures and visual examples live in [L3_EXAM_FORMATS](./L3_EXAM_FORMATS.md). This section only captures implementation-relevant extraction deltas.
+Detailed paper structures and visual examples live in [L3_EXAM_FORMATS](./L3_EXAM_FORMATS.md) (overview) and `context/subject_understandings/**/<subject>_exam_format.md`. This section only captures implementation-relevant extraction deltas.
 
 ### Math
 
-- **Extraction approach:** Vision-LLM on all question pages; rely on "Ans:" lines, ticks/crosses, and page score boxes.
-- **Implementation focus:** Preserve model drawings/workings as crops and avoid OCR-only logic for notation-heavy content (fractions, long division).
+- **Extraction approach:** Vision-LLM on all question pages; **OAS-first** for Paper 1 Booklet A (MCQ); then "Ans:" lines, ticks/crosses, and page score boxes for Booklet B and Paper 2.
+- **Implementation focus:** Preserve model drawings/workings as crops and avoid OCR-only logic for notation-heavy content (fractions, long division). Link **Paper 1** (Q1–30) and **Paper 2** (separate Q1–17) via `exam_id` when bundled in one PDF.
 
 ### Science
 
@@ -333,13 +333,13 @@ Detailed paper structures and visual examples live in [L3_EXAM_FORMATS](./L3_EXA
 
 ### Chinese
 
-- **Extraction approach:** Link three PDFs per exam; use OAS for Q1–Q25 then extract written sections from answer booklet pages.
+- **Extraction approach:** Link **question booklet, answer booklet, and OAS** (however many files the scan produced) via `exam_id`; use OAS for Q1–Q25 then extract written sections from answer booklet pages.
 - **Implementation focus:** Handle inline MCQ, dialogue-completion, bilingual prompts, grid-paper composition, and point-level marking (0.5/1) in open-ended answers.
 
 ### Higher Chinese
 
 - **Data model note:** Represent as `subject='chinese'` + `chinese_variant='higher'` (no separate subject value).
-- **Extraction approach:** Three PDFs per exam, no OAS path, and handwriting extraction for all Paper 2 questions.
+- **Extraction approach:** Link **question + answer booklets** (however many files); **no OAS** — handwriting extraction for every Paper 2 item.
 - **Implementation focus:** Handle highest handwriting density, table-cell answers, constrained character-limit summaries, and finer-grained teacher correction signals.
 
 ---
@@ -418,7 +418,7 @@ Winston has ~4,000 pages of historical worksheets. Ingesting all of them manuall
 
 ### Design decisions
 
-1. **Multi-document exam linking UX.** English needs 2 PDFs per exam. Chinese and Higher Chinese each need 3 PDFs. Should the upload UI auto-detect that files belong to the same exam (matching child + date + subject), or should Jarod explicitly group them? Auto-detection risks false matches; explicit grouping adds friction. A pragmatic middle ground: default to explicit grouping, with a "suggest matches" feature that highlights likely groups.
+1. **Multi-document exam linking UX.** English often uses 2 PDFs per exam. **Standard** Chinese Language papers may bundle **question booklet + answer booklet + OAS** in one file or split them; Higher Chinese uses separate booklets with no OAS. Should the upload UI auto-detect that files belong to the same exam (matching child + date + subject), or should Jarod explicitly group them? Auto-detection risks false matches; explicit grouping adds friction. A pragmatic middle ground: default to explicit grouping, with a "suggest matches" feature that highlights likely groups.
 2. **Review UI design.** Key interactions: view page images, see overlaid question boundaries, edit marks/tags, approve/reject per question. Should this be part of the main dashboard or a dedicated ingestion tool? Given the amount of time Jarod will spend here in Phase 1, it deserves thoughtful UX.
 3. **Green correction layer.** Green ink workings (from review sessions with Jarod) appear in Math, Chinese, and Higher Chinese papers. They represent "what Winston learned after the initial attempt." Should corrections be a field on the question object, a separate `correction_attempts` table, or a second question object linked to the original? The choice affects how we track learning progression over time.
 4. **Composition transcription depth.** Multi-page handwritten compositions (English, Chinese, Higher Chinese) are hard to transcribe accurately. For diagnostics, do we need full text (expensive) or just score + rubric dimensions + teacher corrections (cheaper)? Grid-paper compositions (Chinese/HC) may be easier to transcribe than English free-form. Decision: start with score-only for MVP, add transcription as a Tier 3 feature.
@@ -426,7 +426,7 @@ Winston has ~4,000 pages of historical worksheets. Ingesting all of them manuall
 
 ### Skill graph
 
-6. **Chinese/Higher Chinese: shared or separate skill graphs?** HC tests the same domains (vocabulary, comprehension, composition) at higher difficulty. Options: (a) one skill graph with difficulty metadata per question, (b) separate skill nodes for foundation/higher. This affects mastery computation — an HC comprehension miss is a weaker weakness signal than a foundation miss on the same skill.
+6. **Chinese/Higher Chinese: shared or separate skill graphs?** HC tests the same domains (vocabulary, comprehension, composition) at higher difficulty. Options: (a) one skill graph with difficulty metadata per question, (b) separate skill nodes for standard/higher. This affects mastery computation — an HC comprehension miss is a weaker weakness signal than a Standard Chinese miss on the same skill.
 7. **Chinese skill taxonomy granularity.** Chinese skills span pinyin (pronunciation), vocabulary (词语), grammar (语法), comprehension (阅读理解), and composition (写作). The graph needs Chinese-language skill names mapped to MOE syllabus standards. How granular? (e.g., distinguish 量词 from 关联词 from 词语运用)
 
 ### Extraction accuracy
@@ -441,8 +441,8 @@ Winston has ~4,000 pages of historical worksheets. Ingesting all of them manuall
 
 ### Resolved
 
-- ~~**Do Chinese papers use OAS?**~~ **Yes.** Regular Chinese uses OAS for Q1–Q25 (25 MCQ). The OAS is page 9 of the Answer Booklet PDF. **Higher Chinese does not use OAS** — all answers are written.
-- ~~**Does Higher Chinese follow the same structure as regular Chinese?**~~ **No.** HC has no MCQ, no OAS, fewer total marks (100 vs 130), fewer pages (26 vs 35), and fundamentally different question types (word-bank cloze, error correction, synonym matching, table comparison, phrase explanation).
+- ~~**Do Chinese papers use OAS?**~~ **Yes.** **Standard** Chinese Language uses OAS for Q1–Q25 (25 MCQ). The OAS may be bundled with the answer booklet or scanned separately — **page index is not fixed**. **Higher Chinese does not use OAS** — all answers are written.
+- ~~**Does Higher Chinese follow the same structure as Standard Chinese?**~~ **No.** HC has no MCQ, no OAS, fewer total marks (100 vs 130), and fundamentally different question types (word-bank cloze, error correction, synonym matching, table comparison, phrase explanation).
 
 ---
 
