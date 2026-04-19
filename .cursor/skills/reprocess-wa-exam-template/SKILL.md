@@ -36,6 +36,7 @@ description: >-
 - Derive `<doc label>` for merged/cleaned artifacts from stable shared scope:
   - default: `<subject> <grade> <doc_type>`
   - if user provides a custom label/path, use that instead.
+- If list lines name `_c_<name>.pdf` (completion mains), **do not merge those files for Phase A**. Resolve the sibling `_raw_<name>.pdf` in the same directory, require that it exists, and merge `_raw_` PDFs in list order. Basename and collision checks use the resolved `_raw_` paths (working basename = strip one leading `_raw_`).
 
 ## Fail-fast validation (run before Phase A actions)
 
@@ -47,7 +48,7 @@ description: >-
    - does not match the canonical source layout above.
 3. Compute shared tuple `(subject, student_email, grade, doc_type)` from all rows:
    - if more than one unique tuple is present, stop and ask to split into separate runs.
-4. Check canonical basename mapping:
+4. Check canonical basename mapping (after resolving merge targets: `_c_` list → `_raw_` sibling when applicable):
    - working basename = strip exactly one leading `_raw_` when present;
    - if two different source rows map to the same working basename, stop and ask.
 5. Compute destination collision checks before moving:
@@ -75,7 +76,7 @@ description: >-
 3. Move completion files into the canonical student-scope destination if needed:
    - Use `mv` only.
    - Stop on collisions; do not overwrite silently.
-4. Merge all files in list order into one PDF (mandatory):
+4. Merge all **Phase A source** PDFs in list order into one PDF (mandatory)—use `_raw_` siblings when the list lines are `_c_` paths (see Input conventions).
    - Output: `DAYDREAMEDU_ROOT/<doc label> - merged.pdf` (or user-provided override).
    - Verify merged page count equals sum of source page counts.
 5. Stop for external cleanup:
