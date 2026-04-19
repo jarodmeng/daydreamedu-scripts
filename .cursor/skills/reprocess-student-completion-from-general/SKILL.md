@@ -36,7 +36,7 @@ description: >-
 
 - Source list paths must be general scope:
   - `DAYDREAMEDU_ROOT/<subject>/<grade>/Book/<book name>/<file>.pdf`
-  - `<grade>` must be one of `P3`-`P6`, `PSLE`, `Archive`.
+  - `<grade>` must be one of `P1`-`P6`, `PSLE`, `Archive`.
 - Student destination mirror:
   - `DAYDREAMEDU_ROOT/<subject>/<student_email>/<grade>/Book/<book name>/<file_without_raw_prefix>.pdf`
 - Basename normalization:
