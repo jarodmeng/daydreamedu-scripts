@@ -231,6 +231,7 @@ class PdfFileManager:
     _ALLOWED_SUBJECTS = ("english", "math", "science", "chinese")
     _ALLOWED_DOC_TYPES = ("exam", "worksheet", "book", "book_exercise", "activity", "practice", "notes", "unknown")
     _ALLOWED_GROUP_TYPES = ("exam", "book", "book_exercise", "collection")
+    _GRADE_SCOPE_SEGMENTS = ("P1", "P2", "P3", "P4", "P5", "P6", "PSLE", "Archive")
 
     def __init__(self, db_path=None):
         self._db_path = Path(db_path).resolve() if db_path else _default_db_path()
@@ -937,12 +938,8 @@ class PdfFileManager:
         out: dict = {}
         resolved = path.resolve()
         parts = resolved.parts
-        grade_scope = ("P1", "P2", "P3", "P4", "P5", "P6", "PSLE", "Archive")
-        has_student_folder = any(
-            "@" in parts[i] and i + 1 < len(parts) and parts[i + 1] in grade_scope
-            for i in range(len(parts))
-        )
-        has_grade_scope = any(p in grade_scope for p in parts)
+        has_student_folder = cls._path_has_student_mirror_layout(resolved)
+        has_grade_scope = any(p in cls._GRADE_SCOPE_SEGMENTS for p in parts)
         if has_student_folder:
             out["is_template"] = False
         elif has_grade_scope:
@@ -986,7 +983,7 @@ class PdfFileManager:
                 out.setdefault("metadata", {})["content_folder"] = "Note"
                 break
         for p in parts:
-            if p in ("P1", "P2", "P3", "P4", "P5", "P6", "PSLE", "Archive"):
+            if p in cls._GRADE_SCOPE_SEGMENTS:
                 out.setdefault("metadata", {})["grade_or_scope"] = p
                 break
         # Chinese exam variant (Standard 华文 vs 高华) from filename. Stored as 'standard'|'higher'.
@@ -1002,6 +999,15 @@ class PdfFileManager:
             if variant:
                 out.setdefault("metadata", {})["chinese_variant"] = variant
         return out
+
+    @classmethod
+    def _path_has_student_mirror_layout(cls, path: Path) -> bool:
+        """Return True when path contains a student email segment immediately followed by a grade/scope segment."""
+        parts = path.resolve().parts
+        return any(
+            "@" in parts[i] and i + 1 < len(parts) and parts[i + 1] in cls._GRADE_SCOPE_SEGMENTS
+            for i in range(len(parts))
+        )
 
     # ---------------------------------------------------------------------------
     # scan_for_new_files
@@ -2378,25 +2384,41 @@ class PdfFileManager:
             )
         return imported
 
-    def ensure_book_group_from_path(self, path: str | Path) -> FileGroup:
+    def ensure_book_group_from_path(self, path: str | Path) -> FileGroup | None:
+        """Ensure/sync the canonical book file group for a general-scope Book folder.
+
+        Returns None for student-mirror Book paths. Student mains are represented via
+        template links and are not members of group_type='book' groups.
+        """
         target = Path(path).resolve()
         book_folder = target if target.is_dir() else self._infer_book_folder(target)
         if book_folder is None or book_folder.parent.name != "Book":
             raise ValueError(f"Path is not under a .../Book/<book name>/ folder: {path}")
+        if self._path_has_student_mirror_layout(book_folder):
+            return None
         label = book_folder.name
         existing = [
             group for group in self.list_file_groups(group_type="book")
             if group.label == label
         ]
         group = existing[0] if existing else self.create_file_group(label=label, group_type="book")
-        members_by_id = {member.file_id for member in group.members}
-        main_files = [
-            file for file in self.find_files(doc_type="book", file_type="main")
+        current_members_by_id = {member.file_id: member for member in group.members}
+        desired_files = [
+            file
+            for file in self.find_files(doc_type="book", file_type="main", is_template=True)
             if Path(file.path).resolve().parent == book_folder
+            and not self._path_has_student_mirror_layout(Path(file.path))
         ]
-        for file in main_files:
-            if file.id not in members_by_id:
+        desired_member_ids = {file.id for file in desired_files}
+
+        for file in desired_files:
+            if file.id not in current_members_by_id:
                 self.add_to_file_group(group.id, file.id)
+
+        for member in group.members:
+            if member.file_id not in desired_member_ids:
+                self.remove_from_file_group(group.id, member.file_id)
+
         group = self.get_file_group(group.id)
         if group.anchor_id is None and group.members:
             anchor = sorted(group.members, key=lambda member: member.file.name)[0]

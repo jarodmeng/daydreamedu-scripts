@@ -4,6 +4,43 @@ Decisions that shaped the design of this utility. Each entry records what was de
 
 ---
 
+## D-013 — Canonicalize book groups to general template mains (student mirrors via links)
+
+**Date:** 2026-04-19
+**Status:** Decided
+**Affects:** `pdf_file_manager.py`, `README.md`, `SPEC.md`, `CHANGELOG.md`, tests
+
+### Context
+
+DaydreamEdu commonly has both:
+
+- general template trees: `.../<subject>/<grade>/Book/<book>/...`
+- student mirror trees: `.../<subject>/<student_email>/<grade>/Book/<book>/...`
+
+Both can share the same `<book>` folder label. Existing book-group sync keyed on label and added matching `main` files by parent folder, which allowed student `_c_` files to appear as duplicate members in the same `group_type='book'` group as general templates.
+
+### Decision
+
+1. **Book-group membership is canonical template inventory.**  
+   `group_type='book'` members represent the general-scope template unit set for that book.
+
+2. **Student mirror Book paths do not mutate book groups.**  
+   Student files are represented via template relations (`template_for` / `completed_from`), not as duplicate group members.
+
+3. **Sync uses desired-set reconciliation.**  
+   Group sync computes desired eligible member ids and reconciles membership (add missing, prune extras) instead of append-only behavior.
+
+4. **Keep label-based grouping for now.**  
+   We defer schema-level canonical path keys (Option A) unless proven necessary by collisions across distinct general trees.
+
+### Consequences
+
+- Existing stale members are cleaned incrementally when relevant general Book folders are synced.
+- Book answer mapping and coverage flows align better with a single canonical template member set.
+- Future global one-off reconciliation can be added as a follow-up for fast convergence across old registries.
+
+---
+
 ## D-012 — Canonicalize package imports and module invocation for pdf_file_manager
 
 **Date:** 2026-04-15

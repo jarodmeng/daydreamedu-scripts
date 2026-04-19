@@ -115,6 +115,18 @@ def test_infer_from_path_is_template_false_when_student_email_in_path():
     assert out.get("is_template") is False
 
 
+def test_path_has_student_mirror_layout_matches_inference_rule():
+    assert PdfFileManager._path_has_student_mirror_layout(
+        Path("/fake/DaydreamEdu/Singapore Primary Math/P5/Book/Power Pack Math P5")
+    ) is False
+    assert PdfFileManager._path_has_student_mirror_layout(
+        Path("/fake/DaydreamEdu/Singapore Primary Math/user@example.com/P5/Book/Power Pack Math P5")
+    ) is True
+    assert PdfFileManager._path_has_student_mirror_layout(
+        Path("/Users/dev/GoogleDrive-owner@example.com/My Drive/DaydreamEdu/Singapore Primary Math/P6/Exam")
+    ) is False
+
+
 def test_register_file_infers_student_id_from_registered_student_email_folder():
     with tempfile.TemporaryDirectory() as tmpdir:
         tmpdir = Path(tmpdir)
@@ -337,6 +349,127 @@ def test_scan_book_folder_applies_book_inference_and_grouping():
             assert len(groups) == 1
             assert groups[0].label == "Power Pack Chinese PSLE"
             assert len(groups[0].members) == 2
+        finally:
+            Path(db_path).unlink(missing_ok=True)
+
+
+def test_ensure_book_group_from_student_folder_returns_none_and_does_not_create_group():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmpdir = Path(tmpdir)
+        student_book_dir = (
+            tmpdir
+            / "Singapore Primary Chinese"
+            / "student@example.com"
+            / "PSLE"
+            / "Book"
+            / "Power Pack Chinese PSLE"
+        )
+        student_book_dir.mkdir(parents=True)
+        with tempfile.NamedTemporaryFile(suffix=".db", delete=False, dir=tmpdir) as f:
+            db_path = f.name
+        try:
+            mgr = PdfFileManager(db_path=db_path)
+            group = mgr.ensure_book_group_from_path(student_book_dir)
+            assert group is None
+            assert mgr.list_file_groups(group_type="book") == []
+        finally:
+            Path(db_path).unlink(missing_ok=True)
+
+
+def test_scan_general_and_student_book_same_label_only_keeps_general_templates():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmpdir = Path(tmpdir)
+        general_book_dir = tmpdir / "Singapore Primary Chinese" / "PSLE" / "Book" / "Power Pack Chinese PSLE"
+        student_book_dir = (
+            tmpdir
+            / "Singapore Primary Chinese"
+            / "student@example.com"
+            / "PSLE"
+            / "Book"
+            / "Power Pack Chinese PSLE"
+        )
+        general_book_dir.mkdir(parents=True)
+        student_book_dir.mkdir(parents=True)
+        (general_book_dir / "PP Chinese 模拟考卷 3.pdf").write_bytes(b"%PDF-1.4 fake")
+        (student_book_dir / "PP Chinese 模拟考卷 3.pdf").write_bytes(b"%PDF-1.4 fake")
+        with tempfile.NamedTemporaryFile(suffix=".db", delete=False, dir=tmpdir) as f:
+            db_path = f.name
+        try:
+            mgr = PdfFileManager(db_path=db_path)
+
+            def fake_compress_and_register(file_id_or_path, force=False, min_savings_pct=10, preserve_input=False, **compress_kwargs):
+                registered = mgr.register_file(file_id_or_path, file_type="main", doc_type="unknown")
+                return type("FakeCompressResult", (), {
+                    "main_file_id": registered.id,
+                    "compressed": False,
+                    "raw_archive_id": None,
+                })()
+
+            mgr.compress_and_register = fake_compress_and_register  # type: ignore[method-assign]
+            mgr.scan_for_new_files(roots=[general_book_dir, student_book_dir], dry_run=False, min_savings_pct=101)
+            groups = mgr.list_file_groups(group_type="book")
+            assert len(groups) == 1
+            group = groups[0]
+            assert group.label == "Power Pack Chinese PSLE"
+            assert len(group.members) == 1
+            member = group.members[0].file
+            assert member.is_template is True
+            assert Path(member.path).resolve().parent == general_book_dir.resolve()
+        finally:
+            Path(db_path).unlink(missing_ok=True)
+
+
+def test_ensure_book_group_reconciles_membership_to_desired_template_set():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmpdir = Path(tmpdir)
+        general_book_dir = tmpdir / "Singapore Primary Chinese" / "PSLE" / "Book" / "Power Pack Chinese PSLE"
+        student_book_dir = (
+            tmpdir
+            / "Singapore Primary Chinese"
+            / "student@example.com"
+            / "PSLE"
+            / "Book"
+            / "Power Pack Chinese PSLE"
+        )
+        other_dir = tmpdir / "Singapore Primary Chinese" / "PSLE" / "Book" / "Other Book"
+        general_book_dir.mkdir(parents=True)
+        student_book_dir.mkdir(parents=True)
+        other_dir.mkdir(parents=True)
+        general_template_pdf = general_book_dir / "_c_PP Chinese 模拟考卷 3.pdf"
+        student_completion_pdf = student_book_dir / "_c_PP Chinese 模拟考卷 3.pdf"
+        wrong_parent_pdf = other_dir / "_c_PP Chinese 模拟考卷 3.pdf"
+        for p in (general_template_pdf, student_completion_pdf, wrong_parent_pdf):
+            p.write_bytes(b"%PDF-1.4 fake")
+        with tempfile.NamedTemporaryFile(suffix=".db", delete=False, dir=tmpdir) as f:
+            db_path = f.name
+        try:
+            mgr = PdfFileManager(db_path=db_path)
+            template_file = mgr.register_file(
+                general_template_pdf,
+                file_type="main",
+                doc_type="book",
+                is_template=True,
+            )
+            student_file = mgr.register_file(
+                student_completion_pdf,
+                file_type="main",
+                doc_type="book",
+                is_template=False,
+            )
+            wrong_parent_file = mgr.register_file(
+                wrong_parent_pdf,
+                file_type="main",
+                doc_type="book",
+                is_template=True,
+            )
+            group = mgr.create_file_group("Power Pack Chinese PSLE", group_type="book")
+            mgr.add_to_file_group(group.id, template_file.id)
+            mgr.add_to_file_group(group.id, student_file.id)
+            mgr.add_to_file_group(group.id, wrong_parent_file.id)
+
+            refreshed = mgr.ensure_book_group_from_path(general_book_dir)
+            assert refreshed is not None
+            assert {m.file_id for m in refreshed.members} == {template_file.id}
         finally:
             Path(db_path).unlink(missing_ok=True)
 

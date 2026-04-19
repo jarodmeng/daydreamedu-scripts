@@ -227,7 +227,14 @@ These tests give confidence that Phase 4 (Relations & groups) is complete. Use a
 | **4.22** | **open_file_group no anchor raises** | Create group, add member, do not set anchor. `open_file_group(group_id)` raises `ConfigError`. Proves: guard. |
 | **4.23** | **open_file_group with anchor** | Set anchor. Mock subprocess (like Phase 3 open_file). `open_file_group(group_id)` completes without error. Proves: happy path. |
 
-**Passing all Phase 4 tests** (4.1–4.23) means: raw↔main and template↔completed relations work, file group CRUD and membership do too, book answer mappings are enforced and queryable, JSON ground-truth imports can populate them, `suggest_groups` returns candidates from classified exam files, and `open_file_group` enforces anchor. Phase 4 is then safe to call done.
+### Book group canonicalization (general template scope)
+
+| # | Test | What it proves |
+|---|------|----------------|
+| **4.24** | **student Book path does not create/sync group** | Call `ensure_book_group_from_path` on `.../<student_email>/<grade>/Book/<book>/...`. Assert no group is created/modified for that call. Proves: student mirror skip behavior. |
+| **4.25** | **general Book sync reconciles desired membership** | Seed a book group with one eligible template member plus ineligible members (student/non-template/wrong-parent). Sync general folder and assert membership equals desired template set only. Proves: add+prune reconciliation and stale-member cleanup on sync. |
+
+**Passing all Phase 4 tests** (4.1–4.25) means: raw↔main and template↔completed relations work, file group CRUD and membership do too, book answer mappings are enforced and queryable, JSON ground-truth imports can populate them, `suggest_groups` returns candidates from classified exam files, `open_file_group` enforces anchor, and book groups stay canonical to general template membership. Phase 4 is then safe to call done.
 
 ---
 

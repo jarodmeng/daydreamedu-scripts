@@ -4,6 +4,17 @@ All notable changes to the pdf_file_manager utility are documented here.
 
 ---
 
+## [v0.3.6] — Book groups: general templates only
+
+- Updated `ensure_book_group_from_path(...)` to treat `group_type='book'` membership as canonical **general-scope template mains only**.
+- Added shared student-mirror path predicate logic so `_infer_from_path(...)` and book-group sync use the same rule.
+- Student mirror Book paths are now skipped by `ensure_book_group_from_path(...)` (returns `None`): no group creation, no member adds, no anchor updates from student paths.
+- Book-group sync now reconciles membership by desired set (add missing, prune stale), so old non-template or wrong-folder members are removed when a general Book folder is synced.
+- Added regression coverage for:
+  - student path skip/no-create behavior,
+  - mixed general+student same-label scans,
+  - desired-set prune reconciliation.
+
 ## [v0.3.5] — Template resolver: student `DaydreamEdu` paths
 
 - **`resolve_goodnotes_template_path`:** Accepts a student completion path under a `.../DaydreamEdu/...` tree (same layout as the GoodNotes mirror), not only under `GoodNotes`. Still resolves the general-scope `_c_` template in DaydreamEdu; error messages use neutral “mirrored template” / “Completion filename” wording where appropriate.
