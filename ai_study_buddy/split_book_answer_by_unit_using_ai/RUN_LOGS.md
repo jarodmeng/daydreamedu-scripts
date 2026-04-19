@@ -12,6 +12,7 @@ Stable **`#`**: **1** = oldest, **higher = newer** (never renumber). Rows are **
 
 | # | Run id | Run name |
 |---|--------|----------|
+| 15 | `grammar-practice-primary-1.v01` | Grammar Practice Primary 1 (Gemini 2.5 Pro, answer p1–4) |
 | 14 | `conquer_exam_terry_chew_p5_lessons_p1_37.v01` | Conquer Exam Standard Mathematics Problem Sums with Terry Chew Primary 5 (lessons only, answer p1–37, Gemini 2.5 Pro) |
 | 13 | `math_model_drawing_p5_p6.v02_openai_gpt5_4_reason_medium` | Model Drawing Made Easy and Inspiring for P5 and P6 (OpenAI gpt-5.4, reasoning medium) |
 | 12 | `math_model_drawing_p3_p4.v02_openai_gpt5_4` | Math Model Drawing P3/P4 (Benchmark Test 03, OpenAI) |
@@ -30,6 +31,50 @@ Stable **`#`**: **1** = oldest, **higher = newer** (never renumber). Rows are **
 ---
 
 ## Runs
+
+### 15. grammar-practice-primary-1.v01 — Grammar Practice Primary 1 (Gemini)
+
+| Field | Value |
+|--------|--------|
+| **Run id** | `grammar-practice-primary-1.v01` |
+| **Logged** | 2026-04-19 |
+| **Pipeline** | split_book_answer_by_unit_using_ai (Gemini Batch, continuation page-segments) |
+| **Registry book label** | `Grammar Practice Primary 1` |
+| **Model** | `models/gemini-2.5-pro` |
+| **Batch request key** | `book:grammar_practice_primary_1:page_segments_continuation_gemini:p1_4` |
+| **Answer pages in batch** | 1–4 |
+| **Units in manifest (build)** | 23 (includes `00 Preface + Contents`; answer key segments **Chapters 1–22** only) |
+| **Assembled mapping rows** | 22 |
+| **Gemini batch job** | `batches/8z47yt77rj4263h6x6lownl4essztz7gy6yq` |
+| **Uploaded JSONL (API)** | `files/c4ldpiunl0am` |
+| **Status** | completed (`JOB_STATE_SUCCEEDED`; `job.end_time` `2026-04-19T05:16:32.590565+00:00`). |
+
+**Token usage** (from `response.usageMetadata` in `grammar-practice-primary-1.v01.output.jsonl`)
+
+| Field | Value |
+|--------|--------|
+| **Prompt tokens** | 4,694 |
+| **Thoughts tokens** | 2,331 |
+| **Candidates tokens** | 926 |
+| **Total tokens** | 7,951 |
+
+**Artifacts (repo-relative)**
+
+| Stage | Path |
+|--------|--------|
+| Batch input JSONL | `batch_artifacts/grammar-practice-primary-1.v01.jsonl` |
+| Job metadata | `batch_artifacts/grammar-practice-primary-1.v01.job.json` |
+| Job name (one line) | `batch_artifacts/grammar-practice-primary-1.v01.job_name.txt` |
+| Raw batch output | `batch_artifacts/grammar-practice-primary-1.v01.output.jsonl` |
+| Processed JSON | `batch_artifacts/grammar-practice-primary-1.v01.processed.json` |
+| Assembled mappings | `batch_artifacts/grammar-practice-primary-1.v01.assembled.json` |
+| Ground-truth JSON | `pilot_ground_truth/grammar_practice_primary_1_ground_truth.json` |
+| Ground-truth table | `pilot_ground_truth/grammar_practice_primary_1_ground_truth_table.md` |
+
+**Notes**
+
+- **Import:** `PdfFileManager.import_book_answer_mappings_from_json` with source `ground_truth_grammar_practice_primary_1_v01` — **22** rows imported; `list_book_answer_mappings(book_group_id=…)` shows **22** mappings for this book group.
+- **Human validation:** Pending — spot-check split-page flags and chapter boundaries on the four answer pages if anything looks off in the UI.
 
 ### 14. conquer_exam_terry_chew_p5_lessons_p1_37.v01 — Conquer Exam Standard Mathematics Problem Sums with Terry Chew Primary 5 (lessons, Gemini)
 
