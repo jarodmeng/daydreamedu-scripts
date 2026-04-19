@@ -1694,24 +1694,26 @@ class PdfFileManager:
     @staticmethod
     def resolve_goodnotes_template_path(main_path: str | Path) -> Path:
         """
-        Given the path to a GoodNotes *main* file (usually under a .../GoodNotes/...
-        tree), return the corresponding DaydreamEdu template/source path by
+        Given the path to a student *main* completion file under either:
+
+        - a ``.../GoodNotes/...`` tree (mirrored to DaydreamEdu), or
+        - a student-scoped ``.../DaydreamEdu/...`` tree (same layout as the mirror),
+
+        return the corresponding general-scope DaydreamEdu template/source path by
         applying the general naming principles from 05-goodnotes-exam-registration.md:
 
         - Strip a leading `_c_` or `c_` from the basename (GoodNotes/Drive may
           drop the underscore).
         - Repeatedly strip trailing ` (attempt)` / ` (reviewed)` tags to get the
           **base name**.
-        - Construct candidate DaydreamEdu `_c_` basenames from that base name,
-          and search both:
-          * the student-scoped DaydreamEdu folder that mirrors the GoodNotes
-            hierarchy, and
-          * the general-scope DaydreamEdu folder (subject/grade/content_folder
-            without the student email segment).
+        - Construct candidate DaydreamEdu `_c_` basenames from that base name and
+          search the general-scope DaydreamEdu directory (subject/grade/content
+          without the student email segment).
 
         Raises ValueError if:
-        - the path does not contain a `GoodNotes` segment, or
-        - no matching `_c_*.pdf` file is found in any candidate DaydreamEdu folder.
+        - the path does not contain a ``GoodNotes`` or (student) ``DaydreamEdu``
+          segment, or
+        - no matching `_c_*.pdf` file is found in the candidate DaydreamEdu folder.
         """
         p = Path(main_path)
         name = p.name
@@ -1729,7 +1731,7 @@ class PdfFileManager:
                 core = core[: -len(suffix)] + ".pdf"
 
         if not core.lower().endswith(".pdf"):
-            raise ValueError(f"GoodNotes filename does not look like a PDF: {name}")
+            raise ValueError(f"Completion filename does not look like a PDF: {name}")
 
         base_stem = core[:-4]  # drop '.pdf'
 
@@ -1740,14 +1742,17 @@ class PdfFileManager:
         ]
 
         parts = list(p.parts)
-        try:
+        if "GoodNotes" in parts:
             idx = parts.index("GoodNotes")
-        except ValueError as exc:
-            raise ValueError(f"Path does not contain a 'GoodNotes' segment: {p}") from exc
-
-        # Build DaydreamEdu path components from GoodNotes path.
-        daydream_parts = parts.copy()
-        daydream_parts[idx] = "DaydreamEdu"
+            daydream_parts = parts.copy()
+            daydream_parts[idx] = "DaydreamEdu"
+        elif "DaydreamEdu" in parts:
+            daydream_parts = parts.copy()
+            idx = parts.index("DaydreamEdu")
+        else:
+            raise ValueError(
+                f"Path does not contain a 'GoodNotes' or 'DaydreamEdu' segment: {p}"
+            )
 
         # General-scope DaydreamEdu directory: drop the student email segment.
         # Policy: templates are only valid under general scope; student scope is
@@ -1764,7 +1769,7 @@ class PdfFileManager:
 
         if general_dir is None:
             raise ValueError(
-                f"Could not resolve GoodNotes template for {name}: "
+                f"Could not resolve mirrored template for {name}: "
                 "unable to derive a general-scope DaydreamEdu directory"
             )
 
@@ -1777,7 +1782,9 @@ class PdfFileManager:
                 if candidate.exists():
                     return candidate
 
-        raise ValueError(f"Could not resolve GoodNotes template for {name}: no matching _c_ file found in DaydreamEdu")
+        raise ValueError(
+            f"Could not resolve mirrored template for {name}: no matching _c_ file found in DaydreamEdu"
+        )
 
     def link_template_by_paths(
         self,
@@ -1806,8 +1813,10 @@ class PdfFileManager:
         inherit_metadata: bool = True,
     ) -> GoodNotesTemplateLinkOutcome:
         completed_path = Path(main_path).resolve()
-        if "GoodNotes" not in completed_path.parts:
-            raise ValueError(f"Path does not contain a 'GoodNotes' segment: {completed_path}")
+        if "GoodNotes" not in completed_path.parts and "DaydreamEdu" not in completed_path.parts:
+            raise ValueError(
+                f"Path does not contain a 'GoodNotes' or 'DaydreamEdu' segment: {completed_path}"
+            )
 
         completed_file = self.get_file_by_path(completed_path)
         if completed_file is None:

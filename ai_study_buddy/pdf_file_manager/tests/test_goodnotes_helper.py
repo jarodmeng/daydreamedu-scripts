@@ -77,6 +77,35 @@ def test_resolve_goodnotes_template_math_p6_general_scope():
         assert resolved == dd_tpl
 
 
+def test_resolve_goodnotes_template_math_p6_from_daydreamedu_student_completion():
+    """Same as GoodNotes→template mapping when the attempt file already lives under DaydreamEdu."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        base = Path(tmpdir)
+        daydream = base / "DaydreamEdu"
+
+        dd_attempt = (
+            daydream
+            / "Singapore Primary Math"
+            / STUDENT_FOLDER_EMAIL
+            / "P6"
+            / "Exam"
+            / "p6.math.wa1.1 (attempt).pdf"
+        )
+        _touch(dd_attempt)
+
+        dd_tpl = (
+            daydream
+            / "Singapore Primary Math"
+            / "P6"
+            / "Exam"
+            / "_c_p6.math.wa1.1.pdf"
+        )
+        _touch(dd_tpl)
+
+        resolved = PdfFileManager.resolve_goodnotes_template_path(dd_attempt)
+        assert resolved == dd_tpl
+
+
 def test_resolve_goodnotes_template_prefers_general_when_same_basename_in_student():
     """Student mirror may hold a filled `_c_*.pdf` with the same basename as the general blank; prefer general."""
     with tempfile.TemporaryDirectory() as tmpdir:

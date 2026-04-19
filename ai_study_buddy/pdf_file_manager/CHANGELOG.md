@@ -4,6 +4,12 @@ All notable changes to the pdf_file_manager utility are documented here.
 
 ---
 
+## [v0.3.5] — Template resolver: student `DaydreamEdu` paths
+
+- **`resolve_goodnotes_template_path`:** Accepts a student completion path under a `.../DaydreamEdu/...` tree (same layout as the GoodNotes mirror), not only under `GoodNotes`. Still resolves the general-scope `_c_` template in DaydreamEdu; error messages use neutral “mirrored template” / “Completion filename” wording where appropriate.
+- **`link_template_by_paths`:** Allows either a `GoodNotes` or (student) `DaydreamEdu` segment in the completion path, consistent with the resolver.
+- **Tests:** `test_resolve_goodnotes_template_math_p6_from_daydreamedu_student_completion` in `tests/test_goodnotes_helper.py`.
+
 ## [v0.3.4] — `chinese_variant`: `standard` replaces legacy `foundation`
 
 - **Standard 华文 vs 高华:** Stored `metadata.chinese_variant` for mainstream Chinese exam files is **`standard`** (not `foundation`, which collided with SEAB “Foundation Chinese Language”).
