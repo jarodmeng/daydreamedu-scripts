@@ -4,6 +4,13 @@ All notable changes to `ai_study_buddy.marking` are documented in this file.
 
 Committed changes under `ai_study_buddy/marking/` should add an entry here and bump **Current version** in `README.md` (semver: **patch** for docs or small renderer tweaks, **minor** for schema or public API changes). `SPEC.md` / `TESTING.md` titles do not carry the package version.
 
+## [0.1.5] - 2026-04-19
+
+### Changed
+
+- `core/context_resolver.py`: student attempt files may resolve when under a `DaydreamEdu` path as well as `GoodNotes`; error messages updated accordingly.
+- `tests/test_context_resolver.py`: regression test for a DaydreamEdu-scoped attempt main.
+
 ## [0.1.4] - 2026-04-17
 
 ### Documentation

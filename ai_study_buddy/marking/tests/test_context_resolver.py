@@ -136,3 +136,42 @@ def test_resolve_context_without_override_uses_registry_answer_mapping() -> None
         assert context.answer_file_id == answer.id
         assert context.answer_page_start == 22
         assert context.answer_page_end == 24
+
+
+def test_resolve_context_daydreamedu_attempt_path_accepted() -> None:
+    """Student completion under DaydreamEdu (not GoodNotes) resolves like other mains."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        base = Path(tmpdir)
+        mgr = PdfFileManager(db_path=str(base / "registry.db"))
+        attempt_path = (
+            base
+            / "DaydreamEdu"
+            / "Singapore Primary Math"
+            / "emma@example.com"
+            / "P4"
+            / "Exam"
+            / "_c_p4.math.wa1.6 (attempt).pdf"
+        )
+        template_path = (
+            base
+            / "DaydreamEdu"
+            / "Singapore Primary Math"
+            / "P4"
+            / "Exam"
+            / "_c_p4.math.wa1.6.pdf"
+        )
+        _touch(attempt_path)
+        _touch(template_path)
+
+        template = mgr.register_file(template_path, file_type="main", is_template=True, doc_type="book")
+        attempt = mgr.register_file(attempt_path, file_type="main", is_template=False, doc_type="exam")
+        mgr.link_to_template(attempt.id, template.id)
+
+        context = resolve_marking_context(
+            attempt_file_id_or_path=attempt_path,
+            self_answer_pages=(9, 10),
+            manager=mgr,
+        )
+
+        assert "DaydreamEdu" in context.attempt_file_path
+        assert context.template_file_id == template.id

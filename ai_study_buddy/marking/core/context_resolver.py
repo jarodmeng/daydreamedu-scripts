@@ -16,6 +16,12 @@ class MarkingContextResolutionError(ValueError):
     """Raised when a user request cannot be resolved to one marking context."""
 
 
+def _attempt_path_has_allowed_completion_root(path: Path) -> bool:
+    """Student attempts may live under mirrored GoodNotes or under DaydreamEdu (e.g. student Book folder)."""
+    parts = path.parts
+    return "GoodNotes" in parts or "DaydreamEdu" in parts
+
+
 def resolve_marking_context(
     *,
     student_name: str | None = None,
@@ -188,18 +194,22 @@ def _resolve_attempt_file(
         student_id=student.id if student else None,
         is_template=False,
     )
-    candidates = [file for file in candidates if "GoodNotes" in Path(file.path).parts]
+    candidates = [
+        file for file in candidates if _attempt_path_has_allowed_completion_root(Path(file.path))
+    ]
     if book_label is not None:
         candidates = [file for file in candidates if _path_mentions_book_label(file.path, book_label)]
 
     return _select_one_file(
         candidates,
         not_found_message=(
-            f"No GoodNotes attempt file matched unit_query={unit_query!r}"
+            f"No GoodNotes/DaydreamEdu attempt file matched unit_query={unit_query!r}"
             + (f" for student_id={student.id!r}" if student else "")
             + (f" in book {book_label!r}" if book_label else "")
         ),
-        ambiguous_message="Multiple GoodNotes attempt files matched the provided marking request",
+        ambiguous_message=(
+            "Multiple GoodNotes/DaydreamEdu attempt files matched the provided marking request"
+        ),
     )
 
 
@@ -217,9 +227,10 @@ def _resolve_attempt_file_by_id_or_path(
         file = mgr.get_file_by_path(candidate)
         if file is None and auto_register_attempt:
             normalized_path = Path(candidate).expanduser().resolve()
-            if "GoodNotes" not in normalized_path.parts:
+            if not _attempt_path_has_allowed_completion_root(normalized_path):
                 raise MarkingContextResolutionError(
-                    "auto_register_attempt requires attempt_file_id_or_path to be under a GoodNotes path"
+                    "auto_register_attempt requires attempt_file_id_or_path to be under a GoodNotes "
+                    "or DaydreamEdu path"
                 )
             if not normalized_path.exists():
                 raise NotFoundError(f"Attempt file not found: {attempt_file_id_or_path}")
@@ -239,8 +250,10 @@ def _resolve_attempt_file_by_id_or_path(
         raise MarkingContextResolutionError("Attempt file must be a registered main file")
     if file.is_template:
         raise MarkingContextResolutionError("Attempt file must be a completed file, not a template")
-    if "GoodNotes" not in Path(file.path).parts:
-        raise MarkingContextResolutionError("Attempt file is expected to be under a GoodNotes path")
+    if not _attempt_path_has_allowed_completion_root(Path(file.path)):
+        raise MarkingContextResolutionError(
+            "Attempt file is expected to be under a GoodNotes or DaydreamEdu path"
+        )
     if student is not None and file.student_id != student.id:
         raise MarkingContextResolutionError(
             f"Attempt file belongs to student_id={file.student_id!r}, expected {student.id!r}"
