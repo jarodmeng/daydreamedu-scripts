@@ -78,10 +78,9 @@ Use the `PdfFileManager` Python API as the primary interface. Do not query the r
 
 This workflow assumes:
 
-- the student's completion file is under a `GoodNotes/` path
-- the completion file is under a `GoodNotes/` path
+- the student's completion PDF is under a **mirrored student tree**: either `.../GoodNotes/...` **or** student-scoped `.../DaydreamEdu/...` (e.g. DaydreamEdu mirror `Book/` completions such as Winston’s *PP Math PSLE Part B…*)
 - the file can be registered as a completion `main` file when missing
-- the completion can be linked to a DaydreamEdu template
+- the completion can be linked to a DaydreamEdu template (registry link, or `auto_link_template` using the same `_c_` basename rules as GoodNotes→template resolution)
 - answer source is either:
   - linked-template book answer mapping, or
   - explicit embedded answer page range (`self_answer_pages`)
@@ -119,7 +118,7 @@ Use `ai_study_buddy.marking.resolve_marking_context(...)` as the preferred imple
 
 MVP contract for this skill:
 
-1. Use natural-language request details (student, unit, book) only to fuzzy-search GoodNotes leaf folders and identify one unique completion PDF path.
+1. Use natural-language request details (student, unit, book) only to fuzzy-search **GoodNotes or DaydreamEdu** leaf folders and identify one unique completion PDF path.
 2. Once unique completion path is found, call `resolve_marking_context(...)` with:
    - `attempt_file_id_or_path=<unique completion path>`
    - `auto_register_attempt=True` when file may not be registered yet
@@ -132,7 +131,7 @@ MVP contract for this skill:
 
 Important reporting discipline:
 
-- distinguish the GoodNotes completion path from the DaydreamEdu template path
+- distinguish the **attempt** completion path (GoodNotes or student DaydreamEdu) from the **general-scope** DaydreamEdu template path when they differ
 - if the completion file has no direct answer mapping, check the linked template file
 - state clearly whether the mapping was found directly on the completion or on the linked template
 
@@ -291,7 +290,7 @@ Convention: `✅` = full marks, `⚠️` = partial credit, `❌` = zero marks.
 
 ## Report Context
 
-- Attempt file: `/absolute/path/to/goodnotes.pdf`
+- Attempt file: `/absolute/path/to/student_completion.pdf` (GoodNotes or DaydreamEdu)
 - Template book file: `/absolute/path/to/template.pdf`
 - Book answer file: `/absolute/path/to/answers.pdf`
 - Answer page range for this exercise: `38-39`
@@ -427,7 +426,7 @@ Before finishing, verify:
 
 - the JSON artifact exists and is the canonical source of truth
 - the report path matches the subject and student folder
-- the attempt file path is the GoodNotes completion, not the template
+- the attempt file path is the student completion (GoodNotes or DaydreamEdu), not the template
 - the template and answer file paths are correct
 - the answer page range matches the registry mapping
 - every graded row is visibly supported by both the attempt page and answer page
