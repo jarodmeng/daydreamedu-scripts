@@ -4,6 +4,30 @@ All notable changes to `ai_study_buddy.marking` are documented in this file.
 
 Committed changes under `ai_study_buddy/marking/` should add an entry here and bump **Current version** in `README.md` (semver: **patch** for docs or small renderer tweaks, **minor** for schema or public API changes). `SPEC.md` / `TESTING.md` titles do not carry the package version.
 
+## [0.2.0] - 2026-04-19
+
+Small API addition release for completion-based artifact lookup.
+
+### Added
+
+- `core/artifact_lookup.py` with:
+  - `find_marking_artifacts_for_attempt(...)`
+  - `MarkingArtifactRef`
+- Public API export in `api.py` for completion->artifact lookup.
+- New tests in `tests/test_artifact_lookup.py` covering:
+  - student-scoped lookup boundaries
+  - id/path matching precedence
+  - deterministic sorting
+  - condition filtering (`json_only`, `json_and_report`)
+  - malformed JSON skip behavior
+
+### Documentation
+
+- `README.md`: helper usage examples and version bump.
+- `SPEC.md`: normative lookup contract section.
+- `TESTING.md`: lookup test coverage and command entry.
+- `ARCHITECTURE.md`: module-boundary and preflight lookup mention.
+
 ## [0.1.5] - 2026-04-19
 
 ### Changed
@@ -85,4 +109,3 @@ Initial package documentation baseline for the marking system.
 - Canonical artifact contract: `marking_result.v1`.
 - JSON-first marking flow with markdown as derived output.
 - Legacy markdown migration tooling and migration completion status documented.
-

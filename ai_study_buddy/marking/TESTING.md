@@ -7,12 +7,14 @@ This guide defines the testing workflow for `ai_study_buddy.marking`. Package re
 Primary automated coverage lives in:
 
 - `ai_study_buddy/marking/tests/test_artifact_core.py`
+- `ai_study_buddy/marking/tests/test_artifact_lookup.py`
 - `ai_study_buddy/marking/tests/test_migration.py`
 
 These tests cover:
 
 - schema loading and validation
 - artifact naming/path normalization
+- completion->artifact lookup matching and condition filtering
 - summary/row score consistency
 - disqualified scoring semantics
 - JSON write and markdown re-render behavior
@@ -30,6 +32,9 @@ python3 -m pytest ai_study_buddy/marking/tests -q
 
 # Core tests only
 python3 -m pytest ai_study_buddy/marking/tests/test_artifact_core.py -q
+
+# Artifact lookup tests only
+python3 -m pytest ai_study_buddy/marking/tests/test_artifact_lookup.py -q
 
 # Migration tests only
 python3 -m pytest ai_study_buddy/marking/tests/test_migration.py -q
@@ -62,8 +67,8 @@ Use this checklist when changing behavior that affects outputs:
 Changes in these areas should receive extra scrutiny:
 
 - Prefix normalization and timestamp basename rules
+- Artifact lookup id/path precedence and student-scoped scan boundaries
 - `scoring_status` and disqualified row exclusion logic
 - Path privacy normalization and placeholder expansion fallback behavior
 - Markdown parsing tolerance for legacy report variants
 - Context file-id/group backfill behavior when registry lookups fail
-

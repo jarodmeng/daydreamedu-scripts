@@ -8,7 +8,7 @@ Canonical marking pipeline for AI Study Buddy. This package defines the
 3. render markdown as a derived view
 4. support human note edits in the canonical JSON
 
-Current version: `v0.1.5`
+Current version: `v0.2.0`
 
 ## Package Scope
 
@@ -16,6 +16,7 @@ Current version: `v0.1.5`
 - Schema validation and score consistency checks (`artifact_schema.py`)
 - Canonical artifact writing (`artifact_writer.py`)
 - Path privacy sanitization and placeholder resolution (`path_privacy.py`)
+- Completion->artifact lookup helper (`artifact_lookup.py`)
 - Legacy markdown migration (`migrate_learning_reports.py`)
 - Markdown rendering from canonical JSON (`report_renderer.py`)
 - Human note editing workflow (`edit_human_notes.py`)
@@ -100,10 +101,28 @@ context = resolve_marking_context(
 )
 ```
 
+Artifact lookup by completion (JSON-only default, optionally require report file):
+
+```python
+from ai_study_buddy.marking import find_marking_artifacts_for_attempt
+
+# Default: json_only
+refs = find_marking_artifacts_for_attempt(
+    "attempt_file_id_here",
+    manager=manager,
+)
+
+# Require both JSON + derived markdown report to exist
+refs_with_report = find_marking_artifacts_for_attempt(
+    "attempt_file_id_here",
+    match_condition="json_and_report",
+    manager=manager,
+)
+```
+
 ## Documentation Index
 
 - `ARCHITECTURE.md`: package architecture, context resolver contract, and implementation plan
 - `CHANGELOG.md`: package release history
 - `SPEC.md`: functional and data contract specification
 - `TESTING.md`: test strategy, commands, and quality gates
-

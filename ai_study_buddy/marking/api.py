@@ -1,3 +1,7 @@
+from ai_study_buddy.marking.core.artifact_lookup import (
+    MarkingArtifactRef,
+    find_marking_artifacts_for_attempt,
+)
 from ai_study_buddy.marking.core.artifact_paths import (
     build_attempt_basename,
     build_learning_report_path,
@@ -61,12 +65,14 @@ __all__ = [
     "ReviewMeta",
     "SCHEMA_VERSION",
     "MarkingArtifactValidationError",
+    "MarkingArtifactRef",
     "build_attempt_basename",
     "build_learning_report_path",
     "build_marking_artifact_path",
     "compute_percentage",
     "derive_skill_tags_from_embedding_label",
     "load_marking_result_schema",
+    "find_marking_artifacts_for_attempt",
     "migrate_learning_reports",
     "normalize_attempt_stem",
     "normalize_skill_tag",
@@ -79,4 +85,3 @@ __all__ = [
     "validate_marking_artifact_dict",
     "write_marking_artifact",
 ]
-

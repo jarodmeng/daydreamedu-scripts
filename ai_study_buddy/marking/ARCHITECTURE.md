@@ -41,6 +41,7 @@ Current package modules are grouped into three layers.
 - `context_resolver.py`: deterministic context resolution orchestration
 - `artifact_schema.py`: schema loading, validation, and score consistency checks
 - `artifact_paths.py`: canonical path and basename derivation
+- `artifact_lookup.py`: deterministic completion -> artifact lookup (student-scoped)
 - `artifact_writer.py`: canonical JSON write path
 - `path_privacy.py`: canonical path sanitization and runtime placeholder expansion
 - `taxonomy.py`: diagnosis/error taxonomy normalization and helpers
@@ -71,6 +72,8 @@ The current flagship use case is the `mark-goodnote-completion` skill flow:
    - mapped answer file and answer page range
 5. Marking workflow uses this context to grade and produce artifacts (JSON first, markdown derived).
 6. Canonical artifact writer sanitizes path fields before persistence; renderer expands placeholders for runtime readability when configuration/registry data exists.
+7. Optional preflight: lookup existing artifacts for the same completion using
+   `find_marking_artifacts_for_attempt(...)` before deciding whether to re-run marking.
 
 MVP variant (weighted assessment / embedded answers):
 
@@ -172,7 +175,7 @@ When a new real workflow requires more behavior (for example question-index-awar
 
 ## 8) Backward Compatibility Promise
 
-Until a `v0.2.0` contract update is announced:
+Until a `v0.3.0` contract update is announced:
 
 1. `resolve_marking_context(...)` remains stable and file-level.
 2. Existing artifact schema (`marking_result.v1`) remains unchanged.

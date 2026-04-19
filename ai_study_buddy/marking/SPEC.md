@@ -183,6 +183,40 @@ Normative algorithm (MVP, path-first):
    - else registry mapping mode via book group + answer mapping
 5. Build and return immutable `MarkingContext`.
 
+### 7) Completion -> artifact lookup contract
+
+Primary function:
+
+- `find_marking_artifacts_for_attempt(...) -> list[MarkingArtifactRef]`
+
+Purpose:
+
+- Given one completion attempt (`file_id` or path), return matching canonical JSON artifacts and paired report paths.
+
+Input contract:
+
+1. `attempt_file_id_or_path` accepts registry file id or path-like input.
+2. `match_condition` supports:
+   - `json_only` (default): include JSON matches even when report is missing
+   - `json_and_report`: include only matches where report file exists
+3. `manager` is required to enforce student-scoped lookup boundaries.
+
+Matching rules:
+
+1. Scan scope is limited to `context/marking_results/<student_slug>/` for the completion student.
+2. Primary match key is `context.attempt_file_id` when present in artifact JSON.
+3. Secondary match key is normalized `context.attempt_file_path` only when artifact `attempt_file_id` is absent.
+4. If artifact has non-empty `attempt_file_id` and it mismatches the completion id, do not fallback-match by path.
+5. Corrupt/malformed JSON files are skipped (non-fatal).
+
+Output contract:
+
+1. Return `MarkingArtifactRef(marking_result_json, learning_report_md)` rows.
+2. Sort deterministically:
+   - `created_at` descending
+   - JSON path ascending tie-breaker
+3. Empty list is valid when no matches are found.
+
 ## Public Entry Points
 
 - `api.py`: compact public import surface for package consumers
@@ -192,10 +226,10 @@ Normative algorithm (MVP, path-first):
 - `core/artifact_writer.py`: canonical JSON writer helper
 - `core/artifact_schema.py`: schema loading/validation and scoring utilities
 - `core/artifact_paths.py`: naming/path builder utilities
+- `core/artifact_lookup.py`: completion-to-artifact lookup utility
 
 ## Non-Goals
 
 - Bounding-box or crop-region evidence storage in artifact rows
 - Database-first canonical storage
 - Revision graph semantics (`revision`, `supersedes_marking_id`)
-
