@@ -929,7 +929,7 @@ class PdfFileManager:
     @classmethod
     def _infer_from_path(cls, path: Path) -> dict:
         """Infer subject, doc_type, is_template, and metadata from path segments (DaydreamEdu layout).
-        is_template: True when path has a grade/scope segment (P3–P6, PSLE, Archive) and no *student folder*
+        is_template: True when path has a grade/scope segment (P1–P6, PSLE, Archive) and no *student folder*
         (a segment containing @ immediately followed by a grade/scope segment). False when such a student folder exists.
         So Drive paths like .../GoogleDrive-user@gmail.com/.../P6/Exam yield is_template=True;
         .../user@mail.com/P5/Exam yields is_template=False.
@@ -937,7 +937,7 @@ class PdfFileManager:
         out: dict = {}
         resolved = path.resolve()
         parts = resolved.parts
-        grade_scope = ("P3", "P4", "P5", "P6", "PSLE", "Archive")
+        grade_scope = ("P1", "P2", "P3", "P4", "P5", "P6", "PSLE", "Archive")
         has_student_folder = any(
             "@" in parts[i] and i + 1 < len(parts) and parts[i + 1] in grade_scope
             for i in range(len(parts))
@@ -986,7 +986,7 @@ class PdfFileManager:
                 out.setdefault("metadata", {})["content_folder"] = "Note"
                 break
         for p in parts:
-            if p in ("P3", "P4", "P5", "P6", "PSLE", "Archive"):
+            if p in ("P1", "P2", "P3", "P4", "P5", "P6", "PSLE", "Archive"):
                 out.setdefault("metadata", {})["grade_or_scope"] = p
                 break
         # Chinese exam variant (Standard 华文 vs 高华) from filename. Stored as 'standard'|'higher'.
