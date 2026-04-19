@@ -1,0 +1,656 @@
+{
+  "schema_version": "marking_result.v1",
+  "created_at": "2026-04-19T06:31:09.875346Z",
+  "updated_at": "2026-04-19T06:31:09.875346Z",
+  "context": {
+    "student_id": "abigail",
+    "student_name": null,
+    "subject_context": "singapore_primary_english",
+    "attempt_file_id": "d244ff97-f905-4e52-a55f-13bc0ef51fe5",
+    "attempt_file_path": "GOODNOTES_ROOT/Singapore Primary English/<student_email>/P1/Book/Grammar Practice Primary 1/c_Grammar Practice Primary 1 - 13 Chapter 13 Possessive Adjectives (Plural).pdf",
+    "template_file_id": "740b4ce9-6c79-4319-af1a-8e9940121408",
+    "template_file_path": "DAYDREAMEDU_ROOT/Singapore Primary English/P1/Book/Grammar Practice Primary 1/_c_Grammar Practice Primary 1 - 13 Chapter 13 Possessive Adjectives (Plural).pdf",
+    "book_group_id": "df21d5aa-6b6f-4098-b363-af7d0f2b8601",
+    "book_label": "Grammar Practice Primary 1",
+    "unit_file_id": "740b4ce9-6c79-4319-af1a-8e9940121408",
+    "unit_file_path": "DAYDREAMEDU_ROOT/Singapore Primary English/P1/Book/Grammar Practice Primary 1/_c_Grammar Practice Primary 1 - 13 Chapter 13 Possessive Adjectives (Plural).pdf",
+    "unit_label": "13 Chapter 13 Possessive Adjectives (Plural)",
+    "answer_file_id": "315dcdaf-d460-4d99-97bf-51d095dd3e45",
+    "answer_file_path": "DAYDREAMEDU_ROOT/Singapore Primary English/P1/Book/Grammar Practice Primary 1/_c_Grammar Practice Primary 1 - 23 Answers.pdf",
+    "answer_page_start": 2,
+    "answer_page_end": 2,
+    "starts_mid_page": true,
+    "ends_mid_page": true,
+    "answer_mapping_source": "ground_truth_grammar_practice_primary_1_v01",
+    "answer_mapping_notes": null,
+    "question_selection": {
+      "raw_text": null,
+      "canonical_refs": [],
+      "section_hint": null
+    }
+  },
+  "summary": {
+    "total_marks": 33,
+    "earned_marks": 27,
+    "percentage": 81.82,
+    "overall_assessment": "Solid grasp of plural possessives (27/33). Errors cluster on choosing between **your / our / their** when the picture could invite more than one reading, and on mid-sentence capitalisation for **our**.",
+    "human_note": null
+  },
+  "question_results": [
+    {
+      "result_id": "L1-Q1",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "your",
+      "correct_answer": "your",
+      "scoring_status": "counted",
+      "feedback": "Exercise Level 1 \u2014 correct listener group (your).",
+      "error_tags": [],
+      "skill_tags": [],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": "Matches the isolated Chapter 13 answer key and fits the picture/sentence.",
+        "confidence": "high"
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "L1-Q2",
+      "max_marks": 1,
+      "earned_marks": 0,
+      "outcome": "wrong",
+      "student_answer": "our",
+      "correct_answer": "your",
+      "scoring_status": "counted",
+      "feedback": "Classroom addressed to the listeners; key **your**.",
+      "error_tags": [
+        "concept_gap"
+      ],
+      "skill_tags": [],
+      "diagnosis": {
+        "mistake_type": "concept_gap",
+        "reasoning": "**Your** marks the addressees' classroom. **Our** would claim it as the speaker's group's room, which does not match the keyed reading.",
+        "confidence": "high"
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "L1-Q3",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "their",
+      "correct_answer": "their",
+      "scoring_status": "counted",
+      "feedback": "Third-person possessors (the people in the car).",
+      "error_tags": [],
+      "skill_tags": [],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": "Matches the isolated Chapter 13 answer key and fits the picture/sentence.",
+        "confidence": "high"
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "L1-Q4",
+      "max_marks": 1,
+      "earned_marks": 0,
+      "outcome": "wrong",
+      "student_answer": "our",
+      "correct_answer": "their",
+      "scoring_status": "counted",
+      "feedback": "Parents and child \u2014 keyed **their** son.",
+      "error_tags": [
+        "concept_gap"
+      ],
+      "skill_tags": [],
+      "diagnosis": {
+        "mistake_type": "concept_gap",
+        "reasoning": "**Their** shows the parents possess the boy. **Our** incorrectly includes the speaker as a parent in this frame.",
+        "confidence": "high"
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "L1-Q5",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "our",
+      "correct_answer": "our",
+      "scoring_status": "counted",
+      "feedback": "Shared teacher for the girls' group.",
+      "error_tags": [],
+      "skill_tags": [],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": "Matches the isolated Chapter 13 answer key and fits the picture/sentence.",
+        "confidence": "high"
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "L1-Q6",
+      "max_marks": 1,
+      "earned_marks": 0,
+      "outcome": "wrong",
+      "student_answer": "their",
+      "correct_answer": "Our",
+      "scoring_status": "counted",
+      "feedback": "Kite shared by the speaker group in the key.",
+      "error_tags": [
+        "concept_gap"
+      ],
+      "skill_tags": [],
+      "diagnosis": {
+        "mistake_type": "concept_gap",
+        "reasoning": "The key uses **Our** for shared ownership within the speaker's group. **Their** points to another group and mismatches the keyed answer.",
+        "confidence": "high"
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "L1-Q7",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "their",
+      "correct_answer": "Their",
+      "scoring_status": "counted",
+      "feedback": "Neighbours' garden \u2014 **their** (sentence-initial form in key).",
+      "error_tags": [],
+      "skill_tags": [],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": "Matches the isolated Chapter 13 answer key and fits the picture/sentence.",
+        "confidence": "high"
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "L1-Q8",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "Our",
+      "correct_answer": "Our",
+      "scoring_status": "counted",
+      "feedback": "Group's bus at the gate.",
+      "error_tags": [],
+      "skill_tags": [],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": "Matches the isolated Chapter 13 answer key and fits the picture/sentence.",
+        "confidence": "high"
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "L1-Q9",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "your",
+      "correct_answer": "Your",
+      "scoring_status": "counted",
+      "feedback": "Hair addressed to the boys.",
+      "error_tags": [],
+      "skill_tags": [],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": "Matches the isolated Chapter 13 answer key and fits the picture/sentence.",
+        "confidence": "high"
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "L1-Q10",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "your",
+      "correct_answer": "Your",
+      "scoring_status": "counted",
+      "feedback": "Clothes addressed to the muddy boys.",
+      "error_tags": [],
+      "skill_tags": [],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": "Matches the isolated Chapter 13 answer key and fits the picture/sentence.",
+        "confidence": "high"
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "L2-Q1",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "your",
+      "correct_answer": "your",
+      "scoring_status": "counted",
+      "feedback": "Bags \u2014 **your** (listeners).",
+      "error_tags": [],
+      "skill_tags": [],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": "Matches the isolated Chapter 13 answer key and fits the picture/sentence.",
+        "confidence": "high"
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "L2-Q2",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "their",
+      "correct_answer": "Their",
+      "scoring_status": "counted",
+      "feedback": "Umbrellas \u2014 **their** (the girls').",
+      "error_tags": [],
+      "skill_tags": [],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": "Matches the isolated Chapter 13 answer key and fits the picture/sentence.",
+        "confidence": "high"
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "L2-Q3",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "our",
+      "correct_answer": "our",
+      "scoring_status": "counted",
+      "feedback": "**Our** neighbour.",
+      "error_tags": [],
+      "skill_tags": [],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": "Matches the isolated Chapter 13 answer key and fits the picture/sentence.",
+        "confidence": "high"
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "L2-Q4",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "your",
+      "correct_answer": "your",
+      "scoring_status": "counted",
+      "feedback": "Imperative \u2014 **your** hands.",
+      "error_tags": [],
+      "skill_tags": [],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": "Matches the isolated Chapter 13 answer key and fits the picture/sentence.",
+        "confidence": "high"
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "L2-Q5",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "our",
+      "correct_answer": "Our",
+      "scoring_status": "counted",
+      "feedback": "**Our** baby.",
+      "error_tags": [],
+      "skill_tags": [],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": "Matches the isolated Chapter 13 answer key and fits the picture/sentence.",
+        "confidence": "high"
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "L2-Q6",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "our",
+      "correct_answer": "Our",
+      "scoring_status": "counted",
+      "feedback": "**Our** parents.",
+      "error_tags": [],
+      "skill_tags": [],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": "Matches the isolated Chapter 13 answer key and fits the picture/sentence.",
+        "confidence": "high"
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "L2-Q7",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "our",
+      "correct_answer": "Our",
+      "scoring_status": "counted",
+      "feedback": "**Our** school bus.",
+      "error_tags": [],
+      "skill_tags": [],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": "Matches the isolated Chapter 13 answer key and fits the picture/sentence.",
+        "confidence": "high"
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "L2-Q8",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "your",
+      "correct_answer": "Your",
+      "scoring_status": "counted",
+      "feedback": "**Your** clothes (listeners).",
+      "error_tags": [],
+      "skill_tags": [],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": "Matches the isolated Chapter 13 answer key and fits the picture/sentence.",
+        "confidence": "high"
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "L2-Q9",
+      "max_marks": 1,
+      "earned_marks": 0,
+      "outcome": "wrong",
+      "student_answer": "your",
+      "correct_answer": "Our",
+      "scoring_status": "counted",
+      "feedback": "Books \u2014 keyed inclusive **Our**.",
+      "error_tags": [
+        "concept_gap"
+      ],
+      "skill_tags": [],
+      "diagnosis": {
+        "mistake_type": "concept_gap",
+        "reasoning": "The key uses **Our** to include the speaker's group sharing the books. **Your** singles out the listener and does not match **Our**.",
+        "confidence": "high"
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "L2-Q10",
+      "max_marks": 1,
+      "earned_marks": 0,
+      "outcome": "wrong",
+      "student_answer": "their",
+      "correct_answer": "Our",
+      "scoring_status": "counted",
+      "feedback": "Shoes \u2014 keyed **Our** (shared group).",
+      "error_tags": [
+        "concept_gap"
+      ],
+      "skill_tags": [],
+      "diagnosis": {
+        "mistake_type": "concept_gap",
+        "reasoning": "The key expects **Our** (including the speaker). **Their** refers only to others and mismatches the keyed inclusive reading.",
+        "confidence": "high"
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "L2-Q11",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "your",
+      "correct_answer": "your",
+      "scoring_status": "counted",
+      "feedback": "**your** names on the board.",
+      "error_tags": [],
+      "skill_tags": [],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": "Matches the isolated Chapter 13 answer key and fits the picture/sentence.",
+        "confidence": "high"
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "L2-Q12",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "their",
+      "correct_answer": "their",
+      "scoring_status": "counted",
+      "feedback": "**their** flags.",
+      "error_tags": [],
+      "skill_tags": [],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": "Matches the isolated Chapter 13 answer key and fits the picture/sentence.",
+        "confidence": "high"
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "L2-Q13",
+      "max_marks": 1,
+      "earned_marks": 0,
+      "outcome": "wrong",
+      "student_answer": "Our",
+      "correct_answer": "our",
+      "scoring_status": "counted",
+      "feedback": "Mid-sentence possessive should be lowercase **our**.",
+      "error_tags": [
+        "careless_error"
+      ],
+      "skill_tags": [],
+      "diagnosis": {
+        "mistake_type": "careless_error",
+        "reasoning": "After *We are doing*, the possessive is mid-sentence and should be **our**, not capitalised **Our**, unless starting a new sentence (it is not).",
+        "confidence": "high"
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "L3-Q1",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "our",
+      "correct_answer": "our",
+      "scoring_status": "counted",
+      "feedback": "Speech bubble \u2014 **our** car.",
+      "error_tags": [],
+      "skill_tags": [],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": "Matches the isolated Chapter 13 answer key and fits the picture/sentence.",
+        "confidence": "high"
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "L3-Q2a",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "your",
+      "correct_answer": "your",
+      "scoring_status": "counted",
+      "feedback": "First bubble \u2014 **your** car?",
+      "error_tags": [],
+      "skill_tags": [],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": "Matches the isolated Chapter 13 answer key and fits the picture/sentence.",
+        "confidence": "high"
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "L3-Q2b",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "our",
+      "correct_answer": "our",
+      "scoring_status": "counted",
+      "feedback": "Reply \u2014 **our** car.",
+      "error_tags": [],
+      "skill_tags": [],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": "Matches the isolated Chapter 13 answer key and fits the picture/sentence.",
+        "confidence": "high"
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "L3-Q3a",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "our",
+      "correct_answer": "our",
+      "scoring_status": "counted",
+      "feedback": "Not **our** car.",
+      "error_tags": [],
+      "skill_tags": [],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": "Matches the isolated Chapter 13 answer key and fits the picture/sentence.",
+        "confidence": "high"
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "L3-Q3b",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "their",
+      "correct_answer": "their",
+      "scoring_status": "counted",
+      "feedback": "**their** car.",
+      "error_tags": [],
+      "skill_tags": [],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": "Matches the isolated Chapter 13 answer key and fits the picture/sentence.",
+        "confidence": "high"
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "L3-Q4",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "Our",
+      "correct_answer": "Our",
+      "scoring_status": "counted",
+      "feedback": "Sentence-initial **Our**.",
+      "error_tags": [],
+      "skill_tags": [],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": "Matches the isolated Chapter 13 answer key and fits the picture/sentence.",
+        "confidence": "high"
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "L3-Q5a",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "their",
+      "correct_answer": "their",
+      "scoring_status": "counted",
+      "feedback": "First blank \u2014 **their** car.",
+      "error_tags": [],
+      "skill_tags": [],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": "Matches the isolated Chapter 13 answer key and fits the picture/sentence.",
+        "confidence": "high"
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "L3-Q5b",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "our",
+      "correct_answer": "our",
+      "scoring_status": "counted",
+      "feedback": "Second blank \u2014 **our** car.",
+      "error_tags": [],
+      "skill_tags": [],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": "Matches the isolated Chapter 13 answer key and fits the picture/sentence.",
+        "confidence": "high"
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "L3-Q6a",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "your",
+      "correct_answer": "your",
+      "scoring_status": "counted",
+      "feedback": "First blank \u2014 **your** car.",
+      "error_tags": [],
+      "skill_tags": [],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": "Matches the isolated Chapter 13 answer key and fits the picture/sentence.",
+        "confidence": "high"
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "L3-Q6b",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "our",
+      "correct_answer": "our",
+      "scoring_status": "counted",
+      "feedback": "Second blank \u2014 **our** car.",
+      "error_tags": [],
+      "skill_tags": [],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": "Matches the isolated Chapter 13 answer key and fits the picture/sentence.",
+        "confidence": "high"
+      },
+      "human_note": null
+    }
+  ],
+  "review_meta": {
+    "updated_at": null,
+    "updated_by": null
+  },
+  "generation": {
+    "produced_by": "cursor-agent",
+    "mode": "manual-visual-marking",
+    "notes": "Answer key verified from an isolated Chapter 13 crop of the mapped answers PDF (page 2)."
+  }
+}

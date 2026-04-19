@@ -1,0 +1,242 @@
+{
+  "schema_version": "marking_result.v1",
+  "created_at": "2026-04-19T02:41:45.208924+00:00",
+  "updated_at": "2026-04-19T02:41:45.208924+00:00",
+  "context": {
+    "student_id": "emma",
+    "student_name": "Emma Meng",
+    "subject_context": "singapore_primary_english",
+    "attempt_file_id": "b1c2e19b-44c2-44b2-b9f0-ec9ccc050eea",
+    "attempt_file_path": "GOODNOTES_ROOT/Singapore Primary English/<student_email>/P4/Book/Conquer English Grammar Primary 4/c_Conquer English Grammar Primary 4 - 03 Exercise 3.pdf",
+    "template_file_id": "35b0b804-c97f-4fcc-863c-4abef2104b34",
+    "template_file_path": "DAYDREAMEDU_ROOT/Singapore Primary English/P4/Book/Conquer English Grammar Primary 4/_c_Conquer English Grammar Primary 4 - 03 Exercise 3.pdf",
+    "book_group_id": "eb103bcc-816b-435e-9f54-244073d0d34a",
+    "book_label": "Conquer English Grammar Primary 4",
+    "unit_file_id": "35b0b804-c97f-4fcc-863c-4abef2104b34",
+    "unit_file_path": "DAYDREAMEDU_ROOT/Singapore Primary English/P4/Book/Conquer English Grammar Primary 4/_c_Conquer English Grammar Primary 4 - 03 Exercise 3.pdf",
+    "unit_label": "03 Exercise 3",
+    "answer_file_id": "bae1408f-9af0-4c48-9769-fa6fbcecd9c4",
+    "answer_file_path": "DAYDREAMEDU_ROOT/Singapore Primary English/P4/Book/Conquer English Grammar Primary 4/_c_Conquer English Grammar Primary 4 - 101 Answers.pdf",
+    "answer_page_start": 2,
+    "answer_page_end": 2,
+    "starts_mid_page": true,
+    "ends_mid_page": true,
+    "answer_mapping_source": "ground_truth_conquer_english_grammar_primary_4_v01",
+    "answer_mapping_notes": null,
+    "question_selection": {
+      "raw_text": null,
+      "canonical_refs": [],
+      "section_hint": null
+    }
+  },
+  "summary": {
+    "total_marks": 10,
+    "earned_marks": 4,
+    "percentage": 40.0,
+    "overall_assessment": "Emma scored four out of ten on Exercise 3 (nouns and agreement). She was accurate on Q3\u2013Q5 and Q10, but struggled where the subject was plural women (Q2), uncountable news (Q1), quantity phrases like two tins (Q6), plural trees and winners (Q7, Q9), and uncountable material (Q8). Extra practice matching verb number and tense to the true subject (especially after long subjects and with mass nouns) would help.",
+    "human_note": null
+  },
+  "question_results": [
+    {
+      "result_id": "Q1",
+      "max_marks": 1,
+      "earned_marks": 0,
+      "outcome": "wrong",
+      "student_answer": "(1)",
+      "correct_answer": "(2)",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [
+        "concept_gap"
+      ],
+      "skill_tags": [],
+      "diagnosis": {
+        "mistake_type": "concept_gap",
+        "reasoning": "Local news behaves as a singular/uncountable subject here, so the present-tense verb needs the third-person singular form comes (option 2). Option (2) is correct. The student chose (1) come, which does not agree with that subject.",
+        "confidence": "high"
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q2",
+      "max_marks": 1,
+      "earned_marks": 0,
+      "outcome": "wrong",
+      "student_answer": "(2)",
+      "correct_answer": "(1)",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [
+        "concept_gap"
+      ],
+      "skill_tags": [],
+      "diagnosis": {
+        "mistake_type": "concept_gap",
+        "reasoning": "The subject the women is plural, so the simple present verb must be the base form hunt (option 1). Option (1) is correct. The student chose (2) hunts, which is third-person singular and does not agree with a plural subject.",
+        "confidence": "high"
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q3",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "(3)",
+      "correct_answer": "(3)",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q4",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "(1)",
+      "correct_answer": "(1)",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q5",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "(4)",
+      "correct_answer": "(4)",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q6",
+      "max_marks": 1,
+      "earned_marks": 0,
+      "outcome": "wrong",
+      "student_answer": "(4)",
+      "correct_answer": "(2)",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [
+        "concept_gap"
+      ],
+      "skill_tags": [],
+      "diagnosis": {
+        "mistake_type": "concept_gap",
+        "reasoning": "Two tins heads a plural subject (tins), and the sentence is in the present (you do not have enough), so are needed (option 2) is correct. The student chose (4) were, which is past plural and does not match the intended present passive choice in the key.",
+        "confidence": "high"
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q7",
+      "max_marks": 1,
+      "earned_marks": 0,
+      "outcome": "wrong",
+      "student_answer": "(3)",
+      "correct_answer": "(4)",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [
+        "concept_gap"
+      ],
+      "skill_tags": [],
+      "diagnosis": {
+        "mistake_type": "concept_gap",
+        "reasoning": "The old trees is plural and the passive is past (chopped down), so the verb must be were (option 4). Option (4) is correct. The student chose (3) was, which only agrees with a singular subject.",
+        "confidence": "high"
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q8",
+      "max_marks": 1,
+      "earned_marks": 0,
+      "outcome": "wrong",
+      "student_answer": "(3)",
+      "correct_answer": "(1)",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [
+        "concept_gap"
+      ],
+      "skill_tags": [],
+      "diagnosis": {
+        "mistake_type": "concept_gap",
+        "reasoning": "Scrap material is an uncountable singular subject in the present, so the linking verb should be is (option 1). Option (1) is correct. The student chose (3) was, which shifts to past tense without justification and mismatches the key.",
+        "confidence": "high"
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q9",
+      "max_marks": 1,
+      "earned_marks": 0,
+      "outcome": "wrong",
+      "student_answer": "(3)",
+      "correct_answer": "(4)",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [
+        "concept_gap"
+      ],
+      "skill_tags": [],
+      "diagnosis": {
+        "mistake_type": "concept_gap",
+        "reasoning": "The winners of the lucky draw is a plural subject and the announcement was in the past (last Sunday), so were announced (option 4) is correct. Option (4) is correct. The student chose (3) was, which does not agree with winners.",
+        "confidence": "high"
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q10",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "(2)",
+      "correct_answer": "(2)",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    }
+  ],
+  "review_meta": {
+    "updated_at": null,
+    "updated_by": null
+  },
+  "generation": {
+    "produced_by": "mark_goodnote_completion",
+    "mode": "manual_visual_marking",
+    "notes": "Manually graded from GoodNotes completion against Conquer English Grammar P4 Exercise 3 answer key (isolated EXERCISE 3 block on answers p. 2)."
+  }
+}
