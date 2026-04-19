@@ -1,0 +1,230 @@
+{
+  "schema_version": "marking_result.v1",
+  "created_at": "2026-04-19T12:45:17Z",
+  "updated_at": "2026-04-19T12:45:17Z",
+  "context": {
+    "student_id": "emma",
+    "student_name": "Emma",
+    "subject_context": "singapore_primary_english",
+    "attempt_file_id": "cfc70c2e-6825-48aa-8745-9c222a1f2efa",
+    "attempt_file_path": "GOODNOTES_ROOT/Singapore Primary English/<student_email>/P4/Book/Conquer English Grammar Primary 4/c_Conquer English Grammar Primary 4 - 04 Exercise 4.pdf",
+    "template_file_id": "c247ee5d-6560-4bad-96f4-dca46b93f679",
+    "template_file_path": "DAYDREAMEDU_ROOT/Singapore Primary English/P4/Book/Conquer English Grammar Primary 4/_c_Conquer English Grammar Primary 4 - 04 Exercise 4.pdf",
+    "book_group_id": "eb103bcc-816b-435e-9f54-244073d0d34a",
+    "book_label": "Conquer English Grammar Primary 4",
+    "unit_file_id": "c247ee5d-6560-4bad-96f4-dca46b93f679",
+    "unit_file_path": "DAYDREAMEDU_ROOT/Singapore Primary English/P4/Book/Conquer English Grammar Primary 4/_c_Conquer English Grammar Primary 4 - 04 Exercise 4.pdf",
+    "unit_label": "04 Exercise 4",
+    "answer_file_id": "bae1408f-9af0-4c48-9769-fa6fbcecd9c4",
+    "answer_file_path": "DAYDREAMEDU_ROOT/Singapore Primary English/P4/Book/Conquer English Grammar Primary 4/_c_Conquer English Grammar Primary 4 - 101 Answers.pdf",
+    "answer_page_start": 2,
+    "answer_page_end": 2,
+    "starts_mid_page": true,
+    "ends_mid_page": true,
+    "answer_mapping_source": "ground_truth_conquer_english_grammar_primary_4_v01",
+    "answer_mapping_notes": null,
+    "question_selection": {
+      "raw_text": null,
+      "canonical_refs": [],
+      "section_hint": null
+    }
+  },
+  "summary": {
+    "total_marks": 10,
+    "earned_marks": 10,
+    "percentage": 100.0,
+    "overall_assessment": "Emma answered all ten items correctly for Exercise 4 (personal and possessive pronouns), matching the published key.",
+    "human_note": null
+  },
+  "question_results": [
+    {
+      "result_id": "Q1",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "(3)",
+      "correct_answer": "(3)",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q2",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "(1)",
+      "correct_answer": "(1)",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q3",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "(4)",
+      "correct_answer": "(4)",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q4",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "(2)",
+      "correct_answer": "(2)",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q5",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "(2)",
+      "correct_answer": "(2)",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q6",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "(1)",
+      "correct_answer": "(1)",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q7",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "(4)",
+      "correct_answer": "(4)",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q8",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "(2)",
+      "correct_answer": "(2)",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q9",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "(3)",
+      "correct_answer": "(3)",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    },
+    {
+      "result_id": "Q10",
+      "max_marks": 1,
+      "earned_marks": 1,
+      "outcome": "correct",
+      "student_answer": "(2)",
+      "correct_answer": "(2)",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    }
+  ],
+  "review_meta": {
+    "updated_at": null,
+    "updated_by": null
+  },
+  "generation": {
+    "produced_by": "manual_visual_marking",
+    "mode": "goodnotes_completion",
+    "notes": "Exercise 4; answer key verified on _c_Conquer English Grammar Primary 4 - 101 Answers.pdf page 2 (Exercise 4 block)."
+  }
+}
