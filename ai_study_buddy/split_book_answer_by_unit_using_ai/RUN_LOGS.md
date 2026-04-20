@@ -12,6 +12,7 @@ Stable **`#`**: **1** = oldest, **higher = newer** (never renumber). Rows are **
 
 | # | Run id | Run name |
 |---|--------|----------|
+| 16 | `visible_thinking_math_p1a.v01` | Visible Thinking in Mathematics Primary 1A (Gemini 2.5 Pro, answer p1–13) |
 | 15 | `grammar-practice-primary-1.v01` | Grammar Practice Primary 1 (Gemini 2.5 Pro, answer p1–4) |
 | 14 | `conquer_exam_terry_chew_p5_lessons_p1_37.v01` | Conquer Exam Standard Mathematics Problem Sums with Terry Chew Primary 5 (lessons only, answer p1–37, Gemini 2.5 Pro) |
 | 13 | `math_model_drawing_p5_p6.v02_openai_gpt5_4_reason_medium` | Model Drawing Made Easy and Inspiring for P5 and P6 (OpenAI gpt-5.4, reasoning medium) |
@@ -31,6 +32,51 @@ Stable **`#`**: **1** = oldest, **higher = newer** (never renumber). Rows are **
 ---
 
 ## Runs
+
+### 16. visible_thinking_math_p1a.v01 — Visible Thinking in Mathematics Primary 1A (Gemini)
+
+| Field | Value |
+|--------|--------|
+| **Run id** | `visible_thinking_math_p1a.v01` |
+| **Logged** | 2026-04-20 |
+| **Pipeline** | split_book_answer_by_unit_using_ai (Gemini Batch, continuation page-segments) |
+| **Registry book label** | `Visible Thinking in Mathematics Primary 1A` |
+| **Model** | `models/gemini-2.5-pro` |
+| **Batch request key** | `book:visible_thinking_in_mathematics_primary_1a:page_segments_continuation_gemini:p1_13` |
+| **Answer pages in batch** | 1–13 |
+| **Units in manifest (build)** | 22 |
+| **Assembled mapping rows** | 22 |
+| **Gemini batch job** | `batches/g7r0w1yf7nutrrvj2w9wylxb1mwjvtgw9iht` |
+| **Uploaded JSONL (API)** | `files/nxqsz2tfoch3` |
+| **Status** | completed (`JOB_STATE_SUCCEEDED`; `job.end_time` `2026-04-20T04:22:56.224040+00:00`). |
+
+**Token usage** (from `response.usageMetadata` in `visible_thinking_math_p1a.v01.output.jsonl`)
+
+| Field | Value |
+|--------|--------|
+| **Prompt tokens** | 8,216 |
+| **Thoughts tokens** | 4,769 |
+| **Candidates tokens** | 2,014 |
+| **Total tokens** | 14,999 |
+
+**Artifacts (repo-relative)**
+
+| Stage | Path |
+|--------|------|
+| Batch input JSONL | `batch_artifacts/visible_thinking_math_p1a.v01.jsonl` |
+| Job metadata | `batch_artifacts/visible_thinking_math_p1a.v01.job.json` |
+| Job name (one line) | `batch_artifacts/visible_thinking_math_p1a.v01.job_name.txt` |
+| Raw batch output | `batch_artifacts/visible_thinking_math_p1a.v01.output.jsonl` |
+| Processed JSON | `batch_artifacts/visible_thinking_math_p1a.v01.processed.json` |
+| Assembled mappings | `batch_artifacts/visible_thinking_math_p1a.v01.assembled.json` |
+| Ground-truth JSON | `pilot_ground_truth/visible_thinking_math_p1a_ground_truth.json` |
+| Ground-truth table | `pilot_ground_truth/visible_thinking_math_p1a_ground_truth_table.md` |
+
+**Notes**
+
+- **Build prerequisite:** `book_context.parse_unit_index` gained `VISIBLE_THINKING_P1A_UNIT_ORDER` so `metadata.unit` strings (`ChNN …`) map to manifest indices 1–22 in typical 1A lesson order.
+- **Validation:** `visible_thinking_math_p1a.v01.assembled.json` reports `continuation_rule_violations` on answer pages **5** and **7** (`visible_unit_indices_not_strictly_increasing`). Human spot-check of those pages (and mid-page flags) is advised before treating mappings as authoritative.
+- **Import:** `PdfFileManager.import_book_answer_mappings_from_json` with source `ground_truth_visible_thinking_math_p1a_v01` — **22** rows imported; `list_book_answer_mappings(book_group_id=…)` shows **22** mappings for this book group.
 
 ### 15. grammar-practice-primary-1.v01 — Grammar Practice Primary 1 (Gemini)
 

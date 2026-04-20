@@ -32,6 +32,33 @@ ANSWER_KEYWORDS = (
     "详解",
 )
 
+# Visible Thinking in Mathematics Primary 1A — registry ``metadata.unit`` strings
+# (``ChNN …``); order follows typical 1A lesson sequence for answer-key alignment.
+VISIBLE_THINKING_P1A_UNIT_ORDER = {
+    "ch01 numbers to 10 - counting to 10": 1,
+    "ch01 numbers to 10 - comparing numbers to 10": 2,
+    "ch01 numbers to 10 - ordering numbers to 10": 3,
+    "ch02 number bonds - making number bonds": 4,
+    "ch03 addition within 10 - strategies for addition": 5,
+    "ch04 subtraction within 10 - strategies for subtraction": 6,
+    "ch04 subtraction within 10 - making a family of number sentences": 7,
+    "ch04 subtraction within 10 - solving subtraction stories": 8,
+    "ch04 subtraction within 10 - directional addition and subtraction": 9,
+    "ch05 shapes and patterns - identifying, forming and copying shapes": 10,
+    "ch05 shapes and patterns - identifying and completing patterns": 11,
+    "ch06 ordinal numbers - ordinal positions": 12,
+    "ch06 ordinal numbers - counting using ordinal positions": 13,
+    "ch06 ordinal numbers - cardinal and ordinal numbers": 14,
+    "ch07 numbers to 20 - counting to 20": 15,
+    "ch07 numbers to 20 - place value": 16,
+    "ch07 numbers to 20 - comparing numbers to 20": 17,
+    "ch07 numbers to 20 - ordering numbers to 20": 18,
+    "ch08 addition and subtraction within 20 - addition within 20": 19,
+    "ch08 addition and subtraction within 20 - subtraction within 20": 20,
+    "ch08 addition and subtraction within 20 - solving addition and subtraction stories": 21,
+    "ch09 picture graphs - collecting and organising data": 22,
+}
+
 MATH_PSLE_UNIT_ORDER = {
     "part b p1 to p5 commonly tested mcqs": 1,
     "part c p1 to p5 commonly tested saqs and laqs": 2,
@@ -161,6 +188,8 @@ def parse_unit_index(file) -> int:
             return int(match.group(1))
         if unit_norm in MATH_PSLE_UNIT_ORDER:
             return MATH_PSLE_UNIT_ORDER[unit_norm]
+        if unit_norm in VISIBLE_THINKING_P1A_UNIT_ORDER:
+            return VISIBLE_THINKING_P1A_UNIT_ORDER[unit_norm]
         match = re.search(r"\bpractice\s+(\d+)\b", unit, re.IGNORECASE)
         if match:
             return int(match.group(1))
