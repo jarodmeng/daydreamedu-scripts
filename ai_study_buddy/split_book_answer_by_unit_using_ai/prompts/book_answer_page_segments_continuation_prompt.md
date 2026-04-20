@@ -107,7 +107,7 @@ The first user text block is a JSON object with this shape:
   "unit_files": [
     {
       "unit_index": 1,
-      "unit_file": "_c_EPO_Grammar_MCQ_01 (empty).pdf",
+      "unit_file": "_c_EPO_Grammar_MCQ_01.pdf",
       "unit_label": "Grammar MCQ 01"
     }
   ]
