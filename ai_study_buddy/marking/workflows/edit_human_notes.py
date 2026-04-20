@@ -2,10 +2,10 @@ from __future__ import annotations
 
 import argparse
 import json
-from datetime import datetime, timezone
 from pathlib import Path
 
 from ai_study_buddy.marking.core.artifact_schema import validate_marking_artifact_dict
+from ai_study_buddy.marking.core.marking_time import now_marking_iso
 
 
 def update_human_notes(
@@ -34,9 +34,10 @@ def update_human_notes(
 
     if summary_note is not None or result_id is not None:
         review_meta = payload.setdefault("review_meta", {})
-        review_meta["updated_at"] = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+        ts = now_marking_iso()
+        review_meta["updated_at"] = ts
         review_meta["updated_by"] = updated_by
-        payload["updated_at"] = review_meta["updated_at"]
+        payload["updated_at"] = ts
 
     validate_marking_artifact_dict(payload)
     path.write_text(json.dumps(payload, indent=2, ensure_ascii=True) + "\n", encoding="utf-8")

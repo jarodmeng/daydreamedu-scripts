@@ -4,6 +4,7 @@ from datetime import datetime
 from pathlib import Path
 import re
 
+from ai_study_buddy.marking.core.marking_time import format_basename_timestamp
 from ai_study_buddy.marking.core.models import MarkingArtifact
 
 _PREFIXES = ("_raw_", "_c_", "raw_", "c_")
@@ -30,8 +31,8 @@ def normalize_attempt_stem(name_or_path: str | Path) -> str:
 
 
 def format_artifact_timestamp(value: str | datetime) -> str:
-    dt = parse_iso_datetime(value) if isinstance(value, str) else value
-    return dt.strftime("%Y%m%d_%H%M%S")
+    """Basename suffix ``YYYYMMDD_HHMMSS`` in **Singapore (SGT)** wall time."""
+    return format_basename_timestamp(value)
 
 
 def build_attempt_basename(name_or_path: str | Path, *, marked_at: str | datetime) -> str:

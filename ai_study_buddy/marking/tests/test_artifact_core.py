@@ -41,8 +41,8 @@ from ai_study_buddy.marking.workflows.report_renderer import render_learning_rep
 def _sample_artifact() -> MarkingArtifact:
     return MarkingArtifact(
         schema_version="marking_result.v1",
-        created_at="2026-04-15T10:30:25Z",
-        updated_at="2026-04-15T10:30:25Z",
+        created_at="2026-04-15T18:30:25+08:00",
+        updated_at="2026-04-15T18:30:25+08:00",
         context=MarkingArtifactContext(
             student_id="winston",
             student_name="Winston",
@@ -123,15 +123,17 @@ def test_normalize_attempt_stem_strips_known_prefixes():
 
 
 def test_build_attempt_basename_uses_timestamp_suffix():
-    assert build_attempt_basename("_c_p4.math.wa1.6.pdf", marked_at="2026-04-15T10:30:25Z") == "p4.math.wa1.6__20260415_103025"
+    # Basename uses Singapore wall time; 10:30 UTC == 18:30 SGT
+    assert build_attempt_basename("_c_p4.math.wa1.6.pdf", marked_at="2026-04-15T10:30:25Z") == "p4.math.wa1.6__20260415_183025"
+    assert build_attempt_basename("_c_p4.math.wa1.6.pdf", marked_at="2026-04-15T18:30:25+08:00") == "p4.math.wa1.6__20260415_183025"
 
 
 def test_artifact_paths_use_student_and_subject_context():
     artifact = _sample_artifact()
     json_path = build_marking_artifact_path(artifact, context_root="/tmp/context")
     report_path = build_learning_report_path(artifact, context_root="/tmp/context")
-    assert str(json_path).endswith("/marking_results/winston/singapore_primary_science/Science Practice Primary 5 and 6 - 17 Interactions__20260415_103025.json")
-    assert str(report_path).endswith("/learning_reports/winston/singapore_primary_science/Science Practice Primary 5 and 6 - 17 Interactions__20260415_103025 - Marking Report.md")
+    assert str(json_path).endswith("/marking_results/winston/singapore_primary_science/Science Practice Primary 5 and 6 - 17 Interactions__20260415_183025.json")
+    assert str(report_path).endswith("/learning_reports/winston/singapore_primary_science/Science Practice Primary 5 and 6 - 17 Interactions__20260415_183025 - Marking Report.md")
 
 
 def test_validate_marking_artifact_dict_accepts_valid_payload():
@@ -184,6 +186,8 @@ def test_write_marking_artifact_writes_json(tmp_path):
     written = write_marking_artifact(artifact, context_root=tmp_path)
     payload = json.loads(written.read_text(encoding="utf-8"))
     assert payload["schema_version"] == "marking_result.v1"
+    assert payload["created_at"].endswith("+08:00")
+    assert payload["updated_at"].endswith("+08:00")
 
 
 def test_render_learning_report_from_json_is_idempotent(tmp_path):
@@ -211,6 +215,8 @@ def test_update_human_notes_updates_review_meta(tmp_path):
     assert payload["summary"]["human_note"] == "Parent reviewed this attempt."
     assert payload["question_results"][1]["human_note"] == "Needs to mention both forces."
     assert payload["review_meta"]["updated_by"] == "jarod"
+    assert payload["review_meta"]["updated_at"].endswith("+08:00")
+    assert payload["updated_at"].endswith("+08:00")
 
 
 def test_write_marking_artifact_sanitizes_context_paths(tmp_path):

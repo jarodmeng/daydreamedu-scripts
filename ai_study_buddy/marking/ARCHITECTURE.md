@@ -41,6 +41,7 @@ Current package modules are grouped into three layers.
 - `context_resolver.py`: deterministic context resolution orchestration
 - `artifact_schema.py`: schema loading, validation, and score consistency checks
 - `artifact_paths.py`: canonical path and basename derivation
+- `marking_time.py`: Singapore (SGT) persisted timestamps and basename wall-clock suffix
 - `artifact_lookup.py`: deterministic completion -> artifact lookup (student-scoped)
 - `artifact_writer.py`: canonical JSON write path
 - `path_privacy.py`: canonical path sanitization and runtime placeholder expansion

@@ -1,6 +1,6 @@
 ---
 name: mark-goodnote-completion
-description: Mark a student's GoodNotes completion PDF against the registry-linked DaydreamEdu template and mapped answer-page range, then write a canonical JSON marking artifact under `ai_study_buddy/context/marking_results/<student>/<subject_context>/` and a derived markdown learning report under `ai_study_buddy/context/learning_reports/<student>/<subject_context>/`. Per-run renders, crops, and one-off `_*.py` helpers live together under `ai_study_buddy/context/.marking_scratch/<scratch_slug>/` (see `scripts/` subfolder). Use when the user wants a GoodNotes completion graded, marked, compared with worked solutions, or turned into a learning report.
+description: Mark a student's GoodNotes completion PDF against the registry-linked DaydreamEdu template and mapped answer-page range, then write a canonical JSON marking artifact under `ai_study_buddy/context/marking_results/<student>/<subject_context>/` and a derived markdown learning report under `ai_study_buddy/context/learning_reports/<student>/<subject_context>/`. **Each wrong or partial item must receive a careful, specific diagnosis** (not generic boilerplate): explain the real learning gap using the question, key, and student answer. Per-run renders, crops, and one-off `_*.py` helpers live together under `ai_study_buddy/context/.marking_scratch/<scratch_slug>/` (see `scripts/` subfolder). Use when the user wants a GoodNotes completion graded, marked, compared with worked solutions, or turned into a learning report.
 ---
 
 # Mark GoodNotes Completion
@@ -34,6 +34,7 @@ Rules:
 
 - `<student_slug>`: lowercase, non-alphanumeric collapsed to `_` (same as `slugify_student` in `artifact_paths.py`).
 - `<attempt_basename>`: normalized attempt stem (strip `c_`, `_c_`, `_raw_`, `raw_` prefixes repeatedly) + `__YYYYMMDD_HHMMSS` from `created_at` / marking time — **the JSON stem and the markdown basename (before ` - Marking Report.md`) must match** so pairs are easy to find and re-render.
+- **Timestamps (SGT):** Use **Singapore time** (`Asia/Singapore`, `+08:00`) for `created_at` / `updated_at` on canonical JSON. Call `now_marking_iso()` or `to_marking_iso(...)` from `ai_study_buddy.marking` (see `core/marking_time.py`); `write_marking_artifact` normalizes any parseable instant to SGT on save. The `__YYYYMMDD_HHMMSS` suffix is the **Singapore local wall-clock** time for that instant — do **not** use UTC (`Z`) or `datetime.utcnow()` for persisted marking times.
 - Do not put PNG crops or page renders inside `marking_results/` or `learning_reports/`; those directories are for JSON and markdown only.
 
 ### Tier B — Per-run scratch bundle (renders + crops + one-off scripts; not canonical)
@@ -166,6 +167,12 @@ Visual-first rule:
 - use OCR only if handwriting or printed text is genuinely hard to read
 - do not infer answers from the filename or mapping alone
 
+**Correction ink (usually green):** Completion PDFs may contain **green** handwriting or highlights added after the first attempt (student, parent, or tutor corrections). For marking:
+
+- **Ignore green ink** when deciding what the student originally submitted and when scoring. Treat it as meta-annotation, not part of the gradable attempt.
+- Base `question_results` student answers and credit on the **original** work (non-green strokes and printed template text the student used). If the only visible “fix” for a blank is in green, you may note that in `human_note` but do not use green alone to claim full credit unless the workflow explicitly asks to grade corrections.
+- If green overlaps original work and you cannot separate them, lower confidence and describe the ambiguity in notes rather than guessing.
+
 ### 3. Identify the gradable scope
 
 Before assigning marks, determine exactly which questions in the completion file are gradable.
@@ -188,6 +195,7 @@ Cross-check the **question count** before marking:
 Do not grade:
 
 - worked examples printed in the template
+- **green (or clearly correction-only) ink** used to amend answers after the fact — exclude from scoring per “Correction ink” above
 - decorative annotations or partial notes outside the target exercise
 - cropped or ambiguous work that is not legible enough to compare confidently
 
@@ -201,7 +209,7 @@ Hard prerequisite:
 
 For each question or sub-part:
 
-1. read Winston's written answer from the attempt pages
+1. read the student’s written answer from the attempt pages **excluding green correction ink** (see “Correction ink” above)
 2. read the corresponding worked-solution answer from the mapped answer pages
 3. decide whether the result is full credit, partial credit, or zero
 4. capture the student's answer in a concise text form
@@ -250,7 +258,7 @@ The canonical JSON must follow `marking_result.v1` and should include:
 - context
 - summary
 - `question_results` as gradable leaf units
-- `diagnosis` per result
+- **`diagnosis` for every result** — for wrong and partial rows this is **mandatory** and must meet the bar in [Diagnosis Guidance](#diagnosis-guidance) (specific, learning-focused, not placeholder text)
 - co-located human-note fields
 
 ### 6. Render the learning report from JSON
@@ -399,12 +407,21 @@ For contexts **outside** those four (e.g. another subject or future `subject_con
 
 ## Diagnosis Guidance
 
+**Careful diagnosis is a first-class deliverable.** Marks and outcomes record *what* was wrong; diagnosis explains *why*, in terms the student can learn from. Rushing this step produces useless reports: repeating the score line, vague phrases ("did not understand"), or the same paragraph for every error. Treat each incorrect or partial row as its own mini-lesson.
+
 For each gradable result, the marking agent should populate:
 
 - `error_tags`
 - `diagnosis.mistake_type`
 - `diagnosis.reasoning`
 - `diagnosis.confidence`
+
+**Per-error specificity (required for wrong and partial rows):**
+
+- tie the explanation to **this** question’s demand (e.g. vocabulary nuance, synthesis strategy, chronology, counterfactual reasoning) — not a one-size template reused across items
+- name the **distinction** the student missed (e.g. *compliment* vs *supplement*, *definitional* vs *call to action*, method A vs method B), using the key and student answer as anchors
+- for MCQ and cloze, briefly address **why the distractor is tempting** when that clarifies the gap
+- align `mistake_type` and `error_tags` with the taxonomy in `ai_study_buddy/marking/core/taxonomy.py` so the row is machine-consistent and human-readable
 
 Evidence rule:
 
@@ -418,6 +435,7 @@ Incorrect-answer reasoning rule (required):
   - why the correct answer is correct (text evidence, definition, method step, or key concept), and
   - why the student's selected/written answer is not correct
 - do not write diagnosis reasoning as only an answer mismatch restatement (for example, avoid "student chose (1), correct is (2)" without explanation)
+- do not leave `diagnosis` null or empty on wrong/partial rows when the schema allows content — if the model cannot yet explain the gap, say what is uncertain rather than omitting diagnosis
 - keep the explanation concise and evidence-based; if evidence is limited, state uncertainty explicitly
 
 ## Quality Bar
@@ -432,6 +450,7 @@ Before finishing, verify:
 - every graded row is visibly supported by both the attempt page and answer page
 - the target exercise answer key was isolated in a dedicated crop (not a mixed panel)
 - the final key list was checked in two passes, question-by-question
+- **every wrong and partial row has a specific, non-boilerplate `diagnosis.reasoning` that would help the student improve on a similar item**
 - the score totals add up
 - the percentage is correct
 - the markdown report matches the JSON artifact
@@ -440,6 +459,7 @@ Before finishing, verify:
 
 - Do not query the registry SQLite DB directly.
 - Do not mark from memory; inspect the rendered pages.
+- Do not treat green (or other clearly marked correction) ink as the student’s original attempt for scoring purposes.
 - Do not claim a question is wrong unless the mismatch is visible.
 - Do not finalize a report until the target exercise answer key is visually verified with the required two-pass isolated-crop protocol.
 - Do not silently grade beyond the visible scope of the completion file.
@@ -447,6 +467,7 @@ Before finishing, verify:
 - If handwriting or page coverage is too unclear to grade reliably, say so and limit the report to confident items only.
 - Do not leave temporary rendered PNGs in tracked report folders; keep them under **Tier B** `.marking_scratch/<scratch_slug>/` (with co-located `scripts/` for `_*.py`) and clean up the whole run folder after marking.
 - Do not treat markdown as canonical data; always write JSON first.
+- Do not ship a report with placeholder or copy-paste diagnoses for multiple errors; **each** error deserves its own careful read.
 
 ## Output Expectations
 

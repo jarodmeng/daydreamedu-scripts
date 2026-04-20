@@ -4,6 +4,26 @@ All notable changes to `ai_study_buddy.marking` are documented in this file.
 
 Committed changes under `ai_study_buddy/marking/` should add an entry here and bump **Current version** in `README.md` (semver: **patch** for docs or small renderer tweaks, **minor** for schema or public API changes). `SPEC.md` / `TESTING.md` titles do not carry the package version.
 
+## [0.2.1] - 2026-04-20
+
+Patch: Singapore-time marking timestamps (schema `marking_result.v1` unchanged).
+
+### Added
+
+- `core/marking_time.py`: Singapore (`Asia/Singapore`) helpers — `now_marking_iso`, `to_marking_iso`, `format_basename_timestamp`, and `MARKING_TIMEZONE`.
+- Public exports in `api.py` for the above (except `format_basename_timestamp`, which remains internal via `artifact_paths.format_artifact_timestamp`).
+
+### Changed
+
+- **Write path:** Canonical `created_at` / `updated_at` are normalized to **ISO-8601 with `+08:00`** on save (callers may still pass `Z`; `write_marking_artifact` converts to SGT).
+- **Basename suffix:** `__YYYYMMDD_HHMMSS` uses **Singapore local wall time** for the marking instant.
+- `workflows/edit_human_notes.py`: `review_meta.updated_at` and top-level `updated_at` use SGT.
+- `workflows/migrate_learning_reports.py`: migrated artifact timestamps use SGT via `to_marking_iso`.
+
+### Documentation
+
+- `SPEC.md` §1.1 marking timestamps; `README.md`; `.cursor/skills/mark-goodnote-completion/SKILL.md` (SGT rule for agents).
+
 ## [0.2.0] - 2026-04-19
 
 Small API addition release for completion-based artifact lookup.

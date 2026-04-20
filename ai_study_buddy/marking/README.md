@@ -8,11 +8,12 @@ Canonical marking pipeline for AI Study Buddy. This package defines the
 3. render markdown as a derived view
 4. support human note edits in the canonical JSON
 
-Current version: `v0.2.0`
+Current version: `v0.2.1`
 
 ## Package Scope
 
 - Artifact naming and path conventions (`artifact_paths.py`)
+- Singapore marking clock (`core/marking_time.py`: persisted timestamps and basename suffix use SGT)
 - Schema validation and score consistency checks (`artifact_schema.py`)
 - Canonical artifact writing (`artifact_writer.py`)
 - Path privacy sanitization and placeholder resolution (`path_privacy.py`)
@@ -51,6 +52,18 @@ python3 -m ai_study_buddy.marking.workflows.edit_human_notes \
   --summary-note "Reviewed with parent" \
   --updated-by "tutor"
 ```
+
+## Marking timestamps (Singapore)
+
+Persisted `created_at` / `updated_at` use **Singapore civil time** with a **`+08:00` ISO offset**. When constructing artifacts in code, prefer:
+
+```python
+from ai_study_buddy.marking import now_marking_iso
+
+created_at = updated_at = now_marking_iso()
+```
+
+`write_marking_artifact` still accepts UTC (`Z`) or other offsets and **normalizes to SGT** before writing. The `__YYYYMMDD_HHMMSS` file suffix is the **SGT wall-clock** time for that instant.
 
 ## Path Privacy Behavior (`v0.1.2+`)
 

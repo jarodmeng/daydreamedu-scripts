@@ -8,6 +8,7 @@ Primary automated coverage lives in:
 
 - `ai_study_buddy/marking/tests/test_artifact_core.py`
 - `ai_study_buddy/marking/tests/test_artifact_lookup.py`
+- `ai_study_buddy/marking/tests/test_marking_time.py`
 - `ai_study_buddy/marking/tests/test_migration.py`
 
 These tests cover:

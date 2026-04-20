@@ -10,6 +10,7 @@ from pathlib import Path
 from ai_study_buddy.marking.core.artifact_paths import build_marking_artifact_path, normalize_attempt_stem
 from ai_study_buddy.marking.core.artifact_schema import compute_percentage, validate_marking_artifact_dict
 from ai_study_buddy.marking.core.artifact_writer import write_marking_artifact
+from ai_study_buddy.marking.core.marking_time import to_marking_iso
 from ai_study_buddy.marking.core.models import (
     ArtifactQuestionResult,
     ArtifactSummary,
@@ -108,19 +109,20 @@ def _parse_outcome(name_cell: str, obtained_marks: int, total_marks: int) -> tup
 
 
 def _iso_from_file_mtime(path: Path) -> str:
-    return datetime.fromtimestamp(path.stat().st_mtime, tz=timezone.utc).isoformat().replace("+00:00", "Z")
+    dt = datetime.fromtimestamp(path.stat().st_mtime, tz=timezone.utc)
+    return to_marking_iso(dt)
 
 
 def _combine_report_date_with_file_time(report_date: str | None, path: Path) -> str:
     file_dt = datetime.fromtimestamp(path.stat().st_mtime, tz=timezone.utc)
     if not report_date:
-        return file_dt.isoformat().replace("+00:00", "Z")
+        return to_marking_iso(file_dt)
     try:
         report_day = datetime.strptime(report_date, "%Y-%m-%d").date()
     except ValueError:
-        return file_dt.isoformat().replace("+00:00", "Z")
+        return to_marking_iso(file_dt)
     combined = datetime.combine(report_day, file_dt.timetz())
-    return combined.isoformat().replace("+00:00", "Z")
+    return to_marking_iso(combined)
 
 
 def _get_pdf_file_manager():

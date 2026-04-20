@@ -38,6 +38,14 @@ The package guarantees:
   - `raw_`
 - Suffix uses marking timestamp: `__YYYYMMDD_HHMMSS`.
 
+### 1.1) Marking timestamps (Singapore time)
+
+- **Timezone:** `Asia/Singapore` (SGT, UTC+8, no DST).
+- **Persisted fields:** `created_at` and `updated_at` on canonical JSON are **ISO-8601 strings with a `+08:00` offset** (not `Z` / UTC-by-default).
+- **Basename suffix:** `__YYYYMMDD_HHMMSS` is the **Singapore local civil time** corresponding to the marking instant (same instant may be supplied as UTC in memory; the canonical writer normalizes before save).
+- **API:** `ai_study_buddy.marking.core.marking_time` (`now_marking_iso`, `to_marking_iso`) and `write_marking_artifact` enforce this on write.
+- **Human note edits:** `review_meta.updated_at` uses the same SGT rule (`workflows/edit_human_notes.py`).
+
 ### 2) Validation and scoring rules
 
 - Every artifact must validate against `marking_result.v1`.
