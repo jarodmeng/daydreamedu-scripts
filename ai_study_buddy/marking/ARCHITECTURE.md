@@ -17,7 +17,7 @@ The marking package is the canonical implementation layer for marking workflows.
 ### Responsibilities
 
 - resolve deterministic marking context from registry-backed metadata
-- enforce canonical artifact contract (`marking_result.v1`)
+- enforce canonical artifact contract (`marking_result.v1.1`, backward-compatible with `v1`)
 - write canonical JSON first, then render markdown as derived view
 - provide stable programmatic APIs for workflows and agent skills
 
@@ -44,6 +44,7 @@ Current package modules are grouped into three layers.
 - `marking_time.py`: Singapore (SGT) persisted timestamps and basename wall-clock suffix
 - `artifact_lookup.py`: deterministic completion -> artifact lookup (student-scoped)
 - `artifact_writer.py`: canonical JSON write path
+- `workflows/backfill_attempt_metadata_v1_1.py`: dry-run/apply workflow to backfill v1.1 attempt metadata on existing artifacts
 - `path_privacy.py`: canonical path sanitization and runtime placeholder expansion
 - `taxonomy.py`: diagnosis/error taxonomy normalization and helpers
 
@@ -179,5 +180,5 @@ When a new real workflow requires more behavior (for example question-index-awar
 Until a `v0.3.0` contract update is announced:
 
 1. `resolve_marking_context(...)` remains stable and file-level.
-2. Existing artifact schema (`marking_result.v1`) remains unchanged.
+2. Existing artifact schema `marking_result.v1` remains readable; writer now emits `marking_result.v1.1`.
 3. New resolver behavior is introduced only from concrete use cases and added additively.

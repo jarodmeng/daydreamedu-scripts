@@ -22,6 +22,7 @@ These tests cover:
 - path sanitization at write time and placeholder expansion at read/render time
 - human note update flow
 - legacy markdown migration parsing and batching options
+- attempt-metadata backfill workflow (`backfill_attempt_metadata_v1_1.py`)
 
 ## Run Tests
 
@@ -49,6 +50,7 @@ Before merging marking-related changes:
 2. Ensure no schema validation regressions.
 3. For migration/parser changes, run migration tests specifically.
 4. For renderer or note-edit changes, verify artifact-core tests pass.
+5. For backfill changes, verify migration tests pass (includes backfill dry-run/apply coverage).
 
 ## Manual Verification Checklist
 

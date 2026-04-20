@@ -10,7 +10,8 @@ from ai_study_buddy.marking.core.taxonomy import (
     ERROR_TAGS,
 )
 
-SCHEMA_VERSION = "marking_result.v1"
+SCHEMA_VERSION = "marking_result.v1.1"
+SUPPORTED_SCHEMA_VERSIONS = {"marking_result.v1", "marking_result.v1.1"}
 SCHEMA_PATH = Path(__file__).resolve().parent.parent / "schemas" / "marking_result.v1.schema.json"
 ALLOWED_OUTCOMES = {"correct", "partial", "wrong", "disqualified"}
 ALLOWED_SCORING_STATUS = {"counted", "excluded_disqualified"}
@@ -37,7 +38,10 @@ def validate_marking_artifact_dict(data: dict[str, Any]) -> None:
         if not condition:
             errors.append(message)
 
-    require(data.get("schema_version") == SCHEMA_VERSION, "schema_version must be marking_result.v1")
+    require(
+        data.get("schema_version") in SUPPORTED_SCHEMA_VERSIONS,
+        "schema_version must be marking_result.v1 or marking_result.v1.1",
+    )
 
     for key in ("created_at", "updated_at", "context", "summary", "question_results", "review_meta", "generation"):
         require(key in data, f"missing top-level field: {key}")
@@ -53,6 +57,24 @@ def validate_marking_artifact_dict(data: dict[str, Any]) -> None:
     if isinstance(context, dict):
         require(bool(context.get("subject_context")), "context.subject_context must be non-empty")
         require(bool(context.get("attempt_file_path")), "context.attempt_file_path must be non-empty")
+        group_id = context.get("template_attempt_group_id")
+        attempt_sequence = context.get("attempt_sequence")
+        attempt_label = context.get("attempt_label")
+
+        require(
+            group_id is None or (isinstance(group_id, str) and bool(group_id.strip())),
+            "context.template_attempt_group_id must be null or non-empty string",
+        )
+        require(
+            attempt_sequence is None or (isinstance(attempt_sequence, int) and attempt_sequence >= 1),
+            "context.attempt_sequence must be null or int >= 1",
+        )
+        require(
+            attempt_label is None or (isinstance(attempt_label, str) and bool(attempt_label.strip())),
+            "context.attempt_label must be null or non-empty string",
+        )
+        if isinstance(attempt_label, str):
+            require(len(attempt_label) <= 64, "context.attempt_label must be <= 64 chars")
 
     expected_total = 0
     expected_earned = 0

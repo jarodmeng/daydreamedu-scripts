@@ -125,6 +125,9 @@ class MarkingArtifactContext:
     ends_mid_page: bool = False
     answer_mapping_source: str | None = None
     answer_mapping_notes: str | None = None
+    template_attempt_group_id: str | None = None
+    attempt_sequence: int | None = None
+    attempt_label: str | None = None
 
     question_selection: QuestionSelection = QuestionSelection(raw_text=None)
 
@@ -156,6 +159,9 @@ class MarkingArtifactContext:
             ends_mid_page=context.ends_mid_page,
             answer_mapping_source=context.answer_mapping_source,
             answer_mapping_notes=context.answer_mapping_notes,
+            template_attempt_group_id=None,
+            attempt_sequence=None,
+            attempt_label=None,
             question_selection=context.question_selection,
         )
 
@@ -203,6 +209,9 @@ class MarkingArtifact:
             ends_mid_page=bool(context_payload.get("ends_mid_page", False)),
             answer_mapping_source=context_payload.get("answer_mapping_source"),
             answer_mapping_notes=context_payload.get("answer_mapping_notes"),
+            template_attempt_group_id=context_payload.get("template_attempt_group_id"),
+            attempt_sequence=context_payload.get("attempt_sequence"),
+            attempt_label=context_payload.get("attempt_label"),
             question_selection=QuestionSelection(
                 raw_text=question_selection_payload.get("raw_text"),
                 canonical_refs=tuple(question_selection_payload.get("canonical_refs", ())),

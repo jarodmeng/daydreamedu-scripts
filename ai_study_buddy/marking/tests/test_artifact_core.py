@@ -40,7 +40,7 @@ from ai_study_buddy.marking.workflows.report_renderer import render_learning_rep
 
 def _sample_artifact() -> MarkingArtifact:
     return MarkingArtifact(
-        schema_version="marking_result.v1",
+        schema_version="marking_result.v1.1",
         created_at="2026-04-15T18:30:25+08:00",
         updated_at="2026-04-15T18:30:25+08:00",
         context=MarkingArtifactContext(
@@ -113,7 +113,7 @@ def _sample_artifact() -> MarkingArtifact:
 def test_schema_file_exists_and_loads():
     assert SCHEMA_PATH.is_file()
     schema = load_marking_result_schema()
-    assert schema["title"] == "marking_result.v1"
+    assert schema["title"] == "marking_result.v1.1"
 
 
 def test_normalize_attempt_stem_strips_known_prefixes():
@@ -185,9 +185,31 @@ def test_write_marking_artifact_writes_json(tmp_path):
     artifact = _sample_artifact()
     written = write_marking_artifact(artifact, context_root=tmp_path)
     payload = json.loads(written.read_text(encoding="utf-8"))
-    assert payload["schema_version"] == "marking_result.v1"
+    assert payload["schema_version"] == "marking_result.v1.1"
+    assert payload["context"]["template_attempt_group_id"] == "winston::template_456"
+    assert payload["context"]["attempt_sequence"] == 1
     assert payload["created_at"].endswith("+08:00")
     assert payload["updated_at"].endswith("+08:00")
+
+
+def test_write_marking_artifact_increments_attempt_sequence_for_same_template(tmp_path):
+    first = _sample_artifact()
+    second = replace(
+        _sample_artifact(),
+        created_at="2026-04-15T18:31:25+08:00",
+        updated_at="2026-04-15T18:31:25+08:00",
+    )
+    first_path = write_marking_artifact(first, context_root=tmp_path)
+    second_path = write_marking_artifact(second, context_root=tmp_path)
+
+    first_payload = json.loads(first_path.read_text(encoding="utf-8"))
+    second_payload = json.loads(second_path.read_text(encoding="utf-8"))
+    assert first_payload["context"]["attempt_sequence"] == 1
+    assert second_payload["context"]["attempt_sequence"] == 2
+    assert (
+        second_payload["context"]["template_attempt_group_id"]
+        == first_payload["context"]["template_attempt_group_id"]
+    )
 
 
 def test_render_learning_report_from_json_is_idempotent(tmp_path):
@@ -199,6 +221,7 @@ def test_render_learning_report_from_json_is_idempotent(tmp_path):
     text = first.read_text(encoding="utf-8")
     assert "## Marking Table" in text
     assert "Q2" in text
+    assert "Attempt #1" in text
 
 
 def test_update_human_notes_updates_review_meta(tmp_path):

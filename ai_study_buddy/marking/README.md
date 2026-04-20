@@ -1,14 +1,14 @@
 # AI Study Buddy Marking Package
 
 Canonical marking pipeline for AI Study Buddy. This package defines the
-`marking_result.v1` artifact contract and the JSON-first workflow:
+`marking_result.v1.1` artifact contract and the JSON-first workflow:
 
 1. resolve context
 2. write canonical JSON artifact
 3. render markdown as a derived view
 4. support human note edits in the canonical JSON
 
-Current version: `v0.2.2`
+Current version: `v0.2.3`
 
 ## Package Scope
 
@@ -23,12 +23,37 @@ Current version: `v0.2.2`
 - Human note editing workflow (`edit_human_notes.py`)
 - Marking taxonomy constants/helpers (`taxonomy.py`)
 
+## Multiple attempts per template (`v0.2.3+`)
+
+Canonical artifacts now support multiple attempts for the same student/template pair via context fields:
+
+- `template_attempt_group_id` (deterministic group id)
+- `attempt_sequence` (1-based ordering inside the group)
+- `attempt_label` (optional free-text label)
+
+Writer behavior:
+
+- `write_marking_artifact(...)` emits `schema_version = marking_result.v1.1`.
+- When `template_file_id` is present, the writer auto-populates group/sequence metadata.
+- Learning report rendering shows `Attempt #<n>` when `attempt_sequence` is present.
+
+Example `context` snippet:
+
+```json
+{
+  "template_file_id": "689c5325-8d60-4da4-b00b-99eb26ecec9e",
+  "template_attempt_group_id": "winston::689c5325-8d60-4da4-b00b-99eb26ecec9e",
+  "attempt_sequence": 2,
+  "attempt_label": "retake"
+}
+```
+
 ## Directory Layout
 
 - `api.py`: compact public API re-export surface
 - `core/`: models, schema, paths, writer, taxonomy, context resolution
 - `workflows/`: CLI/workflow modules for migration, rendering, and note editing
-- `schemas/marking_result.v1.schema.json`: canonical JSON schema
+- `schemas/marking_result.v1.schema.json`: canonical JSON schema (`v1` and `v1.1` accepted; writer emits `v1.1`)
 - `tests/test_artifact_core.py`: core artifact and rendering tests
 - `tests/test_migration.py`: migration parser and migration flow tests
 
@@ -41,6 +66,9 @@ From repository root:
 ```bash
 # Migrate legacy markdown reports to canonical JSON artifacts
 python3 -m ai_study_buddy.marking.workflows.migrate_learning_reports --dry-run
+
+# Backfill v1.1 attempt metadata (group id / sequence / label=null)
+python3 -m ai_study_buddy.marking.workflows.backfill_attempt_metadata_v1_1 --dry-run
 
 # Render markdown from an existing canonical artifact
 python3 -m ai_study_buddy.marking.workflows.report_renderer \

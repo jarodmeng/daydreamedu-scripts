@@ -9,14 +9,14 @@ pipeline for AI Study Buddy.
 
 The package guarantees:
 
-1. a stable `marking_result.v1` JSON contract
+1. a stable `marking_result.v1.1` JSON contract (with backward compatibility for `v1`)
 2. deterministic artifact path/naming conventions
 3. schema and scoring validation
 4. markdown rendering as a non-canonical derived view
 
 ## Canonical Data Contract
 
-- Schema identifier: `marking_result.v1`
+- Schema identifier: `marking_result.v1.1` (reader accepts `v1` and `v1.1`)
 - Schema source:
   `ai_study_buddy/marking/schemas/marking_result.v1.schema.json`
 - Canonical storage path:
@@ -46,9 +46,31 @@ The package guarantees:
 - **API:** `ai_study_buddy.marking.core.marking_time` (`now_marking_iso`, `to_marking_iso`) and `write_marking_artifact` enforce this on write.
 - **Human note edits:** `review_meta.updated_at` uses the same SGT rule (`workflows/edit_human_notes.py`).
 
+### 1.2) Multiple attempts per template (`v1.1`)
+
+When a student attempts the same template multiple times, canonical JSON context may carry:
+
+- `template_attempt_group_id`: deterministic group id for `(student_slug, template_file_id)`:
+  - `"<student_slug>::<template_file_id>"`
+- `attempt_sequence`: 1-based sequence number inside that group
+- `attempt_label`: optional free-text label (for example, `initial`, `retake`)
+
+Writer contract:
+
+- `write_marking_artifact(...)` emits `schema_version = marking_result.v1.1`.
+- When `template_file_id` exists, writer auto-populates `template_attempt_group_id` and `attempt_sequence`.
+- If `template_file_id` is missing, writer sets:
+  - `template_attempt_group_id = null`
+  - `attempt_sequence = null`
+  - `attempt_label` remains caller-provided or `null`.
+
 ### 2) Validation and scoring rules
 
-- Every artifact must validate against `marking_result.v1`.
+- Every artifact must validate against `marking_result.v1` or `marking_result.v1.1`.
+- v1.1 context field validation:
+  - `template_attempt_group_id`: null or non-empty string
+  - `attempt_sequence`: null or integer `>= 1`
+  - `attempt_label`: null or non-empty string (max length 64)
 - Ink interpretation baseline for visual marking:
   - blue/black ink: student's original answers/workings (gradable)
   - red ink: correctness/correction marks, deductions, tallying (non-gradable annotation)
@@ -68,6 +90,7 @@ The package guarantees:
 - Markdown learning report is generated from canonical JSON.
 - Rendering is idempotent for unchanged JSON input.
 - Markdown is not treated as source-of-truth data.
+- When `context.attempt_sequence` exists, report result section renders: `Attempt #<n>`.
 - Renderer may resolve canonical placeholders to local runtime paths for display:
   - `GOODNOTES_ROOT` and `DAYDREAMEDU_ROOT` via configured roots
   - `<student_email>` via `student_id` lookup when available
@@ -99,6 +122,9 @@ The package guarantees:
 - Existing destination artifacts are skipped unless `--overwrite` is set.
 - Context lookup backfills (`*_file_id`, book group, unit label) are best
   effort and non-blocking.
+- Attempt metadata backfill workflow:
+  - `python3 -m ai_study_buddy.marking.workflows.backfill_attempt_metadata_v1_1 --dry-run`
+  - groups by `(student_slug, template_file_id)` and assigns contiguous `attempt_sequence` by `(created_at, json path)`
 
 ### 6) Context resolver contract (MVP)
 

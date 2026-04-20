@@ -3,10 +3,10 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from ai_study_buddy.marking.core.artifact_paths import build_marking_artifact_path
+from ai_study_buddy.marking.core.artifact_paths import build_marking_artifact_path, slugify_student
+from ai_study_buddy.marking.core.artifact_schema import SCHEMA_VERSION, validate_marking_artifact_dict
 from ai_study_buddy.marking.core.marking_time import to_marking_iso
 from ai_study_buddy.marking.core.path_privacy import sanitize_marking_artifact_paths
-from ai_study_buddy.marking.core.artifact_schema import validate_marking_artifact_dict
 from ai_study_buddy.marking.core.models import MarkingArtifact
 
 
@@ -17,8 +17,10 @@ def write_marking_artifact(
     context_root: str | Path = "ai_study_buddy/context",
 ) -> Path:
     payload = artifact.to_dict()
+    payload["schema_version"] = SCHEMA_VERSION
     payload["created_at"] = to_marking_iso(payload["created_at"])
     payload["updated_at"] = to_marking_iso(payload["updated_at"])
+    payload = _apply_attempt_metadata(payload=payload, context_root=context_root)
     payload = sanitize_marking_artifact_paths(payload)
     validate_marking_artifact_dict(payload)
 
@@ -28,4 +30,70 @@ def write_marking_artifact(
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, indent=2, ensure_ascii=True) + "\n", encoding="utf-8")
     return path
+
+
+def _apply_attempt_metadata(*, payload: dict, context_root: str | Path) -> dict:
+    context = payload.get("context")
+    if not isinstance(context, dict):
+        return payload
+
+    student_slug = slugify_student(context.get("student_id"), context.get("student_name"))
+    template_file_id = context.get("template_file_id")
+    if not isinstance(template_file_id, str) or not template_file_id.strip():
+        context["template_attempt_group_id"] = None
+        context["attempt_sequence"] = None
+        context.setdefault("attempt_label", None)
+        return payload
+
+    group_id = f"{student_slug}::{template_file_id}"
+    context["template_attempt_group_id"] = group_id
+    context.setdefault("attempt_label", None)
+    if context.get("attempt_sequence") is None:
+        context["attempt_sequence"] = _next_attempt_sequence(
+            context_root=Path(context_root),
+            student_slug=student_slug,
+            group_id=group_id,
+            template_file_id=template_file_id,
+        )
+    return payload
+
+
+def _next_attempt_sequence(
+    *,
+    context_root: Path,
+    student_slug: str,
+    group_id: str,
+    template_file_id: str,
+) -> int:
+    student_results_root = context_root / "marking_results" / student_slug
+    if not student_results_root.exists():
+        return 1
+
+    sequences: list[int] = []
+    legacy_count = 0
+    for json_path in student_results_root.rglob("*.json"):
+        try:
+            raw = json.loads(json_path.read_text(encoding="utf-8"))
+        except Exception:
+            continue
+        context = raw.get("context")
+        if not isinstance(context, dict):
+            continue
+        existing_group = context.get("template_attempt_group_id")
+        if isinstance(existing_group, str) and existing_group == group_id:
+            seq = context.get("attempt_sequence")
+            if isinstance(seq, int) and seq >= 1:
+                sequences.append(seq)
+                continue
+        existing_template_id = context.get("template_file_id")
+        if isinstance(existing_template_id, str) and existing_template_id == template_file_id:
+            seq = context.get("attempt_sequence")
+            if isinstance(seq, int) and seq >= 1:
+                sequences.append(seq)
+            else:
+                # Legacy v1 artifacts without attempt metadata still count as attempts.
+                legacy_count += 1
+    if sequences:
+        return max(max(sequences), legacy_count) + 1
+    return legacy_count + 1 if legacy_count else 1
 

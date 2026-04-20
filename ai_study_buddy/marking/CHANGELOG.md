@@ -4,6 +4,37 @@ All notable changes to `ai_study_buddy.marking` are documented in this file.
 
 Committed changes under `ai_study_buddy/marking/` should add an entry here and bump **Current version** in `README.md` (semver: **patch** for docs or small renderer tweaks, **minor** for schema or public API changes). `SPEC.md` / `TESTING.md` titles do not carry the package version.
 
+## [0.2.3] - 2026-04-20
+
+Patch: ship `marking_result.v1.1` attempt-group metadata support and immediate attempt-number rendering.
+
+### Changed
+
+- `core/artifact_schema.py`:
+  - `SCHEMA_VERSION` now defaults to `marking_result.v1.1`
+  - validator now accepts `marking_result.v1` and `marking_result.v1.1`
+  - added validation for:
+    - `context.template_attempt_group_id`
+    - `context.attempt_sequence`
+    - `context.attempt_label`
+- `core/models.py`:
+  - `MarkingArtifactContext` now includes:
+    - `template_attempt_group_id`
+    - `attempt_sequence`
+    - `attempt_label`
+  - parsing support added in `MarkingArtifact.from_dict(...)`
+- `core/artifact_writer.py`:
+  - writer now emits `schema_version = marking_result.v1.1`
+  - auto-populates attempt grouping metadata when `template_file_id` is available
+  - computes next `attempt_sequence` from existing same-student artifacts
+- `workflows/backfill_attempt_metadata_v1_1.py`:
+  - new dry-run/apply workflow to backfill `template_attempt_group_id`, `attempt_sequence`, and `attempt_label=null` on existing artifacts
+  - upgrades backfilled artifacts to `schema_version = marking_result.v1.1`
+- `workflows/report_renderer.py`:
+  - result section now renders `Attempt #<n>` when `attempt_sequence` exists
+- `schemas/marking_result.v1.schema.json`:
+  - schema version field now accepts both `marking_result.v1` and `marking_result.v1.1`
+
 ## [0.2.2] - 2026-04-20
 
 Patch: ink-color interpretation policy documentation for visual marking (schema/API unchanged).

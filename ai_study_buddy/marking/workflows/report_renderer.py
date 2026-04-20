@@ -61,6 +61,8 @@ def render_marking_report_markdown(data: dict[str, Any]) -> str:
         f"- Percentage: `{_fmt_percentage(summary['percentage'])}%`",
         f"- Overall assessment: {summary['overall_assessment']}",
     ]
+    if isinstance(context.get("attempt_sequence"), int):
+        lines.append(f"- Attempt #{context['attempt_sequence']}")
     if summary.get("human_note"):
         lines.append(f"- Human note: {_fmt_value(summary['human_note'])}")
 
@@ -152,7 +154,7 @@ def render_learning_report_from_json(
 
 def _build_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Render a markdown learning report from canonical marking JSON.")
-    parser.add_argument("artifact_json", help="Path to marking_result.v1 JSON")
+    parser.add_argument("artifact_json", help="Path to marking_result.v1/v1.1 JSON")
     parser.add_argument("--output", help="Optional explicit markdown output path")
     parser.add_argument("--context-root", default="ai_study_buddy/context")
     return parser

@@ -8,6 +8,7 @@ from ai_study_buddy.marking.workflows.migrate_learning_reports import (
     migrate_learning_reports,
     parse_legacy_learning_report,
 )
+from ai_study_buddy.marking.workflows.backfill_attempt_metadata_v1_1 import run as run_backfill_attempt_metadata
 from ai_study_buddy.marking.core.taxonomy import (
     derive_skill_tags_from_embedding_label,
     prettify_skill_tags,
@@ -238,7 +239,7 @@ def test_migrate_learning_reports_writes_json_and_skips_existing(tmp_path):
     assert first[0]["status"] == "written"
     written_json = Path(first[0]["output_path"])
     payload = json.loads(written_json.read_text(encoding="utf-8"))
-    assert payload["schema_version"] == "marking_result.v1"
+    assert payload["schema_version"] == "marking_result.v1.1"
 
     second = migrate_learning_reports(
         reports_root=reports_root,
@@ -246,6 +247,91 @@ def test_migrate_learning_reports_writes_json_and_skips_existing(tmp_path):
         dry_run=False,
     )
     assert second[0]["status"] == "skipped_existing"
+
+
+def test_backfill_attempt_metadata_dry_run_then_apply(tmp_path):
+    context_root = tmp_path / "context"
+    marking_root = context_root / "marking_results" / "winston" / "singapore_primary_english"
+    marking_root.mkdir(parents=True, exist_ok=True)
+
+    def _write(name: str, created_at: str, template_file_id: str) -> Path:
+        p = marking_root / name
+        payload = {
+            "schema_version": "marking_result.v1",
+            "created_at": created_at,
+            "updated_at": created_at,
+            "context": {
+                "student_id": "winston",
+                "student_name": None,
+                "subject_context": "singapore_primary_english",
+                "attempt_file_id": f"attempt-{name}",
+                "attempt_file_path": f"GOODNOTES_ROOT/.../{name.replace('.json', '.pdf')}",
+                "template_file_id": template_file_id,
+                "template_file_path": "DAYDREAMEDU_ROOT/.../_c_template.pdf",
+                "book_group_id": None,
+                "book_label": None,
+                "unit_file_id": template_file_id,
+                "unit_file_path": "DAYDREAMEDU_ROOT/.../_c_template.pdf",
+                "unit_label": "Unit",
+                "answer_file_id": "answer-1",
+                "answer_file_path": "DAYDREAMEDU_ROOT/.../_c_answers.pdf",
+                "answer_page_start": 1,
+                "answer_page_end": 1,
+                "starts_mid_page": False,
+                "ends_mid_page": False,
+                "answer_mapping_source": "manual_verified",
+                "answer_mapping_notes": None,
+                "question_selection": {"raw_text": None, "canonical_refs": [], "section_hint": None},
+            },
+            "summary": {
+                "total_marks": 1,
+                "earned_marks": 1,
+                "percentage": 100.0,
+                "overall_assessment": "ok",
+                "human_note": None,
+            },
+            "question_results": [
+                {
+                    "result_id": "Q1",
+                    "max_marks": 1,
+                    "earned_marks": 1,
+                    "outcome": "correct",
+                    "student_answer": "a",
+                    "correct_answer": "a",
+                    "scoring_status": "counted",
+                    "feedback": None,
+                    "error_tags": [],
+                    "skill_tags": [],
+                    "diagnosis": {"mistake_type": None, "reasoning": None, "confidence": None},
+                    "human_note": None,
+                }
+            ],
+            "review_meta": {"updated_at": None, "updated_by": None},
+            "generation": {"produced_by": "test", "mode": "manual", "notes": None},
+        }
+        p.write_text(json.dumps(payload, indent=2, ensure_ascii=True) + "\n", encoding="utf-8")
+        return p
+
+    first = _write("attempt_a.json", "2026-04-20T10:00:00+08:00", "template-x")
+    second = _write("attempt_b.json", "2026-04-20T10:05:00+08:00", "template-x")
+
+    dry = run_backfill_attempt_metadata(context_root=context_root, dry_run=True)
+    assert dry["updated_files"] == 2
+    payload_first_dry = json.loads(first.read_text(encoding="utf-8"))
+    assert payload_first_dry["schema_version"] == "marking_result.v1"
+    assert "template_attempt_group_id" not in payload_first_dry["context"]
+
+    apply = run_backfill_attempt_metadata(context_root=context_root, dry_run=False)
+    assert apply["updated_files"] == 2
+    payload_first = json.loads(first.read_text(encoding="utf-8"))
+    payload_second = json.loads(second.read_text(encoding="utf-8"))
+    assert payload_first["schema_version"] == "marking_result.v1.1"
+    assert payload_second["schema_version"] == "marking_result.v1.1"
+    assert payload_first["context"]["template_attempt_group_id"] == "winston::template-x"
+    assert payload_second["context"]["template_attempt_group_id"] == "winston::template-x"
+    assert payload_first["context"]["attempt_sequence"] == 1
+    assert payload_second["context"]["attempt_sequence"] == 2
+    assert payload_first["context"]["attempt_label"] is None
 
 
 def test_derive_skill_tags_strips_markdown_link_wrapper():
