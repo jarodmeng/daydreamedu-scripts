@@ -121,7 +121,4 @@ After successful Phase B, move top-level artifacts to Trash if present:
 
 ## Migration note
 
-- Keep legacy skills for backward compatibility:
-  - [`reprocess-student-completion-from-general-part1`](../reprocess-student-completion-from-general-part1/SKILL.md)
-  - [`reprocess-student-completion-from-general-part2`](../reprocess-student-completion-from-general-part2/SKILL.md)
-- Prefer this unified skill for new runs; retire part1/part2 only after repeated successful use.
+- This unified skill is now the single source of truth for this workflow.

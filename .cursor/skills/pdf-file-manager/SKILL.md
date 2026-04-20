@@ -19,7 +19,7 @@ Use **`PdfFileManager`** in [pdf_file_manager.py](../../../ai_study_buddy/pdf_fi
 
 The SQLite file and schema are implementation details. Touch them directly only when **developing or debugging `pdf_file_manager` itself**, not for normal lookups or mutations.
 
-**Related workflow:** mistaken general-scope **`_raw_`** book PDFs that are actually a student’s completions — move, merge, clean, split, re-scan, and **`link_to_template`** — follow **[part 1](../reprocess-student-completion-from-general-part1/SKILL.md)** then **[part 2](../reprocess-student-completion-from-general-part2/SKILL.md)**.
+**Related workflow:** mistaken general-scope **`_raw_`** book PDFs that are actually a student’s completions — move, merge, clean, split, re-scan, and **`link_to_template`** — follow **[reprocess-student-completion-from-general](../reprocess-student-completion-from-general/SKILL.md)**.
 
 **Built-in CLI:** The old package CLI was **removed**; automation should use **`PdfFileManager`**.
 
