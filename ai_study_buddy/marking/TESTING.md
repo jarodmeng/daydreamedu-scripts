@@ -62,6 +62,7 @@ Use this checklist when changing behavior that affects outputs:
 5. Verify path placeholders are persisted in JSON (`GOODNOTES_ROOT` / `DAYDREAMEDU_ROOT` / `<student_email>`).
 6. Verify render output expands placeholders when roots/student email can be resolved.
 7. Re-run schema validation (implicitly covered by write/update flows).
+8. For visual-marking workflow checks, confirm scoring used only blue/black student writing and ignored red/green/purple annotations unless explicitly requested as metadata extraction.
 
 ## Regression Focus Areas
 

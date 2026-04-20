@@ -167,11 +167,20 @@ Visual-first rule:
 - use OCR only if handwriting or printed text is genuinely hard to read
 - do not infer answers from the filename or mapping alone
 
-**Correction ink (usually green):** Completion PDFs may contain **green** handwriting or highlights added after the first attempt (student, parent, or tutor corrections). For marking:
+**Ink color interpretation (required):** Completion PDFs can contain multiple writing colors. Use this default interpretation unless the user says otherwise:
 
-- **Ignore green ink** when deciding what the student originally submitted and when scoring. Treat it as meta-annotation, not part of the gradable attempt.
-- Base `question_results` student answers and credit on the **original** work (non-green strokes and printed template text the student used). If the only visible “fix” for a blank is in green, you may note that in `human_note` but do not use green alone to claim full credit unless the workflow explicitly asks to grade corrections.
-- If green overlaps original work and you cannot separate them, lower confidence and describe the ambiguity in notes rather than guessing.
+- **blue/black ink:** usually the student's original answers and workings. This is the **only** writing color used for scoring.
+- **red ink:** usually correctness ticks/crosses, correction marks, mark deductions, or tally marks.
+- **green ink:** usually student corrections on previously incorrect answers.
+- **purple ink:** usually parent remarks, notes on questions/answers, or general learning comments.
+
+Marking scope rule:
+
+- For grading, ignore **all red, green, and purple** writings; treat them as auxiliary annotations, not the gradable submission.
+- Build `question_results` from printed question text plus the student's **blue/black** writing only.
+- If the only visible completion of an answer is non-blue/black ink, record that ambiguity in `human_note` and avoid awarding credit from that annotation alone unless the workflow explicitly asks to grade corrections/remarks.
+- If colors overlap and original blue/black content cannot be separated confidently, lower confidence and document the ambiguity instead of guessing.
+- Future workflows may request extraction of red/green/purple annotations as metadata; that is out of scope for scoring in this skill by default.
 
 ### 3. Identify the gradable scope
 
@@ -195,7 +204,7 @@ Cross-check the **question count** before marking:
 Do not grade:
 
 - worked examples printed in the template
-- **green (or clearly correction-only) ink** used to amend answers after the fact — exclude from scoring per “Correction ink” above
+- **red/green/purple** annotations (including correction-only ink, marking symbols, or parent notes) — exclude from scoring per “Ink color interpretation” above
 - decorative annotations or partial notes outside the target exercise
 - cropped or ambiguous work that is not legible enough to compare confidently
 
@@ -209,7 +218,7 @@ Hard prerequisite:
 
 For each question or sub-part:
 
-1. read the student’s written answer from the attempt pages **excluding green correction ink** (see “Correction ink” above)
+1. read the student’s written answer from the attempt pages using **blue/black writing only** and excluding red/green/purple annotations (see “Ink color interpretation” above)
 2. read the corresponding worked-solution answer from the mapped answer pages
 3. decide whether the result is full credit, partial credit, or zero
 4. capture the student's answer in a concise text form
@@ -459,7 +468,7 @@ Before finishing, verify:
 
 - Do not query the registry SQLite DB directly.
 - Do not mark from memory; inspect the rendered pages.
-- Do not treat green (or other clearly marked correction) ink as the student’s original attempt for scoring purposes.
+- Do not treat red/green/purple annotations as the student’s original attempt for scoring purposes; score from blue/black student writing only.
 - Do not claim a question is wrong unless the mismatch is visible.
 - Do not finalize a report until the target exercise answer key is visually verified with the required two-pass isolated-crop protocol.
 - Do not silently grade beyond the visible scope of the completion file.

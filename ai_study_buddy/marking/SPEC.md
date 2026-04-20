@@ -49,6 +49,13 @@ The package guarantees:
 ### 2) Validation and scoring rules
 
 - Every artifact must validate against `marking_result.v1`.
+- Ink interpretation baseline for visual marking:
+  - blue/black ink: student's original answers/workings (gradable)
+  - red ink: correctness/correction marks, deductions, tallying (non-gradable annotation)
+  - green ink: student correction layer (non-gradable annotation by default)
+  - purple ink: parent remarks/learning notes (non-gradable annotation)
+- Default grading scope uses only student blue/black writing with printed question text.
+- Red/green/purple annotations are excluded from scoring unless a future workflow explicitly requests annotation extraction as auxiliary metadata.
 - Summary totals must match computed totals from question rows:
   - `summary.total_marks` equals sum of counted row `max_marks`
   - `summary.earned_marks` equals sum of counted row `earned_marks`

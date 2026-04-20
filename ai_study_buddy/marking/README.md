@@ -8,7 +8,7 @@ Canonical marking pipeline for AI Study Buddy. This package defines the
 3. render markdown as a derived view
 4. support human note edits in the canonical JSON
 
-Current version: `v0.2.1`
+Current version: `v0.2.2`
 
 ## Package Scope
 
@@ -64,6 +64,17 @@ created_at = updated_at = now_marking_iso()
 ```
 
 `write_marking_artifact` still accepts UTC (`Z`) or other offsets and **normalizes to SGT** before writing. The `__YYYYMMDD_HHMMSS` file suffix is the **SGT wall-clock** time for that instant.
+
+## Ink color interpretation policy
+
+Default visual-marking interpretation (unless a workflow says otherwise):
+
+- blue/black ink: student's original answers/workings; gradable
+- red ink: correctness/correction marks, deductions, tally marks; non-gradable
+- green ink: student corrections; non-gradable by default
+- purple ink: parent remarks/notes/general learnings; non-gradable
+
+For scoring, use only blue/black student writing (plus printed question text). Treat red/green/purple as auxiliary annotations outside default scoring scope.
 
 ## Path Privacy Behavior (`v0.1.2+`)
 

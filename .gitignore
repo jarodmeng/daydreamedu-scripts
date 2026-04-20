@@ -64,6 +64,10 @@ chinese_chr_app/extract_character_from_wxnet/extraction_progress_hwxnet.json
 ai_study_buddy/context/.marking_scratch/
 ai_study_buddy/context/.tmp_*/
 
+# ---- AI Study Buddy generated reports (local / not tracked) ----
+ai_study_buddy/context/learning_reports/
+ai_study_buddy/context/marking_results/
+
 # ---- pdf_file_manager ----
 ai_study_buddy/db/
 ai_study_buddy/local_daydreamedu_root.txt

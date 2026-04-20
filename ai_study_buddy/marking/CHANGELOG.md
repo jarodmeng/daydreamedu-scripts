@@ -4,6 +4,19 @@ All notable changes to `ai_study_buddy.marking` are documented in this file.
 
 Committed changes under `ai_study_buddy/marking/` should add an entry here and bump **Current version** in `README.md` (semver: **patch** for docs or small renderer tweaks, **minor** for schema or public API changes). `SPEC.md` / `TESTING.md` titles do not carry the package version.
 
+## [0.2.2] - 2026-04-20
+
+Patch: ink-color interpretation policy documentation for visual marking (schema/API unchanged).
+
+### Documentation
+
+- `SPEC.md`: added default color semantics and grading-scope rule:
+  - blue/black = gradable student work
+  - red/green/purple = non-gradable annotation by default
+- `README.md`: added "Ink color interpretation policy" section and bumped package version.
+- `TESTING.md`: added manual check to verify color-policy compliance in visual-marking runs.
+- `.cursor/skills/mark-goodnote-completion/SKILL.md`: expanded color guidance beyond green-only correction handling and aligned scoring guardrails with blue/black-only grading.
+
 ## [0.2.1] - 2026-04-20
 
 Patch: Singapore-time marking timestamps (schema `marking_result.v1` unchanged).
