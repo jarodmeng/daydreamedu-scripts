@@ -72,10 +72,12 @@ description: >-
    - Apply all rules from "Fail-fast validation"; do not continue on partial validity.
 2. Derive normalized target metadata from paths:
    - Subject, student segment, grade, doc type, and basename.
-   - Basename convention: if file starts with `_raw_`, strip one `_raw_` for working completion filename.
+   - Basename convention: if file starts with `_raw_`, strip one `_raw_` only for canonical matching keys; do not use this to rename student-side files on disk.
 3. Move completion files into the canonical student-scope destination if needed:
    - Use `mv` only.
    - Stop on collisions; do not overwrite silently.
+   - Do not rewrite technical prefixes during this move (`_raw_` / `_c_` must be preserved).
+   - If a source file is `_raw_<name>.pdf`, destination must remain `_raw_<name>.pdf` (never rename to plain `<name>.pdf` in this workflow).
 4. Merge all **Phase A source** PDFs in list order into one PDF (mandatory)—use `_raw_` siblings when the list lines are `_c_` paths (see Input conventions).
    - Output: `DAYDREAMEDU_ROOT/<doc label> - merged.pdf` (or user-provided override).
    - Verify merged page count equals sum of source page counts.
@@ -88,9 +90,11 @@ description: >-
 1. Validate cleaned PDF exists and page count matches expected merged total.
 2. Derive per-file split boundaries from student completion files in original txt order:
    - For each canonical basename `<name>.pdf`, check student folder in this order:
-     1. `<student_dir>/<name>.pdf`
-     2. `<student_dir>/_c_<name>.pdf`
-   - Use the first existing candidate to compute page count.
+     1. `<student_dir>/_c_<name>.pdf`
+     2. `<student_dir>/<name>.pdf`
+   - Use the first existing main candidate to compute page count.
+   - If `_c_<name>.pdf` exists, do not use plain `<name>.pdf` for boundaries.
+   - If both `_raw_<name>.pdf` and plain `<name>.pdf` exist but `_c_<name>.pdf` is absent, stop and ask (likely main/raw drift that should be repaired first).
    - If neither exists for any entry, stop and ask.
 3. Split cleaned PDF by those derived per-file page counts in original txt order.
 4. Move split cleaned files into matching general-scope folder for inferred subject + grade + doc type:
@@ -101,6 +105,7 @@ description: >-
    - After scan, resolve main candidates in this order for both sides:
      1. `<dir>/_c_<name>.pdf`
      2. `<dir>/<name>.pdf`
+   - Student-side preference is strict: when `_c_<name>.pdf` exists, treat it as the completion main and ignore plain `<name>.pdf`.
    - Note: scan/compress may materialize `_raw_` + `_c_` pairs from plain split files; do not assume the pre-scan plain path remains the main file.
 6. Ensure template/completion status:
    - General files become/are registered with `is_template=true`.
@@ -134,7 +139,7 @@ description: >-
 ## Observed in live run
 
 - In real WA/Exam student folders, completion files may exist only as `_c_*.pdf` plus `_raw_*.pdf`, without plain `<name>.pdf`.
-- Phase B boundary detection must therefore support `<student_dir>/<name>.pdf` first, then `_c_<name>.pdf` fallback.
+- Phase B boundary detection should prefer `_c_*.pdf` first, with plain `<name>.pdf` only as fallback when `_c_` is absent.
 - Template linking should target main files (`_c_*.pdf`) on both student and general sides when available.
 - In general-scope Phase B runs, scan/compress can replace a newly split plain file with `_raw_` and `_c_`; post-scan linking/verification should resolve `_c_` first, then plain.
 
