@@ -11,6 +11,50 @@ from ai_study_buddy.marking.core.artifact_schema import validate_marking_artifac
 from ai_study_buddy.marking.core.models import MarkingArtifact
 from ai_study_buddy.marking.core.taxonomy import prettify_skill_tags
 
+# Markdown table: show Chinese labels for taxonomy keys on Chinese / Higher Chinese papers.
+_CHINESE_SUBJECT_MARKDOWN = frozenset(
+    {
+        "singapore_primary_chinese",
+        "singapore_primary_higher_chinese",
+    }
+)
+
+_MISTAKE_TYPE_LABEL_ZH: dict[str, str] = {
+    "concept_gap": "概念不清",
+    "misread_question": "审题偏差",
+    "careless_error": "粗心失误",
+    "incomplete_explanation": "阐述不完整",
+    "wrong_method": "方法不当",
+    "missing_units": "单位遗漏",
+    "computation_error": "计算错误",
+    "vocabulary_gap": "词汇问题",
+    "other": "其他",
+}
+
+
+def _fmt_diagnosis_cell(*, subject_context: str | None, row: dict[str, Any]) -> str:
+    """Table cell text: English snake_case prefix by default; Chinese labels for Chinese/HC."""
+    diagnosis = row.get("diagnosis") or {}
+    mistake_type = diagnosis.get("mistake_type")
+    reasoning = diagnosis.get("reasoning")
+
+    if subject_context in _CHINESE_SUBJECT_MARKDOWN:
+        label_zh = _MISTAKE_TYPE_LABEL_ZH.get(mistake_type, mistake_type) if mistake_type else None
+        if label_zh and reasoning:
+            return f"{label_zh}：{reasoning}"
+        if reasoning:
+            return str(reasoning)
+        if label_zh:
+            return str(label_zh)
+        return ""
+
+    if mistake_type:
+        text = str(mistake_type)
+        if reasoning:
+            text += f": {reasoning}"
+        return text
+    return _fmt_value(reasoning)
+
 
 def _fmt_value(value: Any) -> str:
     if value is None:
@@ -82,12 +126,10 @@ def render_marking_report_markdown(data: dict[str, Any]) -> str:
         obtained = str(row["earned_marks"])
         if row["earned_marks"] < row["max_marks"]:
             obtained = f"**{obtained}**"
-        diagnosis = row.get("diagnosis") or {}
-        diagnosis_text = ""
-        if diagnosis.get("mistake_type"):
-            diagnosis_text = diagnosis["mistake_type"]
-            if diagnosis.get("reasoning"):
-                diagnosis_text += f": {diagnosis['reasoning']}"
+        diagnosis_text = _fmt_diagnosis_cell(
+            subject_context=context.get("subject_context"),
+            row=row,
+        )
         # Join policy: see prettify_skill_tags (path-per-element vs legacy hierarchy).
         skill_text = prettify_skill_tags(row.get("skill_tags", []))
         lines.append(

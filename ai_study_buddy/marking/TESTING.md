@@ -65,6 +65,9 @@ Use this checklist when changing behavior that affects outputs:
 6. Verify render output expands placeholders when roots/student email can be resolved.
 7. Re-run schema validation (implicitly covered by write/update flows).
 8. For visual-marking workflow checks, confirm scoring used only blue/black student writing and ignored red/green/purple annotations unless explicitly requested as metadata extraction.
+9. For renderer localization changes, verify diagnosis text formatting on:
+   - one Chinese / Higher Chinese artifact (Chinese mistake-type labels)
+   - one non-Chinese artifact (`mistake_type: reasoning` formatting).
 
 ## Regression Focus Areas
 

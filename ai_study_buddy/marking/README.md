@@ -8,7 +8,7 @@ Canonical marking pipeline for AI Study Buddy. This package defines the
 3. render markdown as a derived view
 4. support human note edits in the canonical JSON
 
-Current version: `v0.2.3`
+Current version: `v0.2.4`
 
 ## Package Scope
 
@@ -103,6 +103,14 @@ Default visual-marking interpretation (unless a workflow says otherwise):
 - purple ink: parent remarks/notes/general learnings; non-gradable
 
 For scoring, use only blue/black student writing (plus printed question text). Treat red/green/purple as auxiliary annotations outside default scoring scope.
+
+## Diagnosis text localization in markdown reports
+
+When rendering markdown learning reports, diagnosis cells are subject-aware:
+
+- Chinese / Higher Chinese subjects render mistake-type labels in Chinese (for example, `概念不清`).
+- Other subjects keep the default `mistake_type: reasoning` format.
+- If only reasoning is present, the renderer outputs reasoning text directly.
 
 ## Path Privacy Behavior (`v0.1.2+`)
 

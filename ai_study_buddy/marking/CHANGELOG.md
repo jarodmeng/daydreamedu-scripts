@@ -4,6 +4,18 @@ All notable changes to `ai_study_buddy.marking` are documented in this file.
 
 Committed changes under `ai_study_buddy/marking/` should add an entry here and bump **Current version** in `README.md` (semver: **patch** for docs or small renderer tweaks, **minor** for schema or public API changes). `SPEC.md` / `TESTING.md` titles do not carry the package version.
 
+## [0.2.4] - 2026-04-20
+
+Patch: renderer localization polish for diagnosis text in Chinese learning reports (schema/API unchanged).
+
+### Changed
+
+- `workflows/report_renderer.py`:
+  - diagnosis cell formatting now supports subject-aware output:
+    - Chinese / Higher Chinese contexts render Chinese mistake-type labels
+    - other subjects keep existing `mistake_type: reasoning` style
+  - reasoning-only rows continue to render without regression when mistake type is absent
+
 ## [0.2.3] - 2026-04-20
 
 Patch: ship `marking_result.v1.1` attempt-group metadata support and immediate attempt-number rendering.

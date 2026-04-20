@@ -27,7 +27,7 @@ These paths are stable and should match the package helpers whenever you use cod
 
 | Artifact | Path |
 | --- | --- |
-| Canonical JSON (`marking_result.v1`) | `ai_study_buddy/context/marking_results/<student_slug>/<subject_context>/<attempt_basename>.json` |
+| Canonical JSON (`marking_result.v1.1`; reader also accepts `v1`) | `ai_study_buddy/context/marking_results/<student_slug>/<subject_context>/<attempt_basename>.json` |
 | Derived markdown report | `ai_study_buddy/context/learning_reports/<student_slug>/<subject_context>/<attempt_basename> - Marking Report.md` |
 
 Rules:
@@ -262,7 +262,7 @@ Filename pattern:
 
 `<normalized attempt basename>__YYYYMMDD_HHMMSS.json`
 
-The canonical JSON must follow `marking_result.v1` and should include:
+The canonical JSON must follow `marking_result.v1.1` (reader accepts `v1` and `v1.1`) and should include:
 
 - context
 - summary
@@ -447,6 +447,15 @@ Incorrect-answer reasoning rule (required):
 - do not leave `diagnosis` null or empty on wrong/partial rows when the schema allows content — if the model cannot yet explain the gap, say what is uncertain rather than omitting diagnosis
 - keep the explanation concise and evidence-based; if evidence is limited, state uncertainty explicitly
 
+### Diagnosis language (Chinese / Higher Chinese)
+
+When `subject_context` is **`singapore_primary_chinese`** or **`singapore_primary_higher_chinese`**:
+
+- Write **`diagnosis.reasoning`** in **Modern Standard Chinese (简体中文)** for every wrong (`❌`) and partial (`⚠️`) row, so the student and parents can read the learning feedback in the same language as the paper.
+- Keep **`mistake_type`** and **`error_tags`** values in the **English** taxonomy from `ai_study_buddy/marking/core/taxonomy.py` (machine-consistent keys).
+- Prefer Chinese as well for row-level **`feedback`** or **`human_note`** when those fields carry instructional content on Chinese/HC papers (optional but recommended for consistency with the report).
+- When re-rendering markdown via `report_renderer`, the **Diagnosis** table column maps those English `mistake_type` keys to short **Chinese** labels (e.g. `incomplete_explanation` → `阐述不完整`) so the printed report stays readable end-to-end in Chinese.
+
 ## Quality Bar
 
 Before finishing, verify:
@@ -459,7 +468,7 @@ Before finishing, verify:
 - every graded row is visibly supported by both the attempt page and answer page
 - the target exercise answer key was isolated in a dedicated crop (not a mixed panel)
 - the final key list was checked in two passes, question-by-question
-- **every wrong and partial row has a specific, non-boilerplate `diagnosis.reasoning` that would help the student improve on a similar item**
+- **every wrong and partial row has a specific, non-boilerplate `diagnosis.reasoning` that would help the student improve on a similar item** (in **Chinese** for `singapore_primary_chinese` / `singapore_primary_higher_chinese`; see [Diagnosis language](#diagnosis-language-chinese--higher-chinese))
 - the score totals add up
 - the percentage is correct
 - the markdown report matches the JSON artifact

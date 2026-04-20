@@ -91,6 +91,10 @@ Writer contract:
 - Rendering is idempotent for unchanged JSON input.
 - Markdown is not treated as source-of-truth data.
 - When `context.attempt_sequence` exists, report result section renders: `Attempt #<n>`.
+- Diagnosis text in question tables is subject-aware:
+  - Chinese / Higher Chinese contexts may render Chinese mistake-type labels.
+  - non-Chinese contexts render diagnosis as `mistake_type: reasoning` when both exist.
+  - reasoning-only diagnosis remains valid and should render directly.
 - Renderer may resolve canonical placeholders to local runtime paths for display:
   - `GOODNOTES_ROOT` and `DAYDREAMEDU_ROOT` via configured roots
   - `<student_email>` via `student_id` lookup when available
