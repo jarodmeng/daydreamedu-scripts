@@ -221,7 +221,7 @@ Implications:
 
 1. `sub_parts` is omitted in POC v1.
 2. Parent question grouping is not stored explicitly in the artifact, because it can be derived from `result_id` naming when needed.
-3. Totals are computed by summing `question_results[].earned_marks` and `question_results[].max_marks`.
+3. Totals are computed by summing `question_results[].earned_marks` and `question_results[].max_marks` (each may be an `int` or a non-negative finite `float`, e.g. `1.5` for half marks).
 
 ### Scoring semantics upgrade (implemented)
 
