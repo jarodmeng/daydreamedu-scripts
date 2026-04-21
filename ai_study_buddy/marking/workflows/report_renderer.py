@@ -124,7 +124,7 @@ def render_marking_report_markdown(data: dict[str, Any]) -> str:
 
     for row in rows:
         obtained = str(row["earned_marks"])
-        if row["earned_marks"] < row["max_marks"]:
+        if float(row["earned_marks"]) < float(row["max_marks"]) - 1e-9:
             obtained = f"**{obtained}**"
         diagnosis_text = _fmt_diagnosis_cell(
             subject_context=context.get("subject_context"),

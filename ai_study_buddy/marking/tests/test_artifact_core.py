@@ -140,6 +140,47 @@ def test_validate_marking_artifact_dict_accepts_valid_payload():
     validate_marking_artifact_dict(_sample_artifact().to_dict())
 
 
+def test_validate_marking_artifact_dict_accepts_half_marks():
+    half = MarkingArtifact(
+        schema_version="marking_result.v1.1",
+        created_at="2026-04-21T12:00:00+08:00",
+        updated_at="2026-04-21T12:00:00+08:00",
+        context=_sample_artifact().context,
+        summary=ArtifactSummary(
+            total_marks=3.0,
+            earned_marks=2.5,
+            percentage=compute_percentage(2.5, 3.0),
+            overall_assessment="ok",
+            human_note=None,
+        ),
+        question_results=(
+            ArtifactQuestionResult(
+                result_id="Q1",
+                max_marks=2,
+                earned_marks=1.5,
+                outcome="partial",
+                student_answer="a",
+                correct_answer="b",
+                skill_tags=("x",),
+                diagnosis=Diagnosis(),
+            ),
+            ArtifactQuestionResult(
+                result_id="Q2",
+                max_marks=1,
+                earned_marks=1,
+                outcome="correct",
+                student_answer="c",
+                correct_answer="c",
+                skill_tags=("y",),
+                diagnosis=Diagnosis(),
+            ),
+        ),
+        review_meta=ReviewMeta(),
+        generation=GenerationMeta(produced_by="test", mode="unit_test", notes=None),
+    )
+    validate_marking_artifact_dict(half.to_dict())
+
+
 def test_validate_marking_artifact_dict_rejects_inconsistent_totals():
     payload = _sample_artifact().to_dict()
     payload["summary"]["earned_marks"] = 99

@@ -66,6 +66,7 @@ Writer contract:
 
 ### 2) Validation and scoring rules
 
+- `question_results[].max_marks` and `earned_marks`, and `summary.total_marks` / `summary.earned_marks`, may be **non-negative integers or finite floats** (e.g. **0.5** step for teacher-marked papers). **Booleans are rejected** (they subclass `int` in Python).
 - Every artifact must validate against `marking_result.v1` or `marking_result.v1.1`.
 - v1.1 context field validation:
   - `template_attempt_group_id`: null or non-empty string

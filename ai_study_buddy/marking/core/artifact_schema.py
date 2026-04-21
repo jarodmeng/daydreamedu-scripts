@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import math
 from pathlib import Path
 from typing import Any
 
@@ -25,10 +26,27 @@ def load_marking_result_schema() -> dict[str, Any]:
     return json.loads(SCHEMA_PATH.read_text(encoding="utf-8"))
 
 
-def compute_percentage(earned_marks: int, total_marks: int) -> float:
-    if total_marks <= 0:
+def compute_percentage(earned_marks: float | int, total_marks: float | int) -> float:
+    tm = float(total_marks)
+    if tm <= 0:
         return 0.0
-    return round((earned_marks / total_marks) * 100.0, 2)
+    return round((float(earned_marks) / tm) * 100.0, 2)
+
+
+def _finite_mark_scalar(value: Any) -> float | None:
+    """Return a non-negative float mark, or None if invalid (rejects bool)."""
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, int):
+        return float(value)
+    if isinstance(value, float):
+        if not math.isfinite(value):
+            return None
+        return value
+    return None
+
+
+_MARK_SUM_TOLERANCE = 1e-6
 
 
 def validate_marking_artifact_dict(data: dict[str, Any]) -> None:
@@ -99,15 +117,16 @@ def validate_marking_artifact_dict(data: dict[str, Any]) -> None:
 
             max_marks = row.get("max_marks")
             earned_marks = row.get("earned_marks")
-            require(isinstance(max_marks, int), f"question_results[{index}].max_marks must be int")
-            require(isinstance(earned_marks, int), f"question_results[{index}].earned_marks must be int")
-            if isinstance(max_marks, int) and isinstance(earned_marks, int):
-                require(max_marks >= 0, f"question_results[{index}].max_marks must be >= 0")
-                require(earned_marks >= 0, f"question_results[{index}].earned_marks must be >= 0")
-                require(earned_marks <= max_marks, f"question_results[{index}].earned_marks must be <= max_marks")
-                if scoring_status == "counted":
-                    expected_total += max_marks
-                    expected_earned += earned_marks
+            mx = _finite_mark_scalar(max_marks)
+            er = _finite_mark_scalar(earned_marks)
+            require(mx is not None, f"question_results[{index}].max_marks must be a non-negative int or finite float (not bool)")
+            require(er is not None, f"question_results[{index}].earned_marks must be a non-negative int or finite float (not bool)")
+            require(mx >= 0, f"question_results[{index}].max_marks must be >= 0")
+            require(er >= 0, f"question_results[{index}].earned_marks must be >= 0")
+            require(er <= mx + _MARK_SUM_TOLERANCE, f"question_results[{index}].earned_marks must be <= max_marks")
+            if scoring_status == "counted":
+                expected_total += mx
+                expected_earned += er
 
             outcome = row.get("outcome")
             require(
@@ -147,15 +166,18 @@ def validate_marking_artifact_dict(data: dict[str, Any]) -> None:
         total_marks = summary.get("total_marks")
         earned_marks = summary.get("earned_marks")
         percentage = summary.get("percentage")
-        require(isinstance(total_marks, int), "summary.total_marks must be int")
-        require(isinstance(earned_marks, int), "summary.earned_marks must be int")
+        st = _finite_mark_scalar(total_marks)
+        se = _finite_mark_scalar(earned_marks)
+        require(st is not None, "summary.total_marks must be a non-negative int or finite float (not bool)")
+        require(se is not None, "summary.earned_marks must be a non-negative int or finite float (not bool)")
+        require(st >= 0, "summary.total_marks must be >= 0")
+        require(se >= 0, "summary.earned_marks must be >= 0")
         require(isinstance(percentage, (int, float)), "summary.percentage must be numeric")
-        if isinstance(total_marks, int) and isinstance(earned_marks, int):
-            require(total_marks == expected_total, "summary.total_marks must equal sum(question_results[].max_marks)")
-            require(earned_marks == expected_earned, "summary.earned_marks must equal sum(question_results[].earned_marks)")
-            if isinstance(percentage, (int, float)):
-                expected_percentage = compute_percentage(earned_marks, total_marks)
-                require(abs(float(percentage) - expected_percentage) < 0.01, "summary.percentage is inconsistent with totals")
+        require(math.isclose(st, expected_total, rel_tol=0, abs_tol=_MARK_SUM_TOLERANCE), "summary.total_marks must equal sum(question_results[].max_marks)")
+        require(math.isclose(se, expected_earned, rel_tol=0, abs_tol=_MARK_SUM_TOLERANCE), "summary.earned_marks must equal sum(question_results[].earned_marks)")
+        if isinstance(percentage, (int, float)):
+            expected_percentage = compute_percentage(se, st)
+            require(abs(float(percentage) - expected_percentage) < 0.01, "summary.percentage is inconsistent with totals")
 
     if errors:
         raise MarkingArtifactValidationError("\n".join(errors))

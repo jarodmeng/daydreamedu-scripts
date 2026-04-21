@@ -4,6 +4,17 @@ All notable changes to `ai_study_buddy.marking` are documented in this file.
 
 Committed changes under `ai_study_buddy/marking/` should add an entry here and bump **Current version** in `README.md` (semver: **patch** for docs or small renderer tweaks, **minor** for schema or public API changes). `SPEC.md` / `TESTING.md` titles do not carry the package version.
 
+## [0.2.5] - 2026-04-21
+
+Minor: fractional marks (e.g. 1.5 / 2) in `marking_result` rows and summary.
+
+### Changed
+
+- `core/models.py`: `max_marks` / `earned_marks` on `ArtifactQuestionResult` and `ArtifactSummary` use type `MarkingScore` (`int | float`).
+- `core/artifact_schema.py`: validation accepts finite non-negative floats; `summary` totals compared with float tolerance; `compute_percentage` accepts float inputs.
+- `workflows/report_renderer.py`: partial-credit bolding uses float-safe comparison.
+- `workflows/migrate_learning_reports.py`: parses numeric marks with `float()` so legacy “32.5/40” scores migrate.
+
 ## [0.2.4] - 2026-04-20
 
 Patch: renderer localization polish for diagnosis text in Chinese learning reports (schema/API unchanged).

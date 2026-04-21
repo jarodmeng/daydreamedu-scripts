@@ -3,6 +3,9 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass
 from typing import Any
 
+# Marks may be whole numbers or fractional (e.g. 1.5 / 2) on teacher-marked papers.
+MarkingScore = int | float
+
 
 @dataclass(frozen=True)
 class QuestionSelection:
@@ -62,8 +65,8 @@ class ArtifactQuestionResult:
     """
 
     result_id: str
-    max_marks: int
-    earned_marks: int
+    max_marks: MarkingScore
+    earned_marks: MarkingScore
     outcome: str
     student_answer: str | None
     correct_answer: str | None
@@ -77,8 +80,8 @@ class ArtifactQuestionResult:
 
 @dataclass(frozen=True)
 class ArtifactSummary:
-    total_marks: int
-    earned_marks: int
+    total_marks: MarkingScore
+    earned_marks: MarkingScore
     percentage: float
     overall_assessment: str
     human_note: str | None = None

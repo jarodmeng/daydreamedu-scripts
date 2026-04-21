@@ -83,7 +83,7 @@ def _parse_table(section: str) -> list[dict[str, str]]:
     return rows
 
 
-def _parse_outcome(name_cell: str, obtained_marks: int, total_marks: int) -> tuple[str, str]:
+def _parse_outcome(name_cell: str, obtained_marks: float, total_marks: float) -> tuple[str, str]:
     text = name_cell.strip()
     label = text
     outcome = "wrong"
@@ -99,9 +99,9 @@ def _parse_outcome(name_cell: str, obtained_marks: int, total_marks: int) -> tup
     elif text.startswith("❌"):
         outcome = "wrong"
         label = text[1:].strip()
-    elif obtained_marks == total_marks:
+    elif abs(float(obtained_marks) - float(total_marks)) < 1e-9:
         outcome = "correct"
-    elif obtained_marks > 0:
+    elif float(obtained_marks) > 0:
         outcome = "partial"
     if outcome == "disqualified":
         label = re.sub(r"\s*\(disqualified\)\s*$", "", label, flags=re.IGNORECASE).strip()
@@ -217,12 +217,12 @@ def parse_legacy_learning_report(report_path: str | Path) -> tuple[MarkingArtifa
     percentage_text = result_data.get("Percentage")
     overall_assessment = result_data.get("Overall assessment", "")
 
-    earned_marks = 0
-    total_marks = 0
+    earned_marks = 0.0
+    total_marks = 0.0
     if score and "/" in score:
         earned_text, total_text = score.split("/", 1)
-        earned_marks = int(_strip_wrappers(earned_text))
-        total_marks = int(_strip_wrappers(total_text))
+        earned_marks = float(_strip_wrappers(earned_text))
+        total_marks = float(_strip_wrappers(total_text))
     else:
         warnings.append("missing or malformed Score field")
 
@@ -236,8 +236,8 @@ def parse_legacy_learning_report(report_path: str | Path) -> tuple[MarkingArtifa
 
     question_results: list[ArtifactQuestionResult] = []
     for row in table_rows:
-        total_row_marks = int(_strip_wrappers(row.get("Total marks", "0")))
-        obtained_row_marks = int(_strip_wrappers(row.get("Obtained marks", "0")))
+        total_row_marks = float(_strip_wrappers(row.get("Total marks", "0")))
+        obtained_row_marks = float(_strip_wrappers(row.get("Obtained marks", "0")))
         outcome, result_id = _parse_outcome(row.get("Name", ""), obtained_row_marks, total_row_marks)
         scoring_status = "excluded_disqualified" if outcome == "disqualified" else "counted"
         embedding_label = row.get("Embedding", "")
