@@ -60,7 +60,10 @@ description: >-
 
 - Read and follow [`pdf-file-manager`](../pdf-file-manager/SKILL.md) for registry operations.
 - Resolve DaydreamEdu root via `resolve_daydreamedu_root()` from [`ai_study_buddy/files/roots.py`](../../../ai_study_buddy/files/roots.py).
-- Use shell `mv` for file moves (no copy+delete workflow for moves).
+- For path-changing moves, keep disk + registry in sync:
+  - If source is already registered, move with `PdfFileManager.move_file(...)` (preferred; updates DB and path-derived scope fields).
+  - If source is not registered, use shell `mv`.
+  - If an on-disk move happened first (external/manual), run immediate reconciliation so registry path matches final location before continuing.
 - For deletions, move to Trash (`mv <path> ~/.Trash/`), never `rm`.
 
 ## Workflow
@@ -74,10 +77,15 @@ description: >-
    - Subject, student segment, grade, doc type, and basename.
    - Basename convention: if file starts with `_raw_`, strip one `_raw_` only for canonical matching keys; do not use this to rename student-side files on disk.
 3. Move completion files into the canonical student-scope destination if needed:
-   - Use `mv` only.
+   - Decide move method per file:
+     - If file is registered at source path, call `PdfFileManager.move_file(file_id_or_path=<source>, new_dir=<dest_dir>)`.
+     - Otherwise use shell `mv`.
    - Stop on collisions; do not overwrite silently.
    - Do not rewrite technical prefixes during this move (`_raw_` / `_c_` must be preserved).
    - If a source file is `_raw_<name>.pdf`, destination must remain `_raw_<name>.pdf` (never rename to plain `<name>.pdf` in this workflow).
+   - Mandatory reconciliation check after each move batch:
+     - For every intended destination path, verify `PdfFileManager.get_file_by_path(dest_path)` resolves.
+     - If missing but old source path is still the registered path, stop and reconcile before Phase A proceeds.
 4. Merge all **Phase A source** PDFs in list order into one PDF (mandatory)—use `_raw_` siblings when the list lines are `_c_` paths (see Input conventions).
    - Output: `DAYDREAMEDU_ROOT/<doc label> - merged.pdf` (or user-provided override).
    - Verify merged page count equals sum of source page counts.
@@ -107,6 +115,7 @@ description: >-
      2. `<dir>/<name>.pdf`
    - Student-side preference is strict: when `_c_<name>.pdf` exists, treat it as the completion main and ignore plain `<name>.pdf`.
    - Note: scan/compress may materialize `_raw_` + `_c_` pairs from plain split files; do not assume the pre-scan plain path remains the main file.
+   - Important: `scan_for_new_files` does not rewrite existing registered paths for files moved externally; do not treat scan as a substitute for move reconciliation.
 6. Ensure template/completion status:
    - General files become/are registered with `is_template=true`.
    - Student files remain `is_template=false`.
@@ -123,6 +132,7 @@ description: >-
 - Every student completion in scope resolves a template link to the matching general template file.
 - No unexpected duplicate template candidates for the same canonical basename.
 - Verification should be identity-based in the registry (resolved main path + linked template id), not strict string equality against the pre-scan plain split filename.
+- No path-drift for moved files: for each file moved in this run, old path is not the active registered path and final destination path resolves via `get_file_by_path`.
 
 ## Rerun and failure handling
 
