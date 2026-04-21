@@ -9,6 +9,14 @@ ad hoc investigation:
 3. linked raw/main pairs whose invariant metadata has drifted
 4. metadata.chinese_variant set to invalid legacy value ``foundation`` (must be ``standard`` for Standard 华文)
 
+Health checks (for large registry operations):
+
+5. all registered rows point to an existing on-disk file
+6. general-scope ``.../Book/<book name>/`` mains share one book file group and have non-empty ``metadata.unit``
+7. all student-scope files have ``student_id``
+8. all general-scope files have ``is_template=true``
+9. all student-scope files have ``is_template=false``
+
 Usage:
   python3 -m ai_study_buddy.pdf_file_manager.scripts.validate_pdf_registry_integrity
   python3 -m ai_study_buddy.pdf_file_manager.scripts.validate_pdf_registry_integrity --json
@@ -95,6 +103,180 @@ def collect_missing_student_id(mgr: PdfFileManager) -> list[dict]:
     return items
 
 
+def _path_scope(mgr: PdfFileManager, file_path: str | Path) -> str | None:
+    path = Path(file_path).resolve()
+    if mgr._path_has_student_mirror_layout(path):
+        return "student"
+    if any(part in mgr._GRADE_SCOPE_SEGMENTS for part in path.parts):
+        return "general"
+    return None
+
+
+def _infer_book_folder(path: str | Path) -> str | None:
+    resolved = Path(path).resolve()
+    parts = resolved.parts
+    try:
+        book_idx = parts.index("Book")
+    except ValueError:
+        return None
+    if book_idx + 1 >= len(parts):
+        return None
+    return str(Path(*parts[: book_idx + 2]))
+
+
+def collect_missing_on_disk_files(mgr: PdfFileManager) -> list[dict]:
+    missing: list[dict] = []
+    for file in mgr.find_files():
+        if not Path(file.path).exists():
+            missing.append(
+                {
+                    "id": file.id,
+                    "path": file.path,
+                    "file_type": file.file_type,
+                    "doc_type": file.doc_type,
+                }
+            )
+    return missing
+
+
+def collect_student_scope_missing_student_id(mgr: PdfFileManager) -> list[dict]:
+    items: list[dict] = []
+    for file in mgr.find_files():
+        if _path_scope(mgr, file.path) != "student":
+            continue
+        if file.student_id:
+            continue
+        items.append(
+            {
+                "id": file.id,
+                "path": file.path,
+                "file_type": file.file_type,
+                "expected_student_id": mgr._infer_student_id_from_path(file.path),
+            }
+        )
+    return items
+
+
+def collect_general_scope_non_template(mgr: PdfFileManager) -> list[dict]:
+    items: list[dict] = []
+    for file in mgr.find_files():
+        if _path_scope(mgr, file.path) != "general":
+            continue
+        if file.is_template:
+            continue
+        items.append(
+            {
+                "id": file.id,
+                "path": file.path,
+                "file_type": file.file_type,
+                "is_template": file.is_template,
+            }
+        )
+    return items
+
+
+def collect_student_scope_template_true(mgr: PdfFileManager) -> list[dict]:
+    items: list[dict] = []
+    for file in mgr.find_files():
+        if _path_scope(mgr, file.path) != "student":
+            continue
+        if not file.is_template:
+            continue
+        items.append(
+            {
+                "id": file.id,
+                "path": file.path,
+                "file_type": file.file_type,
+                "is_template": file.is_template,
+            }
+        )
+    return items
+
+
+def collect_book_folder_group_unit_issues(mgr: PdfFileManager) -> list[dict]:
+    conn = mgr._get_connection()
+    group_rows = conn.execute(
+        """
+        SELECT fg.id AS group_id, fg.label AS group_label, fgm.file_id AS file_id
+        FROM file_groups fg
+        LEFT JOIN file_group_members fgm ON fgm.group_id = fg.id
+        WHERE fg.group_type = 'book'
+        """
+    ).fetchall()
+    file_to_book_group_ids: dict[str, set[str]] = {}
+    label_to_book_group_ids: dict[str, set[str]] = {}
+    for row in group_rows:
+        group_id = row["group_id"]
+        label = row["group_label"]
+        label_to_book_group_ids.setdefault(label, set()).add(group_id)
+        file_id = row["file_id"]
+        if file_id:
+            file_to_book_group_ids.setdefault(file_id, set()).add(group_id)
+
+    files_by_book_folder: dict[str, list] = {}
+    for file in mgr.find_files(doc_type="book", file_type="main", is_template=True):
+        book_folder = _infer_book_folder(file.path)
+        if book_folder is None:
+            continue
+        if _path_scope(mgr, file.path) != "general":
+            continue
+        files_by_book_folder.setdefault(book_folder, []).append(file)
+
+    issues: list[dict] = []
+    for book_folder, files in sorted(files_by_book_folder.items(), key=lambda item: item[0]):
+        book_name = Path(book_folder).name
+        expected_group_ids = label_to_book_group_ids.get(book_name, set())
+        folder_issue_types: list[str] = []
+        if not expected_group_ids:
+            folder_issue_types.append("missing_book_group_for_folder_label")
+        elif len(expected_group_ids) > 1:
+            folder_issue_types.append("duplicate_book_groups_for_folder_label")
+
+        file_checks: list[dict] = []
+        shared_group_ids: set[str] = set()
+        for file in files:
+            metadata = file.metadata or {}
+            unit_value = metadata.get("unit")
+            group_ids = set(file_to_book_group_ids.get(file.id, set()))
+            shared_group_ids.update(group_ids)
+            file_issue_types: list[str] = []
+
+            if not isinstance(unit_value, str) or not unit_value.strip():
+                file_issue_types.append("missing_or_empty_metadata_unit")
+            if not group_ids:
+                file_issue_types.append("missing_book_group_membership")
+            if len(group_ids) > 1:
+                file_issue_types.append("multiple_book_group_memberships")
+            if expected_group_ids and group_ids and not (group_ids & expected_group_ids):
+                file_issue_types.append("book_group_label_mismatch")
+
+            file_checks.append(
+                {
+                    "id": file.id,
+                    "path": file.path,
+                    "group_ids": sorted(group_ids),
+                    "unit": unit_value,
+                    "issues": file_issue_types,
+                }
+            )
+
+        if len(shared_group_ids) > 1:
+            folder_issue_types.append("files_do_not_share_one_book_group")
+        if len(shared_group_ids) == 1 and expected_group_ids and not (shared_group_ids & expected_group_ids):
+            folder_issue_types.append("folder_group_does_not_match_book_label_group")
+
+        if folder_issue_types or any(item["issues"] for item in file_checks):
+            issues.append(
+                {
+                    "book_folder": book_folder,
+                    "book_name": book_name,
+                    "folder_issues": folder_issue_types,
+                    "files": file_checks,
+                }
+            )
+    return issues
+
+
 def collect_main_raw_metadata_drift(mgr: PdfFileManager) -> list[dict]:
     conn = mgr._get_connection()
     rows = conn.execute(
@@ -156,6 +338,12 @@ def collect_main_raw_metadata_drift(mgr: PdfFileManager) -> list[dict]:
 
 
 def build_report(mgr: PdfFileManager) -> dict:
+    missing_on_disk_files = collect_missing_on_disk_files(mgr)
+    book_folder_group_unit_issues = collect_book_folder_group_unit_issues(mgr)
+    student_scope_missing_student_id = collect_student_scope_missing_student_id(mgr)
+    general_scope_non_template = collect_general_scope_non_template(mgr)
+    student_scope_template_true = collect_student_scope_template_true(mgr)
+
     unknown_doc_type = collect_unknown_doc_type(mgr)
     missing_student_id = collect_missing_student_id(mgr)
     main_raw_drift = collect_main_raw_metadata_drift(mgr)
@@ -163,12 +351,22 @@ def build_report(mgr: PdfFileManager) -> dict:
     return {
         "db_path": str(Path(mgr.db_path).resolve()),
         "summary": {
+            "missing_on_disk_files": len(missing_on_disk_files),
+            "book_folder_group_unit_issues": len(book_folder_group_unit_issues),
+            "student_scope_missing_student_id": len(student_scope_missing_student_id),
+            "general_scope_non_template": len(general_scope_non_template),
+            "student_scope_template_true": len(student_scope_template_true),
             "unknown_doc_type": len(unknown_doc_type),
             "missing_student_id": len(missing_student_id),
             "main_raw_metadata_drift": len(main_raw_drift),
             "invalid_chinese_variant_foundation": len(invalid_chinese_variant_foundation),
         },
         "checks": {
+            "missing_on_disk_files": missing_on_disk_files,
+            "book_folder_group_unit_issues": book_folder_group_unit_issues,
+            "student_scope_missing_student_id": student_scope_missing_student_id,
+            "general_scope_non_template": general_scope_non_template,
+            "student_scope_template_true": student_scope_template_true,
             "unknown_doc_type": unknown_doc_type,
             "missing_student_id": missing_student_id,
             "main_raw_metadata_drift": main_raw_drift,
@@ -182,6 +380,34 @@ def _print_human_report(report: dict, *, limit: int) -> None:
     print("Summary:")
     for key, value in report["summary"].items():
         print(f"- {key}: {value}")
+
+    print("\nMissing on-disk files (registered path no longer exists):")
+    for item in report["checks"]["missing_on_disk_files"][:limit]:
+        print(f"- {item['path']} [{item['file_type']}/{item['doc_type']}] id={item['id']}")
+
+    print("\nBook folder group + unit issues (general-scope book mains):")
+    for item in report["checks"]["book_folder_group_unit_issues"][:limit]:
+        print(f"- {item['book_folder']}")
+        if item["folder_issues"]:
+            print(f"  folder_issues={', '.join(item['folder_issues'])}")
+        bad_files = [f for f in item["files"] if f["issues"]]
+        if not bad_files:
+            continue
+        for file_item in bad_files[:limit]:
+            print(f"  file={file_item['path']}")
+            print(f"  issues={', '.join(file_item['issues'])}")
+
+    print("\nStudent-scope files missing student_id:")
+    for item in report["checks"]["student_scope_missing_student_id"][:limit]:
+        print(f"- {item['path']} [{item['file_type']}] expected={item['expected_student_id']}")
+
+    print("\nGeneral-scope files where is_template != true:")
+    for item in report["checks"]["general_scope_non_template"][:limit]:
+        print(f"- {item['path']} [{item['file_type']}] is_template={item['is_template']}")
+
+    print("\nStudent-scope files where is_template != false:")
+    for item in report["checks"]["student_scope_template_true"][:limit]:
+        print(f"- {item['path']} [{item['file_type']}] is_template={item['is_template']}")
 
     print("\nUnknown doc_type:")
     for item in report["checks"]["unknown_doc_type"][:limit]:

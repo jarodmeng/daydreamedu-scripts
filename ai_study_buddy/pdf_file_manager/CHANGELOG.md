@@ -4,6 +4,16 @@ All notable changes to the pdf_file_manager utility are documented here.
 
 ---
 
+## [v0.3.7] — Integrity validator: registry health checks
+
+- Extended `validate_pdf_registry_integrity` with additional audits for large-registry hygiene:
+  - registered paths that no longer exist on disk
+  - general-scope `Book/<name>/` book mains: shared book group, `metadata.unit`, and label consistency
+  - student-scope rows missing `student_id` (with path-based inference hint)
+  - general-scope mains with `is_template` not true, and student-scope with `is_template` true
+- Report `summary` / `checks` JSON and human-readable sections include the new findings.
+- Added tests in `tests/test_integrity_validator.py`.
+
 ## [v0.3.6] — Book groups: general templates only
 
 - Updated `ensure_book_group_from_path(...)` to treat `group_type='book'` membership as canonical **general-scope template mains only**.
