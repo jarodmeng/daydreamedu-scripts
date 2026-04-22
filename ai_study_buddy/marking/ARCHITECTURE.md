@@ -177,7 +177,7 @@ When a new real workflow requires more behavior (for example question-index-awar
 
 ## 8) Backward Compatibility Promise
 
-Until a `v0.3.0` contract update is announced:
+Until a future contract update is announced:
 
 1. `resolve_marking_context(...)` remains stable and file-level.
 2. Existing artifact schema `marking_result.v1` remains readable; writer now emits `marking_result.v1.1`.

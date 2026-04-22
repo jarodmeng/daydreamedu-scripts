@@ -25,7 +25,7 @@ Authoritative paths, naming, timestamps, and JSON-first discipline are identical
 - **Singapore time** for `created_at` / `updated_at` and `__YYYYMMDD_HHMMSS`: `ai_study_buddy.marking.core.marking_time` (`now_marking_iso`, `to_marking_iso`); use `write_marking_artifact` so times normalize on save.
 - **Canonical JSON:** `ai_study_buddy/context/marking_results/<student_slug>/<subject_context>/<attempt_basename>.json`
 - **Derived markdown:** `ai_study_buddy/context/learning_reports/<student_slug>/<subject_context>/<attempt_basename> - Marking Report.md`
-- **Scratch (renders, crops, `_*.py`):** `ai_study_buddy/context/.marking_scratch/<scratch_slug>/` with the same `scripts/`, `attempt/`, `crops/` layout as the marking skill.
+- **Scratch (renders, crops, `_*.py`):** `ai_study_buddy/context/marking_assets/<scratch_slug>/` with the same `scripts/`, `attempt/`, `crops/` layout as the marking skill.
 
 Write JSON first, then render markdown with:
 
@@ -102,7 +102,7 @@ Adjust `notes` per run to list any user-supplied rubric, pages graded, or uncert
 ## Visual workflow (recommended)
 
 1. Resolve the completion path (and optional registry metadata) via `PdfFileManager` / `resolve_marking_context` when helpful—but **do not** block the run solely because there is no answer mapping.
-2. Render attempt pages to PNG under `.marking_scratch/.../attempt/` (PyMuPDF `fitz`, same pattern as the marking skill).
+2. Render attempt pages to PNG under `marking_assets/.../attempt/` (PyMuPDF `fitz`, same pattern as the marking skill).
 3. Work **from images**, not from memory or filename alone.
 4. Optional: store tight **crops** under `crops/` for difficult items (evidence for future humans; not written into canonical JSON paths today).
 

@@ -21,7 +21,7 @@ from ai_study_buddy.marking.core.marking_time import to_marking_iso
 _CONTEXT_ROOT = Path("ai_study_buddy/context")
 _MARKING_ROOT = _CONTEXT_ROOT / "marking_results"
 _LEARNING_ROOT = _CONTEXT_ROOT / "learning_reports"
-_SCRATCH_ROOT = _CONTEXT_ROOT / ".marking_scratch"
+_SCRATCH_ROOT = _CONTEXT_ROOT / "marking_assets"
 
 
 def _iter_marking_json_files() -> list[Path]:

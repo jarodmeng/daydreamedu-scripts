@@ -239,7 +239,7 @@ def test_migrate_learning_reports_writes_json_and_skips_existing(tmp_path):
     assert first[0]["status"] == "written"
     written_json = Path(first[0]["output_path"])
     payload = json.loads(written_json.read_text(encoding="utf-8"))
-    assert payload["schema_version"] == "marking_result.v1.1"
+    assert payload["schema_version"] == "marking_result.v1.2"
 
     second = migrate_learning_reports(
         reports_root=reports_root,
@@ -325,8 +325,8 @@ def test_backfill_attempt_metadata_dry_run_then_apply(tmp_path):
     assert apply["updated_files"] == 2
     payload_first = json.loads(first.read_text(encoding="utf-8"))
     payload_second = json.loads(second.read_text(encoding="utf-8"))
-    assert payload_first["schema_version"] == "marking_result.v1.1"
-    assert payload_second["schema_version"] == "marking_result.v1.1"
+    assert payload_first["schema_version"] == "marking_result.v1.2"
+    assert payload_second["schema_version"] == "marking_result.v1.2"
     assert payload_first["context"]["template_attempt_group_id"] == "winston::template-x"
     assert payload_second["context"]["template_attempt_group_id"] == "winston::template-x"
     assert payload_first["context"]["attempt_sequence"] == 1

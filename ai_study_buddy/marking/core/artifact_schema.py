@@ -11,8 +11,8 @@ from ai_study_buddy.marking.core.taxonomy import (
     ERROR_TAGS,
 )
 
-SCHEMA_VERSION = "marking_result.v1.1"
-SUPPORTED_SCHEMA_VERSIONS = {"marking_result.v1", "marking_result.v1.1"}
+SCHEMA_VERSION = "marking_result.v1.2"
+SUPPORTED_SCHEMA_VERSIONS = {"marking_result.v1", "marking_result.v1.1", "marking_result.v1.2"}
 SCHEMA_PATH = Path(__file__).resolve().parent.parent / "schemas" / "marking_result.v1.schema.json"
 ALLOWED_OUTCOMES = {"correct", "partial", "wrong", "disqualified"}
 ALLOWED_SCORING_STATUS = {"counted", "excluded_disqualified"}
@@ -58,7 +58,7 @@ def validate_marking_artifact_dict(data: dict[str, Any]) -> None:
 
     require(
         data.get("schema_version") in SUPPORTED_SCHEMA_VERSIONS,
-        "schema_version must be marking_result.v1 or marking_result.v1.1",
+        "schema_version must be marking_result.v1, marking_result.v1.1, or marking_result.v1.2",
     )
 
     for key in ("created_at", "updated_at", "context", "summary", "question_results", "review_meta", "generation"):
@@ -90,6 +90,11 @@ def validate_marking_artifact_dict(data: dict[str, Any]) -> None:
         require(
             attempt_label is None or (isinstance(attempt_label, str) and bool(attempt_label.strip())),
             "context.attempt_label must be null or non-empty string",
+        )
+        marking_asset = context.get("marking_asset")
+        require(
+            marking_asset is None or (isinstance(marking_asset, str) and bool(marking_asset.strip())),
+            "context.marking_asset must be null or non-empty string",
         )
         if isinstance(attempt_label, str):
             require(len(attempt_label) <= 64, "context.attempt_label must be <= 64 chars")

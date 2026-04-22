@@ -128,6 +128,7 @@ class MarkingArtifactContext:
     ends_mid_page: bool = False
     answer_mapping_source: str | None = None
     answer_mapping_notes: str | None = None
+    marking_asset: str | None = None
     template_attempt_group_id: str | None = None
     attempt_sequence: int | None = None
     attempt_label: str | None = None
@@ -162,6 +163,7 @@ class MarkingArtifactContext:
             ends_mid_page=context.ends_mid_page,
             answer_mapping_source=context.answer_mapping_source,
             answer_mapping_notes=context.answer_mapping_notes,
+            marking_asset=None,
             template_attempt_group_id=None,
             attempt_sequence=None,
             attempt_label=None,
@@ -212,6 +214,7 @@ class MarkingArtifact:
             ends_mid_page=bool(context_payload.get("ends_mid_page", False)),
             answer_mapping_source=context_payload.get("answer_mapping_source"),
             answer_mapping_notes=context_payload.get("answer_mapping_notes"),
+            marking_asset=context_payload.get("marking_asset"),
             template_attempt_group_id=context_payload.get("template_attempt_group_id"),
             attempt_sequence=context_payload.get("attempt_sequence"),
             attempt_label=context_payload.get("attempt_label"),

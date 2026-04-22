@@ -113,7 +113,7 @@ def _sample_artifact() -> MarkingArtifact:
 def test_schema_file_exists_and_loads():
     assert SCHEMA_PATH.is_file()
     schema = load_marking_result_schema()
-    assert schema["title"] == "marking_result.v1.1"
+    assert schema["title"] == "marking_result.v1.2"
 
 
 def test_normalize_attempt_stem_strips_known_prefixes():
@@ -226,9 +226,11 @@ def test_write_marking_artifact_writes_json(tmp_path):
     artifact = _sample_artifact()
     written = write_marking_artifact(artifact, context_root=tmp_path)
     payload = json.loads(written.read_text(encoding="utf-8"))
-    assert payload["schema_version"] == "marking_result.v1.1"
+    assert payload["schema_version"] == "marking_result.v1.2"
     assert payload["context"]["template_attempt_group_id"] == "winston::template_456"
     assert payload["context"]["attempt_sequence"] == 1
+    assert payload["context"]["marking_asset"].startswith("marking_assets/winston/singapore_primary_science/")
+    assert (tmp_path / payload["context"]["marking_asset"]).is_dir()
     assert payload["created_at"].endswith("+08:00")
     assert payload["updated_at"].endswith("+08:00")
 
@@ -263,6 +265,7 @@ def test_render_learning_report_from_json_is_idempotent(tmp_path):
     assert "## Marking Table" in text
     assert "Q2" in text
     assert "Attempt #1" in text
+    assert "Marking asset folder:" in text
 
 
 def test_update_human_notes_updates_review_meta(tmp_path):

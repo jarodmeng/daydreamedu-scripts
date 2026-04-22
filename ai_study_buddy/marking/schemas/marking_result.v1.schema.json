@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://daydreamedu.local/schemas/marking_result.v1_1.schema.json",
-  "title": "marking_result.v1.1",
+  "$id": "https://daydreamedu.local/schemas/marking_result.v1_2.schema.json",
+  "title": "marking_result.v1.2",
   "type": "object",
   "required": [
     "schema_version",
@@ -14,10 +14,15 @@
     "generation"
   ],
   "properties": {
-    "schema_version": { "enum": ["marking_result.v1", "marking_result.v1.1"] },
+    "schema_version": { "enum": ["marking_result.v1", "marking_result.v1.1", "marking_result.v1.2"] },
     "created_at": { "type": "string", "minLength": 1 },
     "updated_at": { "type": "string", "minLength": 1 },
-    "context": { "type": "object" },
+    "context": {
+      "type": "object",
+      "properties": {
+        "marking_asset": { "type": ["string", "null"], "minLength": 1 }
+      }
+    },
     "summary": { "type": "object" },
     "question_results": { "type": "array" },
     "review_meta": { "type": "object" },

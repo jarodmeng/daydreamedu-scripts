@@ -9,14 +9,14 @@ pipeline for AI Study Buddy.
 
 The package guarantees:
 
-1. a stable `marking_result.v1.1` JSON contract (with backward compatibility for `v1`)
+1. a stable `marking_result.v1.2` JSON contract (with backward compatibility for `v1` / `v1.1`)
 2. deterministic artifact path/naming conventions
 3. schema and scoring validation
 4. markdown rendering as a non-canonical derived view
 
 ## Canonical Data Contract
 
-- Schema identifier: `marking_result.v1.1` (reader accepts `v1` and `v1.1`)
+- Schema identifier: `marking_result.v1.2` (reader accepts `v1`, `v1.1`, and `v1.2`)
 - Schema source:
   `ai_study_buddy/marking/schemas/marking_result.v1.schema.json`
 - Canonical storage path:
@@ -24,7 +24,7 @@ The package guarantees:
 - Derived markdown path:
   `ai_study_buddy/context/learning_reports/<student>/<subject_context>/<attempt_basename> - Marking Report.md`
 - Ephemeral page renders, verification crops, and per-run `_*.py` helpers (not part of this package) live under:
-  `ai_study_buddy/context/.marking_scratch/<scratch_slug>/` — see `.cursor/skills/mark-goodnote-completion/SKILL.md`.
+  `ai_study_buddy/context/marking_assets/<scratch_slug>/` — see `.cursor/skills/mark-goodnote-completion/SKILL.md`.
 
 ## Core Functional Requirements
 
@@ -57,7 +57,7 @@ When a student attempts the same template multiple times, canonical JSON context
 
 Writer contract:
 
-- `write_marking_artifact(...)` emits `schema_version = marking_result.v1.1`.
+- `write_marking_artifact(...)` emits `schema_version = marking_result.v1.2`.
 - When `template_file_id` exists, writer auto-populates `template_attempt_group_id` and `attempt_sequence`.
 - If `template_file_id` is missing, writer sets:
   - `template_attempt_group_id = null`
@@ -67,11 +67,13 @@ Writer contract:
 ### 2) Validation and scoring rules
 
 - `question_results[].max_marks` and `earned_marks`, and `summary.total_marks` / `summary.earned_marks`, may be **non-negative integers or finite floats** (e.g. **0.5** step for teacher-marked papers). **Booleans are rejected** (they subclass `int` in Python).
-- Every artifact must validate against `marking_result.v1` or `marking_result.v1.1`.
-- v1.1 context field validation:
+- Every artifact must validate against `marking_result.v1`, `marking_result.v1.1`, or `marking_result.v1.2`.
+- v1.1+ context field validation:
   - `template_attempt_group_id`: null or non-empty string
   - `attempt_sequence`: null or integer `>= 1`
   - `attempt_label`: null or non-empty string (max length 64)
+- v1.2 context field validation:
+  - `marking_asset`: null or non-empty string (relative path under `ai_study_buddy/context/marking_assets/`)
 - Ink interpretation baseline for visual marking:
   - blue/black ink: student's original answers/workings (gradable)
   - red ink: correctness/correction marks, deductions, tallying (non-gradable annotation)

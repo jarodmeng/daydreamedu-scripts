@@ -4,6 +4,23 @@ All notable changes to `ai_study_buddy.marking` are documented in this file.
 
 Committed changes under `ai_study_buddy/marking/` should add an entry here and bump **Current version** in `README.md` (semver: **patch** for docs or small renderer tweaks, **minor** for schema or public API changes). `SPEC.md` / `TESTING.md` titles do not carry the package version.
 
+## [0.2.6] - 2026-04-22
+
+Patch: bump canonical schema to `marking_result.v1.2` for `context.marking_asset`.
+
+### Changed
+
+- `core/artifact_schema.py`:
+  - `SCHEMA_VERSION` now defaults to `marking_result.v1.2`
+  - validator now accepts `marking_result.v1`, `marking_result.v1.1`, and `marking_result.v1.2`
+- `schemas/marking_result.v1.schema.json`:
+  - schema `$id` / `title` bumped to v1.2
+  - `schema_version` enum includes `marking_result.v1.2`
+- `core/artifact_writer.py`:
+  - writer now emits `schema_version = marking_result.v1.2`
+- `core/models.py`:
+  - `MarkingArtifactContext` includes optional `marking_asset`
+
 ## [0.2.5] - 2026-04-21
 
 Minor: fractional marks (e.g. 1.5 / 2) in `marking_result` rows and summary.
@@ -138,7 +155,7 @@ Small documentation and report-rendering polish.
 
 ### Documentation
 
-- `SPEC.md` and `README.md`: document ephemeral per-run renders, crops, and `_*.py` helpers under `ai_study_buddy/context/.marking_scratch/`; README clarifies they are not kept at the package root.
+- `SPEC.md` and `README.md`: document ephemeral per-run renders, crops, and `_*.py` helpers under `ai_study_buddy/context/marking_assets/`; README clarifies they are not kept at the package root.
 
 ## [0.1.2] - 2026-04-16
 

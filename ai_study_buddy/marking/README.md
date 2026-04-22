@@ -1,14 +1,14 @@
 # AI Study Buddy Marking Package
 
 Canonical marking pipeline for AI Study Buddy. This package defines the
-`marking_result.v1.1` artifact contract and the JSON-first workflow:
+`marking_result.v1.2` artifact contract and the JSON-first workflow:
 
 1. resolve context
 2. write canonical JSON artifact
 3. render markdown as a derived view
 4. support human note edits in the canonical JSON
 
-Current version: `v0.2.5`
+Current version: `v0.2.6`
 
 ## Package Scope
 
@@ -33,7 +33,7 @@ Canonical artifacts now support multiple attempts for the same student/template 
 
 Writer behavior:
 
-- `write_marking_artifact(...)` emits `schema_version = marking_result.v1.1`.
+- `write_marking_artifact(...)` emits `schema_version = marking_result.v1.2`.
 - When `template_file_id` is present, the writer auto-populates group/sequence metadata.
 - Learning report rendering shows `Attempt #<n>` when `attempt_sequence` is present.
 
@@ -53,11 +53,11 @@ Example `context` snippet:
 - `api.py`: compact public API re-export surface
 - `core/`: models, schema, paths, writer, taxonomy, context resolution
 - `workflows/`: CLI/workflow modules for migration, rendering, and note editing
-- `schemas/marking_result.v1.schema.json`: canonical JSON schema (`v1` and `v1.1` accepted; writer emits `v1.1`)
+- `schemas/marking_result.v1.schema.json`: canonical JSON schema (`v1`, `v1.1`, and `v1.2` accepted; writer emits `v1.2`)
 - `tests/test_artifact_core.py`: core artifact and rendering tests
 - `tests/test_migration.py`: migration parser and migration flow tests
 
-Per-run renders, answer crops, and disposable `_mark_*.py` / `_render_*.py` helpers live under `ai_study_buddy/context/.marking_scratch/<scratch_slug>/` (see `.cursor/skills/mark-goodnote-completion/SKILL.md`), not in this package root.
+Per-run renders, answer crops, and disposable `_mark_*.py` / `_render_*.py` helpers live under `ai_study_buddy/context/marking_assets/<scratch_slug>/` (see `.cursor/skills/mark-goodnote-completion/SKILL.md`), not in this package root.
 
 ## Quick Start
 

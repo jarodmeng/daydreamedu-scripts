@@ -22,11 +22,13 @@ def write_marking_artifact(
     payload["updated_at"] = to_marking_iso(payload["updated_at"])
     payload = _apply_attempt_metadata(payload=payload, context_root=context_root)
     payload = sanitize_marking_artifact_paths(payload)
-    validate_marking_artifact_dict(payload)
-
     path = Path(output_path) if output_path is not None else build_marking_artifact_path(
         MarkingArtifact.from_dict(payload), context_root=context_root
     )
+    payload = _apply_marking_asset_path(payload=payload, artifact_json_path=path, context_root=context_root)
+    validate_marking_artifact_dict(payload)
+
+    _ensure_marking_asset_dir(payload=payload, context_root=context_root)
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, indent=2, ensure_ascii=True) + "\n", encoding="utf-8")
     return path
@@ -97,3 +99,43 @@ def _next_attempt_sequence(
         return max(max(sequences), legacy_count) + 1
     return legacy_count + 1 if legacy_count else 1
 
+
+def _apply_marking_asset_path(
+    *,
+    payload: dict,
+    artifact_json_path: Path,
+    context_root: str | Path,
+) -> dict:
+    context = payload.get("context")
+    if not isinstance(context, dict):
+        return payload
+
+    root = Path(context_root).resolve()
+    artifact_path = artifact_json_path.resolve()
+    try:
+        rel = artifact_path.relative_to(root)
+    except ValueError:
+        context.setdefault("marking_asset", None)
+        return payload
+
+    parts = rel.parts
+    if len(parts) < 4 or parts[0] != "marking_results":
+        context.setdefault("marking_asset", None)
+        return payload
+
+    student_slug = parts[1]
+    subject_context = parts[2]
+    artifact_stem = artifact_path.stem
+    context["marking_asset"] = f"marking_assets/{student_slug}/{subject_context}/{artifact_stem}"
+    return payload
+
+
+def _ensure_marking_asset_dir(*, payload: dict, context_root: str | Path) -> None:
+    context = payload.get("context")
+    if not isinstance(context, dict):
+        return
+    marking_asset = context.get("marking_asset")
+    if not isinstance(marking_asset, str) or not marking_asset.strip():
+        return
+    target = Path(context_root) / marking_asset
+    target.mkdir(parents=True, exist_ok=True)

@@ -1,6 +1,6 @@
 ---
 name: mark-goodnote-completion
-description: Mark a student's GoodNotes completion PDF against the registry-linked DaydreamEdu template and mapped answer-page range, then write a canonical JSON marking artifact under `ai_study_buddy/context/marking_results/<student>/<subject_context>/` and a derived markdown learning report under `ai_study_buddy/context/learning_reports/<student>/<subject_context>/`. **Each wrong or partial item must receive a careful, specific diagnosis** (not generic boilerplate): explain the real learning gap using the question, key, and student answer. Per-run renders, crops, and one-off `_*.py` helpers live together under `ai_study_buddy/context/.marking_scratch/<scratch_slug>/` (see `scripts/` subfolder). Use when the user wants a GoodNotes completion graded, marked, compared with worked solutions, or turned into a learning report.
+description: Mark a student's GoodNotes completion PDF against the registry-linked DaydreamEdu template and mapped answer-page range, then write a canonical JSON marking artifact under `ai_study_buddy/context/marking_results/<student>/<subject_context>/` and a derived markdown learning report under `ai_study_buddy/context/learning_reports/<student>/<subject_context>/`. **Each wrong or partial item must receive a careful, specific diagnosis** (not generic boilerplate): explain the real learning gap using the question, key, and student answer. Per-run renders, crops, and one-off `_*.py` helpers live together under `ai_study_buddy/context/marking_assets/<scratch_slug>/` (see `scripts/` subfolder). Use when the user wants a GoodNotes completion graded, marked, compared with worked solutions, or turned into a learning report.
 ---
 
 # Mark GoodNotes Completion
@@ -41,9 +41,9 @@ Rules:
 
 Put **everything** for one marking job that is *not* Tier A JSON/markdown under a **single run directory** so renders and helper code stay easy to find, archive, or delete together:
 
-**Root (required for new work):** `ai_study_buddy/context/.marking_scratch/<scratch_slug>/`
+**Root (required for new work):** `ai_study_buddy/context/marking_assets/<scratch_slug>/`
 
-**Legacy only:** older trees at `ai_study_buddy/context/.tmp_<scratch_slug>/` should be **moved into** `.marking_scratch/<scratch_slug>/` (same layout below) when you next touch them; do not add new `.tmp_*` roots at `context/` top level.
+**Legacy only:** older trees at `ai_study_buddy/context/.tmp_<scratch_slug>/` should be **moved into** `marking_assets/<scratch_slug>/` (same layout below) when you next touch them; do not add new `.tmp_*` roots at `context/` top level.
 
 Suggested **`<scratch_slug>`**: `<student_slug>__<short_unit_or_book_hint>` in lowercase (e.g. `winston__power_pack_circles`, `emma__math_model_skill_2_5`). Keep it short and unique enough that concurrent jobs do not collide.
 
@@ -56,7 +56,7 @@ Standard **layout** under that directory:
 | `answers/` | Rendered answer PDF pages for the mapped (or embedded) range. |
 | `crops/` | Isolated answer-key crops and tighter verification crops (Section 4.5). |
 
-**Imports:** scripts in `scripts/` still import the real package (`ai_study_buddy.marking`, `fitz`, etc.). Run them from the **repository root** with `python3 ai_study_buddy/context/.marking_scratch/<scratch_slug>/scripts/_your_script.py` (or equivalent) so repo imports resolve; inside the script, resolve paths relative to the scratch dir (e.g. `Path(__file__).resolve().parent.parent / "attempt"`) so the folder can be moved without editing.
+**Imports:** scripts in `scripts/` still import the real package (`ai_study_buddy.marking`, `fitz`, etc.). Run them from the **repository root** with `python3 ai_study_buddy/context/marking_assets/<scratch_slug>/scripts/_your_script.py` (or equivalent) so repo imports resolve; inside the script, resolve paths relative to the scratch dir (e.g. `Path(__file__).resolve().parent.parent / "attempt"`) so the folder can be moved without editing.
 
 Renders and crops are **not** canonical; only Tier A JSON (and derived report) are. Prefer placeholder-normalized paths in persisted JSON per `SPEC.md` path-privacy rules.
 
@@ -66,8 +66,8 @@ Renders and crops are **not** canonical; only Tier A JSON (and derived report) a
 
 After JSON + markdown are written and validated:
 
-- Remove or move the **entire** `.marking_scratch/<scratch_slug>/` directory (including `scripts/`) to Trash when no longer needed.
-- Do not commit scratch trees; they should remain **untracked** (repo `.gitignore` may list `ai_study_buddy/context/.marking_scratch/` and legacy `ai_study_buddy/context/.tmp_*` if noise becomes a problem).
+- Remove or move the **entire** `marking_assets/<scratch_slug>/` directory (including `scripts/`) to Trash when no longer needed.
+- Do not commit scratch trees; they should remain **untracked** (repo `.gitignore` may list `ai_study_buddy/context/marking_assets/` and legacy `ai_study_buddy/context/.tmp_*` if noise becomes a problem).
 
 ## Prerequisite
 
@@ -146,7 +146,7 @@ Recommended pattern:
 
 - render all pages of the GoodNotes completion PDF
 - render only the mapped answer pages from the answer PDF
-- write temporary PNGs under **Tier B**: `ai_study_buddy/context/.marking_scratch/<scratch_slug>/{attempt,answers,crops}/` and place any per-run `_*.py` helpers in `.../<scratch_slug>/scripts/`
+- write temporary PNGs under **Tier B**: `ai_study_buddy/context/marking_assets/<scratch_slug>/{attempt,answers,crops}/` and place any per-run `_*.py` helpers in `.../<scratch_slug>/scripts/`
 - inspect the rendered PNGs as images rather than relying on OCR
 
 Example:
@@ -483,7 +483,7 @@ Before finishing, verify:
 - Do not silently grade beyond the visible scope of the completion file.
 - If the answer mapping or template link is missing, stop and report the missing dependency instead of guessing.
 - If handwriting or page coverage is too unclear to grade reliably, say so and limit the report to confident items only.
-- Do not leave temporary rendered PNGs in tracked report folders; keep them under **Tier B** `.marking_scratch/<scratch_slug>/` (with co-located `scripts/` for `_*.py`) and clean up the whole run folder after marking.
+- Do not leave temporary rendered PNGs in tracked report folders; keep them under **Tier B** `marking_assets/<scratch_slug>/` (with co-located `scripts/` for `_*.py`) and clean up the whole run folder after marking.
 - Do not treat markdown as canonical data; always write JSON first.
 - Do not ship a report with placeholder or copy-paste diagnoses for multiple errors; **each** error deserves its own careful read.
 
