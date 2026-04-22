@@ -9,6 +9,7 @@ from ai_study_buddy.marking.workflows.migrate_learning_reports import (
     parse_legacy_learning_report,
 )
 from ai_study_buddy.marking.workflows.backfill_attempt_metadata_v1_1 import run as run_backfill_attempt_metadata
+from ai_study_buddy.marking.workflows.backfill_is_partial_v1_3 import run as run_backfill_is_partial_v1_3
 from ai_study_buddy.marking.core.taxonomy import (
     derive_skill_tags_from_embedding_label,
     prettify_skill_tags,
@@ -239,7 +240,7 @@ def test_migrate_learning_reports_writes_json_and_skips_existing(tmp_path):
     assert first[0]["status"] == "written"
     written_json = Path(first[0]["output_path"])
     payload = json.loads(written_json.read_text(encoding="utf-8"))
-    assert payload["schema_version"] == "marking_result.v1.2"
+    assert payload["schema_version"] == "marking_result.v1.3"
 
     second = migrate_learning_reports(
         reports_root=reports_root,
@@ -325,13 +326,15 @@ def test_backfill_attempt_metadata_dry_run_then_apply(tmp_path):
     assert apply["updated_files"] == 2
     payload_first = json.loads(first.read_text(encoding="utf-8"))
     payload_second = json.loads(second.read_text(encoding="utf-8"))
-    assert payload_first["schema_version"] == "marking_result.v1.2"
-    assert payload_second["schema_version"] == "marking_result.v1.2"
+    assert payload_first["schema_version"] == "marking_result.v1.3"
+    assert payload_second["schema_version"] == "marking_result.v1.3"
     assert payload_first["context"]["template_attempt_group_id"] == "winston::template-x"
     assert payload_second["context"]["template_attempt_group_id"] == "winston::template-x"
     assert payload_first["context"]["attempt_sequence"] == 1
     assert payload_second["context"]["attempt_sequence"] == 2
     assert payload_first["context"]["attempt_label"] is None
+    assert payload_first["context"]["is_partial"] is False
+    assert payload_second["context"]["is_partial"] is False
 
 
 def test_derive_skill_tags_strips_markdown_link_wrapper():
@@ -362,3 +365,101 @@ def test_prettify_skill_tags_math_path_per_element():
         == "Number and Algebra > Whole numbers > Four Operations (whole numbers); "
         "Measurement and Geometry > Geometry > Angles"
     )
+
+
+def test_backfill_is_partial_v1_3_dry_run_then_apply(tmp_path):
+    context_root = tmp_path / "context"
+    marking_root = context_root / "marking_results" / "winston" / "singapore_primary_math"
+    marking_root.mkdir(parents=True, exist_ok=True)
+
+    def _write(name: str, schema_version: str, raw_text: str | None, *, include_marking_asset: bool) -> Path:
+        p = marking_root / name
+        context = {
+            "student_id": "winston",
+            "student_name": "Winston",
+            "subject_context": "singapore_primary_math",
+            "attempt_file_id": f"attempt-{name}",
+            "attempt_file_path": f"GOODNOTES_ROOT/.../{name.replace('.json', '.pdf')}",
+            "template_file_id": "template-x",
+            "template_file_path": "DAYDREAMEDU_ROOT/.../_c_template.pdf",
+            "book_group_id": None,
+            "book_label": None,
+            "unit_file_id": "template-x",
+            "unit_file_path": "DAYDREAMEDU_ROOT/.../_c_template.pdf",
+            "unit_label": "Unit",
+            "answer_file_id": "answer-x",
+            "answer_file_path": "DAYDREAMEDU_ROOT/.../_c_answer.pdf",
+            "answer_page_start": 1,
+            "answer_page_end": 1,
+            "starts_mid_page": False,
+            "ends_mid_page": False,
+            "answer_mapping_source": "manual_verified",
+            "answer_mapping_notes": None,
+            "question_selection": {
+                "raw_text": raw_text,
+                "canonical_refs": [],
+                "section_hint": None,
+            },
+        }
+        if include_marking_asset:
+            context["marking_asset"] = "marking_assets/winston/singapore_primary_math/example"
+
+        payload = {
+            "schema_version": schema_version,
+            "created_at": "2026-04-22T10:00:00+08:00",
+            "updated_at": "2026-04-22T10:00:00+08:00",
+            "context": context,
+            "summary": {
+                "total_marks": 1,
+                "earned_marks": 1,
+                "percentage": 100.0,
+                "overall_assessment": "ok",
+                "human_note": None,
+            },
+            "question_results": [
+                {
+                    "result_id": "Q1",
+                    "max_marks": 1,
+                    "earned_marks": 1,
+                    "outcome": "correct",
+                    "student_answer": "a",
+                    "correct_answer": "a",
+                    "scoring_status": "counted",
+                    "feedback": None,
+                    "error_tags": [],
+                    "skill_tags": [],
+                    "diagnosis": {"mistake_type": None, "reasoning": None, "confidence": None},
+                    "human_note": None,
+                }
+            ],
+            "review_meta": {"updated_at": None, "updated_by": None},
+            "generation": {"produced_by": "test", "mode": "manual", "notes": None},
+        }
+        p.write_text(json.dumps(payload, indent=2, ensure_ascii=True) + "\n", encoding="utf-8")
+        return p
+
+    legacy_v11 = _write("legacy_v11.json", "marking_result.v1.1", "Partial marking only: Q1-Q3.", include_marking_asset=False)
+    v12_partial = _write("v12_partial.json", "marking_result.v1.2", "Partial marking only: Q1-Q3.", include_marking_asset=True)
+    v12_full = _write("v12_full.json", "marking_result.v1.2", "Full paper (Questions 1-16)", include_marking_asset=True)
+
+    dry = run_backfill_is_partial_v1_3(context_root=context_root, dry_run=True, rerender_reports=False)
+    assert dry["updated_json"] == 3
+    dry_payload = json.loads(legacy_v11.read_text(encoding="utf-8"))
+    assert dry_payload["schema_version"] == "marking_result.v1.1"
+    assert "is_partial" not in dry_payload["context"]
+
+    apply = run_backfill_is_partial_v1_3(context_root=context_root, dry_run=False, rerender_reports=False)
+    assert apply["updated_json"] == 3
+
+    payload_v11 = json.loads(legacy_v11.read_text(encoding="utf-8"))
+    payload_partial = json.loads(v12_partial.read_text(encoding="utf-8"))
+    payload_full = json.loads(v12_full.read_text(encoding="utf-8"))
+
+    assert payload_v11["schema_version"] == "marking_result.v1.3"
+    assert payload_partial["schema_version"] == "marking_result.v1.3"
+    assert payload_full["schema_version"] == "marking_result.v1.3"
+
+    assert payload_v11["context"]["marking_asset"] is None
+    assert payload_v11["context"]["is_partial"] is False
+    assert payload_partial["context"]["is_partial"] is True
+    assert payload_full["context"]["is_partial"] is False

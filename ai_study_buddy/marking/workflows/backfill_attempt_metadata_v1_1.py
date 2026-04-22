@@ -134,6 +134,9 @@ def _assign_and_write(candidates: list[_Candidate], *, dry_run: bool) -> dict[st
             if "attempt_label" not in context:
                 context["attempt_label"] = None
                 changed = True
+            if "is_partial" not in context:
+                context["is_partial"] = False
+                changed = True
 
             try:
                 validate_marking_artifact_dict(payload)
@@ -190,4 +193,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

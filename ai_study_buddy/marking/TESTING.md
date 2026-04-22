@@ -23,6 +23,7 @@ These tests cover:
 - human note update flow
 - legacy markdown migration parsing and batching options
 - attempt-metadata backfill workflow (`backfill_attempt_metadata_v1_1.py`)
+- partial-marking metadata backfill workflow (`backfill_is_partial_v1_3.py`)
 
 ## Run Tests
 

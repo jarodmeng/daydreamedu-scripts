@@ -11,8 +11,8 @@ from ai_study_buddy.marking.core.taxonomy import (
     ERROR_TAGS,
 )
 
-SCHEMA_VERSION = "marking_result.v1.2"
-SUPPORTED_SCHEMA_VERSIONS = {"marking_result.v1", "marking_result.v1.1", "marking_result.v1.2"}
+SCHEMA_VERSION = "marking_result.v1.3"
+SUPPORTED_SCHEMA_VERSIONS = {"marking_result.v1", "marking_result.v1.1", "marking_result.v1.2", "marking_result.v1.3"}
 SCHEMA_PATH = Path(__file__).resolve().parent.parent / "schemas" / "marking_result.v1.schema.json"
 ALLOWED_OUTCOMES = {"correct", "partial", "wrong", "disqualified"}
 ALLOWED_SCORING_STATUS = {"counted", "excluded_disqualified"}
@@ -58,7 +58,7 @@ def validate_marking_artifact_dict(data: dict[str, Any]) -> None:
 
     require(
         data.get("schema_version") in SUPPORTED_SCHEMA_VERSIONS,
-        "schema_version must be marking_result.v1, marking_result.v1.1, or marking_result.v1.2",
+        "schema_version must be marking_result.v1, marking_result.v1.1, marking_result.v1.2, or marking_result.v1.3",
     )
 
     for key in ("created_at", "updated_at", "context", "summary", "question_results", "review_meta", "generation"):
@@ -96,6 +96,17 @@ def validate_marking_artifact_dict(data: dict[str, Any]) -> None:
             marking_asset is None or (isinstance(marking_asset, str) and bool(marking_asset.strip())),
             "context.marking_asset must be null or non-empty string",
         )
+        is_partial = context.get("is_partial")
+        if data.get("schema_version") == "marking_result.v1.3":
+            require(
+                isinstance(is_partial, bool),
+                "context.is_partial must be a boolean for marking_result.v1.3",
+            )
+        else:
+            require(
+                is_partial is None or isinstance(is_partial, bool),
+                "context.is_partial must be a boolean when present",
+            )
         if isinstance(attempt_label, str):
             require(len(attempt_label) <= 64, "context.attempt_label must be <= 64 chars")
 

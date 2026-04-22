@@ -157,6 +157,7 @@ def render_marking_report_markdown(data: dict[str, Any]) -> str:
             f"- Answer page range for this exercise: `{_fmt_value(context.get('answer_page_start'))}-{_fmt_value(context.get('answer_page_end'))}`",
             f"- Mapping source: `{_fmt_value(context.get('answer_mapping_source'))}`",
             f"- Marking asset folder: `{_fmt_value(context.get('marking_asset'))}`",
+            f"- Partial marking scope: `{_fmt_value(context.get('is_partial'))}`",
             "",
             "## Notes",
             "",
@@ -197,7 +198,7 @@ def render_learning_report_from_json(
 
 def _build_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Render a markdown learning report from canonical marking JSON.")
-    parser.add_argument("artifact_json", help="Path to marking_result.v1/v1.1/v1.2 JSON")
+    parser.add_argument("artifact_json", help="Path to marking_result.v1/v1.1/v1.2/v1.3 JSON")
     parser.add_argument("--output", help="Optional explicit markdown output path")
     parser.add_argument("--context-root", default="ai_study_buddy/context")
     return parser

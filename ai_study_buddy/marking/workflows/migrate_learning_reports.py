@@ -330,6 +330,7 @@ def parse_legacy_learning_report(report_path: str | Path) -> tuple[MarkingArtifa
         ends_mid_page=False,
         answer_mapping_source=context_data.get("Mapping source"),
         answer_mapping_notes=context_data.get("Answer page note"),
+        is_partial=False,
         question_selection=QuestionSelection(raw_text=None),
     )
     generation_notes = "Migrated from legacy markdown learning report."

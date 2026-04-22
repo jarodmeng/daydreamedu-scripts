@@ -40,7 +40,7 @@ from ai_study_buddy.marking.workflows.report_renderer import render_learning_rep
 
 def _sample_artifact() -> MarkingArtifact:
     return MarkingArtifact(
-        schema_version="marking_result.v1.1",
+        schema_version="marking_result.v1.2",
         created_at="2026-04-15T18:30:25+08:00",
         updated_at="2026-04-15T18:30:25+08:00",
         context=MarkingArtifactContext(
@@ -113,7 +113,7 @@ def _sample_artifact() -> MarkingArtifact:
 def test_schema_file_exists_and_loads():
     assert SCHEMA_PATH.is_file()
     schema = load_marking_result_schema()
-    assert schema["title"] == "marking_result.v1.2"
+    assert schema["title"] == "marking_result.v1.3"
 
 
 def test_normalize_attempt_stem_strips_known_prefixes():
@@ -226,10 +226,11 @@ def test_write_marking_artifact_writes_json(tmp_path):
     artifact = _sample_artifact()
     written = write_marking_artifact(artifact, context_root=tmp_path)
     payload = json.loads(written.read_text(encoding="utf-8"))
-    assert payload["schema_version"] == "marking_result.v1.2"
+    assert payload["schema_version"] == "marking_result.v1.3"
     assert payload["context"]["template_attempt_group_id"] == "winston::template_456"
     assert payload["context"]["attempt_sequence"] == 1
     assert payload["context"]["marking_asset"].startswith("marking_assets/winston/singapore_primary_science/")
+    assert payload["context"]["is_partial"] is False
     assert (tmp_path / payload["context"]["marking_asset"]).is_dir()
     assert payload["created_at"].endswith("+08:00")
     assert payload["updated_at"].endswith("+08:00")
@@ -253,6 +254,18 @@ def test_write_marking_artifact_increments_attempt_sequence_for_same_template(tm
         second_payload["context"]["template_attempt_group_id"]
         == first_payload["context"]["template_attempt_group_id"]
     )
+
+
+def test_write_marking_artifact_infers_is_partial_from_scope_text(tmp_path):
+    artifact = _sample_artifact()
+    partial_context = replace(
+        artifact.context,
+        question_selection=QuestionSelection(raw_text="Partial marking: Q1-Q6 on page 1 only."),
+    )
+    partial_artifact = replace(artifact, context=partial_context)
+    path = write_marking_artifact(partial_artifact, context_root=tmp_path)
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    assert payload["context"]["is_partial"] is True
 
 
 def test_render_learning_report_from_json_is_idempotent(tmp_path):

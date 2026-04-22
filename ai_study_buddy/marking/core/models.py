@@ -129,6 +129,7 @@ class MarkingArtifactContext:
     answer_mapping_source: str | None = None
     answer_mapping_notes: str | None = None
     marking_asset: str | None = None
+    is_partial: bool | None = None
     template_attempt_group_id: str | None = None
     attempt_sequence: int | None = None
     attempt_label: str | None = None
@@ -164,6 +165,7 @@ class MarkingArtifactContext:
             answer_mapping_source=context.answer_mapping_source,
             answer_mapping_notes=context.answer_mapping_notes,
             marking_asset=None,
+            is_partial=None,
             template_attempt_group_id=None,
             attempt_sequence=None,
             attempt_label=None,
@@ -215,6 +217,7 @@ class MarkingArtifact:
             answer_mapping_source=context_payload.get("answer_mapping_source"),
             answer_mapping_notes=context_payload.get("answer_mapping_notes"),
             marking_asset=context_payload.get("marking_asset"),
+            is_partial=context_payload.get("is_partial") if isinstance(context_payload.get("is_partial"), bool) else None,
             template_attempt_group_id=context_payload.get("template_attempt_group_id"),
             attempt_sequence=context_payload.get("attempt_sequence"),
             attempt_label=context_payload.get("attempt_label"),

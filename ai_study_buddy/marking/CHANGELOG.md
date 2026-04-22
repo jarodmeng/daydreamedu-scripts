@@ -4,6 +4,34 @@ All notable changes to `ai_study_buddy.marking` are documented in this file.
 
 Committed changes under `ai_study_buddy/marking/` should add an entry here and bump **Current version** in `README.md` (semver: **patch** for docs or small renderer tweaks, **minor** for schema or public API changes). `SPEC.md` / `TESTING.md` titles do not carry the package version.
 
+## [0.2.7] - 2026-04-22
+
+Minor: bump canonical schema to `marking_result.v1.3` for partial-marking metadata.
+
+### Changed
+
+- `core/artifact_schema.py`:
+  - `SCHEMA_VERSION` now defaults to `marking_result.v1.3`
+  - validator now accepts `marking_result.v1`, `marking_result.v1.1`, `marking_result.v1.2`, and `marking_result.v1.3`
+  - `marking_result.v1.3` requires `context.is_partial` as boolean
+- `schemas/marking_result.v1.schema.json`:
+  - schema `$id` / `title` bumped to v1.3
+  - `schema_version` enum includes `marking_result.v1.3`
+  - `context.is_partial` property added
+- `core/models.py`:
+  - `MarkingArtifactContext` includes `is_partial: bool = False`
+- `core/artifact_writer.py`:
+  - writer now emits `schema_version = marking_result.v1.3`
+  - writer defaults/infers `context.is_partial` from `question_selection.raw_text` when missing
+- `workflows/report_renderer.py`:
+  - report context section now renders `Partial marking scope`
+- `workflows/backfill_is_partial_v1_3.py`:
+  - new migration workflow to backfill `context.is_partial`, default missing `marking_asset` to null, upgrade to v1.3, and re-render learning reports
+
+### Documentation
+
+- Updated `README.md`, `SPEC.md`, `ARCHITECTURE.md`, and `TESTING.md` for v1.3 semantics and migration command.
+
 ## [0.2.6] - 2026-04-22
 
 Patch: bump canonical schema to `marking_result.v1.2` for `context.marking_asset`.

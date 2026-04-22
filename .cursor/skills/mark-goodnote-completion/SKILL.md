@@ -27,7 +27,7 @@ These paths are stable and should match the package helpers whenever you use cod
 
 | Artifact | Path |
 | --- | --- |
-| Canonical JSON (`marking_result.v1.1`; reader also accepts `v1`) | `ai_study_buddy/context/marking_results/<student_slug>/<subject_context>/<attempt_basename>.json` |
+| Canonical JSON (`marking_result.v1.3`; reader accepts `v1`, `v1.1`, `v1.2`, `v1.3`) | `ai_study_buddy/context/marking_results/<student_slug>/<subject_context>/<attempt_basename>.json` |
 | Derived markdown report | `ai_study_buddy/context/learning_reports/<student_slug>/<subject_context>/<attempt_basename> - Marking Report.md` |
 
 Rules:
@@ -199,6 +199,9 @@ Cross-check the **question count** before marking:
 - From the isolated answer-key crop for the same exercise, list all corresponding answer entries.
 - Confirm that the two lists match exactly in both **labels** and **count** before you start filling `question_results`.
 - If the user has asked you to grade only a subset (for example "only Q1–Q5"), explicitly record that subset in `context.question_selection.raw_text` and ensure only those questions appear in `question_results`.
+- Set `context.is_partial` explicitly:
+  - `true` when grading only a subset/part (for example selected pages or selected questions only)
+  - `false` when grading the full intended paper/exercise scope
 - If you discover additional questions while marking (for example a Q35 on a later page), stop and update the lists so that the final JSON and report cover **all intended questions** and no more.
 
 Do not grade:
@@ -262,9 +265,10 @@ Filename pattern:
 
 `<normalized attempt basename>__YYYYMMDD_HHMMSS.json`
 
-The canonical JSON must follow `marking_result.v1.1` (reader accepts `v1` and `v1.1`) and should include:
+The canonical JSON must follow `marking_result.v1.3` (reader accepts `v1`, `v1.1`, `v1.2`, and `v1.3`) and should include:
 
 - context
+- `context.is_partial` (required boolean in v1.3)
 - summary
 - `question_results` as gradable leaf units
 - **`diagnosis` for every result** — for wrong and partial rows this is **mandatory** and must meet the bar in [Diagnosis Guidance](#diagnosis-guidance) (specific, learning-focused, not placeholder text)
@@ -312,6 +316,7 @@ Convention: `✅` = full marks, `⚠️` = partial credit, `❌` = zero marks.
 - Book answer file: `/absolute/path/to/answers.pdf`
 - Answer page range for this exercise: `38-39`
 - Mapping source: `...`
+- Partial marking scope: `true|false`
 
 ## Notes
 

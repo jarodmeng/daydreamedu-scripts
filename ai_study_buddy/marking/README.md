@@ -1,14 +1,14 @@
 # AI Study Buddy Marking Package
 
 Canonical marking pipeline for AI Study Buddy. This package defines the
-`marking_result.v1.2` artifact contract and the JSON-first workflow:
+`marking_result.v1.3` artifact contract and the JSON-first workflow:
 
 1. resolve context
 2. write canonical JSON artifact
 3. render markdown as a derived view
 4. support human note edits in the canonical JSON
 
-Current version: `v0.2.6`
+Current version: `v0.2.7`
 
 ## Package Scope
 
@@ -16,6 +16,7 @@ Current version: `v0.2.6`
 - Singapore marking clock (`core/marking_time.py`: persisted timestamps and basename suffix use SGT)
 - Schema validation and score consistency checks (`artifact_schema.py`)
 - Canonical artifact writing (`artifact_writer.py`)
+- Partial-marking scope inference helper (`core/partial_marking.py`)
 - Path privacy sanitization and placeholder resolution (`path_privacy.py`)
 - Completion->artifact lookup helper (`artifact_lookup.py`)
 - Legacy markdown migration (`migrate_learning_reports.py`)
@@ -33,7 +34,7 @@ Canonical artifacts now support multiple attempts for the same student/template 
 
 Writer behavior:
 
-- `write_marking_artifact(...)` emits `schema_version = marking_result.v1.2`.
+- `write_marking_artifact(...)` emits `schema_version = marking_result.v1.3`.
 - When `template_file_id` is present, the writer auto-populates group/sequence metadata.
 - Learning report rendering shows `Attempt #<n>` when `attempt_sequence` is present.
 
@@ -53,7 +54,7 @@ Example `context` snippet:
 - `api.py`: compact public API re-export surface
 - `core/`: models, schema, paths, writer, taxonomy, context resolution
 - `workflows/`: CLI/workflow modules for migration, rendering, and note editing
-- `schemas/marking_result.v1.schema.json`: canonical JSON schema (`v1`, `v1.1`, and `v1.2` accepted; writer emits `v1.2`)
+- `schemas/marking_result.v1.schema.json`: canonical JSON schema (`v1`, `v1.1`, `v1.2`, and `v1.3` accepted; writer emits `v1.3`)
 - `tests/test_artifact_core.py`: core artifact and rendering tests
 - `tests/test_migration.py`: migration parser and migration flow tests
 
@@ -69,6 +70,9 @@ python3 -m ai_study_buddy.marking.workflows.migrate_learning_reports --dry-run
 
 # Backfill v1.1 attempt metadata (group id / sequence / label=null)
 python3 -m ai_study_buddy.marking.workflows.backfill_attempt_metadata_v1_1 --dry-run
+
+# Backfill v1.3 partial-marking metadata and re-render reports
+python3 -m ai_study_buddy.marking.workflows.backfill_is_partial_v1_3 --dry-run
 
 # Render markdown from an existing canonical artifact
 python3 -m ai_study_buddy.marking.workflows.report_renderer \

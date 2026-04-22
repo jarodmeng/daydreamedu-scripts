@@ -6,6 +6,7 @@ from pathlib import Path
 from ai_study_buddy.marking.core.artifact_paths import build_marking_artifact_path, slugify_student
 from ai_study_buddy.marking.core.artifact_schema import SCHEMA_VERSION, validate_marking_artifact_dict
 from ai_study_buddy.marking.core.marking_time import to_marking_iso
+from ai_study_buddy.marking.core.partial_marking import infer_is_partial_from_raw_text
 from ai_study_buddy.marking.core.path_privacy import sanitize_marking_artifact_paths
 from ai_study_buddy.marking.core.models import MarkingArtifact
 
@@ -21,6 +22,7 @@ def write_marking_artifact(
     payload["created_at"] = to_marking_iso(payload["created_at"])
     payload["updated_at"] = to_marking_iso(payload["updated_at"])
     payload = _apply_attempt_metadata(payload=payload, context_root=context_root)
+    payload = _apply_partial_scope(payload=payload)
     payload = sanitize_marking_artifact_paths(payload)
     path = Path(output_path) if output_path is not None else build_marking_artifact_path(
         MarkingArtifact.from_dict(payload), context_root=context_root
@@ -127,6 +129,21 @@ def _apply_marking_asset_path(
     subject_context = parts[2]
     artifact_stem = artifact_path.stem
     context["marking_asset"] = f"marking_assets/{student_slug}/{subject_context}/{artifact_stem}"
+    return payload
+
+
+def _apply_partial_scope(*, payload: dict) -> dict:
+    context = payload.get("context")
+    if not isinstance(context, dict):
+        return payload
+    if isinstance(context.get("is_partial"), bool):
+        return payload
+    question_selection = context.get("question_selection")
+    if isinstance(question_selection, dict):
+        raw_text = question_selection.get("raw_text")
+    else:
+        raw_text = None
+    context["is_partial"] = infer_is_partial_from_raw_text(raw_text)
     return payload
 
 
