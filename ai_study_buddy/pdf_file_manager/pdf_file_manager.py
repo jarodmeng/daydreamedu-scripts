@@ -249,6 +249,9 @@ class PdfFileManager:
             self._ensure_db_dir()
             self._conn = sqlite3.connect(str(self._db_path))
             self._conn.row_factory = sqlite3.Row
+            # SQLite foreign key enforcement is connection-local and OFF by default.
+            # Enable it for all manager-managed operations.
+            self._conn.execute("PRAGMA foreign_keys = ON")
             self._ensure_schema()
         return self._conn
 
@@ -1456,6 +1459,10 @@ class PdfFileManager:
         conn.commit()
         conn.execute("UPDATE file_groups SET anchor_id = NULL WHERE anchor_id = ?", (file_id,))
         conn.execute("DELETE FROM file_group_members WHERE file_id = ?", (file_id,))
+        conn.execute(
+            "DELETE FROM file_relations WHERE source_id = ? OR target_id = ?",
+            (file_id, file_id),
+        )
         try:
             os.remove(file_path)
         except FileNotFoundError:

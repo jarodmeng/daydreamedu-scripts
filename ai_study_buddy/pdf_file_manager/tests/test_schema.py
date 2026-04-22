@@ -148,3 +148,16 @@ def test_operation_log_write():
         assert row[1] == "pytest"
     finally:
         Path(tmp).unlink(missing_ok=True)
+
+
+def test_manager_connection_enables_foreign_keys():
+    """Manager connection enables FK enforcement for ON DELETE CASCADE constraints."""
+    with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as f:
+        tmp = f.name
+    try:
+        mgr = PdfFileManager(db_path=tmp)
+        conn = mgr._get_connection()
+        fk_on = conn.execute("PRAGMA foreign_keys").fetchone()[0]
+        assert fk_on == 1
+    finally:
+        Path(tmp).unlink(missing_ok=True)

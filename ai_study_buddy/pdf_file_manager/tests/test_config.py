@@ -37,6 +37,7 @@ def test_add_scan_root_then_list_scan_roots():
         tmp = f.name
     try:
         mgr = PdfFileManager(db_path=tmp)
+        mgr.add_student("w", "Test Student")
         r = mgr.add_scan_root("/tmp/foo", student_id="w")
         roots = mgr.list_scan_roots()
         assert len(roots) == 1
@@ -51,6 +52,7 @@ def test_remove_scan_root():
         tmp = f.name
     try:
         mgr = PdfFileManager(db_path=tmp)
+        mgr.add_student("w", "Test Student")
         mgr.add_scan_root("/tmp/foo", student_id="w")
         mgr.remove_scan_root("/tmp/foo")
         assert mgr.list_scan_roots() == []
@@ -92,6 +94,7 @@ def test_ensure_scan_root_creates_when_missing():
         tmp = f.name
     try:
         mgr = PdfFileManager(db_path=tmp)
+        mgr.add_student("w", "Test Student")
         r = mgr.ensure_scan_root("/tmp/foo", student_id="w")
         assert r.path.endswith("foo") or "foo" in r.path
         assert r.student_id == "w"
@@ -105,6 +108,7 @@ def test_ensure_scan_root_idempotent_returns_existing():
         tmp = f.name
     try:
         mgr = PdfFileManager(db_path=tmp)
+        mgr.add_student("w", "Test Student")
         mgr.add_scan_root("/tmp/foo", student_id="w")
         r = mgr.ensure_scan_root("/tmp/foo", student_id=None)
         assert r.path.endswith("foo") or "foo" in r.path
@@ -134,6 +138,7 @@ def test_add_scan_root_keeps_explicit_student_id_over_inference():
     try:
         mgr = PdfFileManager(db_path=tmp)
         mgr.add_student("winston", "Winston", email="winston.ry.meng@gmail.com")
+        mgr.add_student("manual", "Manual Student")
         r = mgr.add_scan_root(
             "/tmp/DaydreamEdu/Singapore Primary English/winston.ry.meng@gmail.com/P6/Exam",
             student_id="manual",

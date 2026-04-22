@@ -4,6 +4,15 @@ All notable changes to the pdf_file_manager utility are documented here.
 
 ---
 
+## [v0.3.8] — Delete integrity hardening for `file_relations`
+
+- **`delete_file`:** Before removing the `pdf_files` row, deletes every `file_relations` row whose `source_id` or `target_id` matches the file id (raw/main, template/completion, etc.), so the registry does not retain orphan edges when SQLite foreign-key cascades are inactive on the connection.
+- **`_get_connection`:** Executes `PRAGMA foreign_keys = ON` immediately after opening the SQLite connection, making FK-backed constraints and cascades active for manager-managed operations.
+- **Tests:** `test_delete_file_keep_related_false_cascades_to_raw` asserts no `file_relations` reference deleted main/raw ids.
+- **Tests:** Added `test_manager_connection_enables_foreign_keys` in `tests/test_schema.py`.
+- **Docs:** [SPEC.md](./SPEC.md) § `delete_file` step list updated.
+- **Compatibility:** Explicit `delete_file` cleanup remains in place as defense in depth even with FK enforcement enabled.
+
 ## [v0.3.7] — Integrity validator: registry health checks
 
 - Extended `validate_pdf_registry_integrity` with additional audits for large-registry hygiene:

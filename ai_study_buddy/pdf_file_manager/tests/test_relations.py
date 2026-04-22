@@ -22,6 +22,7 @@ def test_get_related_files_after_compress():
             db_path = f.name
         try:
             mgr = PdfFileManager(db_path=db_path)
+            mgr.add_student("winston", "Winston")
             result = mgr.compress_and_register(pdfs[0], min_savings_pct=0)
             related = mgr.get_related_files(result.main_file_id)
             assert len(related) >= 1
@@ -69,6 +70,8 @@ def test_unlink_files_removes_relation():
             db_path = f.name
         try:
             mgr = PdfFileManager(db_path=db_path)
+            mgr.add_student("winston", "Winston")
+            mgr.add_student("wrong", "Wrong")
             result = mgr.compress_and_register(pdfs[0], min_savings_pct=0)
             main_id, raw_id = result.main_file_id, result.raw_archive_id
             if raw_id is None:
@@ -114,6 +117,7 @@ def test_update_metadata_syncs_invariant_fields_across_raw_main_pair():
             db_path = f.name
         try:
             mgr = PdfFileManager(db_path=db_path)
+            mgr.add_student("winston", "Winston")
             result = mgr.compress_and_register(pdfs[0], min_savings_pct=0)
             main_file = mgr.get_file(result.main_file_id)
             raw_file = mgr.get_file(result.raw_archive_id)
@@ -149,6 +153,8 @@ def test_repair_main_raw_metadata_drift_copies_main_values_to_raw():
             db_path = f.name
         try:
             mgr = PdfFileManager(db_path=db_path)
+            mgr.add_student("winston", "Winston")
+            mgr.add_student("wrong", "Wrong")
             result = mgr.compress_and_register(pdfs[0], min_savings_pct=0)
             main_file = mgr.get_file(result.main_file_id)
             raw_file = mgr.get_file(result.raw_archive_id)

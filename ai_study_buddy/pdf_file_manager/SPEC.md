@@ -174,11 +174,12 @@ Audit linked raw/main pairs for invariant metadata drift and repair it by copyin
 2. Snapshot `file_relations` and `file_group_members` rows as JSON.
 3. Write `delete` log entry: full record + snapshots in `before_state`.
 4. Remove from any `file_group_members`. If a group's `anchor_id` pointed here, set `anchor_id=NULL` and log a warning.
-5. Run `rm <path>`. If already absent, log warning and continue.
-6. Delete `pdf_files` row (cascades to `file_relations`).
-7. If `keep_related=False` and file was `main`: also delete the `_raw_` archive via recursive `delete_file` (`performed_by='cascade'`).
-8. If `keep_related=False` and file was `raw`: clear `has_raw=False` on the corresponding main file.
-9. Return `OperationRecord`.
+5. Delete all `file_relations` rows where `source_id` or `target_id` equals this file's id (explicit defense-in-depth; manager connections also enable `PRAGMA foreign_keys=ON`).
+6. Run `rm <path>`. If already absent, log warning and continue.
+7. Delete `pdf_files` row.
+8. If `keep_related=False` and file was `main`: also delete the `_raw_` archive via recursive `delete_file` (`performed_by='cascade'`).
+9. If `keep_related=False` and file was `raw`: clear `has_raw=False` on the corresponding main file.
+10. Return `OperationRecord`.
 
 ---
 

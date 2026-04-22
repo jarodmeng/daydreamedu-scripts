@@ -4,6 +4,39 @@ Decisions that shaped the design of this utility. Each entry records what was de
 
 ---
 
+## D-014 — Keep explicit relation cleanup and enable SQLite FK enforcement on manager connections
+
+**Date:** 2026-04-22
+**Status:** Decided
+**Affects:** `pdf_file_manager.py`, `schema.sql`, `SPEC.md`, `CHANGELOG.md`, `README.md`, tests
+
+### Context
+
+`file_relations` declares `ON DELETE CASCADE`, but SQLite only enforces FKs per connection when `PRAGMA foreign_keys=ON`. Historical manager behavior left FK enforcement off, which allowed orphan relation rows when deleting from `pdf_files`. We already shipped explicit relation deletion in `delete_file` to fix the observed production issue deterministically.
+
+After shipping that fix, we considered whether to also enable FK enforcement globally for manager-managed DB access.
+
+### Decision
+
+1. **Adopt a belt-and-suspenders strategy (Option C):**
+   - keep explicit `DELETE FROM file_relations WHERE source_id = ? OR target_id = ?` in `delete_file`
+   - enable `PRAGMA foreign_keys=ON` in `_get_connection` for manager-owned connections
+
+2. **Treat explicit delete as intentional defense in depth.**  
+   We keep this even with FK enforcement enabled for clarity and protection against non-manager clients that may open the same DB with FK checks disabled.
+
+3. **Enforce with tests and docs.**  
+   Add a schema test asserting `PRAGMA foreign_keys == 1` on manager connections and document the combined approach in spec/changelog.
+
+### Consequences
+
+- Manager write paths now get FK-backed integrity by default.
+- `delete_file` continues to provide deterministic cleanup semantics independent of caller assumptions.
+- Existing tests that used invalid `student_id` references had to be updated to create corresponding `students` rows (now correctly enforced by FK constraints).
+- The release notes for relation-delete and FK-enable changes are consolidated under the same version topic.
+
+---
+
 ## D-013 — Canonicalize book groups to general template mains (student mirrors via links)
 
 **Date:** 2026-04-19

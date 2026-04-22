@@ -198,6 +198,11 @@ def test_delete_file_keep_related_false_cascades_to_raw():
             conn = sqlite3.connect(db_path)
             deletes = conn.execute("SELECT performed_by FROM operation_log WHERE operation = 'delete'").fetchall()
             assert len(deletes) >= 2
+            orphan_rels = conn.execute(
+                "SELECT COUNT(*) FROM file_relations WHERE source_id IN (?, ?) OR target_id IN (?, ?)",
+                (main_id, raw_id, main_id, raw_id),
+            ).fetchone()[0]
+            assert orphan_rels == 0
             conn.close()
         finally:
             Path(db_path).unlink(missing_ok=True)

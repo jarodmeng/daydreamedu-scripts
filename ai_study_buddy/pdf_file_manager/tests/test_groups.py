@@ -188,6 +188,7 @@ def test_suggest_groups_unclassified_excluded():
             db_path = f.name
         try:
             mgr = PdfFileManager(db_path=db_path)
+            mgr.add_student("w", "W")
             mgr.register_file(pdfs[0], doc_type="unknown")
             mgr.register_file(pdfs[1], doc_type="exam", student_id="w", subject="science", metadata={"exam_date": "2025-11-12"})
             suggestions = mgr.suggest_groups()
