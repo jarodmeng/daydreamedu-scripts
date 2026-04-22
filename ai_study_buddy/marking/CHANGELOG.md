@@ -4,6 +4,16 @@ All notable changes to `ai_study_buddy.marking` are documented in this file.
 
 Committed changes under `ai_study_buddy/marking/` should add an entry here and bump **Current version** in `README.md` (semver: **patch** for docs or small renderer tweaks, **minor** for schema or public API changes). `SPEC.md` / `TESTING.md` titles do not carry the package version.
 
+## [0.2.8] - 2026-04-22
+
+Patch: shared exclusion list for completion-files registry audit research (schema unchanged).
+
+### Added
+
+- `core/completion_registry_audit.py`:
+  - `GOODNOTES_SCIENCE_REVISION_GUIDE_BOOK_FOLDERS_EXCLUDED` (exact GoodNotes `Book/<folder>` segment names)
+  - `is_goodnotes_science_revision_guide_book_excluded(path)` to drop non-gradable Science revision guide trees from audit tallies
+
 ## [0.2.7] - 2026-04-22
 
 Minor: bump canonical schema to `marking_result.v1.3` for partial-marking metadata.
