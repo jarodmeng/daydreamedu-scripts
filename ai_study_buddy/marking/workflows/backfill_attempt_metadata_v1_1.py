@@ -6,7 +6,7 @@ Adds/normalizes these context fields for artifacts with `template_file_id`:
 - `attempt_sequence`
 - `attempt_label` (defaults to null when missing)
 
-Also upgrades `schema_version` to the package default (`marking_result.v1.1`).
+Also upgrades `schema_version` to the package default (currently `marking_result.v1.4`).
 
 Usage (from repo root)::
 
@@ -136,6 +136,9 @@ def _assign_and_write(candidates: list[_Candidate], *, dry_run: bool) -> dict[st
                 changed = True
             if "is_partial" not in context:
                 context["is_partial"] = False
+                changed = True
+            if "question_page_map" not in context:
+                context["question_page_map"] = []
                 changed = True
 
             try:

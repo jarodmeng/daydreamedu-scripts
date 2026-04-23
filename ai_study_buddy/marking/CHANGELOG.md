@@ -4,6 +4,39 @@ All notable changes to `ai_study_buddy.marking` are documented in this file.
 
 Committed changes under `ai_study_buddy/marking/` should add an entry here and bump **Current version** in `README.md` (semver: **patch** for docs or small renderer tweaks, **minor** for schema or public API changes). `SPEC.md` / `TESTING.md` titles do not carry the package version.
 
+## [0.2.9] - 2026-04-22
+
+Minor: bump canonical schema to `marking_result.v1.4` with per-question attempt-page anchors for forward runs.
+
+### Changed
+
+- `core/artifact_schema.py`:
+  - `SCHEMA_VERSION` now defaults to `marking_result.v1.4`
+  - validator now accepts `marking_result.v1`, `marking_result.v1.1`, `marking_result.v1.2`, `marking_result.v1.3`, and `marking_result.v1.4`
+  - `marking_result.v1.4` requires `context.question_page_map` as an array (may be empty)
+  - validates `question_page_map` entry membership/uniqueness and field constraints (`attempt_page_start`, `confidence`, `source`)
+- `core/models.py`:
+  - added `QuestionPageMapEntry`
+  - `MarkingArtifactContext` now includes `question_page_map`
+  - parsing support added in `MarkingArtifact.from_dict(...)`
+- `core/artifact_writer.py`:
+  - writer now emits `schema_version = marking_result.v1.4`
+  - writer defaults missing `context.question_page_map` to empty list
+- `schemas/marking_result.v1.schema.json`:
+  - schema `$id` / `title` bumped to v1.4
+  - `schema_version` enum includes `marking_result.v1.4`
+  - `context.question_page_map` property added
+- `api.py`:
+  - exports `QuestionPageMapEntry` in public API
+- `tests/test_artifact_core.py` and `tests/test_migration.py`:
+  - updated writer/schema expectations to v1.4
+  - added v1.4 validation tests for `question_page_map` duplicate/unknown/invalid constraints
+
+### Documentation
+
+- Updated `README.md`, `SPEC.md`, `ARCHITECTURE.md`, and `TESTING.md` for v1.4 and `question_page_map`.
+- Updated `.cursor/skills/mark-goodnote-completion/SKILL.md` and `.cursor/skills/diagnose-student-school-work/SKILL.md` to capture `context.question_page_map` during future marking runs.
+
 ## [0.2.8] - 2026-04-22
 
 Patch: shared exclusion list for completion-files registry audit research (schema unchanged).

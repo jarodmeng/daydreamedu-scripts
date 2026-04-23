@@ -11,11 +11,13 @@ from ai_study_buddy.marking.core.taxonomy import (
     ERROR_TAGS,
 )
 
-SCHEMA_VERSION = "marking_result.v1.3"
-SUPPORTED_SCHEMA_VERSIONS = {"marking_result.v1", "marking_result.v1.1", "marking_result.v1.2", "marking_result.v1.3"}
+SCHEMA_VERSION = "marking_result.v1.4"
+SUPPORTED_SCHEMA_VERSIONS = {"marking_result.v1", "marking_result.v1.1", "marking_result.v1.2", "marking_result.v1.3", "marking_result.v1.4"}
 SCHEMA_PATH = Path(__file__).resolve().parent.parent / "schemas" / "marking_result.v1.schema.json"
 ALLOWED_OUTCOMES = {"correct", "partial", "wrong", "disqualified"}
 ALLOWED_SCORING_STATUS = {"counted", "excluded_disqualified"}
+ALLOWED_PAGE_MAP_CONFIDENCE = {"high", "medium", "low"}
+ALLOWED_PAGE_MAP_SOURCES = {"manual_visual", "ai_visual_backfill", "script_inferred"}
 
 
 class MarkingArtifactValidationError(ValueError):
@@ -58,7 +60,7 @@ def validate_marking_artifact_dict(data: dict[str, Any]) -> None:
 
     require(
         data.get("schema_version") in SUPPORTED_SCHEMA_VERSIONS,
-        "schema_version must be marking_result.v1, marking_result.v1.1, marking_result.v1.2, or marking_result.v1.3",
+        "schema_version must be marking_result.v1, marking_result.v1.1, marking_result.v1.2, marking_result.v1.3, or marking_result.v1.4",
     )
 
     for key in ("created_at", "updated_at", "context", "summary", "question_results", "review_meta", "generation"):
@@ -97,10 +99,10 @@ def validate_marking_artifact_dict(data: dict[str, Any]) -> None:
             "context.marking_asset must be null or non-empty string",
         )
         is_partial = context.get("is_partial")
-        if data.get("schema_version") == "marking_result.v1.3":
+        if data.get("schema_version") in {"marking_result.v1.3", "marking_result.v1.4"}:
             require(
                 isinstance(is_partial, bool),
-                "context.is_partial must be a boolean for marking_result.v1.3",
+                "context.is_partial must be a boolean for marking_result.v1.3/v1.4",
             )
         else:
             require(
@@ -109,6 +111,11 @@ def validate_marking_artifact_dict(data: dict[str, Any]) -> None:
             )
         if isinstance(attempt_label, str):
             require(len(attempt_label) <= 64, "context.attempt_label must be <= 64 chars")
+        question_page_map = context.get("question_page_map")
+        if data.get("schema_version") == "marking_result.v1.4":
+            require(isinstance(question_page_map, (list, tuple)), "context.question_page_map must be an array for marking_result.v1.4")
+        elif question_page_map is not None:
+            require(isinstance(question_page_map, (list, tuple)), "context.question_page_map must be an array when present")
 
     expected_total = 0
     expected_earned = 0
@@ -176,6 +183,57 @@ def validate_marking_artifact_dict(data: dict[str, Any]) -> None:
                 require(
                     confidence is None or confidence in DIAGNOSIS_CONFIDENCE_LEVELS,
                     f"question_results[{index}].diagnosis.confidence is invalid",
+                )
+
+    if isinstance(context, dict) and isinstance(question_results, (list, tuple)):
+        question_page_map = context.get("question_page_map", [])
+        result_ids = {row.get("result_id") for row in question_results if isinstance(row, dict) and isinstance(row.get("result_id"), str)}
+        if isinstance(question_page_map, (list, tuple)):
+            seen_map_result_ids: set[str] = set()
+            for index, entry in enumerate(question_page_map, start=1):
+                require(isinstance(entry, dict), f"context.question_page_map[{index}] must be an object")
+                if not isinstance(entry, dict):
+                    continue
+                mapped_result_id = entry.get("result_id")
+                require(
+                    isinstance(mapped_result_id, str) and bool(mapped_result_id.strip()),
+                    f"context.question_page_map[{index}].result_id must be a non-empty string",
+                )
+                if isinstance(mapped_result_id, str):
+                    require(
+                        mapped_result_id not in seen_map_result_ids,
+                        f"duplicate context.question_page_map result_id: {mapped_result_id}",
+                    )
+                    seen_map_result_ids.add(mapped_result_id)
+                    require(
+                        mapped_result_id in result_ids,
+                        f"context.question_page_map[{index}].result_id must match question_results[].result_id",
+                    )
+
+                attempt_page_start = entry.get("attempt_page_start")
+                require(
+                    isinstance(attempt_page_start, int) and not isinstance(attempt_page_start, bool) and attempt_page_start >= 1,
+                    f"context.question_page_map[{index}].attempt_page_start must be int >= 1",
+                )
+                confidence = entry.get("confidence")
+                require(
+                    confidence in ALLOWED_PAGE_MAP_CONFIDENCE,
+                    f"context.question_page_map[{index}].confidence must be high|medium|low",
+                )
+                source = entry.get("source")
+                require(
+                    source in ALLOWED_PAGE_MAP_SOURCES,
+                    f"context.question_page_map[{index}].source must be manual_visual|ai_visual_backfill|script_inferred",
+                )
+                evidence_image = entry.get("evidence_image")
+                require(
+                    evidence_image is None or (isinstance(evidence_image, str) and bool(evidence_image.strip())),
+                    f"context.question_page_map[{index}].evidence_image must be null or non-empty string",
+                )
+                note = entry.get("note")
+                require(
+                    note is None or isinstance(note, str),
+                    f"context.question_page_map[{index}].note must be null or string",
                 )
 
     if isinstance(summary, dict):

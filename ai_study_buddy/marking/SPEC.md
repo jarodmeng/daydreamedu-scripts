@@ -9,14 +9,14 @@ pipeline for AI Study Buddy.
 
 The package guarantees:
 
-1. a stable `marking_result.v1.3` JSON contract (with backward compatibility for `v1` / `v1.1` / `v1.2`)
+1. a stable `marking_result.v1.4` JSON contract (with backward compatibility for `v1` / `v1.1` / `v1.2` / `v1.3`)
 2. deterministic artifact path/naming conventions
 3. schema and scoring validation
 4. markdown rendering as a non-canonical derived view
 
 ## Canonical Data Contract
 
-- Schema identifier: `marking_result.v1.3` (reader accepts `v1`, `v1.1`, `v1.2`, and `v1.3`)
+- Schema identifier: `marking_result.v1.4` (reader accepts `v1`, `v1.1`, `v1.2`, `v1.3`, and `v1.4`)
 - Schema source:
   `ai_study_buddy/marking/schemas/marking_result.v1.schema.json`
 - Canonical storage path:
@@ -57,7 +57,7 @@ When a student attempts the same template multiple times, canonical JSON context
 
 Writer contract:
 
-- `write_marking_artifact(...)` emits `schema_version = marking_result.v1.3`.
+- `write_marking_artifact(...)` emits `schema_version = marking_result.v1.4`.
 - When `template_file_id` exists, writer auto-populates `template_attempt_group_id` and `attempt_sequence`.
 - If `template_file_id` is missing, writer sets:
   - `template_attempt_group_id = null`
@@ -67,7 +67,7 @@ Writer contract:
 ### 2) Validation and scoring rules
 
 - `question_results[].max_marks` and `earned_marks`, and `summary.total_marks` / `summary.earned_marks`, may be **non-negative integers or finite floats** (e.g. **0.5** step for teacher-marked papers). **Booleans are rejected** (they subclass `int` in Python).
-- Every artifact must validate against `marking_result.v1`, `marking_result.v1.1`, `marking_result.v1.2`, or `marking_result.v1.3`.
+- Every artifact must validate against `marking_result.v1`, `marking_result.v1.1`, `marking_result.v1.2`, `marking_result.v1.3`, or `marking_result.v1.4`.
 - v1.1+ context field validation:
   - `template_attempt_group_id`: null or non-empty string
   - `attempt_sequence`: null or integer `>= 1`
@@ -76,6 +76,16 @@ Writer contract:
   - `marking_asset`: null or non-empty string (relative path under `ai_study_buddy/context/marking_assets/`)
 - v1.3 context field validation:
   - `is_partial`: boolean
+- v1.4 context field validation:
+  - `question_page_map`: required array (may be empty)
+  - each entry must include:
+    - `result_id` (non-empty string, unique within map, must exist in `question_results[].result_id`)
+    - `attempt_page_start` (integer `>= 1`)
+    - `confidence` (`high|medium|low`)
+    - `source` (`manual_visual|ai_visual_backfill|script_inferred`)
+  - optional fields:
+    - `evidence_image` (null or non-empty string)
+    - `note` (null or string)
 - Ink interpretation baseline for visual marking:
   - blue/black ink: student's original answers/workings (gradable)
   - red ink: correctness/correction marks, deductions, tallying (non-gradable annotation)

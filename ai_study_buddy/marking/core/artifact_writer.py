@@ -136,6 +136,7 @@ def _apply_partial_scope(*, payload: dict) -> dict:
     context = payload.get("context")
     if not isinstance(context, dict):
         return payload
+    context.setdefault("question_page_map", [])
     if isinstance(context.get("is_partial"), bool):
         return payload
     question_selection = context.get("question_selection")

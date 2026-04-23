@@ -32,6 +32,7 @@ from ai_study_buddy.marking.core.models import (
     GenerationMeta,
     MarkingArtifact,
     MarkingArtifactContext,
+    QuestionPageMapEntry,
     QuestionSelection,
     ReviewMeta,
 )
@@ -40,7 +41,7 @@ from ai_study_buddy.marking.workflows.report_renderer import render_learning_rep
 
 def _sample_artifact() -> MarkingArtifact:
     return MarkingArtifact(
-        schema_version="marking_result.v1.2",
+        schema_version="marking_result.v1.4",
         created_at="2026-04-15T18:30:25+08:00",
         updated_at="2026-04-15T18:30:25+08:00",
         context=MarkingArtifactContext(
@@ -64,6 +65,17 @@ def _sample_artifact() -> MarkingArtifact:
             ends_mid_page=True,
             answer_mapping_source="manual_verified",
             answer_mapping_notes="page 24 top only",
+            is_partial=False,
+            question_page_map=(
+                QuestionPageMapEntry(
+                    result_id="Q1",
+                    attempt_page_start=1,
+                    confidence="high",
+                    source="manual_visual",
+                    evidence_image="attempt/attempt-page-01.png",
+                    note=None,
+                ),
+            ),
             question_selection=QuestionSelection(raw_text="Q1-10"),
         ),
         summary=ArtifactSummary(
@@ -113,7 +125,7 @@ def _sample_artifact() -> MarkingArtifact:
 def test_schema_file_exists_and_loads():
     assert SCHEMA_PATH.is_file()
     schema = load_marking_result_schema()
-    assert schema["title"] == "marking_result.v1.3"
+    assert schema["title"] == "marking_result.v1.4"
 
 
 def test_normalize_attempt_stem_strips_known_prefixes():
@@ -142,10 +154,10 @@ def test_validate_marking_artifact_dict_accepts_valid_payload():
 
 def test_validate_marking_artifact_dict_accepts_half_marks():
     half = MarkingArtifact(
-        schema_version="marking_result.v1.1",
+        schema_version="marking_result.v1.4",
         created_at="2026-04-21T12:00:00+08:00",
         updated_at="2026-04-21T12:00:00+08:00",
-        context=_sample_artifact().context,
+        context=replace(_sample_artifact().context, question_page_map=()),
         summary=ArtifactSummary(
             total_marks=3.0,
             earned_marks=2.5,
@@ -179,6 +191,68 @@ def test_validate_marking_artifact_dict_accepts_half_marks():
         generation=GenerationMeta(produced_by="test", mode="unit_test", notes=None),
     )
     validate_marking_artifact_dict(half.to_dict())
+
+
+def test_validate_marking_artifact_dict_rejects_duplicate_question_page_map_result_ids():
+    payload = _sample_artifact().to_dict()
+    payload["context"]["question_page_map"] = [
+        {
+            "result_id": "Q1",
+            "attempt_page_start": 1,
+            "confidence": "high",
+            "source": "manual_visual",
+        },
+        {
+            "result_id": "Q1",
+            "attempt_page_start": 2,
+            "confidence": "medium",
+            "source": "manual_visual",
+        },
+    ]
+    with pytest.raises(MarkingArtifactValidationError, match="duplicate context.question_page_map result_id"):
+        validate_marking_artifact_dict(payload)
+
+
+def test_validate_marking_artifact_dict_rejects_unknown_question_page_map_result_id():
+    payload = _sample_artifact().to_dict()
+    payload["context"]["question_page_map"] = [
+        {
+            "result_id": "Q999",
+            "attempt_page_start": 1,
+            "confidence": "high",
+            "source": "manual_visual",
+        }
+    ]
+    with pytest.raises(MarkingArtifactValidationError, match="must match question_results"):
+        validate_marking_artifact_dict(payload)
+
+
+def test_validate_marking_artifact_dict_rejects_invalid_question_page_map_page_number():
+    payload = _sample_artifact().to_dict()
+    payload["context"]["question_page_map"] = [
+        {
+            "result_id": "Q1",
+            "attempt_page_start": 0,
+            "confidence": "high",
+            "source": "manual_visual",
+        }
+    ]
+    with pytest.raises(MarkingArtifactValidationError, match="attempt_page_start must be int >= 1"):
+        validate_marking_artifact_dict(payload)
+
+
+def test_validate_marking_artifact_dict_rejects_invalid_question_page_map_enums():
+    payload = _sample_artifact().to_dict()
+    payload["context"]["question_page_map"] = [
+        {
+            "result_id": "Q1",
+            "attempt_page_start": 1,
+            "confidence": "certain",
+            "source": "manual",
+        }
+    ]
+    with pytest.raises(MarkingArtifactValidationError, match="confidence must be high\\|medium\\|low"):
+        validate_marking_artifact_dict(payload)
 
 
 def test_validate_marking_artifact_dict_rejects_inconsistent_totals():
@@ -226,11 +300,12 @@ def test_write_marking_artifact_writes_json(tmp_path):
     artifact = _sample_artifact()
     written = write_marking_artifact(artifact, context_root=tmp_path)
     payload = json.loads(written.read_text(encoding="utf-8"))
-    assert payload["schema_version"] == "marking_result.v1.3"
+    assert payload["schema_version"] == "marking_result.v1.4"
     assert payload["context"]["template_attempt_group_id"] == "winston::template_456"
     assert payload["context"]["attempt_sequence"] == 1
     assert payload["context"]["marking_asset"].startswith("marking_assets/winston/singapore_primary_science/")
     assert payload["context"]["is_partial"] is False
+    assert payload["context"]["question_page_map"][0]["result_id"] == "Q1"
     assert (tmp_path / payload["context"]["marking_asset"]).is_dir()
     assert payload["created_at"].endswith("+08:00")
     assert payload["updated_at"].endswith("+08:00")
@@ -260,6 +335,7 @@ def test_write_marking_artifact_infers_is_partial_from_scope_text(tmp_path):
     artifact = _sample_artifact()
     partial_context = replace(
         artifact.context,
+        is_partial=None,
         question_selection=QuestionSelection(raw_text="Partial marking: Q1-Q6 on page 1 only."),
     )
     partial_artifact = replace(artifact, context=partial_context)

@@ -1,14 +1,14 @@
 # AI Study Buddy Marking Package
 
 Canonical marking pipeline for AI Study Buddy. This package defines the
-`marking_result.v1.3` artifact contract and the JSON-first workflow:
+`marking_result.v1.4` artifact contract and the JSON-first workflow:
 
 1. resolve context
 2. write canonical JSON artifact
 3. render markdown as a derived view
 4. support human note edits in the canonical JSON
 
-Current version: `v0.2.8`
+Current version: `v0.2.9`
 
 ## Package Scope
 
@@ -35,7 +35,7 @@ Canonical artifacts now support multiple attempts for the same student/template 
 
 Writer behavior:
 
-- `write_marking_artifact(...)` emits `schema_version = marking_result.v1.3`.
+- `write_marking_artifact(...)` emits `schema_version = marking_result.v1.4`.
 - When `template_file_id` is present, the writer auto-populates group/sequence metadata.
 - Learning report rendering shows `Attempt #<n>` when `attempt_sequence` is present.
 
@@ -50,12 +50,42 @@ Example `context` snippet:
 }
 ```
 
+## Question-to-attempt-page mapping (`v0.2.9+`)
+
+Canonical artifacts now include question page anchors in `context.question_page_map`:
+
+- required in `marking_result.v1.4` (may be empty array)
+- one entry per mapped `question_results[].result_id`
+- includes:
+  - `result_id`
+  - `attempt_page_start` (int >= 1)
+  - `confidence` (`high|medium|low`)
+  - `source` (`manual_visual|ai_visual_backfill|script_inferred`)
+  - optional `evidence_image`, optional `note`
+
+Example `context` snippet:
+
+```json
+{
+  "question_page_map": [
+    {
+      "result_id": "Q1",
+      "attempt_page_start": 1,
+      "confidence": "high",
+      "source": "manual_visual",
+      "evidence_image": "attempt/attempt-page-01.png",
+      "note": null
+    }
+  ]
+}
+```
+
 ## Directory Layout
 
 - `api.py`: compact public API re-export surface
 - `core/`: models, schema, paths, writer, taxonomy, context resolution
 - `workflows/`: CLI/workflow modules for migration, rendering, and note editing
-- `schemas/marking_result.v1.schema.json`: canonical JSON schema (`v1`, `v1.1`, `v1.2`, and `v1.3` accepted; writer emits `v1.3`)
+- `schemas/marking_result.v1.schema.json`: canonical JSON schema (`v1`, `v1.1`, `v1.2`, `v1.3`, and `v1.4` accepted; writer emits `v1.4`)
 - `tests/test_artifact_core.py`: core artifact and rendering tests
 - `tests/test_migration.py`: migration parser and migration flow tests
 

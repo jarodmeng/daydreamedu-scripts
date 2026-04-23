@@ -17,6 +17,7 @@ These tests cover:
 - artifact naming/path normalization
 - completion->artifact lookup matching and condition filtering
 - summary/row score consistency
+- v1.4 `context.question_page_map` validation (membership, uniqueness, page/confidence/source constraints)
 - disqualified scoring semantics
 - JSON write and markdown re-render behavior
 - path sanitization at write time and placeholder expansion at read/render time

@@ -1,7 +1,7 @@
-"""Backfill `context.is_partial` and upgrade canonical artifacts to v1.3.
+"""Backfill `context.is_partial` and upgrade canonical artifacts to current package schema.
 
 Rules:
-- `schema_version` is upgraded to package default (`marking_result.v1.3`).
+- `schema_version` is upgraded to package default (currently `marking_result.v1.4`).
 - `context.marking_asset` is added with null default when missing (legacy v1.1).
 - `context.is_partial` is set:
   - default `False` for legacy `marking_result.v1.1` artifacts
@@ -86,6 +86,9 @@ def run(
         inferred_partial = _infer_is_partial(context, previous_schema_version)
         if context.get("is_partial") != inferred_partial:
             context["is_partial"] = inferred_partial
+            changed = True
+        if "question_page_map" not in context:
+            context["question_page_map"] = []
             changed = True
 
         if payload.get("schema_version") != SCHEMA_VERSION:

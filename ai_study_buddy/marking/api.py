@@ -29,6 +29,7 @@ from ai_study_buddy.marking.core.models import (
     MarkingArtifact,
     MarkingArtifactContext,
     MarkingContext,
+    QuestionPageMapEntry,
     QuestionSelection,
     ReviewMeta,
 )
@@ -62,6 +63,7 @@ __all__ = [
     "MarkingArtifactContext",
     "MarkingContext",
     "MarkingContextResolutionError",
+    "QuestionPageMapEntry",
     "QuestionSelection",
     "ReviewMeta",
     "SCHEMA_VERSION",

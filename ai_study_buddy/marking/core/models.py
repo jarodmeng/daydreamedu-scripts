@@ -101,6 +101,16 @@ class GenerationMeta:
 
 
 @dataclass(frozen=True)
+class QuestionPageMapEntry:
+    result_id: str
+    attempt_page_start: int
+    confidence: str
+    source: str
+    evidence_image: str | None = None
+    note: str | None = None
+
+
+@dataclass(frozen=True)
 class MarkingArtifactContext:
     student_id: str | None
     student_name: str | None
@@ -133,6 +143,7 @@ class MarkingArtifactContext:
     template_attempt_group_id: str | None = None
     attempt_sequence: int | None = None
     attempt_label: str | None = None
+    question_page_map: tuple[QuestionPageMapEntry, ...] = ()
 
     question_selection: QuestionSelection = QuestionSelection(raw_text=None)
 
@@ -169,6 +180,7 @@ class MarkingArtifactContext:
             template_attempt_group_id=None,
             attempt_sequence=None,
             attempt_label=None,
+            question_page_map=(),
             question_selection=context.question_selection,
         )
 
@@ -221,6 +233,18 @@ class MarkingArtifact:
             template_attempt_group_id=context_payload.get("template_attempt_group_id"),
             attempt_sequence=context_payload.get("attempt_sequence"),
             attempt_label=context_payload.get("attempt_label"),
+            question_page_map=tuple(
+                QuestionPageMapEntry(
+                    result_id=entry["result_id"],
+                    attempt_page_start=entry["attempt_page_start"],
+                    confidence=entry["confidence"],
+                    source=entry["source"],
+                    evidence_image=entry.get("evidence_image"),
+                    note=entry.get("note"),
+                )
+                for entry in context_payload.get("question_page_map", ())
+                if isinstance(entry, dict)
+            ),
             question_selection=QuestionSelection(
                 raw_text=question_selection_payload.get("raw_text"),
                 canonical_refs=tuple(question_selection_payload.get("canonical_refs", ())),
