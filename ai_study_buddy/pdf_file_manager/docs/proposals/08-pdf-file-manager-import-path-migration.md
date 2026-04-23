@@ -61,7 +61,7 @@ without forcing that change immediately.
 1. Replace bare imports in app/library code with package-style imports.
 2. Remove local path injection blocks that were only needed for bare imports.
 3. Prioritize:
-   - `ai_study_buddy/marking/migrate_learning_reports.py`
+   - `ai_study_buddy/marking/workflows/migrate_learning_reports.py`
    - `ai_study_buddy/pdf_file_manager/scripts/*.py`
    - MCP server/module entrypoints where safe
 
@@ -177,7 +177,7 @@ This proposal has been implemented in the repository.
 
 ### Phase 2: Runtime/Library Code Migration
 
-- [x] Migrate `ai_study_buddy/marking/migrate_learning_reports.py` to package-style imports.
+- [x] Migrate `ai_study_buddy/marking/workflows/migrate_learning_reports.py` to package-style imports.
 - [x] Migrate other runtime callsites to package-style imports.
 - [x] Remove local `sys.path` mutations that become unnecessary in migrated runtime files.
 - [x] Verify no behavior changes beyond import path updates.

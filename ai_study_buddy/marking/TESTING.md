@@ -8,6 +8,9 @@ Primary automated coverage lives in:
 
 - `ai_study_buddy/marking/tests/test_artifact_core.py`
 - `ai_study_buddy/marking/tests/test_artifact_lookup.py`
+- `ai_study_buddy/marking/tests/test_artifact_cleanup.py`
+- `ai_study_buddy/marking/tests/test_marking_asset_bundle.py`
+- `ai_study_buddy/marking/tests/test_marking_asset_render.py`
 - `ai_study_buddy/marking/tests/test_marking_time.py`
 - `ai_study_buddy/marking/tests/test_migration.py`
 
@@ -16,11 +19,14 @@ These tests cover:
 - schema loading and validation
 - artifact naming/path normalization
 - completion->artifact lookup matching and condition filtering
+- run-level artifact removal planning and deletion safety behavior
 - summary/row score consistency
 - v1.4 `context.question_page_map` validation (membership, uniqueness, page/confidence/source constraints)
 - disqualified scoring semantics
 - JSON write and markdown re-render behavior
 - path sanitization at write time and placeholder expansion at read/render time
+- marking asset bundle path derivation and filesystem bundle validation checks
+- package-owned PDF-to-bundle render helpers (`attempt/` and `answers/` full-page naming)
 - human note update flow
 - legacy markdown migration parsing and batching options
 - attempt-metadata backfill workflow (`backfill_attempt_metadata_v1_1.py`)
@@ -39,6 +45,15 @@ python3 -m pytest ai_study_buddy/marking/tests/test_artifact_core.py -q
 
 # Artifact lookup tests only
 python3 -m pytest ai_study_buddy/marking/tests/test_artifact_lookup.py -q
+
+# Artifact cleanup tests only
+python3 -m pytest ai_study_buddy/marking/tests/test_artifact_cleanup.py -q
+
+# Marking asset bundle tests only
+python3 -m pytest ai_study_buddy/marking/tests/test_marking_asset_bundle.py -q
+
+# MAB render helper tests only
+python3 -m pytest ai_study_buddy/marking/tests/test_marking_asset_render.py -q
 
 # Migration tests only
 python3 -m pytest ai_study_buddy/marking/tests/test_migration.py -q

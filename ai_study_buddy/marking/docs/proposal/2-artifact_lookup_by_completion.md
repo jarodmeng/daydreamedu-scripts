@@ -1,6 +1,6 @@
 # Artifact lookup by completion (marking JSON + learning report)
 
-Status: Proposal (not implemented)
+Status: Implemented (`v0.2.0`)
 
 Audience: Maintainers of `ai_study_buddy/marking`, `pdf_file_manager`, and the `mark-goodnote-completion` skill
 

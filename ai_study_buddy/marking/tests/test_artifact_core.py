@@ -306,7 +306,10 @@ def test_write_marking_artifact_writes_json(tmp_path):
     assert payload["context"]["marking_asset"].startswith("marking_assets/winston/singapore_primary_science/")
     assert payload["context"]["is_partial"] is False
     assert payload["context"]["question_page_map"][0]["result_id"] == "Q1"
-    assert (tmp_path / payload["context"]["marking_asset"]).is_dir()
+    bundle_root = tmp_path / payload["context"]["marking_asset"]
+    assert bundle_root.is_dir()
+    assert (bundle_root / "attempt").is_dir()
+    assert (bundle_root / "crops").is_dir()
     assert payload["created_at"].endswith("+08:00")
     assert payload["updated_at"].endswith("+08:00")
 

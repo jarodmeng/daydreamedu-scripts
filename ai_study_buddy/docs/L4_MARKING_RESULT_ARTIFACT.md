@@ -1,8 +1,14 @@
 # AI Study Buddy — Marking Result Artifact (File-Canonical)
 
-> Status: **Implemented (`v0.1.0`)** — file-canonical JSON-first workflow is active (`marking_result.v1`), with markdown as derived output.
+> Status: **Implemented (current package: `ai_study_buddy/marking` `v0.2.11`)** — file-canonical JSON-first workflow is active (`marking_result.v1.4` writer; reads `v1` / `v1.1` / `v1.2` / `v1.3` / `v1.4`), with markdown as derived output.
 >
 > Related docs: [QUESTION_INDEX_SCHEMA](./L4_QUESTION_INDEX_SCHEMA.md), [INGESTION_PIPELINE](./L4_INGESTION_PIPELINE.md), [DATA_STRATEGY](./L3_DATA_STRATEGY.md)
+
+Current implementation references:
+
+- `ai_study_buddy/marking/README.md`
+- `ai_study_buddy/marking/SPEC.md`
+- `ai_study_buddy/marking/CHANGELOG.md`
 
 ---
 
@@ -24,6 +30,12 @@ Use a **JSON marking artifact** as the canonical output of each marking run.
 Markdown learning reports become a **derived view** generated from that JSON.
 
 This keeps the POC simple while creating a stable contract for future DB ingestion.
+
+It also establishes an important boundary for the student-facing product:
+
+- `marking_result` is the canonical record of marking facts
+- markdown learning reports are derived views
+- student reflection/review state should be stored separately rather than overwriting canonical marking fields
 
 ---
 
@@ -74,6 +86,12 @@ Timestamp suffix meaning:
 5. Allow human review edits directly in JSON (`overall notes` and `question notes`).
 6. Re-render markdown at any time from the latest JSON.
 
+Run cleanup facility (implemented in package):
+
+- `remove_marking_run_artifacts(...)` removes one run's canonical JSON, derived report, and marking-asset bundle together.
+- CLI wrapper:
+  - `python3 -m ai_study_buddy.marking.workflows.remove_run_artifacts <artifact_json> --dry-run`
+
 `*_file_id` backfill rule (migration):
 
 1. During markdown -> JSON migration, attempt to resolve `attempt_file_id`, `template_file_id`, `unit_file_id`, and `answer_file_id` from the corresponding `*_file_path` fields via `pdf_file_manager`.
@@ -112,7 +130,7 @@ POC simplification: `marking_id` is intentionally omitted from v1 because filesy
 
 ```json
 {
-  "schema_version": "marking_result.v1",
+  "schema_version": "marking_result.v1.4",
   "created_at": "2026-04-15T10:00:00Z",
   "updated_at": "2026-04-15T10:00:00Z",
 
@@ -210,6 +228,16 @@ Human reviews are co-located with the fields they annotate:
 3. `review_meta.updated_at` and `review_meta.updated_by`: audit metadata for latest human edit.
 
 This avoids a separate note-mapping layer and keeps annotations close to the relevant grading data.
+
+## Relationship to Student Review Workspace
+
+The student-facing Review Workspace should read from `marking_result` but should not treat it as the place to persist student reflections.
+
+Guideline:
+
+1. `summary.human_note` and `question_results[].human_note` are for tutor/parent/admin review notes tied to the marking artifact itself.
+2. Student-authored reflections, self-corrections, and review-progress state should live in a separate companion artifact (see [`L4_STUDENT_MVP_EXPERIENCE.md`](./L4_STUDENT_MVP_EXPERIENCE.md)).
+3. Keeping the student layer separate preserves the factual integrity of canonical marking output while still allowing downstream planner/tutor features to consume student reflection data later.
 
 ---
 
@@ -314,7 +342,7 @@ For existing markdown-only reports in `context/learning_reports/`:
 
 ## Migration Implementation Plan
 
-Goal: convert legacy markdown learning reports into canonical `marking_result.v1` JSON artifacts without blocking new JSON-first runs.
+Goal: convert legacy markdown learning reports into canonical `marking_result.v1.x` JSON artifacts without blocking new JSON-first runs.
 
 ### Phase 0: Scope and safety (Completed)
 
@@ -327,7 +355,7 @@ Goal: convert legacy markdown learning reports into canonical `marking_result.v1
 1. [x] Implement a migration script in `ai_study_buddy/marking/` that:
    - reads legacy markdown reports
    - parses report context, summary, and marking table
-   - maps parsed data into `marking_result.v1`
+   - maps parsed data into package-supported `marking_result.v1.x` (writer emits `v1.4`)
    - writes JSON to `context/marking_results/...` using canonical naming rules.
 2. [x] Add a dry-run mode to preview planned outputs.
 3. [x] Add a `--limit` option for staged migration.
@@ -337,7 +365,7 @@ Goal: convert legacy markdown learning reports into canonical `marking_result.v1
 
 ### Phase 2: Validation and quality gates (Completed)
 
-1. [x] Validate each produced JSON against the `marking_result.v1` schema.
+1. [x] Validate each produced JSON against the package-supported `marking_result.v1.x` schema contract.
 2. [x] Recompute and verify totals (`earned_marks`, `total_marks`, percentage) from parsed rows.
 3. [x] Mark uncertain parses (for example malformed markdown rows) with migration warnings in `generation.notes`.
 4. [x] Keep original markdown files unchanged.
@@ -359,7 +387,7 @@ Goal: convert legacy markdown learning reports into canonical `marking_result.v1
 Migration summary (current repository state):
 
 1. Legacy markdown reports discovered: 33
-2. Migrated JSON artifacts produced (`marking_result.v1`): 33
+2. Migrated JSON artifacts produced (`marking_result.v1.x`): 33
 3. Markdown reports with matching migrated JSON: 33/33
 4. Unresolved migration exceptions tracked in this batch: none
 
@@ -367,8 +395,8 @@ Migration summary (current repository state):
 
 ## Implementation TODO Checklist
 
-1. [x] Finalize and freeze `marking_result.v1` field contract used in this document.
-2. [x] Create a canonical JSON schema file for `marking_result.v1` and add validation tests.
+1. [x] Finalize and freeze `marking_result.v1.x` field contract used in this document.
+2. [x] Create a canonical JSON schema file for `marking_result.v1.x` and add validation tests.
 3. [x] Implement `<attempt_basename>` normalizer (strip extension; strip leading `c_` / `_c_` / `_raw_` / `raw_`; append `__YYYYMMDD_HHMMSS` from marking timestamp).
 4. [x] Implement artifact path builder at `context/marking_results/<student>/<subject_context>/<attempt_basename>.json` and ensure directories are created deterministically.
 5. [x] Implement JSON writer for marking runs (source-of-truth write path).
@@ -380,7 +408,7 @@ Migration summary (current repository state):
 11. [x] Add regression tests for score/percentage consistency (`summary.total_marks` equals sum of row `max_marks`; `summary.earned_marks` equals sum of row `earned_marks`).
 12. [x] Add idempotent re-render command to regenerate markdown from existing JSON without changing canonical fields.
 13. [x] Add a small helper/command for human note editing workflow (or document manual edit protocol).
-14. [x] Implement markdown -> `marking_result.v1` migration script for legacy learning reports.
+14. [x] Implement markdown -> `marking_result.v1.x` migration script for legacy learning reports.
 15. [x] Add migration dry-run mode and batch controls (`--limit`, student/subject filters).
 16. [x] Add migration validation checks (schema, totals, parse warnings).
 17. [x] Run pilot migration on a small subset and review output quality.

@@ -3,6 +3,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from ai_study_buddy.marking.assets.layout import ATTEMPT_DIRNAME, CROPS_DIRNAME
+from ai_study_buddy.marking.assets.paths import marking_asset_rel_path_from_artifact_path
 from ai_study_buddy.marking.core.artifact_paths import build_marking_artifact_path, slugify_student
 from ai_study_buddy.marking.core.artifact_schema import SCHEMA_VERSION, validate_marking_artifact_dict
 from ai_study_buddy.marking.core.marking_time import to_marking_iso
@@ -112,23 +114,15 @@ def _apply_marking_asset_path(
     if not isinstance(context, dict):
         return payload
 
-    root = Path(context_root).resolve()
-    artifact_path = artifact_json_path.resolve()
-    try:
-        rel = artifact_path.relative_to(root)
-    except ValueError:
+    rel = marking_asset_rel_path_from_artifact_path(
+        artifact_json_path=artifact_json_path,
+        context_root=context_root,
+    )
+    if rel is None:
         context.setdefault("marking_asset", None)
         return payload
 
-    parts = rel.parts
-    if len(parts) < 4 or parts[0] != "marking_results":
-        context.setdefault("marking_asset", None)
-        return payload
-
-    student_slug = parts[1]
-    subject_context = parts[2]
-    artifact_stem = artifact_path.stem
-    context["marking_asset"] = f"marking_assets/{student_slug}/{subject_context}/{artifact_stem}"
+    context["marking_asset"] = rel
     return payload
 
 
@@ -155,5 +149,8 @@ def _ensure_marking_asset_dir(*, payload: dict, context_root: str | Path) -> Non
     marking_asset = context.get("marking_asset")
     if not isinstance(marking_asset, str) or not marking_asset.strip():
         return
-    target = Path(context_root) / marking_asset
-    target.mkdir(parents=True, exist_ok=True)
+    bundle_root = Path(context_root) / marking_asset
+    bundle_root.mkdir(parents=True, exist_ok=True)
+    # Keep required dirs cheap and deterministic to reduce layout drift across workflows.
+    (bundle_root / ATTEMPT_DIRNAME).mkdir(parents=True, exist_ok=True)
+    (bundle_root / CROPS_DIRNAME).mkdir(parents=True, exist_ok=True)

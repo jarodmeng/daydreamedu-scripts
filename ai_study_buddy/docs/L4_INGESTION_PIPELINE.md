@@ -388,7 +388,7 @@ This gives a reliable baseline: reviewable question objects linked to source doc
 
 5. **Vision-LLM structure prefill** — prefill question boundaries, numbering, and mark allocations for review.
 6. **Vision-LLM outcome prefill** — prefill per-question outcome/marks/answers from ticks, score marks, and corrections.
-7. **Skill/error suggestion assist** — propose `skill_tags` and (for wrong/partial) `error_tags`; reviewer confirms edits. (For **marking_result.v1** GoodNotes outputs, follow subject-specific `skill_tags` rules in [L4_MARKING_RESULT_ARTIFACT](./L4_MARKING_RESULT_ARTIFACT.md) / mark-goodnote-completion skill — not the loose slug style used on question-index drafts.)
+7. **Skill/error suggestion assist** — propose `skill_tags` and (for wrong/partial) `error_tags`; reviewer confirms edits. (For **marking_result.v1.x** GoodNotes outputs, follow subject-specific `skill_tags` rules in [L4_MARKING_RESULT_ARTIFACT](./L4_MARKING_RESULT_ARTIFACT.md) / mark-goodnote-completion skill — not the loose slug style used on question-index drafts.)
 
 ### Tier 3 — Progressive automation
 

@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 from typing import Any
 
+from ai_study_buddy.marking.assets.manifest import write_bundle_manifest_for_artifact
 from ai_study_buddy.marking.core.artifact_paths import build_learning_report_path
 from ai_study_buddy.marking.core.path_privacy import resolve_marking_artifact_paths
 from ai_study_buddy.marking.core.artifact_schema import validate_marking_artifact_dict
@@ -193,6 +194,13 @@ def render_learning_report_from_json(
 
     destination.parent.mkdir(parents=True, exist_ok=True)
     destination.write_text(markdown, encoding="utf-8")
+    # Phase C policy: write bundle manifest only when the bundle appears finalized
+    # (i.e. attempt image renders exist). This keeps manifest data non-provisional.
+    write_bundle_manifest_for_artifact(
+        artifact_dict=data,
+        context_root=context_root,
+        require_attempt_images=True,
+    )
     return destination
 
 

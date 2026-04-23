@@ -8,17 +8,19 @@ Canonical marking pipeline for AI Study Buddy. This package defines the
 3. render markdown as a derived view
 4. support human note edits in the canonical JSON
 
-Current version: `v0.2.9`
+Current version: `v0.2.11`
 
 ## Package Scope
 
 - Artifact naming and path conventions (`artifact_paths.py`)
+- Marking asset bundle paths/layout validation helpers (`assets/`)
 - Singapore marking clock (`core/marking_time.py`: persisted timestamps and basename suffix use SGT)
 - Schema validation and score consistency checks (`artifact_schema.py`)
 - Canonical artifact writing (`artifact_writer.py`)
 - Partial-marking scope inference helper (`core/partial_marking.py`)
 - Path privacy sanitization and placeholder resolution (`path_privacy.py`)
 - Completion->artifact lookup helper (`artifact_lookup.py`)
+- Run-level artifact removal helper (`artifact_cleanup.py`)
 - Legacy markdown migration (`migrate_learning_reports.py`)
 - Markdown rendering from canonical JSON (`report_renderer.py`)
 - Human note editing workflow (`edit_human_notes.py`)
@@ -73,7 +75,7 @@ Example `context` snippet:
       "attempt_page_start": 1,
       "confidence": "high",
       "source": "manual_visual",
-      "evidence_image": "attempt/attempt-page-01.png",
+      "evidence_image": "attempt/page-01.png",
       "note": null
     }
   ]
@@ -89,7 +91,7 @@ Example `context` snippet:
 - `tests/test_artifact_core.py`: core artifact and rendering tests
 - `tests/test_migration.py`: migration parser and migration flow tests
 
-Per-run renders, answer crops, and disposable `_mark_*.py` / `_render_*.py` helpers live under `ai_study_buddy/context/marking_assets/<scratch_slug>/` (see `.cursor/skills/mark-goodnote-completion/SKILL.md`), not in this package root.
+Per-run renders, answer crops, and disposable `_mark_*.py` / `_render_*.py` helpers live under the standardized bundle root in `context.marking_asset` (for example `ai_study_buddy/context/marking_assets/<student>/<subject>/<artifact_stem>/`), not in this package root.
 
 ## Quick Start
 
@@ -108,6 +110,25 @@ python3 -m ai_study_buddy.marking.workflows.backfill_is_partial_v1_3 --dry-run
 # Render markdown from an existing canonical artifact
 python3 -m ai_study_buddy.marking.workflows.report_renderer \
   ai_study_buddy/context/marking_results/<student>/<subject>/<artifact>.json
+
+# Validate marking asset bundle for one artifact
+python3 -m ai_study_buddy.marking.workflows.validate_bundle \
+  ai_study_buddy/context/marking_results/<student>/<subject>/<artifact>.json \
+  --strict
+
+# Remove one marking run's artifacts (JSON + report + bundle)
+python3 -m ai_study_buddy.marking.workflows.remove_run_artifacts \
+  ai_study_buddy/context/marking_results/<student>/<subject>/<artifact>.json \
+  --dry-run
+
+# Render attempt pages to standardized MAB naming under attempt/page-{nn}.png
+python3 - <<'PY'
+from ai_study_buddy.marking import render_attempt_pdf_to_bundle
+render_attempt_pdf_to_bundle(
+    "path/to/attempt.pdf",
+    "ai_study_buddy/context/marking_assets/<student>/<subject>/<artifact_stem>",
+)
+PY
 
 # Update human notes in a canonical artifact
 python3 -m ai_study_buddy.marking.workflows.edit_human_notes \

@@ -109,7 +109,7 @@ Adjust `notes` per run to list any user-supplied rubric, pages graded, or uncert
 ## Visual workflow (recommended)
 
 1. Resolve the completion path (and optional registry metadata) via `PdfFileManager` / `resolve_marking_context` when helpful—but **do not** block the run solely because there is no answer mapping.
-2. Render attempt pages to PNG under `context.marking_asset/attempt/` (PyMuPDF `fitz`) using `page-{nn}.png` full-page naming.
+2. Render attempt pages with `ai_study_buddy.marking.render_attempt_pdf_to_bundle(...)` so full-page naming stays standardized as `context.marking_asset/attempt/page-{nn}.png`.
 3. Work **from images**, not from memory or filename alone.
 4. Optional: store tight **crops** under `context.marking_asset/crops/` for difficult items (evidence for future humans).
 

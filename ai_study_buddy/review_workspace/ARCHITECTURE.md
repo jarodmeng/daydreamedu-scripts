@@ -82,7 +82,7 @@ Frontend rules:
 
 Owned by `marking/`:
 
-- canonical marking schema and artifacts (`marking_result.v1.3`/`v1.4`)
+- canonical marking schema and artifacts (`marking_result.v1.x`, writer default `v1.4`)
 
 Owned by `review_workspace/`:
 

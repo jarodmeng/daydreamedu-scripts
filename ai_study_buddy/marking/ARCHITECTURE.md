@@ -19,6 +19,7 @@ The marking package is the canonical implementation layer for marking workflows.
 - resolve deterministic marking context from registry-backed metadata
 - enforce canonical artifact contract (`marking_result.v1.4`, backward-compatible with `v1` / `v1.1` / `v1.2` / `v1.3`)
 - write canonical JSON first, then render markdown as derived view
+- provide safe run-level artifact cleanup for rerun/remediation workflows
 - provide stable programmatic APIs for workflows and agent skills
 
 ### Non-Responsibilities (for this package layer)
@@ -43,6 +44,7 @@ Current package modules are grouped into three layers.
 - `artifact_paths.py`: canonical path and basename derivation
 - `marking_time.py`: Singapore (SGT) persisted timestamps and basename wall-clock suffix
 - `artifact_lookup.py`: deterministic completion -> artifact lookup (student-scoped)
+- `artifact_cleanup.py`: deterministic run-level artifact cleanup with strict/best-effort modes
 - `artifact_writer.py`: canonical JSON write path
 - `workflows/backfill_attempt_metadata_v1_1.py`: dry-run/apply workflow to backfill v1.1 attempt metadata on existing artifacts
 - `workflows/backfill_is_partial_v1_3.py`: dry-run/apply workflow to backfill `context.is_partial` and upgrade artifacts to v1.3
@@ -54,6 +56,7 @@ Current package modules are grouped into three layers.
 - `migrate_learning_reports.py`: markdown -> canonical JSON migration
 - `report_renderer.py`: canonical JSON -> markdown rendering
 - `edit_human_notes.py`: safe human note updates with validation
+- `remove_run_artifacts.py`: CLI/workflow wrapper for one-run artifact cleanup
 
 ### C. Public API layer
 
@@ -77,6 +80,8 @@ The current flagship use case is the `mark-goodnote-completion` skill flow:
 6. Canonical artifact writer sanitizes path fields before persistence; renderer expands placeholders for runtime readability when configuration/registry data exists.
 7. Optional preflight: lookup existing artifacts for the same completion using
    `find_marking_artifacts_for_attempt(...)` before deciding whether to re-run marking.
+8. Optional remediation: cleanly remove one stale/bad run using
+   `remove_marking_run_artifacts(...)` or `workflows/remove_run_artifacts.py`.
 
 MVP variant (weighted assessment / embedded answers):
 

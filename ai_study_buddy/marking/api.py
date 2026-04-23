@@ -2,6 +2,12 @@ from ai_study_buddy.marking.core.artifact_lookup import (
     MarkingArtifactRef,
     find_marking_artifacts_for_attempt,
 )
+from ai_study_buddy.marking.core.artifact_cleanup import (
+    MarkingRunArtifactRemovalError,
+    MarkingRunRemovalPlan,
+    MarkingRunRemovalResult,
+    remove_marking_run_artifacts,
+)
 from ai_study_buddy.marking.core.artifact_paths import (
     build_attempt_basename,
     build_learning_report_path,
@@ -17,6 +23,25 @@ from ai_study_buddy.marking.core.artifact_schema import (
 )
 from ai_study_buddy.marking.core.marking_time import MARKING_TIMEZONE, now_marking_iso, to_marking_iso
 from ai_study_buddy.marking.core.artifact_writer import write_marking_artifact
+from ai_study_buddy.marking.assets.paths import (
+    bundle_root_from_context,
+    marking_asset_rel_path_from_artifact_path,
+)
+from ai_study_buddy.marking.assets.render import (
+    render_answers_pdf_pages_to_bundle,
+    render_attempt_pdf_to_bundle,
+)
+from ai_study_buddy.marking.assets.manifest import (
+    build_bundle_manifest_payload,
+    write_bundle_manifest,
+    write_bundle_manifest_for_artifact,
+)
+from ai_study_buddy.marking.assets.validate import (
+    ValidationIssue,
+    ValidationReport,
+    assert_marking_asset_bundle_ready_for_review,
+    validate_marking_asset_bundle,
+)
 from ai_study_buddy.marking.core.context_resolver import (
     MarkingContextResolutionError,
     resolve_marking_context,
@@ -68,26 +93,41 @@ __all__ = [
     "ReviewMeta",
     "SCHEMA_VERSION",
     "MarkingArtifactValidationError",
+    "ValidationIssue",
+    "ValidationReport",
+    "build_bundle_manifest_payload",
     "MARKING_TIMEZONE",
     "MarkingArtifactRef",
+    "MarkingRunArtifactRemovalError",
+    "MarkingRunRemovalPlan",
+    "MarkingRunRemovalResult",
+    "assert_marking_asset_bundle_ready_for_review",
     "build_attempt_basename",
     "build_learning_report_path",
     "build_marking_artifact_path",
+    "bundle_root_from_context",
     "compute_percentage",
     "derive_skill_tags_from_embedding_label",
     "load_marking_result_schema",
     "find_marking_artifacts_for_attempt",
+    "remove_marking_run_artifacts",
     "migrate_learning_reports",
+    "marking_asset_rel_path_from_artifact_path",
     "now_marking_iso",
     "normalize_attempt_stem",
     "normalize_skill_tag",
     "parse_legacy_learning_report",
     "prettify_skill_tags",
+    "render_answers_pdf_pages_to_bundle",
+    "render_attempt_pdf_to_bundle",
     "render_learning_report_from_json",
     "render_marking_report_markdown",
     "resolve_marking_context",
     "to_marking_iso",
     "update_human_notes",
     "validate_marking_artifact_dict",
+    "validate_marking_asset_bundle",
+    "write_bundle_manifest",
+    "write_bundle_manifest_for_artifact",
     "write_marking_artifact",
 ]

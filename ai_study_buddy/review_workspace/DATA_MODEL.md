@@ -17,8 +17,11 @@ Primary read source:
 
 Expected schema compatibility:
 
+- `marking_result.v1`
+- `marking_result.v1.1`
+- `marking_result.v1.2`
 - `marking_result.v1.3`
-- `marking_result.v1.4` (preferred)
+- `marking_result.v1.4` (writer default / preferred)
 
 Consumed source fields include:
 

@@ -4,6 +4,94 @@ All notable changes to `ai_study_buddy.marking` are documented in this file.
 
 Committed changes under `ai_study_buddy/marking/` should add an entry here and bump **Current version** in `README.md` (semver: **patch** for docs or small renderer tweaks, **minor** for schema or public API changes). `SPEC.md` / `TESTING.md` titles do not carry the package version.
 
+## [0.2.11] - 2026-04-23
+
+Minor: complete MAB Phase E with package-owned PDF-to-bundle render helpers and standardized full-page naming output.
+
+### Added
+
+- `assets/render.py`:
+  - `render_attempt_pdf_to_bundle(...)` to render full attempt PDF pages to `attempt/page-{nn}.{ext}`
+  - `render_answers_pdf_pages_to_bundle(...)` to render selected answer PDF pages in mapping order to `answers/page-{nn}.{ext}`
+  - guardrails for page-range validation, optional cleanup of stale full-page renders, and explicit PyMuPDF dependency erroring
+- `tests/test_marking_asset_render.py`:
+  - covers standardized naming output
+  - verifies cleanup behavior for stale `page-*` full-page files
+  - verifies answer-page mapping order output and out-of-range page validation
+- `core/artifact_cleanup.py`:
+  - `remove_marking_run_artifacts(...)` to remove one run's canonical JSON, learning report, and marking asset bundle as a single operation
+  - strict vs best-effort mode, dry-run planning, and path-safety guardrails under `context_root`
+- `workflows/remove_run_artifacts.py`:
+  - CLI wrapper for run-level artifact removal (`--dry-run`, strict default, optional `--best-effort`)
+- `tests/test_artifact_cleanup.py`:
+  - covers strict missing-artifact errors, best-effort skipping, unsafe bundle-path rejection, recursive bundle deletion, and report-path derivation
+
+### Changed
+
+- `api.py` / `assets/__init__.py`:
+  - export new render helpers in the public package API
+- `api.py`:
+  - exports run-artifact cleanup surface (`remove_marking_run_artifacts`, `MarkingRunRemovalPlan`, `MarkingRunRemovalResult`, `MarkingRunArtifactRemovalError`)
+
+### Documentation
+
+- `README.md`:
+  - bump current version to `v0.2.11`
+  - align example `evidence_image` to standardized `attempt/page-01.png`
+  - add quick-start snippet for `render_attempt_pdf_to_bundle(...)`
+  - add `remove_run_artifacts` workflow usage in quick-start
+- `TESTING.md`:
+  - add artifact-cleanup test scope and command
+- `SPEC.md`:
+  - add normative run-artifact cleanup contract section (`remove_marking_run_artifacts`)
+  - add cleanup workflow/core modules to public entry points
+- `ARCHITECTURE.md`:
+  - include run-artifact cleanup in responsibilities, module boundaries, and remediation flow notes
+- `docs/proposal/`:
+  - mark completion-lookup proposal (`2-...`) as implemented (`v0.2.0`)
+  - mark run-artifact-removal proposal (`6-...`) as implemented (`v0.2.11`)
+- Skill alignment (consumer side):
+  - `.cursor/skills/mark-goodnote-completion/SKILL.md`
+  - `.cursor/skills/diagnose-student-school-work/SKILL.md`
+  - both now instruct using package render helpers instead of ad hoc PyMuPDF snippets where possible.
+
+## [0.2.10] - 2026-04-23
+
+Patch: establish Marking Asset Bundle (MAB) package support and validation, then align operator workflows to the same contract.
+
+### Added
+
+- `assets/` package:
+  - `layout.py` with bundle dir constants and full-page filename regex helpers
+  - `paths.py` with shared bundle path derivation (`marking_asset_rel_path_from_artifact_path`) and safe bundle resolution (`bundle_root_from_context`)
+  - `validate.py` with `ValidationReport`, strict/lenient checks, evidence-image safety checks, and review-readiness assertion
+- `workflows/validate_bundle.py` CLI for validating one artifact's bundle against the MAB contract.
+- `tests/test_marking_asset_bundle.py` for bundle path + validation coverage.
+
+### Changed
+
+- `core/artifact_writer.py`:
+  - uses shared path builder for `context.marking_asset` derivation
+  - creates required `attempt/` and `crops/` subdirectories whenever `context.marking_asset` is present
+- `api.py`:
+  - exports bundle helpers and validators (`ValidationIssue`, `ValidationReport`, `validate_marking_asset_bundle`, `assert_marking_asset_bundle_ready_for_review`, path helpers)
+- `tests/test_artifact_core.py`:
+  - verifies writer-created bundle subdirectories (`attempt/`, `crops/`)
+
+### Documentation
+
+- Proposal update: `docs/proposal/5-marking-asset-bundle-standardization.md` now captures:
+  - explicit path-safety rules for `context.marking_asset` and `question_page_map[].evidence_image`
+  - `bundle.json` lifecycle rule: write only after render finalization
+  - removal of speculative `workflow_mode` manifest field
+- `README.md`:
+  - bump current version to `v0.2.10`
+  - add bundle-validation CLI usage
+- `TESTING.md`:
+  - add MAB validation test coverage and test command
+- Skill alignment (consumer side, small part of this release):
+  - `.cursor/skills/mark-goodnote-completion/SKILL.md` and `.cursor/skills/diagnose-student-school-work/SKILL.md` now follow the standardized MAB root and `page-{nn}` full-page naming.
+
 ## [0.2.9] - 2026-04-22
 
 Minor: bump canonical schema to `marking_result.v1.4` with per-question attempt-page anchors for forward runs.

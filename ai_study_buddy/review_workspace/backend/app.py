@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from contextlib import asynccontextmanager
 import json
 import os
 import re
@@ -10,6 +11,8 @@ from typing import Any
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+
+from ai_study_buddy.marking.assets.validate import ValidationIssue, validate_marking_asset_bundle
 
 
 def _repo_root() -> Path:
@@ -41,6 +44,47 @@ def _load_pilot_artifact() -> PilotArtifact:
         raise RuntimeError(f"Pilot JSON does not exist: {PILOT_JSON_PATH}")
     payload = json.loads(PILOT_JSON_PATH.read_text(encoding="utf-8"))
     return PilotArtifact(path=PILOT_JSON_PATH, payload=payload)
+
+
+def _format_validation_errors(issues: list[ValidationIssue], *, limit: int = 5) -> str:
+    parts: list[str] = []
+    for issue in issues[:limit]:
+        if issue.path:
+            parts.append(f"{issue.code}: {issue.message} ({issue.path})")
+        else:
+            parts.append(f"{issue.code}: {issue.message}")
+    if len(issues) > limit:
+        parts.append(f"...and {len(issues) - limit} more")
+    return "; ".join(parts)
+
+
+def _validate_pilot_artifact_bundle(artifact: PilotArtifact) -> None:
+    payload = artifact.payload
+    context = payload.get("context", {})
+    if not isinstance(context, dict):
+        raise RuntimeError("Pilot artifact context missing or invalid")
+
+    marking_asset = context.get("marking_asset")
+    if not isinstance(marking_asset, str) or not marking_asset.strip():
+        raise RuntimeError("marking_asset missing in pilot artifact")
+
+    bundle_root = CONTEXT_ROOT / marking_asset
+    report = validate_marking_asset_bundle(
+        bundle_root=bundle_root,
+        artifact_dict=payload,
+        strict=True,
+    )
+    if not report.ok:
+        raise RuntimeError(
+            "Pilot marking asset bundle failed strict validation: "
+            + _format_validation_errors(report.errors)
+        )
+
+
+def _load_and_validate_pilot_artifact() -> PilotArtifact:
+    artifact = _load_pilot_artifact()
+    _validate_pilot_artifact_bundle(artifact)
+    return artifact
 
 
 def _extract_page_num(path: Path) -> int:
@@ -120,7 +164,17 @@ def _find_attempt_page_for_result(
     return None
 
 
-app = FastAPI(title="AI Study Buddy Review Workspace Backend", version="0.1.0")
+@asynccontextmanager
+async def _app_lifespan(app: FastAPI):
+    app.state.pilot_artifact = _load_and_validate_pilot_artifact()
+    yield
+
+
+app = FastAPI(
+    title="AI Study Buddy Review Workspace Backend",
+    version="0.1.0",
+    lifespan=_app_lifespan,
+)
 
 app.add_middleware(
     CORSMiddleware,
@@ -134,6 +188,15 @@ app.add_middleware(
 app.mount(STATIC_ROUTE_PREFIX, StaticFiles(directory=str(CONTEXT_ROOT)), name="review-workspace-static")
 
 
+def _get_pilot_artifact() -> PilotArtifact:
+    cached = getattr(app.state, "pilot_artifact", None)
+    if isinstance(cached, PilotArtifact):
+        return cached
+    artifact = _load_and_validate_pilot_artifact()
+    app.state.pilot_artifact = artifact
+    return artifact
+
+
 @app.get("/api/health")
 def health() -> dict[str, str]:
     return {"status": "ok"}
@@ -141,7 +204,7 @@ def health() -> dict[str, str]:
 
 @app.get("/api/students")
 def students() -> dict[str, list[dict[str, str]]]:
-    artifact = _load_pilot_artifact()
+    artifact = _get_pilot_artifact()
     context = artifact.payload.get("context", {})
     student_id = str(context.get("student_id") or "winston")
     student_name = str(context.get("student_name") or "Winston")
@@ -158,7 +221,7 @@ def students() -> dict[str, list[dict[str, str]]]:
 
 @app.get("/api/student/attempts")
 def attempts(student_id: str = Query(...)) -> dict[str, list[dict[str, Any]]]:
-    artifact = _load_pilot_artifact()
+    artifact = _get_pilot_artifact()
     payload = artifact.payload
     context = payload.get("context", {})
     summary = payload.get("summary", {})
@@ -195,7 +258,7 @@ def attempts(student_id: str = Query(...)) -> dict[str, list[dict[str, Any]]]:
 
 @app.get("/api/student/attempts/{attempt_id}")
 def attempt_detail(attempt_id: str) -> dict[str, Any]:
-    artifact = _load_pilot_artifact()
+    artifact = _get_pilot_artifact()
     payload = artifact.payload
     context = payload.get("context", {})
     summary = payload.get("summary", {})
@@ -291,7 +354,7 @@ def attempt_detail(attempt_id: str) -> dict[str, Any]:
 
 @app.put("/api/student/attempts/{attempt_id}/review-state")
 def put_review_state(attempt_id: str, body: dict[str, Any]) -> dict[str, Any]:
-    artifact = _load_pilot_artifact()
+    artifact = _get_pilot_artifact()
     context = artifact.payload.get("context", {})
     resolved_attempt_id = _attempt_id_from_context(context, artifact.path)
     if attempt_id != resolved_attempt_id:

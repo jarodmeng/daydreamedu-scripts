@@ -144,7 +144,10 @@ Important reporting discipline:
 
 Render only the pages needed for visual comparison.
 
-Preferred tool: PyMuPDF via `fitz`.
+Preferred package entrypoints:
+
+- `ai_study_buddy.marking.render_attempt_pdf_to_bundle(...)`
+- `ai_study_buddy.marking.render_answers_pdf_pages_to_bundle(...)`
 
 Recommended pattern:
 
@@ -157,13 +160,22 @@ Recommended pattern:
 Example:
 
 ```python
-from pathlib import Path
-import fitz
+from ai_study_buddy.marking import (
+    render_answers_pdf_pages_to_bundle,
+    render_attempt_pdf_to_bundle,
+)
 
-pdf = fitz.open(input_pdf)
-page = pdf[0]
-pix = page.get_pixmap(matrix=fitz.Matrix(2, 2), alpha=False)
-pix.save(output_png)
+render_attempt_pdf_to_bundle(
+    input_attempt_pdf,
+    bundle_root,
+    dpi_scale=2.0,
+)
+render_answers_pdf_pages_to_bundle(
+    input_answer_pdf,
+    bundle_root,
+    pages_1_based=[11, 12, 13],  # mapping order
+    dpi_scale=2.0,
+)
 ```
 
 Visual-first rule:

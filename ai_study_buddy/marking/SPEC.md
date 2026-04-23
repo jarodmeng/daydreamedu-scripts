@@ -13,6 +13,7 @@ The package guarantees:
 2. deterministic artifact path/naming conventions
 3. schema and scoring validation
 4. markdown rendering as a non-canonical derived view
+5. safe run-level artifact cleanup for canonical JSON, derived report, and marking-asset bundle
 
 ## Canonical Data Contract
 
@@ -23,8 +24,8 @@ The package guarantees:
   `ai_study_buddy/context/marking_results/<student>/<subject_context>/<attempt_basename>.json`
 - Derived markdown path:
   `ai_study_buddy/context/learning_reports/<student>/<subject_context>/<attempt_basename> - Marking Report.md`
-- Ephemeral page renders, verification crops, and per-run `_*.py` helpers (not part of this package) live under:
-  `ai_study_buddy/context/marking_assets/<scratch_slug>/` — see `.cursor/skills/mark-goodnote-completion/SKILL.md`.
+- Ephemeral page renders, verification crops, and per-run `_*.py` helpers (not part of this package) live under the standardized bundle root:
+  `ai_study_buddy/context/marking_assets/<student_slug>/<subject_context>/<artifact_stem>/` — see `.cursor/skills/mark-goodnote-completion/SKILL.md`.
 
 ## Core Functional Requirements
 
@@ -277,19 +278,61 @@ Output contract:
    - JSON path ascending tie-breaker
 3. Empty list is valid when no matches are found.
 
+### 8) Run artifact cleanup contract
+
+Primary function:
+
+- `remove_marking_run_artifacts(...) -> MarkingRunRemovalResult`
+
+Purpose:
+
+- Remove one marking run's filesystem artifacts as one operation:
+  - canonical JSON under `context/marking_results/...`
+  - derived markdown report under `context/learning_reports/...`
+  - marking-asset bundle under `context/marking_assets/...` when `context.marking_asset` is set
+
+Input contract:
+
+1. `marking_result_json` identifies the run and may be absolute or relative to `context_root`.
+2. v1 identity is JSON-path only (no delete-by-completion-id/path helper in this contract).
+3. `mode` supports:
+   - `strict` (default): any missing expected artifact is an error
+   - `best_effort`: missing artifacts are skipped
+4. Path-safety checks are mandatory in both modes.
+
+Safety rules:
+
+1. Canonical JSON path must resolve under `context_root/marking_results/`.
+2. Derived report path must resolve under `context_root/learning_reports/`.
+3. Bundle path (when present) must resolve under `context_root/marking_assets/`.
+4. Invalid or unsafe `context.marking_asset` values are rejected.
+5. Bundle-root symlink deletion is rejected.
+
+Behavior:
+
+1. Dry-run (`dry_run=True`) computes plan/output without deleting.
+2. Delete ordering is:
+   - learning report
+   - marking-asset bundle
+   - canonical JSON last
+3. Result includes requested plan, deleted paths, and skipped-missing paths.
+
 ## Public Entry Points
 
 - `api.py`: compact public import surface for package consumers
 - `workflows/migrate_learning_reports.py`: markdown to canonical JSON migration
 - `workflows/report_renderer.py`: canonical JSON to markdown renderer
 - `workflows/edit_human_notes.py`: safe note editing utility with schema validation
+- `workflows/remove_run_artifacts.py`: run-level cleanup workflow for one canonical artifact path
 - `core/artifact_writer.py`: canonical JSON writer helper
 - `core/artifact_schema.py`: schema loading/validation and scoring utilities
 - `core/artifact_paths.py`: naming/path builder utilities
 - `core/artifact_lookup.py`: completion-to-artifact lookup utility
+- `core/artifact_cleanup.py`: safe run-level artifact cleanup utility
 
 ## Non-Goals
 
 - Bounding-box or crop-region evidence storage in artifact rows
 - Database-first canonical storage
 - Revision graph semantics (`revision`, `supersedes_marking_id`)
+- Soft-delete/archive/recovery log for deleted run artifacts
