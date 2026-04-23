@@ -1,6 +1,6 @@
 ---
 name: diagnose-student-school-work
-description: Builds a canonical `marking_result.v1.1` JSON plus the same derived markdown learning report as GoodNotes marking, for **school-returned completion PDFs that have no separate answer key** (e.g. weighted assessments, class quizzes, term tests). Ground truth for right/wrong and marks is inferred **from the completion itself**—especially teacher annotations (often red), student corrections (often green), and printed rubrics—while **student original answers** are transcribed **verbatim from blue/black ink only**. Use when the user wants a learning report in the marking-package style for teacher-marked work that cannot follow `mark-goodnote-completion` because there is no mapped answer PDF.
+description: Builds a canonical `marking_result.v1.4` JSON plus the same derived markdown learning report as GoodNotes marking, for **school-returned completion PDFs that have no separate answer key** (e.g. weighted assessments, class quizzes, term tests). Ground truth for right/wrong and marks is inferred **from the completion itself**—especially teacher annotations (often red), student corrections (often green), and printed rubrics—while **student original answers** are transcribed **verbatim from blue/black ink only**. Use when the user wants a learning report in the marking-package style for teacher-marked work that cannot follow `mark-goodnote-completion` because there is no mapped answer PDF.
 ---
 
 # Diagnose Student School Work (Teacher-Annotated Completion)
@@ -25,7 +25,8 @@ Authoritative paths, naming, timestamps, and JSON-first discipline are identical
 - **Singapore time** for `created_at` / `updated_at` and `__YYYYMMDD_HHMMSS`: `ai_study_buddy.marking.core.marking_time` (`now_marking_iso`, `to_marking_iso`); use `write_marking_artifact` so times normalize on save.
 - **Canonical JSON:** `ai_study_buddy/context/marking_results/<student_slug>/<subject_context>/<attempt_basename>.json`
 - **Derived markdown:** `ai_study_buddy/context/learning_reports/<student_slug>/<subject_context>/<attempt_basename> - Marking Report.md`
-- **Scratch (renders, crops, `_*.py`):** `ai_study_buddy/context/marking_assets/<scratch_slug>/` with the same `scripts/`, `attempt/`, `crops/` layout as the marking skill.
+- **Marking Asset Bundle (renders, crops, `_*.py`):** `ai_study_buddy/context/marking_assets/<student_slug>/<subject_context>/<artifact_stem>/` where `<artifact_stem>` equals the canonical JSON stem (`context.marking_asset` is authoritative for this path).
+- **Full-page naming under MAB:** `attempt/page-{nn}.png` and (when used) `answers/page-{nn}.png`. `crops/` keeps descriptive names.
 
 Write JSON first, then render markdown with:
 
@@ -68,6 +69,12 @@ This is the **inverse** of the scoring rule in `mark-goodnote-completion`, which
 - **Language for `diagnosis.reasoning`:** use the language appropriate to the student and paper. The marking package requires **Simplified Chinese** for `diagnosis.reasoning` only when `subject_context` is **`singapore_primary_chinese`** or **`singapore_primary_higher_chinese`** (same rule as `mark-goodnote-completion`). For other contexts, write in the language the user expects (usually the language of instruction on the paper).
 - **`skill_tags`:** same subject policies as the marking skill (see `mark-goodnote-completion` for math, science, English, Chinese, HC, and legacy rules).
 - **`scoring_status`:** usually `counted`; use `excluded_disqualified` + `outcome: disqualified` only for items the user asked to skip or that truly cannot be grounded.
+- Build `context.question_page_map` in the same pass as `question_results`:
+  - one entry per confidently mapped gradable row
+  - `result_id` must match the row id in `question_results`
+  - `attempt_page_start` is the earliest attempt page where the question appears (`>=1`)
+  - include `confidence` (`high|medium|low`) and `source` (`manual_visual` in this workflow)
+  - include optional `evidence_image` / `note` when ambiguity should be preserved
 
 ## `context` fields when there is no answer file
 
@@ -102,9 +109,9 @@ Adjust `notes` per run to list any user-supplied rubric, pages graded, or uncert
 ## Visual workflow (recommended)
 
 1. Resolve the completion path (and optional registry metadata) via `PdfFileManager` / `resolve_marking_context` when helpful—but **do not** block the run solely because there is no answer mapping.
-2. Render attempt pages to PNG under `marking_assets/.../attempt/` (PyMuPDF `fitz`, same pattern as the marking skill).
+2. Render attempt pages to PNG under `context.marking_asset/attempt/` (PyMuPDF `fitz`) using `page-{nn}.png` full-page naming.
 3. Work **from images**, not from memory or filename alone.
-4. Optional: store tight **crops** under `crops/` for difficult items (evidence for future humans; not written into canonical JSON paths today).
+4. Optional: store tight **crops** under `context.marking_asset/crops/` for difficult items (evidence for future humans).
 
 ## Run checklist (quick)
 
@@ -130,5 +137,5 @@ Use this checklist before final handoff:
 
 - Do not fabricate student handwriting or teacher comments.
 - Do not treat filename or registry metadata as proof of correctness.
-- Do not put scratch PNGs under `marking_results/` or `learning_reports/`.
+- Do not put PNG renders/crops under `marking_results/` or `learning_reports/`; keep them under the run MAB root (`context.marking_asset`).
 - If the paper is too faint or ambiguous for an item, mark low confidence and narrow the claimed scope rather than guessing.

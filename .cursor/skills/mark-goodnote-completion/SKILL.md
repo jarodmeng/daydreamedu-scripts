@@ -1,6 +1,6 @@
 ---
 name: mark-goodnote-completion
-description: Mark a student's GoodNotes completion PDF against the registry-linked DaydreamEdu template and mapped answer-page range, then write a canonical JSON marking artifact under `ai_study_buddy/context/marking_results/<student>/<subject_context>/` and a derived markdown learning report under `ai_study_buddy/context/learning_reports/<student>/<subject_context>/`. **Each wrong or partial item must receive a careful, specific diagnosis** (not generic boilerplate): explain the real learning gap using the question, key, and student answer. Per-run renders, crops, and one-off `_*.py` helpers live together under `ai_study_buddy/context/marking_assets/<scratch_slug>/` (see `scripts/` subfolder). Use when the user wants a GoodNotes completion graded, marked, compared with worked solutions, or turned into a learning report.
+description: Mark a student's GoodNotes completion PDF against the registry-linked DaydreamEdu template and mapped answer-page range, then write a canonical JSON marking artifact under `ai_study_buddy/context/marking_results/<student>/<subject_context>/` and a derived markdown learning report under `ai_study_buddy/context/learning_reports/<student>/<subject_context>/`. **Each wrong or partial item must receive a careful, specific diagnosis** (not generic boilerplate): explain the real learning gap using the question, key, and student answer. Per-run renders, crops, and one-off `_*.py` helpers must live in the standardized marking asset bundle rooted at `context.marking_asset` (`marking_assets/<student_slug>/<subject_context>/<artifact_stem>`). Use when the user wants a GoodNotes completion graded, marked, compared with worked solutions, or turned into a learning report.
 ---
 
 # Mark GoodNotes Completion
@@ -12,7 +12,7 @@ Use this workflow when the user wants a GoodNotes completion PDF visually graded
 
 This skill is for JSON-first report generation and manual visual marking, not for changing registry data.
 
-## Filesystem layout (canonical vs scratch)
+## Filesystem layout (canonical + MAB)
 
 Authoritative naming and paths for **committed / long-lived** artifacts are defined in:
 
@@ -27,7 +27,7 @@ These paths are stable and should match the package helpers whenever you use cod
 
 | Artifact | Path |
 | --- | --- |
-| Canonical JSON (`marking_result.v1.3`; reader accepts `v1`, `v1.1`, `v1.2`, `v1.3`) | `ai_study_buddy/context/marking_results/<student_slug>/<subject_context>/<attempt_basename>.json` |
+| Canonical JSON (`marking_result.v1.4`; reader accepts `v1`, `v1.1`, `v1.2`, `v1.3`, `v1.4`) | `ai_study_buddy/context/marking_results/<student_slug>/<subject_context>/<attempt_basename>.json` |
 | Derived markdown report | `ai_study_buddy/context/learning_reports/<student_slug>/<subject_context>/<attempt_basename> - Marking Report.md` |
 
 Rules:
@@ -37,37 +37,41 @@ Rules:
 - **Timestamps (SGT):** Use **Singapore time** (`Asia/Singapore`, `+08:00`) for `created_at` / `updated_at` on canonical JSON. Call `now_marking_iso()` or `to_marking_iso(...)` from `ai_study_buddy.marking` (see `core/marking_time.py`); `write_marking_artifact` normalizes any parseable instant to SGT on save. The `__YYYYMMDD_HHMMSS` suffix is the **Singapore local wall-clock** time for that instant — do **not** use UTC (`Z`) or `datetime.utcnow()` for persisted marking times.
 - Do not put PNG crops or page renders inside `marking_results/` or `learning_reports/`; those directories are for JSON and markdown only.
 
-### Tier B — Per-run scratch bundle (renders + crops + one-off scripts; not canonical)
+### Tier B — Marking Asset Bundle (MAB) for the run
 
-Put **everything** for one marking job that is *not* Tier A JSON/markdown under a **single run directory** so renders and helper code stay easy to find, archive, or delete together:
+Put **everything** for one marking job that is not Tier A JSON/markdown under the run's standardized bundle root:
 
-**Root (required for new work):** `ai_study_buddy/context/marking_assets/<scratch_slug>/`
+`ai_study_buddy/context/marking_assets/<student_slug>/<subject_context>/<artifact_stem>/`
 
-**Legacy only:** older trees at `ai_study_buddy/context/.tmp_<scratch_slug>/` should be **moved into** `marking_assets/<scratch_slug>/` (same layout below) when you next touch them; do not add new `.tmp_*` roots at `context/` top level.
+Rules:
 
-Suggested **`<scratch_slug>`**: `<student_slug>__<short_unit_or_book_hint>` in lowercase (e.g. `winston__power_pack_circles`, `emma__math_model_skill_2_5`). Keep it short and unique enough that concurrent jobs do not collide.
+- `context.marking_asset` is the authoritative relative bundle root and must follow the path above.
+- `<artifact_stem>` must equal the canonical JSON basename stem for that run.
+- Do not create or keep new ad hoc roots such as `.tmp_*` or `marking_assets/<scratch_slug>/` for active runs.
+- If legacy scratch folders are encountered, move contents into the standardized bundle root before finalizing JSON/report.
 
 Standard **layout** under that directory:
 
 | Path | Contents |
 | --- | --- |
 | `scripts/` | Per-run **one-off** Python helpers (`_<name>.py`): render PDFs to PNG, crop answer blocks, glue steps before/after `artifact_writer` / `report_renderer`, etc. **Do not** leave new `_*.py` marking drivers under `ai_study_buddy/marking/` package root — co-locate them here next to the PNGs they produce. |
-| `attempt/` | Rendered GoodNotes attempt pages (e.g. `attempt-page-NN.png`). |
-| `answers/` | Rendered answer PDF pages for the mapped (or embedded) range. |
+| `attempt/` | Rendered GoodNotes attempt pages, full-page naming: `page-{nn}.png` (for example `page-01.png`). |
+| `answers/` | Rendered answer PDF pages for the mapped (or embedded) range, same full-page naming: `page-{nn}.png`. |
 | `crops/` | Isolated answer-key crops and tighter verification crops (Section 4.5). |
 
-**Imports:** scripts in `scripts/` still import the real package (`ai_study_buddy.marking`, `fitz`, etc.). Run them from the **repository root** with `python3 ai_study_buddy/context/marking_assets/<scratch_slug>/scripts/_your_script.py` (or equivalent) so repo imports resolve; inside the script, resolve paths relative to the scratch dir (e.g. `Path(__file__).resolve().parent.parent / "attempt"`) so the folder can be moved without editing.
+**Imports:** scripts in `scripts/` still import the real package (`ai_study_buddy.marking`, `fitz`, etc.). Run them from the repository root and resolve paths relative to the bundle root (for example `Path(__file__).resolve().parent.parent / "attempt"`).
 
 Renders and crops are **not** canonical; only Tier A JSON (and derived report) are. Prefer placeholder-normalized paths in persisted JSON per `SPEC.md` path-privacy rules.
 
-**Promoting code:** when a script’s logic is reusable across many books, **fold** it into `ai_study_buddy/marking/workflows/` (or `core/`) and delete the one-off copy from `scripts/` — the scratch tree then holds only run-specific knobs (paths, page lists) or nothing until the next job.
+**Promoting code:** when a script’s logic is reusable across many books, **fold** it into `ai_study_buddy/marking/workflows/` (or `core/`) and delete the one-off copy from `scripts/` — the run bundle then holds only run-specific knobs (paths, page lists) or nothing until the next job.
 
 ### Cleanup and repo hygiene
 
 After JSON + markdown are written and validated:
 
-- Remove or move the **entire** `marking_assets/<scratch_slug>/` directory (including `scripts/`) to Trash when no longer needed.
-- Do not commit scratch trees; they should remain **untracked** (repo `.gitignore` may list `ai_study_buddy/context/marking_assets/` and legacy `ai_study_buddy/context/.tmp_*` if noise becomes a problem).
+- Keep render/crop evidence inside the standardized `context.marking_asset` bundle for auditability unless the user explicitly asks to archive/clean it.
+- If cleanup is requested, archive/remove the **bundle root** for that run, not an ad hoc scratch path.
+- Do not commit bundle trees; they should remain untracked.
 
 ## Prerequisite
 
@@ -146,7 +150,8 @@ Recommended pattern:
 
 - render all pages of the GoodNotes completion PDF
 - render only the mapped answer pages from the answer PDF
-- write temporary PNGs under **Tier B**: `ai_study_buddy/context/marking_assets/<scratch_slug>/{attempt,answers,crops}/` and place any per-run `_*.py` helpers in `.../<scratch_slug>/scripts/`
+- write renders/crops under the run bundle root from `context.marking_asset`: `{attempt,answers,crops}/`
+- for full-page renders under `attempt/` and `answers/`, use only `page-{nn}.png` naming
 - inspect the rendered PNGs as images rather than relying on OCR
 
 Example:
@@ -202,6 +207,17 @@ Cross-check the **question count** before marking:
 - Set `context.is_partial` explicitly:
   - `true` when grading only a subset/part (for example selected pages or selected questions only)
   - `false` when grading the full intended paper/exercise scope
+- Build `context.question_page_map` in parallel with `question_results` (same pass):
+  - one entry per confidently mapped gradable row
+  - `result_id` must match the row id in `question_results`
+  - record earliest page where the question appears as `attempt_page_start` (`>=1`)
+  - include `confidence` (`high|medium|low`) and `source` (`manual_visual` for this workflow)
+  - include optional `evidence_image` / `note` when useful for auditability
+- **Mapping is a critical deliverable, not bookkeeping.** Treat `context.question_page_map` with the same care as marks:
+  - verify each `result_id` points to the **first** page where that question appears (not a later continuation page)
+  - verify no mapped page falls outside the graded attempt-page range
+  - verify every row in `question_results` has exactly one mapping entry, and no extra mapping rows exist
+  - after drafting the map, run a second pass focused only on mapping accuracy before finalizing JSON/report
 - If you discover additional questions while marking (for example a Q35 on a later page), stop and update the lists so that the final JSON and report cover **all intended questions** and no more.
 
 Do not grade:
@@ -265,10 +281,11 @@ Filename pattern:
 
 `<normalized attempt basename>__YYYYMMDD_HHMMSS.json`
 
-The canonical JSON must follow `marking_result.v1.3` (reader accepts `v1`, `v1.1`, `v1.2`, and `v1.3`) and should include:
+The canonical JSON must follow `marking_result.v1.4` (reader accepts `v1`, `v1.1`, `v1.2`, `v1.3`, and `v1.4`) and should include:
 
 - context
-- `context.is_partial` (required boolean in v1.3)
+- `context.is_partial` (required boolean in v1.3+)
+- `context.question_page_map` (required array in v1.4; may be empty, but populate all confidently mapped gradable rows)
 - summary
 - `question_results` as gradable leaf units
 - **`diagnosis` for every result** — for wrong and partial rows this is **mandatory** and must meet the bar in [Diagnosis Guidance](#diagnosis-guidance) (specific, learning-focused, not placeholder text)
@@ -471,12 +488,16 @@ Before finishing, verify:
 - the template and answer file paths are correct
 - the answer page range matches the registry mapping
 - every graded row is visibly supported by both the attempt page and answer page
+- `context.question_page_map` was independently re-checked end-to-end (all `result_id`s present, no extras, and every `attempt_page_start` is the true first appearance page)
 - the target exercise answer key was isolated in a dedicated crop (not a mixed panel)
 - the final key list was checked in two passes, question-by-question
 - **every wrong and partial row has a specific, non-boilerplate `diagnosis.reasoning` that would help the student improve on a similar item** (in **Chinese** for `singapore_primary_chinese` / `singapore_primary_higher_chinese`; see [Diagnosis language](#diagnosis-language-chinese--higher-chinese))
 - the score totals add up
 - the percentage is correct
 - the markdown report matches the JSON artifact
+- `context.marking_asset` points to the standardized MAB run folder (`marking_assets/<student_slug>/<subject_context>/<artifact_stem>`), and that folder contains the rendered/cropped evidence referenced during marking
+- full-page files under `attempt/` and `answers/` use only `page-{nn}.png` naming
+- no grading-critical evidence remains in an out-of-band scratch folder; move it into `context.marking_asset` before finalizing
 
 ## Guardrails
 
@@ -485,10 +506,11 @@ Before finishing, verify:
 - Do not treat red/green/purple annotations as the student’s original attempt for scoring purposes; score from blue/black student writing only.
 - Do not claim a question is wrong unless the mismatch is visible.
 - Do not finalize a report until the target exercise answer key is visually verified with the required two-pass isolated-crop protocol.
+- Do not treat question-to-page mapping as optional metadata; if page mapping is uncertain, stop and resolve it before finalizing.
 - Do not silently grade beyond the visible scope of the completion file.
 - If the answer mapping or template link is missing, stop and report the missing dependency instead of guessing.
 - If handwriting or page coverage is too unclear to grade reliably, say so and limit the report to confident items only.
-- Do not leave temporary rendered PNGs in tracked report folders; keep them under **Tier B** `marking_assets/<scratch_slug>/` (with co-located `scripts/` for `_*.py`) and clean up the whole run folder after marking.
+- Do not leave rendered PNGs in tracked report folders or ad hoc scratch roots; keep them under `context.marking_asset` MAB (`marking_assets/<student_slug>/<subject_context>/<artifact_stem>/`).
 - Do not treat markdown as canonical data; always write JSON first.
 - Do not ship a report with placeholder or copy-paste diagnoses for multiple errors; **each** error deserves its own careful read.
 
