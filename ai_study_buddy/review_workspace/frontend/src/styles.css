@@ -1,0 +1,278 @@
+:root {
+  --bg: #f8f4ec;
+  --panel: #ffffff;
+  --line: #e3d9c8;
+  --ink: #2f2a24;
+  --ink-soft: #6a5f53;
+  --accent: #2f7d6f;
+  --accent-soft: #d9efe8;
+  --warn: #9c5f18;
+  --warn-soft: #f8e7d1;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Avenir Next", "Segoe UI", sans-serif;
+  color: var(--ink);
+  background: radial-gradient(circle at top left, #fdf8ee, var(--bg));
+  overflow: hidden;
+}
+
+.shell {
+  height: 100vh;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: 10px;
+  padding: 10px;
+  overflow: hidden;
+}
+
+.top-panel,
+.bottom-panel,
+.left-panel,
+.right-panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+
+.top-panel {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px;
+}
+
+.attempt-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.attempt-meta span {
+  color: var(--ink-soft);
+  font-size: 13px;
+}
+
+.question-nav {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.question-nav button {
+  border: 1px solid var(--line);
+  background: #fff;
+  border-radius: 8px;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+.pill {
+  border-radius: 999px;
+  padding: 3px 8px;
+  font-size: 12px;
+}
+
+.pill.warning {
+  background: var(--warn-soft);
+  color: var(--warn);
+}
+
+.middle-grid {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 10px;
+}
+
+.left-panel,
+.right-panel {
+  min-height: 0;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+}
+
+.panel-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  border-bottom: 1px solid var(--line);
+}
+
+.viewer {
+  padding: 10px;
+  min-height: 0;
+  overflow: auto;
+  display: grid;
+  justify-items: center;
+  align-content: start;
+}
+
+.viewer img.fit-width {
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.viewer img.fit-height {
+  height: 100%;
+  width: auto;
+  max-width: none;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.thumbs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 10px;
+  border-top: 1px solid var(--line);
+}
+
+.thumb {
+  border: 1px solid var(--line);
+  background: #fff;
+  border-radius: 999px;
+  padding: 4px 10px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.thumb.active {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.toggle {
+  display: flex;
+  gap: 6px;
+}
+
+.zoom-widget {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.zoom-widget button {
+  border: 1px solid var(--line);
+  background: #fff;
+  border-radius: 8px;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+.zoom-widget span {
+  min-width: 46px;
+  text-align: center;
+  color: var(--ink-soft);
+  font-size: 13px;
+}
+
+.zoom-widget input[type="range"] {
+  width: 120px;
+}
+
+.toggle button {
+  border: 1px solid var(--line);
+  background: #fff;
+  border-radius: 8px;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+.toggle button.active,
+.scope-tabs button.active {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+
+.right-panel {
+  grid-template-rows: auto auto 1fr;
+  overflow: hidden;
+}
+
+.card {
+  padding: 12px;
+  border-bottom: 1px solid var(--line);
+}
+
+.card h2 {
+  margin: 0 0 8px 0;
+}
+
+.card p {
+  margin: 6px 0;
+  color: var(--ink-soft);
+}
+
+.notes {
+  min-height: 0;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: 8px;
+  padding: 12px;
+}
+
+.scope-tabs {
+  display: flex;
+  gap: 6px;
+}
+
+.scope-tabs button {
+  border: 1px solid var(--line);
+  background: #fff;
+  border-radius: 8px;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+.notes textarea {
+  width: 100%;
+  min-height: 120px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 10px;
+  resize: vertical;
+  font: inherit;
+}
+
+.notes button {
+  justify-self: start;
+  border: 1px solid var(--line);
+  background: #fff;
+  border-radius: 8px;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+.bottom-panel {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 10px;
+  align-items: center;
+}
+
+.bottom-panel button {
+  border: 1px solid var(--line);
+  background: #fff;
+  border-radius: 8px;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+@media (max-width: 960px) {
+  .middle-grid {
+    grid-template-columns: 1fr;
+  }
+}
