@@ -32,7 +32,7 @@ Implemented and verified in-repo:
 3. Operator skills were updated:
    - `.cursor/skills/mark-goodnote-completion/SKILL.md`
    - `.cursor/skills/diagnose-student-school-work/SKILL.md`
-   - `.cursor/skills/oneoff-detect-question-starting-page/SKILL.md`
+   - `.cursor/skills_archive/oneoff-detect-question-starting-page/SKILL.md` (archived)
 4. A pilot `v1.4` artifact was produced via the one-off skill:
    - `ai_study_buddy/context/marking_results/winston/singapore_primary_math/PP Math PSLE Part D P6 Topical Practice Percentage__20260421_194508.json`
 5. Pilot artifact characteristics:
@@ -160,7 +160,7 @@ The mapping task is fluid and should be executed by an AI operator procedure enc
 
 Add skill:
 
-`.cursor/skills/oneoff-detect-question-starting-page/SKILL.md`
+`.cursor/skills_archive/oneoff-detect-question-starting-page/SKILL.md` (archived)
 
 Skill objective:
 
@@ -438,7 +438,7 @@ Status legend:
 
 #### TODO Checklist
 
-- [x] Create `.cursor/skills/oneoff-detect-question-starting-page/SKILL.md`.
+- [x] Create `.cursor/skills_archive/oneoff-detect-question-starting-page/SKILL.md` (archived).
 - [x] Define explicit input contract: one marking-result JSON path per run.
 - [x] Define gradable-question extraction step (`question_results[].result_id`).
 - [x] Define marking-asset resolution and completeness checks.
