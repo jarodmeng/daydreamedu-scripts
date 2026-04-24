@@ -10,8 +10,8 @@ Version baseline: `v0.1.0`.
 
 1. canonical data engines (`marking`, `pdf_file_manager`)
 2. domain orchestration (`student_review`)
-3. app surfaces (`review_workspace`)
-4. supporting utilities/workflows (`files`, `split_book_answer_by_unit_using_ai`)
+3. app surfaces (`review_workspace`, `root_pdf_browser`)
+4. supporting utilities/workflows (`files`, `utils`, `split_book_answer_by_unit_using_ai`)
 
 ## 2) Layering
 
@@ -27,17 +27,22 @@ Version baseline: `v0.1.0`.
 ### App Layer
 
 - `review_workspace`: FastAPI app adapter and React UI for student review workflows.
+- `root_pdf_browser`: local HTTP + static UI to browse DaydreamEdu / GoodNotes PDF roots (dev and ops).
 
 ### Utility/Workflow Layer
 
 - `files`: filesystem discovery helpers.
+- `utils`: cross-cutting CLIs (e.g. PDF compression before ingestion).
 - `split_book_answer_by_unit_using_ai`: segmentation workflows and scripts.
 
 ## 3) Data Boundaries
 
-- Canonical grading facts are stored in `context/marking_results/**` and are treated as read-only by review UIs.
-- Student reflection state is stored separately in `context/student_review_states/**`.
-- Registry state is stored in `db/pdf_registry.db` (or `PDF_REGISTRY_PATH` override).
+- **`db/`** — registry SQLite at `db/pdf_registry.db` by default, or `PDF_REGISTRY_PATH` override.
+- **`context/`** — runtime artifact trees (typically gitignored locally):
+  - `context/marking_results/**`: canonical grading JSON; read-only for review UIs.
+  - `context/student_review_states/**`: student reflection / progress companions.
+  - `context/learning_reports/**`: derived markdown reports alongside marking runs.
+  - `context/marking_assets/**`: page renders, crops, and bundles referenced from marking JSON.
 
 ## 4) Key Integration Contracts
 
