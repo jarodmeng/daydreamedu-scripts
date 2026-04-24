@@ -68,6 +68,7 @@ ai_study_buddy/context/.tmp_*/
 ai_study_buddy/context/learning_reports/
 ai_study_buddy/context/marking_results/
 ai_study_buddy/context/student_review_states/
+ai_study_buddy/cache/
 
 # ---- pdf_file_manager ----
 ai_study_buddy/db/
