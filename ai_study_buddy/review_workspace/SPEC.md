@@ -2,7 +2,7 @@
 
 Contract for Review Workspace backend routes, static serving behavior, and review-state persistence.
 
-Version baseline: `v0.0.900`.
+Version baseline: `v0.1.0`.
 
 See:
 
@@ -17,21 +17,19 @@ See:
 
 ### 1.1 Environment variables
 
-- `REVIEW_WORKSPACE_PILOT_JSON` (optional)
-  - absolute or relative path to one pilot `marking_result` JSON
-  - if absent, backend uses package default pilot path
+- `PDF_REGISTRY_PATH` (optional)
+  - registry SQLite path consumed by `PdfFileManager`
+  - if absent, backend uses default `ai_study_buddy/db/pdf_registry.db`
 
 ### 1.2 Filesystem dependencies
 
 - Canonical context root:
   - `ai_study_buddy/context`
-- Required pilot artifact:
-  - must exist and be valid JSON
+- Registry-backed completion rows:
+  - via `PdfFileManager`
 - Optional image asset folders:
   - `<marking_asset>/attempt/*`
   - `<marking_asset>/answers/*`
-
-If pilot artifact path does not exist, backend raises runtime error on read.
 
 ## 2) Static Asset Contract
 
@@ -64,8 +62,7 @@ Response:
 
 Behavior:
 
-- derives one student from pilot artifact context
-- fallback student id/name: `winston`/`Winston`
+- lists students from `PdfFileManager`
 
 Response:
 
@@ -85,8 +82,10 @@ Response:
 
 Behavior:
 
-- returns one seeded attempt when query `student_id` matches artifact `context.student_id`
-- returns empty list when mismatch
+- lists completion attempts for the requested student id (non-template, non-raw)
+- resolves latest canonical marking artifact per attempt using:
+  - `find_marking_artifacts_for_attempt(...)`
+- sorts marked attempts first by newest marking timestamp, then unmarked by recency
 
 Response:
 
@@ -98,12 +97,15 @@ Response:
 
 Behavior:
 
-- resolves expected attempt id:
-  - `context.attempt_file_id` when present
-  - otherwise `artifact_path.stem`
-- returns `404` if path id does not match resolved id
-- requires `context.marking_asset`; returns `500` when missing
-- enriches question rows with `attempt_page_start` using `context.question_page_map`
+- resolves attempt by registry `attempt_id` (`pdf_files.id`)
+- returns `404` when attempt id is missing/invalid
+- for marked attempts:
+  - returns latest canonical marking payload normalized for frontend
+  - enriches question rows with `attempt_page_start` using `context.question_page_map`
+  - returns attempt/answer image URLs from marking asset bundle when present
+- for unmarked attempts:
+  - returns `marking_status = not_marked`
+  - `marking_result = null` and empty viewer image pools
 - loads companion review-state file if present
 - returns default review-state when missing/invalid
 
@@ -111,7 +113,8 @@ Behavior:
 
 Behavior:
 
-- validates attempt id against pilot artifact resolution
+- validates attempt id exists
+- requires a canonical marking artifact for the attempt
 - validates `review_status` enum:
   - `not_started`
   - `in_progress`
@@ -121,7 +124,7 @@ Behavior:
 
 Validation errors:
 
-- `404` when attempt id mismatch
+- `400` when attempt has no marking artifact
 - `400` when `review_status` invalid
 
 Response:
@@ -172,10 +175,10 @@ Frontend expects:
   - attempt
   - student_subject
 
-## 6) Explicit Non-Goals (v0.0.900)
+## 6) Explicit Non-Goals (v0.1.0)
 
-- no multi-attempt aggregation across many artifacts
-- no database persistence layer for review-state
 - no auth token validation
+- no API pagination yet
+- no database persistence layer for review-state
 - no concurrency guard for conflicting writes
 - no schema migration engine for `student_review_state`

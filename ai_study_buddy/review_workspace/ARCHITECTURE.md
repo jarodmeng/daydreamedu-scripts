@@ -1,8 +1,8 @@
 # AI Study Buddy Review Workspace Architecture
 
-Status: active MVP architecture baseline.
+Status: active MVP architecture baseline (`single-student alpha`).
 
-Version baseline: `v0.0.900` (see `CHANGELOG.md`).
+Version baseline: `v0.1.0` (see `CHANGELOG.md`).
 
 This document defines:
 
@@ -21,7 +21,8 @@ See also:
 
 Review Workspace is a focused student-facing app surface that:
 
-- reads one canonical marking artifact at a time
+- reads registry-backed student attempts
+- resolves one canonical marking artifact at a time for detail view
 - renders review UI over attempt and answer evidence images
 - persists student review-state notes separately from marking artifacts
 
@@ -49,9 +50,10 @@ Backend module: `backend/app.py`.
 
 Primary responsibilities:
 
-- load pilot marking artifact (`REVIEW_WORKSPACE_PILOT_JSON`, fallback default)
+- include API routes from `ai_study_buddy/student_review/`
+- read students and completion attempts from `PdfFileManager`
+- resolve latest marking artifact per attempt via `find_marking_artifacts_for_attempt(...)`
 - normalize question and viewer payload for frontend consumption
-- provide student/attempt/detail endpoints for the current seed artifact
 - persist review-state companion files under:
   - `ai_study_buddy/context/student_review_states/<student>/<subject>/<artifact>.json`
 
@@ -95,16 +97,16 @@ Shared dependency:
 
 ## 6) Known Constraints
 
-- single-pilot artifact loading model in current backend
-- student list and attempts list are derived from one artifact seed
 - no backend auth/authorization in current implementation
+- alpha phase prioritizes one active student context at a time in UI
+- no API pagination yet for large attempt lists
 - no automated test suite yet in this package (manual smoke testing currently)
 
 ## 7) Near-Term Evolution
 
-Expected next steps after `v0.0.900`:
+Expected next steps after `v0.1.0`:
 
-1. move from single-artifact seed to registry-driven attempt listing
-2. extract backend domain modules from monolithic `app.py`
+1. add API pagination and richer server-side filters for large attempt sets
+2. add stricter review-state validation for author roles/scopes on write
 3. add typed API client and component split under `src/features/`
 4. add automated backend and frontend tests

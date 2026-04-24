@@ -2,7 +2,9 @@
 
 This folder contains the backend/frontend app scaffold for the Review Workspace app.
 
-Current version: `v0.0.900`
+Current version: `v0.1.0`
+
+Current phase: `single-student alpha` (scope locked on April 23, 2026).
 
 ## Docs
 
@@ -14,15 +16,11 @@ Current version: `v0.0.900`
 
 ## What this slice does
 
-1. Loads one pilot `marking_result.v1.4` artifact.
-2. Exposes API routes for student, attempts list, and attempt detail.
-3. Serves `context/marking_assets/**` images to the frontend.
-4. Renders a 4-panel Review Workspace UI.
-5. Uses `context.question_page_map` to jump evidence pages when active question changes.
-
-Pilot artifact default:
-
-- `ai_study_buddy/context/marking_results/winston/singapore_primary_math/PP Math PSLE Part D P6 Topical Practice Circles__20260416_205158.json`
+1. Reads students and completion attempts from `PdfFileManager` (registry-backed).
+2. Resolves latest canonical marking JSON per attempt using `find_marking_artifacts_for_attempt(...)`.
+3. Serves API routes for student picker, my-work attempt index, attempt detail, and review-state save.
+4. Persists review notes under `context/student_review_states/**` without mutating canonical marking artifacts.
+5. Serves `context/**` static assets for evidence image viewing and uses `question_page_map` for question-page tuning.
 
 ## Run backend
 
@@ -30,13 +28,6 @@ From repo root:
 
 ```bash
 python3 -m pip install -r ai_study_buddy/review_workspace/backend/requirements.txt
-python3 -m uvicorn ai_study_buddy.review_workspace.backend.app:app --reload --port 8010
-```
-
-Optional override:
-
-```bash
-REVIEW_WORKSPACE_PILOT_JSON="/abs/path/to/another_marking_result.json" \
 python3 -m uvicorn ai_study_buddy.review_workspace.backend.app:app --reload --port 8010
 ```
 

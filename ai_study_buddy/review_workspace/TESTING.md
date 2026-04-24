@@ -1,6 +1,6 @@
 # Testing — `ai_study_buddy.review_workspace`
 
-Validation guide for Review Workspace (`v0.0.900` baseline).
+Validation guide for Review Workspace (`v0.1.0` baseline).
 
 Current state:
 
@@ -27,10 +27,10 @@ cd ai_study_buddy/review_workspace/frontend
 npm install
 ```
 
-Optional pilot override:
+Optional registry override:
 
 ```bash
-REVIEW_WORKSPACE_PILOT_JSON="/abs/path/to/marking_result.json"
+PDF_REGISTRY_PATH="/abs/path/to/pdf_registry.db"
 ```
 
 ## 2) Backend Smoke Tests
@@ -69,7 +69,7 @@ curl -s "http://localhost:8010/api/student/attempts?student_id=winston"
 
 Expected:
 
-- at least one `items[]` row for the seed artifact student id
+- attempt items for that student from registry-backed completion rows
 
 ### 2.4 Attempt detail
 
@@ -143,7 +143,7 @@ Open `http://localhost:5178` and verify:
 2. backend endpoints return expected shapes from `SPEC.md`
 3. write path remains limited to `student_review_states/**`
 4. canonical `marking_results/**` files are unchanged
-5. pilot override env var still works: `REVIEW_WORKSPACE_PILOT_JSON`
+5. registry override env var still works: `PDF_REGISTRY_PATH`
 
 ## 5) Planned Automated Coverage
 

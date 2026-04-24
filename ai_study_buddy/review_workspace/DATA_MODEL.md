@@ -2,7 +2,7 @@
 
 Field-level reference for Review Workspace payloads and persisted review-state artifacts.
 
-Version baseline: `v0.0.900`.
+Version baseline: `v0.1.0`.
 
 See:
 
@@ -11,9 +11,10 @@ See:
 
 ## 1) Canonical Read Source
 
-Primary read source:
+Primary read sources:
 
-- `ai_study_buddy/context/marking_results/**.json`
+- `PdfFileManager` completion rows for student attempts
+- `ai_study_buddy/context/marking_results/**.json` for canonical marking payload
 
 Expected schema compatibility:
 
