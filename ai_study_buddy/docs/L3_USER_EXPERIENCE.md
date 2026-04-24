@@ -41,6 +41,11 @@ Kids should **not** land on a blank chat box. They should land on a **Quest Boar
 | **Next milestone** | e.g., "WA in 12 days", "PSLE Oral in 23 weeks" |
 | **"I'm stuck" button** | Jumps into tutor with the exact quest context |
 
+Bridge to MVP:
+
+- Before the full quest-first experience is ready, the first student-facing surface should be a **Review Workspace** over real marked attempts.
+- That workspace is not the long-term home screen, but it is the fastest path to student value because it starts from existing canonical marking data and real completed work.
+
 ### Tutor Screen (the "coach")
 
 A chat-style interface **anchored to a specific question object**:
@@ -130,11 +135,12 @@ Corrections feed back into **template profiles** so future papers from the same 
 
 ## MVP UI (Build First)
 
-1. Kid Quest Board
-2. Tutor screen (with hint ladder + teach-back)
-3. Upload/Scan
-4. Parent weekly summary page
-5. Ingestion review screen (basic bounding box + marks correction)
+1. Student Review Workspace over real attempts and canonical marking artifacts
+2. Kid Quest Board
+3. Tutor screen (with hint ladder + teach-back)
+4. Upload/Scan
+5. Parent weekly summary page
+6. Ingestion review screen (basic bounding box + marks correction)
 
 Everything else (leaderboards, avatars, deep analytics) layers later.
 

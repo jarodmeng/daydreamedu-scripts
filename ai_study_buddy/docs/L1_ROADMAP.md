@@ -73,6 +73,25 @@ Set up the project skeleton and data layer.
 | Automated question extraction | Manual tagging with LLM suggestions is fine for the initial corpus. Full automation in Phase 2. |
 | LLM plan presentation | The planner outputs a structured plan for Jarod, not a kid-friendly narrative. |
 
+### Phase 1.5: Student Review Workspace (weeks 8–12)
+
+**Goal:** Winston can independently review already-marked work without relying on Jarod to translate markdown learning reports beside the source PDFs.
+
+This phase intentionally comes **before** a full Tutor Agent or quest-first kid app. It uses the canonical `marking_result` artifacts that already exist and turns them into a student-facing review loop.
+
+| Deliverable | What it does | Maps to (Architecture) |
+|-------------|-------------|----------------------|
+| **Attempt Index** | Shows Winston all registered attempts in one place, with marked vs unmarked state and simple filters. | Frontend + Content/attempt lookup adapters |
+| **Review Workspace** | Opens one attempt with source-work viewing, canonical marking summary, and per-question feedback. | Frontend + marking artifact adapter |
+| **Student Reflection Layer** | Stores Winston's own review notes separately from canonical marking facts. | Student Model (lightweight precursor) |
+| **File-backed review API** | Adapts registry + `marking_result` JSON into stable frontend responses. | Application layer |
+
+Why this matters:
+
+- It creates direct student value from the current marking pipeline.
+- It reduces Jarod's review bottleneck.
+- It establishes the right long-term primitive: **reviewable attempt/question objects**, not standalone markdown reports.
+
 ### Phase 2: Independent Practice + Analytics (weeks 11–18)
 
 **Goal:** Winston can practice independently when Jarod isn't available. Parents get visibility.

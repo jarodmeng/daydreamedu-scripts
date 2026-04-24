@@ -55,7 +55,7 @@ The **Ingestion Pipeline** is a background job that processes uploaded PDFs — 
 
 Two views in a single app:
 
-- **Kid view:** Chat interface for tutoring sessions. Daily quest list. Streaks and XP. Camera/upload for question photos.
+- **Kid view:** Review Workspace for marked attempts as the earliest student-facing surface, then later chat tutoring, daily quest list, streaks and XP, and camera/upload for question photos.
 - **Parent view:** Progress dashboard per child. Weekly narrative summary. Upcoming assessment calendar. Configuration knobs (study time budget, answer-gating strictness).
 
 ### API Gateway
