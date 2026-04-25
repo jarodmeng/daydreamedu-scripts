@@ -197,11 +197,13 @@ body {
 }
 
 .right-panel {
-  grid-template-rows: auto auto 1fr;
+  grid-template-rows: auto minmax(0, 1fr) auto;
   overflow: hidden;
 }
 
 .card {
+  min-height: 0;
+  overflow: auto;
   padding: 12px;
   border-bottom: 1px solid var(--line);
 }
