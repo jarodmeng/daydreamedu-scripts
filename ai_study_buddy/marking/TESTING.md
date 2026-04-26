@@ -17,6 +17,7 @@ Primary automated coverage lives in:
 These tests cover:
 
 - schema loading and validation
+- companion amendment schema loading and JSON-schema validation
 - artifact naming/path normalization
 - completion->artifact lookup matching and condition filtering
 - run-level artifact removal planning and deletion safety behavior

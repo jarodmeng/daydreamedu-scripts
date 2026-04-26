@@ -4,6 +4,68 @@ All notable changes to `ai_study_buddy.marking` are documented in this file.
 
 Committed changes under `ai_study_buddy/marking/` should add an entry here and bump **Current version** in `README.md` (semver: **patch** for docs or small renderer tweaks, **minor** for schema or public API changes). `SPEC.md` / `TESTING.md` titles do not carry the package version.
 
+## [0.2.13] - 2026-04-26
+
+Minor: add a first-class `marking_amendment.v1` JSON schema file and public loader so amendment overlay contracts are versioned alongside marking schemas.
+
+### Added
+
+- `schemas/marking_amendment.v1.schema.json`:
+  - canonical JSON Schema contract for review-workspace amendment overlays
+  - top-level contract for `schema_version`, `context`, `summary_overrides`, `question_amendments`, `question_page_map_amendments`, and `review_meta`
+  - editable field allowlist for `question_amendments[].fields`
+- `core/artifact_schema.py`:
+  - `AMENDMENT_SCHEMA_PATH`
+  - `load_marking_amendment_schema()`
+- `tests/test_artifact_core.py`:
+  - amendment schema load test
+  - amendment schema accepts valid payload test
+  - amendment schema rejects unsupported question field test
+
+### Changed
+
+- `api.py`:
+  - exports `AMENDMENT_SCHEMA_PATH` and `load_marking_amendment_schema` in the public API
+
+### Documentation
+
+- `README.md`:
+  - bump current version to `v0.2.12`
+  - document `schemas/marking_amendment.v1.schema.json`
+- `SPEC.md`:
+  - include amendment schema as companion canonical contract
+- `TESTING.md`:
+  - include amendment schema validation coverage in test scope
+
+## [0.2.12] - 2026-04-26
+
+Minor: establish the multi-agent marking orchestration skill stack (active v2 orchestrator + dedicated phase agents), and archive superseded monolithic/v1 skill flows.
+
+### Added
+
+- Multi-agent phase subagents under `.cursor/agents/`:
+  - `marking-phase1-mapper.md`
+  - `marking-phase2-fast-pass-grader.md`
+  - `marking-phase3-deep-dive.md`
+  - `marking-phase4-taxonomy-tagger.md`
+- Active orchestrator skill:
+  - `.cursor/skills/mark-student-work-multi-agent-v2/SKILL.md`
+
+### Changed
+
+- Multi-agent proposal implementation plan and status tracking:
+  - `docs/proposal/8-multi-agent-marking-architecture.md`
+  - updated implementation checklist format
+  - clarified why separate `.cursor/agents` files are required (`model: inherit` to align with orchestrator Auto mode)
+  - updated Phase 2 cross-proposal link to the moved file path under `review_workspace/docs/proposal/`
+
+### Archived
+
+- Superseded monolithic/v1 skills moved to `.cursor/skills_archive/`:
+  - `mark-goodnote-completion/`
+  - `diagnose-student-school-work/`
+  - `mark-student-work-multi-agent/`
+
 ## [0.2.11] - 2026-04-23
 
 Minor: complete MAB Phase E with package-owned PDF-to-bundle render helpers and standardized full-page naming output.

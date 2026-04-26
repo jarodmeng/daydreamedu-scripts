@@ -8,7 +8,7 @@ Canonical marking pipeline for AI Study Buddy. This package defines the
 3. render markdown as a derived view
 4. support human note edits in the canonical JSON
 
-Current version: `v0.2.11`
+Current version: `v0.2.13`
 
 ## Package Scope
 
@@ -88,6 +88,7 @@ Example `context` snippet:
 - `core/`: models, schema, paths, writer, taxonomy, context resolution
 - `workflows/`: CLI/workflow modules for migration, rendering, and note editing
 - `schemas/marking_result.v1.schema.json`: canonical JSON schema (`v1`, `v1.1`, `v1.2`, `v1.3`, and `v1.4` accepted; writer emits `v1.4`)
+- `schemas/marking_amendment.v1.schema.json`: companion amendment overlay schema contract (`marking_amendment.v1`)
 - `tests/test_artifact_core.py`: core artifact and rendering tests
 - `tests/test_migration.py`: migration parser and migration flow tests
 

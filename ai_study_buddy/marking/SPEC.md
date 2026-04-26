@@ -10,16 +10,19 @@ pipeline for AI Study Buddy.
 The package guarantees:
 
 1. a stable `marking_result.v1.4` JSON contract (with backward compatibility for `v1` / `v1.1` / `v1.2` / `v1.3`)
-2. deterministic artifact path/naming conventions
-3. schema and scoring validation
-4. markdown rendering as a non-canonical derived view
-5. safe run-level artifact cleanup for canonical JSON, derived report, and marking-asset bundle
+2. a stable `marking_amendment.v1` JSON overlay schema contract for review-workspace amendment artifacts
+3. deterministic artifact path/naming conventions
+4. schema and scoring validation
+5. markdown rendering as a non-canonical derived view
+6. safe run-level artifact cleanup for canonical JSON, derived report, and marking-asset bundle
 
 ## Canonical Data Contract
 
 - Schema identifier: `marking_result.v1.4` (reader accepts `v1`, `v1.1`, `v1.2`, `v1.3`, and `v1.4`)
 - Schema source:
   `ai_study_buddy/marking/schemas/marking_result.v1.schema.json`
+- Amendment schema source:
+  `ai_study_buddy/marking/schemas/marking_amendment.v1.schema.json`
 - Canonical storage path:
   `ai_study_buddy/context/marking_results/<student>/<subject_context>/<attempt_basename>.json`
 - Derived markdown path:
