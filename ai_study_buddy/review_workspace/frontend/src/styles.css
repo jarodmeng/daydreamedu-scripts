@@ -84,6 +84,11 @@ body {
   color: var(--warn);
 }
 
+.changed-pill {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
 .middle-grid {
   min-height: 0;
   display: grid;
@@ -204,17 +209,162 @@ body {
 .card {
   min-height: 0;
   overflow: auto;
-  padding: 12px;
+  padding: 8px;
   border-bottom: 1px solid var(--line);
 }
 
 .card h2 {
-  margin: 0 0 8px 0;
+  margin: 0 0 4px 0;
+  font-size: 18px;
 }
 
 .card p {
   margin: 6px 0;
   color: var(--ink-soft);
+}
+
+.review-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.score-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  align-items: center;
+  margin-bottom: 6px;
+  color: var(--ink-soft);
+  font-size: 12px;
+}
+
+.amend-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 5px;
+}
+
+.amend-field {
+  grid-column: span 3;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 5px 6px;
+  background: #fff;
+}
+
+.amend-field.metric {
+  grid-column: span 2;
+}
+
+.amend-field.wide {
+  grid-column: 1 / -1;
+}
+
+.amend-field.changed {
+  border-color: var(--accent);
+  background: #f4fbf8;
+}
+
+.amend-label,
+.amend-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.amend-label span:first-child {
+  font-size: 10px;
+  color: var(--ink-soft);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  line-height: 1.1;
+}
+
+.amend-read {
+  display: grid;
+  gap: 1px;
+  margin-top: 1px;
+}
+
+.amend-read strong {
+  line-height: 1.2;
+  word-break: break-word;
+  font-size: 14px;
+  font-weight: 400;
+}
+
+.amend-read small,
+.amend-editor small {
+  color: var(--ink-soft);
+}
+
+.amend-editor {
+  display: grid;
+  gap: 3px;
+  margin-top: 3px;
+}
+
+.amend-editor input,
+.amend-editor select,
+.amend-editor textarea,
+.amend-save-panel textarea {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 5px 6px;
+  font: inherit;
+  font-size: 13px;
+}
+
+.amend-editor textarea,
+.amend-save-panel textarea {
+  min-height: 44px;
+  resize: vertical;
+}
+
+.amend-save-panel {
+  display: grid;
+  gap: 6px;
+  margin-top: 8px;
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fbfaf7;
+}
+
+.amend-save-panel label {
+  display: grid;
+  gap: 6px;
+  color: var(--ink-soft);
+  font-size: 13px;
+}
+
+.amend-actions button {
+  border: 1px solid var(--line);
+  background: #fff;
+  border-radius: 8px;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+.amend-actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.save-status {
+  color: var(--ink-soft);
+  font-size: 13px;
+  text-transform: capitalize;
+}
+
+.save-status.error,
+.error-text {
+  color: #9d2f2f;
 }
 
 .notes {
@@ -223,6 +373,7 @@ body {
   grid-template-rows: auto 1fr auto;
   gap: 8px;
   padding: 12px;
+  max-height: 240px;
 }
 
 .scope-tabs {
@@ -240,10 +391,10 @@ body {
 
 .notes textarea {
   width: 100%;
-  min-height: 120px;
+  min-height: 88px;
   border: 1px solid var(--line);
   border-radius: 10px;
-  padding: 10px;
+  padding: 8px;
   resize: vertical;
   font: inherit;
 }

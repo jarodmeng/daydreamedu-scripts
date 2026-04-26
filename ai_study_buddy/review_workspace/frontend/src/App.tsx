@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 type StudentRow = {
   student_id: string;
@@ -42,6 +42,52 @@ type QuestionRow = {
   attempt_page_start: number | null;
 };
 
+type MarkingResult = {
+  schema_version: string;
+  summary: {
+    earned_marks: number;
+    total_marks: number;
+    percentage: number;
+    overall_assessment: string;
+    human_note?: string | null;
+  };
+  context: {
+    is_partial: boolean;
+    question_selection?: {
+      raw_text?: string | null;
+    };
+    question_page_map: Array<{
+      result_id: string;
+      attempt_page_start: number;
+      confidence: "high" | "medium" | "low";
+    }>;
+  };
+  question_results: QuestionRow[];
+};
+
+type AmendmentState = {
+  schema_version: "marking_amendment.v1";
+  summary_overrides: Record<string, unknown>;
+  question_amendments: Array<{
+    result_id: string;
+    fields: Record<string, unknown>;
+    reviewer_reason?: string;
+    updated_at?: string;
+    updated_by?: string;
+  }>;
+  question_page_map_amendments: Array<{
+    result_id: string;
+    attempt_page_start?: number;
+    confidence?: "high" | "medium" | "low";
+    updated_at?: string;
+    updated_by?: string;
+  }>;
+  review_meta: {
+    updated_at?: string | null;
+    updated_by?: string | null;
+  };
+};
+
 type AttemptDetail = {
   attempt: {
     attempt_id: string;
@@ -51,27 +97,10 @@ type AttemptDetail = {
     book_label: string | null;
   };
   marking_status: "marked" | "not_marked";
-  marking_result: {
-    schema_version: string;
-    summary: {
-      earned_marks: number;
-      total_marks: number;
-      percentage: number;
-      overall_assessment: string;
-    };
-    context: {
-      is_partial: boolean;
-      question_selection?: {
-        raw_text?: string | null;
-      };
-      question_page_map: Array<{
-        result_id: string;
-        attempt_page_start: number;
-        confidence: "high" | "medium" | "low";
-      }>;
-    };
-    question_results: QuestionRow[];
-  } | null;
+  marking_result: MarkingResult | null;
+  marking_result_base?: MarkingResult | null;
+  marking_result_resolved?: MarkingResult | null;
+  amendment_state?: AmendmentState;
   review_state: {
     review_status: "not_started" | "in_progress" | "completed";
     question_reviews: Array<{ result_id: string; note_text?: string; review_status?: string }>;
@@ -88,8 +117,31 @@ type AttemptDetail = {
 type ViewerMode = "attempt" | "answer";
 type ViewerFitMode = "fit_height" | "fit_width";
 type NoteScope = "question" | "attempt" | "student_subject";
+type SaveStatus = "idle" | "unsaved" | "saving" | "saved" | "error";
+type EditableFieldKey =
+  | "outcome"
+  | "earned_marks"
+  | "max_marks"
+  | "student_answer"
+  | "correct_answer"
+  | "feedback"
+  | "diagnosis.mistake_type"
+  | "diagnosis.reasoning"
+  | "skill_tags"
+  | "human_note"
+  | "attempt_page_start"
+  | "page_map.confidence";
 
 type Screen = "picker" | "my_work" | "workspace";
+const WIDE_AMENDMENT_FIELDS = new Set<EditableFieldKey>([
+  "student_answer",
+  "correct_answer",
+  "feedback",
+  "diagnosis.reasoning",
+  "skill_tags",
+  "human_note",
+]);
+const METRIC_AMENDMENT_FIELDS = new Set<EditableFieldKey>(["outcome", "earned_marks", "max_marks"]);
 
 const STORAGE_KEY_STUDENT = "review_workspace.student_id";
 
@@ -147,6 +199,90 @@ function questionStatusEmoji(q: QuestionRow): string {
   return "•";
 }
 
+function getQuestionFieldValue(q: QuestionRow | null, field: EditableFieldKey): unknown {
+  if (!q) {
+    return null;
+  }
+  if (field === "diagnosis.mistake_type") {
+    return q.diagnosis?.mistake_type ?? null;
+  }
+  if (field === "diagnosis.reasoning") {
+    return q.diagnosis?.reasoning ?? null;
+  }
+  if (field === "attempt_page_start") {
+    return q.attempt_page_start;
+  }
+  if (field === "page_map.confidence") {
+    return null;
+  }
+  return q[field as keyof QuestionRow] ?? null;
+}
+
+function formatFieldValue(value: unknown): string {
+  if (Array.isArray(value)) {
+    return value.join(" | ") || "-";
+  }
+  if (value === null || value === undefined || value === "") {
+    return "-";
+  }
+  return String(value);
+}
+
+function valuesEqual(a: unknown, b: unknown): boolean {
+  return JSON.stringify(a ?? null) === JSON.stringify(b ?? null);
+}
+
+function savedQuestionFields(amendmentState: AmendmentState | undefined, resultId: string): Record<string, unknown> {
+  const row = amendmentState?.question_amendments.find((item) => item.result_id === resultId);
+  return row?.fields ?? {};
+}
+
+function savedPageMapFields(amendmentState: AmendmentState | undefined, resultId: string): Record<string, unknown> {
+  const row = amendmentState?.question_page_map_amendments.find((item) => item.result_id === resultId);
+  if (!row) {
+    return {};
+  }
+  const out: Record<string, unknown> = {};
+  if (row.attempt_page_start !== undefined) {
+    out.attempt_page_start = row.attempt_page_start;
+  }
+  if (row.confidence !== undefined) {
+    out["page_map.confidence"] = row.confidence;
+  }
+  return out;
+}
+
+function savedDraftForQuestion(amendmentState: AmendmentState | undefined, resultId: string): Record<string, unknown> {
+  return {
+    ...savedQuestionFields(amendmentState, resultId),
+    ...savedPageMapFields(amendmentState, resultId),
+  };
+}
+
+function questionHasSavedAmendment(amendmentState: AmendmentState | undefined, resultId: string): boolean {
+  return (
+    Object.keys(savedQuestionFields(amendmentState, resultId)).length > 0 ||
+    Object.keys(savedPageMapFields(amendmentState, resultId)).length > 0
+  );
+}
+
+function coerceDraftValue(field: EditableFieldKey, value: string): unknown {
+  if (field === "earned_marks" || field === "max_marks" || field === "attempt_page_start") {
+    return value.trim() === "" ? null : Number(value);
+  }
+  if (field === "skill_tags") {
+    return value
+      .split(",")
+      .map((tag) => tag.trim())
+      .filter(Boolean);
+  }
+  return value.trim() === "" ? null : value;
+}
+
+function needsReviewerReason(draft: Record<string, unknown>): boolean {
+  return ["outcome", "earned_marks", "max_marks"].some((field) => Object.prototype.hasOwnProperty.call(draft, field));
+}
+
 function WorkspaceView({ detail, onBack }: { detail: AttemptDetail; onBack: () => void }) {
   const [viewerMode, setViewerMode] = useState<ViewerMode>("attempt");
   const [viewerFitMode, setViewerFitMode] = useState<ViewerFitMode>("fit_width");
@@ -158,6 +294,12 @@ function WorkspaceView({ detail, onBack }: { detail: AttemptDetail; onBack: () =
   const [noteSaved, setNoteSaved] = useState<boolean>(true);
   const [reviewed, setReviewed] = useState<Set<string>>(new Set());
   const [activeDetail, setActiveDetail] = useState<AttemptDetail>(detail);
+  const reviewCardRef = useRef<HTMLElement | null>(null);
+  const [amendmentDraft, setAmendmentDraft] = useState<Record<string, unknown>>({});
+  const [editField, setEditField] = useState<EditableFieldKey | null>(null);
+  const [reviewerReason, setReviewerReason] = useState<string>("");
+  const [amendmentSaveStatus, setAmendmentSaveStatus] = useState<SaveStatus>("idle");
+  const [amendmentError, setAmendmentError] = useState<string | null>(null);
 
   useEffect(() => {
     setActiveDetail(detail);
@@ -170,9 +312,15 @@ function WorkspaceView({ detail, onBack }: { detail: AttemptDetail; onBack: () =
     setNoteDraft("");
     setNoteSaved(true);
     setReviewed(new Set());
+    setAmendmentDraft({});
+    setEditField(null);
+    setReviewerReason("");
+    setAmendmentSaveStatus("idle");
+    setAmendmentError(null);
   }, [detail]);
 
   const questions = activeDetail.marking_result?.question_results ?? [];
+  const baseQuestions = activeDetail.marking_result_base?.question_results ?? [];
   const questionSelectionRawText = activeDetail.marking_result?.context?.question_selection?.raw_text ?? null;
 
   useEffect(() => {
@@ -198,6 +346,43 @@ function WorkspaceView({ detail, onBack }: { detail: AttemptDetail; onBack: () =
     () => questions.find((q) => q.result_id === activeQuestionId) ?? null,
     [questions, activeQuestionId],
   );
+  const activeBaseQuestion = useMemo(
+    () => baseQuestions.find((q) => q.result_id === activeQuestionId) ?? null,
+    [baseQuestions, activeQuestionId],
+  );
+  const activePageMap = useMemo(
+    () => activeDetail.marking_result?.context.question_page_map.find((entry) => entry.result_id === activeQuestionId) ?? null,
+    [activeDetail.marking_result, activeQuestionId],
+  );
+  const activeBasePageMap = useMemo(
+    () =>
+      activeDetail.marking_result_base?.context.question_page_map.find((entry) => entry.result_id === activeQuestionId) ??
+      null,
+    [activeDetail.marking_result_base, activeQuestionId],
+  );
+  const persistedAmendmentDraft = useMemo(
+    () => savedDraftForQuestion(activeDetail.amendment_state, activeQuestionId),
+    [activeDetail.amendment_state, activeQuestionId],
+  );
+  const amendmentDirty = useMemo(
+    () => !valuesEqual(amendmentDraft, persistedAmendmentDraft),
+    [amendmentDraft, persistedAmendmentDraft],
+  );
+
+  useEffect(() => {
+    setAmendmentDraft(persistedAmendmentDraft);
+  }, [persistedAmendmentDraft]);
+
+  useEffect(() => {
+    setEditField(null);
+    setReviewerReason("");
+    setAmendmentSaveStatus("idle");
+    setAmendmentError(null);
+  }, [activeQuestionId]);
+
+  useEffect(() => {
+    reviewCardRef.current?.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  }, [activeQuestionId]);
 
   const persistedReviewed = useMemo(
     () =>
@@ -320,6 +505,90 @@ function WorkspaceView({ detail, onBack }: { detail: AttemptDetail; onBack: () =
     });
   }
 
+  function updateDraftField(field: EditableFieldKey, value: unknown) {
+    setAmendmentDraft((prev) => ({ ...prev, [field]: value }));
+    setAmendmentSaveStatus("unsaved");
+    setAmendmentError(null);
+  }
+
+  function revertAmendmentDraft() {
+    setAmendmentDraft(persistedAmendmentDraft);
+    setEditField(null);
+    setReviewerReason("");
+    setAmendmentSaveStatus("idle");
+    setAmendmentError(null);
+  }
+
+  async function saveAmendmentDraft() {
+    if (!activeQuestionId || !amendmentDirty) {
+      return;
+    }
+    if (needsReviewerReason(amendmentDraft) && reviewerReason.trim().length === 0) {
+      setAmendmentSaveStatus("error");
+      setAmendmentError("Reviewer reason is required for score-changing amendments.");
+      return;
+    }
+    const questionFields: Record<string, unknown> = {};
+    const pageMapAmendment: Record<string, unknown> = { result_id: activeQuestionId };
+    let hasPageMapChange = false;
+
+    Object.entries(amendmentDraft).forEach(([field, value]) => {
+      if (field === "attempt_page_start") {
+        pageMapAmendment.attempt_page_start = value;
+        hasPageMapChange = true;
+      } else if (field === "page_map.confidence") {
+        pageMapAmendment.confidence = value;
+        hasPageMapChange = true;
+      } else {
+        questionFields[field] = value;
+      }
+    });
+
+    const questionAmendments =
+      Object.keys(questionFields).length > 0
+        ? [
+            {
+              result_id: activeQuestionId,
+              fields: questionFields,
+              reviewer_reason: reviewerReason.trim() || undefined,
+            },
+          ]
+        : [];
+    const pageMapAmendments = hasPageMapChange ? [pageMapAmendment] : [];
+
+    try {
+      setAmendmentSaveStatus("saving");
+      setAmendmentError(null);
+      const res = await fetch(`/api/student/attempts/${encodeURIComponent(activeDetail.attempt.attempt_id)}/amendments`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          question_amendments: questionAmendments,
+          question_page_map_amendments: pageMapAmendments,
+          updated_by: "review_workspace_ui",
+        }),
+      });
+      const payload = await res.json();
+      if (!res.ok) {
+        const firstError = payload?.detail?.errors?.[0]?.message;
+        throw new Error(firstError || `Failed to save amendment: ${res.status}`);
+      }
+      setActiveDetail({
+        ...activeDetail,
+        marking_result: payload.marking_result,
+        marking_result_base: payload.marking_result_base,
+        marking_result_resolved: payload.marking_result_resolved,
+        amendment_state: payload.amendment_state,
+      });
+      setAmendmentSaveStatus("saved");
+      setEditField(null);
+      setReviewerReason("");
+    } catch (e) {
+      setAmendmentSaveStatus("error");
+      setAmendmentError(e instanceof Error ? e.message : "Failed to save amendment");
+    }
+  }
+
   if (!activeDetail.marking_result) {
     return (
       <main className="shell">
@@ -342,6 +611,108 @@ function WorkspaceView({ detail, onBack }: { detail: AttemptDetail; onBack: () =
   );
   const imagePool = viewerMode === "attempt" ? activeDetail.viewer.attempt_images : activeDetail.viewer.answer_images;
   const incorrectQuestionCount = questions.filter(isIncorrectQuestion).length;
+  const savedQuestionChanged = activeQuestionId
+    ? questionHasSavedAmendment(activeDetail.amendment_state, activeQuestionId)
+    : false;
+
+  function resolvedFieldValue(field: EditableFieldKey): unknown {
+    if (Object.prototype.hasOwnProperty.call(amendmentDraft, field)) {
+      return amendmentDraft[field];
+    }
+    if (field === "page_map.confidence") {
+      return activePageMap?.confidence ?? null;
+    }
+    return getQuestionFieldValue(activeQuestion, field);
+  }
+
+  function baseFieldValue(field: EditableFieldKey): unknown {
+    if (field === "page_map.confidence") {
+      return activeBasePageMap?.confidence ?? null;
+    }
+    return getQuestionFieldValue(activeBaseQuestion, field);
+  }
+
+  function renderEditor(field: EditableFieldKey, value: unknown) {
+    if (field === "outcome") {
+      return (
+        <select value={String(value ?? "")} onChange={(e) => updateDraftField(field, e.target.value)}>
+          <option value="correct">correct</option>
+          <option value="partial">partial</option>
+          <option value="wrong">wrong</option>
+          <option value="disqualified">disqualified</option>
+        </select>
+      );
+    }
+    if (field === "page_map.confidence") {
+      return (
+        <select value={String(value ?? "medium")} onChange={(e) => updateDraftField(field, e.target.value)}>
+          <option value="high">high</option>
+          <option value="medium">medium</option>
+          <option value="low">low</option>
+        </select>
+      );
+    }
+    if (field === "earned_marks" || field === "max_marks" || field === "attempt_page_start") {
+      return (
+        <input
+          type="number"
+          min={0}
+          step={field === "attempt_page_start" ? 1 : 0.5}
+          value={value === null || value === undefined ? "" : String(value)}
+          onChange={(e) => updateDraftField(field, coerceDraftValue(field, e.target.value))}
+        />
+      );
+    }
+    if (field === "skill_tags") {
+      return (
+        <input
+          type="text"
+          value={Array.isArray(value) ? value.join(", ") : ""}
+          onChange={(e) => updateDraftField(field, coerceDraftValue(field, e.target.value))}
+        />
+      );
+    }
+    return (
+      <textarea
+        value={value === null || value === undefined ? "" : String(value)}
+        onChange={(e) => updateDraftField(field, coerceDraftValue(field, e.target.value))}
+      />
+    );
+  }
+
+  function renderAmendmentField(label: string, field: EditableFieldKey) {
+    const resolvedValue = resolvedFieldValue(field);
+    const baseValue = baseFieldValue(field);
+    const isEditing = editField === field;
+    const hasSavedOverride = Object.prototype.hasOwnProperty.call(persistedAmendmentDraft, field);
+    const hasDraftOverride = Object.prototype.hasOwnProperty.call(amendmentDraft, field);
+    const isWide = WIDE_AMENDMENT_FIELDS.has(field);
+    const isMetric = METRIC_AMENDMENT_FIELDS.has(field);
+    const fieldClassName =
+      `amend-field${isWide ? " wide" : ""}${isMetric ? " metric" : ""}${hasSavedOverride || hasDraftOverride ? " changed" : ""}`;
+    return (
+      <div
+        className={fieldClassName}
+        onDoubleClick={() => setEditField(field)}
+      >
+        <div className="amend-label">
+          <span>{label}</span>
+          {hasSavedOverride || hasDraftOverride ? <span className="pill changed-pill">Changed</span> : null}
+        </div>
+        {isEditing ? (
+          <div className="amend-editor">
+            {renderEditor(field, resolvedValue)}
+            <small>AI: {formatFieldValue(baseValue)}</small>
+          </div>
+        ) : (
+          <div className="amend-read">
+            <strong>{formatFieldValue(resolvedValue)}</strong>
+            {hasSavedOverride || hasDraftOverride ? <small>AI: {formatFieldValue(baseValue)}</small> : null}
+          </div>
+        )}
+      </div>
+    );
+  }
 
   return (
     <main className="shell">
@@ -458,25 +829,63 @@ function WorkspaceView({ detail, onBack }: { detail: AttemptDetail; onBack: () =
               {questions.map((q) => (
                 <option key={q.result_id} value={q.result_id}>
                   {questionStatusEmoji(q)} {q.result_id}
+                  {questionHasSavedAmendment(activeDetail.amendment_state, q.result_id) ? " *" : ""}
                 </option>
               ))}
             </select>
           </div>
 
           {activeQuestion ? (
-            <article className="card">
-              <h2>{activeQuestion.result_id}</h2>
-              <p>
-                Outcome: <strong>{activeQuestion.outcome}</strong> ({activeQuestion.earned_marks}/
-                {activeQuestion.max_marks})
-              </p>
-              <p>Student answer: {activeQuestion.student_answer ?? "-"}</p>
-              <p>Correct answer: {activeQuestion.correct_answer ?? "-"}</p>
-              <p>Feedback: {activeQuestion.feedback ?? "-"}</p>
-              <p>Diagnosis type: {activeQuestion.diagnosis.mistake_type ?? "-"}</p>
-              <p>Diagnosis reasoning: {activeQuestion.diagnosis.reasoning ?? "-"}</p>
-              <p>Mapped page: {activeQuestion.attempt_page_start ?? "-"}</p>
-              <p>Skill tags: {activeQuestion.skill_tags.join(" | ") || "-"}</p>
+            <article ref={reviewCardRef} className="card">
+              <div className="review-card-head">
+                <h2>{activeQuestion.result_id}</h2>
+                {savedQuestionChanged ? <span className="pill changed-pill">Amended</span> : null}
+              </div>
+              <div className="score-strip">
+                <strong>{activeQuestion.outcome}</strong>
+                <span>
+                  {activeQuestion.earned_marks}/{activeQuestion.max_marks}
+                </span>
+                <span>Page {activeQuestion.attempt_page_start ?? "-"}</span>
+              </div>
+              <div className="amend-grid">
+                {renderAmendmentField("Outcome", "outcome")}
+                {renderAmendmentField("Earned marks", "earned_marks")}
+                {renderAmendmentField("Max marks", "max_marks")}
+                {renderAmendmentField("Student answer", "student_answer")}
+                {renderAmendmentField("Correct answer", "correct_answer")}
+                {renderAmendmentField("Feedback", "feedback")}
+                {renderAmendmentField("Diagnosis type", "diagnosis.mistake_type")}
+                {renderAmendmentField("Diagnosis reasoning", "diagnosis.reasoning")}
+                {renderAmendmentField("Skill tags", "skill_tags")}
+                {renderAmendmentField("Human note", "human_note")}
+                {renderAmendmentField("Mapped page", "attempt_page_start")}
+                {renderAmendmentField("Map confidence", "page_map.confidence")}
+              </div>
+              {amendmentDirty || amendmentSaveStatus === "saving" || amendmentSaveStatus === "saved" || amendmentError ? (
+                <div className="amend-save-panel">
+                  {needsReviewerReason(amendmentDraft) ? (
+                    <label>
+                      Reviewer reason
+                      <textarea
+                        value={reviewerReason}
+                        onChange={(e) => setReviewerReason(e.target.value)}
+                        placeholder="Why is this score or outcome changing?"
+                      />
+                    </label>
+                  ) : null}
+                  <div className="amend-actions">
+                    <span className={`save-status ${amendmentSaveStatus}`}>{amendmentSaveStatus}</span>
+                    <button type="button" disabled={!amendmentDirty || amendmentSaveStatus === "saving"} onClick={() => void saveAmendmentDraft()}>
+                      Save amendment
+                    </button>
+                    <button type="button" disabled={!amendmentDirty || amendmentSaveStatus === "saving"} onClick={revertAmendmentDraft}>
+                      Revert amendment
+                    </button>
+                  </div>
+                  {amendmentError ? <p className="error-text">{amendmentError}</p> : null}
+                </div>
+              ) : null}
               {questionSelectionRawText ? <p>Marked scope: {questionSelectionRawText}</p> : null}
             </article>
           ) : null}
@@ -515,6 +924,7 @@ function WorkspaceView({ detail, onBack }: { detail: AttemptDetail; onBack: () =
         <span>Zoom: {viewerZoomPct}%</span>
         <span>Active: {activeQuestionId || "-"}</span>
         <span>Note: {noteSaved ? "Saved" : "Unsaved"}</span>
+        <span>Amendment: {amendmentDirty ? "Unsaved" : amendmentSaveStatus === "saved" ? "Saved" : "Clean"}</span>
         <span>Question: {effectiveReviewed.has(activeQuestionId) ? "Reviewed" : "Not reviewed"}</span>
         <button onClick={() => void markCurrentQuestionReviewed()}>Mark reviewed</button>
         <button
