@@ -1,12 +1,11 @@
 # Data Model — `student_review`
 
-Version baseline: `v0.1.0`.
-
 ## 1) Canonical Read Inputs
 
 1. Registry-backed completion rows from `PdfFileManager`.
 2. Canonical marking artifacts under `ai_study_buddy/context/marking_results/**`.
 3. Companion review-state files under `ai_study_buddy/context/student_review_states/**`.
+4. Companion amendment overlay files under `ai_study_buddy/context/marking_amendments/**`.
 
 ## 2) Core Output Shapes
 
@@ -53,6 +52,9 @@ Top-level:
   "attempt": {},
   "marking_status": "marked",
   "marking_result": {},
+  "marking_result_base": {},
+  "marking_result_resolved": {},
+  "amendment_state": {},
   "review_state": {},
   "viewer": {}
 }
@@ -61,8 +63,27 @@ Top-level:
 Notable behavior:
 
 - `marking_result` is `null` for unmarked attempts.
+- `marking_result` aliases `marking_result_resolved` for marked attempts.
+- `marking_result_base` is the immutable canonical artifact projection.
+- `marking_result_resolved` is base plus saved amendment overlay.
+- `amendment_state` is always present (persisted or default empty state).
 - `review_state` is always present (defaulted when missing).
 - `question_results[].attempt_page_start` is derived from `context.question_page_map`.
+
+### 2.4 Amendment write response payload
+
+Top-level response keys:
+
+```json
+{
+  "ok": true,
+  "saved_path": "marking_amendments/<student>/<subject>/<artifact>.json",
+  "amendment_state": {},
+  "marking_result": {},
+  "marking_result_base": {},
+  "marking_result_resolved": {}
+}
+```
 
 ## 3) Review-State Artifact
 
@@ -88,3 +109,21 @@ Required top-level keys written by current module:
 - `review_meta`
 - `updated_by`
 
+## 4) Amendment Artifact
+
+Path:
+
+- `ai_study_buddy/context/marking_amendments/<student>/<subject>/<artifact_stem>.json`
+
+Stored schema id:
+
+- `marking_amendment.v1`
+
+Key top-level fields:
+
+- `schema_version`
+- `context`
+- `summary_overrides`
+- `question_amendments`
+- `question_page_map_amendments`
+- `review_meta`

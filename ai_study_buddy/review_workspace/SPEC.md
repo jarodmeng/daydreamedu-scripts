@@ -1,8 +1,6 @@
 # Specification — `ai_study_buddy.review_workspace`
 
-Contract for Review Workspace backend routes, static serving behavior, and review-state persistence.
-
-Version baseline: `v0.1.0`.
+Contract for Review Workspace backend routes, static serving behavior, review-state persistence, and amendment overlay persistence.
 
 See:
 
@@ -101,13 +99,19 @@ Behavior:
 - returns `404` when attempt id is missing/invalid
 - for marked attempts:
   - returns latest canonical marking payload normalized for frontend
+  - returns base and resolved marking payloads:
+    - `marking_result_base`: immutable AI artifact projection
+    - `marking_result_resolved`: base artifact plus saved amendment overlay
+    - `marking_result`: backward-compatible alias for `marking_result_resolved`
   - enriches question rows with `attempt_page_start` using `context.question_page_map`
   - returns attempt/answer image URLs from marking asset bundle when present
 - for unmarked attempts:
   - returns `marking_status = not_marked`
   - `marking_result = null` and empty viewer image pools
 - loads companion review-state file if present
+- loads companion amendment overlay file if present
 - returns default review-state when missing/invalid
+- returns default empty amendment state when missing
 
 ### 3.5 `PUT /api/student/attempts/{attempt_id}/review-state`
 
@@ -137,6 +141,68 @@ Response:
 }
 ```
 
+### 3.6 `PUT /api/student/attempts/{attempt_id}/amendments`
+
+Behavior:
+
+- validates attempt id exists
+- requires a canonical marking artifact for the attempt
+- persists human grading overrides separately from review-state notes
+- writes under:
+  - `context/marking_amendments/<student>/<subject>/<artifact>.json`
+- keeps the base `marking_result` artifact read-only
+- returns refreshed base/resolved marking payloads so the frontend can clear dirty state
+
+Request body:
+
+```json
+{
+  "updated_by": "review_workspace_ui",
+  "question_amendments": [
+    {
+      "result_id": "Q4(a)",
+      "fields": {
+        "earned_marks": 1,
+        "outcome": "partial",
+        "feedback": "Partially correct."
+      },
+      "reviewer_reason": "AI over-awarded the score."
+    }
+  ],
+  "question_page_map_amendments": [
+    {
+      "result_id": "Q4(a)",
+      "attempt_page_start": 3,
+      "confidence": "high"
+    }
+  ],
+  "summary_overrides": {
+    "human_note": "Checked by teacher."
+  }
+}
+```
+
+Validation errors:
+
+- `400` when attempt has no marking artifact
+- `400` when an amendment references an unknown `result_id`
+- `400` when marks are invalid or `earned_marks > max_marks`
+- `400` when page-map amendments reference invalid attempt pages
+- `400` when score-changing edits omit `reviewer_reason`
+
+Response:
+
+```json
+{
+  "ok": true,
+  "saved_path": "marking_amendments/<student>/<subject>/<artifact>.json",
+  "amendment_state": {},
+  "marking_result_base": {},
+  "marking_result_resolved": {},
+  "marking_result": {}
+}
+```
+
 ## 4) Review-State Write Contract
 
 Persisted payload fields:
@@ -159,7 +225,42 @@ Encoding contract:
 - newline at EOF
 - `ensure_ascii=True`
 
-## 5) Frontend Contract Expectations
+## 5) Amendment Write Contract
+
+Persisted payload fields:
+
+- `schema_version`: always `marking_amendment.v1`
+- `context.student_id`
+- `context.subject_context`
+- `context.attempt_file_id`
+- `context.marking_result_path`
+- `summary_overrides`
+- `question_amendments`
+- `question_page_map_amendments`
+- `review_meta.updated_at`
+- `review_meta.updated_by`
+
+Allowed `question_amendments[].fields` keys:
+
+- `outcome`
+- `earned_marks`
+- `max_marks`
+- `student_answer`
+- `correct_answer`
+- `feedback`
+- `diagnosis.mistake_type`
+- `diagnosis.reasoning`
+- `skill_tags`
+- `human_note`
+
+Encoding contract:
+
+- UTF-8 text
+- JSON pretty printed with indent 2
+- newline at EOF
+- `ensure_ascii=True`
+
+## 6) Frontend Contract Expectations
 
 Frontend expects:
 
@@ -168,6 +269,9 @@ Frontend expects:
 - `GET /api/student/attempts/{id}` -> workspace payload including:
   - `attempt`
   - `marking_result`
+  - `marking_result_base`
+  - `marking_result_resolved`
+  - `amendment_state`
   - `review_state`
   - `viewer`
 - `PUT` endpoint accepts/save note state from UI scopes:
@@ -175,7 +279,7 @@ Frontend expects:
   - attempt
   - student_subject
 
-## 6) Explicit Non-Goals (v0.1.0)
+## 7) Explicit Non-Goals
 
 - no auth token validation
 - no API pagination yet

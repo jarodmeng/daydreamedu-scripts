@@ -1,11 +1,10 @@
 # Testing — `ai_study_buddy.student_review`
 
-Version baseline: `v0.1.0`.
-
 ## Current Status
 
 - smoke validation is available through FastAPI `TestClient` at adapter layer
-- no dedicated automated unit-test suite for services/repository yet
+- focused amendment-flow tests exist in `ai_study_buddy/marking/tests/test_review_workspace_amendments.py`
+- no dedicated automated unit-test suite for all services/repository modules yet
 
 ## 1) Quick Smoke
 
@@ -26,7 +25,14 @@ if students:
     assert isinstance(attempts, list)
     if attempts:
         aid = attempts[0]["attempt_id"]
-        assert client.get(f"/api/student/attempts/{aid}").status_code == 200
+        detail = client.get(f"/api/student/attempts/{aid}")
+        assert detail.status_code == 200
+        payload = detail.json()
+        assert "review_state" in payload
+        if payload.get("marking_status") == "marked":
+            assert "marking_result_base" in payload
+            assert "marking_result_resolved" in payload
+            assert "amendment_state" in payload
 print("student_review smoke ok")
 PY
 ```
@@ -42,5 +48,5 @@ python3 -m py_compile ai_study_buddy/student_review/*.py
 1. `attempt_service`: inclusion/exclusion rules and ordering
 2. `detail_service`: marked vs unmarked detail shape behavior
 3. `note_service`: enum validation and write-path guarantees
-4. `repository`: read/write roundtrip and default fallback behavior
-
+4. `amendment_service`: amendment validation, merge, and score recompute behavior
+5. `repository`: review-state/amendment read-write roundtrip and default fallback behavior

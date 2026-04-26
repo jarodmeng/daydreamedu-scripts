@@ -2,8 +2,6 @@
 
 Status: active module baseline.
 
-Version baseline: `v0.1.0`.
-
 ## 1) Purpose
 
 `student_review` is the domain layer for:
@@ -11,6 +9,8 @@ Version baseline: `v0.1.0`.
 - student-scoped attempt discovery
 - marking-result selection for one attempt
 - review-state read/write
+- amendment overlay read/write
+- resolved detail projection (base artifact + amendment overlay)
 
 It is app-surface agnostic and currently consumed by `review_workspace`.
 
@@ -20,6 +20,7 @@ Owns:
 
 - API-oriented payload shaping for student review flows
 - companion review-state persistence
+- companion amendment overlay persistence
 - deterministic attempt ordering and latest-artifact selection usage
 
 Does not own:
@@ -32,7 +33,7 @@ Does not own:
 
 - `PdfFileManager` for students and completion files
 - `find_marking_artifacts_for_attempt(...)` for artifact lookup
-- `ai_study_buddy/context/**` for marking artifacts and review-state files
+- `ai_study_buddy/context/**` for marking artifacts, review-state files, and amendment overlays
 
 ## 4) Internal Split
 
@@ -41,6 +42,7 @@ Does not own:
 - `attempt_service.py`: student + attempts index shaping
 - `detail_service.py`: one-attempt detail response shaping
 - `note_service.py`: review-state validation and writes
+- `amendment_service.py`: amendment validation/merge and resolved projection
 - `api_routes.py`: FastAPI routes using the services
 
 ## 5) Current Constraints
@@ -49,4 +51,3 @@ Does not own:
 - no pagination on attempt listing
 - no optimistic locking / concurrency control for write conflicts
 - no schema migration engine for review-state artifacts
-

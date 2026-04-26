@@ -1,11 +1,11 @@
 # Testing — `ai_study_buddy.review_workspace`
 
-Validation guide for Review Workspace (`v0.1.0` baseline).
+Validation guide for Review Workspace.
 
 Current state:
 
 - frontend build verification is available
-- no dedicated automated backend/frontend test suite in this package yet
+- focused backend amendment tests live in `ai_study_buddy/marking/tests/test_review_workspace_amendments.py`
 - manual smoke checks are required before runtime changes are considered safe
 
 See:
@@ -83,6 +83,7 @@ curl -s "http://localhost:8010/api/student/attempts/<attempt_id>"
 Expected:
 
 - includes `marking_result.question_results[]`
+- includes `marking_result_base`, `marking_result_resolved`, and `amendment_state`
 - includes `viewer.attempt_images[]` and/or `viewer.answer_images[]`
 - includes `review_state` object
 
@@ -105,6 +106,27 @@ Expected:
 - response contains `"ok": true`
 - response includes `saved_path`
 - file exists under `ai_study_buddy/context/student_review_states/**`
+
+### 2.6 Amendment write
+
+```bash
+curl -s -X PUT "http://localhost:8010/api/student/attempts/<attempt_id>/amendments" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "updated_by":"manual_smoke",
+    "question_amendments":[{
+      "result_id":"Q1",
+      "fields":{"feedback":"Checked manually."}
+    }]
+  }'
+```
+
+Expected:
+
+- response contains `"ok": true`
+- response includes `marking_result_base`, `marking_result_resolved`, and `amendment_state`
+- file exists under `ai_study_buddy/context/marking_amendments/**`
+- paired canonical `ai_study_buddy/context/marking_results/**` file is unchanged
 
 ## 3) Frontend Checks
 
@@ -136,18 +158,22 @@ Open `http://localhost:5178` and verify:
 4. fit and zoom controls affect image rendering
 5. note tabs (Question / Attempt / Student+Subject) load/save values
 6. `Mark reviewed` updates question status and persists on reload
+7. double-clicking a Review field opens an amendment editor
+8. `Save amendment` persists a changed value and reload keeps the resolved value
 
 ## 4) Regression Checklist (before merge)
 
 1. `npm run build` passes in `frontend/`
-2. backend endpoints return expected shapes from `SPEC.md`
-3. write path remains limited to `student_review_states/**`
-4. canonical `marking_results/**` files are unchanged
-5. registry override env var still works: `PDF_REGISTRY_PATH`
+2. `python3 -m pytest ai_study_buddy/marking/tests/test_review_workspace_amendments.py` passes
+3. backend endpoints return expected shapes from `SPEC.md`
+4. review-state write path remains limited to `student_review_states/**`
+5. amendment write path remains limited to `marking_amendments/**`
+6. canonical `marking_results/**` files are unchanged
+7. registry override env var still works: `PDF_REGISTRY_PATH`
 
 ## 5) Planned Automated Coverage
 
-Recommended additions after `v0.0.900`:
+Recommended additions:
 
 1. backend route tests with FastAPI `TestClient`
 2. backend tests for invalid `review_status` and `attempt_id` mismatch

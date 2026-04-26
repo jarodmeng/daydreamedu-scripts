@@ -2,8 +2,6 @@
 
 Status: active MVP architecture baseline (`single-student alpha`).
 
-Version baseline: `v0.1.0` (see `CHANGELOG.md`).
-
 This document defines:
 
 1. architecture boundaries for `ai_study_buddy/review_workspace/`
@@ -25,6 +23,7 @@ Review Workspace is a focused student-facing app surface that:
 - resolves one canonical marking artifact at a time for detail view
 - renders review UI over attempt and answer evidence images
 - persists student review-state notes separately from marking artifacts
+- persists human grading amendments as overlay artifacts
 
 Non-goals at this layer:
 
@@ -56,12 +55,16 @@ Primary responsibilities:
 - normalize question and viewer payload for frontend consumption
 - persist review-state companion files under:
   - `ai_study_buddy/context/student_review_states/<student>/<subject>/<artifact>.json`
+- persist amendment companion files under:
+  - `ai_study_buddy/context/marking_amendments/<student>/<subject>/<artifact>.json`
+- compute resolved marking payloads by overlaying amendment state onto immutable base artifacts
 
 Backend rules:
 
 - reads canonical marking artifact as source of truth
-- writes only review-state companion artifacts
+- writes only review-state and amendment companion artifacts
 - validates `review_status` enum on write (`not_started|in_progress|completed`)
+- validates amendment payloads and recomputes resolved summary scores on write
 
 ## 4) Frontend Responsibilities
 
@@ -73,6 +76,7 @@ Primary responsibilities:
 - render 4-panel workspace (header, evidence, review panel, status/footer)
 - maintain local UI state (active question, viewer mode, fit/zoom, note scope)
 - persist review state through backend `PUT` endpoint
+- support inline amendment editing and save through backend amendment endpoint
 
 Frontend rules:
 
@@ -89,7 +93,8 @@ Owned by `marking/`:
 Owned by `review_workspace/`:
 
 - review-state write behavior and UI integration
-- local interaction model for workspace navigation and note-taking
+- amendment overlay UX and integration
+- local interaction model for workspace navigation, note-taking, and amendment editing
 
 Shared dependency:
 
@@ -100,11 +105,12 @@ Shared dependency:
 - no backend auth/authorization in current implementation
 - alpha phase prioritizes one active student context at a time in UI
 - no API pagination yet for large attempt lists
-- no automated test suite yet in this package (manual smoke testing currently)
+- no dedicated backend/frontend test suite inside this package yet (manual smoke testing still required)
+- focused backend amendment tests currently live in `ai_study_buddy/marking/tests/test_review_workspace_amendments.py`
 
 ## 7) Near-Term Evolution
 
-Expected next steps after `v0.1.0`:
+Expected next steps:
 
 1. add API pagination and richer server-side filters for large attempt sets
 2. add stricter review-state validation for author roles/scopes on write

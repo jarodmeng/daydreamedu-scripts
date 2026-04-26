@@ -4,6 +4,26 @@ All notable changes to `ai_study_buddy/review_workspace` are documented here.
 
 ---
 
+## [v0.1.1] — Amendment overlay + resolved marking model (2026-04-26)
+
+Implemented:
+
+- review workspace now supports human grading amendments as a first-class flow:
+  - `PUT /api/student/attempts/{attempt_id}/amendments`
+  - persisted under `context/marking_amendments/<student>/<subject>/<artifact>.json`
+- attempt detail now exposes a base/resolved split:
+  - `marking_result_base` (immutable AI artifact projection)
+  - `marking_result_resolved` (base + amendment overlay)
+  - `marking_result` retained as backward-compatible alias to resolved payload
+- backend amendment validation and merge logic is implemented in shared `student_review` domain services.
+- frontend now supports inline amendment edits and save/reload of resolved values.
+- review workspace docs updated to describe amendment overlay contracts and testing.
+
+Scope lock:
+
+- phase remains `single-student alpha`.
+- canonical `marking_result` artifacts remain read-only from this app surface.
+
 ## [v0.1.0] — Student picker + registry-backed attempts (2026-04-23)
 
 Implemented:

@@ -1,8 +1,9 @@
 # AI Study Buddy Review Workspace
 
-This folder contains the backend/frontend app scaffold for the Review Workspace app.
+This folder contains the backend/frontend app for Review Workspace, including
+student review-state notes and human grading amendment overlays.
 
-Current version: `v0.1.0`
+Current version: `v0.1.1`
 
 Current phase: `single-student alpha` (scope locked on April 23, 2026).
 
@@ -21,6 +22,7 @@ Current phase: `single-student alpha` (scope locked on April 23, 2026).
 3. Serves API routes for student picker, my-work attempt index, attempt detail, and review-state save.
 4. Persists review notes under `context/student_review_states/**` without mutating canonical marking artifacts.
 5. Serves `context/**` static assets for evidence image viewing and uses `question_page_map` for question-page tuning.
+6. Persists human grading amendments under `context/marking_amendments/**` and renders resolved marking results without mutating canonical marking artifacts.
 
 ## Run backend
 

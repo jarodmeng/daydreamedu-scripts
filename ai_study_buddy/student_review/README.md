@@ -2,7 +2,7 @@
 
 Domain module for student review workflows consumed by app surfaces like Review Workspace.
 
-Current version: `v0.1.0`
+Current version: `v0.1.1`
 
 ## Docs
 
@@ -17,12 +17,12 @@ Current version: `v0.1.0`
 
 1. Lists students and student-scoped attempts from `PdfFileManager`.
 2. Resolves latest canonical marking artifact per attempt.
-3. Builds attempt detail payloads for review UIs.
+3. Builds attempt detail payloads for review UIs, including base/resolved marking projections.
 4. Persists companion review-state artifacts under `context/student_review_states/**`.
+5. Persists amendment overlay artifacts under `context/marking_amendments/**`.
 
 ## What this module does not do
 
 1. Mutate canonical `marking_result` artifacts.
 2. Orchestrate marking jobs.
 3. Handle production auth.
-
