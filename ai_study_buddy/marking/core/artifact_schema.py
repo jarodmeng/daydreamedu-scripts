@@ -14,6 +14,7 @@ from ai_study_buddy.marking.core.taxonomy import (
 SCHEMA_VERSION = "marking_result.v1.4"
 SUPPORTED_SCHEMA_VERSIONS = {"marking_result.v1", "marking_result.v1.1", "marking_result.v1.2", "marking_result.v1.3", "marking_result.v1.4"}
 SCHEMA_PATH = Path(__file__).resolve().parent.parent / "schemas" / "marking_result.v1.schema.json"
+AMENDMENT_SCHEMA_PATH = Path(__file__).resolve().parent.parent / "schemas" / "marking_amendment.v1.schema.json"
 ALLOWED_OUTCOMES = {"correct", "partial", "wrong", "disqualified"}
 ALLOWED_SCORING_STATUS = {"counted", "excluded_disqualified"}
 ALLOWED_PAGE_MAP_CONFIDENCE = {"high", "medium", "low"}
@@ -26,6 +27,10 @@ class MarkingArtifactValidationError(ValueError):
 
 def load_marking_result_schema() -> dict[str, Any]:
     return json.loads(SCHEMA_PATH.read_text(encoding="utf-8"))
+
+
+def load_marking_amendment_schema() -> dict[str, Any]:
+    return json.loads(AMENDMENT_SCHEMA_PATH.read_text(encoding="utf-8"))
 
 
 def compute_percentage(earned_marks: float | int, total_marks: float | int) -> float:

@@ -15,9 +15,11 @@ from ai_study_buddy.marking.core.artifact_paths import (
     normalize_attempt_stem,
 )
 from ai_study_buddy.marking.core.artifact_schema import (
+    AMENDMENT_SCHEMA_PATH,
     MarkingArtifactValidationError,
     SCHEMA_VERSION,
     compute_percentage,
+    load_marking_amendment_schema,
     load_marking_result_schema,
     validate_marking_artifact_dict,
 )
@@ -102,12 +104,14 @@ __all__ = [
     "MarkingRunRemovalPlan",
     "MarkingRunRemovalResult",
     "assert_marking_asset_bundle_ready_for_review",
+    "AMENDMENT_SCHEMA_PATH",
     "build_attempt_basename",
     "build_learning_report_path",
     "build_marking_artifact_path",
     "bundle_root_from_context",
     "compute_percentage",
     "derive_skill_tags_from_embedding_label",
+    "load_marking_amendment_schema",
     "load_marking_result_schema",
     "find_marking_artifacts_for_attempt",
     "remove_marking_run_artifacts",

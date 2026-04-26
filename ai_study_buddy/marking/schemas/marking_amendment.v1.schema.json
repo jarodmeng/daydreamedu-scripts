@@ -1,0 +1,115 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://daydreamedu.local/schemas/marking_amendment.v1.schema.json",
+  "title": "marking_amendment.v1",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "context",
+    "summary_overrides",
+    "question_amendments",
+    "question_page_map_amendments",
+    "review_meta"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "marking_amendment.v1"
+    },
+    "context": {
+      "type": "object",
+      "required": [
+        "student_id",
+        "subject_context",
+        "attempt_file_id",
+        "marking_result_path"
+      ],
+      "properties": {
+        "student_id": { "type": "string", "minLength": 1 },
+        "subject_context": { "type": "string", "minLength": 1 },
+        "attempt_file_id": { "type": "string", "minLength": 1 },
+        "marking_result_path": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
+    "summary_overrides": {
+      "type": "object",
+      "properties": {
+        "human_note": { "type": ["string", "null"] }
+      },
+      "additionalProperties": false
+    },
+    "question_amendments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["result_id", "fields"],
+        "properties": {
+          "result_id": { "type": "string", "minLength": 1 },
+          "fields": {
+            "type": "object",
+            "propertyNames": {
+              "enum": [
+                "outcome",
+                "earned_marks",
+                "max_marks",
+                "student_answer",
+                "correct_answer",
+                "feedback",
+                "diagnosis.mistake_type",
+                "diagnosis.reasoning",
+                "skill_tags",
+                "human_note"
+              ]
+            },
+            "properties": {
+              "outcome": { "enum": ["correct", "partial", "wrong", "disqualified"] },
+              "earned_marks": { "type": "number", "minimum": 0 },
+              "max_marks": { "type": "number", "minimum": 0 },
+              "student_answer": { "type": ["string", "null"] },
+              "correct_answer": { "type": ["string", "null"] },
+              "feedback": { "type": ["string", "null"] },
+              "diagnosis.mistake_type": { "type": ["string", "null"] },
+              "diagnosis.reasoning": { "type": ["string", "null"] },
+              "skill_tags": {
+                "type": "array",
+                "items": { "type": "string" }
+              },
+              "human_note": { "type": ["string", "null"] }
+            },
+            "additionalProperties": false
+          },
+          "reviewer_reason": { "type": "string", "minLength": 1 },
+          "evidence": { "type": "object" },
+          "updated_at": { "type": "string", "minLength": 1 },
+          "updated_by": { "type": "string", "minLength": 1 }
+        },
+        "additionalProperties": false
+      }
+    },
+    "question_page_map_amendments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["result_id"],
+        "properties": {
+          "result_id": { "type": "string", "minLength": 1 },
+          "attempt_page_start": { "type": "integer", "minimum": 1 },
+          "confidence": { "enum": ["high", "medium", "low"] },
+          "updated_at": { "type": "string", "minLength": 1 },
+          "updated_by": { "type": "string", "minLength": 1 }
+        },
+        "additionalProperties": false
+      }
+    },
+    "review_meta": {
+      "type": "object",
+      "required": ["updated_at", "updated_by"],
+      "properties": {
+        "updated_at": { "type": ["string", "null"] },
+        "updated_by": { "type": ["string", "null"] }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

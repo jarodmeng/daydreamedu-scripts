@@ -5,6 +5,7 @@ from dataclasses import replace
 from pathlib import Path
 
 import pytest
+from jsonschema import Draft202012Validator
 
 from ai_study_buddy.marking.core.artifact_paths import (
     build_attempt_basename,
@@ -13,9 +14,11 @@ from ai_study_buddy.marking.core.artifact_paths import (
     normalize_attempt_stem,
 )
 from ai_study_buddy.marking.core.artifact_schema import (
+    AMENDMENT_SCHEMA_PATH,
     MarkingArtifactValidationError,
     SCHEMA_PATH,
     compute_percentage,
+    load_marking_amendment_schema,
     load_marking_result_schema,
     validate_marking_artifact_dict,
 )
@@ -122,10 +125,72 @@ def _sample_artifact() -> MarkingArtifact:
     )
 
 
+def _sample_amendment_payload() -> dict:
+    return {
+        "schema_version": "marking_amendment.v1",
+        "context": {
+            "student_id": "winston",
+            "subject_context": "singapore_primary_science",
+            "attempt_file_id": "attempt_123",
+            "marking_result_path": "marking_results/winston/singapore_primary_science/sample.json",
+        },
+        "summary_overrides": {
+            "human_note": "Checked by reviewer.",
+        },
+        "question_amendments": [
+            {
+                "result_id": "Q2",
+                "fields": {
+                    "earned_marks": 2,
+                    "outcome": "correct",
+                    "feedback": "Evidence supports full marks.",
+                    "skill_tags": ["forces", "effects_of_force"],
+                },
+                "reviewer_reason": "AI under-awarded this row.",
+                "updated_at": "2026-04-26T12:00:00Z",
+                "updated_by": "review_workspace_ui",
+            }
+        ],
+        "question_page_map_amendments": [
+            {
+                "result_id": "Q2",
+                "attempt_page_start": 1,
+                "confidence": "high",
+                "updated_at": "2026-04-26T12:00:00Z",
+                "updated_by": "review_workspace_ui",
+            }
+        ],
+        "review_meta": {
+            "updated_at": "2026-04-26T12:00:00Z",
+            "updated_by": "review_workspace_ui",
+        },
+    }
+
+
 def test_schema_file_exists_and_loads():
     assert SCHEMA_PATH.is_file()
     schema = load_marking_result_schema()
     assert schema["title"] == "marking_result.v1.4"
+
+
+def test_amendment_schema_file_exists_and_loads():
+    assert AMENDMENT_SCHEMA_PATH.is_file()
+    schema = load_marking_amendment_schema()
+    assert schema["title"] == "marking_amendment.v1"
+
+
+def test_marking_amendment_schema_accepts_valid_payload():
+    schema = load_marking_amendment_schema()
+    errors = list(Draft202012Validator(schema).iter_errors(_sample_amendment_payload()))
+    assert errors == []
+
+
+def test_marking_amendment_schema_rejects_unsupported_question_field():
+    schema = load_marking_amendment_schema()
+    payload = _sample_amendment_payload()
+    payload["question_amendments"][0]["fields"]["scoring_status"] = "counted"
+    errors = list(Draft202012Validator(schema).iter_errors(payload))
+    assert any(error.validator in {"propertyNames", "additionalProperties"} for error in errors)
 
 
 def test_normalize_attempt_stem_strips_known_prefixes():
