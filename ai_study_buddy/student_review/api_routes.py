@@ -7,6 +7,11 @@ from fastapi import APIRouter, HTTPException, Query
 
 from ai_study_buddy.pdf_file_manager.pdf_file_manager import PdfFileManager
 from ai_study_buddy.student_review.attempt_service import list_attempts_for_student, list_students
+from ai_study_buddy.student_review.amendment_service import (
+    AmendmentValidationError,
+    AmendmentWriteError,
+    put_amendments,
+)
 from ai_study_buddy.student_review.detail_service import AttemptNotFoundError, get_attempt_detail
 from ai_study_buddy.student_review.note_service import ReviewStateWriteError, put_review_state
 from ai_study_buddy.student_review.repository import StudentReviewRepository
@@ -82,4 +87,35 @@ def update_review_state(attempt_id: str, body: dict[str, Any]) -> dict[str, Any]
             review_repo=repo,
         )
     except ReviewStateWriteError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from None
+
+
+@router.put("/api/student/attempts/{attempt_id}/amendments")
+def update_amendments(attempt_id: str, body: dict[str, Any]) -> dict[str, Any]:
+    manager = _manager()
+    repo = _repo()
+    try:
+        result = put_amendments(
+            attempt_id=attempt_id,
+            body=body,
+            context_root=CONTEXT_ROOT,
+            manager=manager,
+            review_repo=repo,
+        )
+        detail = get_attempt_detail(
+            attempt_id=attempt_id,
+            context_root=CONTEXT_ROOT,
+            manager=manager,
+            review_repo=repo,
+        )
+        return {
+            **result,
+            "marking_result": detail.get("marking_result"),
+            "marking_result_base": detail.get("marking_result_base"),
+            "marking_result_resolved": detail.get("marking_result_resolved"),
+            "amendment_state": detail.get("amendment_state"),
+        }
+    except AmendmentValidationError as exc:
+        raise HTTPException(status_code=400, detail={"errors": exc.errors}) from None
+    except AmendmentWriteError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from None

@@ -7,6 +7,11 @@ from typing import Any
 
 from ai_study_buddy.marking.core.artifact_lookup import find_marking_artifacts_for_attempt
 from ai_study_buddy.pdf_file_manager.pdf_file_manager import PdfFile, PdfFileManager
+from ai_study_buddy.student_review.amendment_service import (
+    build_amendment_context,
+    normalize_amendment_state,
+    resolve_marking_result,
+)
 from ai_study_buddy.student_review.models import (
     STATIC_ROUTE_PREFIX,
     attempt_title,
@@ -75,6 +80,64 @@ def _is_completion_candidate(file: PdfFile) -> bool:
     return True
 
 
+def normalize_marking_result_for_frontend(
+    *,
+    payload: dict[str, Any],
+    context_root: Path,
+    marking_result_json: Path,
+) -> dict[str, Any]:
+    context = payload.get("context") if isinstance(payload.get("context"), dict) else {}
+    summary = payload.get("summary") if isinstance(payload.get("summary"), dict) else {}
+    question_results = payload.get("question_results") if isinstance(payload.get("question_results"), list) else []
+    question_page_map = context.get("question_page_map") if isinstance(context.get("question_page_map"), list) else []
+
+    normalized_questions: list[dict[str, Any]] = []
+    for row in question_results:
+        if not isinstance(row, dict):
+            continue
+        result_id = str(row.get("result_id") or "")
+        normalized_questions.append(
+            {
+                "result_id": result_id,
+                "outcome": row.get("outcome"),
+                "earned_marks": row.get("earned_marks"),
+                "max_marks": row.get("max_marks"),
+                "student_answer": row.get("student_answer"),
+                "correct_answer": row.get("correct_answer"),
+                "feedback": row.get("feedback"),
+                "skill_tags": row.get("skill_tags") or [],
+                "diagnosis": row.get("diagnosis") or {},
+                "tutor_note": row.get("human_note"),
+                "human_note": row.get("human_note"),
+                "attempt_page_start": _find_attempt_page_for_result(question_page_map, result_id),
+            }
+        )
+
+    return {
+        "artifact_path": marking_result_json.relative_to(context_root).as_posix(),
+        "schema_version": payload.get("schema_version"),
+        "created_at": payload.get("created_at"),
+        "context": {
+            "unit_label": context.get("unit_label"),
+            "attempt_sequence": context.get("attempt_sequence"),
+            "template_attempt_group_id": context.get("template_attempt_group_id"),
+            "answer_page_start": context.get("answer_page_start"),
+            "answer_page_end": context.get("answer_page_end"),
+            "is_partial": context.get("is_partial"),
+            "question_page_map": question_page_map,
+            "question_selection": context.get("question_selection") or {},
+        },
+        "summary": {
+            "earned_marks": summary.get("earned_marks"),
+            "total_marks": summary.get("total_marks"),
+            "percentage": summary.get("percentage"),
+            "overall_assessment": summary.get("overall_assessment"),
+            "human_note": summary.get("human_note"),
+        },
+        "question_results": normalized_questions,
+    }
+
+
 def get_attempt_detail(
     *,
     attempt_id: str,
@@ -120,10 +183,6 @@ def get_attempt_detail(
         raise AttemptNotFoundError(f"Invalid marking artifact for attempt {attempt_id}")
 
     context = payload.get("context") if isinstance(payload.get("context"), dict) else {}
-    summary = payload.get("summary") if isinstance(payload.get("summary"), dict) else {}
-    question_results = payload.get("question_results") if isinstance(payload.get("question_results"), list) else []
-    question_page_map = context.get("question_page_map") if isinstance(context.get("question_page_map"), list) else []
-
     attempt["title"] = attempt_title(context, attempt_path=completion.path)
     attempt["subject_context"] = context.get("subject_context") if isinstance(context.get("subject_context"), str) else subject_context
     attempt["book_label"] = context.get("book_label") if isinstance(context.get("book_label"), str) else None
@@ -132,27 +191,6 @@ def get_attempt_detail(
     asset_dir = context_root / marking_asset if marking_asset else None
     attempt_images = _list_images(context_root, asset_dir, "attempt") if asset_dir else []
     answer_images = _list_images(context_root, asset_dir, "answers") if asset_dir else []
-
-    normalized_questions: list[dict[str, Any]] = []
-    for row in question_results:
-        if not isinstance(row, dict):
-            continue
-        result_id = str(row.get("result_id") or "")
-        normalized_questions.append(
-            {
-                "result_id": result_id,
-                "outcome": row.get("outcome"),
-                "earned_marks": row.get("earned_marks"),
-                "max_marks": row.get("max_marks"),
-                "student_answer": row.get("student_answer"),
-                "correct_answer": row.get("correct_answer"),
-                "feedback": row.get("feedback"),
-                "skill_tags": row.get("skill_tags") or [],
-                "diagnosis": row.get("diagnosis") or {},
-                "tutor_note": row.get("human_note"),
-                "attempt_page_start": _find_attempt_page_for_result(question_page_map, result_id),
-            }
-        )
 
     student_id = context.get("student_id") if isinstance(context.get("student_id"), str) else (completion.student_id or "unknown")
     resolved_subject = (
@@ -166,32 +204,45 @@ def get_attempt_detail(
         subject_context=resolved_subject,
         artifact_stem=latest_ref.marking_result_json.stem,
     )
+    marking_result_path = latest_ref.marking_result_json.relative_to(context_root).as_posix()
+    amendment_context = build_amendment_context(
+        base_payload=payload,
+        attempt_id=attempt_id,
+        marking_result_path=marking_result_path,
+        fallback_student_id=completion.student_id,
+    )
+    amendment_state = normalize_amendment_state(
+        review_repo.load_raw_amendment(
+            student_id=amendment_context["student_id"],
+            subject_context=amendment_context["subject_context"],
+            artifact_stem=latest_ref.marking_result_json.stem,
+        ),
+        context=amendment_context,
+    )
+    valid_attempt_pages = {img["page_num"] for img in attempt_images if isinstance(img.get("page_num"), int)}
+    resolved_payload = resolve_marking_result(
+        base_payload=payload,
+        amendment_state=amendment_state,
+        valid_attempt_pages=valid_attempt_pages,
+    )
+    marking_result_base = normalize_marking_result_for_frontend(
+        payload=payload,
+        context_root=context_root,
+        marking_result_json=latest_ref.marking_result_json,
+    )
+    marking_result_resolved = normalize_marking_result_for_frontend(
+        payload=resolved_payload,
+        context_root=context_root,
+        marking_result_json=latest_ref.marking_result_json,
+    )
 
     return {
         "attempt": attempt,
         "marking_status": "marked",
-        "marking_result": {
-            "artifact_path": latest_ref.marking_result_json.relative_to(context_root).as_posix(),
-            "schema_version": payload.get("schema_version"),
-            "created_at": payload.get("created_at"),
-            "context": {
-                "unit_label": context.get("unit_label"),
-                "attempt_sequence": context.get("attempt_sequence"),
-                "template_attempt_group_id": context.get("template_attempt_group_id"),
-                "answer_page_start": context.get("answer_page_start"),
-                "answer_page_end": context.get("answer_page_end"),
-                "is_partial": context.get("is_partial"),
-                "question_page_map": question_page_map,
-                "question_selection": context.get("question_selection") or {},
-            },
-            "summary": {
-                "earned_marks": summary.get("earned_marks"),
-                "total_marks": summary.get("total_marks"),
-                "percentage": summary.get("percentage"),
-                "overall_assessment": summary.get("overall_assessment"),
-            },
-            "question_results": normalized_questions,
-        },
+        "marking_result": marking_result_resolved,
+        "marking_result_base": marking_result_base,
+        "marking_result_resolved": marking_result_resolved,
+        "amendment_state": amendment_state,
         "review_state": review_state,
         "viewer": {
             "mode_default": "attempt",
