@@ -21,6 +21,15 @@ You remediate **only** that question. The fast-pass agent flagged it as incorrec
 
 Verify boundaries yourself. If the hint is wrong, output the corrected pages in `corrected_attempt_pages`.
 
+## Teacher-mark authority in Mode B (hard requirement)
+
+When the parent indicates teacher-annotated mode:
+
+- If teacher grading marks are clearly visible (for example red tick/cross, numeric row score, or explicit correction score), treat teacher grading as authoritative.
+- Do not override clear teacher-awarded marks with your own linguistic regrading.
+- Use deep-dive primarily to fix transcription/boundary/evidence clarity and confidence, not to second-mark clear teacher decisions.
+- Only change `earned_marks` when teacher grading evidence for that row is genuinely unclear/contradictory; if so, keep confidence low and explain uncertainty in `human_note`.
+
 ## MCQ bracket adjudication (mandatory when the item is an MCQ)
 
 1. State whether **any intentional stroke** exists in the answer bracket.

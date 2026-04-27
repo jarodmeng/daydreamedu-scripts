@@ -29,6 +29,18 @@ It may also supply:
 - Infer correct answer from green corrections or red annotations; if neither, give a reference answer and state `(Reference answer — not written on paper)`.
 - Put verbatim teacher comments in `human_note`.
 
+## Faithful transcription and crossed-out handling (hard requirement)
+
+- Transcribe only what is visibly written as the student's **final** uncrossed response.
+- Do not include crossed-out words in `student_answer`.
+- Do not "clean up" grammar, spelling, or wording in the transcription.
+- Never infer, reconstruct, or fabricate a likely answer from context.
+- If final text is ambiguous because of cross-outs/overwrites/illegibility:
+  - set `student_answer` to `""` or `[illegible]`,
+  - set `confidence.transcription` to `low`,
+  - and let Phase 3 perform close inspection.
+- If teacher score/symbol is clearly visible for the row (`tick`, `cross`, `2`, `0`, `x/y`), treat that as authoritative grading evidence for this phase.
+
 ## MCQ bracket safeguards (required)
 
 Before finalizing any MCQ as unanswered:

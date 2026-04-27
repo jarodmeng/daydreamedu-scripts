@@ -22,6 +22,17 @@ Language consistency is a hard quality gate for all phases that emit free-text f
 
 If a subagent output violates language policy, treat it as malformed output and retry that subagent with explicit correction instructions. Do not proceed with mixed-language payloads.
 
+## Human Note Policy (mandatory)
+
+`human_note` is a reserved transcription field, not a free-form AI commentary field.
+
+- Populate `human_note` **only** when there is clear human-written annotation distinct from student workings for that question (typically red/purple teacher/parent/tutor writing).
+- `human_note` content must be a strict transcription (verbatim or as-close-as-legible) of that human annotation.
+- Do **not** write AI summaries, inferred mistake explanations, or paraphrased diagnosis into `human_note`.
+- If there is no clear human annotation for that question, set `human_note = null`.
+- If annotation exists but is not fully legible, use a minimal transcription with explicit uncertainty marker (for example `[illegible annotation]`) rather than fabricating text.
+- Put AI interpretation in `diagnosis.reasoning`, never in `human_note`.
+
 **CRITICAL ORCHESTRATOR BOUNDARY:**
 You are the Orchestrator. You manage the workflow, but you **MUST NEVER** perform the grading, transcription, or tagging tasks yourself. 
 If a subagent fails, times out, or returns malformed data, you MUST either:
@@ -109,6 +120,27 @@ Before proceeding to Phase 2, validate the Phase 1 mapping output:
 
 Use the `Task` tool to launch `marking-phase2-fast-pass-grader` subagents to do a fast pass over ALL questions.
 
+### Phase 2 Faithful-Transcription Rule (hard requirement)
+
+Phase 2 must transcribe what is actually written, not what the model thinks the student "probably meant."
+
+- **Never fabricate student answers.** Do not invent words, options, numbers, or rewritten responses that are not clearly present on the attempt page.
+- If handwriting/markings are ambiguous, partially visible, overwritten, or unreadable:
+  - set `student_answer` to a blank/no-response placeholder (for example `""` or `"[illegible]"`),
+  - set `confidence.transcription = "low"`,
+  - and allow Phase 3 routing to handle close inspection.
+- Do not mark uncertain transcriptions as high confidence.
+- In teacher-annotated mode, do not assume a student answer from surrounding context or from likely grammar/vocabulary fit; only capture visible student writing.
+
+### Phase 2 Teacher-Mark Capture Rule (hard requirement in Mode B)
+
+In teacher-annotated mode, Phase 2 must explicitly read teacher grading signals for each row:
+
+- detect whether teacher marks are visible (`tick`, `cross`, numeric mark, `x/y`);
+- if visible, treat them as primary evidence for `outcome` and `earned_marks`;
+- if unclear or conflicting, set `confidence.grading = "low"` so the row is routed to Phase 3;
+- never assign high-confidence grading when teacher marks are not clearly localized.
+
 **CRITICAL PERFORMANCE OPTIMIZATION:** Do not pass all questions to a single subagent if the paper has more than 15 questions. The subagent will hit output token limits and truncate the JSON. Instead, split the `attempt_pages_map` into chunks of 10-15 questions each. Launch a separate `marking-phase2-fast-pass-grader` subagent **IN PARALLEL** for each chunk.
 
 ### Phase 2 MCQ Bracket Safeguards (required)
@@ -143,6 +175,8 @@ phase2_job = Task(
         f"subject_context={subject_context}\\n"
         f"required_output_language={required_output_language}\\n"
         f"language_policy={language_policy}\\n"
+        "human_note_policy=Populate human_note ONLY by transcribing distinct human-written annotations (red/purple teacher-parent notes). If absent, set null. Never write AI summary in human_note.\\n"
+        "human_note_output_contract=For each row also return {human_note_source, human_note_is_verbatim, human_note_evidence_page} where source in {none,teacher_annotation,parent_or_tutor_annotation,other_human_annotation}.\\n"
         f"attempt_pages_map_chunk={attempt_pages_map_chunk}\\n"
         f"bundle_root={bundle_root}\\n"
         f"attempt_glob={bundle_root / 'attempt/page-*.png'}\\n"
@@ -169,6 +203,21 @@ Before Phase 3 routing:
   - replace only the violating rows;
   - re-run Phase 2 language QC before continuing.
 
+### Phase 2 Human-Note QC Gate (required)
+
+Before Phase 3 routing:
+
+- Validate each Phase 2 row with these hard rules:
+  - if `human_note` is non-null/non-empty, `human_note_source` must not be `none`;
+  - if `human_note` is non-null/non-empty, `human_note_is_verbatim` must be `true`;
+  - if `human_note_source` is `none`, then `human_note` must be null/empty.
+- Persist `context.marking_asset/debug/phase2_human_note_qc.json` with:
+  - `total_rows`
+  - `rows_with_human_note` (array of `question_id`)
+  - `policy_violations` (array of `{question_id, reason}`)
+  - `qc_passed` (boolean)
+- If QC fails, retry only violating Phase 2 chunks with explicit correction: keep `human_note` null unless there is visible distinct human annotation to transcribe verbatim.
+
 ## 4. Phase 3: Deep-Dive Remediation Subagents
 
 Filter the JSON array from Phase 2. For ANY question where `outcome != "correct"` OR any value in the `confidence` object is `"low"`, use the `Task` tool to launch `marking-phase3-deep-dive` subagents **IN PARALLEL**.
@@ -191,6 +240,14 @@ Phase 2 is the **only** source of truth for **`max_marks`** per `question_id` (r
 - The deep-dive subagent **must not emit `max_marks`**, or if legacy prompts still ask for it, the orchestrator **must discard** any Phase 3 `max_marks` and **always** use the Phase 2 value for that `question_id`.
 - After merge, **`earned_marks` must never exceed** the Phase 2 `max_marks` for that row; if Phase 3 violates this, treat output as malformed and retry Phase 3 for that `question_id`.
 
+### Phase 3 Teacher-Authority Gate (hard requirement in Mode B)
+
+Before accepting a Phase 3 override in teacher-annotated mode:
+
+- if teacher grading marks are clearly visible for the row, Phase 3 must not change teacher-awarded `earned_marks`;
+- allow Phase 3 to improve transcription/diagnosis/page localization while preserving teacher score;
+- only permit score changes when teacher grading is unclear/contradictory, and require low grading confidence plus explicit uncertainty note.
+
 For each invocation, pass:
 
 - one `question_id`
@@ -211,6 +268,8 @@ phase3_job = Task(
         f"subject_context={subject_context}\\n"
         f"required_output_language={required_output_language}\\n"
         f"language_policy={language_policy}\\n"
+        "human_note_policy=Populate human_note ONLY by transcribing distinct human-written annotations (red/purple teacher-parent notes). If absent, set null. Never write AI summary in human_note.\\n"
+        "human_note_output_contract=Return {human_note_source, human_note_is_verbatim, human_note_evidence_page}.\\n"
         f"attempt_pages_hint={attempt_pages_hint}\\n"
         f"fast_pass_max_marks={fast_pass_max_marks}\\n"
         f"bundle_root={bundle_root}\\n"
@@ -234,6 +293,20 @@ Before merging Phase 3 rows into final results:
   - `violating_question_ids` (array)
   - `qc_passed` (boolean)
 - If QC fails, retry only violating `question_id`s with explicit language correction instructions and re-run QC.
+
+### Phase 3 Human-Note QC Gate (required)
+
+Before merging Phase 3 rows into final results:
+
+- Apply the same hard policy checks as Phase 2:
+  - non-null `human_note` requires non-`none` source and `human_note_is_verbatim=true`;
+  - `human_note_source=none` requires `human_note` null/empty.
+- Persist `context.marking_asset/debug/phase3_human_note_qc.json` with:
+  - `total_rows`
+  - `rows_with_human_note` (array of `question_id`)
+  - `policy_violations` (array of `{question_id, reason}`)
+  - `qc_passed` (boolean)
+- If QC fails, retry only violating `question_id`s with explicit correction instructions.
 
 ## 5. Phase 4: Taxonomy Tagger Subagent
 
@@ -291,6 +364,10 @@ As the Orchestrator, you must now assemble the final artifacts:
    - **Preserve `max_marks` from Phase 2** for every row. When applying Phase 3 objects, merge fields such as `student_answer`, `correct_answer`, `outcome`, `earned_marks`, `diagnosis`, `human_note`, and `corrected_attempt_pages` from Phase 3, but **never** overwrite Phase 2 `max_marks` with a Phase 3 value (Phase 3 must not be able to inflate totals).
    - If Phase 3 omits `earned_marks`/`outcome`, keep the Phase 2 values; if Phase 3 includes them, they must satisfy `0 <= earned_marks <= max_marks` from Phase 2.
    - Persist `context.marking_asset/debug/phase5_merge_qc.json` with `{ "max_marks_source": "phase2_only", "phase3_max_marks_discarded": <bool>, "qc_passed": true }` after verifying every row.
+   - For `human_note` merge policy:
+     - Keep `human_note` only when it passes the human-note policy QC/provenance checks.
+     - If provenance checks fail, force `human_note = null` for that row and record the dropped row in `phase5_merge_qc.json` under `human_note_rows_dropped_by_policy`.
+     - Do not auto-convert dropped `human_note` text into `diagnosis.reasoning`; rerun the subagent instead when the content is needed.
 2. **Build Page Map:** Use the `corrected_attempt_pages` (from Phase 3) or `attempt_pages` (from Phase 1) to build the `context.question_page_map`. Ensure the `attempt_page_start` is set to the first page in the array.
 3. **Calculate Totals:** Calculate `summary.earned_marks` and `summary.total_marks` by summing the `question_results`.
 4. **Determine Scope:** Set `context.is_partial` based on whether the graded questions represent the full expected paper.
@@ -298,6 +375,21 @@ As the Orchestrator, you must now assemble the final artifacts:
 6. **Render Markdown:** Run the `report_renderer` to generate the Markdown report in `context/learning_reports/`.
 7. **Write Profiling Log:** Create a `context.marking_asset/debug/profiling_log.md` file. Record the start and end times (in SGT) for Phase 1, Phase 2, Phase 3, and Phase 4. Calculate the total duration of the marking run.
 8. **Write Telemetry Data:** In the `generation` block of the final JSON, include a `telemetry` object: `{"fast_pass_count": X, "deep_dive_count": Y, "total_duration_seconds": Z}`. This allows you to track the efficiency of the Optimistic Fast-Pass architecture over time.
+
+### Pre-Finalization Teacher Tally Reconciliation (required for Mode B)
+
+Before final JSON/report write in teacher-annotated mode:
+
+- Extract page-01 teacher tally (overall and per-section when available).
+- Compute section/booklet totals from merged `question_results`.
+- Persist `context.marking_asset/debug/teacher_tally_qc.json` with:
+  - `teacher_total_marks`
+  - `teacher_earned_marks`
+  - `computed_total_marks`
+  - `computed_earned_marks`
+  - `section_deltas` (if section tally visible)
+  - `qc_passed`
+- If totals do not match and no explicit user override is provided, do **not** finalize; route mismatched sections/questions back for remediation.
 
 ### Pre-Finalization MCQ No-Response Validator (required)
 
@@ -324,6 +416,20 @@ Before writing final JSON/report:
   - `english_required` (boolean)
   - `violating_result_ids` (array)
   - `qc_passed` (boolean)
+- Do **not** finalize JSON/report until `qc_passed` is true.
+
+### Pre-Finalization Human-Note Validator (required)
+
+Before writing final JSON/report:
+
+- Re-scan merged rows for strict `human_note` policy conformance:
+  - `human_note` non-null -> provenance/source present and verbatim flag true;
+  - no AI-summary patterns in `human_note` (for example generic analytic phrasing without direct annotation cues).
+- Persist `context.marking_asset/debug/final_human_note_qc.json` with:
+  - `total_rows`
+  - `rows_with_human_note`
+  - `policy_violations`
+  - `qc_passed`
 - Do **not** finalize JSON/report until `qc_passed` is true.
 
 **Quality Bar:**
