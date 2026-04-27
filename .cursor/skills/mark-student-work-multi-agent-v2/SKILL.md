@@ -443,3 +443,6 @@ If the marking run fails to complete (e.g., a subagent repeatedly fails, or you 
 - Delete the entire Marking Asset Bundle directory (`context.marking_asset`) that was created for this run.
 - Do not leave orphaned PNGs or intermediate JSON files in the workspace.
 - Inform the user that the run failed and the temporary assets were cleaned up.
+
+For pruning artifacts from completed/older runs (not just failed-run temporary cleanup), use the dedicated skill:
+`../prune-marking-run-artifacts/SKILL.md`
