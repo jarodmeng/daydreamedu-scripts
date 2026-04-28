@@ -1,7 +1,7 @@
 """Backfill `context.is_partial` and upgrade canonical artifacts to current package schema.
 
 Rules:
-- `schema_version` is upgraded to package default (currently `marking_result.v1.4`).
+- `schema_version` is upgraded to package default (currently `marking_result.v1.5`).
 - `context.marking_asset` is added with null default when missing (legacy v1.1).
 - `context.is_partial` is set:
   - default `False` for legacy `marking_result.v1.1` artifacts
@@ -23,6 +23,32 @@ from typing import Any
 from ai_study_buddy.marking.core.artifact_schema import SCHEMA_VERSION, validate_marking_artifact_dict
 from ai_study_buddy.marking.core.partial_marking import infer_is_partial_from_raw_text
 from ai_study_buddy.marking.workflows.report_renderer import render_learning_report_from_json
+
+_MIGRATED_FEEDBACK_MARKER = "[Migrated feedback]"
+
+
+def _migrate_feedback_to_human_note(payload: dict[str, Any]) -> bool:
+    rows = payload.get("question_results")
+    if not isinstance(rows, list):
+        return False
+    changed = False
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+        feedback = row.get("feedback")
+        human_note = row.get("human_note")
+        if isinstance(feedback, str) and feedback:
+            if human_note is None or human_note == "":
+                row["human_note"] = feedback
+            elif isinstance(human_note, str):
+                block = f"{_MIGRATED_FEEDBACK_MARKER}\n{feedback}"
+                if block not in human_note:
+                    row["human_note"] = f"{human_note}\n\n{block}"
+            changed = True
+        if "feedback" in row:
+            row.pop("feedback", None)
+            changed = True
+    return changed
 
 
 def _iter_marking_json_files(marking_root: Path) -> list[Path]:
@@ -93,6 +119,8 @@ def run(
 
         if payload.get("schema_version") != SCHEMA_VERSION:
             payload["schema_version"] = SCHEMA_VERSION
+            changed = True
+        if _migrate_feedback_to_human_note(payload):
             changed = True
 
         try:

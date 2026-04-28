@@ -255,7 +255,6 @@ def parse_legacy_learning_report(report_path: str | Path) -> tuple[MarkingArtifa
                 student_answer=row.get("Student answer") or None,
                 correct_answer=row.get("Correct answer") or None,
                 scoring_status=scoring_status,
-                feedback=None,
                 error_tags=(),
                 skill_tags=skill_tags,
                 diagnosis=Diagnosis(),

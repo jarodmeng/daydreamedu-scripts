@@ -71,7 +71,6 @@ class ArtifactQuestionResult:
     student_answer: str | None
     correct_answer: str | None
     scoring_status: str = "counted"
-    feedback: str | None = None
     error_tags: tuple[str, ...] = ()
     skill_tags: tuple[str, ...] = ()
     diagnosis: Diagnosis = Diagnosis()
@@ -267,7 +266,6 @@ class MarkingArtifact:
                 outcome=row["outcome"],
                 student_answer=row.get("student_answer"),
                 correct_answer=row.get("correct_answer"),
-                feedback=row.get("feedback"),
                 error_tags=tuple(row.get("error_tags", ())),
                 skill_tags=tuple(row.get("skill_tags", ())),
                 diagnosis=Diagnosis(**row.get("diagnosis", {})),

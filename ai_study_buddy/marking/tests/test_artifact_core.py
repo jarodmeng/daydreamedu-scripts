@@ -46,7 +46,7 @@ from ai_study_buddy.marking.workflows.report_renderer import render_learning_rep
 
 def _sample_artifact() -> MarkingArtifact:
     return MarkingArtifact(
-        schema_version="marking_result.v1.4",
+        schema_version="marking_result.v1.5",
         created_at="2026-04-15T18:30:25+08:00",
         updated_at="2026-04-15T18:30:25+08:00",
         context=MarkingArtifactContext(
@@ -108,7 +108,6 @@ def _sample_artifact() -> MarkingArtifact:
                 outcome="partial",
                 student_answer="downward force only",
                 correct_answer="downward gravitational force and upward air resistance",
-                feedback="Need both forces.",
                 error_tags=("incomplete_explanation",),
                 skill_tags=("forces", "effects_of_force"),
                 diagnosis=Diagnosis(
@@ -145,7 +144,6 @@ def _sample_amendment_payload() -> dict:
                 "fields": {
                     "earned_marks": 2,
                     "outcome": "correct",
-                    "feedback": "Evidence supports full marks.",
                     "skill_tags": ["forces", "effects_of_force"],
                 },
                 "reviewer_reason": "AI under-awarded this row.",
@@ -172,11 +170,11 @@ def _sample_amendment_payload() -> dict:
 def test_schema_file_exists_and_loads():
     assert SCHEMA_PATH.is_file()
     schema = load_marking_result_schema(SCHEMA_VERSION)
-    assert schema["title"] == "marking_result.v1.4"
+    assert schema["title"] == "marking_result.v1.5"
 
 
 def _schema_fixture(name: str) -> dict:
-    path = Path(__file__).resolve().parent / "fixtures" / "marking_result_v1_4" / name
+    path = Path(__file__).resolve().parent / "fixtures" / "marking_result_v1_5" / name
     return json.loads(path.read_text(encoding="utf-8"))
 
 
@@ -279,7 +277,7 @@ def test_validate_marking_artifact_dict_rejects_legacy_schema_version_fixture():
 
 def test_validate_marking_artifact_dict_accepts_half_marks():
     half = MarkingArtifact(
-        schema_version="marking_result.v1.4",
+        schema_version="marking_result.v1.5",
         created_at="2026-04-21T12:00:00+08:00",
         updated_at="2026-04-21T12:00:00+08:00",
         context=replace(_sample_artifact().context, question_page_map=()),
@@ -404,7 +402,6 @@ def test_validate_marking_artifact_dict_supports_disqualified_excluded_rows():
         student_answer="612.5",
         correct_answer=None,
         scoring_status="excluded_disqualified",
-        feedback="Question stem mismatch with mapped answer key.",
         diagnosis=Diagnosis(
             mistake_type=None,
             reasoning="Disqualified item; student error diagnosis not applicable.",
@@ -432,7 +429,7 @@ def test_write_marking_artifact_writes_json(tmp_path):
     artifact = _sample_artifact()
     written = write_marking_artifact(artifact, context_root=tmp_path)
     payload = json.loads(written.read_text(encoding="utf-8"))
-    assert payload["schema_version"] == "marking_result.v1.4"
+    assert payload["schema_version"] == "marking_result.v1.5"
     assert payload["context"]["template_attempt_group_id"] == "winston::template_456"
     assert payload["context"]["attempt_sequence"] == 1
     assert payload["context"]["marking_asset"].startswith("marking_assets/winston/singapore_primary_science/")

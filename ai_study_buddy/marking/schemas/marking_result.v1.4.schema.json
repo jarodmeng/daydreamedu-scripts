@@ -154,7 +154,10 @@
                   null
                 ]
               },
-              "reasoning": { "type": ["string", "null"] },
+              "reasoning": {
+                "type": ["string", "null"],
+                "description": "Grader-internal rationale/evidence for why the outcome and mistake_type were assigned (for auditability and QA, not written in student-facing tone)."
+              },
               "confidence": {
                 "type": ["string", "null"],
                 "enum": ["high", "medium", "low", null]
@@ -162,7 +165,10 @@
             },
             "additionalProperties": false
           },
-          "human_note": { "type": ["string", "null"] }
+          "human_note": {
+            "type": ["string", "null"],
+            "description": "Optional reviewer override/context added by a human after AI grading (for adjudication or exceptions). Distinct from feedback (student-facing remarks) and from diagnosis.reasoning (grader-internal audit trail)."
+          }
         },
         "additionalProperties": false
       }

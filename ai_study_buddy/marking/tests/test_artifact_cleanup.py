@@ -17,7 +17,7 @@ def _write_json(path: Path, payload: dict) -> Path:
 
 def _artifact_payload(*, marking_asset: str | None) -> dict:
     return {
-        "schema_version": "marking_result.v1.4",
+        "schema_version": "marking_result.v1.5",
         "created_at": "2026-04-23T10:00:00+08:00",
         "updated_at": "2026-04-23T10:00:00+08:00",
         "context": {

@@ -6,7 +6,7 @@ Adds/normalizes these context fields for artifacts with `template_file_id`:
 - `attempt_sequence`
 - `attempt_label` (defaults to null when missing)
 
-Also upgrades `schema_version` to the package default (currently `marking_result.v1.4`).
+Also upgrades `schema_version` to the package default (currently `marking_result.v1.5`).
 
 Usage (from repo root)::
 
@@ -27,6 +27,32 @@ from ai_study_buddy.marking.core.artifact_schema import (
     SCHEMA_VERSION,
     validate_marking_artifact_dict,
 )
+
+_MIGRATED_FEEDBACK_MARKER = "[Migrated feedback]"
+
+
+def _migrate_feedback_to_human_note(payload: dict[str, Any]) -> bool:
+    rows = payload.get("question_results")
+    if not isinstance(rows, list):
+        return False
+    changed = False
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+        feedback = row.get("feedback")
+        human_note = row.get("human_note")
+        if isinstance(feedback, str) and feedback:
+            if human_note is None or human_note == "":
+                row["human_note"] = feedback
+            elif isinstance(human_note, str):
+                block = f"{_MIGRATED_FEEDBACK_MARKER}\n{feedback}"
+                if block not in human_note:
+                    row["human_note"] = f"{human_note}\n\n{block}"
+            changed = True
+        if "feedback" in row:
+            row.pop("feedback", None)
+            changed = True
+    return changed
 
 
 @dataclass(frozen=True)
@@ -124,6 +150,8 @@ def _assign_and_write(candidates: list[_Candidate], *, dry_run: bool) -> dict[st
 
             if payload.get("schema_version") != SCHEMA_VERSION:
                 payload["schema_version"] = SCHEMA_VERSION
+                changed = True
+            if _migrate_feedback_to_human_note(payload):
                 changed = True
             if context.get("template_attempt_group_id") != group_id:
                 context["template_attempt_group_id"] = group_id

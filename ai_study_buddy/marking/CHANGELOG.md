@@ -4,6 +4,56 @@ All notable changes to `ai_study_buddy.marking` are documented in this file.
 
 Committed changes under `ai_study_buddy/marking/` should add an entry here and bump **Current version** in `README.md` (semver: **patch** for docs or small renderer tweaks, **minor** for schema or public API changes). `SPEC.md` / `TESTING.md` titles do not carry the package version.
 
+## [0.2.15] - 2026-04-28
+
+Minor: introduce `marking_result.v1.5`, migrate away from `question_results[].feedback`, and enforce `human_note` as the single per-question note field.
+
+### Added
+
+- `schemas/marking_result.v1.5.schema.json`:
+  - standalone strict schema for `marking_result.v1.5`
+  - removes `question_results[].feedback`
+- `workflows/_migrate_feedback_to_human_note.py`:
+  - one-off migration helper for `v1.4 -> v1.5`
+  - conservative auto-merge for rows where both `feedback` and `human_note` exist
+  - uses marker block: `[Migrated feedback]`
+
+### Changed
+
+- `core/artifact_schema.py`:
+  - `SCHEMA_VERSION` and default writer/validator target now `marking_result.v1.5`
+  - runtime strict validation now supports only `marking_result.v1.5`
+- `core/models.py`:
+  - `ArtifactQuestionResult` no longer includes `feedback`
+- `workflows/migrate_learning_reports.py`:
+  - migrated row construction no longer emits `feedback`
+- `workflows/backfill_attempt_metadata_v1_1.py` and `workflows/backfill_is_partial_v1_3.py`:
+  - when upgrading artifacts to current schema, migrate legacy `feedback` into `human_note` with conservative auto-merge and prune `feedback`
+- `schemas/marking_amendment.v1.schema.json`:
+  - remove `feedback` from allowed `question_amendments[].fields`
+- `student_review/amendment_service.py` and `student_review/detail_service.py`:
+  - remove amendment/detail-service dependency on `feedback`
+
+### Data Migration
+
+- Migrated corpus under `ai_study_buddy/context/marking_results/**/*.json`:
+  - files migrated: `154`
+  - question rows processed: `2655`
+  - non-empty feedback rows: `149`
+  - Case A (`feedback` -> empty `human_note` copy): `109`
+  - Case B (append with marker to existing `human_note`): `40`
+  - Case C (empty/null `feedback` pruned): `2506`
+- All migrated artifacts now use `schema_version = marking_result.v1.5`.
+
+### Documentation
+
+- `README.md`, `SPEC.md`, `TESTING.md`:
+  - update canonical schema contract references from `v1.4` to `v1.5`
+  - update fixture path references to `tests/fixtures/marking_result_v1_5/`
+- Marking producer contract alignment:
+  - `.cursor/skills/mark-student-work-multi-agent-v2/SKILL.md`
+  - remove references to `feedback` and require strict `v1.5` output alignment.
+
 ## [0.2.14] - 2026-04-28
 
 Minor: make `marking_result.v1.4` an explicit strict schema contract and enforce strict runtime version handling.

@@ -9,11 +9,15 @@ This skill acts as the **Orchestrator** for a Hierarchical Multi-Agent System. D
 
 ## Canonical Contract Policy (mandatory)
 
-The final artifact must conform to the strict `marking_result.v1.4` contract:
+The final artifact must conform to the **currently supported marking_result schema contract** enforced by `ai_study_buddy.marking`:
 
-- Schema file: `ai_study_buddy/marking/schemas/marking_result.v1.4.schema.json`
-- Runtime validator: `ai_study_buddy.marking.validate_marking_artifact_dict(...)`
-- Schema version must be explicit `marking_result.v1.4` (no `latest`, no legacy versions in normal flows).
+- **Authoritative “latest supported” pointer is code, not a magic string.** Use `ai_study_buddy.marking.core.artifact_schema`:
+  - `SCHEMA_VERSION` (string value is the only supported marking_result version at runtime today)
+  - `DEFAULT_MARKING_RESULT_VERSION` (currently identical to `SCHEMA_VERSION`; exists for callers that want an explicit knob)
+  - `SUPPORTED_SCHEMA_VERSIONS` / `SCHEMA_PATHS_BY_VERSION` (explicit allowlist + on-disk schema path wiring)
+  - Prefer reading these constants directly from source (instead of pinning a numbered version literal in prose that will drift).
+- **`"latest"` is intentionally unsupported** for persisted JSON and for `write_marking_artifact(..., schema_version=...)` payloads (pass explicit `None`/`DEFAULT_MARKING_RESULT_VERSION`, not `"latest"`).
+- Persisted JSON must keep `schema_version` **exactly equal** to whatever `SCHEMA_VERSION` resolves to at write time (`validate_marking_artifact_dict` rejects anything outside `SUPPORTED_SCHEMA_VERSIONS`).
 - Contract is closed (`additionalProperties: false` on top-level and key nested objects). Do not add ad-hoc fields.
 
 Before writing final JSON:
@@ -386,7 +390,7 @@ As the Orchestrator, you must now assemble the final artifacts:
 2. **Build Page Map:** Use the `corrected_attempt_pages` (from Phase 3) or `attempt_pages` (from Phase 1) to build the `context.question_page_map`. Ensure the `attempt_page_start` is set to the first page in the array.
 3. **Calculate Totals:** Calculate `summary.earned_marks` and `summary.total_marks` by summing the `question_results`.
 4. **Determine Scope:** Set `context.is_partial` based on whether the graded questions represent the full expected paper.
-5. **Write JSON:** Write the canonical `marking_result.v1.4.json` file to `context/marking_results/<student_slug>/<subject_context>/<attempt_basename>.json`. Use `write_marking_artifact` to ensure timestamps are normalized to SGT.
+5. **Write JSON:** Write via `write_marking_artifact` (`ai_study_buddy.marking.core.artifact_writer.write_marking_artifact`) using the default (`schema_version=None`) so timestamps normalize to marking-time SGT semantics and `schema_version` is stamped as `artifact_schema.SCHEMA_VERSION`, persisting canonical layout: `context/marking_results/<student_slug>/<subject_context>/<attempt_basename>.json`.
 6. **Render Markdown:** Run the `report_renderer` to generate the Markdown report in `context/learning_reports/`.
 7. **Write Profiling Log:** Create a `context.marking_asset/debug/profiling_log.md` file. Record the start and end times (in SGT) for Phase 1, Phase 2, Phase 3, and Phase 4. Calculate the total duration of the marking run.
 8. **Write Telemetry Data:** In the `generation` block of the final JSON, include a `telemetry` object: `{"fast_pass_count": X, "deep_dive_count": Y, "total_duration_seconds": Z}`. This allows you to track the efficiency of the Optimistic Fast-Pass architecture over time.
@@ -440,7 +444,6 @@ Before writing final JSON/report:
 - Re-scan merged `question_results` free-text fields:
   - `student_answer`
   - `correct_answer`
-  - `feedback`
   - `human_note`
   - `diagnosis.reasoning`
 - Enforce `subject_context` language policy (English-only for non-Chinese contexts).
@@ -467,7 +470,7 @@ Before writing final JSON/report:
 
 **Quality Bar:**
 - Do not hallucinate data if a subagent fails. If a Phase 3 subagent fails or returns malformed JSON, you may retry launching a subagent for that specific `question_id`.
-- Ensure the final JSON strictly adheres to the `marking_result.v1.4` schema.
+- Ensure final JSON passes `validate_marking_artifact_dict(...)` under the repo’s enforced `artifact_schema.SCHEMA_VERSION`/`SUPPORTED_SCHEMA_VERSIONS` policy (this is stronger than matching a prose-named version literal).
 
 ## 7. Error Handling and Cleanup
 

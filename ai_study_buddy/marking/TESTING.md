@@ -22,8 +22,8 @@ These tests cover:
 - completion->artifact lookup matching and condition filtering
 - run-level artifact removal planning and deletion safety behavior
 - summary/row score consistency
-- strict `marking_result.v1.4` schema validation and closed-contract (`additionalProperties: false`) behavior
-- v1.4 `context.question_page_map` validation (membership, uniqueness, page/confidence/source constraints)
+- strict `marking_result.v1.5` schema validation and closed-contract (`additionalProperties: false`) behavior
+- v1.5 `context.question_page_map` validation (membership, uniqueness, page/confidence/source constraints)
 - disqualified scoring semantics
 - JSON write and markdown re-render behavior
 - path sanitization at write time and placeholder expansion at read/render time
@@ -77,7 +77,7 @@ Before merging marking-related changes:
 
 Schema fixture folder:
 
-- `ai_study_buddy/marking/tests/fixtures/marking_result_v1_4/`
+- `ai_study_buddy/marking/tests/fixtures/marking_result_v1_5/`
 
 Fixture types:
 

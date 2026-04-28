@@ -54,7 +54,7 @@ class _FakeManager:
 
 def _base_payload() -> dict:
     return {
-        "schema_version": "marking_result.v1.4",
+        "schema_version": "marking_result.v1.5",
         "created_at": "2026-04-24T12:00:00+08:00",
         "updated_at": "2026-04-24T12:00:00+08:00",
         "context": {
@@ -96,7 +96,7 @@ def _base_payload() -> dict:
                 "max_marks": 2,
                 "student_answer": "roots",
                 "correct_answer": "roots",
-                "feedback": "Correct.",
+                "human_note": "Correct.",
                 "skill_tags": ["plants"],
                 "diagnosis": {"mistake_type": None, "reasoning": None},
             },
@@ -107,7 +107,7 @@ def _base_payload() -> dict:
                 "max_marks": 2,
                 "student_answer": "stem",
                 "correct_answer": "stem and leaves",
-                "feedback": "Incomplete.",
+                "human_note": "Incomplete.",
                 "skill_tags": ["plants"],
                 "diagnosis": {"mistake_type": "incomplete", "reasoning": "Missing leaves."},
             },
@@ -136,7 +136,7 @@ def test_valid_amendment_overlay_merges_and_recomputes_totals():
                     "fields": {
                         "earned_marks": 2,
                         "outcome": "correct",
-                        "feedback": "Now checked against evidence.",
+                        "human_note": "Now checked against evidence.",
                     },
                     "reviewer_reason": "AI under-awarded Q2.",
                 }
@@ -157,7 +157,7 @@ def test_valid_amendment_overlay_merges_and_recomputes_totals():
     q2 = resolved["question_results"][1]
     assert q2["earned_marks"] == 2
     assert q2["outcome"] == "correct"
-    assert q2["feedback"] == "Now checked against evidence."
+    assert q2["human_note"] == "Now checked against evidence."
     assert resolved["summary"]["earned_marks"] == 4
     assert resolved["summary"]["total_marks"] == 4
     assert resolved["summary"]["percentage"] == 100.0
@@ -230,7 +230,7 @@ def test_panel_save_merges_fields_for_same_question():
             "question_amendments": [
                 {
                     "result_id": "Q2",
-                    "fields": {"feedback": "Checked."},
+                    "fields": {"human_note": "Checked."},
                 }
             ]
         },
@@ -255,7 +255,7 @@ def test_panel_save_merges_fields_for_same_question():
     )
 
     fields = merged["question_amendments"][0]["fields"]
-    assert fields["feedback"] == "Checked."
+    assert fields["human_note"] == "Checked."
     assert fields["earned_marks"] == 2
     assert fields["outcome"] == "correct"
 

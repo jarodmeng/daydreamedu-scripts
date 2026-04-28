@@ -54,7 +54,6 @@
                 "max_marks",
                 "student_answer",
                 "correct_answer",
-                "feedback",
                 "diagnosis.mistake_type",
                 "diagnosis.reasoning",
                 "skill_tags",
@@ -67,7 +66,6 @@
               "max_marks": { "type": "number", "minimum": 0 },
               "student_answer": { "type": ["string", "null"] },
               "correct_answer": { "type": ["string", "null"] },
-              "feedback": { "type": ["string", "null"] },
               "diagnosis.mistake_type": { "type": ["string", "null"] },
               "diagnosis.reasoning": { "type": ["string", "null"] },
               "skill_tags": {

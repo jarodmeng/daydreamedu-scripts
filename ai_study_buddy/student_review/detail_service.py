@@ -104,7 +104,6 @@ def normalize_marking_result_for_frontend(
                 "max_marks": row.get("max_marks"),
                 "student_answer": row.get("student_answer"),
                 "correct_answer": row.get("correct_answer"),
-                "feedback": row.get("feedback"),
                 "skill_tags": row.get("skill_tags") or [],
                 "diagnosis": row.get("diagnosis") or {},
                 "tutor_note": row.get("human_note"),

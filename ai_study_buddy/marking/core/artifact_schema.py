@@ -13,11 +13,11 @@ from ai_study_buddy.marking.core.taxonomy import (
     ERROR_TAGS,
 )
 
-SCHEMA_VERSION = "marking_result.v1.4"
+SCHEMA_VERSION = "marking_result.v1.5"
 DEFAULT_MARKING_RESULT_VERSION = SCHEMA_VERSION
 SUPPORTED_SCHEMA_VERSIONS = {SCHEMA_VERSION}
 SCHEMA_PATHS_BY_VERSION: dict[str, Path] = {
-    SCHEMA_VERSION: Path(__file__).resolve().parent.parent / "schemas" / "marking_result.v1.4.schema.json",
+    SCHEMA_VERSION: Path(__file__).resolve().parent.parent / "schemas" / "marking_result.v1.5.schema.json",
 }
 SCHEMA_PATH = SCHEMA_PATHS_BY_VERSION[SCHEMA_VERSION]
 AMENDMENT_SCHEMA_PATH = Path(__file__).resolve().parent.parent / "schemas" / "marking_amendment.v1.schema.json"
@@ -147,12 +147,12 @@ def validate_marking_artifact_dict(data: dict[str, Any]) -> None:
         is_partial = context.get("is_partial")
         require(
             isinstance(is_partial, bool),
-            "context.is_partial must be a boolean for marking_result.v1.4",
+            "context.is_partial must be a boolean",
         )
         if isinstance(attempt_label, str):
             require(len(attempt_label) <= 64, "context.attempt_label must be <= 64 chars")
         question_page_map = context.get("question_page_map")
-        require(isinstance(question_page_map, (list, tuple)), "context.question_page_map must be an array for marking_result.v1.4")
+        require(isinstance(question_page_map, (list, tuple)), "context.question_page_map must be an array")
 
     expected_total = 0
     expected_earned = 0

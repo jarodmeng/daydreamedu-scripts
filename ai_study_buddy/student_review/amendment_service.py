@@ -25,7 +25,6 @@ QUESTION_FIELD_KEYS = {
     "max_marks",
     "student_answer",
     "correct_answer",
-    "feedback",
     "diagnosis.mistake_type",
     "diagnosis.reasoning",
     "skill_tags",
@@ -34,7 +33,6 @@ QUESTION_FIELD_KEYS = {
 TEXT_FIELD_KEYS = {
     "student_answer",
     "correct_answer",
-    "feedback",
     "diagnosis.mistake_type",
     "diagnosis.reasoning",
     "human_note",

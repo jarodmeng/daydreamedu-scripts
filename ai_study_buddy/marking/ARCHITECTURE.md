@@ -17,7 +17,7 @@ The marking package is the canonical implementation layer for marking workflows.
 ### Responsibilities
 
 - resolve deterministic marking context from registry-backed metadata
-- enforce canonical artifact contract (`marking_result.v1.4`, backward-compatible with `v1` / `v1.1` / `v1.2` / `v1.3`)
+- enforce canonical artifact contract (`marking_result.v1.5`; legacy versions are rejected in normal runtime validation)
 - write canonical JSON first, then render markdown as derived view
 - provide safe run-level artifact cleanup for rerun/remediation workflows
 - provide stable programmatic APIs for workflows and agent skills
@@ -186,5 +186,5 @@ When a new real workflow requires more behavior (for example question-index-awar
 Until a future contract update is announced:
 
 1. `resolve_marking_context(...)` remains stable and file-level.
-2. Existing artifact schemas (`marking_result.v1` / `v1.1` / `v1.2` / `v1.3`) remain readable; writer now emits `marking_result.v1.4`.
+2. Writer emits `marking_result.v1.5`; legacy `marking_result.v1` / `v1.1` / `v1.2` / `v1.3` / `v1.4` are unsupported in normal runtime validation.
 3. New resolver behavior is introduced only from concrete use cases and added additively.
