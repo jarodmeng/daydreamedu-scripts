@@ -33,6 +33,7 @@ from ai_study_buddy.marking.workflows.edit_human_notes import update_human_notes
 from ai_study_buddy.marking.core.models import (
     ArtifactQuestionResult,
     ArtifactSummary,
+    ContextResolution,
     Diagnosis,
     GenerationMeta,
     MarkingArtifact,
@@ -46,7 +47,7 @@ from ai_study_buddy.marking.workflows.report_renderer import render_learning_rep
 
 def _sample_artifact() -> MarkingArtifact:
     return MarkingArtifact(
-        schema_version="marking_result.v1.5",
+        schema_version="marking_result.v1.6",
         created_at="2026-04-15T18:30:25+08:00",
         updated_at="2026-04-15T18:30:25+08:00",
         context=MarkingArtifactContext(
@@ -61,7 +62,7 @@ def _sample_artifact() -> MarkingArtifact:
             book_label="Science Practice Primary 5 and 6",
             unit_file_id="template_456",
             unit_file_path="/tmp/_c_Science Practice Primary 5 and 6 - 17 Interactions.pdf",
-            unit_label="17 Interactions",
+            unit_label="Science Practice Primary 5 and 6 - 17 Interactions",
             answer_file_id="answer_321",
             answer_file_path="/tmp/_c_Science Practice Primary 5 and 6 - 26 Answers.pdf",
             answer_page_start=22,
@@ -82,6 +83,13 @@ def _sample_artifact() -> MarkingArtifact:
                 ),
             ),
             question_selection=QuestionSelection(raw_text="Q1-10"),
+            context_resolution=ContextResolution(
+                method="resolve_marking_context",
+                resolver_version="1",
+                resolved_at="2026-04-15T18:30:25+08:00",
+                mode="standard_mapped_answer",
+                invariants={"unit_label_normalized": True, "mode_explicit": True},
+            ),
         ),
         summary=ArtifactSummary(
             total_marks=4,
@@ -170,7 +178,7 @@ def _sample_amendment_payload() -> dict:
 def test_schema_file_exists_and_loads():
     assert SCHEMA_PATH.is_file()
     schema = load_marking_result_schema(SCHEMA_VERSION)
-    assert schema["title"] == "marking_result.v1.5"
+    assert schema["title"] == "marking_result.v1.6"
 
 
 def _schema_fixture(name: str) -> dict:
@@ -180,14 +188,14 @@ def _schema_fixture(name: str) -> dict:
 
 def test_schema_fixture_valid_payload_passes_schema_and_python_validator():
     payload = _schema_fixture("valid_minimal.json")
-    schema = load_marking_result_schema(SCHEMA_VERSION)
+    schema = load_marking_result_schema(payload["schema_version"])
     assert list(Draft202012Validator(schema).iter_errors(payload)) == []
     validate_marking_artifact_dict(payload)
 
 
 def test_schema_fixture_extra_top_level_field_fails_schema_and_python_validator():
     payload = _schema_fixture("invalid_extra_top_level.json")
-    schema = load_marking_result_schema(SCHEMA_VERSION)
+    schema = load_marking_result_schema(payload["schema_version"])
     schema_errors = list(Draft202012Validator(schema).iter_errors(payload))
     assert schema_errors
     with pytest.raises(MarkingArtifactValidationError, match="Additional properties are not allowed"):
@@ -196,7 +204,7 @@ def test_schema_fixture_extra_top_level_field_fails_schema_and_python_validator(
 
 def test_schema_fixture_schema_valid_but_python_totals_check_fails():
     payload = _schema_fixture("valid_schema_but_bad_totals.json")
-    schema = load_marking_result_schema(SCHEMA_VERSION)
+    schema = load_marking_result_schema(payload["schema_version"])
     assert list(Draft202012Validator(schema).iter_errors(payload)) == []
     with pytest.raises(MarkingArtifactValidationError, match="summary.total_marks must equal sum"):
         validate_marking_artifact_dict(payload)
@@ -257,6 +265,13 @@ def test_validate_marking_artifact_dict_accepts_valid_payload():
     validate_marking_artifact_dict(_sample_artifact().to_dict())
 
 
+def test_validate_marking_artifact_dict_v16_requires_context_resolution():
+    payload = _sample_artifact().to_dict()
+    payload["context"].pop("context_resolution", None)
+    with pytest.raises(MarkingArtifactValidationError, match="context_resolution"):
+        validate_marking_artifact_dict(payload)
+
+
 def test_load_marking_result_schema_rejects_unsupported_version():
     with pytest.raises(UnsupportedSchemaVersionError, match="unsupported schema_version"):
         load_marking_result_schema("marking_result.v1.3")
@@ -277,7 +292,7 @@ def test_validate_marking_artifact_dict_rejects_legacy_schema_version_fixture():
 
 def test_validate_marking_artifact_dict_accepts_half_marks():
     half = MarkingArtifact(
-        schema_version="marking_result.v1.5",
+        schema_version="marking_result.v1.6",
         created_at="2026-04-21T12:00:00+08:00",
         updated_at="2026-04-21T12:00:00+08:00",
         context=replace(_sample_artifact().context, question_page_map=()),
@@ -429,7 +444,7 @@ def test_write_marking_artifact_writes_json(tmp_path):
     artifact = _sample_artifact()
     written = write_marking_artifact(artifact, context_root=tmp_path)
     payload = json.loads(written.read_text(encoding="utf-8"))
-    assert payload["schema_version"] == "marking_result.v1.5"
+    assert payload["schema_version"] == "marking_result.v1.6"
     assert payload["context"]["template_attempt_group_id"] == "winston::template_456"
     assert payload["context"]["attempt_sequence"] == 1
     assert payload["context"]["marking_asset"].startswith("marking_assets/winston/singapore_primary_science/")
@@ -447,6 +462,79 @@ def test_write_marking_artifact_rejects_latest_alias(tmp_path):
     artifact = _sample_artifact()
     with pytest.raises(ValueError, match='schema_version must be explicit; "latest" is not supported'):
         write_marking_artifact(artifact, context_root=tmp_path, schema_version="latest")
+
+
+def test_write_marking_artifact_enforces_context_contract(tmp_path):
+    artifact = _sample_artifact()
+    bad = replace(
+        artifact,
+        context=replace(
+            artifact.context,
+            unit_label="17 Interactions",
+        ),
+    )
+    with pytest.raises(ValueError, match="context.unit_label must match normalized"):
+        write_marking_artifact(bad, context_root=tmp_path)
+
+
+def test_write_marking_artifact_context_contract_passes_with_matching_unit_label(tmp_path):
+    artifact = _sample_artifact()
+    written = write_marking_artifact(artifact, context_root=tmp_path)
+    payload = json.loads(written.read_text(encoding="utf-8"))
+    assert payload["schema_version"] == "marking_result.v1.6"
+
+
+def test_write_marking_artifact_rejects_manual_context_without_resolution_provenance(tmp_path):
+    artifact = _sample_artifact()
+    manual_context = replace(
+        artifact,
+        context=replace(
+            artifact.context,
+            context_resolution=None,
+        ),
+    )
+    with pytest.raises(ValueError, match="context.context_resolution is required"):
+        write_marking_artifact(manual_context, context_root=tmp_path)
+
+
+def test_write_marking_artifact_rejects_empty_subject_context_in_writer_gate(tmp_path):
+    artifact = _sample_artifact()
+    bad = replace(
+        artifact,
+        context=replace(
+            artifact.context,
+            subject_context="",
+        ),
+    )
+    with pytest.raises(ValueError, match="context.subject_context must be non-empty string"):
+        write_marking_artifact(bad, context_root=tmp_path)
+
+
+def test_write_marking_artifact_rejects_empty_attempt_file_path_in_writer_gate(tmp_path):
+    artifact = _sample_artifact()
+    bad = replace(
+        artifact,
+        context=replace(
+            artifact.context,
+            attempt_file_path="",
+        ),
+    )
+    with pytest.raises(ValueError, match="context.attempt_file_path must be non-empty string"):
+        write_marking_artifact(bad, context_root=tmp_path)
+
+
+def test_write_marking_artifact_rejects_embedded_override_mode_incoherence_in_writer_gate(tmp_path):
+    artifact = _sample_artifact()
+    bad = replace(
+        artifact,
+        context=replace(
+            artifact.context,
+            context_resolution=replace(artifact.context.context_resolution, mode="embedded_answer_override"),
+            answer_file_id="different_answer_id",
+        ),
+    )
+    with pytest.raises(ValueError, match="embedded_answer_override requires answer_file_id == template_file_id"):
+        write_marking_artifact(bad, context_root=tmp_path)
 
 
 def test_write_marking_artifact_increments_attempt_sequence_for_same_template(tmp_path):
@@ -517,14 +605,15 @@ def test_write_marking_artifact_sanitizes_context_paths(tmp_path):
     artifact = _sample_artifact()
     updated = replace(
         artifact,
-        context=replace(
-            artifact.context,
-            attempt_file_path="/Users/me/Library/CloudStorage/GoogleDrive-owner@example.com/My Drive/GoodNotes/Singapore Primary Science/winston.ry.meng@gmail.com/P6/Book/c_test.pdf",
-            template_file_path="/Users/me/Library/CloudStorage/GoogleDrive-owner@example.com/My Drive/DaydreamEdu/Singapore Primary Science/P6/Book/_c_test.pdf",
-            unit_file_path="/Users/me/Library/CloudStorage/GoogleDrive-owner@example.com/My Drive/DaydreamEdu/Singapore Primary Science/P6/Book/_c_test.pdf",
-            answer_file_path="/Users/me/Library/CloudStorage/GoogleDrive-owner@example.com/My Drive/DaydreamEdu/Singapore Primary Science/P6/Book/_c_answers.pdf",
-        ),
-    )
+            context=replace(
+                artifact.context,
+                attempt_file_path="/Users/me/Library/CloudStorage/GoogleDrive-owner@example.com/My Drive/GoodNotes/Singapore Primary Science/winston.ry.meng@gmail.com/P6/Book/c_test.pdf",
+                template_file_path="/Users/me/Library/CloudStorage/GoogleDrive-owner@example.com/My Drive/DaydreamEdu/Singapore Primary Science/P6/Book/_c_test.pdf",
+                unit_file_path="/Users/me/Library/CloudStorage/GoogleDrive-owner@example.com/My Drive/DaydreamEdu/Singapore Primary Science/P6/Book/_c_test.pdf",
+                unit_label="test",
+                answer_file_path="/Users/me/Library/CloudStorage/GoogleDrive-owner@example.com/My Drive/DaydreamEdu/Singapore Primary Science/P6/Book/_c_answers.pdf",
+            ),
+        )
     written = write_marking_artifact(updated, context_root=tmp_path)
     payload = json.loads(written.read_text(encoding="utf-8"))
     assert payload["context"]["attempt_file_path"].startswith("GOODNOTES_ROOT/")

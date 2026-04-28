@@ -30,6 +30,11 @@ def normalize_attempt_stem(name_or_path: str | Path) -> str:
     return stem
 
 
+def derive_unit_label_from_attempt_name(name_or_path: str | Path) -> str:
+    """Human-facing unit label derived from attempt/template filename."""
+    return normalize_attempt_stem(name_or_path)
+
+
 def format_artifact_timestamp(value: str | datetime) -> str:
     """Basename suffix ``YYYYMMDD_HHMMSS`` in **Singapore (SGT)** wall time."""
     return format_basename_timestamp(value)
@@ -77,4 +82,3 @@ def build_learning_report_path(
         / artifact.context.subject_context
         / f"{basename} - Marking Report.md"
     )
-

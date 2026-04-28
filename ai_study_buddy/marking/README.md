@@ -1,14 +1,14 @@
 # AI Study Buddy Marking Package
 
 Canonical marking pipeline for AI Study Buddy. This package defines the
-`marking_result.v1.5` artifact contract and the JSON-first workflow:
+`marking_result.v1.6` artifact contract and the JSON-first workflow:
 
 1. resolve context
 2. write canonical JSON artifact
 3. render markdown as a derived view
 4. support human note edits in the canonical JSON
 
-Current version: `v0.2.15`
+Current version: `v0.2.16`
 
 ## Package Scope
 
@@ -37,7 +37,7 @@ Canonical artifacts now support multiple attempts for the same student/template 
 
 Writer behavior:
 
-- `write_marking_artifact(...)` emits `schema_version = marking_result.v1.5`.
+- `write_marking_artifact(...)` emits `schema_version = marking_result.v1.6`.
 - When `template_file_id` is present, the writer auto-populates group/sequence metadata.
 - Learning report rendering shows `Attempt #<n>` when `attempt_sequence` is present.
 
@@ -56,7 +56,7 @@ Example `context` snippet:
 
 Canonical artifacts now include question page anchors in `context.question_page_map`:
 
-- required in `marking_result.v1.5` (may be empty array)
+- required in `marking_result.v1.6` (may be empty array)
 - one entry per mapped `question_results[].result_id`
 - includes:
   - `result_id`
@@ -87,7 +87,7 @@ Example `context` snippet:
 - `api.py`: compact public API re-export surface
 - `core/`: models, schema, paths, writer, taxonomy, context resolution
 - `workflows/`: CLI/workflow modules for migration, rendering, and note editing
-- `schemas/marking_result.v1.5.schema.json`: canonical JSON schema for `marking_result.v1.5` (strict, closed contract)
+- `schemas/marking_result.v1.6.schema.json`: canonical JSON schema for `marking_result.v1.6` (strict, closed contract)
 - `schemas/marking_amendment.v1.schema.json`: companion amendment overlay schema contract (`marking_amendment.v1`)
 - `tests/test_artifact_core.py`: core artifact and rendering tests
 - `tests/test_migration.py`: migration parser and migration flow tests
@@ -149,6 +149,25 @@ created_at = updated_at = now_marking_iso()
 ```
 
 `write_marking_artifact` still accepts UTC (`Z`) or other offsets and **normalizes to SGT** before writing. The `__YYYYMMDD_HHMMSS` file suffix is the **SGT wall-clock** time for that instant.
+
+## Resolver-Only Context Contract (`v0.2.16+`)
+
+- Canonical `marking_result` writes are resolver-only:
+  - resolve context via `resolve_marking_context(...)`
+  - pass resolver-produced context into `MarkingArtifact`
+  - write via `write_marking_artifact(...)`
+- Manual context assembly is unsupported for canonical writes.
+- Writer enforcement is fail-closed and unconditional:
+  - `context.context_resolution` is required
+  - `context.context_resolution.method` must be `resolve_marking_context`
+  - `context.context_resolution.mode` must be one of:
+    - `standard_mapped_answer`
+    - `embedded_answer_override`
+    - `teacher_annotated`
+  - `context.unit_label` must match normalized `context.unit_file_path` stem when both are present.
+- Backward compatibility note:
+  - readers/parsers remain backward-compatible for legacy `marking_result.v1.5` artifacts,
+  - new writes default to `marking_result.v1.6`.
 
 ## Ink color interpretation policy
 

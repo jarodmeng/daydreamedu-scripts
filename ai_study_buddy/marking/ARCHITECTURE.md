@@ -17,7 +17,7 @@ The marking package is the canonical implementation layer for marking workflows.
 ### Responsibilities
 
 - resolve deterministic marking context from registry-backed metadata
-- enforce canonical artifact contract (`marking_result.v1.5`; legacy versions are rejected in normal runtime validation)
+- enforce canonical artifact contract (`marking_result.v1.6`; legacy versions are rejected in normal runtime validation)
 - write canonical JSON first, then render markdown as derived view
 - provide safe run-level artifact cleanup for rerun/remediation workflows
 - provide stable programmatic APIs for workflows and agent skills
@@ -45,7 +45,7 @@ Current package modules are grouped into three layers.
 - `marking_time.py`: Singapore (SGT) persisted timestamps and basename wall-clock suffix
 - `artifact_lookup.py`: deterministic completion -> artifact lookup (student-scoped)
 - `artifact_cleanup.py`: deterministic run-level artifact cleanup with strict/best-effort modes
-- `artifact_writer.py`: canonical JSON write path
+- `artifact_writer.py`: canonical JSON write path with fail-closed resolver-context contract enforcement
 - `workflows/backfill_attempt_metadata_v1_1.py`: dry-run/apply workflow to backfill v1.1 attempt metadata on existing artifacts
 - `workflows/backfill_is_partial_v1_3.py`: dry-run/apply workflow to backfill `context.is_partial` and upgrade artifacts to v1.3
 - `path_privacy.py`: canonical path sanitization and runtime placeholder expansion
@@ -113,6 +113,12 @@ Resolver architecture summary (MVP):
 5. Context scope is full attempt file in MVP.
 
 Normative resolver behavior (inputs, invariants, errors, and algorithm) is specified in `SPEC.md` under the context resolver section.
+
+Writer enforcement boundary:
+
+1. Resolver APIs produce canonical context and provenance metadata (`context_resolution`).
+2. Producers may enrich non-structural runtime metadata, but may not manually re-assemble canonical context fields.
+3. `write_marking_artifact(...)` is the fail-closed gate and rejects payloads that violate resolver-only context contract invariants.
 
 ## 5) What We Explicitly Defer
 
@@ -186,5 +192,5 @@ When a new real workflow requires more behavior (for example question-index-awar
 Until a future contract update is announced:
 
 1. `resolve_marking_context(...)` remains stable and file-level.
-2. Writer emits `marking_result.v1.5`; legacy `marking_result.v1` / `v1.1` / `v1.2` / `v1.3` / `v1.4` are unsupported in normal runtime validation.
+2. Writer emits `marking_result.v1.6`; legacy `marking_result.v1` / `v1.1` / `v1.2` / `v1.3` / `v1.4` are unsupported in normal runtime validation.
 3. New resolver behavior is introduced only from concrete use cases and added additively.

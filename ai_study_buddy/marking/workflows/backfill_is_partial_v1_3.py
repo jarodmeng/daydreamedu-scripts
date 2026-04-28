@@ -116,6 +116,18 @@ def run(
         if "question_page_map" not in context:
             context["question_page_map"] = []
             changed = True
+        if "context_resolution" not in context:
+            context["context_resolution"] = {
+                "method": "resolve_marking_context",
+                "resolver_version": "1",
+                "resolved_at": payload.get("updated_at") or payload.get("created_at"),
+                "mode": "standard_mapped_answer",
+                "invariants": {
+                    "unit_label_normalized": True,
+                    "mode_explicit": True,
+                },
+            }
+            changed = True
 
         if payload.get("schema_version") != SCHEMA_VERSION:
             payload["schema_version"] = SCHEMA_VERSION

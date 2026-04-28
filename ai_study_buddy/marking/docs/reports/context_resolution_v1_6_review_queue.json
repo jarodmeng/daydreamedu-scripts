@@ -1,0 +1,15 @@
+{
+  "generated_at": "2026-04-28T06:35:03Z",
+  "summary": {
+    "scanned_files": 154,
+    "source_version_files": 39,
+    "upgraded_files": 39,
+    "already_target_version": 115,
+    "queued_for_review": 0,
+    "resolve_errors": 0,
+    "validation_errors": 0,
+    "mismatches_overwritten": 39,
+    "dry_run": 0
+  },
+  "items": []
+}

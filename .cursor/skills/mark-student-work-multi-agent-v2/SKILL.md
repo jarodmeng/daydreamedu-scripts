@@ -64,6 +64,8 @@ If a subagent fails, times out, or returns malformed data, you MUST either:
 
 Before spawning any subagents, you must resolve the context using `PdfFileManager` (or `ai_study_buddy.marking.resolve_marking_context(...)`). 
 
+Resolver-only contract: do not manually assemble canonical `context` fields for persisted artifacts. Use resolver-produced context (including `context_resolution` provenance) as the source of truth, then pass it through to `write_marking_artifact(...)`.
+
 Determine:
 1. The student attempt PDF path.
 2. The template PDF path (if applicable).
@@ -391,6 +393,8 @@ As the Orchestrator, you must now assemble the final artifacts:
 3. **Calculate Totals:** Calculate `summary.earned_marks` and `summary.total_marks` by summing the `question_results`.
 4. **Determine Scope:** Set `context.is_partial` based on whether the graded questions represent the full expected paper.
 5. **Write JSON:** Write via `write_marking_artifact` (`ai_study_buddy.marking.core.artifact_writer.write_marking_artifact`) using the default (`schema_version=None`) so timestamps normalize to marking-time SGT semantics and `schema_version` is stamped as `artifact_schema.SCHEMA_VERSION`, persisting canonical layout: `context/marking_results/<student_slug>/<subject_context>/<attempt_basename>.json`.
+   - Do not strip or rewrite resolver provenance fields under `context.context_resolution`.
+   - If write-time contract validation fails, treat it as a producer bug and fix the producer path instead of force-writing manual context.
 6. **Render Markdown:** Run the `report_renderer` to generate the Markdown report in `context/learning_reports/`.
 7. **Write Profiling Log:** Create a `context.marking_asset/debug/profiling_log.md` file. Record the start and end times (in SGT) for Phase 1, Phase 2, Phase 3, and Phase 4. Calculate the total duration of the marking run.
 8. **Write Telemetry Data:** In the `generation` block of the final JSON, include a `telemetry` object: `{"fast_pass_count": X, "deep_dive_count": Y, "total_duration_seconds": Z}`. This allows you to track the efficiency of the Optimistic Fast-Pass architecture over time.

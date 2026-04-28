@@ -13,11 +13,12 @@ from ai_study_buddy.marking.core.taxonomy import (
     ERROR_TAGS,
 )
 
-SCHEMA_VERSION = "marking_result.v1.5"
+SCHEMA_VERSION = "marking_result.v1.6"
 DEFAULT_MARKING_RESULT_VERSION = SCHEMA_VERSION
-SUPPORTED_SCHEMA_VERSIONS = {SCHEMA_VERSION}
+SUPPORTED_SCHEMA_VERSIONS = {SCHEMA_VERSION, "marking_result.v1.5"}
 SCHEMA_PATHS_BY_VERSION: dict[str, Path] = {
-    SCHEMA_VERSION: Path(__file__).resolve().parent.parent / "schemas" / "marking_result.v1.5.schema.json",
+    "marking_result.v1.5": Path(__file__).resolve().parent.parent / "schemas" / "marking_result.v1.5.schema.json",
+    SCHEMA_VERSION: Path(__file__).resolve().parent.parent / "schemas" / "marking_result.v1.6.schema.json",
 }
 SCHEMA_PATH = SCHEMA_PATHS_BY_VERSION[SCHEMA_VERSION]
 AMENDMENT_SCHEMA_PATH = Path(__file__).resolve().parent.parent / "schemas" / "marking_amendment.v1.schema.json"
@@ -39,7 +40,7 @@ def load_marking_result_schema(version: str) -> dict[str, Any]:
     schema_path = SCHEMA_PATHS_BY_VERSION.get(version)
     if schema_path is None:
         raise UnsupportedSchemaVersionError(
-            f"unsupported schema_version: {version}. Supported versions: {SCHEMA_VERSION}"
+            f"unsupported schema_version: {version}. Supported versions: {sorted(SUPPORTED_SCHEMA_VERSIONS)}"
         )
     return json.loads(schema_path.read_text(encoding="utf-8"))
 
@@ -85,7 +86,7 @@ def _collect_schema_errors(data: dict[str, Any]) -> list[str]:
     schema_version = data.get("schema_version")
     if schema_version not in SUPPORTED_SCHEMA_VERSIONS:
         raise UnsupportedSchemaVersionError(
-            f"unsupported schema_version: {schema_version}. Supported versions: {SCHEMA_VERSION}"
+            f"unsupported schema_version: {schema_version}. Supported versions: {sorted(SUPPORTED_SCHEMA_VERSIONS)}"
         )
     schema = load_marking_result_schema(schema_version)
     normalized_data = _normalize_for_json_schema(data)

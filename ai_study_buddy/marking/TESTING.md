@@ -22,8 +22,9 @@ These tests cover:
 - completion->artifact lookup matching and condition filtering
 - run-level artifact removal planning and deletion safety behavior
 - summary/row score consistency
-- strict `marking_result.v1.5` schema validation and closed-contract (`additionalProperties: false`) behavior
-- v1.5 `context.question_page_map` validation (membership, uniqueness, page/confidence/source constraints)
+- strict `marking_result.v1.6` schema validation and closed-contract (`additionalProperties: false`) behavior
+- v1.5+ `context.question_page_map` validation (membership, uniqueness, page/confidence/source constraints)
+- v1.6 resolver-context contract checks at canonical write time
 - disqualified scoring semantics
 - JSON write and markdown re-render behavior
 - path sanitization at write time and placeholder expansion at read/render time
@@ -72,12 +73,13 @@ Before merging marking-related changes:
 4. For renderer or note-edit changes, verify artifact-core tests pass.
 5. For backfill changes, verify migration tests pass (includes backfill dry-run/apply coverage).
 6. For schema changes, verify fixture-based schema tests and parity checks pass.
+7. For producer-flow changes, verify resolver-only context contract tests pass.
 
 ## Schema Fixture And Parity Conventions
 
 Schema fixture folder:
 
-- `ai_study_buddy/marking/tests/fixtures/marking_result_v1_5/`
+- `ai_study_buddy/marking/tests/fixtures/marking_result_v1_5/` (legacy folder name retained)
 
 Fixture types:
 
@@ -102,8 +104,9 @@ Use this checklist when changing behavior that affects outputs:
 5. Verify path placeholders are persisted in JSON (`GOODNOTES_ROOT` / `DAYDREAMEDU_ROOT` / `<student_email>`).
 6. Verify render output expands placeholders when roots/student email can be resolved.
 7. Re-run schema validation (implicitly covered by write/update flows).
-8. For visual-marking workflow checks, confirm scoring used only blue/black student writing and ignored red/green/purple annotations unless explicitly requested as metadata extraction.
-9. For renderer localization changes, verify diagnosis text formatting on:
+8. Verify a write with missing `context.context_resolution` fails deterministically.
+9. For visual-marking workflow checks, confirm scoring used only blue/black student writing and ignored red/green/purple annotations unless explicitly requested as metadata extraction.
+10. For renderer localization changes, verify diagnosis text formatting on:
    - one Chinese / Higher Chinese artifact (Chinese mistake-type labels)
    - one non-Chinese artifact (`mistake_type: reasoning` formatting).
 

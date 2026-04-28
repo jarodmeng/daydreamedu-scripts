@@ -14,6 +14,7 @@ from ai_study_buddy.marking.core.marking_time import to_marking_iso
 from ai_study_buddy.marking.core.models import (
     ArtifactQuestionResult,
     ArtifactSummary,
+    ContextResolution,
     Diagnosis,
     GenerationMeta,
     MarkingArtifact,
@@ -308,6 +309,18 @@ def parse_legacy_learning_report(report_path: str | Path) -> tuple[MarkingArtifa
     if percentage_text and abs(round(summary.percentage) - percentage) >= 0.01:
         warnings.append("percentage in report differs from percentage recomputed from table rows")
 
+    has_standard_answer_mapping = (
+        isinstance(answer_file_id, str)
+        and bool(answer_file_id.strip())
+        and isinstance(answer_file_path, str)
+        and bool(answer_file_path.strip())
+        and isinstance(answer_page_start, int)
+        and isinstance(answer_page_end, int)
+        and answer_page_start >= 1
+        and answer_page_end >= answer_page_start
+    )
+    resolved_mode = "standard_mapped_answer" if has_standard_answer_mapping else "teacher_annotated"
+
     context = MarkingArtifactContext(
         student_id=path.parent.parent.name,
         student_name=student_name,
@@ -321,16 +334,26 @@ def parse_legacy_learning_report(report_path: str | Path) -> tuple[MarkingArtifa
         unit_file_id=unit_file_id,
         unit_file_path=template_file_path,
         unit_label=unit_label,
-        answer_file_id=answer_file_id,
-        answer_file_path=answer_file_path,
-        answer_page_start=answer_page_start,
-        answer_page_end=answer_page_end,
+        answer_file_id=answer_file_id if resolved_mode == "standard_mapped_answer" else None,
+        answer_file_path=answer_file_path if resolved_mode == "standard_mapped_answer" else None,
+        answer_page_start=answer_page_start if resolved_mode == "standard_mapped_answer" else None,
+        answer_page_end=answer_page_end if resolved_mode == "standard_mapped_answer" else None,
         starts_mid_page=False,
         ends_mid_page=False,
         answer_mapping_source=context_data.get("Mapping source"),
         answer_mapping_notes=context_data.get("Answer page note"),
         is_partial=False,
         question_selection=QuestionSelection(raw_text=None),
+        context_resolution=ContextResolution(
+            method="resolve_marking_context",
+            resolver_version="1",
+            resolved_at=created_at,
+            mode=resolved_mode,
+            invariants={
+                "unit_label_normalized": True,
+                "mode_explicit": True,
+            },
+        ),
     )
     generation_notes = "Migrated from legacy markdown learning report."
     if warnings:

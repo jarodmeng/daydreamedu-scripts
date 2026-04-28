@@ -1,5 +1,6 @@
 from pathlib import Path
 
+from ai_study_buddy.marking.core.artifact_paths import derive_unit_label_from_attempt_name
 from ai_study_buddy.marking.core.models import MarkingContext, QuestionSelection
 from ai_study_buddy.pdf_file_manager.pdf_file_manager import (
     AlreadyRegisteredError,
@@ -33,6 +34,8 @@ def resolve_marking_context(
     question_refs: list[str] | tuple[str, ...] | None = None,
     section_hint: str | None = None,
     self_answer_pages: tuple[int, int] | None = None,
+    manual_answer_pages: tuple[int, int] | None = None,
+    marking_mode: str | None = None,
     auto_register_attempt: bool = False,
     auto_link_template: bool = False,
     manager: PdfFileManager | None = None,
@@ -61,20 +64,38 @@ def resolve_marking_context(
         auto_register_attempt=auto_register_attempt,
     )
     template_file = _resolve_template_file(mgr, attempt_file, auto_link_template=auto_link_template)
-    self_answer_range = _normalize_self_answer_pages(self_answer_pages)
+    if self_answer_pages is not None and manual_answer_pages is not None:
+        raise MarkingContextResolutionError(
+            "Provide only one of self_answer_pages or manual_answer_pages, not both."
+        )
+    override_pages = manual_answer_pages if manual_answer_pages is not None else self_answer_pages
+    self_answer_range = _normalize_self_answer_pages(override_pages)
+    resolved_mode = _resolve_marking_mode(marking_mode=marking_mode, self_answer_pages=override_pages)
 
-    if self_answer_range is not None:
+    if resolved_mode == "embedded_answer_override":
+        assert self_answer_range is not None
         book_group = _resolve_book_group_if_present(mgr, template_file)
         answer_file_id = template_file.id
         answer_file_path = template_file.path
         answer_page_start, answer_page_end = self_answer_range
         starts_mid_page = False
         ends_mid_page = False
+        source_label = "manual_answer_pages" if manual_answer_pages is not None else "self_answer_pages"
         answer_mapping_source = (
-            f"self_answer_pages override: answers embedded in template/completion paper "
+            f"{source_label} override: answers embedded in template/completion paper "
             f"(pages {answer_page_start}-{answer_page_end})"
         )
         answer_mapping_notes = None
+    elif resolved_mode == "teacher_annotated":
+        book_group = _resolve_book_group_if_present(mgr, template_file)
+        answer_file_id = None
+        answer_file_path = None
+        answer_page_start = None
+        answer_page_end = None
+        starts_mid_page = False
+        ends_mid_page = False
+        answer_mapping_source = "teacher_annotated_completion"
+        answer_mapping_notes = "No answer key mapping; grading grounded in teacher annotations on completion."
     else:
         book_group = _resolve_book_group(mgr, template_file)
         answer_mapping = _resolve_answer_mapping(mgr, template_file)
@@ -108,6 +129,7 @@ def resolve_marking_context(
         answer_mapping_source=answer_mapping_source,
         answer_mapping_notes=answer_mapping_notes,
         question_selection=question_selection,
+        marking_mode=resolved_mode,
     )
 
 
@@ -335,12 +357,24 @@ def _infer_unit_label(file: PdfFile) -> str | None:
     if isinstance(unit, str) and unit.strip():
         return unit.strip()
 
-    stem = Path(file.name).stem
-    if stem.startswith("_c_"):
-        stem = stem[3:]
-    elif stem.startswith("c_"):
-        stem = stem[2:]
-    return stem
+    return derive_unit_label_from_attempt_name(file.name)
+
+
+def _resolve_marking_mode(*, marking_mode: str | None, self_answer_pages: tuple[int, int] | None) -> str:
+    allowed = {"standard_mapped_answer", "embedded_answer_override", "teacher_annotated"}
+    if marking_mode is not None and marking_mode not in allowed:
+        raise MarkingContextResolutionError(
+            f"Unsupported marking_mode: {marking_mode}. Expected one of {sorted(allowed)}."
+        )
+    if self_answer_pages is not None:
+        if marking_mode is None:
+            return "embedded_answer_override"
+        if marking_mode != "embedded_answer_override":
+            raise MarkingContextResolutionError(
+                "self_answer_pages is only valid for marking_mode=embedded_answer_override"
+            )
+        return marking_mode
+    return marking_mode or "standard_mapped_answer"
 
 
 def _normalize_self_answer_pages(

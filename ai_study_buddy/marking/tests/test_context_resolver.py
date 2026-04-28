@@ -87,6 +87,45 @@ def test_resolve_context_rejects_invalid_self_answer_pages() -> None:
         assert "begin_page must be <=" in str(exc.value)
 
 
+def test_resolve_context_manual_answer_pages_override() -> None:
+    with tempfile.TemporaryDirectory() as tmpdir:
+        base = Path(tmpdir)
+        mgr = PdfFileManager(db_path=str(base / "registry.db"))
+        attempt_path, template_path = _make_goodnotes_paths(base)
+
+        template = mgr.register_file(template_path, file_type="main", is_template=True, doc_type="book")
+        context = resolve_marking_context(
+            attempt_file_id_or_path=attempt_path,
+            auto_register_attempt=True,
+            auto_link_template=True,
+            manual_answer_pages=(1, 1),
+            manager=mgr,
+        )
+        assert context.template_file_id == template.id
+        assert context.answer_file_id == template.id
+        assert context.answer_page_start == 1
+        assert context.answer_page_end == 1
+        assert context.answer_mapping_source is not None
+        assert "manual_answer_pages override" in context.answer_mapping_source
+
+
+def test_resolve_context_rejects_both_manual_and_self_answer_overrides() -> None:
+    with tempfile.TemporaryDirectory() as tmpdir:
+        base = Path(tmpdir)
+        mgr = PdfFileManager(db_path=str(base / "registry.db"))
+        attempt_path, template_path = _make_goodnotes_paths(base)
+        attempt = mgr.register_file(attempt_path, file_type="main", is_template=False, doc_type="exam")
+        template = mgr.register_file(template_path, file_type="main", is_template=True, doc_type="book")
+        mgr.link_to_template(attempt.id, template.id)
+        with pytest.raises(MarkingContextResolutionError, match="only one of self_answer_pages or manual_answer_pages"):
+            resolve_marking_context(
+                attempt_file_id_or_path=attempt_path,
+                self_answer_pages=(1, 1),
+                manual_answer_pages=(1, 1),
+                manager=mgr,
+            )
+
+
 def test_resolve_context_without_override_requires_book_mapping() -> None:
     with tempfile.TemporaryDirectory() as tmpdir:
         base = Path(tmpdir)
@@ -175,3 +214,43 @@ def test_resolve_context_daydreamedu_attempt_path_accepted() -> None:
 
         assert "DaydreamEdu" in context.attempt_file_path
         assert context.template_file_id == template.id
+
+
+def test_resolve_context_teacher_annotated_mode_returns_null_answer_mapping() -> None:
+    with tempfile.TemporaryDirectory() as tmpdir:
+        base = Path(tmpdir)
+        mgr = PdfFileManager(db_path=str(base / "registry.db"))
+        attempt_path, template_path = _make_goodnotes_paths(base)
+        attempt = mgr.register_file(attempt_path, file_type="main", is_template=False, doc_type="exam")
+        template = mgr.register_file(template_path, file_type="main", is_template=True, doc_type="book")
+        mgr.link_to_template(attempt.id, template.id)
+
+        context = resolve_marking_context(
+            attempt_file_id_or_path=attempt_path,
+            marking_mode="teacher_annotated",
+            manager=mgr,
+        )
+        assert context.marking_mode == "teacher_annotated"
+        assert context.answer_file_id is None
+        assert context.answer_file_path is None
+        assert context.answer_page_start is None
+        assert context.answer_page_end is None
+        assert context.answer_mapping_source == "teacher_annotated_completion"
+
+
+def test_resolve_context_rejects_self_answer_pages_with_teacher_annotated_mode() -> None:
+    with tempfile.TemporaryDirectory() as tmpdir:
+        base = Path(tmpdir)
+        mgr = PdfFileManager(db_path=str(base / "registry.db"))
+        attempt_path, template_path = _make_goodnotes_paths(base)
+        attempt = mgr.register_file(attempt_path, file_type="main", is_template=False, doc_type="exam")
+        template = mgr.register_file(template_path, file_type="main", is_template=True, doc_type="book")
+        mgr.link_to_template(attempt.id, template.id)
+
+        with pytest.raises(MarkingContextResolutionError, match="self_answer_pages is only valid"):
+            resolve_marking_context(
+                attempt_file_id_or_path=attempt_path,
+                marking_mode="teacher_annotated",
+                self_answer_pages=(1, 1),
+                manager=mgr,
+            )

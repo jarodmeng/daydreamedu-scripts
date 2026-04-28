@@ -22,21 +22,21 @@ class MarkingContext:
     attempt_file_id: str
     attempt_file_path: str
 
-    template_file_id: str
-    template_file_path: str
+    template_file_id: str | None
+    template_file_path: str | None
 
     book_group_id: str | None
     book_label: str | None
 
-    unit_file_id: str
-    unit_file_path: str
+    unit_file_id: str | None
+    unit_file_path: str | None
     unit_label: str | None
 
-    answer_file_id: str
-    answer_file_path: str
+    answer_file_id: str | None
+    answer_file_path: str | None
 
-    answer_page_start: int
-    answer_page_end: int
+    answer_page_start: int | None
+    answer_page_end: int | None
     starts_mid_page: bool
     ends_mid_page: bool
     answer_mapping_source: str | None
@@ -46,6 +46,16 @@ class MarkingContext:
 
     needs_visual_attempt_pages: bool = True
     needs_visual_answer_pages: bool = True
+    marking_mode: str = "standard_mapped_answer"
+
+
+@dataclass(frozen=True)
+class ContextResolution:
+    method: str
+    resolver_version: str
+    resolved_at: str
+    mode: str
+    invariants: dict[str, bool]
 
 
 @dataclass(frozen=True)
@@ -145,6 +155,7 @@ class MarkingArtifactContext:
     question_page_map: tuple[QuestionPageMapEntry, ...] = ()
 
     question_selection: QuestionSelection = QuestionSelection(raw_text=None)
+    context_resolution: ContextResolution | None = None
 
     @classmethod
     def from_marking_context(
@@ -152,6 +163,7 @@ class MarkingArtifactContext:
         context: MarkingContext,
         *,
         subject_context: str,
+        resolved_at: str,
     ) -> "MarkingArtifactContext":
         return cls(
             student_id=context.student_id,
@@ -181,6 +193,16 @@ class MarkingArtifactContext:
             attempt_label=None,
             question_page_map=(),
             question_selection=context.question_selection,
+            context_resolution=ContextResolution(
+                method="resolve_marking_context",
+                resolver_version="1",
+                resolved_at=resolved_at,
+                mode=context.marking_mode,
+                invariants={
+                    "unit_label_normalized": True,
+                    "mode_explicit": True,
+                },
+            ),
         )
 
 
@@ -206,6 +228,7 @@ class MarkingArtifact:
         generation_payload = payload["generation"]
 
         question_selection_payload = context_payload.get("question_selection", {})
+        context_resolution_payload = context_payload.get("context_resolution")
         context = MarkingArtifactContext(
             student_id=context_payload.get("student_id"),
             student_name=context_payload.get("student_name"),
@@ -248,6 +271,21 @@ class MarkingArtifact:
                 raw_text=question_selection_payload.get("raw_text"),
                 canonical_refs=tuple(question_selection_payload.get("canonical_refs", ())),
                 section_hint=question_selection_payload.get("section_hint"),
+            ),
+            context_resolution=(
+                ContextResolution(
+                    method=context_resolution_payload["method"],
+                    resolver_version=context_resolution_payload["resolver_version"],
+                    resolved_at=context_resolution_payload["resolved_at"],
+                    mode=context_resolution_payload["mode"],
+                    invariants=dict(context_resolution_payload.get("invariants", {})),
+                )
+                if isinstance(context_resolution_payload, dict)
+                and all(
+                    key in context_resolution_payload
+                    for key in ("method", "resolver_version", "resolved_at", "mode")
+                )
+                else None
             ),
         )
         summary = ArtifactSummary(

@@ -4,6 +4,38 @@ All notable changes to `ai_study_buddy.marking` are documented in this file.
 
 Committed changes under `ai_study_buddy/marking/` should add an entry here and bump **Current version** in `README.md` (semver: **patch** for docs or small renderer tweaks, **minor** for schema or public API changes). `SPEC.md` / `TESTING.md` titles do not carry the package version.
 
+## [0.2.16] - 2026-04-28
+
+Patch: complete resolver-only context hardening rollout (proposal phase 5-7), enforce fail-closed writer checks, and align producer/package docs with `marking_result.v1.6`.
+
+### Changed
+
+- `core/artifact_writer.py`:
+  - removed `MARKING_ENFORCE_RESOLVER_CONTEXT` feature-flag gate
+  - always enforces resolver-only context contract at canonical write time
+- `tests/test_artifact_core.py`:
+  - updated fixtures/tests for unconditional context-contract enforcement
+  - added explicit rejection test for manual context writes missing `context_resolution` provenance
+- `.cursor/skills/mark-student-work-multi-agent-v2/SKILL.md`:
+  - strengthened producer guidance to forbid manual context assembly for persisted artifacts
+  - added resolver-provenance preservation requirements
+
+### Documentation
+
+- `README.md`:
+  - bump current version to `v0.2.16`
+  - update canonical write contract references to `marking_result.v1.6`
+  - add resolver-only context contract section and backward-compatibility note for `v1.5` reads
+- `SPEC.md`:
+  - update canonical contract references to `v1.6`
+  - document `context.context_resolution` provenance requirements and fail-closed write boundary
+- `ARCHITECTURE.md`:
+  - add explicit writer enforcement boundary for resolver-only context production
+  - update active writer schema-version contract to `v1.6`
+- `TESTING.md`:
+  - document resolver-context contract checks in test scope
+  - add manual-verification expectation for deterministic write rejection when provenance is missing
+
 ## [0.2.15] - 2026-04-28
 
 Minor: introduce `marking_result.v1.5`, migrate away from `question_results[].feedback`, and enforce `human_note` as the single per-question note field.

@@ -29,7 +29,7 @@ def _write_png(path: Path) -> None:
 
 def _sample_artifact_dict() -> dict:
     return {
-        "schema_version": "marking_result.v1.5",
+        "schema_version": "marking_result.v1.6",
         "created_at": "2026-04-21T12:00:00+08:00",
         "updated_at": "2026-04-21T12:00:00+08:00",
         "context": {
@@ -47,6 +47,13 @@ def _sample_artifact_dict() -> dict:
                     "note": None,
                 }
             ],
+            "context_resolution": {
+                "method": "resolve_marking_context",
+                "resolver_version": "1",
+                "resolved_at": "2026-04-21T12:00:00+08:00",
+                "mode": "standard_mapped_answer",
+                "invariants": {"unit_label_normalized": True, "mode_explicit": True},
+            },
         },
         "summary": {
             "total_marks": 1,
@@ -202,7 +209,7 @@ def test_write_bundle_manifest_for_artifact_writes_after_attempt_images_exist(tm
     assert payload["bundle_layout_version"] == 1
     assert payload["attempt_page_count"] == 1
     assert payload["answers_page_count"] == 1
-    assert payload["marking_result_schema_version"] == "marking_result.v1.5"
+    assert payload["marking_result_schema_version"] == "marking_result.v1.6"
 
 
 def test_write_bundle_manifest_for_artifact_skips_when_attempt_images_missing(tmp_path):

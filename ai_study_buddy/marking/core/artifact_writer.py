@@ -14,6 +14,81 @@ from ai_study_buddy.marking.core.marking_time import to_marking_iso
 from ai_study_buddy.marking.core.partial_marking import infer_is_partial_from_raw_text
 from ai_study_buddy.marking.core.path_privacy import sanitize_marking_artifact_paths
 from ai_study_buddy.marking.core.models import MarkingArtifact
+from ai_study_buddy.marking.core.artifact_paths import derive_unit_label_from_attempt_name
+
+
+def _assert_context_contract(payload: dict) -> None:
+    context = payload.get("context")
+    if not isinstance(context, dict):
+        raise ValueError("context contract failure: context must be an object")
+    resolution = context.get("context_resolution")
+    if not isinstance(resolution, dict):
+        raise ValueError("context contract failure: context.context_resolution is required")
+    for key in ("method", "resolver_version", "resolved_at", "mode"):
+        if not isinstance(resolution.get(key), str) or not resolution[key].strip():
+            raise ValueError(f"context contract failure: context.context_resolution.{key} must be non-empty string")
+
+    method = resolution["method"].strip()
+    if method != "resolve_marking_context":
+        raise ValueError("context contract failure: context.context_resolution.method must be resolve_marking_context")
+
+    mode = resolution["mode"].strip()
+    allowed_modes = {"standard_mapped_answer", "embedded_answer_override", "teacher_annotated"}
+    if mode not in allowed_modes:
+        raise ValueError(
+            f"context contract failure: context.context_resolution.mode must be one of {sorted(allowed_modes)}"
+        )
+
+    subject_context = context.get("subject_context")
+    if not isinstance(subject_context, str) or not subject_context.strip():
+        raise ValueError("context contract failure: context.subject_context must be non-empty string")
+
+    attempt_file_path = context.get("attempt_file_path")
+    if not isinstance(attempt_file_path, str) or not attempt_file_path.strip():
+        raise ValueError("context contract failure: context.attempt_file_path must be non-empty string")
+
+    unit_label = context.get("unit_label")
+    unit_file_path = context.get("unit_file_path")
+    if isinstance(unit_label, str) and unit_label.strip() and isinstance(unit_file_path, str) and unit_file_path.strip():
+        expected = derive_unit_label_from_attempt_name(unit_file_path)
+        if unit_label.strip() != expected:
+            raise ValueError(
+                "context contract failure: context.unit_label must match normalized unit_file_path stem "
+                f"(expected {expected!r}, got {unit_label!r})"
+            )
+
+    if mode == "embedded_answer_override":
+        if context.get("answer_file_id") != context.get("template_file_id"):
+            raise ValueError(
+                "context contract failure: embedded_answer_override requires answer_file_id == template_file_id"
+            )
+        if context.get("answer_file_path") != context.get("template_file_path"):
+            raise ValueError(
+                "context contract failure: embedded_answer_override requires answer_file_path == template_file_path"
+            )
+        page_start = context.get("answer_page_start")
+        page_end = context.get("answer_page_end")
+        if not isinstance(page_start, int) or not isinstance(page_end, int) or page_start < 1 or page_end < page_start:
+            raise ValueError(
+                "context contract failure: embedded_answer_override requires valid answer_page_start/end range"
+            )
+
+    if mode == "teacher_annotated":
+        for key in ("answer_file_id", "answer_file_path", "answer_page_start", "answer_page_end"):
+            if context.get(key) is not None:
+                raise ValueError(f"context contract failure: teacher_annotated requires context.{key} to be null")
+
+    if mode == "standard_mapped_answer":
+        page_start = context.get("answer_page_start")
+        page_end = context.get("answer_page_end")
+        if not isinstance(context.get("answer_file_id"), str) or not context["answer_file_id"].strip():
+            raise ValueError("context contract failure: standard_mapped_answer requires non-empty answer_file_id")
+        if not isinstance(context.get("answer_file_path"), str) or not context["answer_file_path"].strip():
+            raise ValueError("context contract failure: standard_mapped_answer requires non-empty answer_file_path")
+        if not isinstance(page_start, int) or not isinstance(page_end, int) or page_start < 1 or page_end < page_start:
+            raise ValueError(
+                "context contract failure: standard_mapped_answer requires valid answer_page_start/end range"
+            )
 
 
 def write_marking_artifact(
@@ -33,6 +108,7 @@ def write_marking_artifact(
     payload = _apply_attempt_metadata(payload=payload, context_root=context_root)
     payload = _apply_partial_scope(payload=payload)
     payload = sanitize_marking_artifact_paths(payload)
+    _assert_context_contract(payload)
     path = Path(output_path) if output_path is not None else build_marking_artifact_path(
         MarkingArtifact.from_dict(payload), context_root=context_root
     )
