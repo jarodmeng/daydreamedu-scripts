@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import type { ReactNode } from "react";
 
 type StudentRow = {
   student_id: string;
@@ -33,7 +34,6 @@ type QuestionRow = {
   max_marks: number;
   student_answer: string | null;
   correct_answer: string | null;
-  feedback: string | null;
   skill_tags: string[];
   diagnosis: {
     mistake_type: string | null;
@@ -115,7 +115,6 @@ type AttemptDetail = {
 };
 
 type ViewerMode = "attempt" | "answer";
-type ViewerFitMode = "fit_height" | "fit_width";
 type NoteScope = "question" | "attempt" | "student_subject";
 type SaveStatus = "idle" | "unsaved" | "saving" | "saved" | "error";
 type EditableFieldKey =
@@ -124,7 +123,6 @@ type EditableFieldKey =
   | "max_marks"
   | "student_answer"
   | "correct_answer"
-  | "feedback"
   | "diagnosis.mistake_type"
   | "diagnosis.reasoning"
   | "skill_tags"
@@ -136,12 +134,38 @@ type Screen = "picker" | "my_work" | "workspace";
 const WIDE_AMENDMENT_FIELDS = new Set<EditableFieldKey>([
   "student_answer",
   "correct_answer",
-  "feedback",
   "diagnosis.reasoning",
   "skill_tags",
   "human_note",
 ]);
 const METRIC_AMENDMENT_FIELDS = new Set<EditableFieldKey>(["outcome", "earned_marks", "max_marks"]);
+const MARKDOWN_AMENDMENT_FIELDS = new Set<EditableFieldKey>([
+  "student_answer",
+  "correct_answer",
+  "diagnosis.reasoning",
+  "human_note",
+]);
+const SCIENCE_SKILL_TAG_PRESET_OPTIONS: string[][] = [
+  ["Cycles > Cycles in Matter and Water > Matter"],
+  ["Cycles > Cycles in Matter and Water > Water"],
+  ["Cycles > Cycles in Plants and Animals > Life cycles"],
+  ["Cycles > Cycles in Plants and Animals > Reproduction"],
+  ["Diversity > Diversity of Living and Non-Living Things > General characteristics and classification"],
+  ["Diversity > Diversity of Materials"],
+  ["Energy > Energy Conversion"],
+  ["Energy > Energy Forms and Uses > Heat"],
+  ["Energy > Energy Forms and Uses > Light"],
+  ["Energy > Energy Forms and Uses > Photosynthesis"],
+  ["Interactions > Interaction of Forces > Frictional force, gravitational force, elastic spring force"],
+  ["Interactions > Interaction of Forces > Magnets"],
+  ["Interactions > Interactions within the Environment"],
+  ["Systems > Electrical System"],
+  ["Systems > Human System > Digestive system"],
+  ["Systems > Human System > Respiratory and circulatory systems"],
+  ["Systems > Plant System > Plant parts and functions"],
+  ["Systems > Plant System > Respiratory and circulatory systems"],
+  ["Experiments > Fair-test"],
+];
 
 const STORAGE_KEY_STUDENT = "review_workspace.student_id";
 
@@ -199,6 +223,13 @@ function questionStatusEmoji(q: QuestionRow): string {
   return "•";
 }
 
+function isQuestionReviewMarkedReviewed(row: { review_status?: string; note_text?: string }): boolean {
+  if (row.review_status === "reviewed") {
+    return true;
+  }
+  return (row.note_text ?? "").trim().length > 0;
+}
+
 function getQuestionFieldValue(q: QuestionRow | null, field: EditableFieldKey): unknown {
   if (!q) {
     return null;
@@ -228,8 +259,149 @@ function formatFieldValue(value: unknown): string {
   return String(value);
 }
 
+function normalizeSkillTagsArray(value: unknown): string[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+  const out: string[] = [];
+  value.forEach((item) => {
+    if (typeof item !== "string") {
+      return;
+    }
+    const trimmed = item.trim();
+    if (trimmed) {
+      out.push(trimmed);
+    }
+  });
+  return out;
+}
+
+function skillTagsLabel(tags: string[]): string {
+  return tags.join(" > ");
+}
+
+function renderInlineMarkdown(text: string): ReactNode[] {
+  const nodes: ReactNode[] = [];
+  let cursor = 0;
+  let key = 0;
+  while (cursor < text.length) {
+    const boldAt = text.indexOf("**", cursor);
+    const italicAt = text.indexOf("*", cursor);
+    const hasBold = boldAt !== -1;
+    const hasItalic = italicAt !== -1;
+    if (!hasBold && !hasItalic) {
+      nodes.push(text.slice(cursor));
+      break;
+    }
+    const nextAt = hasBold && hasItalic ? Math.min(boldAt, italicAt) : hasBold ? boldAt : italicAt;
+    if (nextAt > cursor) {
+      nodes.push(text.slice(cursor, nextAt));
+      cursor = nextAt;
+      continue;
+    }
+    if (text.startsWith("**", cursor)) {
+      const close = text.indexOf("**", cursor + 2);
+      if (close === -1) {
+        nodes.push("**");
+        cursor += 2;
+      } else {
+        nodes.push(<strong key={`md-b-${key}`}>{text.slice(cursor + 2, close)}</strong>);
+        key += 1;
+        cursor = close + 2;
+      }
+      continue;
+    }
+    if (text[cursor] === "*") {
+      const close = text.indexOf("*", cursor + 1);
+      if (close === -1) {
+        nodes.push("*");
+        cursor += 1;
+      } else {
+        nodes.push(<em key={`md-i-${key}`}>{text.slice(cursor + 1, close)}</em>);
+        key += 1;
+        cursor = close + 1;
+      }
+      continue;
+    }
+  }
+  return nodes;
+}
+
+function renderMarkdownText(text: string): ReactNode {
+  const lines = text.split("\n");
+  return lines.map((line, index) => (
+    <span key={`md-line-${index}`}>
+      {renderInlineMarkdown(line)}
+      {index < lines.length - 1 ? <br /> : null}
+    </span>
+  ));
+}
+
 function valuesEqual(a: unknown, b: unknown): boolean {
   return JSON.stringify(a ?? null) === JSON.stringify(b ?? null);
+}
+
+export function normalizeComparableFieldValue(field: EditableFieldKey, value: unknown): unknown {
+  if (field === "earned_marks" || field === "max_marks" || field === "attempt_page_start") {
+    if (value === null || value === undefined || value === "") {
+      return null;
+    }
+    if (typeof value === "number") {
+      return Number.isFinite(value) ? value : null;
+    }
+    if (typeof value === "string") {
+      const trimmed = value.trim();
+      if (!trimmed) {
+        return null;
+      }
+      const parsed = Number(trimmed);
+      return Number.isFinite(parsed) ? parsed : null;
+    }
+    return value;
+  }
+  if (
+    field === "student_answer" ||
+    field === "correct_answer" ||
+    field === "diagnosis.mistake_type" ||
+    field === "diagnosis.reasoning" ||
+    field === "human_note" ||
+    field === "outcome" ||
+    field === "page_map.confidence"
+  ) {
+    if (value === null || value === undefined) {
+      return null;
+    }
+    if (typeof value === "string") {
+      const trimmed = value.trim();
+      return trimmed || null;
+    }
+    return value;
+  }
+  if (field === "skill_tags") {
+    if (!Array.isArray(value)) {
+      return value;
+    }
+    return value.map((item) => (typeof item === "string" ? item.trim() : item)).filter((item) => Boolean(item));
+  }
+  return value ?? null;
+}
+
+export function fieldMeaningfullyChanged(field: EditableFieldKey, value: unknown, baseValue: unknown): boolean {
+  return !valuesEqual(normalizeComparableFieldValue(field, value), normalizeComparableFieldValue(field, baseValue));
+}
+
+export function pickMeaningfulDraft(
+  draft: Record<string, unknown>,
+  baseByField: (field: EditableFieldKey) => unknown,
+): Record<string, unknown> {
+  const out: Record<string, unknown> = {};
+  (Object.keys(draft) as EditableFieldKey[]).forEach((field) => {
+    const value = draft[field];
+    if (fieldMeaningfullyChanged(field, value, baseByField(field))) {
+      out[field] = normalizeComparableFieldValue(field, value);
+    }
+  });
+  return out;
 }
 
 function savedQuestionFields(amendmentState: AmendmentState | undefined, resultId: string): Record<string, unknown> {
@@ -266,6 +438,19 @@ function questionHasSavedAmendment(amendmentState: AmendmentState | undefined, r
   );
 }
 
+export function questionHasMeaningfulSavedAmendment(
+  amendmentState: AmendmentState | undefined,
+  resultId: string,
+  baseQuestion: QuestionRow | null,
+  basePageMap: { confidence?: "high" | "medium" | "low" } | null,
+): boolean {
+  const savedDraft = savedDraftForQuestion(amendmentState, resultId);
+  return (Object.keys(savedDraft) as EditableFieldKey[]).some((field) => {
+    const baseValue = field === "page_map.confidence" ? basePageMap?.confidence ?? null : getQuestionFieldValue(baseQuestion, field);
+    return fieldMeaningfullyChanged(field, savedDraft[field], baseValue);
+  });
+}
+
 function coerceDraftValue(field: EditableFieldKey, value: string): unknown {
   if (field === "earned_marks" || field === "max_marks" || field === "attempt_page_start") {
     return value.trim() === "" ? null : Number(value);
@@ -285,14 +470,13 @@ function needsReviewerReason(draft: Record<string, unknown>): boolean {
 
 function WorkspaceView({ detail, onBack }: { detail: AttemptDetail; onBack: () => void }) {
   const [viewerMode, setViewerMode] = useState<ViewerMode>("attempt");
-  const [viewerFitMode, setViewerFitMode] = useState<ViewerFitMode>("fit_width");
-  const [viewerZoomPct, setViewerZoomPct] = useState<number>(100);
+  const [viewerZoomPct, setViewerZoomPct] = useState<number>(50);
   const [activeQuestionId, setActiveQuestionId] = useState<string>("");
   const [activeImageUrl, setActiveImageUrl] = useState<string | null>(null);
   const [noteScope, setNoteScope] = useState<NoteScope>("question");
+  const [notesExpanded, setNotesExpanded] = useState<boolean>(false);
   const [noteDraft, setNoteDraft] = useState<string>("");
   const [noteSaved, setNoteSaved] = useState<boolean>(true);
-  const [reviewed, setReviewed] = useState<Set<string>>(new Set());
   const [activeDetail, setActiveDetail] = useState<AttemptDetail>(detail);
   const reviewCardRef = useRef<HTMLElement | null>(null);
   const [amendmentDraft, setAmendmentDraft] = useState<Record<string, unknown>>({});
@@ -304,14 +488,13 @@ function WorkspaceView({ detail, onBack }: { detail: AttemptDetail; onBack: () =
   useEffect(() => {
     setActiveDetail(detail);
     setViewerMode("attempt");
-    setViewerFitMode("fit_width");
-    setViewerZoomPct(100);
+    setViewerZoomPct(50);
     setActiveQuestionId("");
     setActiveImageUrl(null);
     setNoteScope("question");
+    setNotesExpanded(false);
     setNoteDraft("");
     setNoteSaved(true);
-    setReviewed(new Set());
     setAmendmentDraft({});
     setEditField(null);
     setReviewerReason("");
@@ -321,6 +504,36 @@ function WorkspaceView({ detail, onBack }: { detail: AttemptDetail; onBack: () =
 
   const questions = activeDetail.marking_result?.question_results ?? [];
   const baseQuestions = activeDetail.marking_result_base?.question_results ?? [];
+  const isScienceSubject = (activeDetail.attempt.subject_context ?? "").toLowerCase().includes("science");
+  const scienceSkillTagOptions = useMemo(() => {
+    if (!isScienceSubject) {
+      return [] as Array<{ value: string; label: string }>;
+    }
+    const seen = new Set<string>();
+    const options: Array<{ value: string; label: string }> = [];
+    const allQuestions = [...questions, ...baseQuestions];
+    allQuestions.forEach((row) => {
+      const tags = normalizeSkillTagsArray(row?.skill_tags);
+      if (tags.length === 0) {
+        return;
+      }
+      const value = JSON.stringify(tags);
+      if (seen.has(value)) {
+        return;
+      }
+      seen.add(value);
+      options.push({ value, label: skillTagsLabel(tags) });
+    });
+    SCIENCE_SKILL_TAG_PRESET_OPTIONS.forEach((tags) => {
+      const value = JSON.stringify(tags);
+      if (seen.has(value)) {
+        return;
+      }
+      seen.add(value);
+      options.push({ value, label: skillTagsLabel(tags) });
+    });
+    return options.sort((a, b) => a.label.localeCompare(b.label));
+  }, [isScienceSubject, questions, baseQuestions]);
   const questionSelectionRawText = activeDetail.marking_result?.context?.question_selection?.raw_text ?? null;
 
   useEffect(() => {
@@ -328,7 +541,8 @@ function WorkspaceView({ detail, onBack }: { detail: AttemptDetail; onBack: () =
       return;
     }
     if (!activeQuestionId) {
-      setActiveQuestionId(questions[0].result_id);
+      const priorityQuestion = questions.find((q) => isIncorrectQuestion(q)) ?? questions[0];
+      setActiveQuestionId(priorityQuestion.result_id);
       return;
     }
     const selected = questions.find((q) => q.result_id === activeQuestionId);
@@ -345,6 +559,10 @@ function WorkspaceView({ detail, onBack }: { detail: AttemptDetail; onBack: () =
   const activeQuestion = useMemo(
     () => questions.find((q) => q.result_id === activeQuestionId) ?? null,
     [questions, activeQuestionId],
+  );
+  const incorrectOrPartialQuestionIds = useMemo(
+    () => new Set(questions.filter((q) => isIncorrectQuestion(q)).map((q) => q.result_id)),
+    [questions],
   );
   const activeBaseQuestion = useMemo(
     () => baseQuestions.find((q) => q.result_id === activeQuestionId) ?? null,
@@ -364,9 +582,23 @@ function WorkspaceView({ detail, onBack }: { detail: AttemptDetail; onBack: () =
     () => savedDraftForQuestion(activeDetail.amendment_state, activeQuestionId),
     [activeDetail.amendment_state, activeQuestionId],
   );
+  const meaningfulPersistedAmendmentDraft = useMemo(
+    () =>
+      pickMeaningfulDraft(persistedAmendmentDraft, (field) =>
+        field === "page_map.confidence" ? activeBasePageMap?.confidence ?? null : getQuestionFieldValue(activeBaseQuestion, field),
+      ),
+    [persistedAmendmentDraft, activeBaseQuestion, activeBasePageMap],
+  );
+  const meaningfulAmendmentDraft = useMemo(
+    () =>
+      pickMeaningfulDraft(amendmentDraft, (field) =>
+        field === "page_map.confidence" ? activeBasePageMap?.confidence ?? null : getQuestionFieldValue(activeBaseQuestion, field),
+      ),
+    [amendmentDraft, activeBaseQuestion, activeBasePageMap],
+  );
   const amendmentDirty = useMemo(
-    () => !valuesEqual(amendmentDraft, persistedAmendmentDraft),
-    [amendmentDraft, persistedAmendmentDraft],
+    () => !valuesEqual(meaningfulAmendmentDraft, meaningfulPersistedAmendmentDraft),
+    [meaningfulAmendmentDraft, meaningfulPersistedAmendmentDraft],
   );
 
   useEffect(() => {
@@ -388,17 +620,12 @@ function WorkspaceView({ detail, onBack }: { detail: AttemptDetail; onBack: () =
     () =>
       new Set(
         (activeDetail.review_state.question_reviews ?? [])
-          .filter((q) => q.review_status === "reviewed")
+          .filter((q) => isQuestionReviewMarkedReviewed(q))
           .map((q) => q.result_id),
       ),
     [activeDetail],
   );
-
-  const effectiveReviewed = useMemo(() => {
-    const merged = new Set(persistedReviewed);
-    reviewed.forEach((id) => merged.add(id));
-    return merged;
-  }, [persistedReviewed, reviewed]);
+  const activeQuestionIsReviewed = activeQuestionId ? persistedReviewed.has(activeQuestionId) : false;
 
   useEffect(() => {
     if (noteScope === "question" && activeQuestionId) {
@@ -420,14 +647,30 @@ function WorkspaceView({ detail, onBack }: { detail: AttemptDetail; onBack: () =
     questionReviews: AttemptDetail["review_state"]["question_reviews"];
     attemptNotes: AttemptDetail["review_state"]["attempt_notes"];
     studentSubjectNotes: AttemptDetail["review_state"]["student_subject_notes"];
+    forceCompleted?: boolean;
   }) {
-    const { questionReviews, attemptNotes, studentSubjectNotes } = params;
-    const hasReviewed = questionReviews.some((q) => q.review_status === "reviewed");
+    const { questionReviews, attemptNotes, studentSubjectNotes, forceCompleted = false } = params;
+    const hasReviewed = questionReviews.some((q) => isQuestionReviewMarkedReviewed(q));
+    const questionIds = new Set(questions.map((q) => q.result_id));
+    const reviewedQuestionCount = questionReviews.filter(
+      (q) => isQuestionReviewMarkedReviewed(q) && questionIds.has(q.result_id),
+    ).length;
+    const allQuestionsReviewed = questionIds.size > 0 && reviewedQuestionCount === questionIds.size;
+    const allIncorrectOrPartialHaveNotes =
+      incorrectOrPartialQuestionIds.size === 0 ||
+      [...incorrectOrPartialQuestionIds].every((resultId) =>
+        questionReviews.some((q) => q.result_id === resultId && (q.note_text ?? "").trim().length > 0),
+      );
     const hasAnyNote =
       questionReviews.some((q) => (q.note_text ?? "").trim().length > 0) ||
       attemptNotes.some((n) => (n.note_text ?? "").trim().length > 0) ||
       studentSubjectNotes.some((n) => (n.note_text ?? "").trim().length > 0);
-    const reviewStatus = hasReviewed || hasAnyNote ? "in_progress" : "not_started";
+    const shouldBeCompleted =
+      forceCompleted ||
+      allIncorrectOrPartialHaveNotes ||
+      allQuestionsReviewed ||
+      activeDetail.review_state.review_status === "completed";
+    const reviewStatus = shouldBeCompleted ? "completed" : hasReviewed || hasAnyNote ? "in_progress" : "not_started";
 
     const res = await fetch(`/api/student/attempts/${encodeURIComponent(activeDetail.attempt.attempt_id)}/review-state`, {
       method: "PUT",
@@ -444,10 +687,10 @@ function WorkspaceView({ detail, onBack }: { detail: AttemptDetail; onBack: () =
       throw new Error(`Failed to persist review state: ${res.status}`);
     }
     const payload = (await res.json()) as { review_state: AttemptDetail["review_state"] };
-    setActiveDetail({
-      ...activeDetail,
+    setActiveDetail((prev) => ({
+      ...prev,
       review_state: payload.review_state,
-    });
+    }));
   }
 
   async function saveCurrentNote() {
@@ -457,11 +700,11 @@ function WorkspaceView({ detail, onBack }: { detail: AttemptDetail; onBack: () =
 
     if (noteScope === "question" && activeQuestionId) {
       const idx = questionReviews.findIndex((x) => x.result_id === activeQuestionId);
-      const existingStatus = idx >= 0 ? questionReviews[idx].review_status : undefined;
+      const hasSavedQuestionNote = noteDraft.trim().length > 0;
       const row = {
         result_id: activeQuestionId,
         note_text: noteDraft,
-        review_status: existingStatus ?? "in_progress",
+        review_status: hasSavedQuestionNote ? "reviewed" : "not_reviewed",
       };
       if (idx >= 0) {
         questionReviews[idx] = row;
@@ -482,29 +725,6 @@ function WorkspaceView({ detail, onBack }: { detail: AttemptDetail; onBack: () =
     setNoteSaved(true);
   }
 
-  async function markCurrentQuestionReviewed() {
-    if (!activeQuestionId) {
-      return;
-    }
-    const questionReviews = [...activeDetail.review_state.question_reviews];
-    const idx = questionReviews.findIndex((x) => x.result_id === activeQuestionId);
-    if (idx >= 0) {
-      questionReviews[idx] = { ...questionReviews[idx], review_status: "reviewed" };
-    } else {
-      questionReviews.push({ result_id: activeQuestionId, review_status: "reviewed", note_text: "" });
-    }
-    await persistReviewState({
-      questionReviews,
-      attemptNotes: [...activeDetail.review_state.attempt_notes],
-      studentSubjectNotes: [...activeDetail.review_state.student_subject_notes],
-    });
-    setReviewed((prev) => {
-      const next = new Set(prev);
-      next.add(activeQuestionId);
-      return next;
-    });
-  }
-
   function updateDraftField(field: EditableFieldKey, value: unknown) {
     setAmendmentDraft((prev) => ({ ...prev, [field]: value }));
     setAmendmentSaveStatus("unsaved");
@@ -523,7 +743,7 @@ function WorkspaceView({ detail, onBack }: { detail: AttemptDetail; onBack: () =
     if (!activeQuestionId || !amendmentDirty) {
       return;
     }
-    if (needsReviewerReason(amendmentDraft) && reviewerReason.trim().length === 0) {
+    if (needsReviewerReason(meaningfulAmendmentDraft) && reviewerReason.trim().length === 0) {
       setAmendmentSaveStatus("error");
       setAmendmentError("Reviewer reason is required for score-changing amendments.");
       return;
@@ -532,7 +752,7 @@ function WorkspaceView({ detail, onBack }: { detail: AttemptDetail; onBack: () =
     const pageMapAmendment: Record<string, unknown> = { result_id: activeQuestionId };
     let hasPageMapChange = false;
 
-    Object.entries(amendmentDraft).forEach(([field, value]) => {
+    Object.entries(meaningfulAmendmentDraft).forEach(([field, value]) => {
       if (field === "attempt_page_start") {
         pageMapAmendment.attempt_page_start = value;
         hasPageMapChange = true;
@@ -610,9 +830,13 @@ function WorkspaceView({ detail, onBack }: { detail: AttemptDetail; onBack: () =
     questions.findIndex((q) => q.result_id === activeQuestionId),
   );
   const imagePool = viewerMode === "attempt" ? activeDetail.viewer.attempt_images : activeDetail.viewer.answer_images;
+  const activeImageIndex = Math.max(
+    0,
+    imagePool.findIndex((img) => img.url === activeImageUrl),
+  );
   const incorrectQuestionCount = questions.filter(isIncorrectQuestion).length;
   const savedQuestionChanged = activeQuestionId
-    ? questionHasSavedAmendment(activeDetail.amendment_state, activeQuestionId)
+    ? questionHasMeaningfulSavedAmendment(activeDetail.amendment_state, activeQuestionId, activeBaseQuestion, activeBasePageMap)
     : false;
 
   function resolvedFieldValue(field: EditableFieldKey): unknown {
@@ -664,10 +888,32 @@ function WorkspaceView({ detail, onBack }: { detail: AttemptDetail; onBack: () =
       );
     }
     if (field === "skill_tags") {
+      const currentTags = normalizeSkillTagsArray(value);
+      const currentValue = JSON.stringify(currentTags);
+      const hasOptions = scienceSkillTagOptions.length > 0;
+      if (isScienceSubject && hasOptions) {
+        const needsCurrentOption = currentTags.length > 0 && !scienceSkillTagOptions.some((option) => option.value === currentValue);
+        return (
+          <select
+            value={currentValue}
+            onChange={(e) => {
+              const parsed = JSON.parse(e.target.value) as unknown;
+              updateDraftField(field, Array.isArray(parsed) ? parsed : []);
+            }}
+          >
+            {needsCurrentOption ? <option value={currentValue}>{skillTagsLabel(currentTags)}</option> : null}
+            {scienceSkillTagOptions.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        );
+      }
       return (
         <input
           type="text"
-          value={Array.isArray(value) ? value.join(", ") : ""}
+          value={currentTags.join(", ")}
           onChange={(e) => updateDraftField(field, coerceDraftValue(field, e.target.value))}
         />
       );
@@ -684,12 +930,19 @@ function WorkspaceView({ detail, onBack }: { detail: AttemptDetail; onBack: () =
     const resolvedValue = resolvedFieldValue(field);
     const baseValue = baseFieldValue(field);
     const isEditing = editField === field;
-    const hasSavedOverride = Object.prototype.hasOwnProperty.call(persistedAmendmentDraft, field);
-    const hasDraftOverride = Object.prototype.hasOwnProperty.call(amendmentDraft, field);
+    const hasSavedOverride =
+      Object.prototype.hasOwnProperty.call(persistedAmendmentDraft, field) &&
+      fieldMeaningfullyChanged(field, persistedAmendmentDraft[field], baseValue);
+    const hasDraftOverride =
+      Object.prototype.hasOwnProperty.call(amendmentDraft, field) && fieldMeaningfullyChanged(field, amendmentDraft[field], baseValue);
     const isWide = WIDE_AMENDMENT_FIELDS.has(field);
     const isMetric = METRIC_AMENDMENT_FIELDS.has(field);
     const fieldClassName =
       `amend-field${isWide ? " wide" : ""}${isMetric ? " metric" : ""}${hasSavedOverride || hasDraftOverride ? " changed" : ""}`;
+    const resolvedText = formatFieldValue(resolvedValue);
+    const baseText = formatFieldValue(baseValue);
+    const renderResolvedValue =
+      MARKDOWN_AMENDMENT_FIELDS.has(field) && resolvedText !== "-" ? renderMarkdownText(resolvedText) : resolvedText;
     return (
       <div
         className={fieldClassName}
@@ -706,8 +959,8 @@ function WorkspaceView({ detail, onBack }: { detail: AttemptDetail; onBack: () =
           </div>
         ) : (
           <div className="amend-read">
-            <strong>{formatFieldValue(resolvedValue)}</strong>
-            {hasSavedOverride || hasDraftOverride ? <small>AI: {formatFieldValue(baseValue)}</small> : null}
+            <div className="amend-value">{renderResolvedValue}</div>
+            {hasSavedOverride || hasDraftOverride ? <small>AI: {baseText}</small> : null}
           </div>
         )}
       </div>
@@ -719,11 +972,9 @@ function WorkspaceView({ detail, onBack }: { detail: AttemptDetail; onBack: () =
       <header className="top-panel">
         <div className="attempt-meta">
           <button onClick={onBack}>Back</button>
-          <strong>{activeDetail.attempt.title}</strong>
-          <span>{activeDetail.attempt.student_id}</span>
-          <span>{activeDetail.attempt.subject_context}</span>
-          <span>{activeDetail.attempt.book_label ?? "No book label"}</span>
-          <span>
+          <strong className="attempt-title">{activeDetail.attempt.title}</strong>
+          <span className="attempt-inline-meta">
+            {activeDetail.attempt.book_label ?? "No book label"} |{" "}
             {activeDetail.marking_result.summary.earned_marks}/{activeDetail.marking_result.summary.total_marks} (
             {formatPct(activeDetail.marking_result.summary.percentage)})
           </span>
@@ -747,61 +998,67 @@ function WorkspaceView({ detail, onBack }: { detail: AttemptDetail; onBack: () =
           >
             Next
           </button>
-          <button type="button" onClick={() => setNoteScope("attempt")}>Attempt note</button>
+          <button
+            type="button"
+            className="top-complete-btn"
+            disabled={activeDetail.review_state.review_status === "completed"}
+            onClick={() =>
+              void persistReviewState({
+                questionReviews: [...activeDetail.review_state.question_reviews],
+                attemptNotes: [...activeDetail.review_state.attempt_notes],
+                studentSubjectNotes: [...activeDetail.review_state.student_subject_notes],
+                forceCompleted: true,
+              })
+            }
+          >
+            Review completed
+          </button>
         </div>
       </header>
 
       <section className="middle-grid">
         <aside className="left-panel">
-          <div className="panel-head">
-            <span>Evidence</span>
-            <div className="toggle">
-              <button className={viewerMode === "attempt" ? "active" : ""} onClick={() => setViewerMode("attempt")}>
-                Attempt
-              </button>
-              <button className={viewerMode === "answer" ? "active" : ""} onClick={() => setViewerMode("answer")}>
-                Answer
-              </button>
-            </div>
-            <div className="toggle">
-              <button
-                className={viewerFitMode === "fit_height" ? "active" : ""}
-                onClick={() => setViewerFitMode("fit_height")}
-              >
-                Fit height
-              </button>
-              <button
-                className={viewerFitMode === "fit_width" ? "active" : ""}
-                onClick={() => setViewerFitMode("fit_width")}
-              >
-                Fit width
-              </button>
-            </div>
-            <div className="zoom-widget">
-              <button onClick={() => setViewerZoomPct((z) => Math.max(50, z - 10))}>-</button>
-              <span>{viewerZoomPct}%</span>
-              <button onClick={() => setViewerZoomPct((z) => Math.min(300, z + 10))}>+</button>
-              <button onClick={() => setViewerZoomPct(100)}>Reset</button>
-              <input
-                type="range"
-                min={50}
-                max={300}
-                step={10}
-                value={viewerZoomPct}
-                onChange={(e) => setViewerZoomPct(Number(e.target.value))}
-                aria-label="Evidence zoom"
-              />
+          <div className="panel-head evidence-head">
+            <div className="evidence-toolbar">
+              <span className="evidence-title">Evidence</span>
+              <div className="toggle">
+                <button className={viewerMode === "attempt" ? "active" : ""} onClick={() => setViewerMode("attempt")}>
+                  Attempt
+                </button>
+                <button className={viewerMode === "answer" ? "active" : ""} onClick={() => setViewerMode("answer")}>
+                  Answer
+                </button>
+              </div>
+              <span className="toolbar-sep" aria-hidden="true">
+                |
+              </span>
+              <div className="zoom-widget">
+                <button onClick={() => setViewerZoomPct((z) => Math.max(20, z - 10))}>-</button>
+                <span>{viewerZoomPct}%</span>
+                <button onClick={() => setViewerZoomPct((z) => Math.min(150, z + 10))}>+</button>
+                <button onClick={() => setViewerZoomPct(50)}>Reset</button>
+                <input
+                  type="range"
+                  min={20}
+                  max={150}
+                  step={10}
+                  value={viewerZoomPct}
+                  onChange={(e) => setViewerZoomPct(Number(e.target.value))}
+                  aria-label="Evidence zoom"
+                />
+              </div>
             </div>
           </div>
           <div className="viewer">
             {activeImageUrl ? (
               <img
-                className={viewerFitMode === "fit_height" ? "fit-height" : "fit-width"}
-                style={
-                  viewerFitMode === "fit_height"
-                    ? { height: `${viewerZoomPct}%` }
-                    : { width: `${viewerZoomPct}%` }
-                }
+                className="fit-width"
+                style={{
+                  width: "100%",
+                  height: "auto",
+                  transform: `scale(${viewerZoomPct / 100})`,
+                  transformOrigin: "top center",
+                }}
                 src={activeImageUrl}
                 alt="Attempt evidence page"
               />
@@ -810,15 +1067,43 @@ function WorkspaceView({ detail, onBack }: { detail: AttemptDetail; onBack: () =
             )}
           </div>
           <div className="thumbs">
-            {imagePool.map((img) => (
-              <button
-                key={`${viewerMode}-${img.name}`}
-                className={img.url === activeImageUrl ? "thumb active" : "thumb"}
-                onClick={() => setActiveImageUrl(img.url)}
-              >
-                p{img.page_num}
-              </button>
-            ))}
+            <button
+              type="button"
+              disabled={imagePool.length === 0 || activeImageIndex <= 0}
+              onClick={() => {
+                if (activeImageIndex > 0) {
+                  setActiveImageUrl(imagePool[activeImageIndex - 1].url);
+                }
+              }}
+            >
+              Previous
+            </button>
+            <select
+              value={activeImageUrl ?? ""}
+              onChange={(e) => setActiveImageUrl(e.target.value)}
+              disabled={imagePool.length === 0}
+              aria-label="Evidence page"
+            >
+              {imagePool.map((img) => (
+                <option key={`${viewerMode}-${img.name}`} value={img.url}>
+                  p{img.page_num}
+                </option>
+              ))}
+            </select>
+            <button
+              type="button"
+              disabled={imagePool.length === 0 || activeImageIndex >= imagePool.length - 1}
+              onClick={() => {
+                if (activeImageIndex < imagePool.length - 1) {
+                  setActiveImageUrl(imagePool[activeImageIndex + 1].url);
+                }
+              }}
+            >
+              Next
+            </button>
+            <span className="thumbs-meta">
+              {imagePool.length === 0 ? "No pages" : `${activeImageIndex + 1}/${imagePool.length}`}
+            </span>
           </div>
         </aside>
 
@@ -829,7 +1114,15 @@ function WorkspaceView({ detail, onBack }: { detail: AttemptDetail; onBack: () =
               {questions.map((q) => (
                 <option key={q.result_id} value={q.result_id}>
                   {questionStatusEmoji(q)} {q.result_id}
-                  {questionHasSavedAmendment(activeDetail.amendment_state, q.result_id) ? " *" : ""}
+                  {persistedReviewed.has(q.result_id) ? " *" : ""}
+                  {questionHasMeaningfulSavedAmendment(
+                    activeDetail.amendment_state,
+                    q.result_id,
+                    baseQuestions.find((baseQ) => baseQ.result_id === q.result_id) ?? null,
+                    activeDetail.marking_result_base?.context.question_page_map.find((entry) => entry.result_id === q.result_id) ?? null,
+                  )
+                    ? " ✎"
+                    : ""}
                 </option>
               ))}
             </select>
@@ -839,7 +1132,10 @@ function WorkspaceView({ detail, onBack }: { detail: AttemptDetail; onBack: () =
             <article ref={reviewCardRef} className="card">
               <div className="review-card-head">
                 <h2>{activeQuestion.result_id}</h2>
-                {savedQuestionChanged ? <span className="pill changed-pill">Amended</span> : null}
+                <div className="review-head-pills">
+                  {activeQuestionIsReviewed ? <span className="pill reviewed-pill">Reviewed</span> : null}
+                  {savedQuestionChanged ? <span className="pill changed-pill">Amended</span> : null}
+                </div>
               </div>
               <div className="score-strip">
                 <strong>{activeQuestion.outcome}</strong>
@@ -854,7 +1150,6 @@ function WorkspaceView({ detail, onBack }: { detail: AttemptDetail; onBack: () =
                 {renderAmendmentField("Max marks", "max_marks")}
                 {renderAmendmentField("Student answer", "student_answer")}
                 {renderAmendmentField("Correct answer", "correct_answer")}
-                {renderAmendmentField("Feedback", "feedback")}
                 {renderAmendmentField("Diagnosis type", "diagnosis.mistake_type")}
                 {renderAmendmentField("Diagnosis reasoning", "diagnosis.reasoning")}
                 {renderAmendmentField("Skill tags", "skill_tags")}
@@ -890,79 +1185,81 @@ function WorkspaceView({ detail, onBack }: { detail: AttemptDetail; onBack: () =
             </article>
           ) : null}
 
-          <article className="notes">
-            <div className="scope-tabs">
-              <button className={noteScope === "question" ? "active" : ""} onClick={() => setNoteScope("question")}>
-                Question
-              </button>
-              <button className={noteScope === "attempt" ? "active" : ""} onClick={() => setNoteScope("attempt")}>
-                Attempt
-              </button>
+          <article className={`notes ${notesExpanded ? "expanded" : "collapsed"}`}>
+            <div className="notes-head">
+              <div className="notes-title-row">
+                <strong>Review Notes</strong>
+                {!noteSaved ? <span className="notes-unsaved-pill">Unsaved</span> : null}
+              </div>
               <button
-                className={noteScope === "student_subject" ? "active" : ""}
-                onClick={() => setNoteScope("student_subject")}
+                type="button"
+                className="notes-toggle"
+                aria-expanded={notesExpanded}
+                onClick={() => setNotesExpanded((prev) => !prev)}
               >
-                Student+Subject
+                {notesExpanded ? "Hide notes" : "Add notes"}
               </button>
             </div>
-            <textarea
-              value={noteDraft}
-              onChange={(e) => {
-                setNoteDraft(e.target.value);
-                setNoteSaved(false);
-              }}
-              placeholder={`Write ${noteScope} note...`}
-            />
-            <button onClick={() => void saveCurrentNote()}>Save Note</button>
+            {notesExpanded ? (
+              <>
+                <div className="scope-tabs">
+                  <button className={noteScope === "question" ? "active" : ""} onClick={() => setNoteScope("question")}>
+                    Question
+                  </button>
+                  <button className={noteScope === "attempt" ? "active" : ""} onClick={() => setNoteScope("attempt")}>
+                    Attempt
+                  </button>
+                  <button
+                    className={noteScope === "student_subject" ? "active" : ""}
+                    onClick={() => setNoteScope("student_subject")}
+                  >
+                    Student+Subject
+                  </button>
+                </div>
+                <textarea
+                  value={noteDraft}
+                  onChange={(e) => {
+                    setNoteDraft(e.target.value);
+                    setNoteSaved(false);
+                  }}
+                  placeholder={`Write ${noteScope} note...`}
+                />
+                <button onClick={() => void saveCurrentNote()}>Save Note</button>
+              </>
+            ) : null}
           </article>
         </section>
       </section>
 
       <footer className="bottom-panel">
-        <span>Viewing: {viewerMode}</span>
-        <span>Fit: {viewerFitMode === "fit_height" ? "Height" : "Width"}</span>
-        <span>Zoom: {viewerZoomPct}%</span>
-        <span>Active: {activeQuestionId || "-"}</span>
-        <span>Note: {noteSaved ? "Saved" : "Unsaved"}</span>
-        <span>Amendment: {amendmentDirty ? "Unsaved" : amendmentSaveStatus === "saved" ? "Saved" : "Clean"}</span>
-        <span>Question: {effectiveReviewed.has(activeQuestionId) ? "Reviewed" : "Not reviewed"}</span>
-        <button onClick={() => void markCurrentQuestionReviewed()}>Mark reviewed</button>
-        <button
-          onClick={() => {
-            if (questions.length === 0) {
-              return;
-            }
-            for (let offset = 1; offset <= questions.length; offset += 1) {
-              const idx = (activeIndex + offset) % questions.length;
-              const candidate = questions[idx];
-              if (!effectiveReviewed.has(candidate.result_id)) {
-                setActiveQuestionId(candidate.result_id);
+        <div className="bottom-group bottom-actions">
+          <button
+            disabled={incorrectQuestionCount === 0}
+            onClick={() => {
+              if (questions.length === 0) {
                 return;
               }
-            }
-          }}
-        >
-          Next unreviewed
-        </button>
-        <button
-          disabled={incorrectQuestionCount === 0}
-          onClick={() => {
-            if (questions.length === 0) {
-              return;
-            }
-            for (let offset = 1; offset <= questions.length; offset += 1) {
-              const idx = (activeIndex + offset) % questions.length;
-              const candidate = questions[idx];
-              if (isIncorrectQuestion(candidate)) {
-                setActiveQuestionId(candidate.result_id);
-                return;
+              for (let offset = 1; offset <= questions.length; offset += 1) {
+                const idx = (activeIndex + offset) % questions.length;
+                const candidate = questions[idx];
+                if (isIncorrectQuestion(candidate)) {
+                  setActiveQuestionId(candidate.result_id);
+                  return;
+                }
               }
-            }
-          }}
-        >
-          Next incorrect
-        </button>
-        <button onClick={() => setNoteScope("student_subject")}>Student-subject note</button>
+            }}
+          >
+            Next incorrect
+          </button>
+          <button
+            onClick={() => {
+              setNoteScope("student_subject");
+              setNotesExpanded(true);
+            }}
+          >
+            Student-subject note
+          </button>
+        </div>
       </footer>
     </main>
   );
@@ -1163,7 +1460,16 @@ export default function App() {
           {loading ? <p>Loading attempts...</p> : null}
           {!loading && filteredAttempts.length === 0 ? <p>No attempts found for current filters.</p> : null}
           {filteredAttempts.map((item) => (
-            <article key={item.attempt_id} className="card" style={{ border: "1px solid var(--line)", borderRadius: "10px", marginBottom: "10px" }}>
+            <article
+              key={item.attempt_id}
+              className={`card attempt-list-card${
+                item.review_status === "completed"
+                  ? " review-completed"
+                  : item.review_status === "in_progress"
+                    ? " review-in-progress"
+                    : ""
+              }`}
+            >
               <h2 style={{ margin: "0 0 6px 0" }}>{item.title}</h2>
               <p>
                 {item.subject_context ?? "unknown"} | {item.collection_kind} | {item.grade_bucket ?? "-"}
