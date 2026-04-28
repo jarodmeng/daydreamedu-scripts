@@ -4,6 +4,22 @@ All notable changes to `ai_study_buddy.marking` are documented in this file.
 
 Committed changes under `ai_study_buddy/marking/` should add an entry here and bump **Current version** in `README.md` (semver: **patch** for docs or small renderer tweaks, **minor** for schema or public API changes). `SPEC.md` / `TESTING.md` titles do not carry the package version.
 
+## [0.2.17] - 2026-04-28
+
+Patch: align `marking_result.v1.6` generation telemetry schema with optional model semantics.
+
+### Changed
+
+- `schemas/marking_result.v1.6.schema.json`:
+  - keep `generation.telemetry` optional
+  - allow `generation.telemetry` to be either `object` or `null`
+  - relax telemetry key-shape constraints so producer/diagnostic metadata can be recorded without schema rejection
+
+### Documentation
+
+- `README.md`:
+  - bump current version to `v0.2.17`
+
 ## [0.2.16] - 2026-04-28
 
 Patch: complete resolver-only context hardening rollout (proposal phase 5-7), enforce fail-closed writer checks, and align producer/package docs with `marking_result.v1.6`.

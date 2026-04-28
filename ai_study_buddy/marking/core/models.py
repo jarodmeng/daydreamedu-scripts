@@ -107,6 +107,7 @@ class GenerationMeta:
     produced_by: str
     mode: str
     notes: str | None = None
+    telemetry: dict[str, Any] | None = None
 
 
 @dataclass(frozen=True)
@@ -319,6 +320,7 @@ class MarkingArtifact:
             produced_by=generation_payload["produced_by"],
             mode=generation_payload["mode"],
             notes=generation_payload.get("notes"),
+            telemetry=generation_payload.get("telemetry"),
         )
         return cls(
             schema_version=payload["schema_version"],

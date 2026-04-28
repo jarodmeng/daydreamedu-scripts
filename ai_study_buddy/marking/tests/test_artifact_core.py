@@ -221,6 +221,22 @@ def test_validate_marking_artifact_dict_accepts_generation_telemetry():
     validate_marking_artifact_dict(payload)
 
 
+def test_validate_marking_artifact_dict_accepts_generation_telemetry_null():
+    payload = _sample_artifact().to_dict()
+    payload["generation"]["telemetry"] = None
+    validate_marking_artifact_dict(payload)
+
+
+def test_validate_marking_artifact_dict_accepts_generation_telemetry_arbitrary_object():
+    payload = _sample_artifact().to_dict()
+    payload["generation"]["telemetry"] = {
+        "worker_durations_seconds": {"phase1": 1.2, "phase2": 4.8},
+        "debug_flags": ["partial_credit_override"],
+        "llm_model": "gpt-5.4",
+    }
+    validate_marking_artifact_dict(payload)
+
+
 def test_amendment_schema_file_exists_and_loads():
     assert AMENDMENT_SCHEMA_PATH.is_file()
     schema = load_marking_amendment_schema()
