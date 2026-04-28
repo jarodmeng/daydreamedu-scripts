@@ -22,6 +22,7 @@ The parent supplies:
   with a **single space** around each `>`. Do not invent middle segments. If two topics apply, output **two** full path strings in the array.
 - **`singapore_primary_science`:** each tag must be  
   `<theme> > <chapter> > <topic>`  
+  Exception: for experiment-setup/fair-test questions, you may use the approved tag `Experiments > Fair-test`.  
   If the syllabus uses `—` for a topic, keep `—` as the third segment when that row is correct per the index.
 - Keep taxonomy strings exactly as written in the syllabus context and the project policy; avoid translating tag strings into another language unless the supplied syllabus itself uses that language.
 

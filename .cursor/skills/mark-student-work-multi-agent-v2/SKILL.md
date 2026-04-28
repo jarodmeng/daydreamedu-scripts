@@ -366,9 +366,10 @@ Before proceeding to assembly, validate the Phase 4 tags:
 
 - For `subject_context = singapore_primary_science`, each `skill_tags` entry MUST use exactly:
   - `<theme> > <chapter> > <topic>`
+  - OR the approved experiment-design exception tag: `Experiments > Fair-test`
 - Treat the following as QC failures:
   - chapter-number-prefixed chapter labels (for example `15. The Digestive System`)
-  - malformed path shapes (missing or extra `>` segments)
+  - malformed path shapes (missing or extra `>` segments), except the approved `Experiments > Fair-test` tag
   - placeholder topic `—` when a concrete topic is clearly inferable from the paper/question set
 - If QC fails, retry Phase 4 once with an explicit correction instruction. Do not continue to assembly with failed tags.
 - Persist QC evidence to `context.marking_asset/debug/phase4_qc.json` with:
