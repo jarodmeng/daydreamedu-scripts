@@ -7,6 +7,21 @@ description: Orchestrates a multi-agent workflow to mark a student's completion 
 
 This skill acts as the **Orchestrator** for a Hierarchical Multi-Agent System. Do not attempt to read the attempt images, grade the questions, or assign skill tags yourself. Your job is to resolve the context, spawn specialized subagents using the `Task` tool, assemble their outputs, and write the final artifacts.
 
+## Canonical Contract Policy (mandatory)
+
+The final artifact must conform to the strict `marking_result.v1.4` contract:
+
+- Schema file: `ai_study_buddy/marking/schemas/marking_result.v1.4.schema.json`
+- Runtime validator: `ai_study_buddy.marking.validate_marking_artifact_dict(...)`
+- Schema version must be explicit `marking_result.v1.4` (no `latest`, no legacy versions in normal flows).
+- Contract is closed (`additionalProperties: false` on top-level and key nested objects). Do not add ad-hoc fields.
+
+Before writing final JSON:
+
+1. Ensure all assembled fields are schema-valid.
+2. Run `validate_marking_artifact_dict(payload)` and treat any failure as a hard stop.
+3. If any field is not part of schema, remove it or convert it to an approved schema field before finalize.
+
 ## Language Policy (mandatory)
 
 Language consistency is a hard quality gate for all phases that emit free-text fields:
@@ -375,6 +390,24 @@ As the Orchestrator, you must now assemble the final artifacts:
 6. **Render Markdown:** Run the `report_renderer` to generate the Markdown report in `context/learning_reports/`.
 7. **Write Profiling Log:** Create a `context.marking_asset/debug/profiling_log.md` file. Record the start and end times (in SGT) for Phase 1, Phase 2, Phase 3, and Phase 4. Calculate the total duration of the marking run.
 8. **Write Telemetry Data:** In the `generation` block of the final JSON, include a `telemetry` object: `{"fast_pass_count": X, "deep_dive_count": Y, "total_duration_seconds": Z}`. This allows you to track the efficiency of the Optimistic Fast-Pass architecture over time.
+
+### Final JSON assembly field constraints (required)
+
+Apply these strict mappings when translating subagent outputs into canonical rows:
+
+- `result_id`: from `question_id`
+- `outcome`: must be one of `correct | partial | wrong | disqualified` (normalize `incorrect -> wrong` if a subagent emits legacy wording)
+- `scoring_status`: must be `counted` or `excluded_disqualified`
+- `diagnosis`: object with only `mistake_type`, `reasoning`, `confidence`
+- `error_tags`: array using allowed taxonomy enums only
+- `question_page_map[]` entries: only `result_id`, `attempt_page_start`, `confidence`, `source`, optional `evidence_image`, optional `note`
+- `generation`: only `produced_by`, `mode`, `notes`, optional `telemetry`
+- `generation.telemetry` (if present): only
+  - `fast_pass_count` (int >= 0)
+  - `deep_dive_count` (int >= 0)
+  - `total_duration_seconds` (number or null, >= 0 when numeric)
+  - optional `manual_corrections` (int >= 0)
+  - optional `phase2_task_subagents` (boolean)
 
 ### Pre-Finalization Teacher Tally Reconciliation (required for Mode B)
 

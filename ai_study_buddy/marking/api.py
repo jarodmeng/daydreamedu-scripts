@@ -16,8 +16,10 @@ from ai_study_buddy.marking.core.artifact_paths import (
 )
 from ai_study_buddy.marking.core.artifact_schema import (
     AMENDMENT_SCHEMA_PATH,
+    DEFAULT_MARKING_RESULT_VERSION,
     MarkingArtifactValidationError,
     SCHEMA_VERSION,
+    UnsupportedSchemaVersionError,
     compute_percentage,
     load_marking_amendment_schema,
     load_marking_result_schema,
@@ -94,6 +96,8 @@ __all__ = [
     "QuestionSelection",
     "ReviewMeta",
     "SCHEMA_VERSION",
+    "DEFAULT_MARKING_RESULT_VERSION",
+    "UnsupportedSchemaVersionError",
     "MarkingArtifactValidationError",
     "ValidationIssue",
     "ValidationReport",

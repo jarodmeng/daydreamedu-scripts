@@ -22,6 +22,7 @@ These tests cover:
 - completion->artifact lookup matching and condition filtering
 - run-level artifact removal planning and deletion safety behavior
 - summary/row score consistency
+- strict `marking_result.v1.4` schema validation and closed-contract (`additionalProperties: false`) behavior
 - v1.4 `context.question_page_map` validation (membership, uniqueness, page/confidence/source constraints)
 - disqualified scoring semantics
 - JSON write and markdown re-render behavior
@@ -32,6 +33,7 @@ These tests cover:
 - legacy markdown migration parsing and batching options
 - attempt-metadata backfill workflow (`backfill_attempt_metadata_v1_1.py`)
 - partial-marking metadata backfill workflow (`backfill_is_partial_v1_3.py`)
+- dispatch/version handling errors (unsupported or missing `schema_version`)
 
 ## Run Tests
 
@@ -69,6 +71,24 @@ Before merging marking-related changes:
 3. For migration/parser changes, run migration tests specifically.
 4. For renderer or note-edit changes, verify artifact-core tests pass.
 5. For backfill changes, verify migration tests pass (includes backfill dry-run/apply coverage).
+6. For schema changes, verify fixture-based schema tests and parity checks pass.
+
+## Schema Fixture And Parity Conventions
+
+Schema fixture folder:
+
+- `ai_study_buddy/marking/tests/fixtures/marking_result_v1_4/`
+
+Fixture types:
+
+- `valid_*.json`: expected to pass JSON Schema and runtime validator.
+- `invalid_*.json`: expected to fail JSON Schema and runtime validator.
+- `valid_schema_but_*.json`: expected to pass JSON Schema but fail runtime semantic invariants.
+
+Parity rule:
+
+- For structural constraints, JSON Schema and runtime validator should agree.
+- For semantic invariants (for example computed totals), runtime validator is authoritative and may reject schema-valid payloads.
 
 ## Manual Verification Checklist
 

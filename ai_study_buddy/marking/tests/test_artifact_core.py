@@ -17,6 +17,8 @@ from ai_study_buddy.marking.core.artifact_schema import (
     AMENDMENT_SCHEMA_PATH,
     MarkingArtifactValidationError,
     SCHEMA_PATH,
+    SCHEMA_VERSION,
+    UnsupportedSchemaVersionError,
     compute_percentage,
     load_marking_amendment_schema,
     load_marking_result_schema,
@@ -169,8 +171,48 @@ def _sample_amendment_payload() -> dict:
 
 def test_schema_file_exists_and_loads():
     assert SCHEMA_PATH.is_file()
-    schema = load_marking_result_schema()
+    schema = load_marking_result_schema(SCHEMA_VERSION)
     assert schema["title"] == "marking_result.v1.4"
+
+
+def _schema_fixture(name: str) -> dict:
+    path = Path(__file__).resolve().parent / "fixtures" / "marking_result_v1_4" / name
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def test_schema_fixture_valid_payload_passes_schema_and_python_validator():
+    payload = _schema_fixture("valid_minimal.json")
+    schema = load_marking_result_schema(SCHEMA_VERSION)
+    assert list(Draft202012Validator(schema).iter_errors(payload)) == []
+    validate_marking_artifact_dict(payload)
+
+
+def test_schema_fixture_extra_top_level_field_fails_schema_and_python_validator():
+    payload = _schema_fixture("invalid_extra_top_level.json")
+    schema = load_marking_result_schema(SCHEMA_VERSION)
+    schema_errors = list(Draft202012Validator(schema).iter_errors(payload))
+    assert schema_errors
+    with pytest.raises(MarkingArtifactValidationError, match="Additional properties are not allowed"):
+        validate_marking_artifact_dict(payload)
+
+
+def test_schema_fixture_schema_valid_but_python_totals_check_fails():
+    payload = _schema_fixture("valid_schema_but_bad_totals.json")
+    schema = load_marking_result_schema(SCHEMA_VERSION)
+    assert list(Draft202012Validator(schema).iter_errors(payload)) == []
+    with pytest.raises(MarkingArtifactValidationError, match="summary.total_marks must equal sum"):
+        validate_marking_artifact_dict(payload)
+
+
+def test_validate_marking_artifact_dict_accepts_generation_telemetry():
+    payload = _schema_fixture("valid_minimal.json")
+    payload["generation"]["telemetry"] = {
+        "fast_pass_count": 10,
+        "deep_dive_count": 2,
+        "total_duration_seconds": 30.5,
+        "manual_corrections": 1,
+    }
+    validate_marking_artifact_dict(payload)
 
 
 def test_amendment_schema_file_exists_and_loads():
@@ -215,6 +257,24 @@ def test_artifact_paths_use_student_and_subject_context():
 
 def test_validate_marking_artifact_dict_accepts_valid_payload():
     validate_marking_artifact_dict(_sample_artifact().to_dict())
+
+
+def test_load_marking_result_schema_rejects_unsupported_version():
+    with pytest.raises(UnsupportedSchemaVersionError, match="unsupported schema_version"):
+        load_marking_result_schema("marking_result.v1.3")
+
+
+def test_validate_marking_artifact_dict_rejects_missing_schema_version():
+    payload = _schema_fixture("valid_minimal.json")
+    payload.pop("schema_version")
+    with pytest.raises(UnsupportedSchemaVersionError, match="unsupported schema_version: None"):
+        validate_marking_artifact_dict(payload)
+
+
+def test_validate_marking_artifact_dict_rejects_legacy_schema_version_fixture():
+    payload = _schema_fixture("invalid_unknown_version.json")
+    with pytest.raises(UnsupportedSchemaVersionError, match="unsupported schema_version: marking_result.v1.3"):
+        validate_marking_artifact_dict(payload)
 
 
 def test_validate_marking_artifact_dict_accepts_half_marks():
@@ -327,6 +387,13 @@ def test_validate_marking_artifact_dict_rejects_inconsistent_totals():
         validate_marking_artifact_dict(payload)
 
 
+def test_validate_marking_artifact_dict_rejects_unexpected_top_level_fields():
+    payload = _sample_artifact().to_dict()
+    payload["unexpected"] = True
+    with pytest.raises(MarkingArtifactValidationError, match="Additional properties are not allowed"):
+        validate_marking_artifact_dict(payload)
+
+
 def test_validate_marking_artifact_dict_supports_disqualified_excluded_rows():
     artifact = _sample_artifact()
     disqualified = ArtifactQuestionResult(
@@ -377,6 +444,12 @@ def test_write_marking_artifact_writes_json(tmp_path):
     assert (bundle_root / "crops").is_dir()
     assert payload["created_at"].endswith("+08:00")
     assert payload["updated_at"].endswith("+08:00")
+
+
+def test_write_marking_artifact_rejects_latest_alias(tmp_path):
+    artifact = _sample_artifact()
+    with pytest.raises(ValueError, match='schema_version must be explicit; "latest" is not supported'):
+        write_marking_artifact(artifact, context_root=tmp_path, schema_version="latest")
 
 
 def test_write_marking_artifact_increments_attempt_sequence_for_same_template(tmp_path):

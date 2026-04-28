@@ -31,4 +31,11 @@ Return **only** a JSON array of objects:
 
 `[{"question_id": "Q1", "skill_tags": ["Number and Algebra > Ratio > Ratio"]}, ...]`
 
+Strict output shape:
+
+- each object includes only:
+  - `question_id`
+  - `skill_tags`
+- no additional keys.
+
 No markdown fences, no commentary outside the JSON.

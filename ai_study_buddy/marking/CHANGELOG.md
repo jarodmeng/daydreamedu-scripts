@@ -4,6 +4,48 @@ All notable changes to `ai_study_buddy.marking` are documented in this file.
 
 Committed changes under `ai_study_buddy/marking/` should add an entry here and bump **Current version** in `README.md` (semver: **patch** for docs or small renderer tweaks, **minor** for schema or public API changes). `SPEC.md` / `TESTING.md` titles do not carry the package version.
 
+## [0.2.14] - 2026-04-28
+
+Minor: make `marking_result.v1.4` an explicit strict schema contract and enforce strict runtime version handling.
+
+### Added
+
+- `schemas/marking_result.v1.4.schema.json`:
+  - standalone, self-contained `v1.4` schema
+  - explicit `question_results.items` structure
+  - closed-contract policy via `additionalProperties: false` on top-level and key nested objects
+
+### Changed
+
+- `core/artifact_schema.py`:
+  - `SCHEMA_PATH` now points to `schemas/marking_result.v1.4.schema.json`
+  - `load_marking_result_schema(version)` now requires an explicit version argument
+  - normal runtime validation now supports only `marking_result.v1.4`
+  - unsupported versions raise `UnsupportedSchemaVersionError`
+  - JSON Schema validation is executed before semantic Python invariants
+- `workflows/migrate_learning_reports.py`:
+  - migrated artifacts now construct with `SCHEMA_VERSION` (`marking_result.v1.4`)
+- `tests/test_artifact_core.py`:
+  - updated schema loader usage to explicit version constant
+  - added coverage for unsupported-version rejection
+  - added coverage for closed-contract rejection of unexpected top-level fields
+
+### Documentation
+
+- `README.md`:
+  - bump current version to `v0.2.14`
+  - update canonical schema path to `schemas/marking_result.v1.4.schema.json`
+- `SPEC.md`:
+  - update canonical schema path to `schemas/marking_result.v1.4.schema.json`
+  - document strict `v1.4` runtime validation contract
+- Consumer instruction alignment (skills/agents used by marking producers):
+  - `.cursor/skills/mark-student-work-multi-agent-v2/SKILL.md`
+  - `.cursor/agents/marking-phase1-mapper.md`
+  - `.cursor/agents/marking-phase2-fast-pass-grader.md`
+  - `.cursor/agents/marking-phase3-deep-dive.md`
+  - `.cursor/agents/marking-phase4-taxonomy-tagger.md`
+  - updated to enforce strict `marking_result.v1.4` output expectations (closed contract, enum-safe outcomes, schema-compatible row/object shapes, and final runtime validation before artifact write)
+
 ## [0.2.13] - 2026-04-26
 
 Minor: add a first-class `marking_amendment.v1` JSON schema file and public loader so amendment overlay contracts are versioned alongside marking schemas.

@@ -8,7 +8,7 @@ import re
 from pathlib import Path
 
 from ai_study_buddy.marking.core.artifact_paths import build_marking_artifact_path, normalize_attempt_stem
-from ai_study_buddy.marking.core.artifact_schema import compute_percentage, validate_marking_artifact_dict
+from ai_study_buddy.marking.core.artifact_schema import SCHEMA_VERSION, compute_percentage, validate_marking_artifact_dict
 from ai_study_buddy.marking.core.artifact_writer import write_marking_artifact
 from ai_study_buddy.marking.core.marking_time import to_marking_iso
 from ai_study_buddy.marking.core.models import (
@@ -337,7 +337,7 @@ def parse_legacy_learning_report(report_path: str | Path) -> tuple[MarkingArtifa
     if warnings:
         generation_notes += " Warnings: " + " | ".join(warnings)
     artifact = MarkingArtifact(
-        schema_version="marking_result.v1",
+        schema_version=SCHEMA_VERSION,
         created_at=created_at,
         updated_at=created_at,
         context=context,

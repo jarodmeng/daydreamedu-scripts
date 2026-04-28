@@ -30,6 +30,7 @@ Return **only** a JSON array of objects, each with `question_id` and `attempt_pa
 Additional output constraints:
 
 - Use stable, ASCII-safe `question_id` values (e.g. `Q1`, `Q2(a)`, `A1`).
+- `question_id` values must be deterministic and unique within the returned array (they become final `result_id` values in `question_results[]`).
 - Do not emit natural-language explanation fields in this phase output.
 
 No markdown fences, no commentary before or after the JSON.

@@ -5,6 +5,8 @@ import math
 from pathlib import Path
 from typing import Any
 
+from jsonschema import Draft202012Validator
+
 from ai_study_buddy.marking.core.taxonomy import (
     DIAGNOSIS_CONFIDENCE_LEVELS,
     DIAGNOSIS_MISTAKE_TYPES,
@@ -12,8 +14,12 @@ from ai_study_buddy.marking.core.taxonomy import (
 )
 
 SCHEMA_VERSION = "marking_result.v1.4"
-SUPPORTED_SCHEMA_VERSIONS = {"marking_result.v1", "marking_result.v1.1", "marking_result.v1.2", "marking_result.v1.3", "marking_result.v1.4"}
-SCHEMA_PATH = Path(__file__).resolve().parent.parent / "schemas" / "marking_result.v1.schema.json"
+DEFAULT_MARKING_RESULT_VERSION = SCHEMA_VERSION
+SUPPORTED_SCHEMA_VERSIONS = {SCHEMA_VERSION}
+SCHEMA_PATHS_BY_VERSION: dict[str, Path] = {
+    SCHEMA_VERSION: Path(__file__).resolve().parent.parent / "schemas" / "marking_result.v1.4.schema.json",
+}
+SCHEMA_PATH = SCHEMA_PATHS_BY_VERSION[SCHEMA_VERSION]
 AMENDMENT_SCHEMA_PATH = Path(__file__).resolve().parent.parent / "schemas" / "marking_amendment.v1.schema.json"
 ALLOWED_OUTCOMES = {"correct", "partial", "wrong", "disqualified"}
 ALLOWED_SCORING_STATUS = {"counted", "excluded_disqualified"}
@@ -25,8 +31,17 @@ class MarkingArtifactValidationError(ValueError):
     pass
 
 
-def load_marking_result_schema() -> dict[str, Any]:
-    return json.loads(SCHEMA_PATH.read_text(encoding="utf-8"))
+class UnsupportedSchemaVersionError(MarkingArtifactValidationError):
+    pass
+
+
+def load_marking_result_schema(version: str) -> dict[str, Any]:
+    schema_path = SCHEMA_PATHS_BY_VERSION.get(version)
+    if schema_path is None:
+        raise UnsupportedSchemaVersionError(
+            f"unsupported schema_version: {version}. Supported versions: {SCHEMA_VERSION}"
+        )
+    return json.loads(schema_path.read_text(encoding="utf-8"))
 
 
 def load_marking_amendment_schema() -> dict[str, Any]:
@@ -56,6 +71,35 @@ def _finite_mark_scalar(value: Any) -> float | None:
 _MARK_SUM_TOLERANCE = 1e-6
 
 
+def _normalize_for_json_schema(value: Any) -> Any:
+    if isinstance(value, dict):
+        return {k: _normalize_for_json_schema(v) for k, v in value.items()}
+    if isinstance(value, tuple):
+        return [_normalize_for_json_schema(v) for v in value]
+    if isinstance(value, list):
+        return [_normalize_for_json_schema(v) for v in value]
+    return value
+
+
+def _collect_schema_errors(data: dict[str, Any]) -> list[str]:
+    schema_version = data.get("schema_version")
+    if schema_version not in SUPPORTED_SCHEMA_VERSIONS:
+        raise UnsupportedSchemaVersionError(
+            f"unsupported schema_version: {schema_version}. Supported versions: {SCHEMA_VERSION}"
+        )
+    schema = load_marking_result_schema(schema_version)
+    normalized_data = _normalize_for_json_schema(data)
+    schema_errors = sorted(Draft202012Validator(schema).iter_errors(normalized_data), key=lambda e: list(e.path))
+    messages: list[str] = []
+    for error in schema_errors:
+        path = ".".join(str(part) for part in error.absolute_path)
+        if path:
+            messages.append(f"{path}: {error.message}")
+        else:
+            messages.append(error.message)
+    return messages
+
+
 def validate_marking_artifact_dict(data: dict[str, Any]) -> None:
     errors: list[str] = []
 
@@ -63,10 +107,7 @@ def validate_marking_artifact_dict(data: dict[str, Any]) -> None:
         if not condition:
             errors.append(message)
 
-    require(
-        data.get("schema_version") in SUPPORTED_SCHEMA_VERSIONS,
-        "schema_version must be marking_result.v1, marking_result.v1.1, marking_result.v1.2, marking_result.v1.3, or marking_result.v1.4",
-    )
+    errors.extend(_collect_schema_errors(data))
 
     for key in ("created_at", "updated_at", "context", "summary", "question_results", "review_meta", "generation"):
         require(key in data, f"missing top-level field: {key}")
@@ -104,23 +145,14 @@ def validate_marking_artifact_dict(data: dict[str, Any]) -> None:
             "context.marking_asset must be null or non-empty string",
         )
         is_partial = context.get("is_partial")
-        if data.get("schema_version") in {"marking_result.v1.3", "marking_result.v1.4"}:
-            require(
-                isinstance(is_partial, bool),
-                "context.is_partial must be a boolean for marking_result.v1.3/v1.4",
-            )
-        else:
-            require(
-                is_partial is None or isinstance(is_partial, bool),
-                "context.is_partial must be a boolean when present",
-            )
+        require(
+            isinstance(is_partial, bool),
+            "context.is_partial must be a boolean for marking_result.v1.4",
+        )
         if isinstance(attempt_label, str):
             require(len(attempt_label) <= 64, "context.attempt_label must be <= 64 chars")
         question_page_map = context.get("question_page_map")
-        if data.get("schema_version") == "marking_result.v1.4":
-            require(isinstance(question_page_map, (list, tuple)), "context.question_page_map must be an array for marking_result.v1.4")
-        elif question_page_map is not None:
-            require(isinstance(question_page_map, (list, tuple)), "context.question_page_map must be an array when present")
+        require(isinstance(question_page_map, (list, tuple)), "context.question_page_map must be an array for marking_result.v1.4")
 
     expected_total = 0
     expected_earned = 0

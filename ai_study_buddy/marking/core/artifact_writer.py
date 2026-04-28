@@ -6,7 +6,10 @@ from pathlib import Path
 from ai_study_buddy.marking.assets.layout import ATTEMPT_DIRNAME, CROPS_DIRNAME
 from ai_study_buddy.marking.assets.paths import marking_asset_rel_path_from_artifact_path
 from ai_study_buddy.marking.core.artifact_paths import build_marking_artifact_path, slugify_student
-from ai_study_buddy.marking.core.artifact_schema import SCHEMA_VERSION, validate_marking_artifact_dict
+from ai_study_buddy.marking.core.artifact_schema import (
+    DEFAULT_MARKING_RESULT_VERSION,
+    validate_marking_artifact_dict,
+)
 from ai_study_buddy.marking.core.marking_time import to_marking_iso
 from ai_study_buddy.marking.core.partial_marking import infer_is_partial_from_raw_text
 from ai_study_buddy.marking.core.path_privacy import sanitize_marking_artifact_paths
@@ -18,9 +21,13 @@ def write_marking_artifact(
     *,
     output_path: str | Path | None = None,
     context_root: str | Path = "ai_study_buddy/context",
+    schema_version: str | None = None,
 ) -> Path:
+    selected_schema_version = DEFAULT_MARKING_RESULT_VERSION if schema_version is None else schema_version
+    if selected_schema_version == "latest":
+        raise ValueError('schema_version must be explicit; "latest" is not supported')
     payload = artifact.to_dict()
-    payload["schema_version"] = SCHEMA_VERSION
+    payload["schema_version"] = selected_schema_version
     payload["created_at"] = to_marking_iso(payload["created_at"])
     payload["updated_at"] = to_marking_iso(payload["updated_at"])
     payload = _apply_attempt_metadata(payload=payload, context_root=context_root)

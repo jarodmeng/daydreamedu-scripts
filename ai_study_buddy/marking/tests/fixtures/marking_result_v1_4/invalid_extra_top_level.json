@@ -1,0 +1,84 @@
+{
+  "schema_version": "marking_result.v1.4",
+  "created_at": "2026-04-28T11:00:00+08:00",
+  "updated_at": "2026-04-28T11:00:00+08:00",
+  "context": {
+    "student_id": "winston",
+    "student_name": "Winston",
+    "subject_context": "singapore_primary_math",
+    "attempt_file_id": "attempt-1",
+    "attempt_file_path": "GOODNOTES_ROOT/singapore_primary_math/<student_email>/attempt.pdf",
+    "template_file_id": "template-1",
+    "template_file_path": "DAYDREAMEDU_ROOT/singapore_primary_math/_c_template.pdf",
+    "book_group_id": null,
+    "book_label": null,
+    "unit_file_id": "template-1",
+    "unit_file_path": "DAYDREAMEDU_ROOT/singapore_primary_math/_c_template.pdf",
+    "unit_label": "Unit 1",
+    "answer_file_id": "answer-1",
+    "answer_file_path": "DAYDREAMEDU_ROOT/singapore_primary_math/_c_answer.pdf",
+    "answer_page_start": 1,
+    "answer_page_end": 1,
+    "starts_mid_page": false,
+    "ends_mid_page": false,
+    "answer_mapping_source": "manual_verified",
+    "answer_mapping_notes": null,
+    "marking_asset": "marking_assets/winston/singapore_primary_math/example",
+    "is_partial": false,
+    "template_attempt_group_id": "winston::template-1",
+    "attempt_sequence": 1,
+    "attempt_label": null,
+    "question_page_map": [
+      {
+        "result_id": "Q1",
+        "attempt_page_start": 1,
+        "confidence": "high",
+        "source": "manual_visual",
+        "evidence_image": null,
+        "note": null
+      }
+    ],
+    "question_selection": {
+      "raw_text": null,
+      "canonical_refs": [],
+      "section_hint": null
+    }
+  },
+  "summary": {
+    "total_marks": 2,
+    "earned_marks": 2,
+    "percentage": 100.0,
+    "overall_assessment": "Good work.",
+    "human_note": null
+  },
+  "question_results": [
+    {
+      "result_id": "Q1",
+      "max_marks": 2,
+      "earned_marks": 2,
+      "outcome": "correct",
+      "student_answer": "2",
+      "correct_answer": "2",
+      "scoring_status": "counted",
+      "feedback": null,
+      "error_tags": [],
+      "skill_tags": [],
+      "diagnosis": {
+        "mistake_type": null,
+        "reasoning": null,
+        "confidence": null
+      },
+      "human_note": null
+    }
+  ],
+  "review_meta": {
+    "updated_at": null,
+    "updated_by": null
+  },
+  "generation": {
+    "produced_by": "test",
+    "mode": "manual",
+    "notes": null
+  },
+  "unexpected": true
+}

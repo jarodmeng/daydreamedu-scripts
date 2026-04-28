@@ -70,6 +70,13 @@ Return **only** one JSON object:
 
 **Do not** include `max_marks` (or any other field not listed above).
 
-Prefer outcome vocabulary consistent with the pipeline: `correct`, `partial`, or `wrong`.
+Contract requirements for this phase output (mandatory):
+
+- `outcome` must be one of `correct`, `partial`, `wrong`, `disqualified` (do not use `incorrect`).
+- `diagnosis` must include only schema-compatible keys:
+  - `mistake_type`
+  - `reasoning`
+  - `confidence`
+- If no distinct human annotation is visible, set `human_note` to `null`.
 
 No markdown fences, no commentary outside the JSON.

@@ -76,6 +76,14 @@ Return **only** a JSON array. Each element:
 
 `question_id`, `student_answer`, `correct_answer`, `outcome`, `earned_marks`, `max_marks`, `diagnosis` (object), `human_note`, `confidence` (object as above).
 
-**Note:** The final artifact schema uses `wrong` instead of `incorrect`; if you emit `incorrect`, the orchestrator may normalize it—prefer **`wrong`** when not correct/partial.
+**Contract requirements for this phase output (mandatory):**
+
+- Use `outcome` values: `correct`, `partial`, `wrong`, or `disqualified` (do not use `incorrect`).
+- `diagnosis` must be an object with keys limited to:
+  - `mistake_type`
+  - `reasoning`
+  - `confidence`
+- If no distinct human annotation is present, set `human_note` to `null` (not AI commentary).
+- `earned_marks` and `max_marks` must be numeric and non-negative.
 
 No markdown fences, no commentary outside the JSON.

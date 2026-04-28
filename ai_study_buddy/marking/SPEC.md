@@ -9,7 +9,7 @@ pipeline for AI Study Buddy.
 
 The package guarantees:
 
-1. a stable `marking_result.v1.4` JSON contract (with backward compatibility for `v1` / `v1.1` / `v1.2` / `v1.3`)
+1. a stable `marking_result.v1.4` JSON contract
 2. a stable `marking_amendment.v1` JSON overlay schema contract for review-workspace amendment artifacts
 3. deterministic artifact path/naming conventions
 4. schema and scoring validation
@@ -18,9 +18,9 @@ The package guarantees:
 
 ## Canonical Data Contract
 
-- Schema identifier: `marking_result.v1.4` (reader accepts `v1`, `v1.1`, `v1.2`, `v1.3`, and `v1.4`)
+- Schema identifier: `marking_result.v1.4` (legacy `v1` / `v1.1` / `v1.2` / `v1.3` are rejected in normal runtime validation)
 - Schema source:
-  `ai_study_buddy/marking/schemas/marking_result.v1.schema.json`
+  `ai_study_buddy/marking/schemas/marking_result.v1.4.schema.json`
 - Amendment schema source:
   `ai_study_buddy/marking/schemas/marking_amendment.v1.schema.json`
 - Canonical storage path:
@@ -71,7 +71,7 @@ Writer contract:
 ### 2) Validation and scoring rules
 
 - `question_results[].max_marks` and `earned_marks`, and `summary.total_marks` / `summary.earned_marks`, may be **non-negative integers or finite floats** (e.g. **0.5** step for teacher-marked papers). **Booleans are rejected** (they subclass `int` in Python).
-- Every artifact must validate against `marking_result.v1`, `marking_result.v1.1`, `marking_result.v1.2`, `marking_result.v1.3`, or `marking_result.v1.4`.
+- Every artifact must validate against `marking_result.v1.4`.
 - v1.1+ context field validation:
   - `template_attempt_group_id`: null or non-empty string
   - `attempt_sequence`: null or integer `>= 1`
@@ -148,6 +148,21 @@ Writer contract:
 - Attempt metadata backfill workflow:
   - `python3 -m ai_study_buddy.marking.workflows.backfill_attempt_metadata_v1_1 --dry-run`
   - groups by `(student_slug, template_file_id)` and assigns contiguous `attempt_sequence` by `(created_at, json path)`
+
+### 5.1) Schema evolution checklist
+
+Any new field or schema version must ship as one cohesive change:
+
+1. approved proposal update in `docs/proposal/`
+2. schema update (`schemas/marking_result.v1.4.schema.json` or new `vNext` schema file)
+3. runtime validator update (`core/artifact_schema.py`)
+4. producer/consumer update (`core/artifact_writer.py` and affected workflow/parser)
+5. tests:
+   - schema fixture/parity coverage
+   - semantic invariant coverage
+6. docs/versioning:
+   - `README.md`, `SPEC.md`, `TESTING.md`
+   - `CHANGELOG.md` with version bump
 
 ### 6) Context resolver contract (MVP)
 

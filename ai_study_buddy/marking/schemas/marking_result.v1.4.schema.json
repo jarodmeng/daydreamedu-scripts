@@ -1,0 +1,206 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://daydreamedu.local/schemas/marking_result.v1.4.schema.json",
+  "title": "marking_result.v1.4",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "created_at",
+    "updated_at",
+    "context",
+    "summary",
+    "question_results",
+    "review_meta",
+    "generation"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "marking_result.v1.4"
+    },
+    "created_at": {
+      "type": "string",
+      "minLength": 1
+    },
+    "updated_at": {
+      "type": "string",
+      "minLength": 1
+    },
+    "context": {
+      "type": "object",
+      "required": [
+        "subject_context",
+        "attempt_file_path",
+        "is_partial",
+        "question_page_map"
+      ],
+      "properties": {
+        "student_id": { "type": ["string", "null"] },
+        "student_name": { "type": ["string", "null"] },
+        "subject_context": { "type": "string", "minLength": 1 },
+        "attempt_file_id": { "type": ["string", "null"] },
+        "attempt_file_path": { "type": "string", "minLength": 1 },
+        "template_file_id": { "type": ["string", "null"] },
+        "template_file_path": { "type": ["string", "null"] },
+        "book_group_id": { "type": ["string", "null"] },
+        "book_label": { "type": ["string", "null"] },
+        "unit_file_id": { "type": ["string", "null"] },
+        "unit_file_path": { "type": ["string", "null"] },
+        "unit_label": { "type": ["string", "null"] },
+        "answer_file_id": { "type": ["string", "null"] },
+        "answer_file_path": { "type": ["string", "null"] },
+        "answer_page_start": { "type": ["integer", "null"] },
+        "answer_page_end": { "type": ["integer", "null"] },
+        "starts_mid_page": { "type": "boolean" },
+        "ends_mid_page": { "type": "boolean" },
+        "answer_mapping_source": { "type": ["string", "null"] },
+        "answer_mapping_notes": { "type": ["string", "null"] },
+        "marking_asset": { "type": ["string", "null"], "minLength": 1 },
+        "is_partial": { "type": "boolean" },
+        "template_attempt_group_id": { "type": ["string", "null"] },
+        "attempt_sequence": { "type": ["integer", "null"], "minimum": 1 },
+        "attempt_label": { "type": ["string", "null"], "minLength": 1, "maxLength": 64 },
+        "question_page_map": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["result_id", "attempt_page_start", "confidence", "source"],
+            "properties": {
+              "result_id": { "type": "string", "minLength": 1 },
+              "attempt_page_start": { "type": "integer", "minimum": 1 },
+              "confidence": { "enum": ["high", "medium", "low"] },
+              "source": { "enum": ["manual_visual", "ai_visual_backfill", "script_inferred"] },
+              "evidence_image": { "type": ["string", "null"], "minLength": 1 },
+              "note": { "type": ["string", "null"] }
+            },
+            "additionalProperties": false
+          }
+        },
+        "question_selection": {
+          "type": "object",
+          "properties": {
+            "raw_text": { "type": ["string", "null"] },
+            "canonical_refs": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "section_hint": { "type": ["string", "null"] }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "summary": {
+      "type": "object",
+      "required": ["total_marks", "earned_marks", "percentage", "overall_assessment"],
+      "properties": {
+        "total_marks": { "type": "number", "minimum": 0 },
+        "earned_marks": { "type": "number", "minimum": 0 },
+        "percentage": { "type": "number" },
+        "overall_assessment": { "type": "string" },
+        "human_note": { "type": ["string", "null"] }
+      },
+      "additionalProperties": false
+    },
+    "question_results": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["result_id", "max_marks", "earned_marks", "outcome"],
+        "properties": {
+          "result_id": { "type": "string", "minLength": 1 },
+          "max_marks": { "type": "number", "minimum": 0 },
+          "earned_marks": { "type": "number", "minimum": 0 },
+          "outcome": { "enum": ["correct", "partial", "wrong", "disqualified"] },
+          "student_answer": { "type": ["string", "null"] },
+          "correct_answer": { "type": ["string", "null"] },
+          "scoring_status": { "enum": ["counted", "excluded_disqualified"] },
+          "feedback": { "type": ["string", "null"] },
+          "error_tags": {
+            "type": "array",
+            "items": {
+              "enum": [
+                "concept_gap",
+                "misread_question",
+                "careless_error",
+                "incomplete_explanation",
+                "wrong_method",
+                "missing_units",
+                "computation_error",
+                "vocabulary_gap",
+                "other"
+              ]
+            }
+          },
+          "skill_tags": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "diagnosis": {
+            "type": "object",
+            "properties": {
+              "mistake_type": {
+                "type": ["string", "null"],
+                "enum": [
+                  "concept_gap",
+                  "misread_question",
+                  "careless_error",
+                  "incomplete_explanation",
+                  "wrong_method",
+                  "missing_units",
+                  "computation_error",
+                  "vocabulary_gap",
+                  "other",
+                  null
+                ]
+              },
+              "reasoning": { "type": ["string", "null"] },
+              "confidence": {
+                "type": ["string", "null"],
+                "enum": ["high", "medium", "low", null]
+              }
+            },
+            "additionalProperties": false
+          },
+          "human_note": { "type": ["string", "null"] }
+        },
+        "additionalProperties": false
+      }
+    },
+    "review_meta": {
+      "type": "object",
+      "properties": {
+        "updated_at": { "type": ["string", "null"] },
+        "updated_by": { "type": ["string", "null"] }
+      },
+      "additionalProperties": false
+    },
+    "generation": {
+      "type": "object",
+      "required": ["produced_by", "mode"],
+      "properties": {
+        "produced_by": { "type": "string", "minLength": 1 },
+        "mode": { "type": "string", "minLength": 1 },
+        "notes": { "type": ["string", "null"] },
+        "telemetry": {
+          "type": "object",
+          "required": [
+            "fast_pass_count",
+            "deep_dive_count",
+            "total_duration_seconds"
+          ],
+          "properties": {
+            "fast_pass_count": { "type": "integer", "minimum": 0 },
+            "deep_dive_count": { "type": "integer", "minimum": 0 },
+            "total_duration_seconds": { "type": ["number", "null"], "minimum": 0 },
+            "manual_corrections": { "type": "integer", "minimum": 0 },
+            "phase2_task_subagents": { "type": "boolean" }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}
