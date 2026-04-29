@@ -22,7 +22,7 @@ Version baseline: `v0.1.0`.
 
 3. Student review-state artifacts (JSON)
 - path: `ai_study_buddy/context/student_review_states/**`
-- owned by: `student_review`
+- owned by: `marking.review`
 - schema id: `student_review_state.v1`
 - contract: companion notes/status; separate from canonical marking
 
@@ -47,7 +47,7 @@ Version baseline: `v0.1.0`.
 
 - `pdf_file_manager`: registry CRUD and grouping/mapping metadata
 - `marking`: grading artifact creation, migration, validation, lookup; marking asset path conventions
-- `student_review`: attempt list/detail shaping + review-state read/write
+- `marking.review`: attempt list/detail shaping + review-state read/write + amendment overlay persistence
 - `review_workspace`: UI and backend adapter consuming domain payloads
 - `root_pdf_browser`: reads configured filesystem roots only; does not own any canonical store above
 - `utils`: standalone maintenance/ingestion CLIs; no canonical store ownership
@@ -57,4 +57,3 @@ Version baseline: `v0.1.0`.
 - Canonical marking and student review-state are separate stores.
 - Attempt identity is registry file id (`pdf_files.id`).
 - Latest marking resolution is deterministic via artifact lookup helper ordering.
-

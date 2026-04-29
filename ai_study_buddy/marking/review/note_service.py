@@ -5,8 +5,8 @@ from typing import Any
 
 from ai_study_buddy.marking.core.artifact_lookup import find_marking_artifacts_for_attempt
 from ai_study_buddy.pdf_file_manager.pdf_file_manager import PdfFileManager
-from ai_study_buddy.student_review.models import now_iso_utc, normalize_review_state
-from ai_study_buddy.student_review.repository import StudentReviewRepository
+from ai_study_buddy.marking.review.models import now_iso_utc, normalize_review_state
+from ai_study_buddy.marking.review.repository import StudentReviewRepository
 
 _ALLOWED_REVIEW_STATUS = {"not_started", "in_progress", "completed"}
 _ALLOWED_AUTHOR_ROLES = {"student", "parent", "teacher"}

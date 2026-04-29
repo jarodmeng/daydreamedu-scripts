@@ -6,13 +6,13 @@ from typing import Any
 
 from ai_study_buddy.marking.core.artifact_lookup import find_marking_artifacts_for_attempt
 from ai_study_buddy.pdf_file_manager.pdf_file_manager import PdfFile, PdfFileManager
-from ai_study_buddy.student_review.models import (
+from ai_study_buddy.marking.review.models import (
     attempt_title,
     infer_grade_bucket,
     infer_subject_context,
     parse_iso_timestamp,
 )
-from ai_study_buddy.student_review.repository import StudentReviewRepository
+from ai_study_buddy.marking.review.repository import StudentReviewRepository
 
 
 def _is_completion_candidate(file: PdfFile) -> bool:

@@ -6,19 +6,19 @@ from typing import Any
 from fastapi import APIRouter, HTTPException, Query
 
 from ai_study_buddy.pdf_file_manager.pdf_file_manager import PdfFileManager
-from ai_study_buddy.student_review.attempt_service import list_attempts_for_student, list_students
-from ai_study_buddy.student_review.amendment_service import (
+from ai_study_buddy.marking.review.attempt_service import list_attempts_for_student, list_students
+from ai_study_buddy.marking.review.amendment_service import (
     AmendmentValidationError,
     AmendmentWriteError,
     put_amendments,
 )
-from ai_study_buddy.student_review.detail_service import AttemptNotFoundError, get_attempt_detail
-from ai_study_buddy.student_review.note_service import ReviewStateWriteError, put_review_state
-from ai_study_buddy.student_review.repository import StudentReviewRepository
+from ai_study_buddy.marking.review.detail_service import AttemptNotFoundError, get_attempt_detail
+from ai_study_buddy.marking.review.note_service import ReviewStateWriteError, put_review_state
+from ai_study_buddy.marking.review.repository import StudentReviewRepository
 
 
 def _repo_root() -> Path:
-    return Path(__file__).resolve().parents[2]
+    return Path(__file__).resolve().parents[3]
 
 
 REPO_ROOT = _repo_root()

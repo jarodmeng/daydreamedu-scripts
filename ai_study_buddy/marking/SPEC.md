@@ -15,6 +15,7 @@ The package guarantees:
 4. schema and scoring validation
 5. markdown rendering as a non-canonical derived view
 6. safe run-level artifact cleanup for canonical JSON, derived report, and marking-asset bundle
+7. a review-domain backend contract under `ai_study_buddy.marking.review` for attempt review payload shaping and companion artifact writes
 
 ## Canonical Data Contract
 
@@ -31,6 +32,37 @@ The package guarantees:
   `ai_study_buddy/context/marking_assets/<student_slug>/<subject_context>/<artifact_stem>/` — see `.cursor/skills/mark-goodnote-completion/SKILL.md`.
 
 ## Core Functional Requirements
+
+### 0) Review domain contract (`marking.review`)
+
+`ai_study_buddy.marking.review` is a package-owned review-domain backend surface consumed by `review_workspace` backend wiring.
+
+Ownership and boundaries:
+
+1. `marking.review` may read canonical marking artifacts under `context/marking_results/**`.
+2. `marking.review` may write only companion artifacts:
+   - `context/student_review_states/**`
+   - `context/marking_amendments/**`
+3. `marking.review` must never mutate canonical `context/marking_results/**` artifacts.
+4. Latest-artifact selection for attempts must reuse `find_marking_artifacts_for_attempt(...)`.
+
+Route surface (via `api_routes.py`):
+
+1. `GET /api/health`
+2. `GET /api/students`
+3. `GET /api/student/attempts`
+4. `GET /api/student/attempts/{attempt_id}`
+5. `PUT /api/student/attempts/{attempt_id}/review-state`
+6. `PUT /api/student/attempts/{attempt_id}/amendments`
+
+Implementation modules:
+
+1. `attempt_service.py`: attempt index shaping over registry + latest artifact lookup
+2. `detail_service.py`: marked/unmarked detail shaping and resolved/base projection
+3. `note_service.py`: review-state validation and writes (`student_review_state.v1`)
+4. `amendment_service.py`: amendment validation/merge and overlay writes (`marking_amendment.v1`)
+5. `repository.py`: filesystem persistence helpers for review companion artifacts
+6. `models.py`: shared normalization and timestamp helper behavior for review payloads
 
 ### 1) Artifact identity and naming
 

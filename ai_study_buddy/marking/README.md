@@ -8,7 +8,7 @@ Canonical marking pipeline for AI Study Buddy. This package defines the
 3. render markdown as a derived view
 4. support human note edits in the canonical JSON
 
-Current version: `v0.2.17`
+Current version: `v0.2.18`
 
 ## Package Scope
 
@@ -25,6 +25,7 @@ Current version: `v0.2.17`
 - Markdown rendering from canonical JSON (`report_renderer.py`)
 - Human note editing workflow (`edit_human_notes.py`)
 - Marking taxonomy constants/helpers (`taxonomy.py`)
+- Review-domain backend services for marked-attempt review workflows (`review/`)
 - Completion registry audit exclusions for GoodNotes Science revision guide book folders (`core/completion_registry_audit.py`; see `../docs/notes/completion_files_registry_audit.md`)
 
 ## Multiple attempts per template (`v0.2.3+`)
@@ -89,6 +90,7 @@ Example `context` snippet:
 - `workflows/`: CLI/workflow modules for migration, rendering, and note editing
 - `schemas/marking_result.v1.6.schema.json`: canonical JSON schema for `marking_result.v1.6` (strict, closed contract)
 - `schemas/marking_amendment.v1.schema.json`: companion amendment overlay schema contract (`marking_amendment.v1`)
+- `review/`: review-domain APIs/services (attempt list/detail shaping, review-state and amendment writes)
 - `tests/test_artifact_core.py`: core artifact and rendering tests
 - `tests/test_migration.py`: migration parser and migration flow tests
 

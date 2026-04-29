@@ -34,7 +34,7 @@ Business logic lives in `ai_study_buddy/marking/`; skills and runbooks orchestra
 
 ## 2) Module Boundaries
 
-Current package modules are grouped into three layers.
+Current package modules are grouped into four layers.
 
 ### A. Domain layer (`core/`)
 
@@ -61,6 +61,16 @@ Current package modules are grouped into three layers.
 ### C. Public API layer
 
 - `api.py`: re-exported stable import surface for consumers
+
+### D. Review domain layer (`review/`)
+
+- `api_routes.py`: FastAPI routes consumed by `review_workspace` backend app
+- `attempt_service.py`: student attempt index shaping over registry + artifact lookup
+- `detail_service.py`: attempt detail shaping and resolved/base marking projections
+- `note_service.py`: review-state validation and companion writes under `context/student_review_states/**`
+- `amendment_service.py`: amendment validation/merge and companion writes under `context/marking_amendments/**`
+- `repository.py`: filesystem persistence helpers for review companion artifacts
+- `models.py`: review payload normalization helpers and constants
 
 ## 3) Primary Use Case (MVP)
 
@@ -194,3 +204,10 @@ Until a future contract update is announced:
 1. `resolve_marking_context(...)` remains stable and file-level.
 2. Writer emits `marking_result.v1.6`; legacy `marking_result.v1` / `v1.1` / `v1.2` / `v1.3` / `v1.4` are unsupported in normal runtime validation.
 3. New resolver behavior is introduced only from concrete use cases and added additively.
+
+## 9) Review Domain Decisions (Durable)
+
+1. Review flows must never mutate canonical `context/marking_results/**` artifacts.
+2. Review-state persistence remains a companion store under `context/student_review_states/**`.
+3. Amendment overlays remain a companion store under `context/marking_amendments/**`.
+4. Latest attempt marking resolution remains delegated to `find_marking_artifacts_for_attempt(...)`.

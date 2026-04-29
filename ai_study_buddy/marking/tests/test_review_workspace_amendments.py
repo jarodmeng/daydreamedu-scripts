@@ -4,8 +4,8 @@ import pytest
 from fastapi.testclient import TestClient
 
 from ai_study_buddy.review_workspace.backend import app as review_workspace_app
-from ai_study_buddy.student_review import api_routes
-from ai_study_buddy.student_review.amendment_service import (
+from ai_study_buddy.marking.review import api_routes
+from ai_study_buddy.marking.review.amendment_service import (
     AmendmentValidationError,
     build_amendment_context,
     merge_panel_amendment,

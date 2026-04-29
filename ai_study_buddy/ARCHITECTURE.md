@@ -9,9 +9,8 @@ Version baseline: `v0.1.0`.
 `ai_study_buddy` is a modular monorepo package with clear separation between:
 
 1. canonical data engines (`marking`, `pdf_file_manager`)
-2. domain orchestration (`student_review`)
-3. app surfaces (`review_workspace`, `root_pdf_browser`)
-4. supporting utilities/workflows (`files`, `utils`, `split_book_answer_by_unit_using_ai`)
+2. app surfaces (`review_workspace`, `root_pdf_browser`)
+3. supporting utilities/workflows (`files`, `utils`, `split_book_answer_by_unit_using_ai`)
 
 ## 2) Layering
 
@@ -19,10 +18,6 @@ Version baseline: `v0.1.0`.
 
 - `pdf_file_manager`: registry of PDFs, students, groups, and mappings.
 - `marking`: canonical marking artifact contracts and lookup logic.
-
-### Domain Layer
-
-- `student_review`: builds student review domain responses from registry + marking artifacts and persists review-state companions.
 
 ### App Layer
 
@@ -47,11 +42,10 @@ Version baseline: `v0.1.0`.
 ## 4) Key Integration Contracts
 
 - App surfaces must consume backend/domain payloads rather than raw artifact files.
-- `student_review` should reuse `marking` lookup helpers instead of reimplementing artifact matching.
+- review-domain services in `marking/review` should reuse `marking` lookup helpers instead of reimplementing artifact matching.
 - Writes from review surfaces must never mutate canonical marking artifacts.
 
 ## 5) Current Constraints
 
 - Local/dev-first architecture; production auth/tenant boundaries are not fully implemented at package level.
 - Some modules are still in early documentation and testing maturity relative to core flows.
-

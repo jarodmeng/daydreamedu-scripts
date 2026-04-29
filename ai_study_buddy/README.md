@@ -13,8 +13,7 @@ Current version: `v0.1.0`
 
 ## Primary Submodules
 
-- [`marking/`](./marking): canonical marking artifacts, lookup, validation, and workflows.
-- [`student_review/`](./student_review): student review domain services (attempt index, detail shaping, review-state writes).
+- [`marking/`](./marking): canonical marking artifacts, lookup, validation, workflows, and review-domain backend services (`marking/review`).
 - [`review_workspace/`](./review_workspace): student-facing app surface (backend adapter + frontend UI).
 - [`pdf_file_manager/`](./pdf_file_manager): registry-backed PDF metadata and relationship management.
 - [`files/`](./files): registry-agnostic filesystem helpers.

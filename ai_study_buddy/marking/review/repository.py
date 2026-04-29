@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from ai_study_buddy.student_review.models import normalize_review_state
+from ai_study_buddy.marking.review.models import normalize_review_state
 
 
 class StudentReviewRepository:

@@ -4,6 +4,21 @@ All notable changes to `ai_study_buddy/review_workspace` are documented here.
 
 ---
 
+## [v0.1.2] — Marking review-domain consolidation (2026-04-29)
+
+Implemented:
+
+- Review Workspace backend domain ownership is now consolidated under `ai_study_buddy.marking.review`.
+- `review_workspace/backend/app.py` now imports route/model dependencies from:
+  - `ai_study_buddy.marking.review.api_routes`
+  - `ai_study_buddy.marking.review.models`
+- top-level `ai_study_buddy/student_review/` module was removed as part of Option B direct migration.
+
+Scope lock:
+
+- phase remains `single-student alpha`.
+- canonical `marking_result` artifacts remain read-only from this app surface.
+
 ## [v0.1.1] — Amendment overlay + resolved marking model (2026-04-26)
 
 Implemented:

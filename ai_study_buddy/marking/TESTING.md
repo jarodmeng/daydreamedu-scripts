@@ -13,6 +13,7 @@ Primary automated coverage lives in:
 - `ai_study_buddy/marking/tests/test_marking_asset_render.py`
 - `ai_study_buddy/marking/tests/test_marking_time.py`
 - `ai_study_buddy/marking/tests/test_migration.py`
+- `ai_study_buddy/marking/tests/test_review_workspace_amendments.py`
 
 These tests cover:
 
@@ -35,6 +36,7 @@ These tests cover:
 - attempt-metadata backfill workflow (`backfill_attempt_metadata_v1_1.py`)
 - partial-marking metadata backfill workflow (`backfill_is_partial_v1_3.py`)
 - dispatch/version handling errors (unsupported or missing `schema_version`)
+- review-domain amendment validation, merge behavior, and API persistence responses
 
 ## Run Tests
 
@@ -61,6 +63,9 @@ python3 -m pytest ai_study_buddy/marking/tests/test_marking_asset_render.py -q
 
 # Migration tests only
 python3 -m pytest ai_study_buddy/marking/tests/test_migration.py -q
+
+# Review-domain amendment tests only
+python3 -m pytest ai_study_buddy/marking/tests/test_review_workspace_amendments.py -q
 ```
 
 ## Suggested Quality Gate

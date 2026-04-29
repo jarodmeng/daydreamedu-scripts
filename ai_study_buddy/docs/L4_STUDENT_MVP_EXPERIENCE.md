@@ -749,21 +749,21 @@ The Review Workspace should consume these APIs; it should not reimplement them.
 
 Create:
 
-- `ai_study_buddy/student_review/`
+- `ai_study_buddy/marking/review/`
 
 Recommended module split:
 
-1. `ai_study_buddy/student_review/models.py`
+1. `ai_study_buddy/marking/review/models.py`
    - API-facing DTOs (`AttemptListItem`, `AttemptDetail`, `ReviewState`, `QuestionReviewCard`, viewer payload types).
-2. `ai_study_buddy/student_review/repository.py`
+2. `ai_study_buddy/marking/review/repository.py`
    - filesystem read/write for `context/student_review_states/**`.
-3. `ai_study_buddy/student_review/attempt_service.py`
+3. `ai_study_buddy/marking/review/attempt_service.py`
    - builds "My Work" list from completion registry + latest marking artifact.
-4. `ai_study_buddy/student_review/detail_service.py`
+4. `ai_study_buddy/marking/review/detail_service.py`
    - builds Review Workspace detail payload (attempt context + active-question review data + viewer metadata).
-5. `ai_study_buddy/student_review/note_service.py`
+5. `ai_study_buddy/marking/review/note_service.py`
    - handles scoped note updates and validation (`question`, `attempt`, `student_subject`; author role checks).
-6. `ai_study_buddy/student_review/api_routes.py`
+6. `ai_study_buddy/marking/review/api_routes.py`
    - route handlers for:
    - `GET /api/students`
    - `GET /api/student/attempts`
@@ -791,7 +791,7 @@ Recommended component split for the 4-panel workspace:
 #### File ownership summary
 
 1. `marking/` owns canonical grading data contract.
-2. `student_review/` owns review-workspace read/write orchestration.
+2. `marking/review` owns review-workspace read/write orchestration.
 3. frontend feature folders own rendering and interaction.
 
 This boundary is the default unless we later decide to extract a dedicated service.
@@ -981,7 +981,7 @@ Mitigation:
 
 ### Phase 1 — Backend read model
 
-- [ ] Create `ai_study_buddy/student_review/` module skeleton with `models.py`, `repository.py`, `attempt_service.py`, `detail_service.py`, `note_service.py`, and `api_routes.py`.
+- [ ] Create `ai_study_buddy/marking/review/` module skeleton with `models.py`, `repository.py`, `attempt_service.py`, `detail_service.py`, `note_service.py`, and `api_routes.py`.
 - [ ] Implement student-scoped attempt listing in `attempt_service.py` backed by `PdfFileManager` completion rows.
 - [ ] Reuse `find_marking_artifacts_for_attempt(...)` to resolve latest marking artifact per attempt.
 - [ ] Define deterministic "latest artifact" selection rule and cover it with tests.

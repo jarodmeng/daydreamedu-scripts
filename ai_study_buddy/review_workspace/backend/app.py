@@ -6,8 +6,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
-from ai_study_buddy.student_review.api_routes import CONTEXT_ROOT, router as student_review_router
-from ai_study_buddy.student_review.models import STATIC_ROUTE_PREFIX
+from ai_study_buddy.marking.review.api_routes import CONTEXT_ROOT, router as review_router
+from ai_study_buddy.marking.review.models import STATIC_ROUTE_PREFIX
 
 
 def _repo_root() -> Path:
@@ -30,4 +30,4 @@ app.add_middleware(
 )
 
 app.mount(STATIC_ROUTE_PREFIX, StaticFiles(directory=str(CONTEXT_ROOT)), name="review-workspace-static")
-app.include_router(student_review_router)
+app.include_router(review_router)

@@ -4,6 +4,33 @@ All notable changes to `ai_study_buddy.marking` are documented in this file.
 
 Committed changes under `ai_study_buddy/marking/` should add an entry here and bump **Current version** in `README.md` (semver: **patch** for docs or small renderer tweaks, **minor** for schema or public API changes). `SPEC.md` / `TESTING.md` titles do not carry the package version.
 
+## [0.2.18] - 2026-04-29
+
+Patch: consolidate review-domain backend services into `marking/review` and remove the old top-level `student_review` module (Option B direct move).
+
+### Changed
+
+- added `review/` package under `ai_study_buddy/marking` by moving review-domain backend services:
+  - `amendment_service.py`
+  - `api_routes.py`
+  - `attempt_service.py`
+  - `detail_service.py`
+  - `models.py`
+  - `note_service.py`
+  - `repository.py`
+- `review_workspace/backend/app.py` now imports routes/models from `ai_study_buddy.marking.review.*`
+- updated marking tests to import review-domain services from `ai_study_buddy.marking.review.*`
+
+### Documentation
+
+- `README.md`:
+  - bump current version to `v0.2.18`
+  - include `review/` in package scope and directory layout
+- `ARCHITECTURE.md`:
+  - add `review/` layer and durable review-domain decisions
+- `TESTING.md`:
+  - include `tests/test_review_workspace_amendments.py` in primary automated coverage
+
 ## [0.2.17] - 2026-04-28
 
 Patch: align `marking_result.v1.6` generation telemetry schema with optional model semantics.
@@ -170,7 +197,7 @@ Minor: add a first-class `marking_amendment.v1` JSON schema file and public load
 ### Documentation
 
 - `README.md`:
-  - bump current version to `v0.2.12`
+  - bump current version to `v0.2.13`
   - document `schemas/marking_amendment.v1.schema.json`
 - `SPEC.md`:
   - include amendment schema as companion canonical contract

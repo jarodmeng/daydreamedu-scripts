@@ -49,7 +49,7 @@ Backend module: `backend/app.py`.
 
 Primary responsibilities:
 
-- include API routes from `ai_study_buddy/student_review/`
+- include API routes from `ai_study_buddy/marking/review/`
 - read students and completion attempts from `PdfFileManager`
 - resolve latest marking artifact per attempt via `find_marking_artifacts_for_attempt(...)`
 - normalize question and viewer payload for frontend consumption
@@ -88,12 +88,13 @@ Frontend rules:
 
 Owned by `marking/`:
 
-- canonical marking schema and artifacts (`marking_result.v1.x`, writer default `v1.4`)
+- canonical marking schema and artifacts (`marking_result.v1.x`, writer default `v1.6`)
+- review-domain backend services under `marking/review`
 
 Owned by `review_workspace/`:
 
-- review-state write behavior and UI integration
-- amendment overlay UX and integration
+- API app shell wiring and UI integration
+- amendment overlay UX
 - local interaction model for workspace navigation, note-taking, and amendment editing
 
 Shared dependency:
