@@ -26,6 +26,17 @@ Before writing final JSON:
 2. Run `validate_marking_artifact_dict(payload)` and treat any failure as a hard stop.
 3. If any field is not part of schema, remove it or convert it to an approved schema field before finalize.
 
+## Persistence Boundary Policy (mandatory)
+
+Treat marking/review package APIs as the only supported write boundary:
+
+- Persist final marking JSON via `write_marking_artifact(...)`; do not write directly into `context/marking_results/...` with ad-hoc file I/O.
+- Persist review state/amendment JSON via `StudentReviewRepository.save_review_state(...)` and `StudentReviewRepository.save_amendment(...)`.
+- Do not treat filesystem glob scans as authoritative lookup for latest attempts or review records during orchestration.
+- For source-of-truth lookups, use resolver/repository utilities (`resolve_marking_context(...)`, `find_marking_artifacts_for_attempt(...)`, and repository read helpers) instead of path heuristics.
+
+Rationale: dual-write and operation-log coverage are attached to these APIs; bypassing them weakens auditability and rollback guarantees.
+
 ## Language Policy (mandatory)
 
 Language consistency is a hard quality gate for all phases that emit free-text fields:
@@ -88,7 +99,15 @@ render_attempt_pdf_to_bundle(input_attempt_pdf, bundle_root, dpi_scale=2.0)
 render_answers_pdf_pages_to_bundle(input_answer_pdf, bundle_root, pages_1_based=[11, 12, 13], dpi_scale=2.0)
 ```
 
-**MAB directory (bundle root):** Do not render into ad-hoc paths such as `ai_study_buddy/context/marking_asset_bundles/...`. The bundle root must match the directory that `write_marking_artifact` will record as `context.marking_asset`: under `ai_study_buddy/context/marking_assets/<student_slug>/<subject_context>/<attempt_basename>/`, where `<attempt_basename>` follows `build_attempt_basename(...)` in `ai_study_buddy.marking.core.artifact_paths` (same timestamp you will use for `created_at` on the artifact). Resolve `bundle_root` with `marking_asset_rel_path_from_artifact_path(build_marking_artifact_path(provisional_artifact), context_root=...)` joined to `context_root`, then render PNGs there so Phase 1–4 subagents read the same tree the finalized JSON points at.
+**MAB directory (bundle root):** Do not render into ad-hoc paths such as `ai_study_buddy/context/marking_asset_bundles/...`. The bundle root must match the directory that `write_marking_artifact` will record as `context.marking_asset`: under `ai_study_buddy/context/marking_assets/<student_slug>/<subject_context>/<attempt_basename>/`, where `<attempt_basename>` follows `build_attempt_basename(...)` in `ai_study_buddy.marking.core.artifact_paths`.
+
+**Single-timestamp contract (required):**
+- Capture `run_marked_at = now_marking_iso()` exactly once at orchestration start.
+- Use that same `run_marked_at` for both:
+  - bundle-path derivation before rendering images
+  - final artifact `created_at` and `updated_at`
+- Prefer package helper `build_marking_run_paths(...)` to compute `(artifact_json_path, marking_asset_rel, bundle_root)` from one timestamp.
+- Do not call `now_marking_iso()` again for artifact write-time fields; reuse the captured `run_marked_at`.
 
 ## 2. Phase 1: Scope, Mapper & Key Verifier Subagent
 
@@ -394,6 +413,8 @@ As the Orchestrator, you must now assemble the final artifacts:
 3. **Calculate Totals:** Calculate `summary.earned_marks` and `summary.total_marks` by summing the `question_results`.
 4. **Determine Scope:** Set `context.is_partial` based on whether the graded questions represent the full expected paper.
 5. **Write JSON:** Write via `write_marking_artifact` (`ai_study_buddy.marking.core.artifact_writer.write_marking_artifact`) using the default (`schema_version=None`) so timestamps normalize to marking-time SGT semantics and `schema_version` is stamped as `artifact_schema.SCHEMA_VERSION`, persisting canonical layout: `context/marking_results/<student_slug>/<subject_context>/<attempt_basename>.json`.
+   - Required: `artifact.created_at == artifact.updated_at == run_marked_at` (the single captured timestamp from Phase 0/startup).
+   - Required: `context.marking_asset` stem must match artifact stem for that same `run_marked_at`.
    - Do not strip or rewrite resolver provenance fields under `context.context_resolution`.
    - If write-time contract validation fails, treat it as a producer bug and fix the producer path instead of force-writing manual context.
 6. **Render Markdown:** Run the `report_renderer` to generate the Markdown report in `context/learning_reports/`.

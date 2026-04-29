@@ -36,7 +36,7 @@ Detailed documentation on specific aspects of the project.
 
 | Document | What it covers |
 |----------|---------------|
-| [DATA_STRATEGY](./L3_DATA_STRATEGY.md) | PDF ingestion, OCR, embeddings, storage, question objects |
+| [DATA_STRATEGY](./L3_DATA_STRATEGY.md) | PDF ingestion, OCR, embeddings, storage, question objects, local durable learning memory |
 | [EXAM_FORMATS](./L3_EXAM_FORMATS.md) | Singapore primary exam formats — cross-subject overview; per-subject detail in `context/subject_understandings/` |
 | [USER_EXPERIENCE](./L3_USER_EXPERIENCE.md) | Kid UI, parent dashboard, admin/ingestion review UI |
 | [SAFETY_AND_PRIVACY](./L3_SAFETY_AND_PRIVACY.md) | Singapore PDPA, answer-gating, data protection |
@@ -51,8 +51,9 @@ Actionable plans for building specific components. Each L4 doc drills into one d
 | [INGESTION_PIPELINE](./L4_INGESTION_PIPELINE.md) | PDF-to-question-object pipeline: steps, tools, schema, review workflow, MVP scope |
 | [QUESTION_INDEX_SCHEMA](./L4_QUESTION_INDEX_SCHEMA.md) | Proposal (v2): `unit_question_index` — per-template question layout and semantics (vision-LLM pass), bridge between registered template PDFs and enriched `question_objects` / embeddings |
 | [FILE_SYSTEM_MANAGEMENT](./L4_FILE_SYSTEM_MANAGEMENT.md) | Shared `ai_study_buddy.files` proposal for root resolution and policy-driven leaf-folder traversal across DaydreamEdu/GoodNotes |
-| [MARKING_RESULT_ARTIFACT](./L4_MARKING_RESULT_ARTIFACT.md) | `marking_result.v1.4` (implemented, package current: `ai_study_buddy/marking` `v0.2.11`): file-canonical JSON marking artifact, human-editable review fields, markdown learning reports derived from JSON, GoodNotes-oriented workflow |
+| [MARKING_RESULT_ARTIFACT](./L4_MARKING_RESULT_ARTIFACT.md) | `marking_result.v1.6` (implemented): file-canonical JSON marking artifact, human-editable review fields, markdown learning reports derived from JSON, GoodNotes-oriented workflow |
 | [STUDENT_MVP_EXPERIENCE](./L4_STUDENT_MVP_EXPERIENCE.md) | Proposal (v0.2): first student-facing MVP as a **Review Workspace** — student-scoped attempt index, canonical marking-result detail, source-work viewing, and persisted student reflections via a companion review-state layer |
+| [LOCAL_LEARNING_DB](./L4_LOCAL_LEARNING_DB.md) | Proposal: create `study_buddy.db` as a local Postgres-shaped SQLite data layer for marking facts, amendments, review state, backup, and future migration |
 
 ## Sources and attribution
 

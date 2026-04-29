@@ -6,6 +6,7 @@ from typing import Any
 from ai_study_buddy.marking.core.artifact_lookup import find_marking_artifacts_for_attempt
 from ai_study_buddy.pdf_file_manager.pdf_file_manager import PdfFileManager
 from ai_study_buddy.marking.review.models import now_iso_utc, normalize_review_state
+from ai_study_buddy.marking.review.payload_reader import read_marking_result_payload
 from ai_study_buddy.marking.review.repository import StudentReviewRepository
 
 _ALLOWED_REVIEW_STATUS = {"not_started", "in_progress", "completed"}
@@ -98,14 +99,12 @@ def put_review_state(
         raise ReviewStateWriteError("attempt not found")
 
     context = {}
-    try:
-        import json
-
-        payload = json.loads(latest_ref.marking_result_json.read_text(encoding="utf-8"))
-        if isinstance(payload, dict) and isinstance(payload.get("context"), dict):
-            context = payload["context"]
-    except Exception:
-        context = {}
+    payload = read_marking_result_payload(
+        marking_result_json=latest_ref.marking_result_json,
+        context_root=context_root,
+    )
+    if isinstance(payload, dict) and isinstance(payload.get("context"), dict):
+        context = payload["context"]
 
     student_id = context.get("student_id") if isinstance(context.get("student_id"), str) else (completion.student_id or "unknown")
     subject_context = (

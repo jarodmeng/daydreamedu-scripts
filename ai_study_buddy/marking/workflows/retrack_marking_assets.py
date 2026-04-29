@@ -21,6 +21,8 @@ from typing import Any
 
 from ai_study_buddy.marking.core.artifact_paths import normalize_attempt_stem, slugify_student
 from ai_study_buddy.marking.core.artifact_schema import validate_marking_artifact_dict
+from ai_study_buddy.marking.core.artifact_writer import write_marking_artifact
+from ai_study_buddy.marking.core.models import MarkingArtifact
 from ai_study_buddy.marking.workflows.report_renderer import render_learning_report_from_json
 
 _LEGACY_ROOT = ".marking_scratch"
@@ -243,7 +245,14 @@ def run(
         if changed:
             updated_json += 1
             if not dry_run:
-                json_path.write_text(json.dumps(payload, indent=2, ensure_ascii=True) + "\n", encoding="utf-8")
+                artifact = MarkingArtifact.from_dict(payload)
+                write_marking_artifact(
+                    artifact,
+                    output_path=json_path,
+                    context_root=root,
+                    schema_version=payload.get("schema_version"),
+                    actor="script:ai_study_buddy.marking.workflows.retrack_marking_assets",
+                )
 
         if rerender_reports and not dry_run:
             render_learning_report_from_json(json_path, context_root=root)

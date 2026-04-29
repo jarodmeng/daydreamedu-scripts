@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 
 from ai_study_buddy.marking.assets.layout import ATTEMPT_DIRNAME, CROPS_DIRNAME
-from ai_study_buddy.marking.assets.paths import marking_asset_rel_path_from_artifact_path
+from ai_study_buddy.marking.assets.paths import bundle_root_from_context, marking_asset_rel_path_from_artifact_path
 from ai_study_buddy.marking.core.artifact_paths import build_marking_artifact_path, slugify_student
 from ai_study_buddy.marking.core.artifact_schema import (
     DEFAULT_MARKING_RESULT_VERSION,
@@ -97,6 +97,7 @@ def write_marking_artifact(
     output_path: str | Path | None = None,
     context_root: str | Path = "ai_study_buddy/context",
     schema_version: str | None = None,
+    actor: str = "script:ai_study_buddy.marking.core.artifact_writer",
 ) -> Path:
     selected_schema_version = DEFAULT_MARKING_RESULT_VERSION if schema_version is None else schema_version
     if selected_schema_version == "latest":
@@ -116,8 +117,56 @@ def write_marking_artifact(
     validate_marking_artifact_dict(payload)
 
     _ensure_marking_asset_dir(payload=payload, context_root=context_root)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(payload, indent=2, ensure_ascii=True) + "\n", encoding="utf-8")
+
+    canonical = json.dumps(payload, indent=2, ensure_ascii=True) + "\n"
+
+    from ai_study_buddy.learning_db.config import learning_db_dual_write_enabled, learning_db_json_export_enabled
+    from ai_study_buddy.learning_db.dual_write import maybe_dual_write_from_canonical, maybe_dual_write_snapshot
+    from ai_study_buddy.learning_db.write_boundary_audit import audit_write_boundary_event
+
+    ctxp = Path(context_root).expanduser().resolve()
+
+    rel = path.expanduser().resolve().relative_to(ctxp).as_posix()
+    try:
+        if learning_db_json_export_enabled():
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(canonical, encoding="utf-8")
+            maybe_dual_write_snapshot(
+                family="marking_result",
+                snapshot_path=path,
+                context_root=context_root,
+            )
+        else:
+            if not learning_db_dual_write_enabled():
+                raise ValueError(
+                    "LEARNING_DB_ENABLE_JSON_EXPORT=0 requires LEARNING_DB_ENABLE_DUAL_WRITE=1 for write_marking_artifact "
+                    "to persist into study_buddy.db (no on-disk snapshot is written)"
+                )
+            maybe_dual_write_from_canonical(
+                family="marking_result",
+                rel_path=rel,
+                canonical_snapshot_text=canonical,
+            )
+    except Exception as exc:
+        audit_write_boundary_event(
+            operation_type="marking_artifact_write",
+            entity_type="marking_result",
+            entity_id=rel,
+            status="failed",
+            actor=actor,
+            metadata={"context_root": str(ctxp)},
+            error_code=type(exc).__name__,
+            error_message=str(exc),
+        )
+        raise
+    audit_write_boundary_event(
+        operation_type="marking_artifact_write",
+        entity_type="marking_result",
+        entity_id=rel,
+        status="succeeded",
+        actor=actor,
+        metadata={"context_root": str(ctxp)},
+    )
     return path
 
 
@@ -197,15 +246,30 @@ def _apply_marking_asset_path(
     if not isinstance(context, dict):
         return payload
 
-    rel = marking_asset_rel_path_from_artifact_path(
+    expected_rel = marking_asset_rel_path_from_artifact_path(
         artifact_json_path=artifact_json_path,
         context_root=context_root,
     )
-    if rel is None:
+
+    existing = context.get("marking_asset")
+    if isinstance(existing, str) and existing.strip():
+        if bundle_root_from_context(context, context_root=context_root) is None:
+            raise ValueError(
+                "context contract failure: context.marking_asset must be a normalized relative path under "
+                "context_root/marking_assets"
+            )
+        if expected_rel is not None and existing != expected_rel:
+            raise ValueError(
+                "context contract failure: context.marking_asset must match canonical artifact-derived path "
+                f"(expected {expected_rel!r}, got {existing!r})"
+            )
+        return payload
+
+    if expected_rel is None:
         context.setdefault("marking_asset", None)
         return payload
 
-    context["marking_asset"] = rel
+    context["marking_asset"] = expected_rel
     return payload
 
 

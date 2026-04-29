@@ -31,7 +31,8 @@
                 └───────────────────┬────────────────────┘
                                     │
                 ┌───────────────────┴────────────────────┐
-  Data          │  Postgres · pgvector · Object Storage   │
+  Data          │  Local SQLite now · Postgres later       │
+                │  pgvector/search later · Object Storage  │
                 └────────────────────────────────────────┘
 
   Background:    Ingestion Pipeline
@@ -43,9 +44,9 @@ Four layers:
 - **Frontend** — what kids and parents interact with.
 - **Gateway** — authentication, rate limiting, routing.
 - **Application** — services that handle requests + shared domain logic (diagnostics, safety rules). The Tutor and Planner services each embed an AI agent (LLM + tools + state) for decision-making.
-- **Data** — Postgres for structured data and the event log, pgvector for content embeddings, object storage for files.
+- **Data** — for the local-first phase, `pdf_registry.db` remains the file registry and a new Postgres-shaped SQLite database (`study_buddy.db`) should hold durable learning/product memory. The long-term hosted architecture can migrate that schema to Postgres, add pgvector for embeddings, and use object storage for files and derived visual evidence.
 
-The **Ingestion Pipeline** is a background job that processes uploaded PDFs — it lives at the application layer but runs asynchronously. **Analytics / Logging** is cross-cutting — every service emits events to an append-only log in Postgres.
+The **Ingestion Pipeline** is a background job that processes uploaded PDFs — it lives at the application layer but runs asynchronously. **Analytics / Logging** is cross-cutting — every service emits events to an append-only log (`study_buddy.db` locally, Postgres when hosted).
 
 ---
 
@@ -66,7 +67,7 @@ Authentication (Google OAuth), rate limiting, and routing. All client requests p
 
 The core kid-facing component. When a child asks a question or starts a quest:
 
-1. Creates a **tutoring session** (persisted in Postgres — survives page reloads)
+1. Creates a **tutoring session** (persisted in the learning DB — survives page reloads)
 2. Invokes the **Tutor Agent**, an LLM with tools, session state, and pedagogical policies
 
 The agent runs a step function on each child message:
@@ -106,7 +107,7 @@ A background job that turns uploaded PDFs into the structured, searchable questi
 1. Render pages to images, run OCR on scans
 2. Layout segmentation — detect question boundaries
 3. Extract or manually tag metadata (subject, date, score, child)
-4. Store: question text + image crop → Postgres, embedding → pgvector, raw files → object storage
+4. Store: question text + metadata -> learning DB, embeddings -> pgvector when hosted, raw files -> document/object storage
 
 For messy scanned worksheets, the **Ingestion Agent** (LLM) handles structure extraction that rules-based processing can't. See [DATA_STRATEGY.md](./L3_DATA_STRATEGY.md) for the full pipeline.
 
@@ -128,7 +129,7 @@ Feeds into the Planner (which skills to prioritize), the Tutor (which misconcept
 
 ### Analytics / Logging
 
-Every service emits structured events to an append-only log in Postgres:
+Every service emits structured events to an append-only log:
 
 `question_attempted` · `hint_requested` · `plan_generated` · `task_completed` · `session_abandoned` · `frustration_signal` · `reward_granted`
 
@@ -175,11 +176,11 @@ Tutor Service
   └─ Agent Runtime
        ├─ LLM (Gemini / LearnLM) — generates responses and tool call requests
        ├─ Tool Executor — runs tool functions against the data layer
-       │    ├─ get_mastery()       → Postgres query
+       │    ├─ get_mastery()       → learning DB query
        │    ├─ retrieve_similar()  → pgvector similarity search
-       │    ├─ get_question()      → Postgres + Object Storage read
-       │    ├─ log_attempt()       → Postgres write
-       │    └─ award_xp()          → Postgres write
+       │    ├─ get_question()      → learning DB + asset/document read
+       │    ├─ log_attempt()       → learning DB write
+       │    └─ award_xp()          → learning DB write
        └─ Session Store — persists conversation + state between HTTP requests
 ```
 
@@ -234,17 +235,19 @@ rewards(child_id, xp, badges, streaks, inventory…)
 
 ### Event Log
 
-An append-only Postgres table capturing every interaction. Start simple; upgrade to a proper event pipeline if volume demands it. Consider **event sourcing** — storing every event and computing mastery as a derived view makes it easy to re-derive mastery when the estimation algorithm improves.
+An append-only table capturing every interaction. In the local-first phase this can live in `study_buddy.db`; in the hosted phase it can move to Postgres. Start simple; upgrade to a proper event pipeline if volume demands it. Consider **event sourcing** — storing every event and computing mastery as a derived view makes it easy to re-derive mastery when the estimation algorithm improves.
 
 ---
 
 ## Data Stores
 
 | Store | Technology | Contents |
-|-------|-----------|---------|
-| Structured DB | Postgres | Skills, mastery, attempts, misconceptions, plans, rewards, event log |
-| Vector Index | pgvector (same Postgres instance) | Embeddings for question objects and textbook chunks |
-| Object Storage | GCS or local filesystem | Raw PDFs, page images, question image crops |
+|-------|-----------|----------|
+| File registry | SQLite (`pdf_registry.db`) | Registered PDFs, templates, completions, groups, book-answer mappings |
+| Local learning DB | SQLite (`study_buddy.db`, Postgres-shaped) | Marking artifacts, question results, amendments, review state, notes, future mastery/events |
+| Hosted structured DB | Postgres (future migration target) | Same logical schema as local learning DB, plus auth/session/multi-device needs |
+| Vector Index | pgvector in Postgres (future) | Embeddings for question objects and textbook chunks |
+| Object Storage | Google Drive now; GCS/local cache later | Raw PDFs as cold source of truth; regenerated page images/crops as derived evidence |
 
 ---
 
@@ -257,7 +260,7 @@ Parent uploads PDF
   → Pipeline renders pages, runs OCR on scans
   → Layout segmentation detects question boundaries
   → Metadata extracted or manually tagged (subject, date, score, child)
-  → Each question stored: Postgres + pgvector + Object Storage
+  → Each question stored: learning DB locally; Postgres + pgvector + object storage when hosted
 ```
 
 ### 2. Tutoring Session

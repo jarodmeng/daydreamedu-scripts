@@ -14,6 +14,7 @@ from ai_study_buddy.marking.core.artifact_schema import (
 )
 from ai_study_buddy.pdf_file_manager.pdf_file_manager import PdfFileManager
 from ai_study_buddy.marking.review.models import now_iso_utc
+from ai_study_buddy.marking.review.payload_reader import read_marking_result_payload
 from ai_study_buddy.marking.review.repository import StudentReviewRepository
 
 SCHEMA_VERSION = "marking_amendment.v1"
@@ -159,13 +160,11 @@ def put_amendments(
     if completion is None:
         raise AmendmentWriteError("attempt not found")
 
-    try:
-        import json
-
-        base_payload = json.loads(latest_ref.marking_result_json.read_text(encoding="utf-8"))
-    except Exception as exc:
-        raise AmendmentWriteError("invalid marking artifact") from exc
-    if not isinstance(base_payload, dict):
+    base_payload = read_marking_result_payload(
+        marking_result_json=latest_ref.marking_result_json,
+        context_root=context_root,
+    )
+    if base_payload is None:
         raise AmendmentWriteError("invalid marking artifact")
 
     marking_result_path = latest_ref.marking_result_json.relative_to(context_root).as_posix()

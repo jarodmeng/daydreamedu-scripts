@@ -1,6 +1,6 @@
 # AI Study Buddy — Marking Result Artifact (File-Canonical)
 
-> Status: **Implemented (current package: `ai_study_buddy/marking` `v0.2.11`)** — file-canonical JSON-first workflow is active (`marking_result.v1.4` writer; reads `v1` / `v1.1` / `v1.2` / `v1.3` / `v1.4`), with markdown as derived output.
+> Status: **Implemented** — file-canonical JSON-first workflow is active (`marking_result.v1.6` writer; normal runtime validation expects `v1.6`, with legacy migration/read support described in `ai_study_buddy/marking/SPEC.md`), with markdown as derived output.
 >
 > Related docs: [QUESTION_INDEX_SCHEMA](./L4_QUESTION_INDEX_SCHEMA.md), [INGESTION_PIPELINE](./L4_INGESTION_PIPELINE.md), [DATA_STRATEGY](./L3_DATA_STRATEGY.md)
 
@@ -124,9 +124,9 @@ Design rule:
 
 ---
 
-## Schema (POC v1)
+## Schema (Historical POC v1 Excerpt)
 
-POC simplification: `marking_id` is intentionally omitted from v1 because filesystem path plus timestamped filename already provide unique identity in the file-canonical stage.
+This section preserves the original POC shape for design context. The authoritative current runtime schema is `marking_result.v1.6`; see `ai_study_buddy/marking/SPEC.md` and `ai_study_buddy/marking/schemas/marking_result.v1.6.schema.json`.
 
 ```json
 {
@@ -174,7 +174,6 @@ POC simplification: `marking_id` is intentionally omitted from v1 because filesy
       "outcome": "correct",
       "student_answer": "(2)",
       "correct_answer": "(2)",
-      "feedback": null,
       "error_tags": [],
       "skill_tags": ["Interactions > Interaction of Forces > Magnets"],
       "diagnosis": {
@@ -192,7 +191,6 @@ POC simplification: `marking_id` is intentionally omitted from v1 because filesy
       "outcome": "disqualified",
       "student_answer": "612.5",
       "correct_answer": null,
-      "feedback": "Disqualified due to source mismatch between question stem and mapped answer key.",
       "error_tags": [],
       "skill_tags": [],
       "diagnosis": {
@@ -355,7 +353,7 @@ Goal: convert legacy markdown learning reports into canonical `marking_result.v1
 1. [x] Implement a migration script in `ai_study_buddy/marking/` that:
    - reads legacy markdown reports
    - parses report context, summary, and marking table
-   - maps parsed data into package-supported `marking_result.v1.x` (writer emits `v1.4`)
+   - maps parsed data into package-supported `marking_result.v1.x` (current writer emits `v1.6`)
    - writes JSON to `context/marking_results/...` using canonical naming rules.
 2. [x] Add a dry-run mode to preview planned outputs.
 3. [x] Add a `--limit` option for staged migration.

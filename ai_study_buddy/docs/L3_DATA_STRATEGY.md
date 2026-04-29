@@ -61,25 +61,60 @@ Diagrams/tables that accompany a single question (even a multi-part question) ar
 
 ---
 
-## Storage Layout: 3 Tiers
+## Storage Layout: 4 Tiers
 
 ### Tier 1: Google Drive (raw PDFs)
 - Canonical storage, human-manageable
 - Lowest operational complexity
 - ~4,000 pages now, growing ~500/month
 
-### Tier 2: Object Store (optional — GCS)
-- Only for *derived artifacts*: page images, question crops
-- Can use colder storage classes for older content
-- Cost: pennies per GB/month at this scale
+### Tier 2: File registry (`pdf_registry.db`)
+- Local SQLite registry for registered PDFs, templates, completion attempts, groups, and answer mappings
+- Backed up separately because it contains durable file-management metadata
+- Remains the source of truth for "which PDFs exist and how they relate"
 
-### Tier 3: Database (Postgres)
-- Student model (mastery, attempts, misconceptions, plans, rewards)
-- Ingestion index (chunks, offsets, file references)
-- Event logs
-- Doc chunks with embeddings (pgvector)
+### Tier 3: Local learning DB (`study_buddy.db`)
+- Local-first SQLite database for durable learning/product memory
+- Should be designed as a **Postgres-shaped rehearsal**: stable string/UUID IDs, portable SQL, explicit migrations, normalized tables plus raw JSON payload preservation
+- Stores marking artifacts, per-question marking rows, amendments, student review state, notes, and future event/mastery/planner records
+- See [L4_LOCAL_LEARNING_DB](./L4_LOCAL_LEARNING_DB.md) for the creation, migration, and maintenance proposal
+
+### Tier 4: Regenerable assets / object store
+- Page renders, answer renders, crops, and marking asset bundles are derived evidence, not primary memory
+- In the local-first phase, these may remain under `context/marking_assets/`
+- No heavy backup requirement while they can be regenerated from canonical PDFs and marking artifacts
+- In a hosted phase, GCS or another object store can hold derived assets with cold-storage policies
+
+### Long-term hosted database
+- Postgres remains the long-term target for multi-device sync, auth, hosted parent/student access, and pgvector retrieval
+- The local `study_buddy.db` schema should avoid SQLite-only assumptions so migration is mostly ETL and connection plumbing rather than a data-model redesign
+- Future Postgres contents: student model, mastery, attempts, misconceptions, plans, rewards, event logs, document chunks, embeddings
 
 **Key:** The DB stays small because raw docs stay in Drive.
+
+---
+
+## Durable Learning Memory vs. Regenerable Evidence
+
+The current implementation has three important JSON data families under `ai_study_buddy/context/`:
+
+| Folder | Meaning | Durability class |
+|--------|---------|------------------|
+| `marking_results/` | Canonical AI marking facts (`marking_result.v1.6`) | Durable learning memory |
+| `marking_amendments/` | Human grading/review overlays (`marking_amendment.v1`) | Durable audit-sensitive memory |
+| `student_review_states/` | Student review status and reflections (`student_review_state.v1`) | Durable product/learning memory |
+
+These should not remain only as loose JSON files as usage scales. They are becoming the long-term memory substrate for diagnostics, planning, tutoring, parent summaries, and gamification.
+
+The medium-term strategy is:
+
+1. Keep JSON artifacts readable and exportable during the transition.
+2. Import/index existing JSON into `study_buddy.db` with source path, schema version, and content hash.
+3. Change new writes to persist through a repository layer that writes DB rows transactionally and optionally emits JSON snapshots.
+4. Replace filesystem scans for "latest artifact for attempt" with indexed DB queries.
+5. Keep `marking_assets/` as a regenerable evidence cache, backed up lightly or not at all unless regeneration becomes expensive.
+
+This preserves the current local workflow while making the learning memory queryable, backed up, and ready for Postgres.
 
 ---
 
@@ -221,7 +256,7 @@ Combine three search modes:
 | **Postgres + pgvector** | Simple, cheap, one system for everything | May not scale for very large datasets |
 | **OpenSearch** | Strong search features, powerful keyword search | More operational complexity |
 
-**Recommendation (ChatGPT):** Start with Postgres + pgvector for simplicity. At family scale (~4,000 pages + 500/month), it's more than sufficient.
+**Long-term recommendation (ChatGPT):** Postgres + pgvector is the hosted target. Current local-first implementation should use SQLite (`study_buddy.db`) for durable learning memory while keeping the schema portable enough to migrate to Postgres later.
 
 ---
 

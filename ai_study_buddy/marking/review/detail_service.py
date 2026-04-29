@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 import re
 from pathlib import Path
 from typing import Any
@@ -18,19 +17,12 @@ from ai_study_buddy.marking.review.models import (
     default_review_state,
     infer_subject_context,
 )
+from ai_study_buddy.marking.review.payload_reader import read_marking_result_payload
 from ai_study_buddy.marking.review.repository import StudentReviewRepository
 
 
 class AttemptNotFoundError(Exception):
     pass
-
-
-def _read_json_payload(path: Path) -> dict[str, Any] | None:
-    try:
-        payload = json.loads(path.read_text(encoding="utf-8"))
-    except Exception:
-        return None
-    return payload if isinstance(payload, dict) else None
 
 
 def _extract_page_num(path: Path) -> int:
@@ -177,7 +169,10 @@ def get_attempt_detail(
             },
         }
 
-    payload = _read_json_payload(latest_ref.marking_result_json)
+    payload = read_marking_result_payload(
+        marking_result_json=latest_ref.marking_result_json,
+        context_root=context_root,
+    )
     if payload is None:
         raise AttemptNotFoundError(f"Invalid marking artifact for attempt {attempt_id}")
 

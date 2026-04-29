@@ -1,10 +1,14 @@
 from __future__ import annotations
 
-import json
 from pathlib import Path
 from typing import Any
 
 from ai_study_buddy.marking.core.artifact_lookup import find_marking_artifacts_for_attempt
+from ai_study_buddy.marking.review.amendment_service import (
+    build_amendment_context,
+    normalize_amendment_state,
+    resolve_marking_result,
+)
 from ai_study_buddy.pdf_file_manager.pdf_file_manager import PdfFile, PdfFileManager
 from ai_study_buddy.marking.review.models import (
     attempt_title,
@@ -12,6 +16,7 @@ from ai_study_buddy.marking.review.models import (
     infer_subject_context,
     parse_iso_timestamp,
 )
+from ai_study_buddy.marking.review.payload_reader import read_marking_result_payload
 from ai_study_buddy.marking.review.repository import StudentReviewRepository
 
 
@@ -24,14 +29,6 @@ def _is_completion_candidate(file: PdfFile) -> bool:
     if name_lower.startswith("_raw_") or name_lower.startswith("raw_"):
         return False
     return True
-
-
-def _read_json_payload(path: Path) -> dict[str, Any] | None:
-    try:
-        payload = json.loads(path.read_text(encoding="utf-8"))
-    except Exception:
-        return None
-    return payload if isinstance(payload, dict) else None
 
 
 def _collection_kind_from_doc_type(doc_type: str | None) -> str:
@@ -59,7 +56,10 @@ def _attempt_summary(
     review_status = "not_started"
 
     if latest_ref is not None:
-        payload = _read_json_payload(latest_ref.marking_result_json)
+        payload = read_marking_result_payload(
+            marking_result_json=latest_ref.marking_result_json,
+            context_root=context_root,
+        )
         if payload:
             context = payload.get("context") if isinstance(payload.get("context"), dict) else {}
             summary = payload.get("summary") if isinstance(payload.get("summary"), dict) else {}
@@ -83,6 +83,27 @@ def _attempt_summary(
                     artifact_stem=latest_ref.marking_result_json.stem,
                 )
                 review_status = state.get("review_status", "not_started")
+                marking_result_path = latest_ref.marking_result_json.relative_to(context_root).as_posix()
+                amendment_context = build_amendment_context(
+                    base_payload=payload,
+                    attempt_id=completion.id,
+                    marking_result_path=marking_result_path,
+                    fallback_student_id=completion.student_id,
+                )
+                amendment_state = normalize_amendment_state(
+                    review_repo.load_raw_amendment(
+                        student_id=amendment_context["student_id"],
+                        subject_context=amendment_context["subject_context"],
+                        artifact_stem=latest_ref.marking_result_json.stem,
+                    ),
+                    context=amendment_context,
+                )
+                payload = resolve_marking_result(
+                    base_payload=payload,
+                    amendment_state=amendment_state,
+                    valid_attempt_pages=None,
+                )
+                summary = payload.get("summary") if isinstance(payload.get("summary"), dict) else summary
 
     grade_bucket = infer_grade_bucket(completion.path) or "unknown"
     latest_marked_at = created_at

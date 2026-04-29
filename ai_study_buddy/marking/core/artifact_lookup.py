@@ -21,28 +21,17 @@ class MarkingArtifactRef:
     learning_report_md: Path
 
 
-def find_marking_artifacts_for_attempt(
-    attempt_file_id_or_path: str | Path,
+def _find_via_filesystem(
     *,
-    match_condition: MatchCondition = "json_only",
-    manager: PdfFileManager | None = None,
-    context_root: str | Path = "ai_study_buddy/context",
+    completion_file: PdfFile,
+    student_slug: str,
+    student_email: str | None,
+    completion_path: str,
+    match_condition: MatchCondition,
+    root: Path,
 ) -> list[MarkingArtifactRef]:
-    """Return matched artifacts for one completion attempt.
-
-    Results are sorted by created_at (descending), then by JSON path (ascending).
-    """
-    if match_condition not in {"json_only", "json_and_report"}:
-        raise ValueError(
-            "match_condition must be 'json_only' or 'json_and_report'"
-        )
-    completion_file, student_slug, student_email = _resolve_completion_and_student(
-        attempt_file_id_or_path, manager=manager
-    )
     completion_id = completion_file.id
-    completion_path = _normalize_path(completion_file.path)
 
-    root = Path(context_root)
     student_results_root = root / "marking_results" / student_slug
     if not student_results_root.exists():
         return []
@@ -78,6 +67,81 @@ def find_marking_artifacts_for_attempt(
     ]
 
 
+def find_marking_artifacts_for_attempt(
+    attempt_file_id_or_path: str | Path,
+    *,
+    match_condition: MatchCondition = "json_only",
+    manager: PdfFileManager | None = None,
+    context_root: str | Path = "ai_study_buddy/context",
+) -> list[MarkingArtifactRef]:
+    """Return matched artifacts for one completion attempt.
+
+    Results are sorted by created_at (descending), then by JSON path (ascending).
+
+    When ``LEARNING_DB_ENABLE_READS=1``, rows in ``study_buddy.db`` are considered first (same
+    match rules via ``payload_matches_completion``). If no rows qualify and
+    ``LEARNING_DB_READ_FALLBACK_FILESYSTEM=1`` (default), falls back to scanning
+    ``context/marking_results/<student_slug>/**/*.json`` as historically.
+    """
+    if match_condition not in {"json_only", "json_and_report"}:
+        raise ValueError(
+            "match_condition must be 'json_only' or 'json_and_report'"
+        )
+    completion_file, student_slug, student_email = _resolve_completion_and_student(
+        attempt_file_id_or_path, manager=manager
+    )
+    completion_path = _normalize_path(completion_file.path)
+
+    root = Path(context_root)
+
+    try:
+        from ai_study_buddy.learning_db.config import (
+            learning_db_read_fallback_filesystem,
+            learning_db_reads_enabled,
+        )
+        from ai_study_buddy.learning_db.read_marking import find_marking_artifact_refs_from_db
+    except ImportError:
+        return _find_via_filesystem(
+            completion_file=completion_file,
+            student_slug=student_slug,
+            student_email=student_email,
+            completion_path=completion_path,
+            match_condition=match_condition,
+            root=root,
+        )
+
+    if not learning_db_reads_enabled():
+        return _find_via_filesystem(
+            completion_file=completion_file,
+            student_slug=student_slug,
+            student_email=student_email,
+            completion_path=completion_path,
+            match_condition=match_condition,
+            root=root,
+        )
+
+    db_refs = find_marking_artifact_refs_from_db(
+        completion_file=completion_file,
+        student_slug=student_slug,
+        completion_path=completion_path,
+        completion_student_email=student_email,
+        match_condition=match_condition,
+        context_root=root,
+    )
+    if db_refs:
+        return db_refs
+    if learning_db_read_fallback_filesystem():
+        return _find_via_filesystem(
+            completion_file=completion_file,
+            student_slug=student_slug,
+            student_email=student_email,
+            completion_path=completion_path,
+            match_condition=match_condition,
+            root=root,
+        )
+    return []
+
+
 def _resolve_completion_and_student(
     attempt_file_id_or_path: str | Path,
     *,
@@ -108,21 +172,20 @@ def _resolve_completion_and_student(
     return completion, student_slug, student_email
 
 
-def _json_matches_completion(
+def payload_matches_completion(
+    payload: dict,
     *,
-    json_path: Path,
     completion_id: str,
     completion_path: str,
     completion_student_email: str | None,
 ) -> tuple[bool, datetime]:
-    payload = _load_json_safely(json_path)
-    if payload is None:
-        return False, datetime.min.replace(tzinfo=timezone.utc)
-    context = payload.get("context")
-    if not isinstance(context, dict):
-        return False, _parse_created_at(payload.get("created_at"))
+    """Return whether a marking-result dict belongs to this completion (+ created_at ordering key)."""
 
     created_at = _parse_created_at(payload.get("created_at"))
+    context = payload.get("context")
+    if not isinstance(context, dict):
+        return False, created_at
+
     attempt_file_id = context.get("attempt_file_id")
     attempt_file_id = attempt_file_id.strip() if isinstance(attempt_file_id, str) else None
     attempt_file_id = attempt_file_id or None
@@ -140,6 +203,24 @@ def _json_matches_completion(
         return False, created_at
 
     return resolved_attempt_path == completion_path, created_at
+
+
+def _json_matches_completion(
+    *,
+    json_path: Path,
+    completion_id: str,
+    completion_path: str,
+    completion_student_email: str | None,
+) -> tuple[bool, datetime]:
+    payload = _load_json_safely(json_path)
+    if payload is None:
+        return False, datetime.min.replace(tzinfo=timezone.utc)
+    return payload_matches_completion(
+        payload,
+        completion_id=completion_id,
+        completion_path=completion_path,
+        completion_student_email=completion_student_email,
+    )
 
 
 def _load_json_safely(path: Path) -> dict | None:

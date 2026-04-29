@@ -82,3 +82,27 @@ def build_learning_report_path(
         / artifact.context.subject_context
         / f"{basename} - Marking Report.md"
     )
+
+
+def build_marking_run_paths(
+    *,
+    attempt_file_path: str | Path,
+    student_id: str | None,
+    student_name: str | None,
+    subject_context: str,
+    marked_at: str | datetime,
+    context_root: str | Path = "ai_study_buddy/context",
+) -> tuple[Path, str, Path]:
+    """Build canonical JSON + marking-asset paths from one run timestamp.
+
+    Returns ``(artifact_json_path, marking_asset_rel_path, bundle_root_path)`` where all
+    paths share the same ``attempt_basename`` derived from ``marked_at``.
+    """
+
+    root = Path(context_root)
+    student_slug = slugify_student(student_id, student_name)
+    basename = build_attempt_basename(attempt_file_path, marked_at=marked_at)
+    artifact_json_path = root / "marking_results" / student_slug / subject_context / f"{basename}.json"
+    marking_asset_rel = f"marking_assets/{student_slug}/{subject_context}/{basename}"
+    bundle_root = root / Path(marking_asset_rel)
+    return artifact_json_path, marking_asset_rel, bundle_root

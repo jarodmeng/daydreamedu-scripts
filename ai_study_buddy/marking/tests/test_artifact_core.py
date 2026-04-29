@@ -3,14 +3,18 @@ from __future__ import annotations
 import json
 from dataclasses import replace
 from pathlib import Path
+from unittest.mock import patch
 
 import pytest
 from jsonschema import Draft202012Validator
 
+from ai_study_buddy.learning_db.connection import get_connection
+from ai_study_buddy.learning_db.migrate import apply_migrations
 from ai_study_buddy.marking.core.artifact_paths import (
     build_attempt_basename,
     build_learning_report_path,
     build_marking_artifact_path,
+    build_marking_run_paths,
     normalize_attempt_stem,
 )
 from ai_study_buddy.marking.core.artifact_schema import (
@@ -269,6 +273,27 @@ def test_build_attempt_basename_uses_timestamp_suffix():
     assert build_attempt_basename("_c_p4.math.wa1.6.pdf", marked_at="2026-04-15T18:30:25+08:00") == "p4.math.wa1.6__20260415_183025"
 
 
+def test_build_marking_run_paths_uses_single_timestamp_for_json_and_bundle():
+    artifact_json, marking_asset_rel, bundle_root = build_marking_run_paths(
+        attempt_file_path="/tmp/c_Science Practice Primary 5 and 6 - 17 Interactions.pdf",
+        student_id="winston",
+        student_name="Winston",
+        subject_context="singapore_primary_science",
+        marked_at="2026-04-15T18:30:25+08:00",
+        context_root="/tmp/context",
+    )
+    assert str(artifact_json).endswith(
+        "/marking_results/winston/singapore_primary_science/Science Practice Primary 5 and 6 - 17 Interactions__20260415_183025.json"
+    )
+    assert (
+        marking_asset_rel
+        == "marking_assets/winston/singapore_primary_science/Science Practice Primary 5 and 6 - 17 Interactions__20260415_183025"
+    )
+    assert str(bundle_root).endswith(
+        "/marking_assets/winston/singapore_primary_science/Science Practice Primary 5 and 6 - 17 Interactions__20260415_183025"
+    )
+
+
 def test_artifact_paths_use_student_and_subject_context():
     artifact = _sample_artifact()
     json_path = build_marking_artifact_path(artifact, context_root="/tmp/context")
@@ -474,6 +499,41 @@ def test_write_marking_artifact_writes_json(tmp_path):
     assert payload["updated_at"].endswith("+08:00")
 
 
+def test_write_marking_artifact_accepts_matching_marking_asset(tmp_path):
+    artifact = _sample_artifact()
+    resolved_bundle = (
+        "marking_assets/winston/singapore_primary_science/"
+        "Science Practice Primary 5 and 6 - 17 Interactions__20260415_183025"
+    )
+    updated = replace(
+        artifact,
+        context=replace(
+            artifact.context,
+            marking_asset=resolved_bundle,
+        ),
+    )
+    written = write_marking_artifact(updated, context_root=tmp_path)
+    payload = json.loads(written.read_text(encoding="utf-8"))
+    assert payload["context"]["marking_asset"] == resolved_bundle
+    bundle_root = tmp_path / resolved_bundle
+    assert bundle_root.is_dir()
+    assert (bundle_root / "attempt").is_dir()
+    assert (bundle_root / "crops").is_dir()
+
+
+def test_write_marking_artifact_rejects_mismatched_resolved_marking_asset(tmp_path):
+    artifact = _sample_artifact()
+    updated = replace(
+        artifact,
+        context=replace(
+            artifact.context,
+            marking_asset="marking_assets/winston/singapore_primary_science/prebuilt_bundle__20260415_172147",
+        ),
+    )
+    with pytest.raises(ValueError, match="context.marking_asset must match canonical artifact-derived path"):
+        write_marking_artifact(updated, context_root=tmp_path)
+
+
 def test_write_marking_artifact_rejects_latest_alias(tmp_path):
     artifact = _sample_artifact()
     with pytest.raises(ValueError, match='schema_version must be explicit; "latest" is not supported'):
@@ -671,3 +731,35 @@ def test_sanitize_marking_artifact_paths_scrubs_emails():
     assert sanitized["context"]["attempt_file_path"] == (
         "GOODNOTES_ROOT/Singapore Primary Science/<student_email>/P6/Book/c_test.pdf"
     )
+
+
+def test_write_marking_artifact_json_write_failure_logs_and_keeps_db_clean(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setenv("LEARNING_DB_ENABLE_DUAL_WRITE", "1")
+    monkeypatch.setenv("LEARNING_DB_STRICT_DUAL_WRITE", "0")
+    monkeypatch.setenv("LEARNING_DB_ENABLE_JSON_EXPORT", "1")
+    db_path = tmp_path / "study_buddy.db"
+    monkeypatch.setenv("STUDY_BUDDY_DB_PATH", str(db_path))
+    apply_migrations(db_path=db_path)
+
+    artifact = _sample_artifact()
+    with patch.object(Path, "write_text", side_effect=OSError("simulated_json_write_failure")):
+        with pytest.raises(OSError, match="simulated_json_write_failure"):
+            write_marking_artifact(artifact, context_root=tmp_path)
+
+    conn = get_connection(db_path)
+    try:
+        artifacts = int(conn.execute("SELECT COUNT(*) AS c FROM marking_artifacts").fetchone()["c"])
+        failed_logs = int(
+            conn.execute(
+                """
+                SELECT COUNT(*) AS c FROM operation_log
+                WHERE operation_type='marking_artifact_write' AND status='failed'
+                """
+            ).fetchone()["c"]
+        )
+        assert artifacts == 0
+        assert failed_logs >= 1
+    finally:
+        conn.close()

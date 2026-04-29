@@ -4,6 +4,8 @@ import argparse
 import json
 from pathlib import Path
 
+from ai_study_buddy.marking.core.artifact_writer import write_marking_artifact
+from ai_study_buddy.marking.core.models import MarkingArtifact
 from ai_study_buddy.marking.core.artifact_schema import validate_marking_artifact_dict
 from ai_study_buddy.marking.core.marking_time import now_marking_iso
 
@@ -40,7 +42,14 @@ def update_human_notes(
         payload["updated_at"] = ts
 
     validate_marking_artifact_dict(payload)
-    path.write_text(json.dumps(payload, indent=2, ensure_ascii=True) + "\n", encoding="utf-8")
+    artifact = MarkingArtifact.from_dict(payload)
+    write_marking_artifact(
+        artifact,
+        output_path=path,
+        context_root=path.parents[3],
+        schema_version=payload.get("schema_version"),
+        actor="script:ai_study_buddy.marking.workflows.edit_human_notes",
+    )
     return path
 
 

@@ -70,6 +70,7 @@ ai_study_buddy/context/marking_results/
 ai_study_buddy/context/marking_amendments/
 ai_study_buddy/context/student_review_states/
 ai_study_buddy/cache/
+ai_study_buddy/.local_sandboxes/
 
 # ---- pdf_file_manager ----
 ai_study_buddy/db/
