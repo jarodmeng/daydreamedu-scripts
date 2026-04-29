@@ -6,7 +6,7 @@ Scripts and tooling for DaydreamEdu projects.
 
 ```
 daydreamedu-scripts/
-├── ai_study_buddy/               # PDF registry, marking helpers, study-buddy docs
+├── ai_study_buddy/               # AI Study Buddy package: PDF registry, marking, review app, docs
 ├── archive/                      # Archived one-off tooling (not wired into apps or CI)
 │   ├── doc_info_store/
 │   ├── math_practice_book_page_number/
@@ -22,7 +22,7 @@ daydreamedu-scripts/
 
 | Folder | Description |
 |--------|-------------|
-| **ai_study_buddy** | `pdf_file_manager` registry (SQLite + ops log), marking workflow code, and design docs for question indexing and ingestion. |
+| **ai_study_buddy** | Modular AI Study Buddy package for local study-material ingestion, PDF registry workflows, marking artifacts, student review workflows, and product/architecture docs. See `ai_study_buddy/README.md` for details. |
 | **chinese_chr_app** | Full-stack web app for learning simplified Chinese characters (primary school). Includes backend/frontend and utilities for extracting character data from PDF card sets (AI, local OCR, PNG generation). |
 | **coding_classes** | Node scripts and assets for coding-class supporting files (see `coding_classes/package.json`). |
 | **math_multiplication** | Web app for lower primary students to practice multiplication of two whole numbers (each 2–12). Flask backend, React frontend; deployable to Cloud Run + Netlify. |
