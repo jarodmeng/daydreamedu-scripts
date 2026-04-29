@@ -21,6 +21,29 @@ When this command runs, produce a **summary report** comparing **leaf folders** 
 
 Execute a short **Python one-shot** from the repo root with package imports (no `sys.path` mutation): `from ai_study_buddy.pdf_file_manager import PdfFileManager` and `from ai_study_buddy.files.roots import resolve_daydreamedu_root`. Use the default registry path from the utility / `PDF_REGISTRY_PATH` if set.
 
+### Implementation hardening (required)
+
+- Treat `PdfFileManager().find_files()` and `PdfFileManager().list_scan_roots()` rows as **typed objects first** (`row.path`), not dicts.
+- Add a defensive path extractor that supports both object and dict shapes, and fails loudly if no path can be read:
+
+```python
+from pathlib import Path
+
+def resolved_path_from_row(row) -> str:
+    raw_path = getattr(row, "path", None)
+    if raw_path is None and isinstance(row, dict):
+        raw_path = row.get("path")
+    if not raw_path:
+        raise ValueError(f"Row has no path attribute/key: {type(row)!r}")
+    return str(Path(raw_path).resolve())
+```
+
+- Build sets as:
+  - `registered_paths = {resolved_path_from_row(f) for f in pfm.find_files()}`
+  - `scan_root_paths = {resolved_path_from_row(r) for r in pfm.list_scan_roots()}`
+- Add a **sanity check** before counting folders:
+  - if `len(pfm.find_files()) > 0` and `len(registered_paths) == 0`, stop and report an extraction bug instead of returning misleading coverage counts.
+
 Collect:
 
 1. Count of registered PDF paths.
