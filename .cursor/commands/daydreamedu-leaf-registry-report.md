@@ -10,9 +10,7 @@ When this command runs, produce a **summary report** comparing **leaf folders** 
 ## Definitions
 
 - **Leaf folder:** A directory under the DaydreamEdu root that has **at least one `*.pdf` file directly inside it**, regardless of whether it has subdirectories.
-- **Excluded leaf folders:** Treat these relative paths as fully excluded from `leaf_folders_total` and every subsequent count/table in this report:
-  - `.`
-- **Excluded leaf folder names:** Exclude any leaf folder whose final path segment is exactly `Note` or `Notes` (case-insensitive) from `leaf_folders_total` and every subsequent count/table in this report.
+- **Excluded leaf folders:** Treat the root relative path `.` as fully excluded from `leaf_folders_total` and every subsequent count/table in this report if it would otherwise qualify as a leaf folder (direct `*.pdf` on the DaydreamEdu root).
 - **Registered:** A PDF's **`Path.resolve()`** string matches a row from `PdfFileManager().find_files()` (build a set of resolved `path` strings).
 - **Unregistered in a leaf:** At least one direct `*.pdf` in that folder whose resolved path is not in that set.
 - **Scan root:** Compare each leaf folder's resolved path to `PdfFileManager().list_scan_roots()` (resolved paths).
@@ -49,14 +47,14 @@ Collect:
 1. Count of registered PDF paths.
 2. Count of scan roots.
 3. **Excluded leaf folders**: list any present excluded leaf folders and their `unregistered/total` direct PDFs.
-4. Total leaf folders under DaydreamEdu (after exclusions), using the direct-PDF definition above.
+4. Total leaf folders under DaydreamEdu (after excluding `.` root if applicable), using the direct-PDF definition above.
 5. Of those leaf folders, count how many are scan roots vs not scan roots.
 6. Registration breakdown by scan-root status (all four buckets):
    - scan-root + all direct PDFs registered
    - scan-root + some direct PDFs unregistered
    - non-scan-root + all direct PDFs registered
    - non-scan-root + some direct PDFs unregistered
-7. Full folder table for all leaf folders included in this report (which already excludes excluded leaf folders): relative path, scan-root (`yes`/`no`), `unregistered/total` direct PDFs, and list of unregistered basenames (empty list if none). Keep this data available, but do not print it by default.
+7. Full folder table for all leaf folders included in this report (everything except an excluded `.` root if present): relative path, scan-root (`yes`/`no`), `unregistered/total` direct PDFs, and list of unregistered basenames (empty list if none). Keep this data available, but do not print it by default.
 
 ## Report format (for the user)
 
