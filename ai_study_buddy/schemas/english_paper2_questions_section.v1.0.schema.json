@@ -1,0 +1,185 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "daydreamedu:ai_study_buddy/schemas/english_paper2_questions_section.v1.0.schema.json",
+  "title": "English Primary Paper 2 question-section detection output (v1.0)",
+  "description": "JSON shape emitted by Cursor agent english-paper-2-question-section-detector.md (spec version v1.0). Canonical question_type strings match english_exam_paper2_question_types.md. `stem_page_range` is allowed only for separable-stimulus types (Vocabulary Cloze, Visual Text Comprehension, Comprehension Open-ended); it is forbidden for Grammar Cloze, Editing, and Comprehension Cloze. Written OE prompts and answer spaces are always co-located on `questions_page_range` pages—there is no `answers_in_separate_booklet` / `answers_page_range` split for English outputs.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "input_context", "debug", "sections"],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "v1.0",
+      "description": "Must match the detector output spec; select the JSON Schema file with the same version suffix (e.g. *.v1.0.schema.json)."
+    },
+    "input_context": { "$ref": "#/$defs/inputContext" },
+    "debug": { "$ref": "#/$defs/runDebug" },
+    "sections": {
+      "type": "array",
+      "description": "Detected sections in document reading order.",
+      "items": { "$ref": "#/$defs/section" }
+    }
+  },
+  "$defs": {
+    "uuidOrEmpty": {
+      "type": "string",
+      "pattern": "^$|^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$",
+      "description": "`pdf_files.id` from Ai Study Buddy PdfFileManager (UUID); empty string when unset or lookup miss."
+    },
+    "inputContextFile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "file_id", "role", "notes"],
+      "properties": {
+        "path": {
+          "type": "string",
+          "description": "Canonical absolute path (`PdfFile.path`) from `PdfFileManager.get_file_by_path` / `get_file`, or \"\" only when unavailable."
+        },
+        "file_id": { "$ref": "#/$defs/uuidOrEmpty" },
+        "role": {
+          "type": "string",
+          "enum": ["booklet_a", "booklet_b", "oas", "merged_pdf", "unknown"],
+          "description": "How this PDF was interpreted for 1-based page indices (merged Booklet A+B, separate booklets, or OAS-only file)."
+        },
+        "notes": {
+          "type": "string",
+          "description": "Per-file caveats (lookup miss, `_raw_` vs `_c_`, encrypted PDF, …)."
+        }
+      },
+      "allOf": [
+        {
+          "not": {
+            "type": "object",
+            "properties": {
+              "path": { "const": "" },
+              "file_id": { "const": "" }
+            },
+            "required": ["path", "file_id"]
+          }
+        }
+      ]
+    },
+    "inputContext": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["files", "hints", "notes"],
+      "properties": {
+        "files": {
+          "type": "array",
+          "description": "Input PDF paths the detector relied on.",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/inputContextFile" }
+        },
+        "hints": {
+          "type": "string",
+          "description": "Parent-supplied hints (page ranges, OCR snippets, filename keywords, …)."
+        },
+        "notes": {
+          "type": "string",
+          "description": "Detector-side input summary (render DPI, cache-only renders, …)."
+        }
+      }
+    },
+    "runDebug": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["generation_model", "confidence", "notes"],
+      "properties": {
+        "generation_model": {
+          "type": "string",
+          "minLength": 1,
+          "not": { "const": "inherit" },
+          "description": "Actual detector model id (never the YAML orchestration sentinel \"inherit\")."
+        },
+        "confidence": {
+          "type": "string",
+          "enum": ["high", "medium", "low"],
+          "description": "Aggregate confidence for the entire detection run."
+        },
+        "notes": {
+          "type": "string",
+          "description": "Run-level commentary (missing OAS, renumbered questions, …)."
+        }
+      }
+    },
+    "pageRange": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["start_page", "end_page", "start_mid_page", "end_mid_page"],
+      "properties": {
+        "start_page": { "type": "integer", "minimum": 1 },
+        "end_page": { "type": "integer", "minimum": 1 },
+        "start_mid_page": { "type": "boolean" },
+        "end_mid_page": { "type": "boolean" }
+      }
+    },
+    "sectionDebug": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["matched_header_text", "matched_instruction_text", "notes"],
+      "properties": {
+        "matched_header_text": { "type": "string" },
+        "matched_instruction_text": { "type": "string" },
+        "notes": { "type": "string" }
+      }
+    },
+    "questionType": {
+      "type": "string",
+      "enum": [
+        "Grammar MCQ",
+        "Vocabulary MCQ",
+        "Vocabulary Cloze",
+        "Visual Text Comprehension",
+        "Grammar Cloze",
+        "Editing",
+        "Comprehension Cloze",
+        "Synthesis and Transformation",
+        "Comprehension Open-ended"
+      ]
+    },
+    "sectionBase": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["question_type", "questions_page_range", "question_indices", "debug"],
+      "properties": {
+        "question_type": { "$ref": "#/$defs/questionType" },
+        "printed_section_title": {
+          "type": "string",
+          "description": "Verbatim printed section heading when it adds source fidelity; omit or \"\" when unknown or redundant."
+        },
+        "questions_page_range": { "$ref": "#/$defs/pageRange" },
+        "stem_page_range": { "$ref": "#/$defs/pageRange" },
+        "answer_page_range": { "$ref": "#/$defs/pageRange" },
+        "question_indices": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^Q[0-9]+$"
+          },
+          "minItems": 1
+        },
+        "debug": { "$ref": "#/$defs/sectionDebug" }
+      }
+    },
+    "section": {
+      "allOf": [
+        { "$ref": "#/$defs/sectionBase" },
+        {
+          "if": {
+            "properties": {
+              "question_type": {
+                "enum": ["Grammar Cloze", "Editing", "Comprehension Cloze"]
+              }
+            },
+            "required": ["question_type"]
+          },
+          "then": {
+            "properties": {
+              "stem_page_range": false
+            }
+          }
+        }
+      ]
+    }
+  }
+}
