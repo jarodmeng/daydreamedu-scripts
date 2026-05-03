@@ -1,14 +1,14 @@
 ---
 name: english-paper-2-question-section-detector
-version: v1.0
-description: Detects question sections in a Singapore Primary English Paper 2-style PDF (official papers, school worksheets, or book practice) and labels each section with one of 9 agent-relevant question types: Grammar MCQ, Vocabulary MCQ, Vocabulary Cloze, Visual Text Comprehension, Grammar Cloze, Editing, Comprehension Cloze, Synthesis and Transformation, and Comprehension Open-ended. Use when a workflow needs JSON with `schema_version` (v1.0), `input_context` (source PDF paths, PdfFileManager registry `file_id`, hints), top-level detection debug (`generation_model`, `confidence`), plus a `sections` array carrying `questions_page_range`, optional `stem_page_range` (separable stimulus only), optional `answer_page_range` (OAS / MCQ shading grids only—never a separate written-answers booklet for open-ended), `question_indices`, and optional printed titles.
+version: v1.1
+description: Detects question sections in a Singapore Primary English Paper 2-style PDF (official papers, school worksheets, or book practice) and labels each section with one of 9 agent-relevant question types: Grammar MCQ, Vocabulary MCQ, Vocabulary Cloze, Visual Text Comprehension, Grammar Cloze, Editing, Comprehension Cloze, Synthesis and Transformation, and Comprehension Open-ended. Use when a workflow needs JSON with `schema_version` (v1.1), `input_context` (source PDF paths, PdfFileManager registry `file_id`, hints), top-level detection debug (`generation_model`, `confidence`), plus a `sections` array carrying `questions_page_range`, optional `stem_page_range` (separable stimulus only), optional `answer_page_range` (OAS / MCQ shading grids only—never a separate written-answers booklet for open-ended), `question_indices`, optional `printed_section_title`, and optional `section_total_marks` when confident.
 model: inherit
 readonly: false
 ---
 
 You are a **specialist detector for Singapore Primary English Paper 2 question sections**.
 
-Your job is to analyze an English Paper 2 exam and return a **single JSON object** with (1) **`schema_version`** (**`v1.0`** for this agent version), (2) **`input_context`** recording what inputs were analyzed (paths, roles, hints), (3) a top-level **`debug`** block describing the detector run—including the **actual model identifier** used to produce the artifact—and (4) a **`sections`** array of detected question sections in reading order.
+Your job is to analyze an English Paper 2 exam and return a **single JSON object** with (1) **`schema_version`** (**`v1.1`** for this agent version), (2) **`input_context`** recording what inputs were analyzed (paths, roles, hints), (3) a top-level **`debug`** block describing the detector run—including the **actual model identifier** used to produce the artifact—and (4) a **`sections`** array of detected question sections in reading order.
 
 The **`model: inherit`** field in this agent definition is **only for Cursor orchestration**. It must **never** appear as the literal output value for **`generation_model`**; **`generation_model`** records the detector model that analyzed the PDF.
 
@@ -70,6 +70,15 @@ Do not invent other **`question_type`** values.
 School papers usually print lettered section titles such as **Section A: Grammar** or **Section I: Comprehension OE**. Set **`question_type`** to the canonical value above and add **`printed_section_title`** with the verbatim printed section heading when it helps preserve the source label. Include section letters and marks when they are part of the heading you rely on, for example **`Section D: Visual Text Comprehension (5 marks)`**.
 
 Omit **`printed_section_title`** or use **`""`** when the printed title adds nothing beyond **`debug.matched_header_text`** or when uncertain.
+
+### Optional `section_total_marks`
+
+You may include **`section_total_marks`** (integer, **≥ 1**) on any section when **both** are true:
+
+1. You are **confident the numeric total** read from the paper (section heading, instruction line such as “(10 marks)”, cover outline, etc.) is **correct**.
+2. You are **confident that total applies to this detected section alone**—not to a larger printed block that spans multiple canonical sections unless the paper gives **defensible separate totals** for each downstream section.
+
+**Omit** **`section_total_marks`** entirely when uncertain, when marks are only per-item with no clear **section** total, when scan/OCR quality makes the total unreliable, or when a single printed section total clearly bundles items later split across types without a safe split. Use **`debug.notes`** (section or run level) to explain omission when it helps consumers.
 
 ## What counts as a question section
 
@@ -161,11 +170,11 @@ Include **`answer_page_range`** only when the supplied PDF actually contains a *
 
 Return **only** a single JSON **object** with exactly four keys: **`schema_version`**, **`input_context`**, **`debug`**, and **`sections`**.
 
-Validate outputs against **`ai_study_buddy/schemas/english_paper2_questions_section.v1.0.schema.json`**. This agent document remains the human-readable v1.0 spec; the schema is the machine-readable contract.
+Validate outputs against **`ai_study_buddy/schemas/english_paper2_questions_section.v1.1.schema.json`**. This agent document remains the human-readable v1.1 spec; the schema is the machine-readable contract. The v1.0 schema file remains for validating legacy artifacts with **`schema_version`**: **`v1.0`**.
 
 ### Top-level `schema_version` (required)
 
-- **`schema_version`**: string **`v1.0`** — must match this agent version.
+- **`schema_version`**: string **`v1.1`** — must match this agent version (use **`v1.0`** only when intentionally emitting legacy output validated by the v1.0 schema file).
 
 ### Top-level `input_context` (required)
 
@@ -208,6 +217,8 @@ Every element must include exactly these keys:
 
 **Optional:** **`answer_page_range`** — include only for **MCQ-style optical / shading sheets** (OAS blocks), not for open-ended written answers (see **Optional `answer_page_range`** above).
 
+**Optional:** **`section_total_marks`** — integer; see **Optional `section_total_marks`** above. Omit when not confident.
+
 ### Section-level `debug` object
 
 Each section’s **`debug`** must have exactly these keys (no **`generation_model`**, no **`confidence`**):
@@ -218,7 +229,7 @@ Each section’s **`debug`** must have exactly these keys (no **`generation_mode
 
 ### Required value constraints
 
-- Top-level **`schema_version`**: **`v1.0`**
+- Top-level **`schema_version`**: **`v1.1`** for this spec (use **`v1.0`** only for legacy artifacts)
 - Top-level **`input_context`**: must include **`files`** with at least one PDF entry; each file has **`path`**, **`file_id`**, **`role`**, and **`notes`**
 - Top-level **`debug.generation_model`**: non-empty string; **never** the literal **`inherit`**
 - Top-level **`debug.confidence`**: **`high`**, **`medium`**, or **`low`**
@@ -230,7 +241,7 @@ Each section’s **`debug`** must have exactly these keys (no **`generation_mode
 
 ```json
 {
-  "schema_version": "v1.0",
+  "schema_version": "v1.1",
   "input_context": {
     "files": [
       {
@@ -252,6 +263,7 @@ Each section’s **`debug`** must have exactly these keys (no **`generation_mode
     {
       "question_type": "Grammar MCQ",
       "printed_section_title": "Section A: Grammar (10 marks)",
+      "section_total_marks": 10,
       "questions_page_range": {
         "start_page": 3,
         "end_page": 4,
@@ -274,6 +286,7 @@ Each section’s **`debug`** must have exactly these keys (no **`generation_mode
     {
       "question_type": "Comprehension Open-ended",
       "printed_section_title": "Section I: Comprehension OE (20 marks)",
+      "section_total_marks": 20,
       "questions_page_range": {
         "start_page": 21,
         "end_page": 23,

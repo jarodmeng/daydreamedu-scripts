@@ -1,0 +1,237 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "daydreamedu:ai_study_buddy/schemas/chinese_paper2_questions_section.v1.2.schema.json",
+  "title": "Chinese Primary Paper 2 question-section detection output (v1.2)",
+  "description": "JSON shape emitted by Cursor agent chinese-paper-2-question-section-detector.md (spec version v1.2). Extends v1.1 with optional per-section `section_total_marks` when the detector is confident the value is correct and applies to that section alone. Adds optional section `printed_section_title` for verbatim worksheet headings mapped to canonical `question_type`. See agent doc and chinese_exam_paper2_question_types.md for semantics.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "input_context", "debug", "sections"],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "v1.2",
+      "description": "Must match the detector output spec; select the JSON Schema file with the same version suffix (e.g. *.v1.2.schema.json)."
+    },
+    "input_context": { "$ref": "#/$defs/inputContext" },
+    "debug": { "$ref": "#/$defs/runDebug" },
+    "sections": {
+      "type": "array",
+      "description": "Detected sections in document reading order.",
+      "items": { "$ref": "#/$defs/section" }
+    }
+  },
+  "$defs": {
+    "uuidOrEmpty": {
+      "type": "string",
+      "pattern": "^$|^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$",
+      "description": "`pdf_files.id` from Ai Study Buddy PdfFileManager (UUID); empty string when unset or lookup miss."
+    },
+    "inputContextFile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "file_id", "role", "notes"],
+      "properties": {
+        "path": {
+          "type": "string",
+          "description": "Canonical absolute path (`PdfFile.path`) from `PdfFileManager.get_file_by_path` after normalizing inputs, or from `get_file(file_id)`. Use \"\" only when unavailable."
+        },
+        "file_id": { "$ref": "#/$defs/uuidOrEmpty" },
+        "role": {
+          "type": "string",
+          "enum": ["question_booklet", "answers_booklet", "merged_pdf", "unknown"],
+          "description": "How this file was used for detection (merged = 试题+作答簿 or single combined booklet)."
+        },
+        "notes": {
+          "type": "string",
+          "description": "Per-file caveats (scan quality, encrypted, duplicate page order, lookup miss, …)."
+        }
+      },
+      "allOf": [
+        {
+          "not": {
+            "type": "object",
+            "properties": {
+              "path": { "const": "" },
+              "file_id": { "const": "" }
+            },
+            "required": ["path", "file_id"]
+          }
+        }
+      ]
+    },
+    "inputContext": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["files", "hints", "notes"],
+      "properties": {
+        "files": {
+          "type": "array",
+          "description": "Input PDF paths the detector relied on (question booklet, optional answers booklet, or one merged file).",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/inputContextFile" }
+        },
+        "hints": {
+          "type": "string",
+          "description": "Parent-supplied hints (expected page ranges, OCR snippets, filename keywords, etc.)."
+        },
+        "notes": {
+          "type": "string",
+          "description": "Detector-side input summary (which inputs were missing, render settings, etc.)."
+        }
+      }
+    },
+    "runDebug": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["generation_model", "confidence", "notes"],
+      "properties": {
+        "generation_model": {
+          "type": "string",
+          "minLength": 1,
+          "not": { "const": "inherit" },
+          "description": "Actual detector model id (never the YAML orchestration sentinel \"inherit\")."
+        },
+        "confidence": {
+          "type": "string",
+          "enum": ["high", "medium", "low"],
+          "description": "Aggregate confidence for the entire detection run."
+        },
+        "notes": {
+          "type": "string",
+          "description": "Run-level commentary (merged PDF quirks, missing booklet, render failure, …)."
+        }
+      }
+    },
+    "pageRange": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["start_page", "end_page", "start_mid_page", "end_mid_page"],
+      "properties": {
+        "start_page": { "type": "integer", "minimum": 1 },
+        "end_page": { "type": "integer", "minimum": 1 },
+        "start_mid_page": { "type": "boolean" },
+        "end_mid_page": { "type": "boolean" }
+      }
+    },
+    "sectionDebug": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["matched_header_text", "matched_instruction_text", "notes"],
+      "properties": {
+        "matched_header_text": { "type": "string" },
+        "matched_instruction_text": { "type": "string" },
+        "notes": { "type": "string" }
+      }
+    },
+    "questionType": {
+      "type": "string",
+      "enum": [
+        "语文应用",
+        "短文填空",
+        "阅读理解一 MCQ",
+        "完成对话",
+        "阅读理解二A MCQ",
+        "阅读理解二A 写作",
+        "阅读理解二B 问答"
+      ]
+    },
+    "stemTypes": {
+      "enum": ["阅读理解一 MCQ", "阅读理解二A MCQ", "阅读理解二A 写作", "阅读理解二B 问答"]
+    },
+    "lateAnswerTypes": {
+      "enum": ["完成对话", "阅读理解二A MCQ", "阅读理解二A 写作", "阅读理解二B 问答"]
+    },
+    "sectionBase": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["question_type", "questions_page_range", "question_indices", "debug"],
+      "properties": {
+        "question_type": { "$ref": "#/$defs/questionType" },
+        "printed_section_title": {
+          "type": "string",
+          "description": "Verbatim printed section or subsection title from the PDF when it differs from the canonical `question_type` label (e.g. 词语搭配, 辨字测验) while `question_type` stays the routed master type (e.g. 语文应用). Omit or use \"\" when the paper already matches the canonical name or the title is unknown."
+        },
+        "section_total_marks": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Total marks for this detected section. Include only when confident (i) the numeric total read from the paper is correct and (ii) that total applies to this section alone. When one printed heading (e.g. 阅读理解二A) bundles **阅读理解二A MCQ** and **阅读理解二A 写作**, populate `section_total_marks` on each canonical section only if the paper states **separate** totals per MCQ vs 写作 (or they can be inferred without guesswork); otherwise omit on one or both and explain in `debug.notes`. Omit when uncertain or illegible."
+        },
+        "questions_page_range": { "$ref": "#/$defs/pageRange" },
+        "stem_page_range": { "$ref": "#/$defs/pageRange" },
+        "answers_in_separate_booklet": { "type": "boolean" },
+        "answers_page_range": { "$ref": "#/$defs/pageRange" },
+        "question_indices": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^Q[0-9]+$"
+          },
+          "minItems": 1
+        },
+        "debug": { "$ref": "#/$defs/sectionDebug" }
+      }
+    },
+    "section": {
+      "allOf": [
+        { "$ref": "#/$defs/sectionBase" },
+        {
+          "if": {
+            "properties": {
+              "question_type": { "$ref": "#/$defs/stemTypes" }
+            },
+            "required": ["question_type"]
+          },
+          "then": { "required": ["stem_page_range"] },
+          "else": {
+            "properties": {
+              "stem_page_range": false
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "question_type": { "$ref": "#/$defs/lateAnswerTypes" }
+            },
+            "required": ["question_type"]
+          },
+          "then": { "required": ["answers_in_separate_booklet"] },
+          "else": {
+            "properties": {
+              "answers_in_separate_booklet": false,
+              "answers_page_range": false
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "answers_in_separate_booklet": { "const": true }
+            },
+            "required": ["answers_in_separate_booklet"]
+          },
+          "then": { "required": ["answers_page_range"] },
+          "else": {
+            "properties": {
+              "answers_page_range": false
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "answers_in_separate_booklet": { "const": false },
+              "question_type": { "$ref": "#/$defs/lateAnswerTypes" }
+            },
+            "required": ["question_type", "answers_in_separate_booklet"]
+          },
+          "then": {
+            "properties": {
+              "answers_page_range": false
+            }
+          }
+        }
+      ]
+    }
+  }
+}

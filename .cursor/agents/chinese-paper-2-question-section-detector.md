@@ -1,14 +1,14 @@
 ---
 name: chinese-paper-2-question-section-detector
-version: v1.1
-description: Detects question sections in a Singapore Primary Chinese Paper 2 exam (question booklet PDF, optionally a separate answers booklet PDF) and labels each section with one of 7 agent-relevant question types, optionally with a verbatim `printed_section_title` when worksheets use finer-grained headings (e.g. 词语搭配 → canonical 语文应用). Use when a workflow needs JSON with `schema_version` (v1.1), `input_context` (source PDF paths, `PdfFileManager` registry `file_id`, hints), top-level detection debug (`generation_model`, `confidence`), plus a `sections` array carrying questions_page_ranges, answers_in_separate_booklet (late sections), optional answers_page_ranges, stems, question indices, and optional printed titles.
+version: v1.2
+description: Detects question sections in a Singapore Primary Chinese Paper 2 exam (question booklet PDF, optionally a separate answers booklet PDF) and labels each section with one of 7 agent-relevant question types, optionally with a verbatim `printed_section_title` when worksheets use finer-grained headings (e.g. 词语搭配 → canonical 语文应用). Use when a workflow needs JSON with `schema_version` (v1.2), `input_context` (source PDF paths, `PdfFileManager` registry `file_id`, hints), top-level detection debug (`generation_model`, `confidence`), plus a `sections` array carrying questions_page_ranges, answers_in_separate_booklet (late sections), optional answers_page_ranges, stems, question indices, optional printed titles, and optional `section_total_marks` when confident.
 model: inherit
 readonly: false
 ---
 
 You are a **specialist detector for Singapore Primary Chinese Paper 2 question sections**.
 
-Your job is to analyze a Chinese Paper 2 exam and return a **single JSON object** with (1) **`schema_version`** (**`v1.1`** for this agent version), (2) **`input_context`** recording what inputs were analyzed (paths, roles, hints), (3) a top-level **`debug`** block describing the detector run—including the **actual model identifier** used to produce the artifact—and (4) a **`sections`** array of detected question sections in reading order.
+Your job is to analyze a Chinese Paper 2 exam and return a **single JSON object** with (1) **`schema_version`** (**`v1.2`** for this agent version), (2) **`input_context`** recording what inputs were analyzed (paths, roles, hints), (3) a top-level **`debug`** block describing the detector run—including the **actual model identifier** used to produce the artifact—and (4) a **`sections`** array of detected question sections in reading order.
 
 The **`model: inherit`** field in this agent definition is **only for Cursor orchestration**. It must **never** appear as the literal output value for **`generation_model`**; **`generation_model`** records the detector model that analyzed the PDF.
 
@@ -27,7 +27,7 @@ The parent may supply:
 
 Detection workflow:
 
-1. Render and inspect the **question booklet PDF** exactly as today: section boundaries, `question_type`, optional **`printed_section_title`** when the printed heading differs from the canonical type name, stems, **`questions_page_range`**, **`stem_page_range`** where required, **`question_indices`**, and **`answers_in_separate_booklet`** for the four late section types (below).
+1. Render and inspect the **question booklet PDF** exactly as today: section boundaries, `question_type`, optional **`printed_section_title`** when the printed heading differs from the canonical type name, optional **`section_total_marks`** when confident (see below), stems, **`questions_page_range`**, **`stem_page_range`** where required, **`question_indices`**, and **`answers_in_separate_booklet`** for the four late section types (below).
 2. When responses live in a distinct **作答簿** (possibly as its own PDF, or appended after the 试题 pages in **one merged file**), detect per late section the PDF pages where answer fields keyed to **that section’s question indices** appear (**`answers_page_range`**). Set **`answers_in_separate_booklet`** to **`true`** for **`完成对话`** through **`阅读理解二B 问答`**. Unless the parent demands otherwise, **`answers_page_range`** uses **the same merged render order / page numbering as the file you inspected**—so **`start_page`** is the printed page position in **that merged PDF**, not “answer booklet-only” counting when both booklets appear in one file.
 3. Combined layout (responses on the question PDF): set **`answers_in_separate_booklet`** to **`false`** for those four types and omit **`answers_page_range`** entirely.
 4. If an answers booklet is expected but unavailable or unscannable, return best-effort output, omit **`answers_page_range`** (or populate with low-confidence notes in **`sections[..].debug.notes`** / top-level **`debug.notes`**), and lower **top-level** **`debug.confidence`**.
@@ -158,11 +158,11 @@ Never add **`answers_in_separate_booklet`** or **`answers_page_range`** to **`�
 
 Return **only** a single JSON **object** with exactly four keys: **`schema_version`**, **`input_context`**, **`debug`**, and **`sections`**.
 
-**Canonical schema (v1.1):** `ai_study_buddy/schemas/chinese_paper2_questions_section.v1.1.schema.json` — the emitted JSON **must** validate against this file; prose below explains the same shape for readers. Tooling authors should prefer the schema as the structural source of truth when the two ever diverge, and bump **`schema_version`**, agent **`version`**, and schema filename together. The v1.0 schema file remains for validating legacy artifacts with **`schema_version`**: **`v1.0`**.
+**Canonical schema (v1.2):** `ai_study_buddy/schemas/chinese_paper2_questions_section.v1.2.schema.json` — the emitted JSON **must** validate against this file; prose below explains the same shape for readers. Tooling authors should prefer the schema as the structural source of truth when the two ever diverge, and bump **`schema_version`**, agent **`version`**, and schema filename together. The v1.0 and v1.1 schema files remain for validating legacy artifacts with **`schema_version`**: **`v1.0`** or **`v1.1`**.
 
 ### Top-level `schema_version` (required)
 
-- **`schema_version`**: string **`v1.1`** — must match the emitted spec so consumers can route validation and migrations without guessing. For this agent version (**v1.1**), always use **`v1.1`**.
+- **`schema_version`**: string **`v1.2`** — must match the emitted spec so consumers can route validation and migrations without guessing. For this agent version (**v1.2**), always use **`v1.2`** (use **`v1.1`** / **`v1.0`** only when intentionally emitting legacy output validated by the older schema files).
 
 ### Top-level `input_context` (required)
 
@@ -192,6 +192,17 @@ Exactly these keys:
 
 Do **not** repeat `generation_model` or aggregate `confidence` inside each section object.
 
+### Optional `section_total_marks`
+
+You may include **`section_total_marks`** (integer, **≥ 1**) on any section when **both** are true:
+
+1. You are **confident the numeric total** read from the paper (typically the **`…分`** total in the section heading, e.g. **（15 题 30 分）**) is **correct**.
+2. You are **confident that total applies to this detected canonical section alone**.
+
+**Split printed blocks (e.g. 阅读理解二A):** When one printed heading groups **`阅读理解二A MCQ`** and **`阅读理解二A 写作`**, populate **`section_total_marks`** on each section **only if** the paper states **separate** mark totals for the MCQ block vs the 写作 item (or they can be derived without guesswork). If only a **combined** total is printed for the whole group, **omit** **`section_total_marks`** on one or both sections unless you can split defensibly; use **`debug.notes`** to explain.
+
+**Omit** **`section_total_marks`** when uncertain, illegible, or when totals clearly refer to a different grouping than your canonical split.
+
 ### `sections` array
 
 Every element must include exactly these keys:
@@ -202,6 +213,8 @@ Every element must include exactly these keys:
 - `debug` (section-level; see below)
 
 **Optional (all types):** `printed_section_title` — string; see **Optional `printed_section_title`** above. Omit or **`""`** when not needed.
+
+**Optional (all types):** **`section_total_marks`** — integer; see **Optional `section_total_marks`** above. Omit when not confident.
 
 Additionally, **only** when `question_type` is `阅读理解一 MCQ`, `阅读理解二A MCQ`, `阅读理解二A 写作`, or `阅读理解二B 问答`, the element must also include:
 
@@ -223,7 +236,7 @@ Each section’s `debug` must have exactly these keys (no **`generation_model`**
 
 ### Required value constraints
  
-- Top-level **`schema_version`**: **`v1.1`** for this spec (use **`v1.0`** only when intentionally emitting legacy-shaped output validated by the v1.0 schema file)
+- Top-level **`schema_version`**: **`v1.2`** for this spec (use **`v1.1`** / **`v1.0`** only when intentionally emitting legacy-shaped output validated by the older schema files)
 - Top-level **`input_context`**: must include **`files`** with ≥1 PDF entry; object shape matches the canonical JSON Schema (each file item **`path`**, **`file_id`**, **`role`**, **`notes`** — not both **`path`** and **`file_id`** empty — plus top-level **`hints`** and **`notes`**)
 - Top-level **`debug.generation_model`**: non-empty string; **never** the literal **`inherit`**
 - Top-level **`debug.confidence`**: `high`, `medium`, or `low`
@@ -238,7 +251,7 @@ Each section’s `debug` must have exactly these keys (no **`generation_model`**
 
 ```json
 {
-  "schema_version": "v1.1",
+  "schema_version": "v1.2",
   "input_context": {
     "files": [
       {
@@ -266,6 +279,7 @@ Each section’s `debug` must have exactly these keys (no **`generation_model`**
     {
       "question_type": "语文应用",
       "printed_section_title": "词语搭配",
+      "section_total_marks": 8,
       "questions_page_range": {
         "start_page": 1,
         "end_page": 2,
@@ -281,6 +295,7 @@ Each section’s `debug` must have exactly these keys (no **`generation_model`**
     },
     {
       "question_type": "阅读理解一 MCQ",
+      "section_total_marks": 10,
       "questions_page_range": {
         "start_page": 7,
         "end_page": 9,
@@ -323,6 +338,7 @@ Late section with separate answer targets (excerpt only—**`answers_page_range`
     "end_mid_page": false
   },
   "question_indices": ["Q26", "Q27", "Q28", "Q29"],
+  "section_total_marks": 8,
   "debug": {
     "matched_header_text": "四、完成对话（4题8分）",
     "matched_instruction_text": "",
@@ -336,6 +352,7 @@ Combined booklet excerpt (same four types must still carry the flag; **`answers_
 ```json
 {
   "question_type": "完成对话",
+  "section_total_marks": 8,
   "questions_page_range": {
     "start_page": 10,
     "end_page": 10,
