@@ -5,6 +5,8 @@
 > Status: **Exploratory** — background/reference for ingestion and diagnostics.
 >
 > Parent overview: [L3_EXAM_FORMATS.md](../../../docs/L3_EXAM_FORMATS.md).
+>
+> Question types and visual signals: [science_exam_question_types.md](./science_exam_question_types.md).
 
 **Authoritative format (from 2026):** [PSLE Science (0009)](https://www.seab.gov.sg/files/PSLE%20Syllabus%20documents/2026%20PSLE/0009_y26_sy.pdf) — *For examination from 2026* ([index](https://www.seab.gov.sg/psle/psle-formats-examined-in-2026/)).
 
