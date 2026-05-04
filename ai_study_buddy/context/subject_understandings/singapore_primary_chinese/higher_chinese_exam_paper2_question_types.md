@@ -1,6 +1,6 @@
 ## Overview
 
-This document defines 4 distinct agent-relevant question types in Singapore Primary Higher Chinese (高华) Paper 2 (试卷二). These types are intended for question detection, marking, and diagnosis. They correspond to the SEAB blueprint for Higher Chinese Language (0015) and are grounded in sample papers such as `_c_五年级高华 期末考试 (试卷二).pdf`.
+This document defines 4 canonical question types in Singapore Primary Higher Chinese (高华) Paper 2 (试卷二). They support marking and taxonomy work alongside the syllabus. They correspond to the SEAB blueprint for Higher Chinese Language (0015) and align with layouts seen on representative Singapore school papers.
 
 See [higher_chinese_exam_format.md](./higher_chinese_exam_format.md) for the full exam structure. The equivalent document for Standard Chinese is [chinese_exam_paper2_question_types.md](./chinese_exam_paper2_question_types.md).
 
@@ -13,7 +13,7 @@ See [higher_chinese_exam_format.md](./higher_chinese_exam_format.md) for the ful
 
 ### Canonical type vs printed section title
 
-School worksheets sometimes print section labels that differ slightly from SEAB wording (for example 综合填空 vs 短文填空, or 字次改正 vs 字词改正). Structured outputs (for example a **`paper2_question_sections.json`** artifact from automation) should still use the **four canonical values** below as **`question_type`**; auxiliary columns can carry the paper's own wording, marks, and page ranges.
+School worksheets sometimes print section labels that differ slightly from SEAB wording (for example 综合填空 vs 短文填空, or 字次改正 vs 字词改正). When recording structure as data, use the **four canonical values** below as **`question_type`**; carry the paper's own wording, marks, and page ranges in companion fields when useful.
 
 - **`question_type`** is always one of the **four canonical values** below.
 - **`printed_section_title`** (optional) holds the **verbatim printed heading** when it adds useful information — for example when the paper prints 字次改正 instead of 字词改正.

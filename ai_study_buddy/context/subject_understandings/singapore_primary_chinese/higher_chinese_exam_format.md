@@ -4,7 +4,7 @@ Higher Chinese (高华) is a **separate** Chinese Language exam taken **in addit
 
 **Not covered here:** [Foundation Chinese Language](https://www.seab.gov.sg/files/PSLE%20Syllabus%20documents/2026%20PSLE/0025_y26_sy.pdf).
 
-> Status: **Exploratory** — background/reference for ingestion and diagnostics.
+> Status: **Exploratory** — working notes for syllabus navigation and teaching reference.
 >
 > Parent overview: [L3_EXAM_FORMATS.md](../../../docs/L3_EXAM_FORMATS.md).
 >
@@ -12,7 +12,7 @@ Higher Chinese (高华) is a **separate** Chinese Language exam taken **in addit
 
 **Authoritative syllabus:** [PSLE Higher Chinese Language (0015)](https://www.seab.gov.sg/files/PSLE%20Syllabus%20documents/2026%20PSLE/0015_y26_sy.pdf) — *For Examination from 2017* ([index](https://www.seab.gov.sg/psle/psle-formats-examined-in-2026/)).
 
-**Samples (school prelims):** e.g. `_c_p6.hc.prelim.1.pdf`, `_c_p6.hc.prelim.2.pdf` under `DAYDREAMEDU_ROOT/Singapore Primary Chinese/PSLE/Exam/`. **Pagination varies.**
+**Representative materials:** Higher Chinese prelim PDFs follow the same SEAB blueprint but **pagination** and insert ordering vary by school—read each file on its own terms.
 
 ---
 
@@ -47,14 +47,13 @@ Higher Chinese (高华) is a **separate** Chinese Language exam taken **in addit
 - **一** combines **word-bank cloze** (综合填空) and **character/word correction** (字词改正) — both counted in the **23**-item Paper 2 total.
 - **二 / 三** are **open-ended** comprehension blocks; **0.5** step marking is common on samples.
 
-**How this differs from Standard Chinese (ingestion):**
+**How Paper 2 layout differs from Standard Chinese:**
 
-- Standard 华文 **试卷二** has a **large OAS MCQ block**; Higher Chinese **试卷二** is **no OAS pipeline** in the same way — vision reads **boxes, tables, and paragraphs**.
+- Standard 华文 **试卷二** has a **large OAS-backed MCQ block**; Higher Chinese **试卷二** does **not** use that same bubblesheet-heavy layout — students mainly write answers in printed **boxes, tables, and paragraphs**.
 
 ---
 
-## Ingestion notes
+## Notes when booklets are split
 
-- Model as `subject='chinese'` + `chinese_variant='higher'` (see registry conventions).
-- Link **question booklet** and **answer booklet** with `exam_id` when split across files.
-- For detailed agent-relevant question type descriptions and visual examples, see [higher_chinese_exam_paper2_question_types.md](./higher_chinese_exam_paper2_question_types.md).
+- **Question booklet** and **作答簿** PDFs may arrive separately; confirm they reference the same sitting via cover metadata before stitching page ranges mentally.
+- For canonical question-type descriptions and visual examples, see [higher_chinese_exam_paper2_question_types.md](./higher_chinese_exam_paper2_question_types.md).

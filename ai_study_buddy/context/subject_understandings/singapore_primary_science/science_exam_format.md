@@ -2,7 +2,7 @@
 
 **Scope:** **Standard (mainstream) PSLE Science** — not [Foundation Science](https://www.seab.gov.sg/files/PSLE%20Syllabus%20documents/2026%20PSLE/0039_y26_sy.pdf).
 
-> Status: **Exploratory** — background/reference for ingestion and diagnostics.
+> Status: **Exploratory** — working notes for syllabus navigation and teaching reference.
 >
 > Parent overview: [L3_EXAM_FORMATS.md](../../../docs/L3_EXAM_FORMATS.md).
 >
@@ -12,7 +12,7 @@
 
 **Why SEAB differs from many school prelims:** The **national PSLE** adopted a **revised Science format from 2026** (e.g. **30** MCQ in Booklet A). **School prelim papers** are often **past-year–style practice** (sets based on **previous** national layouts). Prelims may still show **28** MCQ blocks until schools refresh — **not** a mistake in the SEAB table.
 
-**Samples (school prelims):** e.g. `_c_p6.science.prelim.1.pdf`, `_c_p6.science.prelim.11.pdf` under `DAYDREAMEDU_ROOT/Singapore Primary Science/PSLE/Exam/`. Use **each PDF’s cover** for totals; use **SEAB 2026** when you need the canonical national specification.
+**Representative materials:** school preliminary PDFs may lag the latest national refresh. Use **each PDF’s cover** for totals on that paper; use **SEAB 2026** when you need the canonical national specification.
 
 ---
 
@@ -32,10 +32,10 @@
 
 ### OAS (MCQ)
 
-- **30** rows used for Booklet A in the **2026** specification — vision extraction should not assume **28** from older prelims.
+- **30** MCQ slots appear in Booklet A under the **2026** specification—do **not** assume legacy **28**-item layouts copied from older prelims.
 
 ---
 
 ## Older / school-specific variants
 
-Pre-2026 **school prelims** may use different **question counts** (e.g. 28 MCQ + different Booklet B numbering). Ingestion: **cover totals** + **section headers** first.
+Pre-2026 **school prelims** may use different **question counts** (e.g. 28 MCQ + different Booklet B numbering). Start from **cover totals** and **section headers** on the PDF you are reading.

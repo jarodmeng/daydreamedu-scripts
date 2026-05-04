@@ -10,13 +10,13 @@ MOE/SEAB offer **three** Chinese examination tracks at PSLE, not two:
 
 This doc describes **Standard Chinese Language** (the mainstream 华文 exam). It does **not** describe [Foundation Chinese Language](https://www.seab.gov.sg/files/PSLE%20Syllabus%20documents/2026%20PSLE/0025_y26_sy.pdf). See [higher_chinese_exam_format.md](./higher_chinese_exam_format.md) for Higher Chinese.
 
-> Status: **Exploratory** — background/reference for ingestion and diagnostics.
+> Status: **Exploratory** — working notes for syllabus navigation and teaching reference.
 >
 > Parent overview: [L3_EXAM_FORMATS.md](../../../docs/L3_EXAM_FORMATS.md).
 
 **Authoritative syllabus:** [PSLE Chinese Language (0005)](https://www.seab.gov.sg/files/PSLE%20Syllabus%20documents/2026%20PSLE/0005_y26_sy.pdf) — *For Examination from 2017* ([index](https://www.seab.gov.sg/psle/psle-formats-examined-in-2026/)).
 
-**Samples (school prelims):** e.g. `_c_p6.chinese.prelim.1.pdf`, `_c_p6.chinese.prelim.2.pdf` under `DAYDREAMEDU_ROOT/Singapore Primary Chinese/PSLE/Exam/`. Schools may bundle **one PDF or multiple booklets**; **pagination is not canonical**.
+**Representative materials:** school preliminary bundles vary—some schools ship **one merged PDF**, others split **question booklet**, **answer booklet**, and **OAS** scans. **Pagination order is not interchangeable** across uploads; always read from the specific file in hand.
 
 ---
 
@@ -28,7 +28,7 @@ This doc describes **Standard Chinese Language** (the mainstream 华文 exam). I
 | **试卷二** | 语文应用与阅读理解 | 1 h 40 min | **90** |
 | **试卷三** | 口试 + 听力理解 | ~10 min oral + ~30 min listening | **50** + **20** |
 
-**Written papers (试卷一 + 试卷二) = 130 marks** — the usual focus for scanned workbooks. **口试 / 听力** are separate sittings; ingestion pipelines for PDFs often only see **试卷一、二**.
+**Written papers (试卷一 + 试卷二) = 130 marks** — the usual focus for scanned workbooks. **口试 / 听力** are separate sittings; many circulated PDF bundles only include **试卷一、二**.
 
 ---
 
@@ -63,7 +63,7 @@ This doc describes **Standard Chinese Language** (the mainstream 华文 exam). I
 
 ---
 
-## Ingestion notes
+## Notes when booklets are split
 
-- Link **question booklet**, **answer booklet**, and **OAS** with a common **`exam_id`** when split across files.
-- **Registry:** `pdf_file_manager` stores Standard 华文 with `metadata.chinese_variant = 'standard'` (not SEAB “Foundation Chinese Language”). See [ARCHITECTURE.md](../../../pdf_file_manager/ARCHITECTURE.md).
+- Question booklets, answer booklets, and optional OAS scans may arrive separately; use printed cover metadata to confirm they belong to the same sitting before comparing page indices.
+- Keep **Foundation Chinese Language** papers distinct from **Standard Chinese Language** when organising materials—MOE/SEAB treats them as different syllabi.

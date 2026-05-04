@@ -1,6 +1,6 @@
 ## Overview
 
-This document defines 3 distinct agent-relevant question types in Singapore Primary Mathematics exams. These types are intended for question detection, marking, and diagnosis. They are grounded in sample papers such as `_c_EoY (Paper 1).pdf` and `_c_EoY (Paper 2).pdf` (P5 End-of-Year 2025).
+This document defines 3 canonical question types in Singapore Primary Mathematics exams. They underpin marking splits and analytic roll-ups. Illustrations mirror standard PSLE-format papers split into Paper 1 / Paper 2 and Booklet A / B—for example Primary 5 end-of-year samples commonly used as teaching anchors.
 
 See [math_exam_format.md](./math_exam_format.md) for the full exam structure.
 

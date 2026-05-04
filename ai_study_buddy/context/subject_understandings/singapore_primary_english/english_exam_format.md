@@ -1,14 +1,14 @@
 # Singapore Primary English — Exam format & visual structure
 
-> Status: **Exploratory** — background/reference for ingestion and diagnostics.
+> Status: **Exploratory** — working notes for syllabus navigation and teaching reference.
 >
 > Parent overview: [L3_EXAM_FORMATS.md](../../../docs/L3_EXAM_FORMATS.md).
 
 **Authoritative format:** [PSLE English Language (0001)](https://www.seab.gov.sg/files/PSLE%20Syllabus%20documents/2026%20PSLE/0001_y26_sy.pdf) — *Implemented from the Year of Examination 2025* ([index](https://www.seab.gov.sg/psle/psle-formats-examined-in-2026/)).
 
-The **full PSLE English** assessment is **200 marks** across **four papers** (Writing; Language Use and Comprehension; Listening; Oral). This doc focuses on **Paper 1** and **Paper 2** (written papers most often ingested from PDFs). **Paper 3** (Listening) and **Paper 4** (Oral) are summarised at the end.
+The **full PSLE English** assessment is **200 marks** across **four papers** (Writing; Language Use and Comprehension; Listening; Oral). This doc focuses on **Paper 1** and **Paper 2** (written papers most often circulated as PDF scans). **Paper 3** (Listening) and **Paper 4** (Oral) are summarised at the end.
 
-**Samples (school prelims):** e.g. `_c_p6.english.prelim.2.pdf`, `_c_p6.english.prelim.3.pdf` under `DAYDREAMEDU_ROOT/Singapore Primary English/PSLE/Exam/`. **Pagination** varies.
+**Representative materials:** school preliminary PDFs differ by publisher; **pagination** and insert ordering vary, so always inspect the cover page supplied with each upload.
 
 ---
 
@@ -50,7 +50,7 @@ The **full PSLE English** assessment is **200 marks** across **four papers** (Wr
 
 ---
 
-## Papers 3–4 (brief — not typical PDF workbook ingestion)
+## Papers 3–4 (brief — seldom bundled with written PDF workbooks)
 
 | Paper | Content | Marks | Duration (approx.) |
 |-------|-----------|-------|---------------------|
@@ -61,7 +61,7 @@ The **full PSLE English** assessment is **200 marks** across **four papers** (Wr
 
 ---
 
-## Teaching feedback & ingestion
+## Teaching feedback cues
 
 - **Cover / section scores** on Paper 2 are high-signal.
 - **Qualitative comments** on open-ended answers (e.g. “use evidence”) are valuable for skills, not only marks.

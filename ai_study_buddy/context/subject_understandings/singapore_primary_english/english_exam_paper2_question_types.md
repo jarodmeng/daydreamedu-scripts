@@ -1,10 +1,10 @@
 ## Overview
 
-This document defines 9 distinct agent-relevant question types in this sample English exam Paper 2. These types are intended for question detection, marking, and diagnosis. They follow the Paper 2 Booklet A / Booklet B structure described in [english_exam_format.md](./english_exam_format.md), but are written as routing-friendly canonical types rather than only as printed section labels.
+This document defines 9 canonical question types for English Paper 2. They support marking, reporting, and section-level routing. They follow the Paper 2 Booklet A / Booklet B structure described in [english_exam_format.md](./english_exam_format.md), but are expressed as stable type names—not only as printed section letters.
 
 ### Canonical type vs printed section title
 
-School papers usually print English Paper 2 sections as lettered sections from **Section A** to **Section I**. For detector and marking purposes, use the canonical type names below as the stable values downstream tools should route on. The printed section letter is useful context, but the agent behavior is mostly determined by the answer format, whether there is a shared stimulus, and whether the response is MCQ or open-ended.
+School papers usually print English Paper 2 sections as lettered sections from **Section A** to **Section I**. Use the canonical type names below as the stable routing labels downstream tools consume. The printed letter is useful context, but classification hinges on answer format (MCQ versus open-ended), whether a stimulus is shared, and how marks are communicated on the paper.
 
 1. **"Grammar MCQ"**: Booklet A multiple-choice grammar questions. The student selects 1 correct answer from 4 options for each independent sentence-level question. Answers are usually shaded on the Optical Answer Sheet (OAS).
 2. **"Vocabulary MCQ"**: Booklet A multiple-choice vocabulary questions. The student selects 1 correct answer from 4 options for each independent sentence-level vocabulary question. Answers are usually shaded on the OAS.

@@ -2,7 +2,7 @@
 
 **Scope:** **Standard (mainstream) PSLE Mathematics** — not [Foundation Mathematics](https://www.seab.gov.sg/files/PSLE%20Syllabus%20documents/2026%20PSLE/0038_y26_sy.pdf).
 
-> Status: **Exploratory** — background/reference for ingestion and diagnostics.
+> Status: **Exploratory** — working notes for syllabus navigation and teaching reference.
 >
 > Parent overview: [L3_EXAM_FORMATS.md](../../../docs/L3_EXAM_FORMATS.md).
 
@@ -10,7 +10,7 @@
 
 **Why SEAB differs from many school prelims:** The **national PSLE** adopted a **revised Mathematics format from 2026** (see syllabus PDF). **School prelim papers** are usually **past-year–style practice** (sets recycled or modelled on **earlier** national papers). Until a school updates its papers, prelims can still show **45 + 55** and the older Booklet A/B split — **not** a mistake in the SEAB table.
 
-**Samples (school prelims):** e.g. `_c_p6.math.prelim.1.pdf`, `_c_p6.math.prelim.13.pdf` under `DAYDREAMEDU_ROOT/Singapore Primary Math/PSLE/Exam/`. Treat **cover totals** as ground truth for each PDF; compare against the SEAB 2026 row below when inferring “official” structure.
+**Representative materials:** school preliminary PDFs may still reflect **pre-2026** national layouts. Treat each PDF’s **cover totals** and section headers as authoritative for *that* paper, then compare against the **SEAB 2026** row below when you need the canonical national specification.
 
 ---
 
@@ -57,10 +57,10 @@
 
 ## Other formats
 
-Non-PSLE **weighted assessments** may use different booklets or all free-response. Ingestion should use **cover-page metadata** and **section headers**.
+Non-PSLE **weighted assessments** may use different booklets or all free-response—read **cover-page metadata** and **section headers** before assuming PSLE booklet counts.
 
 ---
 
 ## Question type details
 
-For detailed agent-relevant question type descriptions and visual examples, see [math_exam_question_types.md](./math_exam_question_types.md).
+For canonical question-type descriptions and visual examples, see [math_exam_question_types.md](./math_exam_question_types.md).

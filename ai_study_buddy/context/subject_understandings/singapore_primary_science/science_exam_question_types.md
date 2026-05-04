@@ -1,6 +1,6 @@
 ## Overview
 
-This document defines 2 distinct agent-relevant question types in Singapore Primary Science exams. These types are intended for question detection, marking, and diagnosis. They are grounded in the sample paper `_c_Primary 5 Science 2025 EOY.pdf` (P5 End-of-Year 2025, St Gabriel's Primary School).
+This document defines 2 canonical question types in Singapore Primary Science exams. They underpin marking and Booklet A / Booklet B roll-ups described in companion format notes—illustrations follow typical Primary 5–6 school assessments with the MCQ booklet plus open-ended booklet structure.
 
 See [science_exam_format.md](./science_exam_format.md) for the full exam structure.
 
