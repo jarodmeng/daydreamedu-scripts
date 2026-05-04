@@ -135,7 +135,7 @@
     "questionType": {
       "type": "string",
       "enum": ["MCQ", "SAQ", "LAQ"],
-      "description": "Canonical question type. MCQ: multiple-choice with OAS shading (Paper 1 Booklet A only in PSLE format). SAQ: short-answer, always 2 marks per numbered question, no [n] bracket per question line. LAQ: long/structured answer, 3-5 marks per numbered question, [n] bracket printed on every answer line or sub-part."
+      "description": "Canonical question type. MCQ: multiple-choice with OAS shading (Paper 1 Booklet A only in PSLE format). SAQ: short-answer in-book with plain Ans: lines, no [n] bracket per answer line; marks per question index follow the section instruction (often 2 each, or mixed bands such as 1-mark then 2-mark ranges in one block). LAQ: long/structured answer, [n] bracket printed on every answer line or sub-part."
     },
     "questionInfo": {
       "type": "object",
@@ -150,7 +150,7 @@
         "question_mark": {
           "type": "integer",
           "minimum": 1,
-          "description": "Marks allocated to this question index. For MCQ: 1 or 2 per the section instruction band. For SAQ: always 1 (each sub-part label carries 1 mark) or 2 (single-part question worth 2 marks). For LAQ: read directly from the printed [n] bracket on the answer line."
+          "description": "Marks allocated to this question index. For MCQ: 1 or 2 per the section instruction band. For SAQ: from the printed instruction (often 2 for a single-part item, 1 per labeled sub-part, or 1 vs 2 across different numbered ranges in one SAQ block). For LAQ: read directly from the printed [n] bracket on the answer line."
         },
         "start_page": {
           "type": "integer",

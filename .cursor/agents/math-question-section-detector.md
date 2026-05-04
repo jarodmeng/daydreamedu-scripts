@@ -28,7 +28,7 @@ The parent may supply:
 
 When the parent provides a PDF file, you must treat page rendering as part of the job.
 
-- Render the PDF pages to PNG files first.
+- Render the PDF pages to PNG files first. Within the detector **`run_folder`** (e.g. **`ai_study_buddy/cache/math_detector_runs/<slug>/`**), write page images under **`rendered_pages/`** ( **`{run_folder}/rendered_pages/page_001.png`**, …)—not loose in **`{run_folder}/`** beside the **`detection.math-v1.0.json`** artifact.
 - Then visually inspect the rendered page images to detect section boundaries and question types.
 - Do not rely only on the PDF filename, prior expectations, or OCR text if page images can be rendered.
 - OCR text and parent hints are supporting evidence only. Visual page inspection is the primary source of truth for boundaries and layout-based type detection.
@@ -72,22 +72,25 @@ WA papers do not follow the Paper 1 / Paper 2 split. They may have:
 
 Always read the actual section headers and instructions; do not assume PSLE structure. The `[n]` bracket signal is authoritative regardless of exam format.
 
-## MCQ split rule (1-mark band and 2-mark band)
+## MCQ mark bands within one shaded / OAS block
 
-In PSLE-format Paper 1, the Booklet A section instruction states both mark bands together (e.g. *"Questions 1 to 10 carry 1 mark each. Questions 11 to 18 carry 2 marks each."*). Detect these as **two separate MCQ section objects**:
+The paper often states **multiple mark bands in one MCQ paragraph** (e.g. PSLE Booklet A: *Questions 1 to 10 carry 1 mark each. Questions 11 to 18 carry 2 marks each*, or a short WA with *Questions 1 to 5 … 1 mark … Questions 6 and 7 … 2 marks*). **Treat the whole shaded/OAS MCQ stretch as one `MCQ` section**: one **`questions_page_range`** from the first MCQ stimulus to the last, one shared **`printed_section_title`** when the paper prints one (e.g. *Paper 1 Booklet A*), **`question_info[].question_mark`** **1 or 2** according to each question index and the printed band.
 
-- The **1-mark MCQ** section covers the first band of questions.
-- The **2-mark MCQ** section covers the second band.
+Do **not** split one continuous MCQ/OAS-only block into two **`sections`** array entries just because the instruction mentions two mark values—use **per-row `question_mark`** instead. Use **`start_mid_page` / `end_mid_page` only at real layout boundaries**: e.g. the MCQ instruction starts mid-page after a cover, or a **different `question_type` (SAQ/LAQ)** begins later on the same page as an MCQ item (rare).
 
-Both have `question_type: "MCQ"`. Use `section_total_marks` to convey the mark total for each band when readable from the paper. The section boundary between the two bands comes from the instruction text itself; use `start_mid_page: true` / `end_mid_page: true` when both bands appear on the same printed page.
+If separate printed blocks exist (different headers, unrelated instructions), emit multiple MCQ sections on that structural basis—not on band splits alone.
 
-If the instruction only states one mark value for all MCQ (e.g. a short WA with MCQ items all worth 1 mark), emit a single MCQ section.
+## SAQ mark bands within one written / Ans: block
+
+Treat **one continuous short-answer block** (printed working space plus plain **`Ans:`** lines **without `[n]`** beside each answer line—the SAQ structural pattern) as **one `SAQ` section**, even when the **same instruction paragraph** states **different mark totals for different numbered ranges** (e.g. WA: *Questions 8 to 10 carry 1 mark each … Questions 11 to 13 carry 2 marks each*, all in one block). **`question_info[].question_mark`** encodes whether each numbered item is worth 1, 2, etc., per those printed sentences and the **`question_mark` rules for sub-parts**.
+
+Do **not** split into two **`SAQ`** `sections` purely because two consecutive mark bands appear in **one paragraph** — same rule as heterogeneous MCQ. Emit a second **`SAQ`** section only when the paper introduces a **structural** break (e.g. printed **SECTION A / SECTION B** cut, LAQ **`[ ]`** block starts).
 
 ## `[n]` bracket rule — the primary SAQ/LAQ distinguisher
 
 The presence or absence of a printed mark bracket **`[n]`** beside each answer line is the most reliable visual signal to distinguish SAQ from LAQ:
 
-- **SAQ**: No `[n]` bracket per question. The mark value is stated **once** in the section instruction for the whole block (e.g. *"Questions 19 to 30 carry 2 marks each."*). Each answer line is a plain `Ans:` line with no bracket.
+- **SAQ**: No `[n]` bracket per question. The mark rule is printed in **the section instruction** for the contiguous block — often **one** sentence covering every item equally (e.g. *carry 2 marks each*); some papers combine **two bands in one paragraph**—still SAQ across the whole contiguous block, with **`question_mark` differing per **`question_index`**. Each answer line is a plain `Ans:` line with no bracket.
 - **LAQ**: `[n]` brackets are printed on **every** answer line or sub-part (e.g. `Ans: [3]`, `(a) Ans: _____ [2]`). This signal applies regardless of exam type (PSLE or WA).
 
 When the section instruction is missing or ambiguous, use the bracket signal as the tie-breaker.
@@ -97,7 +100,7 @@ When the section instruction is missing or ambiguous, use the bracket signal as 
 Use the golden ontology file for examples, and apply these rules:
 
 - **`MCQ`**: The question lists 4 numbered options `(1)`, `(2)`, `(3)`, `(4)`. There is a section instruction referencing the "Optical Answer Sheet (OAS)" or similar. No working space or `Ans:` line is provided — answers are shaded on a separate OAS sheet. In PSLE format, MCQ appears only in Paper 1 Booklet A.
-- **`SAQ`**: The section instruction explicitly states a mark value per question (usually "carry 2 marks each") for the whole block. Each question has a printed `Ans:` line (sometimes with a unit label like `Ans: _______ cm³`) and working space above it. **No `[n]` bracket** appears beside any `Ans:` line. Some questions have two labeled sub-parts (e.g. **19a** / **19b**, or **(a)** / **(b)**) each with their own `Ans:` line; the total for the numbered question is still 2 marks.
+- **`SAQ`**: The section instruction states how marks attach to numbered questions (**one band or several sentences in one paragraph**). Each question has a printed `Ans:` line (sometimes with a unit label like `Ans: _______ cm³`) and working space above it. **No `[n]` bracket** beside `Ans:` lines. Some papers mix **different marks per numbered range** in one contiguous block (**one SAQ section**; see **SAQ mark bands** above). Some questions have two labeled sub-parts (e.g. **19a** / **19b**, or **(a)** / **(b)**) each with their own `Ans:` line; apply the **`question_mark`** sub-part rules.
 - **`LAQ`**: A `[n]` bracket (e.g. `[3]`, `[4]`, `[2]`) is printed beside **every** answer line or sub-part answer line. The section instruction references "the number of marks available is shown in brackets" or similar. Each numbered question carries 3, 4, or 5 marks in total. Questions may be single-part (one `Ans:` line with one bracket) or multi-part (sub-parts each with their own bracket; the brackets sum to the question total).
 
 ### Construction / drawing questions (special SAQ)
@@ -162,7 +165,7 @@ Include `section_total_marks` (integer ≥ 1) on a section when **both** are tru
 1. You are **confident** the numeric total read from the paper is correct.
 2. You are **confident** that total applies to **this detected section alone** (not bundled with another section).
 
-For MCQ with two mark bands, include `section_total_marks` on each band separately only when the totals can be derived without guesswork (e.g. 10 questions × 1 mark = 10; 8 questions × 2 marks = 16). Omit when uncertain, illegible, or when a printed total clearly bundles multiple question types.
+For **MCQ**, when the paper gives a **single total for the whole OAS block** (e.g. *(26 marks)* or *(9 marks)*), include **`section_total_marks`** as that total when it matches the sum of **`question_info[].question_mark`**. Omit when uncertain, illegible, or when the printed total clearly bundles non-MCQ items.
 
 ## Output
 
@@ -257,12 +260,12 @@ Each section's `debug` must have exactly these keys:
     {
       "question_type": "MCQ",
       "printed_section_title": "Paper 1 Booklet A",
-      "section_total_marks": 10,
+      "section_total_marks": 26,
       "questions_page_range": {
         "start_page": 2,
-        "end_page": 5,
+        "end_page": 8,
         "start_mid_page": false,
-        "end_mid_page": true
+        "end_mid_page": false
       },
       "question_info": [
         { "question_index": "Q1",  "question_mark": 1, "start_page": 2, "question_topic": "whole numbers — identify the value of a digit" },
@@ -274,24 +277,7 @@ Each section's `debug` must have exactly these keys:
         { "question_index": "Q7",  "question_mark": 1, "start_page": 4, "question_topic": "area and perimeter — find perimeter of composite shape" },
         { "question_index": "Q8",  "question_mark": 1, "start_page": 4, "question_topic": "decimals — rounding to nearest tenth" },
         { "question_index": "Q9",  "question_mark": 1, "start_page": 5, "question_topic": "fractions — fraction of a set" },
-        { "question_index": "Q10", "question_mark": 1, "start_page": 5, "question_topic": "time — elapsed time across midnight" }
-      ],
-      "debug": {
-        "matched_header_text": "",
-        "matched_instruction_text": "Questions 1 to 10 carry 1 mark each. Questions 11 to 18 carry 2 marks each. For each question, four options are given. One of them is the correct answer. Make your choice (1, 2, 3 or 4) and shade your answer on the Optical Answer Sheet. (26 marks)",
-        "notes": "1-mark band detected from section instruction. end_mid_page true — Q10 ends before Q11 begins on the same page."
-      }
-    },
-    {
-      "question_type": "MCQ",
-      "section_total_marks": 16,
-      "questions_page_range": {
-        "start_page": 5,
-        "end_page": 8,
-        "start_mid_page": true,
-        "end_mid_page": false
-      },
-      "question_info": [
+        { "question_index": "Q10", "question_mark": 1, "start_page": 5, "question_topic": "time — elapsed time across midnight" },
         { "question_index": "Q11", "question_mark": 2, "start_page": 5, "question_topic": "ratio — share in a given ratio word problem" },
         { "question_index": "Q12", "question_mark": 2, "start_page": 5, "question_topic": "speed distance time — find average speed" },
         { "question_index": "Q13", "question_mark": 2, "start_page": 6, "question_topic": "percentage — percentage increase word problem" },
@@ -303,8 +289,8 @@ Each section's `debug` must have exactly these keys:
       ],
       "debug": {
         "matched_header_text": "END OF BOOKLET A",
-        "matched_instruction_text": "Questions 11 to 18 carry 2 marks each.",
-        "notes": "2-mark band. start_mid_page true — begins on same page as last 1-mark question."
+        "matched_instruction_text": "Questions 1 to 10 carry 1 mark each. Questions 11 to 18 carry 2 marks each. For each question, four options are given. One of them is the correct answer. Make your choice (1, 2, 3 or 4) and shade your answer on the Optical Answer Sheet. (26 marks)",
+        "notes": "One MCQ section: combined 1-mark and 2-mark bands under the same Booklet A header; marks vary via question_mark on each row. END OF BOOKLET A appears on the MCQ closing page."
       }
     },
     {
