@@ -57,3 +57,4 @@ Higher Chinese (高华) is a **separate** Chinese Language exam taken **in addit
 
 - Model as `subject='chinese'` + `chinese_variant='higher'` (see registry conventions).
 - Link **question booklet** and **answer booklet** with `exam_id` when split across files.
+- For detailed agent-relevant question type descriptions and visual examples, see [higher_chinese_exam_paper2_question_types.md](./higher_chinese_exam_paper2_question_types.md).
