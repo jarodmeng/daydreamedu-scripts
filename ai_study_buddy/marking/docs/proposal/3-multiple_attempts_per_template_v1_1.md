@@ -151,7 +151,7 @@ Safety:
 
 Expected update targets:
 
-- `marking/schemas/marking_result.v1.schema.json` -> add `v1.1` schema file (preferred) or evolve validator to accept both contracts
+- `ai_study_buddy/schemas/marking/marking_result.v1.schema.json` -> add `v1.1` schema file (preferred) or evolve validator to accept both contracts
 - `marking/core/models.py` (`MarkingArtifactContext`) -> add three new fields
 - `marking/core/artifact_schema.py` -> accept `v1.1` + new validations
 - writer/resolver pipeline -> populate fields during artifact creation

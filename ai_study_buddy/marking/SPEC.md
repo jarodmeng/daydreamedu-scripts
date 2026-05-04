@@ -21,9 +21,9 @@ The package guarantees:
 
 - Schema identifier: `marking_result.v1.6` (legacy `v1` / `v1.1` / `v1.2` / `v1.3` / `v1.4` are rejected in normal runtime validation; `v1.5` remains readable for migration/backward compatibility)
 - Schema source:
-  `ai_study_buddy/marking/schemas/marking_result.v1.6.schema.json`
+  `ai_study_buddy/schemas/marking/marking_result.v1.6.schema.json`
 - Amendment schema source:
-  `ai_study_buddy/marking/schemas/marking_amendment.v1.schema.json`
+  `ai_study_buddy/schemas/marking/marking_amendment.v1.schema.json`
 - Canonical storage path:
   `ai_study_buddy/context/marking_results/<student>/<subject_context>/<attempt_basename>.json`
 - Derived markdown path:
@@ -195,7 +195,7 @@ Writer contract:
 Any new field or schema version must ship as one cohesive change:
 
 1. approved proposal update in `docs/proposal/`
-2. schema update (`schemas/marking_result.v1.6.schema.json` or new `vNext` schema file)
+2. schema update (`ai_study_buddy/schemas/marking/marking_result.v1.6.schema.json` or new `vNext` schema file)
 3. runtime validator update (`core/artifact_schema.py`)
 4. producer/consumer update (`core/artifact_writer.py` and affected workflow/parser)
 5. tests:

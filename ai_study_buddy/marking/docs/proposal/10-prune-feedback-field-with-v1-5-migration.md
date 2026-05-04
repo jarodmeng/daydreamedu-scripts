@@ -8,7 +8,7 @@ Audience: Maintainers of `ai_study_buddy/marking`, artifact migration tooling, a
 
 Implemented in this pass:
 
-1. Added `schemas/marking_result.v1.5.schema.json` and removed `question_results[].feedback` from the `v1.5` contract.
+1. Added `ai_study_buddy/schemas/marking/marking_result.v1.5.schema.json` and removed `question_results[].feedback` from the `v1.5` contract.
 2. Switched runtime schema default/validation target to `marking_result.v1.5` in `core/artifact_schema.py`.
 3. Migrated existing corpus artifacts under `context/marking_results/**/*.json` from `v1.4` to `v1.5`:
    - files migrated: `154`
@@ -23,7 +23,7 @@ Implemented in this pass:
 6. Removed `feedback` from producer/consumer runtime surfaces:
    - `core/models.py`
    - `workflows/migrate_learning_reports.py`
-   - `schemas/marking_amendment.v1.schema.json`
+   - `ai_study_buddy/schemas/marking/marking_amendment.v1.schema.json`
    - `student_review/amendment_service.py`
    - `student_review/detail_service.py`
    - `review_workspace/frontend/src/App.tsx`
@@ -163,7 +163,7 @@ Exit criteria:
 
 TODO checklist:
 
-- [x] Add `schemas/marking_result.v1.5.schema.json` (derived from `v1.4` with `feedback` removed).
+- [x] Add `ai_study_buddy/schemas/marking/marking_result.v1.5.schema.json` (derived from `v1.4` with `feedback` removed).
 - [x] Update schema loader/validator mapping to include `v1.5` (and drop normal runtime support for `v1.4` after full migration).
 - [x] Add one-off script (leading underscore naming): `_migrate_feedback_to_human_note.py`.
 - [x] Implement script scan scope: `context/marking_results/**/*.json`.

@@ -4,6 +4,19 @@ All notable changes to `ai_study_buddy.marking` are documented in this file.
 
 Committed changes under `ai_study_buddy/marking/` should add an entry here and bump **Current version** in `README.md` (semver: **patch** for docs or small renderer tweaks, **minor** for schema or public API changes). `SPEC.md` / `TESTING.md` titles do not carry the package version.
 
+## [0.2.19] - 2026-05-04
+
+Patch: migrate marking JSON schemas into the shared `ai_study_buddy/schemas/` tree and update runtime/documentation references.
+
+### Changed
+
+- schemas moved: `ai_study_buddy/marking/schemas/*.schema.json` -> `ai_study_buddy/schemas/marking/*.schema.json`
+- `core/artifact_schema.py` now loads schemas from `ai_study_buddy/schemas/marking/`
+
+### Documentation
+
+- updated schema path references across `README.md`, `SPEC.md`, `CHANGELOG.md`, and marking docs/proposals
+
 ## [0.2.18] - 2026-04-29
 
 Patch: consolidate review-domain backend services into `marking/review` and remove the old top-level `student_review` module (Option B direct move).
@@ -37,7 +50,7 @@ Patch: align `marking_result.v1.6` generation telemetry schema with optional mod
 
 ### Changed
 
-- `schemas/marking_result.v1.6.schema.json`:
+- `ai_study_buddy/schemas/marking/marking_result.v1.6.schema.json`:
   - keep `generation.telemetry` optional
   - allow `generation.telemetry` to be either `object` or `null`
   - relax telemetry key-shape constraints so producer/diagnostic metadata can be recorded without schema rejection
@@ -85,7 +98,7 @@ Minor: introduce `marking_result.v1.5`, migrate away from `question_results[].fe
 
 ### Added
 
-- `schemas/marking_result.v1.5.schema.json`:
+- `ai_study_buddy/schemas/marking/marking_result.v1.5.schema.json`:
   - standalone strict schema for `marking_result.v1.5`
   - removes `question_results[].feedback`
 - `workflows/_migrate_feedback_to_human_note.py`:
@@ -104,7 +117,7 @@ Minor: introduce `marking_result.v1.5`, migrate away from `question_results[].fe
   - migrated row construction no longer emits `feedback`
 - `workflows/backfill_attempt_metadata_v1_1.py` and `workflows/backfill_is_partial_v1_3.py`:
   - when upgrading artifacts to current schema, migrate legacy `feedback` into `human_note` with conservative auto-merge and prune `feedback`
-- `schemas/marking_amendment.v1.schema.json`:
+- `ai_study_buddy/schemas/marking/marking_amendment.v1.schema.json`:
   - remove `feedback` from allowed `question_amendments[].fields`
 - `student_review/amendment_service.py` and `student_review/detail_service.py`:
   - remove amendment/detail-service dependency on `feedback`
@@ -135,7 +148,7 @@ Minor: make `marking_result.v1.4` an explicit strict schema contract and enforce
 
 ### Added
 
-- `schemas/marking_result.v1.4.schema.json`:
+- `ai_study_buddy/schemas/marking/marking_result.v1.4.schema.json`:
   - standalone, self-contained `v1.4` schema
   - explicit `question_results.items` structure
   - closed-contract policy via `additionalProperties: false` on top-level and key nested objects
@@ -143,7 +156,7 @@ Minor: make `marking_result.v1.4` an explicit strict schema contract and enforce
 ### Changed
 
 - `core/artifact_schema.py`:
-  - `SCHEMA_PATH` now points to `schemas/marking_result.v1.4.schema.json`
+  - `SCHEMA_PATH` now points to `ai_study_buddy/schemas/marking/marking_result.v1.4.schema.json`
   - `load_marking_result_schema(version)` now requires an explicit version argument
   - normal runtime validation now supports only `marking_result.v1.4`
   - unsupported versions raise `UnsupportedSchemaVersionError`
@@ -159,9 +172,9 @@ Minor: make `marking_result.v1.4` an explicit strict schema contract and enforce
 
 - `README.md`:
   - bump current version to `v0.2.14`
-  - update canonical schema path to `schemas/marking_result.v1.4.schema.json`
+  - update canonical schema path to `ai_study_buddy/schemas/marking/marking_result.v1.4.schema.json`
 - `SPEC.md`:
-  - update canonical schema path to `schemas/marking_result.v1.4.schema.json`
+  - update canonical schema path to `ai_study_buddy/schemas/marking/marking_result.v1.4.schema.json`
   - document strict `v1.4` runtime validation contract
 - Consumer instruction alignment (skills/agents used by marking producers):
   - `.cursor/skills/mark-student-work-multi-agent-v2/SKILL.md`
@@ -177,7 +190,7 @@ Minor: add a first-class `marking_amendment.v1` JSON schema file and public load
 
 ### Added
 
-- `schemas/marking_amendment.v1.schema.json`:
+- `ai_study_buddy/schemas/marking/marking_amendment.v1.schema.json`:
   - canonical JSON Schema contract for review-workspace amendment overlays
   - top-level contract for `schema_version`, `context`, `summary_overrides`, `question_amendments`, `question_page_map_amendments`, and `review_meta`
   - editable field allowlist for `question_amendments[].fields`
@@ -198,7 +211,7 @@ Minor: add a first-class `marking_amendment.v1` JSON schema file and public load
 
 - `README.md`:
   - bump current version to `v0.2.13`
-  - document `schemas/marking_amendment.v1.schema.json`
+  - document `ai_study_buddy/schemas/marking/marking_amendment.v1.schema.json`
 - `SPEC.md`:
   - include amendment schema as companion canonical contract
 - `TESTING.md`:
@@ -339,7 +352,7 @@ Minor: bump canonical schema to `marking_result.v1.4` with per-question attempt-
 - `core/artifact_writer.py`:
   - writer now emits `schema_version = marking_result.v1.4`
   - writer defaults missing `context.question_page_map` to empty list
-- `schemas/marking_result.v1.schema.json`:
+- `ai_study_buddy/schemas/marking/marking_result.v1.schema.json`:
   - schema `$id` / `title` bumped to v1.4
   - `schema_version` enum includes `marking_result.v1.4`
   - `context.question_page_map` property added
@@ -374,7 +387,7 @@ Minor: bump canonical schema to `marking_result.v1.3` for partial-marking metada
   - `SCHEMA_VERSION` now defaults to `marking_result.v1.3`
   - validator now accepts `marking_result.v1`, `marking_result.v1.1`, `marking_result.v1.2`, and `marking_result.v1.3`
   - `marking_result.v1.3` requires `context.is_partial` as boolean
-- `schemas/marking_result.v1.schema.json`:
+- `ai_study_buddy/schemas/marking/marking_result.v1.schema.json`:
   - schema `$id` / `title` bumped to v1.3
   - `schema_version` enum includes `marking_result.v1.3`
   - `context.is_partial` property added
@@ -401,7 +414,7 @@ Patch: bump canonical schema to `marking_result.v1.2` for `context.marking_asset
 - `core/artifact_schema.py`:
   - `SCHEMA_VERSION` now defaults to `marking_result.v1.2`
   - validator now accepts `marking_result.v1`, `marking_result.v1.1`, and `marking_result.v1.2`
-- `schemas/marking_result.v1.schema.json`:
+- `ai_study_buddy/schemas/marking/marking_result.v1.schema.json`:
   - schema `$id` / `title` bumped to v1.2
   - `schema_version` enum includes `marking_result.v1.2`
 - `core/artifact_writer.py`:
@@ -460,7 +473,7 @@ Patch: ship `marking_result.v1.1` attempt-group metadata support and immediate a
   - upgrades backfilled artifacts to `schema_version = marking_result.v1.1`
 - `workflows/report_renderer.py`:
   - result section now renders `Attempt #<n>` when `attempt_sequence` exists
-- `schemas/marking_result.v1.schema.json`:
+- `ai_study_buddy/schemas/marking/marking_result.v1.schema.json`:
   - schema version field now accepts both `marking_result.v1` and `marking_result.v1.1`
 
 ## [0.2.2] - 2026-04-20

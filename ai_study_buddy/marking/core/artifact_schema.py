@@ -16,12 +16,14 @@ from ai_study_buddy.marking.core.taxonomy import (
 SCHEMA_VERSION = "marking_result.v1.6"
 DEFAULT_MARKING_RESULT_VERSION = SCHEMA_VERSION
 SUPPORTED_SCHEMA_VERSIONS = {SCHEMA_VERSION, "marking_result.v1.5"}
+
+_SCHEMAS_DIR = Path(__file__).resolve().parents[2] / "schemas" / "marking"
 SCHEMA_PATHS_BY_VERSION: dict[str, Path] = {
-    "marking_result.v1.5": Path(__file__).resolve().parent.parent / "schemas" / "marking_result.v1.5.schema.json",
-    SCHEMA_VERSION: Path(__file__).resolve().parent.parent / "schemas" / "marking_result.v1.6.schema.json",
+    "marking_result.v1.5": _SCHEMAS_DIR / "marking_result.v1.5.schema.json",
+    SCHEMA_VERSION: _SCHEMAS_DIR / "marking_result.v1.6.schema.json",
 }
 SCHEMA_PATH = SCHEMA_PATHS_BY_VERSION[SCHEMA_VERSION]
-AMENDMENT_SCHEMA_PATH = Path(__file__).resolve().parent.parent / "schemas" / "marking_amendment.v1.schema.json"
+AMENDMENT_SCHEMA_PATH = _SCHEMAS_DIR / "marking_amendment.v1.schema.json"
 ALLOWED_OUTCOMES = {"correct", "partial", "wrong", "disqualified"}
 ALLOWED_SCORING_STATUS = {"counted", "excluded_disqualified"}
 ALLOWED_PAGE_MAP_CONFIDENCE = {"high", "medium", "low"}

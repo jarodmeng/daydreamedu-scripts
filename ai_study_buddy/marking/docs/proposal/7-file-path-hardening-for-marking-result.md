@@ -70,7 +70,7 @@ Notes:
 
 ## 6) Schema Changes
 
-File: `ai_study_buddy/marking/schemas/marking_result.v1.schema.json`
+File: `ai_study_buddy/schemas/marking/marking_result.v1.schema.json`
 
 Proposed changes:
 

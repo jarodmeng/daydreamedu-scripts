@@ -131,7 +131,7 @@ Code touchpoints:
 
 1. `core/artifact_schema.py`
 2. `core/models.py`
-3. `schemas/marking_result.v1.schema.json`
+3. `ai_study_buddy/schemas/marking/marking_result.v1.schema.json`
 4. `core/artifact_writer.py`
 5. `api.py` exports (if helper dataclasses are public)
 

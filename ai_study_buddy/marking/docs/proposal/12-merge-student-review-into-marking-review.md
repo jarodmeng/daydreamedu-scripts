@@ -32,7 +32,7 @@ This separation was useful during the MVP extraction because it avoided a monoli
 2. It reads canonical `marking_result.v1.x` payloads.
 3. It normalizes marking results for frontend review flows.
 4. It owns amendment merge behavior for artifacts stored under `context/marking_amendments/**`.
-5. The amendment schema is already versioned inside `marking/schemas/marking_amendment.v1.schema.json`.
+5. The amendment schema is already versioned inside `ai_study_buddy/schemas/marking/marking_amendment.v1.schema.json`.
 6. Focused amendment tests already live under `marking/tests/`.
 
 Keeping `student_review` as a top-level package now creates more conceptual overhead than boundary value.
@@ -54,7 +54,7 @@ ai_study_buddy/
     assets/         # marking asset bundle paths, renders, manifests, and validation
     review/         # review-facing backend/domain services over marked attempts
     workflows/      # marking operator and migration workflows
-    schemas/        # marking_result and marking_amendment schemas
+    # schemas live at: ai_study_buddy/schemas/marking/
   review_workspace/
     backend/        # FastAPI app shell, CORS, static mount, route inclusion
     frontend/       # React + Vite UI

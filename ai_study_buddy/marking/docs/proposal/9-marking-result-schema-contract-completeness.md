@@ -8,7 +8,7 @@ Audience: Maintainers of `ai_study_buddy/marking` and skills/workflows that emit
 
 Implemented in this pass:
 
-1. Added standalone schema file: `schemas/marking_result.v1.4.schema.json`.
+1. Added standalone schema file: `ai_study_buddy/schemas/marking/marking_result.v1.4.schema.json`.
 2. Switched runtime schema loading to explicit versioned loader: `load_marking_result_schema(version)`.
 3. Enforced strict runtime version policy (`v1.4` only in normal validation path) with `UnsupportedSchemaVersionError`.
 4. Added JSON Schema validation in runtime validator before semantic Python invariants.

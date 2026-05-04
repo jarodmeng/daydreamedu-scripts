@@ -126,7 +126,7 @@ Design rule:
 
 ## Schema (Historical POC v1 Excerpt)
 
-This section preserves the original POC shape for design context. The authoritative current runtime schema is `marking_result.v1.6`; see `ai_study_buddy/marking/SPEC.md` and `ai_study_buddy/marking/schemas/marking_result.v1.6.schema.json`.
+This section preserves the original POC shape for design context. The authoritative current runtime schema is `marking_result.v1.6`; see `ai_study_buddy/marking/SPEC.md` and `ai_study_buddy/schemas/marking/marking_result.v1.6.schema.json`.
 
 ```json
 {
