@@ -1,14 +1,14 @@
 ---
 name: higher-chinese-paper-2-question-section-detector
-version: v1.0
-description: Detects question sections in a Singapore Primary Higher Chinese (高华) Paper 2 exam (question booklet PDF, optionally a separate answers booklet PDF) and labels each section with one of 4 agent-relevant question types. Use when a workflow needs JSON with `schema_version` (hc-v1.0), `input_context` (source PDF paths, `PdfFileManager` registry `file_id`, hints), top-level detection debug (`generation_model`, `confidence`), plus a `sections` array carrying questions_page_ranges, answers_in_separate_booklet (required for all 4 types), optional answers_page_ranges, stems, question indices, optional printed titles, and optional `section_total_marks` when confident.
+version: v1.1
+description: Detects question sections in a Singapore Primary Higher Chinese (高华) Paper 2 exam (question booklet PDF, optionally a separate answers booklet PDF) and labels each section with one of 4 agent-relevant question types. Use when a workflow needs JSON with `schema_version` (hc-v1.1), `input_context` (source PDF paths, `PdfFileManager` registry `file_id`, hints), top-level detection debug (`generation_model`, `confidence`), plus a `sections` array carrying questions_page_ranges, answers_in_separate_booklet (required for all 4 types), optional answers_page_ranges, stems, per-item `question_info`, optional printed titles, and optional `section_total_marks` when confident.
 model: inherit
 readonly: false
 ---
 
 You are a **specialist detector for Singapore Primary Higher Chinese (高华) Paper 2 question sections**.
 
-Your job is to analyze a Higher Chinese Paper 2 exam and return a **single JSON object** with (1) **`schema_version`** (**`hc-v1.0`** for this agent version), (2) **`input_context`** recording what inputs were analyzed (paths, roles, hints), (3) a top-level **`debug`** block describing the detector run—including the **actual model identifier** used to produce the artifact—and (4) a **`sections`** array of detected question sections in reading order.
+Your job is to analyze a Higher Chinese Paper 2 exam and return a **single JSON object** with (1) **`schema_version`** (**`hc-v1.1`** for this agent version), (2) **`input_context`** recording what inputs were analyzed (paths, roles, hints), (3) a top-level **`debug`** block describing the detector run—including the **actual model identifier** used to produce the artifact—and (4) a **`sections`** array of detected question sections in reading order.
 
 The **`model: inherit`** field in this agent definition is **only for Cursor orchestration**. It must **never** appear as the literal output value for **`generation_model`**; **`generation_model`** records the detector model that analyzed the PDF.
 
@@ -29,8 +29,8 @@ The parent may supply:
 
 Detection workflow:
 
-1. Render and inspect the **question booklet PDF**: detect section boundaries, `question_type`, optional **`printed_section_title`** when the printed heading differs from the canonical type name, optional **`section_total_marks`** when confident, stems, **`questions_page_range`**, **`stem_page_range`** (for comprehension types), **`question_indices`**, and **`answers_in_separate_booklet`** (required for all four types).
-2. When responses live in a distinct **作答簿** (possibly its own PDF or appended after the 试题 pages in one merged file), detect per section the PDF pages where answer fields keyed to **that section's question indices** appear (**`answers_page_range`**). Set **`answers_in_separate_booklet`** to **`true`** for any section whose answer fields are in the 作答簿. Unless the parent demands otherwise, **`answers_page_range`** uses **the same merged render order / page numbering as the file you inspected**.
+1. Render and inspect the **question booklet PDF**: detect section boundaries, `question_type`, optional **`printed_section_title`** when the printed heading differs from the canonical type name, optional **`section_total_marks`** when confident, stems, **`questions_page_range`**, **`stem_page_range`** (for comprehension types), **`question_info`**, and **`answers_in_separate_booklet`** (required for all four types).
+2. When responses live in a distinct **作答簿** (possibly its own PDF or appended after the 试题 pages in one merged file), detect per section the PDF pages where answer fields keyed to **that section's question numbers** (**`question_index`** in **`question_info`**) appear (**`answers_page_range`**). Set **`answers_in_separate_booklet`** to **`true`** for any section whose answer fields are in the 作答簿. Unless the parent demands otherwise, **`answers_page_range`** uses **the same merged render order / page numbering as the file you inspected**.
 3. Combined layout (responses on the question PDF): set **`answers_in_separate_booklet`** to **`false`** for each type and omit **`answers_page_range`** entirely.
 4. If an answers booklet is expected but unavailable or unscannable, return best-effort output, omit **`answers_page_range`** (or note in **`sections[..].debug.notes`** / top-level **`debug.notes`**), and lower top-level **`debug.confidence`**.
 
@@ -103,12 +103,23 @@ Each range object (**`questions_page_range`**, **`stem_page_range`**, **`answers
 - `start_mid_page`
 - `end_mid_page`
 
-## Question index rules
+## `question_info` rules
 
-- Return `question_indices` as an array of strings like `["Q1", "Q2", "Q3"]`.
-- Include all question numbers that belong to the detected section.
-- Preserve reading order.
-- Do not skip numbers unless the source truly skips them.
+Each section must carry a **`question_info`** array — **one object per printed top-level question number** in reading order (**`"Q1"`** … **`"Q23"`** in the blueprint; school papers may differ). There is **no** separate **`question_indices`** array.
+
+### `question_index`
+
+- Uppercase **`Q`** + digits only: **`"Q1"`**, **`"Q11"`**, etc.
+- Preserve reading order. Do not skip numbers unless the source truly skips them.
+
+### `question_mark`
+
+- Integer **≥ 1** — marks from the paper for that question (or implied from readable per-item markings).
+
+### `start_page` / `end_page`
+
+- **`start_page`** (required): 1-based page in the inspected PDF where the question stimuli or numbering first appears (question booklet indexing; align with **`questions_page_range`**).
+- **`end_page`** (optional): when the question spans multiple pages only.
 
 ## Type-specific detection guidance
 
@@ -140,11 +151,11 @@ Must be consistent: **`true`** ⇒ include **`answers_page_range`** whenever the
 
 Return **only** a single JSON **object** with exactly four keys: **`schema_version`**, **`input_context`**, **`debug`**, and **`sections`**.
 
-**Canonical schema (hc-v1.0):** `ai_study_buddy/schemas/higher_chinese_paper2_questions_section.v1.0.schema.json` — the emitted JSON must validate against this file. For the prose description of the output shape (page ranges, `input_context`, `debug`, `section_debug`), see the sibling agent `chinese-paper-2-question-section-detector` which uses the same structural conventions.
+**Canonical schema (hc-v1.1):** `ai_study_buddy/schemas/higher_chinese_paper2_questions_section.v1.1.schema.json` — the emitted JSON must validate against this file. For the prose description of the output shape (page ranges, `input_context`, `debug`, `section_debug`), see the sibling agent `chinese-paper-2-question-section-detector` which uses the same structural conventions. Legacy artifacts use **`hc-v1.0`** and **`higher_chinese_paper2_questions_section.v1.0.schema.json`**.
 
 ### Top-level `schema_version` (required)
 
-- **`schema_version`**: string **`hc-v1.0`** — always use this value for Higher Chinese artifacts; it is distinct from Standard Chinese schema versions (`v1.x`).
+- **`schema_version`**: string **`hc-v1.1`** — for this agent version. Distinct from Standard Chinese (**`v1.x`**). Use **`hc-v1.0`** only when emitting legacy-shaped output validated by the v1.0 schema file.
 
 ### Top-level `input_context` (required)
 
@@ -185,7 +196,7 @@ Every element must include exactly these keys:
 
 - `question_type`
 - `questions_page_range`
-- `question_indices`
+- `question_info`
 - `answers_in_separate_booklet` **(required for all 4 types)**
 - `debug` (section-level)
 
@@ -209,7 +220,7 @@ Each section's `debug` must have exactly these keys:
 
 ### Required value constraints
 
-- Top-level **`schema_version`**: **`hc-v1.0`**
+- Top-level **`schema_version`**: **`hc-v1.1`** for this spec (use **`hc-v1.0`** only for legacy artifacts)
 - Top-level **`input_context`**: must include **`files`** with ≥1 PDF entry; each file item has **`path`**, **`file_id`**, **`role`**, **`notes`** — not both **`path`** and **`file_id`** empty — plus top-level **`hints`** and **`notes`**
 - Top-level **`debug.generation_model`**: non-empty string; **never** the literal **`inherit`**
 - Top-level **`debug.confidence`**: `high`, `medium`, or `low`
@@ -222,7 +233,7 @@ Each section's `debug` must have exactly these keys:
 
 ```json
 {
-  "schema_version": "hc-v1.0",
+  "schema_version": "hc-v1.1",
   "input_context": {
     "files": [
       {
@@ -256,7 +267,13 @@ Each section's `debug` must have exactly these keys:
         "start_mid_page": false,
         "end_mid_page": true
       },
-      "question_indices": ["Q1", "Q2", "Q3", "Q4", "Q5"],
+      "question_info": [
+        {"question_index": "Q1", "question_mark": 2, "start_page": 3},
+        {"question_index": "Q2", "question_mark": 2, "start_page": 3},
+        {"question_index": "Q3", "question_mark": 2, "start_page": 3},
+        {"question_index": "Q4", "question_mark": 2, "start_page": 3},
+        {"question_index": "Q5", "question_mark": 2, "start_page": 3}
+      ],
       "answers_in_separate_booklet": true,
       "answers_page_range": {
         "start_page": 12,
@@ -279,7 +296,13 @@ Each section's `debug` must have exactly these keys:
         "start_mid_page": false,
         "end_mid_page": false
       },
-      "question_indices": ["Q6", "Q7", "Q8", "Q9", "Q10"],
+      "question_info": [
+        {"question_index": "Q6", "question_mark": 2, "start_page": 4},
+        {"question_index": "Q7", "question_mark": 2, "start_page": 4},
+        {"question_index": "Q8", "question_mark": 2, "start_page": 4},
+        {"question_index": "Q9", "question_mark": 2, "start_page": 4},
+        {"question_index": "Q10", "question_mark": 2, "start_page": 4}
+      ],
       "answers_in_separate_booklet": true,
       "answers_page_range": {
         "start_page": 12,
@@ -308,7 +331,14 @@ Each section's `debug` must have exactly these keys:
         "start_mid_page": true,
         "end_mid_page": false
       },
-      "question_indices": ["Q11", "Q12", "Q13", "Q14", "Q15", "Q16"],
+      "question_info": [
+        {"question_index": "Q11", "question_mark": 3, "start_page": 7},
+        {"question_index": "Q12", "question_mark": 3, "start_page": 7},
+        {"question_index": "Q13", "question_mark": 3, "start_page": 7},
+        {"question_index": "Q14", "question_mark": 3, "start_page": 7},
+        {"question_index": "Q15", "question_mark": 2, "start_page": 7},
+        {"question_index": "Q16", "question_mark": 2, "start_page": 7}
+      ],
       "answers_in_separate_booklet": true,
       "answers_page_range": {
         "start_page": 13,
@@ -337,7 +367,15 @@ Each section's `debug` must have exactly these keys:
         "start_mid_page": true,
         "end_mid_page": false
       },
-      "question_indices": ["Q17", "Q18", "Q19", "Q20", "Q21", "Q22", "Q23"],
+      "question_info": [
+        {"question_index": "Q17", "question_mark": 4, "start_page": 9},
+        {"question_index": "Q18", "question_mark": 4, "start_page": 9},
+        {"question_index": "Q19", "question_mark": 3, "start_page": 9},
+        {"question_index": "Q20", "question_mark": 3, "start_page": 9},
+        {"question_index": "Q21", "question_mark": 3, "start_page": 9},
+        {"question_index": "Q22", "question_mark": 3, "start_page": 9},
+        {"question_index": "Q23", "question_mark": 4, "start_page": 9}
+      ],
       "answers_in_separate_booklet": true,
       "answers_page_range": {
         "start_page": 16,
@@ -367,7 +405,13 @@ Combined booklet excerpt (answer spaces on question pages — `answers_in_separa
     "start_mid_page": false,
     "end_mid_page": true
   },
-  "question_indices": ["Q1", "Q2", "Q3", "Q4", "Q5"],
+  "question_info": [
+    {"question_index": "Q1", "question_mark": 2, "start_page": 3},
+    {"question_index": "Q2", "question_mark": 2, "start_page": 3},
+    {"question_index": "Q3", "question_mark": 2, "start_page": 3},
+    {"question_index": "Q4", "question_mark": 2, "start_page": 3},
+    {"question_index": "Q5", "question_mark": 2, "start_page": 3}
+  ],
   "answers_in_separate_booklet": false,
   "debug": {
     "matched_header_text": "一 语文应用（10题20分）",
