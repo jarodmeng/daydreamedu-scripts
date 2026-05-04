@@ -58,3 +58,9 @@
 ## Other formats
 
 Non-PSLE **weighted assessments** may use different booklets or all free-response. Ingestion should use **cover-page metadata** and **section headers**.
+
+---
+
+## Question type details
+
+For detailed agent-relevant question type descriptions and visual examples, see [math_exam_question_types.md](./math_exam_question_types.md).
