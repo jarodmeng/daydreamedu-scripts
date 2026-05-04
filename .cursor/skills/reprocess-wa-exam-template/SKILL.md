@@ -4,8 +4,9 @@ description: >-
   Reprocesses student scanned weighted assessment/exam PDFs into cleaned
   general-scope templates and links student completion files to those templates.
   Use when school-returned papers are scanned with writing, usually as `_raw_`
-  files, and the user wants a merged file for external cleanup followed by
-  template/completion registry linking.
+  files, and the user wants one merged handoff PDF for external cleanup followed by
+  split/template placement and registry linking—even when list lines span multiple
+  student-scope leaf folders.
 ---
 
 # Reprocess WA/Exam Template (MVP)
@@ -20,23 +21,25 @@ description: >-
 
 1. Path to the list txt file (absolute paths, one PDF per line; `#` comments allowed).
 2. Confirmation of external-cleaning handoff path (default output convention is used unless user overrides).
+3. **When the batch spans more than one unique `(subject, grade, doc_type)` general-scope triple** across list rows (multi-leaf-folder batch): an explicit `<doc label>` for the Phase A merged file and the Phase B cleaned default (`<doc label> - merged.pdf` / `<doc label> - cleaned.pdf` at `DAYDREAMEDU_ROOT`), or an explicit full path override for both artifacts. If ambiguous and missing, stop and ask—the default label `<subject> <grade> <doc_type>` applies only when that triple is the same for every row.
 
 ## Input conventions and derivation rules
 
 - Do not ask for student email as a required input in MVP.
-- Derive student scope and destination paths directly from each listed path.
-- The target doc type is inferred from the same folder structure as the source student-scope files (for example `Exam` or `Weighted Assessment`) and reused for general-scope outputs.
-- All listed files in one run should share one subject + one grade + one doc type. If mixed, stop and ask.
+- Derive student scope and destination paths **per row** from each listed path.
+- The doc type folder name is inferred from the same folder structure as that row’s student-scope file (for example `Exam` or `Weighted Assessment`) and defines that row’s general-scope destination root `DAYDREAMEDU_ROOT/<subject>/<grade>/<doc_type>/`.
+- **Multi-leaf-folder batches are allowed**: list lines may resolve to different `(subject, student_email, grade, doc_type)` tuples. Phase A still produces **exactly one** merged PDF at the repo root for external cleanup; Phase B consumes **that same** cleaned PDF once, splits it in original list order, and routes each segment to **that row’s** general-scope folder and links against **that row’s** student-scope folder.
 - Canonical source layout for each listed path is:
   - `DAYDREAMEDU_ROOT/<subject>/<student_email>/<grade>/<doc_type>/<filename>.pdf`
   - with `<grade>` in `P1`-`P6`, `PSLE`, or `Archive`.
 - Canonical general template destination layout is:
   - `DAYDREAMEDU_ROOT/<subject>/<grade>/<doc_type>/<filename_without_raw_prefix>.pdf`
 - If any listed path does not match the canonical source layout exactly, stop and ask; do not infer by guesswork.
-- Derive `<doc label>` for merged/cleaned artifacts from stable shared scope:
-  - default: `<subject> <grade> <doc_type>`
-  - if user provides a custom label/path, use that instead.
+- Derive `<doc label>` for merged/cleaned artifacts at `DAYDREAMEDU_ROOT`:
+  - When **every** row shares one `(subject, grade, doc_type)` triple: default `<subject> <grade> <doc_type>` unless the user overrides.
+  - When **more than one** distinct `(subject, grade, doc_type)` appears across rows: **no default**—require an explicit `<doc label>` or explicit merged/cleaned path override from the user before Phase A (see Required inputs).
 - If list lines name `_c_<name>.pdf` (completion mains), **do not merge those files for Phase A**. Resolve the sibling `_raw_<name>.pdf` in the same directory, require that it exists, and merge `_raw_` PDFs in list order. Basename and collision checks use the resolved `_raw_` paths (working basename = strip one leading `_raw_`).
+- **Per-row folders** (for Phase B boundaries, placement, scan, link): From each normalized list path, `student_dir` = dirname of that PDF (the `…/<doc_type>` folder); general template directory for that row = `DAYDREAMEDU_ROOT/<subject>/<grade>/<doc_type>/` parsed from the same path.
 
 ## Fail-fast validation (run before Phase A actions)
 
@@ -46,15 +49,14 @@ description: >-
    - is not a `.pdf`;
    - does not exist as a file;
    - does not match the canonical source layout above.
-3. Compute shared tuple `(subject, student_email, grade, doc_type)` from all rows:
-   - if more than one unique tuple is present, stop and ask to split into separate runs.
-4. Check canonical basename mapping (after resolving merge targets: `_c_` list → `_raw_` sibling when applicable):
-   - working basename = strip exactly one leading `_raw_` when present;
-   - if two different source rows map to the same working basename, stop and ask.
-5. Compute destination collision checks before moving:
-   - any existing destination completion/template file path => stop and ask;
+3. For each row, parse `(subject, student_email, grade, doc_type)` and `student_dir` from the canonical path. Collect the set of distinct `(subject, grade, doc_type)` triples:
+   - if `|triples| > 1` and the user has not supplied an explicit `<doc label>` (or explicit merged/cleaned path override), stop and ask.
+4. After resolving Phase A merge sources (`_c_` list → `_raw_` sibling when applicable), reject **duplicate** normalized paths (the same PDF must not appear twice in merge order).
+5. **Planned template path uniqueness** (replaces “global working basename must differ”): For each row, canonical output basename = working basename with at most one leading `_raw_` stripped (same as today). Planned general template file path = `DAYDREAMEDU_ROOT/<subject>/<grade>/<doc_type>/<canonical_basename>.pdf` using that row’s parsed components. If any two rows produce the **same** planned path, stop and ask (filesystem/registry collision). Rows in **different** general folders may share the same filename (same canonical basename under different `<subject>/<grade>/<doc_type>`) — that is allowed.
+6. Compute destination collision checks before moving (evaluate **every** row’s intended student-scope paths **and** every **planned split template path** from step 5 against existing files/registry):
+   - any existing destination completion/template file path that would block Phase B placement => stop and ask;
    - any existing merged/cleaned artifact at intended path => stop and ask (or require explicit replacement instruction).
-6. Only proceed to Phase A after all checks pass.
+7. Only proceed to Phase A after all checks pass.
 
 ## Prerequisites
 
@@ -73,8 +75,8 @@ description: >-
 1. Validate list file:
    - Read lines in order, skip blank/comment lines.
    - Apply all rules from "Fail-fast validation"; do not continue on partial validity.
-2. Derive normalized target metadata from paths:
-   - Subject, student segment, grade, doc type, and basename.
+2. Derive normalized target metadata **per list row** (preserve row order end-to-end: merge order, split order, segment-to-folder routing):
+   - Subject, student segment, grade, doc type, `student_dir`, and basename.
    - Basename convention: if file starts with `_raw_`, strip one `_raw_` only for canonical matching keys; do not use this to rename student-side files on disk.
 3. Move completion files into the canonical student-scope destination if needed:
    - Decide move method per file:
@@ -96,20 +98,21 @@ description: >-
 ### Phase B — Split cleaned output, place templates, scan, and link
 
 1. Validate cleaned PDF exists and page count matches expected merged total.
-2. Derive per-file split boundaries from student completion files in original txt order:
-   - For each canonical basename `<name>.pdf`, check student folder in this order:
-     1. `<student_dir>/_c_<name>.pdf`
-     2. `<student_dir>/<name>.pdf`
-   - Use the first existing main candidate to compute page count.
-   - If `_c_<name>.pdf` exists, do not use plain `<name>.pdf` for boundaries.
-   - If both `_raw_<name>.pdf` and plain `<name>.pdf` exist but `_c_<name>.pdf` is absent, stop and ask (likely main/raw drift that should be repaired first).
-   - If neither exists for any entry, stop and ask.
+2. Derive per-segment split boundaries from student completion files in **original txt list order**, using **each row’s** `student_dir` (see Input conventions):
+   - For row *i*, let `<name>.pdf` be that row’s canonical basename (same key used after Phase A `_raw_` resolution).
+   - In **that row’s** `student_dir` only, check main candidates in this order:
+     1. `_c_<name>.pdf`
+     2. `<name>.pdf`
+   - Use the first existing candidate to compute page count for segment *i*.
+   - If `_c_<name>.pdf` exists, do not use plain `<name>.pdf` for boundaries for that row.
+   - If both `_raw_<name>.pdf` and plain `<name>.pdf` exist in that `student_dir` but `_c_<name>.pdf` is absent, stop and ask (likely main/raw drift that should be repaired first).
+   - If neither exists for any row, stop and ask.
 3. Split cleaned PDF by those derived per-file page counts in original txt order.
-4. Move split cleaned files into matching general-scope folder for inferred subject + grade + doc type:
+4. Move each split cleaned segment **i** into **that row’s** general-scope folder (`DAYDREAMEDU_ROOT/<subject>/<grade>/<doc_type>/` parsed from the same list line), not a single batch-wide folder:
    - Keep canonical basenames (without `_raw_`).
-5. Run `PdfFileManager().scan_for_new_files` on:
-   - The affected general-scope folder.
-   - The matching student-scope folder.
+5. Run `PdfFileManager().scan_for_new_files` on **every distinct directory** that needs registry visibility for this batch:
+   - **All** general-scope folders that received a split (union of row general dirs).
+   - **All** student-scope folders referenced by list rows (`student_dir` union).
    - After scan, resolve main candidates in this order for both sides:
      1. `<dir>/_c_<name>.pdf`
      2. `<dir>/<name>.pdf`
@@ -119,8 +122,8 @@ description: >-
 6. Ensure template/completion status:
    - General files become/are registered with `is_template=true`.
    - Student files remain `is_template=false`.
-7. Link completion to template:
-   - Match by canonical basename in corresponding student/general folders.
+7. Link completion to template **for each list row** (aligned with segment index *i*):
+   - Match by canonical basename between **that row’s** `student_dir` and **that row’s** general template directory (never assume a single student folder or single general folder for the whole batch).
    - Completion main path should use `_c_` naming where present (`_c_<name>.pdf`).
    - Template main path should use `_c_` naming where present (`_c_<name>.pdf`).
    - Call `link_to_template(completed_id=<student_main_id>, template_id=<general_main_id>, inherit_metadata=True)`.
@@ -130,7 +133,7 @@ description: >-
 - Every intended general main file is present and registered as template (`is_template=true`).
 - Every intended student main file is present and registered as completion (`is_template=false`).
 - Every student completion in scope resolves a template link to the matching general template file.
-- No unexpected duplicate template candidates for the same canonical basename.
+- No unexpected duplicate template candidates for the same canonical basename **within the same general-scope folder** (`DAYDREAMEDU_ROOT/<subject>/<grade>/<doc_type>/`).
 - Verification should be identity-based in the registry (resolved main path + linked template id), not strict string equality against the pre-scan plain split filename.
 - No path-drift for moved files: for each file moved in this run, old path is not the active registered path and final destination path resolves via `get_file_by_path`.
 
@@ -155,6 +158,6 @@ description: >-
 
 ## MVP constraints
 
-- This MVP optimizes for recurring WA/Exam runs with one coherent batch.
+- This MVP optimizes for recurring WA/Exam runs: either one student-scope leaf folder or **one multi-folder batch** with a single merged/cleaned handoff and per-row routing in Phase B.
 - It does not yet include advanced registry cleanups used in the two-part "student completion from general" workflow.
 - If future runs need book-group or mapping repair semantics, extend this skill with an "advanced mode" section.
