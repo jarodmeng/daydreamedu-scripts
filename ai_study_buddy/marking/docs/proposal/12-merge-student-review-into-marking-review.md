@@ -1,8 +1,16 @@
 # Proposal: Fold `student_review` into `marking.review`
 
-Status: Proposed
+Status: **Implemented**
 
-Target marking version: implementation bump, patch if the old import path is treated as internal-only
+**Landed:** marking package **v0.2.18** (2026-04-29). Authoritative entry: `ai_study_buddy/marking/CHANGELOG.md` under `[0.2.18]`.
+
+**What shipped:**
+
+- Review-domain code lives under `ai_study_buddy/marking/review/` (`api_routes`, `attempt_service`, `detail_service`, `note_service`, `amendment_service`, `repository`, `models`, plus `payload_reader`).
+- **Option B** was used: the old top-level `ai_study_buddy/student_review/` package was removed (no compatibility shim).
+- `review_workspace/backend/app.py` imports `CONTEXT_ROOT`, the router, and `STATIC_ROUTE_PREFIX` from `ai_study_buddy.marking.review`.
+- `StudentReviewRepository` was **not** renamed in this pass (optional rename deferred per §8 Phase 4).
+- Package docs (`marking/README.md`, `marking/ARCHITECTURE.md`, `marking/TESTING.md`) and changelog/version bump were updated in the same release.
 
 Audience: Maintainers of `ai_study_buddy/marking`, Review Workspace maintainers, and workflow owners consuming review APIs for marked attempts
 
@@ -115,7 +123,7 @@ Cons:
 1. Leaves a temporary top-level directory behind.
 2. Requires a follow-up cleanup proposal or changelog entry.
 
-Checklist:
+Checklist (*Option A was not executed; Option B shipped in marking v0.2.18*):
 
 - [ ] Move implementation files into `marking/review/`.
 - [ ] Replace old files with import-forwarding shims only if external imports are suspected.
@@ -133,16 +141,16 @@ Pros:
 
 Cons:
 
-1. Breaks any untracked local scripts importing `ai_study_buddy.marking.review`.
+1. Breaks any untracked local scripts importing `ai_study_buddy.student_review`.
 2. May be more than a patch-level public API change if the old module is considered public.
 
 Checklist:
 
-- [ ] Confirm preflight found no in-repository callers that still need old imports.
-- [ ] Confirm the owner accepts the assumption that there are no untracked external callers.
-- [ ] Update all in-repo imports in one changeset.
-- [ ] Remove old module docs and source files.
-- [ ] Mention the breaking import move explicitly in `CHANGELOG.md`.
+- [x] Confirm preflight found no in-repository callers that still need old imports.
+- [x] Confirm the owner accepts the assumption that there are no untracked external callers.
+- [x] Update all in-repo imports in one changeset.
+- [x] Remove old module docs and source files.
+- [x] Mention the breaking import move explicitly in `CHANGELOG.md`.
 
 Recommended path: Option B. Move the implementation directly into `marking.review`, update all in-repository imports, and remove the old top-level `student_review` module in the same changeset.
 
@@ -150,39 +158,41 @@ Recommended path: Option B. Move the implementation directly into `marking.revie
 
 ### Phase 0: Preflight inventory
 
-- [ ] Run `rg -n "ai_study_buddy\.student_review|from ai_study_buddy.marking.review|student_review" ai_study_buddy -S`.
-- [ ] Classify references as code imports, docs, changelog history, or data-path references.
-- [ ] Identify tests that currently import `student_review` directly.
-- [ ] Confirm `review_workspace/backend/app.py` is the only app shell importing the router.
-- [ ] Confirm no CLI entrypoints reference the old module path.
-- [ ] Confirm the migration will use Option B direct removal unless preflight finds a concrete blocker.
-- [ ] Confirm current marking version in `marking/README.md` before choosing the changelog target version.
+- [x] Run `rg -n "ai_study_buddy\.student_review|from ai_study_buddy.marking.review|student_review" ai_study_buddy -S`.
+- [x] Classify references as code imports, docs, changelog history, or data-path references.
+- [x] Identify tests that currently import `student_review` directly.
+- [x] Confirm `review_workspace/backend/app.py` is the only app shell importing the router.
+- [x] Confirm no CLI entrypoints reference the old module path.
+- [x] Confirm the migration will use Option B direct removal unless preflight finds a concrete blocker.
+- [x] Confirm current marking version in `marking/README.md` before choosing the changelog target version.
 
 ### Phase 1: Create `marking.review` package
 
-- [ ] Create `ai_study_buddy/marking/review/__init__.py`.
-- [ ] Move service files from `ai_study_buddy/student_review/` to `ai_study_buddy/marking/review/`.
-- [ ] Update intra-package imports from `ai_study_buddy.marking.review.*` to `ai_study_buddy.marking.review.*`.
-- [ ] Keep module names stable initially to reduce diff size.
-- [ ] Avoid behavior changes during the move.
-- [ ] Run `python3 -m py_compile ai_study_buddy/marking/review/*.py`.
+- [x] Create `ai_study_buddy/marking/review/__init__.py`.
+- [x] Move service files from `ai_study_buddy/student_review/` to `ai_study_buddy/marking/review/`.
+- [x] Update intra-package imports within `ai_study_buddy.marking.review.*` after the move.
+- [x] Keep module names stable initially to reduce diff size.
+- [x] Avoid behavior changes during the move.
+- [x] Run `python3 -m py_compile ai_study_buddy/marking/review/*.py`.
 
 ### Phase 2: Update Review Workspace backend integration
 
-- [ ] Update `review_workspace/backend/app.py` to import `CONTEXT_ROOT`, router, and static prefix from `ai_study_buddy.marking.review`.
-- [ ] Confirm backend app title/version does not need to change for this refactor.
-- [ ] Confirm route paths remain unchanged:
-  - [ ] `/api/health`
-  - [ ] `/api/students`
-  - [ ] `/api/student/attempts`
-  - [ ] `/api/student/attempts/{attempt_id}`
-  - [ ] `/api/student/attempts/{attempt_id}/review-state`
-  - [ ] `/api/student/attempts/{attempt_id}/amendments`
-- [ ] Confirm `/review-workspace-static/*` still serves `ai_study_buddy/context/**`.
+- [x] Update `review_workspace/backend/app.py` to import `CONTEXT_ROOT`, router, and static prefix from `ai_study_buddy.marking.review`.
+- [x] Confirm backend app title/version does not need to change for this refactor.
+- [x] Confirm route paths remain unchanged:
+  - [x] `/api/health`
+  - [x] `/api/students`
+  - [x] `/api/student/attempts`
+  - [x] `/api/student/attempts/{attempt_id}`
+  - [x] `/api/student/attempts/{attempt_id}/review-state`
+  - [x] `/api/student/attempts/{attempt_id}/amendments`
+- [x] Confirm `/review-workspace-static/*` still serves `ai_study_buddy/context/**`.
 
 ### Phase 3: Remove old top-level module
 
 Option A fallback, only if preflight discovers real external or hard-to-migrate callers:
+
+**Not executed** — preflight proceeded with Option B (marking v0.2.18).
 
 - [ ] Replace `student_review/__init__.py` with a compatibility note and re-exports where useful.
 - [ ] Replace each old Python module with a thin forwarding import only if needed by tests or known local scripts.
@@ -191,44 +201,44 @@ Option A fallback, only if preflight discovers real external or hard-to-migrate 
 
 Default Option B path:
 
-- [ ] Delete `ai_study_buddy/student_review/*.py`.
-- [ ] Delete old `student_review/*.md` docs after migrating any useful decision content.
-- [ ] Remove `ai_study_buddy/student_review/` if it becomes empty.
-- [ ] Confirm `rg -n "ai_study_buddy\.student_review|from ai_study_buddy.marking.review" ai_study_buddy -S` returns no code imports.
+- [x] Delete `ai_study_buddy/student_review/*.py`.
+- [x] Delete old `student_review/*.md` docs after migrating any useful decision content.
+- [x] Remove `ai_study_buddy/student_review/` if it becomes empty.
+- [x] Confirm `rg -n "ai_study_buddy\.student_review|from ai_study_buddy.marking.review" ai_study_buddy -S` returns no code imports.
 
 ### Phase 4: Rename repository class only if low-risk
 
 Optional in first implementation pass:
 
-- [ ] Consider renaming `StudentReviewRepository` to `MarkingReviewRepository`.
-- [ ] If renamed, provide an alias `StudentReviewRepository = MarkingReviewRepository` for compatibility in the same release.
-- [ ] Keep persisted path names unchanged.
-- [ ] Do not rename `student_review_state.v1` in this migration.
+- [ ] Consider renaming `StudentReviewRepository` to `MarkingReviewRepository` *(deferred; class name kept)*.
+- [ ] If renamed, provide an alias `StudentReviewRepository = MarkingReviewRepository` for compatibility in the same release *(N/A — not renamed)*.
+- [x] Keep persisted path names unchanged.
+- [x] Do not rename `student_review_state.v1` in this migration.
 
 Recommendation: defer class renaming unless the implementation diff is already small and tests are stable.
 
 ### Phase 5: Tests and verification
 
-- [ ] Run `python3 -m py_compile ai_study_buddy/marking/review/*.py ai_study_buddy/review_workspace/backend/app.py`.
-- [ ] Run existing marking tests that cover Review Workspace amendment behavior.
-- [ ] Run any student review smoke tests or update them to the new module path.
-- [ ] Run `rg -n "ai_study_buddy\.student_review|from ai_study_buddy.marking.review" ai_study_buddy -S` and verify no code imports remain.
-- [ ] Run `rg -n "student_review/" ai_study_buddy -S` and classify any remaining documentation references.
-- [ ] If local dependencies are available, start Review Workspace backend and confirm `/api/health` returns `{"status":"ok"}`.
-- [ ] If the frontend is available, run the Review Workspace manual smoke path:
-  - [ ] load attempt list
-  - [ ] open marked attempt detail
-  - [ ] save review-state note
-  - [ ] save amendment overlay
-  - [ ] reload and confirm resolved payload reflects saved state
+- [x] Run `python3 -m py_compile ai_study_buddy/marking/review/*.py ai_study_buddy/review_workspace/backend/app.py`.
+- [x] Run existing marking tests that cover Review Workspace amendment behavior.
+- [x] Run any student review smoke tests or update them to the new module path.
+- [x] Run `rg -n "ai_study_buddy\.student_review|from ai_study_buddy.marking.review" ai_study_buddy -S` and verify no code imports remain.
+- [x] Run `rg -n "student_review/" ai_study_buddy -S` and classify any remaining documentation references.
+- [x] If local dependencies are available, start Review Workspace backend and confirm `/api/health` returns `{"status":"ok"}`.
+- [x] If the frontend is available, run the Review Workspace manual smoke path:
+  - [x] load attempt list
+  - [x] open marked attempt detail
+  - [x] save review-state note
+  - [x] save amendment overlay
+  - [x] reload and confirm resolved payload reflects saved state
 
 ### Phase 6: Final cleanup
 
-- [ ] Remove duplicate stale `student_review` docs.
-- [ ] If Option A fallback is unexpectedly needed, ensure relocation docs clearly mark old module as compatibility-only.
-- [ ] Confirm no generated `__pycache__` files are touched or committed.
-- [ ] Confirm no runtime context artifacts are accidentally modified.
-- [ ] Review `git diff --stat` for unexpected large moves or data changes.
+- [x] Remove duplicate stale `student_review` docs.
+- [x] If Option A fallback is unexpectedly needed, ensure relocation docs clearly mark old module as compatibility-only *(N/A — Option B only; no shim)*.
+- [x] Confirm no generated `__pycache__` files are touched or committed.
+- [x] Confirm no runtime context artifacts are accidentally modified.
+- [x] Review `git diff --stat` for unexpected large moves or data changes.
 
 ## 9) Documentation Updates
 
@@ -236,37 +246,37 @@ This proposal should not bump the marking package version by itself. The version
 
 Documentation checklist for the implementation landing:
 
-- [ ] Update `ai_study_buddy/ARCHITECTURE.md`:
-  - [ ] remove `student_review` as a top-level domain layer
-  - [ ] state that `marking.review` owns review-domain backend services
-  - [ ] keep `review_workspace` as the app surface
-- [ ] Update `ai_study_buddy/DATA_MODEL.md`:
-  - [ ] change `student_review` ownership references to `marking.review`
-  - [ ] preserve `context/student_review_states/**` path and schema name
-  - [ ] preserve `context/marking_amendments/**` as marking-owned companion overlays
-- [ ] Update `ai_study_buddy/README.md`:
-  - [ ] remove top-level `student_review/` description
-  - [ ] expand `marking/` description to include review services over marked attempts
-  - [ ] keep `review_workspace/` as the frontend/app shell description
-- [ ] Update `ai_study_buddy/review_workspace/ARCHITECTURE.md`:
-  - [ ] change backend import responsibility from `ai_study_buddy/student_review/` to `ai_study_buddy.marking.review`
-  - [ ] correct data ownership section so marking owns amendment overlay semantics
-- [ ] Update `ai_study_buddy/review_workspace/README.md`, `SPEC.md`, `DATA_MODEL.md`, and `TESTING.md` where they mention `student_review` as a module owner.
-- [ ] Remove `ai_study_buddy/student_review/README.md` as part of deleting the old top-level module.
-- [ ] Move useful `student_review/DECISIONS.md` content into this proposal or a new marking review decision note.
-- [ ] Update `ai_study_buddy/marking/ARCHITECTURE.md`:
-  - [ ] add `review/` as a marking subpackage
-  - [ ] document canonical artifact immutability from review flows
-  - [ ] document companion state and amendment overlay stores
-- [ ] Update `ai_study_buddy/marking/README.md` package scope to include review-domain services.
-- [ ] Update `ai_study_buddy/marking/SPEC.md` if it enumerates public subpackages or schemas.
-- [ ] Update `ai_study_buddy/marking/TESTING.md` with review-service verification commands.
-- [ ] Add an implementation changelog entry under the chosen marking version.
-- [ ] Update `Current version` in `ai_study_buddy/marking/README.md` in the same changeset as the changelog entry.
+- [x] Update `ai_study_buddy/ARCHITECTURE.md`:
+  - [x] remove `student_review` as a top-level domain layer
+  - [x] state that `marking.review` owns review-domain backend services
+  - [x] keep `review_workspace` as the app surface
+- [x] Update `ai_study_buddy/DATA_MODEL.md`:
+  - [x] change `student_review` ownership references to `marking.review`
+  - [x] preserve `context/student_review_states/**` path and schema name
+  - [x] preserve `context/marking_amendments/**` as marking-owned companion overlays
+- [x] Update `ai_study_buddy/README.md`:
+  - [x] remove top-level `student_review/` description
+  - [x] expand `marking/` description to include review services over marked attempts
+  - [x] keep `review_workspace/` as the frontend/app shell description
+- [x] Update `ai_study_buddy/review_workspace/ARCHITECTURE.md`:
+  - [x] change backend import responsibility from `ai_study_buddy/student_review/` to `ai_study_buddy.marking.review`
+  - [x] correct data ownership section so marking owns amendment overlay semantics
+- [x] Update `ai_study_buddy/review_workspace/README.md`, `SPEC.md`, `DATA_MODEL.md`, and `TESTING.md` where they mention `student_review` as a module owner.
+- [x] Remove `ai_study_buddy/student_review/README.md` as part of deleting the old top-level module.
+- [x] Move useful `student_review/DECISIONS.md` content into this proposal or a new marking review decision note.
+- [x] Update `ai_study_buddy/marking/ARCHITECTURE.md`:
+  - [x] add `review/` as a marking subpackage
+  - [x] document canonical artifact immutability from review flows
+  - [x] document companion state and amendment overlay stores
+- [x] Update `ai_study_buddy/marking/README.md` package scope to include review-domain services.
+- [x] Update `ai_study_buddy/marking/SPEC.md` if it enumerates public subpackages or schemas.
+- [x] Update `ai_study_buddy/marking/TESTING.md` with review-service verification commands.
+- [x] Add an implementation changelog entry under the chosen marking version.
+- [x] Update `Current version` in `ai_study_buddy/marking/README.md` in the same changeset as the changelog entry.
 
 Versioning note:
 
-- Option B removes the old `ai_study_buddy.marking.review` import path, so the changelog must call out the direct relocation explicitly.
+- Option B removes the old `ai_study_buddy.student_review` import path, so the changelog must call out the direct relocation explicitly.
 - If the old module is treated as internal-only and preflight confirms no in-repository callers remain, a patch bump is acceptable.
 - If the old module is later deemed public API, use a minor bump instead.
 
@@ -274,32 +284,32 @@ Versioning note:
 
 Minimum automated checks:
 
-- [ ] `python3 -m py_compile ai_study_buddy/marking/review/*.py`
-- [ ] `python3 -m py_compile ai_study_buddy/review_workspace/backend/app.py`
-- [ ] marking tests covering amendment behavior
-- [ ] any existing student-review smoke scripts updated to new import paths
+- [x] `python3 -m py_compile ai_study_buddy/marking/review/*.py`
+- [x] `python3 -m py_compile ai_study_buddy/review_workspace/backend/app.py`
+- [x] marking tests covering amendment behavior
+- [x] any existing student-review smoke scripts updated to new import paths
 
 Recommended targeted tests to add or update:
 
-- [ ] test that `review_workspace/backend/app.py` includes the `marking.review` router
-- [ ] test review-state write still saves under `context/student_review_states/**`
-- [ ] test amendment write still saves under `context/marking_amendments/**`
-- [ ] test resolved marking payload still overlays amendment state without mutating base artifact
-- [ ] test that old `ai_study_buddy.marking.review` code imports are gone
+- [x] test that `review_workspace/backend/app.py` includes the `marking.review` router
+- [x] test review-state write still saves under `context/student_review_states/**`
+- [x] test amendment write still saves under `context/marking_amendments/**`
+- [x] test resolved marking payload still overlays amendment state without mutating base artifact
+- [x] test that old `ai_study_buddy.student_review` code imports are gone
 
 Manual checks:
 
-- [ ] open Review Workspace frontend
-- [ ] select a student
-- [ ] open a marked attempt
-- [ ] confirm attempt and answer image pools load
-- [ ] save a review note
-- [ ] save an amendment
-- [ ] reload and confirm saved state persists
+- [x] open Review Workspace frontend
+- [x] select a student
+- [x] open a marked attempt
+- [x] confirm attempt and answer image pools load
+- [x] save a review note
+- [x] save an amendment
+- [x] reload and confirm saved state persists
 
 ## 11) Risks and Mitigations
 
-### Risk A: Hidden local imports of `ai_study_buddy.marking.review`
+### Risk A: Hidden local imports of `ai_study_buddy.student_review`
 
 Mitigation:
 
@@ -338,12 +348,12 @@ Mitigation:
 
 The migration is complete when:
 
-- [ ] Review-domain source code lives under `ai_study_buddy/marking/review/`.
-- [ ] Review Workspace backend imports its router from `ai_study_buddy.marking.review`.
-- [ ] Existing API route paths and payload contracts remain stable.
-- [ ] Review-state files continue to persist under `context/student_review_states/**`.
-- [ ] Amendment files continue to persist under `context/marking_amendments/**`.
-- [ ] Canonical `context/marking_results/**` artifacts remain read-only from review flows.
-- [ ] Tests or smoke checks cover attempt detail, review-state writes, amendment writes, and resolved payload recomputation.
-- [ ] Repository docs no longer present `student_review` as an active top-level domain module.
-- [ ] Marking changelog and README version are updated according to the versioning decision.
+- [x] Review-domain source code lives under `ai_study_buddy/marking/review/`.
+- [x] Review Workspace backend imports its router from `ai_study_buddy.marking.review`.
+- [x] Existing API route paths and payload contracts remain stable.
+- [x] Review-state files continue to persist under `context/student_review_states/**`.
+- [x] Amendment files continue to persist under `context/marking_amendments/**`.
+- [x] Canonical `context/marking_results/**` artifacts remain read-only from review flows.
+- [x] Tests or smoke checks cover attempt detail, review-state writes, amendment writes, and resolved payload recomputation (see `marking/tests/test_review_workspace_amendments.py` and changelog for v0.2.18).
+- [x] Repository docs no longer present `student_review` as an active top-level domain module.
+- [x] Marking changelog and README version are updated according to the versioning decision (v0.2.18 patch).
