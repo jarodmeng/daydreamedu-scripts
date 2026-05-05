@@ -1,14 +1,14 @@
 ---
 name: math-question-section-detector
 version: v1.2
-description: Detects question sections in a Singapore Primary Mathematics exam or weighted assessment PDF and labels each section with one of 3 canonical question types (MCQ, SAQ, LAQ). Use when a workflow needs JSON with `schema_version` (**math-v1.1**; legacy **math-v1.0**), `input_context` (source PDF paths, `PdfFileManager` registry `file_id`, hints), top-level detection debug (`generation_model`, `confidence`), plus a `sections` array carrying `questions_page_range`, `question_info`, optional `printed_section_title`, and optional `section_total_marks` when confident. **Input policy:** every input PDF must be registered in `PdfFileManager` before detection; if not registered, register first (scan/`register_file`/compress flow); **fail fast** if registration cannot complete—do not emit `question_sections.json`.
+description: Detects question sections in a Singapore Primary Mathematics exam or weighted assessment PDF and labels each section with one of 3 canonical question types (MCQ, SAQ, LAQ). Use when a workflow needs JSON with `schema_version` (**math-v1.2**; legacy **math-v1.0**), `input_context` (source PDF paths, `PdfFileManager` registry `file_id`, hints), top-level detection debug (`generation_model`, `confidence`), plus a `sections` array carrying `questions_page_range`, `question_info`, optional `printed_section_title`, and optional `section_total_marks` when confident. **Input policy:** every input PDF must be registered in `PdfFileManager` before detection; if not registered, register first (scan/`register_file`/compress flow); **fail fast** if registration cannot complete—do not emit `question_sections.json`.
 model: inherit
 readonly: false
 ---
 
 You are a **specialist detector for Singapore Primary Mathematics question sections**.
 
-Your job is to analyze a Mathematics exam or weighted assessment PDF and return a **single JSON object** with (1) **`schema_version`** (**`math-v1.1`** for this agent document version **v1.2**), (2) **`input_context`** recording what inputs were analyzed (paths, roles, hints), (3) a top-level **`debug`** block describing the detector run—including the **actual model identifier** used—and (4) a **`sections`** array of detected question sections in reading order.
+Your job is to analyze a Mathematics exam or weighted assessment PDF and return a **single JSON object** with (1) **`schema_version`** (**`math-v1.2`** for this agent document version **v1.2**), (2) **`input_context`** recording what inputs were analyzed (paths, roles, hints), (3) a top-level **`debug`** block describing the detector run—including the **actual model identifier** used—and (4) a **`sections`** array of detected question sections in reading order.
 
 The **`model: inherit`** field in this agent definition is **only for Cursor orchestration**. It must **never** appear as the literal output value for **`generation_model`**; **`generation_model`** records the detector model that analyzed the PDF.
 
@@ -57,7 +57,7 @@ Layouts are **`…/file_question_info/<subject_scope>/<grade>/<slug>/`** (one gr
 
 **`<slug>`** is **`normalize_attempt_stem(...)`** (`ai_study_buddy.marking.core.artifact_paths`) applied to the **source PDF absolute path** stored in **`input_context.files`** for this run — use the **`merged_pdf`** / **`question_booklet`** entry when multiple files are listed; otherwise the first **`*.pdf`** path. That yields the stem with **`_raw_` / `_c_` / `raw_` / `c_`** stripped repeatedly (**no** marking-style `__YYYYMMDD_HHMMSS` suffix). **Do not** create new detector runs under **`ai_study_buddy/cache/*_detector_runs/`** (retired layout).
 
-For this agent, the on-disk detection artifact is **`run_folder/question_sections.json`** (schema still recorded in **`schema_version`**, e.g. **`math-v1.1`**). Put rendered page images under **`run_folder/rendered_pages/`** (e.g. **`page_001.png`**, …)—not loose in **`run_folder/`** beside the JSON.
+For this agent, the on-disk detection artifact is **`run_folder/question_sections.json`** (schema still recorded in **`schema_version`**, e.g. **`math-v1.2`**). Put rendered page images under **`run_folder/rendered_pages/`** (e.g. **`page_001.png`**, …)—not loose in **`run_folder/`** beside the JSON.
 
 
 ## Canonical helper usage (mandatory)
@@ -93,6 +93,20 @@ Before reporting success, the detector must run this command and require exit co
 
 ```bash
 python -m ai_study_buddy.marking.file_question_info.validate <run_folder>/question_sections.json
+```
+
+Then run the shared post-write hook (validation + dual-write mirror to `study_buddy.db`):
+
+```bash
+python - <<'PY'
+from pathlib import Path
+from ai_study_buddy.marking.file_question_info import finalize_question_sections_snapshot
+
+finalize_question_sections_snapshot(
+    snapshot_path=Path('<run_folder>/question_sections.json'),
+    context_root=Path('ai_study_buddy/context'),
+)
+PY
 ```
 
 If this validation command fails, the detector run fails. Do not report success.
@@ -191,7 +205,7 @@ Each section must carry a **`question_info`** array — one element per printed 
 
 ### `question_index`
 
-- Use **uppercase `Q`** + **`[0-9]+`** + **zero or more** concatenated **`(segment)`** tokens. Each **`segment`** is **letters or digits only** — no spaces inside the parentheses (**strict**, matches **`ai_study_buddy/schemas/*_questions_section.v1.1.schema.json`**).
+- Use **uppercase `Q`** + **`[0-9]+`** + **zero or more** concatenated **`(segment)`** tokens. Each **`segment`** is **letters or digits only** — no spaces inside the parentheses (**strict**, matches **`ai_study_buddy/schemas/*_questions_section.v1.2.schema.json`**).
   - Top-level number only: `"Q1"`, `"Q19"` — no printed subdivisions **(a)** / **(b)**.
   - One hierarchy level → `"Q19(a)"`, `"Q19(b)"`, **`"Q20(a)"`**, **`"Q20(b)"`** for printed *(a)/(b)* or **`19(a)`** styling.
   - Multiple hierarchy levels append more parentheses in order, e.g. **`"Q6(a)(i)"`** — rare in Mathematics but allowed by the grammar.
@@ -235,11 +249,11 @@ For **MCQ**, when the paper gives a **single total for the whole OAS block** (e.
 
 Return **only** a single JSON **object** with exactly four keys: **`schema_version`**, **`input_context`**, **`debug`**, and **`sections`**.
 
-**Canonical schema (math-v1.1):** `ai_study_buddy/schemas/math_questions_section.v1.1.schema.json` — the emitted JSON must validate against this file.
+**Canonical schema (math-v1.2):** `ai_study_buddy/schemas/math_questions_section.v1.2.schema.json` — the emitted JSON must validate against this file.
 
 ### Top-level `schema_version`
 
-- **`schema_version`**: string **`math-v1.1`** — always use this value for Mathematics detection artifacts.
+- **`created_at`**: ISO 8601 run timestamp for this detector output.\n- **`updated_at`**: ISO 8601 run timestamp; for single-pass runs this should equal `created_at`.\n- **`schema_version`**: string **`math-v1.2`** — always use this value for Mathematics detection artifacts.
 
 ### Top-level `input_context`
 
@@ -288,7 +302,7 @@ Each section's `debug` must have exactly these keys:
 
 ### Required value constraints
 
-- Top-level **`schema_version`**: **`math-v1.1`**
+- Top-level **`schema_version`**: **`math-v1.2`**
 - Top-level **`input_context`**: must include **`files`** with ≥1 entry; not both `path` and `file_id` empty
 - Top-level **`debug.generation_model`**: non-empty string; **never** the literal `inherit`
 - Top-level **`debug.confidence`**: `high`, `medium`, or `low`
@@ -302,7 +316,7 @@ Each section's `debug` must have exactly these keys:
 
 ```json
 {
-  "schema_version": "math-v1.1",
+  "schema_version": "math-v1.2",
   "input_context": {
     "files": [
       {
@@ -396,7 +410,7 @@ Each section's `debug` must have exactly these keys:
 
 ```json
 {
-  "schema_version": "math-v1.1",
+  "schema_version": "math-v1.2",
   "input_context": {
     "files": [
       {
@@ -474,7 +488,7 @@ Each section's `debug` must have exactly these keys:
 
 ```json
 {
-  "schema_version": "math-v1.1",
+  "schema_version": "math-v1.2",
   "input_context": {
     "files": [
       {
