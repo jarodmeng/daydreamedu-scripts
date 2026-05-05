@@ -1,0 +1,200 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "daydreamedu:ai_study_buddy/schemas/math_questions_section.v1.1.schema.json",
+  "title": "Singapore Primary Mathematics question-section detection output (v1.1)",
+  "description": "JSON shape emitted by Cursor agent math-question-section-detector.md (schema **math-v1.1**). Extends math-v1.0: **`question_index`** uses optional parenthesised sub-part segments after the question number (`Q19`, `Q20(a)`, `Q12(a)` — see `pattern`). Other structure unchanged.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "input_context", "debug", "sections"],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "math-v1.1",
+      "description": "Must be 'math-v1.1' for Mathematics question-section detection artifacts using parenthesised sub-parts."
+    },
+    "input_context": { "$ref": "#/$defs/inputContext" },
+    "debug": { "$ref": "#/$defs/runDebug" },
+    "sections": {
+      "type": "array",
+      "description": "Detected sections in document reading order.",
+      "items": { "$ref": "#/$defs/section" }
+    }
+  },
+  "$defs": {
+    "uuidOrEmpty": {
+      "type": "string",
+      "pattern": "^$|^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$",
+      "description": "`pdf_files.id` from Ai Study Buddy PdfFileManager (UUID); empty string when unset or lookup miss."
+    },
+    "inputContextFile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "file_id", "role", "notes"],
+      "properties": {
+        "path": {
+          "type": "string",
+          "description": "Canonical absolute path (`PdfFile.path`) from `PdfFileManager.get_file_by_path` after normalizing inputs, or from `get_file(file_id)`. Use \"\" only when unavailable."
+        },
+        "file_id": { "$ref": "#/$defs/uuidOrEmpty" },
+        "role": {
+          "type": "string",
+          "enum": ["question_booklet", "merged_pdf", "unknown"],
+          "description": "How this file was used. Math papers always have answers in the same booklet as questions — use 'question_booklet' for a single standalone paper, 'merged_pdf' when Booklet A and Booklet B appear concatenated in one file, 'unknown' when ambiguous."
+        },
+        "notes": {
+          "type": "string",
+          "description": "Per-file caveats (scan quality, encrypted, booklet merge order, lookup miss, etc.)."
+        }
+      },
+      "allOf": [
+        {
+          "not": {
+            "type": "object",
+            "properties": {
+              "path": { "const": "" },
+              "file_id": { "const": "" }
+            },
+            "required": ["path", "file_id"]
+          }
+        }
+      ]
+    },
+    "inputContext": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["files", "hints", "notes"],
+      "properties": {
+        "files": {
+          "type": "array",
+          "description": "Input PDF paths the detector relied on.",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/inputContextFile" }
+        },
+        "hints": {
+          "type": "string",
+          "description": "Parent-supplied hints (expected page ranges, OCR snippets, filename keywords, etc.)."
+        },
+        "notes": {
+          "type": "string",
+          "description": "Detector-side input summary (which inputs were missing, render settings, booklet merge notes, etc.)."
+        }
+      }
+    },
+    "runDebug": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["generation_model", "confidence", "notes"],
+      "properties": {
+        "generation_model": {
+          "type": "string",
+          "minLength": 1,
+          "not": { "const": "inherit" },
+          "description": "Actual detector model id (never the YAML orchestration sentinel 'inherit')."
+        },
+        "confidence": {
+          "type": "string",
+          "enum": ["high", "medium", "low"],
+          "description": "Aggregate confidence for the entire detection run."
+        },
+        "notes": {
+          "type": "string",
+          "description": "Run-level commentary (merged PDF quirks, unrecognised layout, render failure, WA vs exam ambiguity, etc.)."
+        }
+      }
+    },
+    "pageRange": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["start_page", "end_page", "start_mid_page", "end_mid_page"],
+      "properties": {
+        "start_page": { "type": "integer", "minimum": 1 },
+        "end_page": { "type": "integer", "minimum": 1 },
+        "start_mid_page": { "type": "boolean" },
+        "end_mid_page": { "type": "boolean" }
+      }
+    },
+    "sectionDebug": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["matched_header_text", "matched_instruction_text", "notes"],
+      "properties": {
+        "matched_header_text": {
+          "type": "string",
+          "description": "Verbatim printed section or sub-section header text that most strongly identified this section (e.g. 'SECTION B: Problem Sums (14 marks)'). Use \"\" if none found."
+        },
+        "matched_instruction_text": {
+          "type": "string",
+          "description": "Verbatim printed section instruction that most strongly typed this section (e.g. 'Questions 1 to 10 carry 1 mark each.'). Use \"\" if none found."
+        },
+        "notes": {
+          "type": "string",
+          "description": "Section-specific caveats (boundary ambiguity, atypical layout, WA vs exam format, etc.). Use \"\" when none."
+        }
+      }
+    },
+    "questionType": {
+      "type": "string",
+      "enum": ["MCQ", "SAQ", "LAQ"],
+      "description": "Canonical question type. MCQ: multiple-choice with OAS shading (Paper 1 Booklet A only in PSLE format). SAQ: short-answer in-book with plain Ans: lines, no [n] bracket per answer line; marks per question index follow the section instruction (often 2 each, or mixed bands such as 1-mark then 2-mark ranges in one block). LAQ: long/structured answer, [n] bracket printed on every answer line or sub-part."
+    },
+    "questionInfo": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["question_index", "question_mark", "start_page"],
+      "properties": {
+        "question_index": {
+          "type": "string",
+          "pattern": "^Q[0-9]+(\\([a-zA-Z0-9]+\\))*$",
+          "description": "Question number (uppercase Q + digits) plus zero or more parenthesised sub-part tokens. Each token is `[a-zA-Z0-9]+` only (strict). Examples: `Q6`, `Q20(a)`, `Q12(b)`. Match printed labels in reading order."
+        },
+        "question_mark": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Marks allocated to this question index. For MCQ: 1 or 2 per the section instruction band. For SAQ: from the printed instruction (often 2 for a single-part item, 1 per labeled sub-part, or 1 vs 2 across different numbered ranges in one SAQ block). For LAQ: read directly from the printed [n] bracket on the answer line."
+        },
+        "start_page": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "1-based page index (within the inspected PDF) where this question's printed stimulus first appears. Always required — the detector has all pages rendered and can always determine this."
+        },
+        "end_page": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "1-based page index where this question's content (stimulus + working space + answer line) ends. Include only when the question visibly spans more than one page (e.g. a long word problem with a large diagram or extended working space that continues onto the next page). Omit when the question fits on a single page."
+        },
+        "question_topic": {
+          "type": "string",
+          "description": "Free-form short description of what the question is about (the detector's best-effort reading of the question content). Keep under 30 words. Examples: 'find the area of a composite figure', 'fraction of a quantity word problem', 'speed distance time — find time for second leg of journey'. Omit or use \"\" when the question is illegible or the topic is genuinely unclear."
+        }
+      }
+    },
+    "section": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["question_type", "questions_page_range", "question_info", "debug"],
+      "properties": {
+        "question_type": { "$ref": "#/$defs/questionType" },
+        "printed_section_title": {
+          "type": "string",
+          "description": "Verbatim printed section or sub-section title when it differs from or adds detail beyond the canonical `question_type` label (e.g. 'Section A: Open-Ended Questions', 'SECTION B: Problem Sums'). Omit or use \"\" when the paper uses no section title or the title matches the canonical name."
+        },
+        "section_total_marks": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Total marks for this detected section. Include only when (i) the numeric total read from the paper is trustworthy and (ii) that total applies to this canonical section alone. For MCQ, include when a single band (all 1-mark or all 2-mark) is detected as a section. Omit when uncertain, illegible, or when a printed total clearly bundles multiple question types."
+        },
+        "questions_page_range": {
+          "$ref": "#/$defs/pageRange",
+          "description": "1-based page range (within the inspected PDF) where the question stimuli for this section appear. For MCQ, covers the printed question items and their option lists; for SAQ and LAQ, covers printed question text, diagrams, working spaces, and Ans: lines."
+        },
+        "question_info": {
+          "type": "array",
+          "description": "Per-question metadata in reading order. One element per printed question index (at finest granularity). The sequence of question_index values in this array serves as the canonical question index list for the section.",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/questionInfo" }
+        },
+        "debug": { "$ref": "#/$defs/sectionDebug" }
+      }
+    }
+  }
+}
