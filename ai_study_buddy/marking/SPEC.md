@@ -16,6 +16,7 @@ The package guarantees:
 5. markdown rendering as a non-canonical derived view
 6. safe run-level artifact cleanup for canonical JSON, derived report, and marking-asset bundle
 7. a review-domain backend contract under `ai_study_buddy.marking.review` for attempt review payload shaping and companion artifact writes
+8. deterministic, schema-validated detector artifacts under `context/file_question_info/**` via `marking.file_question_info`
 
 ## Canonical Data Contract
 
@@ -118,6 +119,21 @@ Writer contract:
     - `result_id` (non-empty string, unique within map, must exist in `question_results[].result_id`)
     - `attempt_page_start` (integer `>= 1`)
     - `confidence` (`high|medium|low`)
+
+### 3) File question info artifacts (`file_question_info/`)
+
+Detector runs (Chinese/English/Higher Chinese/Math/Science question section detectors) persist a `question_sections.json` payload and rendered page images under:
+
+- `ai_study_buddy/context/file_question_info/<subject_scope>/<grade>/<slug>/question_sections.json`
+- `ai_study_buddy/context/file_question_info/<subject_scope>/<grade>/<slug>/rendered_pages/page_%03d.png`
+
+Structural validation is schema-dispatched by `schema_version` and must be enforced via:
+
+```bash
+python3 -m ai_study_buddy.marking.file_question_info.validate <run_folder>/question_sections.json
+```
+
+If validation fails, the detector run must not be treated as successful by downstream consumers.
     - `source` (`manual_visual|ai_visual_backfill|script_inferred`)
   - optional fields:
     - `evidence_image` (null or non-empty string)

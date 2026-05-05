@@ -19,6 +19,7 @@ The marking package is the canonical implementation layer for marking workflows.
 - resolve deterministic marking context from registry-backed metadata
 - enforce canonical artifact contract (`marking_result.v1.6`; legacy versions are rejected in normal runtime validation)
 - write canonical JSON first, then render markdown as derived view
+- provide deterministic helpers for `context/file_question_info/...` detector artifacts (`question_sections.json`) including run-folder resolution, page rendering, and schema validation
 - provide safe run-level artifact cleanup for rerun/remediation workflows
 - provide stable programmatic APIs for workflows and agent skills
 
@@ -50,6 +51,15 @@ Current package modules are grouped into four layers.
 - `workflows/backfill_is_partial_v1_3.py`: dry-run/apply workflow to backfill `context.is_partial` and upgrade artifacts to v1.3
 - `path_privacy.py`: canonical path sanitization and runtime placeholder expansion
 - `taxonomy.py`: diagnosis/error taxonomy normalization and helpers
+
+### A2. File question info helpers (`file_question_info/`)
+
+`ai_study_buddy.marking.file_question_info` owns deterministic helpers for detector artifacts under:
+
+- `ai_study_buddy/context/file_question_info/<subject_scope>/<grade>/<slug>/question_sections.json`
+- `ai_study_buddy/context/file_question_info/<subject_scope>/<grade>/<slug>/rendered_pages/page_%03d.png`
+
+This submodule provides `load`/`validate` and a dedicated CLI entrypoint (`python3 -m ai_study_buddy.marking.file_question_info.validate <path>`) so detector runs can fail closed when outputs are not structurally trustworthy.
 
 ### B. Workflow layer (`workflows/`)
 

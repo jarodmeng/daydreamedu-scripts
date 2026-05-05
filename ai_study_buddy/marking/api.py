@@ -80,6 +80,19 @@ from ai_study_buddy.marking.workflows.report_renderer import (
     render_learning_report_from_json,
     render_marking_report_markdown,
 )
+from ai_study_buddy.marking.file_question_info import (
+    FileQuestionInfoError,
+    InvalidGradeOrScopeError,
+    MissingGradeOrScopeError,
+    QuestionSectionsSchemaLoadError,
+    QuestionSectionsValidationError,
+    UnknownQuestionSectionsSchemaVersionError,
+    UnsupportedPdfSubjectError,
+    file_question_info_run_dir_for_pdf,
+    load_question_sections_json,
+    render_file_question_info_pages_for_pdf,
+    validate_question_sections_dict,
+)
 
 __all__ = [
     "ArtifactQuestionResult",
@@ -133,6 +146,17 @@ __all__ = [
     "render_learning_report_from_json",
     "render_marking_report_markdown",
     "resolve_marking_context",
+    "FileQuestionInfoError",
+    "InvalidGradeOrScopeError",
+    "MissingGradeOrScopeError",
+    "QuestionSectionsSchemaLoadError",
+    "QuestionSectionsValidationError",
+    "UnknownQuestionSectionsSchemaVersionError",
+    "UnsupportedPdfSubjectError",
+    "file_question_info_run_dir_for_pdf",
+    "load_question_sections_json",
+    "render_file_question_info_pages_for_pdf",
+    "validate_question_sections_dict",
     "to_marking_iso",
     "update_human_notes",
     "validate_marking_artifact_dict",

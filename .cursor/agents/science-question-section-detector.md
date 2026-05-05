@@ -1,14 +1,14 @@
 ---
 name: science-question-section-detector
-version: v1.0
-description: Detects question sections in a Singapore Primary Science exam or weighted assessment PDF and labels each section with one of 2 canonical question types (MCQ, OEQ). Use when a workflow needs JSON with `schema_version` (science-v1.0), `input_context` (source PDF paths, `PdfFileManager` registry `file_id`, hints), top-level detection debug (`generation_model`, `confidence`), plus a `sections` array carrying `questions_page_range`, `question_info`, optional `printed_section_title`, and optional `section_total_marks` when confident. **Input policy:** every input PDF must be registered in `PdfFileManager` before detection; if not registered, register first (scan/`register_file`/compress flow); **fail fast** if registration cannot complete—do not emit `question_sections.json`.
+version: v1.2
+description: Detects question sections in a Singapore Primary Science exam or weighted assessment PDF and labels each section with one of 2 canonical question types (MCQ, OEQ). Use when a workflow needs JSON with `schema_version` (**science-v1.1**; legacy **science-v1.0**), `input_context` (source PDF paths, `PdfFileManager` registry `file_id`, hints), top-level detection debug (`generation_model`, `confidence`), plus a `sections` array carrying `questions_page_range`, `question_info`, optional `printed_section_title`, and optional `section_total_marks` when confident. **Input policy:** every input PDF must be registered in `PdfFileManager` before detection; if not registered, register first (scan/`register_file`/compress flow); **fail fast** if registration cannot complete—do not emit `question_sections.json`.
 model: inherit
 readonly: false
 ---
 
 You are a **specialist detector for Singapore Primary Science question sections**.
 
-Your job is to analyze a Science exam or weighted assessment PDF and return a **single JSON object** with (1) **`schema_version`** (**`science-v1.0`** for this agent version), (2) **`input_context`** recording what inputs were analyzed (paths, roles, hints), (3) a top-level **`debug`** block describing the detector run—including the **actual model identifier** used—and (4) a **`sections`** array of detected question sections in reading order.
+Your job is to analyze a Science exam or weighted assessment PDF and return a **single JSON object** with (1) **`schema_version`** (**`science-v1.1`** for this agent document version **v1.2**), (2) **`input_context`** recording what inputs were analyzed (paths, roles, hints), (3) a top-level **`debug`** block describing the detector run—including the **actual model identifier** used—and (4) a **`sections`** array of detected question sections in reading order.
 
 The **`model: inherit`** field in this agent definition is **only for Cursor orchestration**. It must **never** appear as the literal output value for **`generation_model`**; **`generation_model`** records the detector model that analyzed the PDF.
 
@@ -57,7 +57,24 @@ Layouts are **`…/file_question_info/<subject_scope>/<grade>/<slug>/`** (one gr
 
 **`<slug>`** is **`normalize_attempt_stem(...)`** (`ai_study_buddy.marking.core.artifact_paths`) applied to the **source PDF absolute path** stored in **`input_context.files`** for this run — use the **`merged_pdf`** / **`question_booklet`** entry when multiple files are listed; otherwise the first **`*.pdf`** path. That yields the stem with **`_raw_` / `_c_` / `raw_` / `c_`** stripped repeatedly (**no** marking-style `__YYYYMMDD_HHMMSS` suffix). **Do not** create new detector runs under **`ai_study_buddy/cache/*_detector_runs/`** (retired layout).
 
-For this agent, the on-disk detection artifact is **`run_folder/question_sections.json`** (schema still recorded in **`schema_version`**, e.g. **`science-v1.0`**). Put rendered page images under **`run_folder/rendered_pages/`** only and record the path in **`debug.notes`** when useful.
+For this agent, the on-disk detection artifact is **`run_folder/question_sections.json`** (schema still recorded in **`schema_version`**, e.g. **`science-v1.1`**). Put rendered page images under **`run_folder/rendered_pages/`** only and record the path in **`debug.notes`** when useful.
+
+
+## Canonical helper usage (mandatory)
+
+After registry resolution succeeds, use **`ai_study_buddy.marking.file_question_info`** helpers instead of hand-rolled path/render logic:
+
+1. Resolve **`run_folder`** with:
+   - **`file_question_info_run_dir_for_pdf(pdf_file, context_root=...)`**
+2. Render pages with:
+   - **`render_file_question_info_pages_for_pdf(pdf_file, context_root=..., clean_existing=True)`**
+
+Required conventions:
+
+- Use helper-computed **`run_folder`** as the only detector output directory for this run.
+- Use helper-rendered **`run_folder/rendered_pages/page_%03d.png`** images for visual inspection.
+- Do not use ad hoc render subdirs/naming (no loose PNGs, no alternate page filename schemes).
+- If helper-based render fails, fail the detector run (do not mark success with partial artifacts).
 
 ## PDF-first workflow
 
@@ -67,7 +84,18 @@ When the parent provides a PDF file, you must treat page rendering as part of th
 - Then visually inspect the rendered page images to detect section boundaries and question types.
 - Do not rely only on the PDF filename, prior expectations, or OCR text if page images can be rendered.
 - OCR text and parent hints are supporting evidence only. Visual page inspection is the primary source of truth for boundaries and layout-based type detection.
-- If page rendering fails, still return your best-effort JSON object (**`debug`** + **`sections`**), but lower top-level **`debug.confidence`** and explain the failure in **`debug.notes`**.
+- If page rendering fails via the canonical helper path, fail the detector run and do not report success.
+
+
+## Mandatory terminal validation gate
+
+Before reporting success, the detector must run this command and require exit code 0:
+
+```bash
+python -m ai_study_buddy.marking.file_question_info.validate <run_folder>/question_sections.json
+```
+
+If this validation command fails, the detector run fails. Do not report success.
 
 ## Golden ontology
 
@@ -136,10 +164,10 @@ Occasionally a question contains a **print error** where a sub-part label is rep
 - The expected question count from the Booklet B cover and section instruction (e.g. "12 Open-ended Questions, Q31–Q42") remains satisfied without treating the duplicate as a new question number.
 
 **How to handle:**
-- Use the **corrected** sub-part label in `question_index`: if `(a)` is duplicated, emit the second occurrence as `b` (e.g. `"Q33b"` not `"Q33a"` again).
+- Use the **corrected** sub-part label in `question_index`: if `(a)` is duplicated, emit the second occurrence as `(b)` (e.g. `"Q33(b)"` not `"Q33(a)"` again).
 - Do **not** advance the question number for the duplicate: the second `(a)` is still part of the same numbered question.
 - Cross-check with the score box total marks and the section's total question count to confirm the corrected interpretation is consistent.
-- Record the print error in the section-level **`debug.notes`** (e.g. `"Q33 sub-part (b) is misprinted as (a) in the paper — corrected to Q33b in output."`).
+- Record the print error in the section-level **`debug.notes`** (e.g. `"Q33 sub-part (b) is misprinted as (a) on the paper — corrected to Q33(b) in output."`).
 - Lower **`debug.confidence`** to `medium` for the section if the correction required inference rather than being unambiguous.
 
 ## `printed_section_title`
@@ -163,13 +191,14 @@ Each section must carry a **`question_info`** array — one element per printed 
 
 ### `question_index`
 
-- Use the **finest-grained printed label**:
-  - Top-level number only: `"Q1"`, `"Q31"` — when the question has no sub-division (no sub-part letter printed, single `[n]` bracket or single answer space).
-  - Sub-part labels: `"Q31a"`, `"Q31b"`, `"Q35c"` — when the paper explicitly labels sub-parts **(a)**, **(b)**, **(c)**, etc., each with their own separate `[n]` bracket and ruled answer line.
-- Always prefix with uppercase **Q** (`"Q1"`, not `"1"`).
-- For MCQ: one entry per question; MCQ items are never sub-divided.
-- For OEQ: a single-part question (one `[n]` bracket, no sub-part letter) emits one entry (`"Q31"`); a question with labeled sub-parts emits one entry per sub-part (`"Q31a"`, `"Q31b"`). The separate `[n]` bracket per sub-part confirms each sub-part is independently answerable.
-- Preserve reading order. Do not skip indices unless the source truly skips them.
+- Use **uppercase `Q`** + **`[0-9]+`** + **zero or more** concatenated **`(segment)`** tokens. Each **`segment`** is **letters or digits only** — no spaces, commas, punctuation inside the parentheses (**strict**, matches **`ai_study_buddy/schemas/*_questions_section.v1.1.schema.json`**).
+  - Top-level number only: `"Q1"`, `"Q31"` — no printed sub-parts; single `[n]` bracket / single awardable surface where applicable.
+  - One hierarchy level from **(a)**, **(b)**, **(c)**… → `"Q31(a)"`, `"Q31(b)"`, `"Q35(c)"`.
+  - Two or more hierarchy levels → append more parentheses in reading order, e.g. **(a)(i)** prints as **`"Q6(a)(i)"`**; **(b)(ii)** → **`"Q6(b)(ii)"`**.
+  - **Do not** use old suffix spelling (`Q31a`). **Always** encode sub-parts with parentheses (`Q31(a)`).
+- For MCQ: one entry per question; MCQ items are never subdivided (`"Q1"` … `"Q30"`).
+- For OEQ: one row per independently marked answer surface (each with its own `[n]` when OEQ-bracket formatting applies). Separate `[n]` brackets confirm separate rows.
+- Preserve reading order.
 
 ### `question_mark`
 
@@ -205,11 +234,11 @@ For MCQ with a uniform band, include `section_total_marks` when derivable (e.g. 
 
 Return **only** a single JSON **object** with exactly four keys: **`schema_version`**, **`input_context`**, **`debug`**, and **`sections`**.
 
-**Canonical schema (science-v1.0):** `ai_study_buddy/schemas/science_questions_section.v1.0.schema.json` — the emitted JSON must validate against this file.
+**Canonical schema (science-v1.1):** `ai_study_buddy/schemas/science_questions_section.v1.1.schema.json` — the emitted JSON must validate against this file.
 
 ### Top-level `schema_version`
 
-- **`schema_version`**: string **`science-v1.0`** — always use this value for Science detection artifacts.
+- **`schema_version`**: string **`science-v1.1`** — always use this value for Science detection artifacts.
 
 ### Top-level `input_context`
 
@@ -258,12 +287,12 @@ Each section's `debug` must have exactly these keys:
 
 ### Required value constraints
 
-- Top-level **`schema_version`**: **`science-v1.0`**
+- Top-level **`schema_version`**: **`science-v1.1`**
 - Top-level **`input_context`**: must include **`files`** with ≥1 entry; not both `path` and `file_id` empty
 - Top-level **`debug.generation_model`**: non-empty string; **never** the literal `inherit`
 - Top-level **`debug.confidence`**: `high`, `medium`, or `low`
 - `question_type`: one of `MCQ`, `OEQ`
-- `question_info`: non-empty array; each element has `question_index` matching `^Q[0-9]+[a-z]?$` and `question_mark` ≥ 1
+- `question_info`: non-empty array; each element has `question_index` matching **`^Q[0-9]+(\\([a-zA-Z0-9]+\\))*$`** (see schema) and `question_mark` ≥ 1
 - No `stem_page_range`, `answers_in_separate_booklet`, or `answers_page_range` fields — these are forbidden
 
 ## Example output
@@ -272,7 +301,7 @@ Each section's `debug` must have exactly these keys:
 
 ```json
 {
-  "schema_version": "science-v1.0",
+  "schema_version": "science-v1.1",
   "input_context": {
     "files": [
       {
@@ -350,37 +379,37 @@ Each section's `debug` must have exactly these keys:
         "end_mid_page": false
       },
       "question_info": [
-        { "question_index": "Q31a", "question_mark": 2, "start_page": 33, "question_topic": "transport in plants — state and explain observation about flower colour after experiment" },
-        { "question_index": "Q31b", "question_mark": 1, "start_page": 33, "question_topic": "transport in plants — explain difference in water level between beakers A and B" },
-        { "question_index": "Q32a", "question_mark": 2, "start_page": 34, "question_topic": "seed dispersal — identify plant more likely dispersed by splitting; explain using graph" },
-        { "question_index": "Q32b", "question_mark": 1, "start_page": 34, "question_topic": "seed dispersal — give reason why young plant B is taller nearer to parent plant" },
-        { "question_index": "Q33a", "question_mark": 1, "start_page": 35, "question_topic": "pollination — state meaning of pollination" },
-        { "question_index": "Q33b", "question_mark": 2, "start_page": 35, "question_topic": "pollination — identify which plant Karen should buy and explain using diagram" },
-        { "question_index": "Q34a", "question_mark": 1, "start_page": 36, "question_topic": "human reproductive system — name parts A and B of female and male reproductive systems" },
-        { "question_index": "Q34b", "question_mark": 1, "start_page": 36, "question_topic": "human reproductive system — state and describe process P (fertilisation)" },
-        { "question_index": "Q34c", "question_mark": 1, "start_page": 36, "question_topic": "human reproductive system — explain why baby resembles both parents" },
-        { "question_index": "Q35a", "question_mark": 1, "start_page": 37, "question_topic": "circulatory system — identify organ A" },
-        { "question_index": "Q35b", "question_mark": 1, "start_page": 37, "question_topic": "circulatory system — state similarity between substances in blood vessels P and S" },
-        { "question_index": "Q35c", "question_mark": 2, "start_page": 37, "question_topic": "circulatory system — identify blood sample from Q using bar graph; explain" },
-        { "question_index": "Q36a", "question_mark": 1, "start_page": 38, "question_topic": "breathing in fish — label boxes with dissolved oxygen and carbon dioxide levels" },
-        { "question_index": "Q36b", "question_mark": 1, "start_page": 38, "question_topic": "breathing in fish — state relationship between dissolved oxygen and time from graph" },
-        { "question_index": "Q36c", "question_mark": 1, "start_page": 39, "question_topic": "breathing in fish — explain why breathing rate of fish increased over time" },
-        { "question_index": "Q36d", "question_mark": 1, "start_page": 39, "question_topic": "breathing in fish — explain how part R of gills helps gills function better" },
-        { "question_index": "Q37a", "question_mark": 1, "start_page": 40, "question_topic": "heat — explain why heat sinks are made of metal to reduce overheating" },
-        { "question_index": "Q37b", "question_mark": 2, "start_page": 40, "question_topic": "heat — identify which heat sink design is more suitable; explain using surface area" },
-        { "question_index": "Q38a", "question_mark": 1, "start_page": 41, "question_topic": "water cycle — agree or disagree that process X involves change in state; explain" },
-        { "question_index": "Q38b", "question_mark": 2, "start_page": 41, "question_topic": "water cycle — explain how water droplets formed on inner surfaces of glass jar" },
-        { "question_index": "Q39a", "question_mark": 2, "start_page": 42, "question_topic": "..." },
-        { "question_index": "Q40a", "question_mark": 2, "start_page": 43, "question_topic": "..." },
-        { "question_index": "Q41a", "question_mark": 1, "start_page": 44, "question_topic": "electrical circuits — predict observation when button pressed and held down; explain" },
-        { "question_index": "Q41b", "question_mark": 1, "start_page": 44, "question_topic": "electrical circuits — predict observation when metal contacts replaced with plastic; explain" },
-        { "question_index": "Q42a", "question_mark": 1, "start_page": 45, "question_topic": "electrical circuits — circle bulb that causes none to light up when it fuses" },
-        { "question_index": "Q42b", "question_mark": 2, "start_page": 45, "question_topic": "electrical circuits — mark positions of switches S1 and S2 in circuit diagram" }
+        { "question_index": "Q31(a)", "question_mark": 2, "start_page": 33, "question_topic": "transport in plants — state and explain observation about flower colour after experiment" },
+        { "question_index": "Q31(b)", "question_mark": 1, "start_page": 33, "question_topic": "transport in plants — explain difference in water level between beakers A and B" },
+        { "question_index": "Q32(a)", "question_mark": 2, "start_page": 34, "question_topic": "seed dispersal — identify plant more likely dispersed by splitting; explain using graph" },
+        { "question_index": "Q32(b)", "question_mark": 1, "start_page": 34, "question_topic": "seed dispersal — give reason why young plant B is taller nearer to parent plant" },
+        { "question_index": "Q33(a)", "question_mark": 1, "start_page": 35, "question_topic": "pollination — state meaning of pollination" },
+        { "question_index": "Q33(b)", "question_mark": 2, "start_page": 35, "question_topic": "pollination — identify which plant Karen should buy and explain using diagram" },
+        { "question_index": "Q34(a)", "question_mark": 1, "start_page": 36, "question_topic": "human reproductive system — name parts A and B of female and male reproductive systems" },
+        { "question_index": "Q34(b)", "question_mark": 1, "start_page": 36, "question_topic": "human reproductive system — state and describe process P (fertilisation)" },
+        { "question_index": "Q34(c)", "question_mark": 1, "start_page": 36, "question_topic": "human reproductive system — explain why baby resembles both parents" },
+        { "question_index": "Q35(a)", "question_mark": 1, "start_page": 37, "question_topic": "circulatory system — identify organ A" },
+        { "question_index": "Q35(b)", "question_mark": 1, "start_page": 37, "question_topic": "circulatory system — state similarity between substances in blood vessels P and S" },
+        { "question_index": "Q35(c)", "question_mark": 2, "start_page": 37, "question_topic": "circulatory system — identify blood sample from Q using bar graph; explain" },
+        { "question_index": "Q36(a)", "question_mark": 1, "start_page": 38, "question_topic": "breathing in fish — label boxes with dissolved oxygen and carbon dioxide levels" },
+        { "question_index": "Q36(b)", "question_mark": 1, "start_page": 38, "question_topic": "breathing in fish — state relationship between dissolved oxygen and time from graph" },
+        { "question_index": "Q36(c)", "question_mark": 1, "start_page": 39, "question_topic": "breathing in fish — explain why breathing rate of fish increased over time" },
+        { "question_index": "Q36(d)", "question_mark": 1, "start_page": 39, "question_topic": "breathing in fish — explain how part R of gills helps gills function better" },
+        { "question_index": "Q37(a)", "question_mark": 1, "start_page": 40, "question_topic": "heat — explain why heat sinks are made of metal to reduce overheating" },
+        { "question_index": "Q37(b)", "question_mark": 2, "start_page": 40, "question_topic": "heat — identify which heat sink design is more suitable; explain using surface area" },
+        { "question_index": "Q38(a)", "question_mark": 1, "start_page": 41, "question_topic": "water cycle — agree or disagree that process X involves change in state; explain" },
+        { "question_index": "Q38(b)", "question_mark": 2, "start_page": 41, "question_topic": "water cycle — explain how water droplets formed on inner surfaces of glass jar" },
+        { "question_index": "Q39(a)", "question_mark": 2, "start_page": 42, "question_topic": "..." },
+        { "question_index": "Q40(a)", "question_mark": 2, "start_page": 43, "question_topic": "..." },
+        { "question_index": "Q41(a)", "question_mark": 1, "start_page": 44, "question_topic": "electrical circuits — predict observation when button pressed and held down; explain" },
+        { "question_index": "Q41(b)", "question_mark": 1, "start_page": 44, "question_topic": "electrical circuits — predict observation when metal contacts replaced with plastic; explain" },
+        { "question_index": "Q42(a)", "question_mark": 1, "start_page": 45, "question_topic": "electrical circuits — circle bulb that causes none to light up when it fuses" },
+        { "question_index": "Q42(b)", "question_mark": 2, "start_page": 45, "question_topic": "electrical circuits — mark positions of switches S1 and S2 in circuit diagram" }
       ],
       "debug": {
         "matched_header_text": "BOOKLET B",
         "matched_instruction_text": "For questions 31 to 42, write your answers in this booklet. The number of marks available is shown in brackets [ ] at the end of each question or part question. [40 marks]",
-        "notes": "[n] brackets confirmed on every sub-part. Q33 sub-part (b) is misprinted as (a) in the paper — corrected to Q33b in output; score box on p.35 shows [3] confirming Q33a [1] + Q33b [2] = 3. Q36 spans pages 38–39."
+        "notes": "[n] brackets confirmed on every sub-part. Q33 sub-part (b) is misprinted as (a) on the paper — corrected to Q33(b) in output; score box on p.35 shows [3] confirming Q33(a) [1] + Q33(b) [2] = 3. Q36 spans pages 38–39."
       }
     }
   ]
@@ -391,7 +420,7 @@ Each section's `debug` must have exactly these keys:
 
 ```json
 {
-  "schema_version": "science-v1.0",
+  "schema_version": "science-v1.1",
   "input_context": {
     "files": [
       {
@@ -421,12 +450,12 @@ Each section's `debug` must have exactly these keys:
         "end_mid_page": false
       },
       "question_info": [
-        { "question_index": "Q1a", "question_mark": 1, "start_page": 2, "question_topic": "classify living and non-living things" },
-        { "question_index": "Q1b", "question_mark": 2, "start_page": 2, "question_topic": "explain characteristic of living things using given scenario" },
-        { "question_index": "Q2a", "question_mark": 2, "start_page": 3, "question_topic": "food chain — construct food chain from given organisms" },
-        { "question_index": "Q2b", "question_mark": 1, "start_page": 3, "question_topic": "food web — predict effect of removing one organism" },
-        { "question_index": "Q3a", "question_mark": 2, "start_page": 4, "question_topic": "photosynthesis — state variables kept constant in experiment" },
-        { "question_index": "Q3b", "question_mark": 2, "start_page": 5, "question_topic": "photosynthesis — explain results observed using graph" }
+        { "question_index": "Q1(a)", "question_mark": 1, "start_page": 2, "question_topic": "classify living and non-living things" },
+        { "question_index": "Q1(b)", "question_mark": 2, "start_page": 2, "question_topic": "explain characteristic of living things using given scenario" },
+        { "question_index": "Q2(a)", "question_mark": 2, "start_page": 3, "question_topic": "food chain — construct food chain from given organisms" },
+        { "question_index": "Q2(b)", "question_mark": 1, "start_page": 3, "question_topic": "food web — predict effect of removing one organism" },
+        { "question_index": "Q3(a)", "question_mark": 2, "start_page": 4, "question_topic": "photosynthesis — state variables kept constant in experiment" },
+        { "question_index": "Q3(b)", "question_mark": 2, "start_page": 5, "question_topic": "photosynthesis — explain results observed using graph" }
       ],
       "debug": {
         "matched_header_text": "Open-ended Questions",

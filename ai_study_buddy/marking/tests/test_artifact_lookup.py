@@ -32,7 +32,10 @@ def _payload(*, attempt_file_id: str | None, attempt_file_path: str, created_at:
     }
 
 
-def test_lookup_student_scoped_sorted_and_condition_filtered() -> None:
+def test_lookup_student_scoped_sorted_and_condition_filtered(monkeypatch: pytest.MonkeyPatch) -> None:
+    # These tests exercise the filesystem scan behavior. Force DB reads off so the
+    # lookup doesn't depend on a configured study_buddy.db in test runs.
+    monkeypatch.setenv("LEARNING_DB_ENABLE_READS", "0")
     with tempfile.TemporaryDirectory() as tmpdir:
         base = Path(tmpdir)
         manager = PdfFileManager(db_path=base / "registry.db")
@@ -129,7 +132,8 @@ def test_lookup_student_scoped_sorted_and_condition_filtered() -> None:
         assert [r.marking_result_json for r in refs_with_report] == [newest_a]
 
 
-def test_lookup_path_fallback_only_when_attempt_file_id_absent() -> None:
+def test_lookup_path_fallback_only_when_attempt_file_id_absent(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("LEARNING_DB_ENABLE_READS", "0")
     with tempfile.TemporaryDirectory() as tmpdir:
         base = Path(tmpdir)
         manager = PdfFileManager(db_path=base / "registry.db")

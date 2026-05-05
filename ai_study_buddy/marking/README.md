@@ -8,7 +8,7 @@ Canonical marking pipeline for AI Study Buddy. This package defines the
 3. render markdown as a derived view
 4. support human note edits in the canonical JSON
 
-Current version: `v0.2.19`
+Current version: `v0.3.0`
 
 ## Package Scope
 
@@ -26,6 +26,7 @@ Current version: `v0.2.19`
 - Human note editing workflow (`edit_human_notes.py`)
 - Marking taxonomy constants/helpers (`taxonomy.py`)
 - Review-domain backend services for marked-attempt review workflows (`review/`)
+- File-question-info helpers for deterministic `context/file_question_info/...` run folders, page renders, and `question_sections.json` validation (`file_question_info/`)
 - Completion registry audit exclusions for GoodNotes Science revision guide book folders (`core/completion_registry_audit.py`; see `../docs/notes/completion_files_registry_audit.md`)
 
 ## Multiple attempts per template (`v0.2.3+`)
@@ -87,6 +88,7 @@ Example `context` snippet:
 
 - `api.py`: compact public API re-export surface
 - `core/`: models, schema, paths, writer, taxonomy, context resolution
+- `file_question_info/`: helpers for detector `question_sections.json` artifacts (run-folder resolution, rasterization, load/validate, CLI validator)
 - `workflows/`: CLI/workflow modules for migration, rendering, and note editing
 - `ai_study_buddy/schemas/marking/marking_result.v1.6.schema.json`: canonical JSON schema for `marking_result.v1.6` (strict, closed contract)
 - `ai_study_buddy/schemas/marking/marking_amendment.v1.schema.json`: companion amendment overlay schema contract (`marking_amendment.v1`)
@@ -95,6 +97,22 @@ Example `context` snippet:
 - `tests/test_migration.py`: migration parser and migration flow tests
 
 Per-run renders, answer crops, and disposable `_mark_*.py` / `_render_*.py` helpers live under the standardized bundle root in `context.marking_asset` (for example `ai_study_buddy/context/marking_assets/<student>/<subject>/<artifact_stem>/`), not in this package root.
+
+## File Question Info Helpers (`v0.3.0+`)
+
+Detectors for Chinese/English/Higher Chinese/Math/Science write `question_sections.json` under:
+
+`ai_study_buddy/context/file_question_info/<subject_scope>/<grade>/<slug>/question_sections.json`
+
+with corresponding rendered pages under:
+
+`ai_study_buddy/context/file_question_info/<subject_scope>/<grade>/<slug>/rendered_pages/page_%03d.png`
+
+The canonical structural validator (used by detector agents as a terminal gate) is:
+
+```bash
+python3 -m ai_study_buddy.marking.file_question_info.validate <run_folder>/question_sections.json
+```
 
 ## Quick Start
 

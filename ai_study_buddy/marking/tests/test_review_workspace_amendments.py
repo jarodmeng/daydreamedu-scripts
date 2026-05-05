@@ -270,6 +270,9 @@ def test_panel_save_merges_fields_for_same_question():
 
 
 def test_amendment_api_saves_overlay_and_returns_resolved_payload(tmp_path, monkeypatch):
+    # This test uses filesystem-backed artifacts under tmp_path; ensure we don't
+    # force DB reads (which would require a populated study_buddy.db).
+    monkeypatch.setenv("LEARNING_DB_ENABLE_READS", "0")
     base = _base_payload()
     asset_root = tmp_path / "marking_assets" / "emma" / "singapore_primary_science" / "sample" / "attempt"
     asset_root.mkdir(parents=True)
@@ -307,7 +310,8 @@ def test_amendment_api_saves_overlay_and_returns_resolved_payload(tmp_path, monk
     assert saved_path.exists()
 
 
-def test_my_work_attempt_list_uses_amended_score(tmp_path):
+def test_my_work_attempt_list_uses_amended_score(tmp_path, monkeypatch):
+    monkeypatch.setenv("LEARNING_DB_ENABLE_READS", "0")
     base = _base_payload()
     artifact_path = tmp_path / "marking_results" / "emma" / "singapore_primary_science" / "sample.json"
     artifact_path.parent.mkdir(parents=True)

@@ -4,6 +4,26 @@ All notable changes to `ai_study_buddy.marking` are documented in this file.
 
 Committed changes under `ai_study_buddy/marking/` should add an entry here and bump **Current version** in `README.md` (semver: **patch** for docs or small renderer tweaks, **minor** for schema or public API changes). `SPEC.md` / `TESTING.md` titles do not carry the package version.
 
+## [0.3.0] - 2026-05-05
+
+Minor: add `marking.file_question_info` helpers for deterministic `context/file_question_info/...` detector artifacts and strict validation of `question_sections.json`.
+
+### Added
+
+- `ai_study_buddy/marking/file_question_info/`:
+  - `file_question_info_run_dir_for_pdf(...)`: deterministic run-folder resolution.
+  - `render_file_question_info_pages_for_pdf(...)`: page rasterization to `rendered_pages/page_%03d.png`.
+  - `load_question_sections_json(...)` / `validate_question_sections_dict(...)`: schema-dispatched validation for `question_sections.json`.
+  - CLI validator entrypoint: `python3 -m ai_study_buddy.marking.file_question_info.validate <path>`.
+- Runtime validation invariant for stem-bearing sections:
+  - `questions_page_range.start_page == min(question_info[*].start_page)` when `stem_page_range` exists.
+
+### Documentation
+
+- `README.md`:
+  - bump current version to `v0.3.0`
+  - document `file_question_info` layout and canonical validator command.
+
 ## [0.2.19] - 2026-05-04
 
 Patch: migrate marking JSON schemas into the shared `ai_study_buddy/schemas/` tree and update runtime/documentation references.

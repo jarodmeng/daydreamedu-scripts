@@ -11,6 +11,7 @@ Primary automated coverage lives in:
 - `ai_study_buddy/marking/tests/test_artifact_cleanup.py`
 - `ai_study_buddy/marking/tests/test_marking_asset_bundle.py`
 - `ai_study_buddy/marking/tests/test_marking_asset_render.py`
+- `ai_study_buddy/marking/tests/test_file_question_info.py`
 - `ai_study_buddy/marking/tests/test_marking_time.py`
 - `ai_study_buddy/marking/tests/test_migration.py`
 - `ai_study_buddy/marking/tests/test_review_workspace_amendments.py`

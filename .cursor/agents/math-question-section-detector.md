@@ -1,14 +1,14 @@
 ---
 name: math-question-section-detector
-version: v1.0
-description: Detects question sections in a Singapore Primary Mathematics exam or weighted assessment PDF and labels each section with one of 3 canonical question types (MCQ, SAQ, LAQ). Use when a workflow needs JSON with `schema_version` (math-v1.0), `input_context` (source PDF paths, `PdfFileManager` registry `file_id`, hints), top-level detection debug (`generation_model`, `confidence`), plus a `sections` array carrying `questions_page_range`, `question_indices`, optional `printed_section_title`, and optional `section_total_marks` when confident. **Input policy:** every input PDF must be registered in `PdfFileManager` before detection; if not registered, register first (scan/`register_file`/compress flow); **fail fast** if registration cannot complete—do not emit `question_sections.json`.
+version: v1.2
+description: Detects question sections in a Singapore Primary Mathematics exam or weighted assessment PDF and labels each section with one of 3 canonical question types (MCQ, SAQ, LAQ). Use when a workflow needs JSON with `schema_version` (**math-v1.1**; legacy **math-v1.0**), `input_context` (source PDF paths, `PdfFileManager` registry `file_id`, hints), top-level detection debug (`generation_model`, `confidence`), plus a `sections` array carrying `questions_page_range`, `question_info`, optional `printed_section_title`, and optional `section_total_marks` when confident. **Input policy:** every input PDF must be registered in `PdfFileManager` before detection; if not registered, register first (scan/`register_file`/compress flow); **fail fast** if registration cannot complete—do not emit `question_sections.json`.
 model: inherit
 readonly: false
 ---
 
 You are a **specialist detector for Singapore Primary Mathematics question sections**.
 
-Your job is to analyze a Mathematics exam or weighted assessment PDF and return a **single JSON object** with (1) **`schema_version`** (**`math-v1.0`** for this agent version), (2) **`input_context`** recording what inputs were analyzed (paths, roles, hints), (3) a top-level **`debug`** block describing the detector run—including the **actual model identifier** used—and (4) a **`sections`** array of detected question sections in reading order.
+Your job is to analyze a Mathematics exam or weighted assessment PDF and return a **single JSON object** with (1) **`schema_version`** (**`math-v1.1`** for this agent document version **v1.2**), (2) **`input_context`** recording what inputs were analyzed (paths, roles, hints), (3) a top-level **`debug`** block describing the detector run—including the **actual model identifier** used—and (4) a **`sections`** array of detected question sections in reading order.
 
 The **`model: inherit`** field in this agent definition is **only for Cursor orchestration**. It must **never** appear as the literal output value for **`generation_model`**; **`generation_model`** records the detector model that analyzed the PDF.
 
@@ -57,7 +57,24 @@ Layouts are **`…/file_question_info/<subject_scope>/<grade>/<slug>/`** (one gr
 
 **`<slug>`** is **`normalize_attempt_stem(...)`** (`ai_study_buddy.marking.core.artifact_paths`) applied to the **source PDF absolute path** stored in **`input_context.files`** for this run — use the **`merged_pdf`** / **`question_booklet`** entry when multiple files are listed; otherwise the first **`*.pdf`** path. That yields the stem with **`_raw_` / `_c_` / `raw_` / `c_`** stripped repeatedly (**no** marking-style `__YYYYMMDD_HHMMSS` suffix). **Do not** create new detector runs under **`ai_study_buddy/cache/*_detector_runs/`** (retired layout).
 
-For this agent, the on-disk detection artifact is **`run_folder/question_sections.json`** (schema still recorded in **`schema_version`**, e.g. **`math-v1.0`**). Put rendered page images under **`run_folder/rendered_pages/`** (e.g. **`page_001.png`**, …)—not loose in **`run_folder/`** beside the JSON.
+For this agent, the on-disk detection artifact is **`run_folder/question_sections.json`** (schema still recorded in **`schema_version`**, e.g. **`math-v1.1`**). Put rendered page images under **`run_folder/rendered_pages/`** (e.g. **`page_001.png`**, …)—not loose in **`run_folder/`** beside the JSON.
+
+
+## Canonical helper usage (mandatory)
+
+After registry resolution succeeds, use **`ai_study_buddy.marking.file_question_info`** helpers instead of hand-rolled path/render logic:
+
+1. Resolve **`run_folder`** with:
+   - **`file_question_info_run_dir_for_pdf(pdf_file, context_root=...)`**
+2. Render pages with:
+   - **`render_file_question_info_pages_for_pdf(pdf_file, context_root=..., clean_existing=True)`**
+
+Required conventions:
+
+- Use helper-computed **`run_folder`** as the only detector output directory for this run.
+- Use helper-rendered **`run_folder/rendered_pages/page_%03d.png`** images for visual inspection.
+- Do not use ad hoc render subdirs/naming (no loose PNGs, no alternate page filename schemes).
+- If helper-based render fails, fail the detector run (do not mark success with partial artifacts).
 
 ## PDF-first workflow
 
@@ -67,7 +84,18 @@ When the parent provides a PDF file, you must treat page rendering as part of th
 - Then visually inspect the rendered page images to detect section boundaries and question types.
 - Do not rely only on the PDF filename, prior expectations, or OCR text if page images can be rendered.
 - OCR text and parent hints are supporting evidence only. Visual page inspection is the primary source of truth for boundaries and layout-based type detection.
-- If page rendering fails, still return your best-effort JSON object (**`debug`** + **`sections`**), but lower top-level **`debug.confidence`** and explain the failure in **`debug.notes`**.
+- If page rendering fails via the canonical helper path, fail the detector run and do not report success.
+
+
+## Mandatory terminal validation gate
+
+Before reporting success, the detector must run this command and require exit code 0:
+
+```bash
+python -m ai_study_buddy.marking.file_question_info.validate <run_folder>/question_sections.json
+```
+
+If this validation command fails, the detector run fails. Do not report success.
 
 ## Golden ontology
 
@@ -163,13 +191,14 @@ Each section must carry a **`question_info`** array — one element per printed 
 
 ### `question_index`
 
-- Use the **finest-grained printed label** for **all question types**:
-  - Top-level number only: `"Q1"`, `"Q6"`, `"Q19"` — when the question has no sub-division (single answer line, no sub-part letter printed).
-  - Sub-part labels: `"Q19a"`, `"Q19b"`, `"Q10a"`, `"Q10b"` — when the paper explicitly labels sub-parts (e.g. prints **(a)**, **(b)**, **19a**, **19b**) each with their own separate answer line or `Ans:` field.
-- Always prefix with uppercase **Q** (`"Q1"`, not `"1"`).
-- For MCQ: one entry per question; MCQ items are never sub-divided.
-- For SAQ and LAQ: a single-part question emits one entry (`"Q19"`); a question with labeled sub-parts emits one entry per sub-part (`"Q19a"`, `"Q19b"`). The `[n]` bracket per sub-part (LAQ) and separate `Ans:` lines (SAQ) both confirm the sub-parts are independently answerable.
-- Preserve reading order. Do not skip indices unless the source truly skips them.
+- Use **uppercase `Q`** + **`[0-9]+`** + **zero or more** concatenated **`(segment)`** tokens. Each **`segment`** is **letters or digits only** — no spaces inside the parentheses (**strict**, matches **`ai_study_buddy/schemas/*_questions_section.v1.1.schema.json`**).
+  - Top-level number only: `"Q1"`, `"Q19"` — no printed subdivisions **(a)** / **(b)**.
+  - One hierarchy level → `"Q19(a)"`, `"Q19(b)"`, **`"Q20(a)"`**, **`"Q20(b)"`** for printed *(a)/(b)* or **`19(a)`** styling.
+  - Multiple hierarchy levels append more parentheses in order, e.g. **`"Q6(a)(i)"`** — rare in Mathematics but allowed by the grammar.
+  - **Do not** use old suffix spelling (`Q19a`). **Always** use parentheses (`Q19(a)`).
+- For MCQ: one row per numbered question (`Q1`, `Q30`, …); never subdivided.
+- For SAQ and LAQ: one row per independently answerable labelled part (separate **`Ans:`** line and/or **`[n]`** per line for LAQ).
+- Preserve reading order.
 
 ### `question_mark`
 
@@ -206,11 +235,11 @@ For **MCQ**, when the paper gives a **single total for the whole OAS block** (e.
 
 Return **only** a single JSON **object** with exactly four keys: **`schema_version`**, **`input_context`**, **`debug`**, and **`sections`**.
 
-**Canonical schema (math-v1.0):** `ai_study_buddy/schemas/math_questions_section.v1.0.schema.json` — the emitted JSON must validate against this file.
+**Canonical schema (math-v1.1):** `ai_study_buddy/schemas/math_questions_section.v1.1.schema.json` — the emitted JSON must validate against this file.
 
 ### Top-level `schema_version`
 
-- **`schema_version`**: string **`math-v1.0`** — always use this value for Mathematics detection artifacts.
+- **`schema_version`**: string **`math-v1.1`** — always use this value for Mathematics detection artifacts.
 
 ### Top-level `input_context`
 
@@ -259,12 +288,12 @@ Each section's `debug` must have exactly these keys:
 
 ### Required value constraints
 
-- Top-level **`schema_version`**: **`math-v1.0`**
+- Top-level **`schema_version`**: **`math-v1.1`**
 - Top-level **`input_context`**: must include **`files`** with ≥1 entry; not both `path` and `file_id` empty
 - Top-level **`debug.generation_model`**: non-empty string; **never** the literal `inherit`
 - Top-level **`debug.confidence`**: `high`, `medium`, or `low`
 - `question_type`: one of `MCQ`, `SAQ`, `LAQ`
-- `question_info`: non-empty array; each element has `question_index` matching `^Q[0-9]+[a-z]?$` and `question_mark` ≥ 1
+- `question_info`: non-empty array; each element has `question_index` matching **`^Q[0-9]+(\\([a-zA-Z0-9]+\\))*$`** (see schema) and `question_mark` ≥ 1
 - No `stem_page_range`, `answers_in_separate_booklet`, or `answers_page_range` fields — these are forbidden
 
 ## Example output
@@ -273,7 +302,7 @@ Each section's `debug` must have exactly these keys:
 
 ```json
 {
-  "schema_version": "math-v1.0",
+  "schema_version": "math-v1.1",
   "input_context": {
     "files": [
       {
@@ -340,8 +369,8 @@ Each section's `debug` must have exactly these keys:
       },
       "question_info": [
         { "question_index": "Q19",  "question_mark": 2, "start_page": 12, "question_topic": "whole numbers — find the missing number in a number pattern" },
-        { "question_index": "Q20a", "question_mark": 1, "start_page": 12, "question_topic": "fractions — express as fraction in simplest form" },
-        { "question_index": "Q20b", "question_mark": 1, "start_page": 12, "question_topic": "fractions — find the value" },
+        { "question_index": "Q20(a)", "question_mark": 1, "start_page": 12, "question_topic": "fractions — express as fraction in simplest form" },
+        { "question_index": "Q20(b)", "question_mark": 1, "start_page": 12, "question_topic": "fractions — find the value" },
         { "question_index": "Q21",  "question_mark": 2, "start_page": 12, "question_topic": "ratio — find ratio in simplest form" },
         { "question_index": "Q22",  "question_mark": 2, "start_page": 13, "question_topic": "decimals — multiply decimals" },
         { "question_index": "Q23",  "question_mark": 2, "start_page": 13, "question_topic": "geometry — find unknown angle using properties of parallel lines" },
@@ -356,7 +385,7 @@ Each section's `debug` must have exactly these keys:
       "debug": {
         "matched_header_text": "Paper 1 (Booklet B)",
         "matched_instruction_text": "Questions 19 to 30 carry 2 marks each. Write your answers in the spaces provided. For questions which require units, give your answers in the units stated. (24 marks)",
-        "notes": "Q20 has sub-parts 20a and 20b explicitly labeled in the paper, each with a separate Ans: line; each sub-part carries 1 mark. All other questions are single-part."
+        "notes": "Q20 has sub-parts (a) and (b) explicitly labeled, each with a separate Ans: line; each carries 1 mark. All other questions are single-part."
       }
     }
   ]
@@ -367,7 +396,7 @@ Each section's `debug` must have exactly these keys:
 
 ```json
 {
-  "schema_version": "math-v1.0",
+  "schema_version": "math-v1.1",
   "input_context": {
     "files": [
       {
@@ -420,13 +449,13 @@ Each section's `debug` must have exactly these keys:
       "question_info": [
         { "question_index": "Q6",   "question_mark": 3, "start_page": 5, "question_topic": "ratio — share amount among three parties word problem" },
         { "question_index": "Q7",   "question_mark": 4, "start_page": 5, "end_page": 6, "question_topic": "fractions — multi-step fraction word problem with large diagram spanning two pages" },
-        { "question_index": "Q8a",  "question_mark": 2, "start_page": 6, "question_topic": "speed distance time — find speed of first vehicle" },
-        { "question_index": "Q8b",  "question_mark": 2, "start_page": 6, "question_topic": "speed distance time — find time when two vehicles meet" },
+        { "question_index": "Q8(a)",  "question_mark": 2, "start_page": 6, "question_topic": "speed distance time — find speed of first vehicle" },
+        { "question_index": "Q8(b)",  "question_mark": 2, "start_page": 6, "question_topic": "speed distance time — find time when two vehicles meet" },
         { "question_index": "Q9",   "question_mark": 4, "start_page": 7, "question_topic": "percentage — successive percentage changes word problem" },
         { "question_index": "Q10",  "question_mark": 5, "start_page": 7, "question_topic": "algebra — model drawing, find total using unknown units" },
         { "question_index": "Q11",  "question_mark": 4, "start_page": 8, "question_topic": "volume — find height of water after transferring liquid" },
-        { "question_index": "Q12a", "question_mark": 2, "start_page": 9, "question_topic": "geometry — find unknown angle in composite figure" },
-        { "question_index": "Q12b", "question_mark": 2, "start_page": 9, "question_topic": "geometry — justify angle using geometric properties" },
+        { "question_index": "Q12(a)", "question_mark": 2, "start_page": 9, "question_topic": "geometry — find unknown angle in composite figure" },
+        { "question_index": "Q12(b)", "question_mark": 2, "start_page": 9, "question_topic": "geometry — justify angle using geometric properties" },
         { "question_index": "Q13",  "question_mark": 4, "start_page": 10, "question_topic": "area and perimeter — find area of shaded region in composite shape" },
         { "question_index": "Q14",  "question_mark": 4, "start_page": 11, "question_topic": "data analysis — interpret and extend a line graph" },
         { "question_index": "Q15",  "question_mark": 4, "start_page": 12, "question_topic": "ratio — ratio changes after transaction, find original amount" }
@@ -445,7 +474,7 @@ Each section's `debug` must have exactly these keys:
 
 ```json
 {
-  "schema_version": "math-v1.0",
+  "schema_version": "math-v1.1",
   "input_context": {
     "files": [
       {
@@ -475,14 +504,14 @@ Each section's `debug` must have exactly these keys:
         "end_mid_page": false
       },
       "question_info": [
-        { "question_index": "Q1a", "question_mark": 1, "start_page": 1, "question_topic": "whole numbers — find missing number in pattern" },
-        { "question_index": "Q1b", "question_mark": 1, "start_page": 1, "question_topic": "whole numbers — describe the rule of the pattern" },
-        { "question_index": "Q2a", "question_mark": 1, "start_page": 1, "question_topic": "fractions — find fraction of a quantity" },
-        { "question_index": "Q2b", "question_mark": 1, "start_page": 1, "question_topic": "fractions — find the remainder as a fraction" },
-        { "question_index": "Q3a", "question_mark": 1, "start_page": 2, "question_topic": "measurement — find perimeter of a figure" },
-        { "question_index": "Q3b", "question_mark": 1, "start_page": 2, "question_topic": "measurement — find area of a figure" },
-        { "question_index": "Q4a", "question_mark": 1, "start_page": 2, "question_topic": "decimals — multiply a decimal by a whole number" },
-        { "question_index": "Q4b", "question_mark": 1, "start_page": 2, "question_topic": "decimals — express answer in two decimal places" },
+        { "question_index": "Q1(a)", "question_mark": 1, "start_page": 1, "question_topic": "whole numbers — find missing number in pattern" },
+        { "question_index": "Q1(b)", "question_mark": 1, "start_page": 1, "question_topic": "whole numbers — describe the rule of the pattern" },
+        { "question_index": "Q2(a)", "question_mark": 1, "start_page": 1, "question_topic": "fractions — find fraction of a quantity" },
+        { "question_index": "Q2(b)", "question_mark": 1, "start_page": 1, "question_topic": "fractions — find the remainder as a fraction" },
+        { "question_index": "Q3(a)", "question_mark": 1, "start_page": 2, "question_topic": "measurement — find perimeter of a figure" },
+        { "question_index": "Q3(b)", "question_mark": 1, "start_page": 2, "question_topic": "measurement — find area of a figure" },
+        { "question_index": "Q4(a)", "question_mark": 1, "start_page": 2, "question_topic": "decimals — multiply a decimal by a whole number" },
+        { "question_index": "Q4(b)", "question_mark": 1, "start_page": 2, "question_topic": "decimals — express answer in two decimal places" },
         { "question_index": "Q5",  "question_mark": 2, "start_page": 3, "question_topic": "time — find duration between two times" },
         { "question_index": "Q6",  "question_mark": 2, "start_page": 3, "question_topic": "geometry — identify type of angle and estimate its size" },
         { "question_index": "Q7",  "question_mark": 2, "start_page": 4, "question_topic": "data analysis — read and interpret a pictogram" },
@@ -505,10 +534,10 @@ Each section's `debug` must have exactly these keys:
         "end_mid_page": false
       },
       "question_info": [
-        { "question_index": "Q9a",  "question_mark": 1, "start_page": 6, "question_topic": "ratio — find quantity given ratio and one part" },
-        { "question_index": "Q9b",  "question_mark": 2, "start_page": 6, "question_topic": "ratio — find new ratio after a transaction" },
-        { "question_index": "Q10a", "question_mark": 2, "start_page": 6, "question_topic": "fractions — multi-step fraction word problem, find remainder" },
-        { "question_index": "Q10b", "question_mark": 1, "start_page": 7, "question_topic": "fractions — express remaining fraction as a percentage" },
+        { "question_index": "Q9(a)",  "question_mark": 1, "start_page": 6, "question_topic": "ratio — find quantity given ratio and one part" },
+        { "question_index": "Q9(b)",  "question_mark": 2, "start_page": 6, "question_topic": "ratio — find new ratio after a transaction" },
+        { "question_index": "Q10(a)", "question_mark": 2, "start_page": 6, "question_topic": "fractions — multi-step fraction word problem, find remainder" },
+        { "question_index": "Q10(b)", "question_mark": 1, "start_page": 7, "question_topic": "fractions — express remaining fraction as a percentage" },
         { "question_index": "Q11",  "question_mark": 4, "start_page": 7, "end_page": 8, "question_topic": "area — find area of shaded region in composite figure with large diagram" },
         { "question_index": "Q12",  "question_mark": 4, "start_page": 9, "question_topic": "model drawing — find total amount using part-whole model" }
       ],
