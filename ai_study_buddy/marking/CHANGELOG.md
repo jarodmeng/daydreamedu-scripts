@@ -4,6 +4,65 @@ All notable changes to `ai_study_buddy.marking` are documented in this file.
 
 Committed changes under `ai_study_buddy/marking/` should add an entry here and bump **Current version** in `README.md` (semver: **patch** for docs or small renderer tweaks, **minor** for schema or public API changes). `SPEC.md` / `TESTING.md` titles do not carry the package version.
 
+## [0.3.1] - 2026-05-05
+
+Patch: complete Proposal 14 persistence rollout for `file_question_info`, including DB migration/import/dual-write wiring, schema-version standardization updates, and run-level timestamp enforcement.
+
+### Added
+
+- `ai_study_buddy/learning_db/migrations/002_file_question_info.sql`:
+  - adds `file_question_info_runs`, `file_question_info_sections`, `file_question_info_items`
+  - expands import-family checks to include `file_question_info` in `import_identity_map` / `import_quarantine`
+- `ai_study_buddy/marking/file_question_info/post_write.py`:
+  - adds `finalize_question_sections_snapshot(...)` shared post-write helper for detector workflows (validate + dual-write mirror)
+
+### Changed
+
+- `learning_db/import_context_json.py`:
+  - adds `upsert_file_question_info_run(...)`
+  - extends scanner/import family support for `context/file_question_info/**/question_sections.json`
+  - adds `file_question_info` quarantine routing/error-code mapping
+  - enforces required run-level timestamps (`created_at`, `updated_at`) for `file_question_info` imports
+- `learning_db/dual_write.py`:
+  - adds `family=\"file_question_info\"` projection routing
+- `marking/file_question_info/api.py`:
+  - validator schema map now targets latest detector schema versions:
+    - `english-v1.3`
+    - `chinese-v1.4`
+    - `high-chinese-v1.2`
+    - `math-v1.2`
+    - `science-v1.2`
+- detector agent docs:
+  - updated version/schema references
+  - updated runtime contract to include shared post-write finalizer invocation
+
+### Data and Schema Migration
+
+- Added latest question-section schema files with timestamp-required top-level fields:
+  - `english_paper2_questions_section.v1.3.schema.json`
+  - `chinese_paper2_questions_section.v1.4.schema.json`
+  - `higher_chinese_paper2_questions_section.v1.2.schema.json`
+  - `math_questions_section.v1.2.schema.json`
+  - `science_questions_section.v1.2.schema.json`
+- Migrated existing `context/file_question_info/**/question_sections.json` corpus:
+  - bumped `schema_version` to latest family versions
+  - standardized section key usage to `answers_page_range`
+  - backfilled `created_at` / `updated_at` from snapshot file mtime (same run-level timestamp per artifact)
+- Backfilled `file_question_info` into `study_buddy.db`:
+  - scanned/imported: `23/23`
+  - runs: `23`
+  - sections: `105`
+  - items: `760`
+  - quarantine (`file_question_info`): `0` open / `0` total
+
+### Documentation
+
+- `README.md`:
+  - bump current version to `v0.3.1`
+  - document shared post-write finalizer usage in `file_question_info` workflows
+- `docs/proposal/14-persist-file-question-info-in-study-buddy-db.md`:
+  - marked implemented and recorded rollout/backfill/runtime verification status
+
 ## [0.3.0] - 2026-05-05
 
 Minor: add `marking.file_question_info` helpers for deterministic `context/file_question_info/...` detector artifacts and strict validation of `question_sections.json`.

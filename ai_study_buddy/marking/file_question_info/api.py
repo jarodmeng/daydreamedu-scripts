@@ -21,13 +21,13 @@ _ALLOWED_GRADES = ("P1", "P2", "P3", "P4", "P5", "P6", "PSLE")
 _SUPPORTED_IMAGE_EXTENSIONS = (".png", ".jpg", ".jpeg", ".webp")
 _SCHEMAS_DIR = Path(__file__).resolve().parents[2] / "schemas"
 _SCHEMA_PATHS_BY_VERSION: dict[str, Path] = {
-    "chinese-v1.3": _SCHEMAS_DIR / "chinese_paper2_questions_section.v1.3.schema.json",
-    "high-chinese-v1.1": _SCHEMAS_DIR / "higher_chinese_paper2_questions_section.v1.1.schema.json",
-    "english-v1.2": _SCHEMAS_DIR / "english_paper2_questions_section.v1.2.schema.json",
+    "chinese-v1.4": _SCHEMAS_DIR / "chinese_paper2_questions_section.v1.4.schema.json",
+    "high-chinese-v1.2": _SCHEMAS_DIR / "higher_chinese_paper2_questions_section.v1.2.schema.json",
+    "english-v1.3": _SCHEMAS_DIR / "english_paper2_questions_section.v1.3.schema.json",
     "math-v1.0": _SCHEMAS_DIR / "math_questions_section.v1.0.schema.json",
-    "math-v1.1": _SCHEMAS_DIR / "math_questions_section.v1.1.schema.json",
+    "math-v1.2": _SCHEMAS_DIR / "math_questions_section.v1.2.schema.json",
     "science-v1.0": _SCHEMAS_DIR / "science_questions_section.v1.0.schema.json",
-    "science-v1.1": _SCHEMAS_DIR / "science_questions_section.v1.1.schema.json",
+    "science-v1.2": _SCHEMAS_DIR / "science_questions_section.v1.2.schema.json",
 }
 
 

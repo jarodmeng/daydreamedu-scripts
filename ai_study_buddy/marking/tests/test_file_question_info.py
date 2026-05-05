@@ -174,7 +174,9 @@ def _minimal_math_v1_1_payload() -> dict:
     qrow_nested = [{"question_index": "Q20(a)", "question_mark": 1, "start_page": 1}]
     qrow_deep = [{"question_index": "Q6(a)(i)", "question_mark": 1, "start_page": 1}]
     return {
-        "schema_version": "math-v1.1",
+        "schema_version": "math-v1.2",
+        "created_at": "2026-01-01T00:00:00+08:00",
+        "updated_at": "2026-01-01T00:00:00+08:00",
         "input_context": {
             "files": [
                 {
@@ -203,7 +205,9 @@ def _minimal_science_v1_1_payload() -> dict:
     rng = {"start_page": 1, "end_page": 1, "start_mid_page": False, "end_mid_page": False}
     sec_dbg = {"matched_header_text": "", "matched_instruction_text": "", "notes": ""}
     return {
-        "schema_version": "science-v1.1",
+        "schema_version": "science-v1.2",
+        "created_at": "2026-01-01T00:00:00+08:00",
+        "updated_at": "2026-01-01T00:00:00+08:00",
         "input_context": {
             "files": [
                 {
@@ -235,26 +239,26 @@ def _minimal_science_v1_1_payload() -> dict:
 
 @pytest.mark.parametrize(
     "schema_version",
-    ["chinese-v1.3", "high-chinese-v1.1", "english-v1.2", "math-v1.1", "science-v1.1"],
+    ["chinese-v1.4", "high-chinese-v1.2", "english-v1.3", "math-v1.2", "science-v1.2"],
 )
 def test_validate_question_sections_dict_accepts_real_corpus_examples(schema_version):
     payload = _find_payload_for_schema_version(schema_version)
     validate_question_sections_dict(payload)
 
 
-def test_validate_math_and_science_v1_1_smoke():
+def test_validate_math_and_science_v1_2_smoke():
     validate_question_sections_dict(_minimal_math_v1_1_payload())
     validate_question_sections_dict(_minimal_science_v1_1_payload())
 
 
-def test_math_v1_1_question_index_suffix_form_rejected():
+def test_math_v1_2_question_index_suffix_form_rejected():
     payload = _minimal_math_v1_1_payload()
     payload["sections"][0]["question_info"][1] = {"question_index": "Q20a", "question_mark": 1, "start_page": 1}
     with pytest.raises(QuestionSectionsValidationError, match="question_index"):
         validate_question_sections_dict(payload)
 
 
-def test_science_v1_1_question_index_hyphen_inside_parens_rejected():
+def test_science_v1_2_question_index_hyphen_inside_parens_rejected():
     payload = _minimal_science_v1_1_payload()
     payload["sections"][0]["question_info"][-1] = {
         "question_index": "Q6(a-i)",
@@ -271,7 +275,7 @@ def test_validate_question_sections_unknown_version():
 
 
 def test_validate_question_sections_enforces_single_input_file():
-    payload = _find_payload_for_schema_version("math-v1.1")
+    payload = _find_payload_for_schema_version("math-v1.2")
     payload = dict(payload)
     input_context = dict(payload["input_context"])
     files = list(input_context["files"])
@@ -282,10 +286,10 @@ def test_validate_question_sections_enforces_single_input_file():
 
 
 def test_load_question_sections_json_and_cli_validate(tmp_path):
-    payload = _find_payload_for_schema_version("english-v1.2")
+    payload = _find_payload_for_schema_version("english-v1.3")
     path = tmp_path / "question_sections.json"
     path.write_text(json.dumps(payload), encoding="utf-8")
-    assert load_question_sections_json(path)["schema_version"] == "english-v1.2"
+    assert load_question_sections_json(path)["schema_version"] == "english-v1.3"
 
     result = subprocess.run(
         [

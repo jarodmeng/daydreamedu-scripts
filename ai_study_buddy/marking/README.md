@@ -8,7 +8,7 @@ Canonical marking pipeline for AI Study Buddy. This package defines the
 3. render markdown as a derived view
 4. support human note edits in the canonical JSON
 
-Current version: `v0.3.0`
+Current version: `v0.3.1`
 
 ## Package Scope
 
@@ -98,7 +98,7 @@ Example `context` snippet:
 
 Per-run renders, answer crops, and disposable `_mark_*.py` / `_render_*.py` helpers live under the standardized bundle root in `context.marking_asset` (for example `ai_study_buddy/context/marking_assets/<student>/<subject>/<artifact_stem>/`), not in this package root.
 
-## File Question Info Helpers (`v0.3.0+`)
+## File Question Info Helpers (`v0.3.1+`)
 
 Detectors for Chinese/English/Higher Chinese/Math/Science write `question_sections.json` under:
 
@@ -112,6 +112,19 @@ The canonical structural validator (used by detector agents as a terminal gate) 
 
 ```bash
 python3 -m ai_study_buddy.marking.file_question_info.validate <run_folder>/question_sections.json
+```
+
+Detector post-write workflows now use a shared finalizer hook to enforce
+validation and dual-write mirroring:
+
+```python
+from pathlib import Path
+from ai_study_buddy.marking import finalize_question_sections_snapshot
+
+finalize_question_sections_snapshot(
+    snapshot_path=Path("<run_folder>/question_sections.json"),
+    context_root=Path("ai_study_buddy/context"),
+)
 ```
 
 ## Quick Start
