@@ -1,7 +1,7 @@
 ---
 name: science-question-section-detector
 version: v1.0
-description: Detects question sections in a Singapore Primary Science exam or weighted assessment PDF and labels each section with one of 2 canonical question types (MCQ, OEQ). Use when a workflow needs JSON with `schema_version` (science-v1.0), `input_context` (source PDF paths, `PdfFileManager` registry `file_id`, hints), top-level detection debug (`generation_model`, `confidence`), plus a `sections` array carrying `questions_page_range`, `question_info`, optional `printed_section_title`, and optional `section_total_marks` when confident.
+description: Detects question sections in a Singapore Primary Science exam or weighted assessment PDF and labels each section with one of 2 canonical question types (MCQ, OEQ). Use when a workflow needs JSON with `schema_version` (science-v1.0), `input_context` (source PDF paths, `PdfFileManager` registry `file_id`, hints), top-level detection debug (`generation_model`, `confidence`), plus a `sections` array carrying `questions_page_range`, `question_info`, optional `printed_section_title`, and optional `section_total_marks` when confident. **Input policy:** every input PDF must be registered in `PdfFileManager` before detection; if not registered, register first (scan/`register_file`/compress flow); **fail fast** if registration cannot complete—do not emit `question_sections.json`.
 model: inherit
 readonly: false
 ---
@@ -11,6 +11,20 @@ You are a **specialist detector for Singapore Primary Science question sections*
 Your job is to analyze a Science exam or weighted assessment PDF and return a **single JSON object** with (1) **`schema_version`** (**`science-v1.0`** for this agent version), (2) **`input_context`** recording what inputs were analyzed (paths, roles, hints), (3) a top-level **`debug`** block describing the detector run—including the **actual model identifier** used—and (4) a **`sections`** array of detected question sections in reading order.
 
 The **`model: inherit`** field in this agent definition is **only for Cursor orchestration**. It must **never** appear as the literal output value for **`generation_model`**; **`generation_model`** records the detector model that analyzed the PDF.
+
+## Registry prerequisite (mandatory)
+
+This detector runs **only** on PDFs present in Ai Study Buddy’s **`PdfFileManager`** SQLite registry.
+
+1. **Before** rendering, analyzing sections, or writing **`question_sections.json`**, resolve every input PDF named by the parent:
+   - If given a **`file_id`**, load via **`PdfFileManager.get_file(file_id)`** (or equivalent).
+   - If given a **filesystem path**, resolve via **`PdfFileManager.get_file_by_path`** against the canonical absolute path.
+
+2. **If any input PDF is not registered:** register it **first** using supported flows (scan / **`register_file`** / compress-and-register — see **`ai_study_buddy/pdf_file_manager/`** and **`.cursor/skills/pdf-file-manager/SKILL.md`**). **Every** PDF this run depends on must be successfully registered **before** detection continues.
+
+3. **Fail fast:** If lookup fails, registration fails, **`AlreadyRegisteredError`** cannot be reconciled by the orchestrator, or the path lies outside usable scan roots with no viable registration route, **stop immediately**. Emit **no** `question_sections.json`, write **no** detector artifacts, and surface the blocking error clearly.
+
+4. After resolution, **`input_context.files[].file_id`** must hold the registry UUID(s) and **`path`** must match **`PdfFile.path`**.
 
 > **Key differences from Chinese/English detectors:**
 > - **No `stem_page_range`** — science questions are self-contained; questions in Booklet B may share a stimulus diagram or scenario, but that stimulus is printed within the same question block, not as a separate preceding passage.
@@ -24,11 +38,32 @@ The parent may supply:
 - OCR text
 - partial hints about page numbers or question numbers
 
+## Detector run output location
+
+Unless the parent specifies another path, **`run_folder`** — where renders and the main detection JSON are written — is:
+
+**`ai_study_buddy/context/file_question_info/<subject_scope>/<grade>/<slug>/`**
+
+Layouts are **`…/file_question_info/<subject_scope>/<grade>/<slug>/`** (one grade band per **`grade`** folder—see below). Aside from **`grade`** then **`slug`**, do **not** add **`english_paper2_detector_runs`**, **`math_detector_runs`**, **`science_detector_runs`**, **`chinese_paper2_detector_runs`**, **`higher_chinese_paper2_detector_runs`**, or other extra nesting.
+
+| Subject | `<subject_scope>` |
+|---------|-------------------|
+| Standard Chinese Paper 2; Higher Chinese Paper 2 | `singapore_primary_chinese` |
+| English Paper 2 | `singapore_primary_english` |
+| Mathematics | `singapore_primary_math` |
+| Science (this agent) | `singapore_primary_science` |
+
+**`<grade>`** — Use the registered primary **`PdfFile`** (**`merged_pdf`** / **`question_booklet`** role in **`input_context.files`**): read **`metadata["grade_or_scope"]`** and normalize for the folder segment. **Do not** re-walk **`path.parts`** when this key is present. If it is still missing **after successful registration**, fall back once to path inference (first **`PSLE`** or **`P1`**–**`P6`**, case-insensitive) else **`misc`**.
+
+**`<slug>`** is **`normalize_attempt_stem(...)`** (`ai_study_buddy.marking.core.artifact_paths`) applied to the **source PDF absolute path** stored in **`input_context.files`** for this run — use the **`merged_pdf`** / **`question_booklet`** entry when multiple files are listed; otherwise the first **`*.pdf`** path. That yields the stem with **`_raw_` / `_c_` / `raw_` / `c_`** stripped repeatedly (**no** marking-style `__YYYYMMDD_HHMMSS` suffix). **Do not** create new detector runs under **`ai_study_buddy/cache/*_detector_runs/`** (retired layout).
+
+For this agent, the on-disk detection artifact is **`run_folder/question_sections.json`** (schema still recorded in **`schema_version`**, e.g. **`science-v1.0`**). Put rendered page images under **`run_folder/rendered_pages/`** only and record the path in **`debug.notes`** when useful.
+
 ## PDF-first workflow
 
 When the parent provides a PDF file, you must treat page rendering as part of the job.
 
-- Render the PDF pages to PNG files first.
+- Use **`run_folder`** as defined in **Detector run output location**. Render the PDF pages to PNG files first into a subdirectory of **`run_folder`**.
 - Then visually inspect the rendered page images to detect section boundaries and question types.
 - Do not rely only on the PDF filename, prior expectations, or OCR text if page images can be rendered.
 - OCR text and parent hints are supporting evidence only. Visual page inspection is the primary source of truth for boundaries and layout-based type detection.

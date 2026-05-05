@@ -2,15 +2,15 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "daydreamedu:ai_study_buddy/schemas/higher_chinese_paper2_questions_section.v1.0.schema.json",
   "title": "Singapore Primary Higher Chinese Paper 2 question-section detection output (v1.0)",
-  "description": "JSON shape emitted by Cursor agent higher-chinese-paper-2-question-section-detector.md (spec version v1.0). Covers the 4 canonical Higher Chinese Paper 2 question types: 综合填空, 字词改正, 阅读理解一 问答, 阅读理解二 问答. All 4 types require `answers_in_separate_booklet`. Comprehension types (阅读理解一 问答, 阅读理解二 问答) require `stem_page_range`. See agent doc and higher_chinese_exam_paper2_question_types.md for semantics.",
+  "description": "JSON shape emitted by Cursor agent higher-chinese-paper-2-question-section-detector.md (spec version v1.0). **`schema_version`** **`high-chinese-v1.0`**. Covers the 4 canonical Higher Chinese Paper 2 question types: 综合填空, 字词改正, 阅读理解一 问答, 阅读理解二 问答. All 4 types require `answers_in_separate_booklet`. Comprehension types (阅读理解一 问答, 阅读理解二 问答) require `stem_page_range`. See agent doc and higher_chinese_exam_paper2_question_types.md for semantics.",
   "type": "object",
   "additionalProperties": false,
   "required": ["schema_version", "input_context", "debug", "sections"],
   "properties": {
     "schema_version": {
       "type": "string",
-      "const": "hc-v1.0",
-      "description": "Must be 'hc-v1.0' for Higher Chinese Paper 2 detection artifacts. Distinct from standard Chinese schema versions (v1.x)."
+      "const": "high-chinese-v1.0",
+      "description": "Higher Chinese Paper 2 detection contract; must be `high-chinese-v1.0`. Distinct from Standard Chinese (`chinese-v*` strings)."
     },
     "input_context": { "$ref": "#/$defs/inputContext" },
     "debug": { "$ref": "#/$defs/runDebug" },

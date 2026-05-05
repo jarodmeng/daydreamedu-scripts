@@ -2,15 +2,15 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "daydreamedu:ai_study_buddy/schemas/higher_chinese_paper2_questions_section.v1.1.schema.json",
   "title": "Singapore Primary Higher Chinese Paper 2 question-section detection output (hc v1.1)",
-  "description": "JSON shape emitted by Cursor agent higher-chinese-paper-2-question-section-detector.md (spec version hc-v1.1). Extends hc-v1.0 with a required per-section `question_info` array (one element per question index) with marks and page metadata, analogous to Mathematics/Science detectors—the sequence of `question_index` values is canonical (replacing the hc-v1.0 `question_indices` array). Legacy artifacts use **`schema_version`**: **`hc-v1.0`** and schema file *.v1.0.schema.json. See agent doc and higher_chinese_exam_paper2_question_types.md for semantics.",
+  "description": "JSON shape emitted by Cursor agent higher-chinese-paper-2-question-section-detector.md (spec version v1.1). **`schema_version`** **`high-chinese-v1.1`**. Extends high-chinese-v1.0 with a required per-section `question_info` array (one element per question index) with marks and page metadata, analogous to Mathematics/Science detectors—the sequence of `question_index` values is canonical (replacing the high-chinese-v1.0 `question_indices` array). Older shapes use **`higher_chinese_paper2_questions_section.v1.0.schema.json`**. See agent doc and higher_chinese_exam_paper2_question_types.md for semantics.",
   "type": "object",
   "additionalProperties": false,
   "required": ["schema_version", "input_context", "debug", "sections"],
   "properties": {
     "schema_version": {
       "type": "string",
-      "const": "hc-v1.1",
-      "description": "Must be 'hc-v1.1' for this Higher Chinese Paper 2 detection contract. Legacy: 'hc-v1.0'."
+      "const": "high-chinese-v1.1",
+      "description": "Higher Chinese Paper 2 detection contract; must be `high-chinese-v1.1`. Older payload shape: **`high-chinese-v1.0`** (v1.0 schema file)."
     },
     "input_context": { "$ref": "#/$defs/inputContext" },
     "debug": { "$ref": "#/$defs/runDebug" },
@@ -138,7 +138,7 @@
         "question_index": {
           "type": "string",
           "pattern": "^Q[0-9]+$",
-          "description": "Printed top-level question number (`Q1`, …), matching legacy hc-v1.0 `question_indices` strings."
+          "description": "Printed top-level question number (`Q1`, …), matching legacy high-chinese-v1.0 `question_indices` strings."
         },
         "question_mark": {
           "type": "integer",
@@ -181,7 +181,7 @@
         "answers_page_range": { "$ref": "#/$defs/pageRange" },
         "question_info": {
           "type": "array",
-          "description": "Per-question metadata in reading order—canonical replacement for the flat `question_indices` list in hc-v1.0.",
+          "description": "Per-question metadata in reading order—canonical replacement for the flat `question_indices` list in high-chinese-v1.0.",
           "minItems": 1,
           "items": { "$ref": "#/$defs/questionInfo" }
         },

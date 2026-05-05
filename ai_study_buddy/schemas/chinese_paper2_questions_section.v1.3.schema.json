@@ -2,15 +2,15 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "daydreamedu:ai_study_buddy/schemas/chinese_paper2_questions_section.v1.3.schema.json",
   "title": "Chinese Primary Paper 2 question-section detection output (v1.3)",
-  "description": "JSON shape emitted by Cursor agent chinese-paper-2-question-section-detector.md (spec version v1.3). Extends v1.2: each section carries a required `question_info` array (one element per numbered question index) with per-question marks and page location metadata, analogous to Mathematics and Science question-section schemas—the sequence of `question_index` values is the canonical index list for the section (replacing the v1.2 `question_indices` array). Older artifacts with **`schema_version`**: **`v1.2`** (or earlier) validate against *.v1.2.schema.json etc. See agent doc and chinese_exam_paper2_question_types.md for semantics.",
+  "description": "JSON shape emitted by Cursor agent chinese-paper-2-question-section-detector.md (spec version v1.3). Top-level **`schema_version`** is **`chinese-v1.3`** (namespaced; distinct from English and Higher Chinese). Extends chinese-v1.2: each section carries a required `question_info` array (one element per numbered question index) with per-question marks and page location metadata, analogous to Mathematics and Science question-section schemas—the sequence of `question_index` values is the canonical index list for the section (replacing the chinese-v1.2 `question_indices` array). Older shapes validate against sibling schema files *.v1.2.schema.json etc. See agent doc and chinese_exam_paper2_question_types.md for semantics.",
   "type": "object",
   "additionalProperties": false,
   "required": ["schema_version", "input_context", "debug", "sections"],
   "properties": {
     "schema_version": {
       "type": "string",
-      "const": "v1.3",
-      "description": "Must match the detector output spec; select the JSON Schema file with the same version suffix (e.g. *.v1.3.schema.json)."
+      "const": "chinese-v1.3",
+      "description": "Standard Chinese Paper 2 detection contract; must be `chinese-v1.3`. Select the JSON Schema file with the same structural version suffix (e.g. *.v1.3.schema.json)."
     },
     "input_context": { "$ref": "#/$defs/inputContext" },
     "debug": { "$ref": "#/$defs/runDebug" },

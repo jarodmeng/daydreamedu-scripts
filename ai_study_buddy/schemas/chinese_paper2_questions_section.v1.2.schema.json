@@ -2,15 +2,15 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "daydreamedu:ai_study_buddy/schemas/chinese_paper2_questions_section.v1.2.schema.json",
   "title": "Chinese Primary Paper 2 question-section detection output (v1.2)",
-  "description": "JSON shape emitted by Cursor agent chinese-paper-2-question-section-detector.md (spec version v1.2). Extends v1.1 with optional per-section `section_total_marks` when the detector is confident the value is correct and applies to that section alone. Adds optional section `printed_section_title` for verbatim worksheet headings mapped to canonical `question_type`. See agent doc and chinese_exam_paper2_question_types.md for semantics.",
+  "description": "JSON shape emitted by Cursor agent chinese-paper-2-question-section-detector.md (spec version v1.2). **`schema_version`** **`chinese-v1.2`**. Extends chinese-v1.1 with optional per-section `section_total_marks` when the detector is confident the value is correct and applies to that section alone. Adds optional section `printed_section_title` for verbatim worksheet headings mapped to canonical `question_type`. See agent doc and chinese_exam_paper2_question_types.md for semantics.",
   "type": "object",
   "additionalProperties": false,
   "required": ["schema_version", "input_context", "debug", "sections"],
   "properties": {
     "schema_version": {
       "type": "string",
-      "const": "v1.2",
-      "description": "Must match the detector output spec; select the JSON Schema file with the same version suffix (e.g. *.v1.2.schema.json)."
+      "const": "chinese-v1.2",
+      "description": "Standard Chinese Paper 2 detection contract; must be `chinese-v1.2`. Select the JSON Schema file with the same structural version suffix (e.g. *.v1.2.schema.json)."
     },
     "input_context": { "$ref": "#/$defs/inputContext" },
     "debug": { "$ref": "#/$defs/runDebug" },

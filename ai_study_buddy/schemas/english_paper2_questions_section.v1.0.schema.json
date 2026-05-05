@@ -2,15 +2,15 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "daydreamedu:ai_study_buddy/schemas/english_paper2_questions_section.v1.0.schema.json",
   "title": "English Primary Paper 2 question-section detection output (v1.0)",
-  "description": "JSON shape emitted by Cursor agent english-paper-2-question-section-detector.md (spec version v1.0). Canonical question_type strings match english_exam_paper2_question_types.md. `stem_page_range` is allowed only for separable-stimulus types (Vocabulary Cloze, Visual Text Comprehension, Comprehension Open-ended); it is forbidden for Grammar Cloze, Editing, and Comprehension Cloze. Written OE prompts and answer spaces are always co-located on `questions_page_range` pages—there is no `answers_in_separate_booklet` / `answers_page_range` split for English outputs.",
+  "description": "JSON shape emitted by Cursor agent english-paper-2-question-section-detector.md (spec version v1.0). **`schema_version`** **`english-v1.0`**. Canonical question_type strings match english_exam_paper2_question_types.md. `stem_page_range` is allowed only for separable-stimulus types (Vocabulary Cloze, Visual Text Comprehension, Comprehension Open-ended); it is forbidden for Grammar Cloze, Editing, and Comprehension Cloze. Written OE prompts and answer spaces are always co-located on `questions_page_range` pages—there is no `answers_in_separate_booklet` / `answers_page_range` split for English outputs.",
   "type": "object",
   "additionalProperties": false,
   "required": ["schema_version", "input_context", "debug", "sections"],
   "properties": {
     "schema_version": {
       "type": "string",
-      "const": "v1.0",
-      "description": "Must match the detector output spec; select the JSON Schema file with the same version suffix (e.g. *.v1.0.schema.json)."
+      "const": "english-v1.0",
+      "description": "English Paper 2 detection contract; must be `english-v1.0`. Select the JSON Schema file with the same structural version suffix (e.g. *.v1.0.schema.json)."
     },
     "input_context": { "$ref": "#/$defs/inputContext" },
     "debug": { "$ref": "#/$defs/runDebug" },

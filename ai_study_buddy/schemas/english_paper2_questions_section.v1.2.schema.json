@@ -2,15 +2,15 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "daydreamedu:ai_study_buddy/schemas/english_paper2_questions_section.v1.2.schema.json",
   "title": "English Primary Paper 2 question-section detection output (v1.2)",
-  "description": "JSON shape emitted by Cursor agent english-paper-2-question-section-detector.md (spec version v1.2). Extends v1.1: each section carries a required `question_info` array (one element per question index) with per-question marks and page metadata, analogous to Mathematics/Science—the sequence of `question_index` is canonical (replacing the v1.1 `question_indices` array). `stem_page_range` / `answer_page_range` rules are unchanged from v1.1. Legacy artifacts with **`schema_version`**: **`v1.1`** or **`v1.0`** use the corresponding older schema files. See agent doc and english_exam_paper2_question_types.md for semantics.",
+  "description": "JSON shape emitted by Cursor agent english-paper-2-question-section-detector.md (spec version v1.2). **`schema_version`** **`english-v1.2`**. Extends english-v1.1: each section carries a required `question_info` array (one element per question index) with per-question marks and page metadata, analogous to Mathematics/Science—the sequence of `question_index` is canonical (replacing the english-v1.1 `question_indices` array). `stem_page_range` / `answer_page_range` rules are unchanged from english-v1.1. Older shapes use sibling schema files *.v1.1.schema.json / *.v1.0.schema.json. See agent doc and english_exam_paper2_question_types.md for semantics.",
   "type": "object",
   "additionalProperties": false,
   "required": ["schema_version", "input_context", "debug", "sections"],
   "properties": {
     "schema_version": {
       "type": "string",
-      "const": "v1.2",
-      "description": "Must match the detector output spec; select the JSON Schema file with the same version suffix (e.g. *.v1.2.schema.json)."
+      "const": "english-v1.2",
+      "description": "English Paper 2 detection contract; must be `english-v1.2`. Select the JSON Schema file with the same structural version suffix (e.g. *.v1.2.schema.json)."
     },
     "input_context": { "$ref": "#/$defs/inputContext" },
     "debug": { "$ref": "#/$defs/runDebug" },

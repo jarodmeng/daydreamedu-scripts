@@ -69,6 +69,7 @@ ai_study_buddy/context/learning_reports/
 ai_study_buddy/context/marking_results/
 ai_study_buddy/context/marking_amendments/
 ai_study_buddy/context/student_review_states/
+ai_study_buddy/context/file_question_info/
 ai_study_buddy/cache/
 ai_study_buddy/.local_sandboxes/
 
