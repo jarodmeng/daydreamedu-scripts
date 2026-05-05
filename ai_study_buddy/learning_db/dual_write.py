@@ -22,7 +22,7 @@ from ai_study_buddy.learning_db.connection import default_db_path, get_connectio
 from ai_study_buddy.learning_db.migrate import apply_migrations
 from ai_study_buddy.learning_db.repository import OperationEvent, validate_actor, write_operation_log
 
-Family = Literal["marking_result", "marking_amendment", "student_review_state"]
+Family = Literal["marking_result", "marking_amendment", "student_review_state", "file_question_info"]
 
 _ACTOR_PRIMARY = validate_actor("script:ai_study_buddy.learning_db.dual_write")
 _ACTOR_AUDIT = validate_actor("script:ai_study_buddy.learning_db.dual_write#audit")
@@ -70,7 +70,12 @@ def _commit_projection(
     source_hash: str,
     metadata_source_tag: str,
 ) -> None:
-    from ai_study_buddy.learning_db.import_context_json import upsert_marking_amendment, upsert_marking_result, upsert_review_state
+    from ai_study_buddy.learning_db.import_context_json import (
+        upsert_file_question_info_run,
+        upsert_marking_amendment,
+        upsert_marking_result,
+        upsert_review_state,
+    )
 
     if family == "marking_result":
         upsert_marking_result(conn, payload=payload, rel_path=rel_path, source_hash=source_hash)
@@ -78,6 +83,8 @@ def _commit_projection(
         upsert_marking_amendment(conn, payload=payload, rel_path=rel_path, source_hash=source_hash)
     elif family == "student_review_state":
         upsert_review_state(conn, payload=payload, rel_path=rel_path, source_hash=source_hash)
+    elif family == "file_question_info":
+        upsert_file_question_info_run(conn, payload=payload, rel_path=rel_path, source_hash=source_hash)
     else:  # pragma: no cover
         raise AssertionError(f"unknown family for dual_write: {family}")
 

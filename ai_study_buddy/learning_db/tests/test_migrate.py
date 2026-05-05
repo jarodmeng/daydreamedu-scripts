@@ -24,4 +24,6 @@ def test_apply_migrations_is_idempotent(tmp_path: Path) -> None:
     assert "operation_log" in tables
     assert "import_identity_map" in tables
     assert "import_quarantine" in tables
-
+    assert "file_question_info_runs" in tables
+    assert "file_question_info_sections" in tables
+    assert "file_question_info_items" in tables

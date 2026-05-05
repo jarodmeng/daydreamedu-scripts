@@ -24,6 +24,7 @@ from ai_study_buddy.marking.core.artifact_schema import (
     load_marking_amendment_schema,
     validate_marking_artifact_dict,
 )
+from ai_study_buddy.marking.file_question_info.api import validate_question_sections_dict
 
 
 @dataclass
@@ -111,6 +112,14 @@ def _resolve_review_state_id_by_path(conn: sqlite3.Connection, review_state_path
         (review_state_path,),
     ).fetchone()
     return str(row["review_state_id"]) if row else None
+
+
+def _resolve_file_question_info_run_id_by_path(conn: sqlite3.Connection, source_rel_path: str) -> str | None:
+    row = conn.execute(
+        "SELECT run_id FROM file_question_info_runs WHERE source_rel_path = ? LIMIT 1",
+        (source_rel_path,),
+    ).fetchone()
+    return str(row["run_id"]) if row else None
 
 
 def upsert_marking_result(
@@ -544,6 +553,158 @@ def upsert_review_state(
     return "updated" if already_exists else "inserted"
 
 
+def _subject_scope_grade_slug_from_rel_path(rel_path: str) -> tuple[str, str, str]:
+    parts = rel_path.replace("\\", "/").split("/")
+    # Expect: file_question_info/<subject_scope>/<grade>/<slug>/question_sections.json
+    if len(parts) < 5 or parts[0] != "file_question_info":
+        raise ValueError(f"invalid file_question_info source path: {rel_path}")
+    return parts[1], parts[2], parts[3]
+
+
+def _pick_run_timestamp(payload: dict[str, Any], rel_path: str) -> str:
+    for key in ("updated_at", "created_at"):
+        value = payload.get(key)
+        if isinstance(value, str) and value.strip():
+            return value.strip()
+    raise ValueError(f"fqi missing required run timestamp fields (created_at/updated_at): {rel_path}")
+
+
+def upsert_file_question_info_run(
+    conn: sqlite3.Connection,
+    *,
+    payload: dict[str, Any],
+    rel_path: str,
+    source_hash: str,
+) -> str:
+    validate_question_sections_dict(payload)
+    subject_scope, grade, slug = _subject_scope_grade_slug_from_rel_path(rel_path)
+
+    try:
+        primary_file = payload["input_context"]["files"][0]
+        primary_file_id = str(primary_file.get("file_id", "")).strip()
+    except Exception as exc:
+        raise ValueError("fqi missing required input_context.files[0].file_id") from exc
+    if not primary_file_id:
+        raise ValueError("fqi primary_file_id is blank")
+
+    run_id = get_or_create_identity_map(
+        conn,
+        artifact_family="file_question_info",
+        source_path=rel_path,
+        source_content_hash=source_hash,
+        suggested_artifact_id=_resolve_file_question_info_run_id_by_path(conn, rel_path),
+    )
+    already_exists = _row_exists(conn, "file_question_info_runs", "run_id", run_id)
+
+    debug = payload.get("debug") if isinstance(payload.get("debug"), dict) else {}
+    created_at = _pick_run_timestamp(payload, rel_path)
+    updated_at = _pick_run_timestamp(payload, rel_path)
+    conn.execute(
+        """
+        INSERT INTO file_question_info_runs(
+            run_id, schema_version, subject_scope, grade, slug, primary_file_id, primary_file_path,
+            source_rel_path, source_content_hash, detector_model, detector_confidence, detector_notes,
+            raw_json, created_at, updated_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ON CONFLICT(run_id) DO UPDATE SET
+            schema_version = excluded.schema_version,
+            subject_scope = excluded.subject_scope,
+            grade = excluded.grade,
+            slug = excluded.slug,
+            primary_file_id = excluded.primary_file_id,
+            primary_file_path = excluded.primary_file_path,
+            source_rel_path = excluded.source_rel_path,
+            source_content_hash = excluded.source_content_hash,
+            detector_model = excluded.detector_model,
+            detector_confidence = excluded.detector_confidence,
+            detector_notes = excluded.detector_notes,
+            raw_json = excluded.raw_json,
+            updated_at = excluded.updated_at,
+            row_version = file_question_info_runs.row_version + 1
+        """,
+        (
+            run_id,
+            payload.get("schema_version"),
+            subject_scope,
+            grade,
+            slug,
+            primary_file_id,
+            primary_file.get("path"),
+            rel_path,
+            source_hash,
+            debug.get("generation_model") if isinstance(debug, dict) else None,
+            debug.get("confidence") if isinstance(debug, dict) else None,
+            debug.get("notes") if isinstance(debug, dict) else None,
+            json.dumps(payload, ensure_ascii=True),
+            created_at,
+            updated_at,
+        ),
+    )
+
+    conn.execute("DELETE FROM file_question_info_items WHERE run_id = ?", (run_id,))
+    conn.execute("DELETE FROM file_question_info_sections WHERE run_id = ?", (run_id,))
+
+    sections = payload.get("sections")
+    if isinstance(sections, list):
+        for ordinal, section in enumerate(sections, start=1):
+            if not isinstance(section, dict):
+                continue
+            conn.execute(
+                """
+                INSERT INTO file_question_info_sections(
+                    run_id, ordinal, question_type, printed_section_title, section_total_marks,
+                    questions_page_range_json, stem_page_range_json, answers_page_range_json,
+                    answers_in_separate_booklet, raw_json
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    run_id,
+                    ordinal,
+                    section.get("question_type"),
+                    section.get("printed_section_title"),
+                    section.get("section_total_marks"),
+                    json.dumps(section.get("questions_page_range"), ensure_ascii=True),
+                    json.dumps(section.get("stem_page_range"), ensure_ascii=True)
+                    if section.get("stem_page_range") is not None
+                    else None,
+                    json.dumps(section.get("answers_page_range"), ensure_ascii=True)
+                    if section.get("answers_page_range") is not None
+                    else None,
+                    1 if section.get("answers_in_separate_booklet") else 0
+                    if "answers_in_separate_booklet" in section
+                    else None,
+                    json.dumps(section, ensure_ascii=True),
+                ),
+            )
+            question_info = section.get("question_info")
+            if not isinstance(question_info, list):
+                continue
+            for item in question_info:
+                if not isinstance(item, dict):
+                    continue
+                conn.execute(
+                    """
+                    INSERT INTO file_question_info_items(
+                        run_id, section_ordinal, question_index, question_mark, start_page, extra_json, raw_json
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    (
+                        run_id,
+                        ordinal,
+                        item.get("question_index"),
+                        item.get("question_mark"),
+                        item.get("start_page"),
+                        json.dumps(
+                            {k: v for k, v in item.items() if k not in {"question_index", "question_mark", "start_page"}},
+                            ensure_ascii=True,
+                        ),
+                        json.dumps(item, ensure_ascii=True),
+                    ),
+                )
+
+    return "updated" if already_exists else "inserted"
+
+
 def _process_one(
     conn: sqlite3.Connection,
     *,
@@ -588,6 +749,8 @@ def _process_one(
             result = upsert_marking_amendment(conn, payload=payload, rel_path=rel_path, source_hash=source_hash)
         elif family == "student_review_state":
             result = upsert_review_state(conn, payload=payload, rel_path=rel_path, source_hash=source_hash)
+        elif family == "file_question_info":
+            result = upsert_file_question_info_run(conn, payload=payload, rel_path=rel_path, source_hash=source_hash)
         else:
             raise ValueError(f"unsupported family: {family}")
 
@@ -627,9 +790,28 @@ def _process_one(
             elif "base artifact not found" in message:
                 failure_stage = "fk_resolve"
                 code = "BASE_ARTIFACT_NOT_FOUND"
+            elif family == "file_question_info":
+                if "unknown schema_version" in message or "missing schema_version" in message:
+                    failure_stage = "schema_validate"
+                    code = "fqi_schema_version_unknown"
+                elif "schema validation failed" in message:
+                    failure_stage = "schema_validate"
+                    code = "fqi_schema_validation_failed"
+                elif "missing required input_context.files[0].file_id" in message:
+                    failure_stage = "transform"
+                    code = "fqi_primary_file_id_missing"
+                elif "primary_file_id is blank" in message:
+                    failure_stage = "transform"
+                    code = "fqi_primary_file_id_blank"
+                elif "required run timestamp fields" in message:
+                    failure_stage = "transform"
+                    code = "fqi_timestamp_missing"
+                else:
+                    failure_stage = "upsert"
+                    code = "fqi_upsert_failed"
         except Exception:
             failure_stage = "read_json"
-            code = "READ_JSON_FAILED"
+            code = "fqi_json_parse_error" if family == "file_question_info" else "READ_JSON_FAILED"
         quarantine_id = upsert_quarantine(
             conn,
             artifact_family=family,
@@ -662,10 +844,13 @@ def _iter_family_files(context_root: Path, family: str) -> list[Path]:
         "marking_result": context_root / "marking_results",
         "marking_amendment": context_root / "marking_amendments",
         "student_review_state": context_root / "student_review_states",
+        "file_question_info": context_root / "file_question_info",
     }
     base = mapping[family]
     if not base.exists():
         return []
+    if family == "file_question_info":
+        return sorted(base.rglob("question_sections.json"))
     return sorted(base.rglob("*.json"))
 
 
@@ -706,6 +891,9 @@ def rel_path_matches_scope(
     parts = posix.split("/")
     sid = _normalize_scope_token(student_id)
     subj = _normalize_scope_token(subject_context)
+    if parts and parts[0] == "file_question_info":
+        # file_question_info layout is not student_id/subject_context based.
+        return sid is None and subj is None
 
     if sid is not None:
         if len(parts) < 2 or parts[1] != sid:
@@ -766,6 +954,7 @@ def run_import(
         "marking_result": ImportSummary(),
         "marking_amendment": ImportSummary(),
         "student_review_state": ImportSummary(),
+        "file_question_info": ImportSummary(),
     }
     families = [artifact_family] if artifact_family else list(summaries.keys())
     try:
@@ -832,7 +1021,7 @@ def main() -> int:
     parser.add_argument("--limit", type=int, help="Optional max files per family.")
     parser.add_argument(
         "--artifact-family",
-        choices=["marking_result", "marking_amendment", "student_review_state"],
+        choices=["marking_result", "marking_amendment", "student_review_state", "file_question_info"],
         help="Limit import to one family.",
     )
     parser.add_argument("--retry-quarantine", action="store_true", help="Retry only quarantine entries.")
@@ -878,4 +1067,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
