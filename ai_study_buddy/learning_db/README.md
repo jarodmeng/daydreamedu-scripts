@@ -6,11 +6,12 @@ SQLite projection layer for AI Study Buddy canonical JSON artifacts under `ai_st
 
 `learning_db` provides:
 
-- schema migrations (`migrate.py`, `migrations/*.sql`)
-- JSON-to-SQLite import/backfill (`import_context_json.py`)
-- runtime dual-write mirror (`dual_write.py`)
-- quarantine + operation logging (`repository.py`)
+- schema migrations (`core.migrate`, `migrations/*.sql`)
+- JSON-to-SQLite import/backfill (`ingest.import_context_json`)
+- runtime dual-write mirror (`ingest.dual_write`)
+- quarantine + operation logging (`core.repository`)
 - read helpers and validation utilities
+- backup and retention tooling (`cli.backup_study_buddy_db`, `cli.apply_backup_tiering`)
 
 Canonical JSON files remain source-of-truth. `study_buddy.db` is a queryable mirror.
 
@@ -58,7 +59,33 @@ python3 -m ai_study_buddy.learning_db.ingest.import_context_json --artifact-fami
 python3 -m ai_study_buddy.learning_db.ingest.import_context_json \
   --artifact-family file_question_info \
   --retry-quarantine --status open
+
+# one-shot DB backup (skips if unchanged)
+python3 -m ai_study_buddy.learning_db.cli.backup_study_buddy_db --timestamp
+
+# retention tiering (use --dry-run first)
+python3 -m ai_study_buddy.learning_db.cli.apply_backup_tiering --dry-run
+
+# install wake-triggered auto-backup fixture
+bash ai_study_buddy/learning_db/scripts/install_run_on_wake.sh
 ```
+
+## Auto Backup on Wake
+
+The `learning_db` package includes a wake-triggered auto-backup fixture that mirrors the `pdf_registry` pattern:
+
+- installer: `ai_study_buddy/learning_db/scripts/install_run_on_wake.sh`
+- runner: `ai_study_buddy/learning_db/scripts/run_backup_on_wake.sh`
+- uninstaller: `ai_study_buddy/learning_db/scripts/uninstall_run_on_wake.sh`
+
+Behavior:
+
+- on wake, run `backup_study_buddy_db --timestamp` with retries
+- skip when source DB is unchanged
+- apply retention tiering (`hot-days=7`, `cold-days=60`)
+- write wake logs to `~/Library/Logs/study_buddy_backup_on_wake.log`
+
+Backup destination is controlled by `STUDY_BUDDY_DB_BACKUP_DIR` (default: `<DaydreamEdu root>/db`).
 
 ## file_question_info Notes
 

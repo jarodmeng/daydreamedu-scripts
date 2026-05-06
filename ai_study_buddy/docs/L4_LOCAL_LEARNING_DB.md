@@ -38,6 +38,15 @@ As of 2026-04-29, the local corpus is already structured enough to migrate:
 
 The goal is not to deploy Postgres immediately. The goal is to build a local SQLite database that acts as a Postgres-shaped rehearsal: durable, queryable, backed up, and easy to migrate later.
 
+Implementation update (2026-05-06):
+
+- `learning_db` now includes wake-triggered auto backup scripts under `ai_study_buddy/learning_db/scripts/`:
+  - `install_run_on_wake.sh`
+  - `run_backup_on_wake.sh`
+  - `uninstall_run_on_wake.sh`
+- backup retention tiering is implemented via:
+  - `python3 -m ai_study_buddy.learning_db.cli.apply_backup_tiering`
+
 ---
 
 ## Scope

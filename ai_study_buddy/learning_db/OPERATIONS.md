@@ -88,3 +88,58 @@ finalize_question_sections_snapshot(
 ```
 
 This enforces validation and triggers DB mirror write.
+
+## 8) Backup and Retention
+
+### One-shot backup
+
+```bash
+python3 -m ai_study_buddy.learning_db.cli.backup_study_buddy_db --timestamp
+```
+
+Notes:
+
+- skips if source DB is unchanged (unless `--force` is passed)
+- destination is `STUDY_BUDDY_DB_BACKUP_DIR` or `<DaydreamEdu root>/db`
+- writes events to `study_buddy_backup.log` in backup destination
+
+### Tiering retention (hot/cold)
+
+Dry-run first:
+
+```bash
+python3 -m ai_study_buddy.learning_db.cli.apply_backup_tiering --dry-run
+```
+
+Apply:
+
+```bash
+python3 -m ai_study_buddy.learning_db.cli.apply_backup_tiering --hot-days 7 --cold-days 60
+```
+
+Behavior:
+
+- keep fresh `study_buddy_*.db` backups in hot tier
+- compress older backups to `coldstorage/*.zst`
+- prune backups older than `cold-days`
+
+### Auto backup on wake (sleepwatcher fixture)
+
+Install:
+
+```bash
+bash ai_study_buddy/learning_db/scripts/install_run_on_wake.sh
+```
+
+Uninstall:
+
+```bash
+bash ai_study_buddy/learning_db/scripts/uninstall_run_on_wake.sh
+```
+
+Verification:
+
+```bash
+launchctl list | rg study-buddy-backup-on-wake
+rg "learning_db/scripts/run_backup_on_wake.sh" ~/.wakeup
+```

@@ -2,6 +2,29 @@
 
 All notable changes to `ai_study_buddy.learning_db` are documented in this file.
 
+## [0.1.3] - 2026-05-06
+
+Patch: add wake-triggered backup fixture and retention tiering for `study_buddy.db`.
+
+### Added
+
+- New tiering CLI:
+  - `python3 -m ai_study_buddy.learning_db.cli.apply_backup_tiering`
+  - supports `--hot-days`/`--cold-days` and `--dry-run`
+- Wake automation scripts:
+  - `ai_study_buddy/learning_db/scripts/run_backup_on_wake.sh`
+  - `ai_study_buddy/learning_db/scripts/install_run_on_wake.sh`
+  - `ai_study_buddy/learning_db/scripts/uninstall_run_on_wake.sh`
+
+### Changed
+
+- `README.md`:
+  - adds auto-backup-on-wake usage and backup/tiering commands
+- `OPERATIONS.md`:
+  - adds backup, tiering, and wake fixture install/verify runbook
+- `docs/L4_LOCAL_LEARNING_DB.md`:
+  - adds implementation update note for learning DB auto backup fixture
+
 ## [0.1.2] - 2026-05-06
 
 Patch: strict cleanup of `learning_db` package layout with full internal migration to submodule paths.
