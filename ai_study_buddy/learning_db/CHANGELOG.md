@@ -2,6 +2,21 @@
 
 All notable changes to `ai_study_buddy.learning_db` are documented in this file.
 
+## [0.1.4] - 2026-05-06
+
+Patch: module documentation (`SPEC.md`, `ARCHITECTURE.md`) and README version line.
+
+### Added
+
+- `SPEC.md` — scope, contracts, environment variables, and operational expectations.
+- `ARCHITECTURE.md` — layers (`context/` vs `study_buddy.db`), batch vs dual-write pipelines, package layout, and design rules.
+
+### Changed
+
+- `README.md`:
+  - **Current version** `0.1.4`
+  - Related Docs lists `SPEC.md` and `ARCHITECTURE.md` with short descriptions.
+
 ## [0.1.3] - 2026-05-06
 
 Patch: add wake-triggered backup fixture and retention tiering for `study_buddy.db`.

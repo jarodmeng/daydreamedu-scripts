@@ -2,6 +2,8 @@
 
 SQLite projection layer for AI Study Buddy canonical JSON artifacts under `ai_study_buddy/context/`.
 
+Current version: `0.1.4`
+
 ## Scope
 
 `learning_db` provides:
@@ -113,6 +115,8 @@ finalize_question_sections_snapshot(
 
 ## Related Docs
 
+- `SPEC.md` — scope, contracts, env toggles, operational expectations
+- `ARCHITECTURE.md` — layers, write pipelines, package layout
 - `CHANGELOG.md`
 - `SCHEMA.md`
 - `OPERATIONS.md`
