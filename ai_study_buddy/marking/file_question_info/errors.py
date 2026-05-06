@@ -28,3 +28,18 @@ class QuestionSectionsSchemaLoadError(FileQuestionInfoError):
 class QuestionSectionsValidationError(FileQuestionInfoError):
     """Raised when question_sections payload fails schema/runtime validation."""
 
+
+class QuestionSectionsConsumerError(FileQuestionInfoError):
+    """Base error for consumer/read helper failures on validated payloads."""
+
+
+class QuestionSectionsDuplicateQuestionIdError(QuestionSectionsConsumerError):
+    """Raised when duplicate question_index values are encountered."""
+
+
+class QuestionSectionsNotFoundError(QuestionSectionsConsumerError):
+    """Raised when no question_sections artifact can be found for lookup inputs."""
+
+
+class QuestionSectionsLookupError(QuestionSectionsConsumerError):
+    """Raised for lookup failures (DB/FS divergence or read-path errors)."""

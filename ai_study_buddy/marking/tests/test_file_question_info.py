@@ -8,21 +8,35 @@ from pathlib import Path
 
 import pytest
 
+from ai_study_buddy.marking.core.artifact_schema import validate_marking_artifact_dict
 from ai_study_buddy.marking.file_question_info.api import (
     _grade_segment_from_pdf_file,
     _slug_from_pdf_file,
     _subject_scope_from_pdf_file,
+    assert_unique_detector_question_ids,
+    build_detector_question_id_list,
     file_question_info_run_dir_for_pdf,
+    get_latest_question_sections_for_file_id,
+    get_latest_question_sections_for_pdf_file,
+    iter_questions_ordered,
+    iter_sections_ordered,
     load_question_sections_json,
+    question_page_map_from_question_sections,
     render_file_question_info_pages_for_pdf,
+    section_hint_strings_for_context,
     validate_question_sections_dict,
 )
 from ai_study_buddy.marking.file_question_info.errors import (
     InvalidGradeOrScopeError,
     MissingGradeOrScopeError,
+    QuestionSectionsDuplicateQuestionIdError,
+    QuestionSectionsLookupError,
+    QuestionSectionsNotFoundError,
     QuestionSectionsValidationError,
     UnknownQuestionSectionsSchemaVersionError,
 )
+from ai_study_buddy.learning_db.connection import get_connection
+from ai_study_buddy.learning_db.migrate import apply_migrations
 from ai_study_buddy.pdf_file_manager.pdf_file_manager import PdfFile
 
 
@@ -326,3 +340,273 @@ def test_validate_question_sections_dict_accepts_all_real_corpus_files():
     for path in candidates:
         payload = load_question_sections_json(path)
         validate_question_sections_dict(payload)
+
+
+def test_consumer_iterators_and_map_helpers():
+    payload = _minimal_math_v1_1_payload()
+    validate_question_sections_dict(payload)
+
+    sections = iter_sections_ordered(payload)
+    assert len(sections) == 1
+    assert sections[0]["question_type"] == "SAQ"
+    assert sections[0]["questions_page_range"]["start_page"] == 1
+
+    questions = iter_questions_ordered(payload)
+    assert [q["question_index"] for q in questions] == ["Q19", "Q20(a)", "Q6(a)(i)"]
+
+    assert build_detector_question_id_list(payload) == ("Q19", "Q20(a)", "Q6(a)(i)")
+    assert_unique_detector_question_ids(payload)
+
+    page_map = question_page_map_from_question_sections(payload, bundle_attempt_page_offset=1)
+    assert page_map["Q19"]["attempt_page_start"] == 2
+    assert page_map["Q20(a)"]["attempt_page_start"] == 2
+    assert page_map["Q6(a)(i)"]["attempt_page_start"] == 2
+    assert page_map["Q19"]["source"] == "script_inferred"
+    assert page_map["Q19"]["confidence"] == "high"
+
+    assert section_hint_strings_for_context(payload) == ("S1: SAQ",)
+
+
+def test_duplicate_question_ids_hard_fail():
+    payload = _minimal_math_v1_1_payload()
+    payload["sections"][0]["question_info"].append({"question_index": "Q19", "question_mark": 1, "start_page": 1})
+    validate_question_sections_dict(payload)
+    with pytest.raises(QuestionSectionsDuplicateQuestionIdError, match="duplicate question_index"):
+        assert_unique_detector_question_ids(payload)
+    with pytest.raises(QuestionSectionsDuplicateQuestionIdError):
+        question_page_map_from_question_sections(payload)
+
+
+def test_section_hint_includes_trimmed_title():
+    payload = _minimal_math_v1_1_payload()
+    payload["sections"][0]["printed_section_title"] = "  Open   Ended  "
+    validate_question_sections_dict(payload)
+    assert section_hint_strings_for_context(payload) == ("S1: SAQ: Open Ended",)
+
+
+def test_get_latest_question_sections_for_file_id_db_and_divergence(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+):
+    payload = _minimal_math_v1_1_payload()
+    file_id = str(payload["input_context"]["files"][0]["file_id"])
+    context_root = tmp_path / "context"
+    source_rel_path = "file_question_info/singapore_primary_math/P6/sample/question_sections.json"
+    fs_path = context_root / source_rel_path
+    fs_path.parent.mkdir(parents=True, exist_ok=True)
+    fs_path.write_text(json.dumps(payload), encoding="utf-8")
+
+    db_path = tmp_path / "study_buddy.db"
+    monkeypatch.setenv("STUDY_BUDDY_DB_PATH", str(db_path))
+    apply_migrations(db_path=db_path)
+    conn = get_connection(db_path)
+    try:
+        conn.execute(
+            """
+            INSERT INTO file_question_info_runs(
+                run_id, schema_version, subject_scope, grade, slug, primary_file_id, primary_file_path,
+                source_rel_path, source_content_hash, raw_json, created_at, updated_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                "run-1",
+                payload["schema_version"],
+                "singapore_primary_math",
+                "P6",
+                "sample",
+                file_id,
+                "/tmp/smoke_math.pdf",
+                source_rel_path,
+                "h1",
+                json.dumps(payload),
+                payload["created_at"],
+                payload["updated_at"],
+            ),
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+    monkeypatch.setenv("LEARNING_DB_ENABLE_READS", "1")
+    monkeypatch.setenv("LEARNING_DB_READ_FALLBACK_FILESYSTEM", "0")
+    src = get_latest_question_sections_for_file_id(file_id, context_root=context_root)
+    assert src["source_kind"] == "db"
+    assert src["template_file_id"] == file_id
+    assert src["validated_at_runtime"] is True
+
+    # Introduce divergence and verify hard fail when detection is on.
+    bad = dict(payload)
+    bad["schema_version"] = "math-v1.0"
+    fs_path.write_text(json.dumps(bad), encoding="utf-8")
+    with pytest.raises(QuestionSectionsLookupError, match="divergence detected"):
+        get_latest_question_sections_for_file_id(file_id, context_root=context_root, detect_divergence=True)
+
+
+def test_get_latest_question_sections_read_flags_and_pdf_file(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+):
+    payload = _minimal_science_v1_1_payload()
+    file_id = str(payload["input_context"]["files"][0]["file_id"])
+    context_root = tmp_path / "context"
+    path = context_root / "file_question_info" / "singapore_primary_science" / "P6" / "s1" / "question_sections.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(payload), encoding="utf-8")
+
+    monkeypatch.setenv("LEARNING_DB_ENABLE_READS", "0")
+    monkeypatch.setenv("LEARNING_DB_READ_FALLBACK_FILESYSTEM", "0")
+    src = get_latest_question_sections_for_file_id(file_id, context_root=context_root)
+    assert src["source_kind"] == "filesystem"
+
+    # reads enabled + no fallback and no DB rows should hard fail not found
+    monkeypatch.setenv("LEARNING_DB_ENABLE_READS", "1")
+    monkeypatch.setenv("LEARNING_DB_READ_FALLBACK_FILESYSTEM", "0")
+    db_path = tmp_path / "study_buddy.db"
+    monkeypatch.setenv("STUDY_BUDDY_DB_PATH", str(db_path))
+    apply_migrations(db_path=db_path)
+    with pytest.raises(QuestionSectionsNotFoundError):
+        get_latest_question_sections_for_file_id(file_id, context_root=context_root, detect_divergence=False)
+
+    # Same lookup through PdfFile wrapper
+    pdf = _pdf_file(subject="science")
+    pdf.id = file_id
+    monkeypatch.setenv("LEARNING_DB_ENABLE_READS", "0")
+    src2 = get_latest_question_sections_for_pdf_file(pdf, context_root=context_root)
+    assert src2["template_file_id"] == file_id
+
+
+def test_get_latest_question_sections_invalid_payload_raises_typed_error(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+):
+    payload = _minimal_math_v1_1_payload()
+    file_id = str(payload["input_context"]["files"][0]["file_id"])
+
+    bad_payload = {"schema_version": "math-v1.2", "input_context": {"files": [{"file_id": file_id}]}}
+
+    db_path = tmp_path / "study_buddy.db"
+    monkeypatch.setenv("STUDY_BUDDY_DB_PATH", str(db_path))
+    monkeypatch.setenv("LEARNING_DB_ENABLE_READS", "1")
+    monkeypatch.setenv("LEARNING_DB_READ_FALLBACK_FILESYSTEM", "0")
+    apply_migrations(db_path=db_path)
+    conn = get_connection(db_path)
+    try:
+        conn.execute(
+            """
+            INSERT INTO file_question_info_runs(
+                run_id, schema_version, subject_scope, grade, slug, primary_file_id, primary_file_path,
+                source_rel_path, source_content_hash, raw_json, created_at, updated_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                "run-bad",
+                "math-v1.2",
+                "singapore_primary_math",
+                "P6",
+                "bad",
+                file_id,
+                "/tmp/bad.pdf",
+                "file_question_info/singapore_primary_math/P6/bad/question_sections.json",
+                "hbad",
+                json.dumps(bad_payload),
+                "2026-01-01T00:00:00+08:00",
+                "2026-01-01T00:00:00+08:00",
+            ),
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+    with pytest.raises(QuestionSectionsValidationError):
+        get_latest_question_sections_for_file_id(file_id, context_root=tmp_path / "context", require_valid=True)
+
+
+@pytest.mark.parametrize(
+    ("schema_version", "expected_count", "expected_first3"),
+    [
+        (
+            "chinese-v1.4",
+            40,
+            (
+                ("Q1", 2),
+                ("Q2", 2),
+                ("Q3", 2),
+            ),
+        ),
+        (
+            "high-chinese-v1.2",
+            11,
+            (
+                ("Q1", 3),
+                ("Q2", 3),
+                ("Q3", 3),
+            ),
+        ),
+        (
+            "english-v1.3",
+            75,
+            (
+                ("Q1", 2),
+                ("Q2", 2),
+                ("Q3", 2),
+            ),
+        ),
+        (
+            "math-v1.2",
+            38,
+            (
+                ("Q1", 1),
+                ("Q2", 1),
+                ("Q3", 1),
+            ),
+        ),
+        (
+            "science-v1.2",
+            22,
+            (
+                ("Q1(a)", 2),
+                ("Q1(b)", 2),
+                ("Q2(a)", 3),
+            ),
+        ),
+    ],
+)
+def test_question_page_map_golden_by_subject_family(schema_version, expected_count, expected_first3):
+    payload = _find_payload_for_schema_version(schema_version)
+    validate_question_sections_dict(payload)
+    page_map = question_page_map_from_question_sections(payload)
+    keys = list(page_map.keys())
+    assert len(keys) == expected_count
+    assert tuple((qid, page_map[qid]["attempt_page_start"]) for qid in keys[:3]) == expected_first3
+    for qid, row in page_map.items():
+        assert row["result_id"] == qid
+        assert row["confidence"] == "high"
+        assert row["source"] == "script_inferred"
+
+
+def test_generated_page_map_is_compatible_with_marking_result_consumers():
+    payload = _minimal_math_v1_1_payload()
+    validate_question_sections_dict(payload)
+    page_map = question_page_map_from_question_sections(payload)
+
+    fixture = Path("ai_study_buddy/marking/tests/fixtures/marking_result_v1_5/valid_minimal.json")
+    artifact_payload = json.loads(fixture.read_text(encoding="utf-8"))
+    artifact_payload["context"]["question_page_map"] = list(page_map.values())
+    artifact_payload["question_results"] = [
+        {
+            "result_id": qid,
+            "scoring_status": "counted",
+            "outcome": "correct",
+            "max_marks": 1,
+            "earned_marks": 1,
+            "student_answer": None,
+            "correct_answer": None,
+            "error_tags": [],
+            "skill_tags": [],
+            "diagnosis": {"mistake_type": None, "reasoning": None, "confidence": None},
+            "human_note": None,
+        }
+        for qid in page_map.keys()
+    ]
+    artifact_payload["summary"]["total_marks"] = len(page_map)
+    artifact_payload["summary"]["earned_marks"] = len(page_map)
+    artifact_payload["summary"]["percentage"] = 100.0
+
+    validate_marking_artifact_dict(artifact_payload)
