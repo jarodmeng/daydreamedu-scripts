@@ -13,7 +13,7 @@ When this command runs, produce a **summary report** comparing **leaf folders** 
 - **Excluded leaf folders:** Treat the root relative path `.` as fully excluded from `leaf_folders_total` and every subsequent count/table in this report if it would otherwise qualify as a leaf folder (direct `*.pdf` on the DaydreamEdu root).
 - **Registered:** A PDF's **`Path.resolve()`** string matches a row from `PdfFileManager().find_files()` (build a set of resolved `path` strings).
 - **Unregistered in a leaf:** At least one direct `*.pdf` in that folder whose resolved path is not in that set.
-- **Scan root:** Compare each leaf folder's resolved path to `PdfFileManager().list_scan_roots()` (resolved paths).
+- **Scan root:** Compare each leaf folder's resolved path **as a string** to `PdfFileManager().list_scan_roots()` (same resolved-path string set as below). **Do not** test `pathlib.Path` objects for membership in those sets.
 
 ## What to run
 
@@ -36,11 +36,13 @@ def resolved_path_from_row(row) -> str:
     return str(Path(raw_path).resolve())
 ```
 
-- Build sets as:
+- Build sets as **sets of resolved path strings** (not `Path` objects):
   - `registered_paths = {resolved_path_from_row(f) for f in pfm.find_files()}`
   - `scan_root_paths = {resolved_path_from_row(r) for r in pfm.list_scan_roots()}`
-- Add a **sanity check** before counting folders:
+- **Path vs string membership (required):** In Python, `pathlib.Path("/x") in {"/x"}` is **always false**. For every membership test against `registered_paths` or `scan_root_paths`, use the same string form as the sets, e.g. `str(leaf_folder.resolve()) in scan_root_paths` and `str(pdf_path.resolve()) in registered_paths`. Alternatively, build those sets as `set[Path]` using `Path(resolved_path_from_row(...))` everywhere — but **never** mix `Path` lookup with a `set[str]` (or vice versa).
+- Add **sanity checks** before counting folders:
   - if `len(pfm.find_files()) > 0` and `len(registered_paths) == 0`, stop and report an extraction bug instead of returning misleading coverage counts.
+  - if `len(scan_root_paths) > 0` and every included leaf folder is classified as not a scan root, re-check for a `Path`/`str` membership bug before trusting the result.
 
 Collect:
 

@@ -16,11 +16,36 @@ When this command runs, produce a **summary report** comparing **leaf folders** 
   - `Coding`
 - **Registered:** A PDF's **`Path.resolve()`** string matches a row from `PdfFileManager().find_files()` (build a set of resolved `path` strings).
 - **Unregistered in a leaf:** At least one direct `*.pdf` in that folder whose resolved path is not in that set.
-- **Scan root:** Compare each leaf folder's resolved path to `PdfFileManager().list_scan_roots()` (resolved paths).
+- **Scan root:** Compare each leaf folder's resolved path **as a string** to `PdfFileManager().list_scan_roots()` (same resolved-path string set as below). **Do not** test `pathlib.Path` objects for membership in those sets.
 
 ## What to run
 
 Execute a short **Python one-shot** from the repo root with package imports (no `sys.path` mutation): `from ai_study_buddy.pdf_file_manager import PdfFileManager` and `from ai_study_buddy.files.roots import resolve_goodnotes_root`. Use the default registry path from the utility / `PDF_REGISTRY_PATH` if set.
+
+### Implementation hardening (required)
+
+- Treat `PdfFileManager().find_files()` and `PdfFileManager().list_scan_roots()` rows as **typed objects first** (`row.path`), not dicts.
+- Add a defensive path extractor that supports both object and dict shapes, and fails loudly if no path can be read:
+
+```python
+from pathlib import Path
+
+def resolved_path_from_row(row) -> str:
+    raw_path = getattr(row, "path", None)
+    if raw_path is None and isinstance(row, dict):
+        raw_path = row.get("path")
+    if not raw_path:
+        raise ValueError(f"Row has no path attribute/key: {type(row)!r}")
+    return str(Path(raw_path).resolve())
+```
+
+- Build sets as **sets of resolved path strings** (not `Path` objects):
+  - `registered_paths = {resolved_path_from_row(f) for f in pfm.find_files()}`
+  - `scan_root_paths = {resolved_path_from_row(r) for r in pfm.list_scan_roots()}`
+- **Path vs string membership (required):** In Python, `pathlib.Path("/x") in {"/x"}` is **always false**. For every membership test against `registered_paths` or `scan_root_paths`, use the same string form as the sets, e.g. `str(leaf_folder.resolve()) in scan_root_paths` and `str(pdf_path.resolve()) in registered_paths`. Alternatively, build those sets as `set[Path]` using `Path(resolved_path_from_row(...))` everywhere — but **never** mix `Path` lookup with a `set[str]` (or vice versa).
+- Add **sanity checks** before counting folders:
+  - if `len(pfm.find_files()) > 0` and `len(registered_paths) == 0`, stop and report an extraction bug instead of returning misleading coverage counts.
+  - if `len(scan_root_paths) > 0` and every included leaf folder is classified as not a scan root, re-check for a `Path`/`str` membership bug before trusting the result.
 
 Collect:
 
