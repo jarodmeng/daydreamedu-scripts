@@ -81,7 +81,7 @@ class PdfFile:
     name: str
     path: str
     file_type: str           # 'main' | 'raw' | 'unknown'
-    doc_type: str            # 'exam' | 'worksheet' | 'book' | 'book_exercise' | 'activity' | 'practice' | 'notes' | 'unknown'
+    doc_type: str            # 'exam' | 'exercise' | 'book' | 'activity' | 'note'
     student_id: str | None
     subject: str | None      # 'english' | 'math' | 'science' | 'chinese'
     is_template: bool        # True = blank/master; False = completion or non-template

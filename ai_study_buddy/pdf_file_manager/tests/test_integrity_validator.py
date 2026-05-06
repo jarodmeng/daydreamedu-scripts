@@ -16,10 +16,6 @@ def test_integrity_validator_reports_known_issue_types():
         mgr = PdfFileManager(db_path=str(db_path))
         mgr.add_student("winston", STUDENT_DISPLAY_NAME, STUDENT_FOLDER_EMAIL)
 
-        unknown_pdf = tmpdir / "unknown.pdf"
-        unknown_pdf.write_bytes(b"%PDF-1.0\n")
-        unknown = mgr.register_file(unknown_pdf)
-
         student_pdf = (
             tmpdir
             / "DaydreamEdu"
@@ -37,7 +33,7 @@ def test_integrity_validator_reports_known_issue_types():
 
         missing_disk_pdf = tmpdir / "missing_on_disk.pdf"
         missing_disk_pdf.write_bytes(b"%PDF-1.0\n")
-        missing_disk_reg = mgr.register_file(missing_disk_pdf, file_type="main", doc_type="notes")
+        missing_disk_reg = mgr.register_file(missing_disk_pdf, file_type="main", doc_type="note")
         Path(missing_disk_reg.path).unlink(missing_ok=True)
 
         general_non_template_pdf = (
@@ -146,14 +142,14 @@ def test_integrity_validator_reports_known_issue_types():
         conn.commit()
 
         proc = subprocess.run(
-                [
-                    sys.executable,
-                    "-m",
-                    "ai_study_buddy.pdf_file_manager.scripts.validate_pdf_registry_integrity",
-                    "--db",
-                    str(db_path),
-                    "--json",
-                ],
+            [
+                sys.executable,
+                "-m",
+                "ai_study_buddy.pdf_file_manager.scripts.validate_pdf_registry_integrity",
+                "--db",
+                str(db_path),
+                "--json",
+            ],
             capture_output=True,
             text=True,
             check=False,
@@ -165,6 +161,5 @@ def test_integrity_validator_reports_known_issue_types():
         assert payload["summary"]["student_scope_missing_student_id"] == 1
         assert payload["summary"]["general_scope_non_template"] == 1
         assert payload["summary"]["student_scope_template_true"] == 1
-        assert payload["summary"]["unknown_doc_type"] == 1
         assert payload["summary"]["missing_student_id"] == 1
         assert payload["summary"]["main_raw_metadata_drift"] == 1

@@ -4,10 +4,9 @@
 This is a reproducible audit for the main problems previously discovered by
 ad hoc investigation:
 
-1. files still marked with doc_type='unknown'
-2. files under a registered student's email folder that are missing student_id
-3. linked raw/main pairs whose invariant metadata has drifted
-4. metadata.chinese_variant set to invalid legacy value ``foundation`` (must be ``standard`` for Standard 华文)
+1. files under a registered student's email folder that are missing student_id
+2. linked raw/main pairs whose invariant metadata has drifted
+3. metadata.chinese_variant set to invalid legacy value ``foundation`` (must be ``standard`` for Standard 华文)
 
 Health checks (for large registry operations):
 
@@ -51,17 +50,6 @@ def repo_root() -> Path:
 
 def default_db_path() -> Path:
     return repo_root() / "ai_study_buddy" / "db" / "pdf_registry.db"
-
-
-def collect_unknown_doc_type(mgr: PdfFileManager) -> list[dict]:
-    return [
-        {
-            "id": f.id,
-            "path": f.path,
-            "file_type": f.file_type,
-        }
-        for f in mgr.find_files(doc_type="unknown")
-    ]
 
 
 def collect_invalid_chinese_variant_foundation(mgr: PdfFileManager) -> list[dict]:
@@ -344,7 +332,6 @@ def build_report(mgr: PdfFileManager) -> dict:
     general_scope_non_template = collect_general_scope_non_template(mgr)
     student_scope_template_true = collect_student_scope_template_true(mgr)
 
-    unknown_doc_type = collect_unknown_doc_type(mgr)
     missing_student_id = collect_missing_student_id(mgr)
     main_raw_drift = collect_main_raw_metadata_drift(mgr)
     invalid_chinese_variant_foundation = collect_invalid_chinese_variant_foundation(mgr)
@@ -356,7 +343,6 @@ def build_report(mgr: PdfFileManager) -> dict:
             "student_scope_missing_student_id": len(student_scope_missing_student_id),
             "general_scope_non_template": len(general_scope_non_template),
             "student_scope_template_true": len(student_scope_template_true),
-            "unknown_doc_type": len(unknown_doc_type),
             "missing_student_id": len(missing_student_id),
             "main_raw_metadata_drift": len(main_raw_drift),
             "invalid_chinese_variant_foundation": len(invalid_chinese_variant_foundation),
@@ -367,7 +353,6 @@ def build_report(mgr: PdfFileManager) -> dict:
             "student_scope_missing_student_id": student_scope_missing_student_id,
             "general_scope_non_template": general_scope_non_template,
             "student_scope_template_true": student_scope_template_true,
-            "unknown_doc_type": unknown_doc_type,
             "missing_student_id": missing_student_id,
             "main_raw_metadata_drift": main_raw_drift,
             "invalid_chinese_variant_foundation": invalid_chinese_variant_foundation,
@@ -408,10 +393,6 @@ def _print_human_report(report: dict, *, limit: int) -> None:
     print("\nStudent-scope files where is_template != false:")
     for item in report["checks"]["student_scope_template_true"][:limit]:
         print(f"- {item['path']} [{item['file_type']}] is_template={item['is_template']}")
-
-    print("\nUnknown doc_type:")
-    for item in report["checks"]["unknown_doc_type"][:limit]:
-        print(f"- {item['path']} [{item['file_type']}]")
 
     print("\nMissing student_id:")
     for item in report["checks"]["missing_student_id"][:limit]:

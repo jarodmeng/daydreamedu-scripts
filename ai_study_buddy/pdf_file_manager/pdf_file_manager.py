@@ -38,6 +38,10 @@ class ConfigError(Exception):
 class InvalidMetadataError(ValueError):
     """metadata JSON contains an invalid value (e.g. legacy chinese_variant)."""
 
+
+class InvalidDocTypeError(ValueError):
+    """doc_type is not one of the canonical allowed values."""
+
 # ---------------------------------------------------------------------------
 # Data classes
 # ---------------------------------------------------------------------------
@@ -229,7 +233,8 @@ def _schema_sql() -> str:
 
 class PdfFileManager:
     _ALLOWED_SUBJECTS = ("english", "math", "science", "chinese")
-    _ALLOWED_DOC_TYPES = ("exam", "worksheet", "book", "book_exercise", "activity", "practice", "notes", "unknown")
+    # Canonical doc_type values; keep in sync with DATA_MODEL.md / SPEC.md / README.md.
+    _ALLOWED_DOC_TYPES = ("exam", "exercise", "book", "activity", "note")
     _ALLOWED_GROUP_TYPES = ("exam", "book", "book_exercise", "collection")
     _GRADE_SCOPE_SEGMENTS = ("P1", "P2", "P3", "P4", "P5", "P6", "PSLE", "Archive")
 
@@ -266,7 +271,8 @@ class PdfFileManager:
             "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'pdf_files'"
         ).fetchone()
         pdf_sql = (pdf_sql_row["sql"] or "") if pdf_sql_row else ""
-        if "'book'" not in pdf_sql:
+        # Trigger rebuild when new enum values are missing (historical migration checks).
+        if "'exercise'" not in pdf_sql:
             self._rebuild_pdf_files_table()
 
         group_sql_row = conn.execute(
@@ -289,8 +295,8 @@ class PdfFileManager:
                 path           TEXT NOT NULL UNIQUE,
                 file_type      TEXT NOT NULL DEFAULT 'unknown'
                                CHECK(file_type IN ('main', 'raw', 'unknown')),
-                doc_type       TEXT NOT NULL DEFAULT 'unknown'
-                               CHECK(doc_type IN ('exam', 'worksheet', 'book', 'book_exercise', 'activity', 'practice', 'notes', 'unknown')),
+                doc_type       TEXT NOT NULL
+                               CHECK(doc_type IN ('exam', 'exercise', 'book', 'activity', 'note')),
                 student_id     TEXT REFERENCES students(id),
                 subject        TEXT
                                CHECK(subject IN ('english', 'math', 'science', 'chinese')),
@@ -308,7 +314,18 @@ class PdfFileManager:
                 size_bytes, page_count, has_raw, metadata, added_at, updated_at, notes
             )
             SELECT
-                id, name, path, file_type, doc_type, student_id, subject, is_template,
+                id,
+                name,
+                path,
+                file_type,
+                CASE doc_type
+                    WHEN 'worksheet' THEN 'exercise'
+                    WHEN 'notes' THEN 'note'
+                    ELSE doc_type
+                END AS doc_type,
+                student_id,
+                subject,
+                is_template,
                 size_bytes, page_count, has_raw, metadata, added_at, updated_at, notes
             FROM pdf_files;
             DROP TABLE pdf_files;
@@ -345,9 +362,25 @@ class PdfFileManager:
         conn.execute("PRAGMA foreign_keys = ON")
 
     @classmethod
+    def _normalize_doc_type(cls, doc_type: str) -> str:
+        """Return canonical doc_type or raise InvalidDocTypeError.
+
+        Single-shot migration: only canonical values are accepted; legacy/unknown
+        values are rejected rather than mapped.
+        """
+        if doc_type is None:
+            raise InvalidDocTypeError("doc_type cannot be None")
+        value = str(doc_type).strip().lower()
+        if value not in cls._ALLOWED_DOC_TYPES:
+            raise InvalidDocTypeError(
+                f"Invalid doc_type {doc_type!r}; expected one of {', '.join(cls._ALLOWED_DOC_TYPES)}"
+            )
+        return value
+
+    @classmethod
     def _validate_doc_type(cls, doc_type: str):
-        if doc_type not in cls._ALLOWED_DOC_TYPES:
-            raise ValueError(f"doc_type must be one of {', '.join(cls._ALLOWED_DOC_TYPES)}; got {doc_type!r}")
+        # Backward-compatible wrapper used by existing call sites.
+        cls._normalize_doc_type(doc_type)
 
     @classmethod
     def _validate_group_type(cls, group_type: str):
@@ -678,7 +711,7 @@ class PdfFileManager:
         self,
         path: str | Path,
         file_type: str | None = None,
-        doc_type: str = "unknown",
+        doc_type: str = "exam",
         student_id: str | None = None,
         subject: str | None = None,
         is_template: bool = False,
@@ -705,7 +738,7 @@ class PdfFileManager:
         meta_json = _metadata_json_for_persist(metadata)
         if subject is not None and subject not in ("english", "math", "science", "chinese"):
             raise ValueError(f"subject must be one of english, math, science, chinese; got {subject!r}")
-        self._validate_doc_type(doc_type)
+        doc_type = self._normalize_doc_type(doc_type)
         now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
         file_id = str(uuid.uuid4())
         conn.execute(
@@ -974,7 +1007,7 @@ class PdfFileManager:
                     out.setdefault("metadata", {})["unit"] = unit
                 break
             if p == "Exercise":
-                out["doc_type"] = "worksheet"
+                out["doc_type"] = "exercise"
                 out.setdefault("metadata", {})["content_folder"] = "Exercise"
                 break
             if p == "Activity":
@@ -982,9 +1015,17 @@ class PdfFileManager:
                 out.setdefault("metadata", {})["content_folder"] = "Activity"
                 break
             if p == "Note":
-                out["doc_type"] = "notes"
+                out["doc_type"] = "note"
                 out.setdefault("metadata", {})["content_folder"] = "Note"
                 break
+
+        # Strictness: if the path is otherwise in-scope (has grade/scope and a subject),
+        # but we couldn't resolve a content-folder segment, fail fast.
+        if has_grade_scope and out.get("subject") and "doc_type" not in out:
+            raise InvalidDocTypeError(
+                "Could not infer doc_type from path (missing one of: Exam/Exercise/Book/Activity/Note): "
+                f"{str(resolved)}"
+            )
         for p in parts:
             if p in cls._GRADE_SCOPE_SEGMENTS:
                 out.setdefault("metadata", {})["grade_or_scope"] = p
@@ -1025,12 +1066,13 @@ class PdfFileManager:
     ) -> list[ScanResult]:
         def _build_dry_run_preview(file_type: str, pdf_path: Path, inferred: dict, inferred_student_id: str | None) -> PdfFile:
             metadata = inferred.get("metadata")
+            inferred_doc_type = self._normalize_doc_type(inferred.get("doc_type") or "exam")
             return PdfFile(
                 id="",
                 name=pdf_path.name,
                 path=str(pdf_path.resolve()),
                 file_type=file_type,
-                doc_type=inferred.get("doc_type") or "unknown",
+                doc_type=inferred_doc_type,
                 student_id=inferred_student_id,
                 subject=inferred.get("subject"),
                 is_template=bool(inferred.get("is_template", False)),
@@ -1242,7 +1284,7 @@ class PdfFileManager:
         if subject is not None and subject not in self._ALLOWED_SUBJECTS:
             raise ValueError(f"subject must be one of {', '.join(self._ALLOWED_SUBJECTS)}; got {subject!r}")
         if doc_type is not None:
-            self._validate_doc_type(doc_type)
+            doc_type = self._normalize_doc_type(doc_type)
         if file_type is not None and file_type not in ("main", "raw", "unknown"):
             raise ValueError(f"file_type must be one of main, raw, unknown; got {file_type!r}")
         conn = self._get_connection()
@@ -1253,6 +1295,7 @@ class PdfFileManager:
             updates.append("file_type = ?")
             params.append(file_type)
         if doc_type is not None:
+            doc_type = self._normalize_doc_type(doc_type)
             updates.append("doc_type = ?")
             params.append(doc_type)
         if student_id is not None:
@@ -1367,7 +1410,7 @@ class PdfFileManager:
         student_id = self._infer_student_id_from_path(pdf_path)
         subject = inferred.get("subject", row["subject"])
         doc_type = inferred.get("doc_type") or row["doc_type"]
-        self._validate_doc_type(doc_type)
+        doc_type = self._normalize_doc_type(doc_type)
         if "is_template" in inferred:
             is_template = 1 if inferred["is_template"] else 0
         else:
@@ -1646,7 +1689,7 @@ class PdfFileManager:
             if template.subject and (completed.subject is None or completed.subject == "unknown"):
                 updates.append("subject = ?")
                 params.append(template.subject)
-            if template.doc_type and (completed.doc_type is None or completed.doc_type == "unknown"):
+            if template.doc_type and completed.doc_type is None:
                 updates.append("doc_type = ?")
                 params.append(template.doc_type)
             if template.metadata and isinstance(template.metadata, dict):

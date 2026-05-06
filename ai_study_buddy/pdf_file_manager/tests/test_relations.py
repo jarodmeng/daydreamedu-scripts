@@ -169,7 +169,7 @@ def test_repair_main_raw_metadata_drift_copies_main_values_to_raw():
             )
             mgr.update_metadata(
                 raw_file.id,
-                doc_type="worksheet",
+                doc_type="exercise",
                 student_id="wrong",
                 subject="math",
                 is_template=False,

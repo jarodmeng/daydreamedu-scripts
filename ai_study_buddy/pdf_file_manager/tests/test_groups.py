@@ -189,8 +189,16 @@ def test_suggest_groups_unclassified_excluded():
         try:
             mgr = PdfFileManager(db_path=db_path)
             mgr.add_student("w", "W")
-            mgr.register_file(pdfs[0], doc_type="unknown")
-            mgr.register_file(pdfs[1], doc_type="exam", student_id="w", subject="science", metadata={"exam_date": "2025-11-12"})
+            # suggest_groups only considers main exam files with student_id, subject, and metadata.exam_date.
+            # A non-exam file should never appear in suggestions.
+            mgr.register_file(pdfs[0], doc_type="exercise")
+            mgr.register_file(
+                pdfs[1],
+                doc_type="exam",
+                student_id="w",
+                subject="science",
+                metadata={"exam_date": "2025-11-12"},
+            )
             suggestions = mgr.suggest_groups()
             for s in suggestions:
                 for c in s.candidate_files:

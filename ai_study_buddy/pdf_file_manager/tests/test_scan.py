@@ -7,7 +7,12 @@ from pathlib import Path
 
 import pytest
 
-from ai_study_buddy.pdf_file_manager.pdf_file_manager import CompressResult, ConfigError, PdfFileManager
+from ai_study_buddy.pdf_file_manager.pdf_file_manager import (
+    CompressResult,
+    ConfigError,
+    InvalidDocTypeError,
+    PdfFileManager,
+)
 
 from .conftest import FIXTURE_ROOT, fixture_has_pdfs
 from .constants import STUDENT_DISPLAY_NAME, STUDENT_FOLDER_EMAIL
@@ -48,7 +53,7 @@ def test_scan_without_dry_run_registers_and_compresses(monkeypatch):
             mgr.add_scan_root(root, student_id="w")
 
             def _spy(file_id_or_path, *args, **kwargs):
-                registered = mgr.register_file(file_id_or_path, file_type="main", doc_type="unknown")
+                registered = mgr.register_file(file_id_or_path, file_type="main", doc_type="exam")
                 return CompressResult(main_file_id=registered.id, compressed=False, raw_archive_id=None)
 
             monkeypatch.setattr(mgr, "compress_and_register", _spy)
@@ -173,7 +178,7 @@ def test_scan_explicit_student_root_infers_student_id_without_configured_scan_ro
         mgr.add_student("winston", STUDENT_DISPLAY_NAME, STUDENT_FOLDER_EMAIL)
 
         def _spy(file_id_or_path, *args, **kwargs):
-            registered = mgr.register_file(file_id_or_path, file_type="main", doc_type="unknown")
+            registered = mgr.register_file(file_id_or_path, file_type="main", doc_type="exam")
             return CompressResult(main_file_id=registered.id, compressed=False, raw_archive_id=None)
 
         monkeypatch.setattr(mgr, "compress_and_register", _spy)
@@ -251,7 +256,7 @@ def test_scan_explicit_goodnotes_root_infers_student_id_without_configured_scan_
         mgr.add_student("winston", STUDENT_DISPLAY_NAME, STUDENT_FOLDER_EMAIL)
 
         def _spy(file_id_or_path, *args, **kwargs):
-            registered = mgr.register_file(file_id_or_path, file_type="main", doc_type="unknown")
+            registered = mgr.register_file(file_id_or_path, file_type="main", doc_type="exam")
             return CompressResult(main_file_id=registered.id, compressed=False, raw_archive_id=None)
 
         monkeypatch.setattr(mgr, "compress_and_register", _spy)
@@ -275,7 +280,7 @@ def test_scan_roots_only_process_direct_pdf_children(monkeypatch):
         mgr = PdfFileManager(db_path=str(db_path))
 
         def _spy(file_id_or_path, *args, **kwargs):
-            registered = mgr.register_file(file_id_or_path, file_type="main", doc_type="unknown")
+            registered = mgr.register_file(file_id_or_path, file_type="main", doc_type="book")
             return CompressResult(main_file_id=registered.id, compressed=False, raw_archive_id=None)
 
         monkeypatch.setattr(mgr, "compress_and_register", _spy)
@@ -304,3 +309,16 @@ def test_scan_with_no_roots_raises():
         assert "root" in str(err).lower() or "config" in str(err).lower()
     finally:
         Path(tmp).unlink(missing_ok=True)
+
+
+def test_scan_dry_run_raises_for_in_scope_unknown_content_folder():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmpdir = Path(tmpdir)
+        bad_root = tmpdir / "DaydreamEdu" / "Singapore Primary Science" / "P6" / "UnknownFolder"
+        bad_root.mkdir(parents=True, exist_ok=True)
+        (bad_root / "file.pdf").write_bytes(b"%PDF-1.4 fake")
+        db_path = tmpdir / "registry.db"
+        mgr = PdfFileManager(db_path=str(db_path))
+        mgr.add_scan_root(bad_root)
+        with pytest.raises(InvalidDocTypeError):
+            mgr.scan_for_new_files(dry_run=True)

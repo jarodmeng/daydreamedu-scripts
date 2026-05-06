@@ -8,7 +8,11 @@ from pathlib import Path
 
 import pytest
 
-from ai_study_buddy.pdf_file_manager.pdf_file_manager import InvalidMetadataError, PdfFileManager
+from ai_study_buddy.pdf_file_manager.pdf_file_manager import (
+    InvalidDocTypeError,
+    InvalidMetadataError,
+    PdfFileManager,
+)
 
 from .conftest import FIXTURE_ROOT, fixture_has_pdfs
 from .constants import STUDENT_DISPLAY_NAME, STUDENT_FOLDER_EMAIL
@@ -29,12 +33,12 @@ def test_infer_from_path_science_exam_p5():
 
 
 def test_infer_from_path_english_exercise():
-    """Path with English and Exercise infers subject=english, doc_type=worksheet.
+    """Path with English and Exercise infers subject=english, doc_type=exercise.
     No email in path, has P6 → general scope → is_template=True."""
     path = Path("/fake/Singapore Primary English/P6/Exercise/sheet.pdf")
     out = PdfFileManager._infer_from_path(path)
     assert out.get("subject") == "english"
-    assert out.get("doc_type") == "worksheet"
+    assert out.get("doc_type") == "exercise"
     assert out.get("is_template") is True
     meta = out.get("metadata") or {}
     assert meta.get("content_folder") == "Exercise"
@@ -53,12 +57,12 @@ def test_infer_from_path_math_activity():
 
 
 def test_infer_from_path_chinese_note():
-    """Path with Chinese and Note infers subject=chinese, doc_type=notes.
+    """Path with Chinese and Note infers subject=chinese, doc_type=note.
     No email, has P4 → general scope → is_template=True."""
     path = Path("/fake/Singapore Primary Chinese/P4/Note/notes.pdf")
     out = PdfFileManager._infer_from_path(path)
     assert out.get("subject") == "chinese"
-    assert out.get("doc_type") == "notes"
+    assert out.get("doc_type") == "note"
     assert out.get("is_template") is True
     meta = out.get("metadata") or {}
     assert meta.get("grade_or_scope") == "P4"
@@ -96,6 +100,12 @@ def test_infer_from_path_no_matching_segments_returns_empty():
     assert "subject" not in out or out.get("subject") is None
     assert "doc_type" not in out or out.get("doc_type") is None
     assert "is_template" not in out
+
+
+def test_infer_from_path_raises_when_subject_and_grade_present_but_no_content_folder():
+    path = Path("/fake/DaydreamEdu/Singapore Primary Science/P6/SomeOtherFolder/file.pdf")
+    with pytest.raises(InvalidDocTypeError):
+        PdfFileManager._infer_from_path(path)
 
 
 def test_infer_from_path_is_template_true_when_general_scope():
@@ -235,7 +245,7 @@ def test_infer_from_path_does_not_set_chinese_variant_for_non_exam():
     )
     out = PdfFileManager._infer_from_path(path)
     assert out.get("subject") == "chinese"
-    assert out.get("doc_type") == "worksheet"
+    assert out.get("doc_type") == "exercise"
     meta = out.get("metadata") or {}
     assert "chinese_variant" not in meta
 
@@ -332,7 +342,7 @@ def test_scan_book_folder_applies_book_inference_and_grouping():
             mgr = PdfFileManager(db_path=db_path)
 
             def fake_compress_and_register(file_id_or_path, force=False, min_savings_pct=10, preserve_input=False, **compress_kwargs):
-                registered = mgr.register_file(file_id_or_path, file_type="main", doc_type="unknown")
+                registered = mgr.register_file(file_id_or_path, file_type="main", doc_type="book")
                 return type("FakeCompressResult", (), {
                     "main_file_id": registered.id,
                     "compressed": False,
@@ -398,7 +408,7 @@ def test_scan_general_and_student_book_same_label_only_keeps_general_templates()
             mgr = PdfFileManager(db_path=db_path)
 
             def fake_compress_and_register(file_id_or_path, force=False, min_savings_pct=10, preserve_input=False, **compress_kwargs):
-                registered = mgr.register_file(file_id_or_path, file_type="main", doc_type="unknown")
+                registered = mgr.register_file(file_id_or_path, file_type="main", doc_type="book")
                 return type("FakeCompressResult", (), {
                     "main_file_id": registered.id,
                     "compressed": False,
@@ -485,7 +495,7 @@ def test_scan_registered_unknown_book_file_processes_it_on_rescan():
             db_path = f.name
         try:
             mgr = PdfFileManager(db_path=db_path)
-            existing = mgr.register_file(pdf_path, file_type="unknown", doc_type="unknown")
+            existing = mgr.register_file(pdf_path, file_type="unknown", doc_type="book")
 
             def fake_compress_and_register(file_id_or_path, force=False, min_savings_pct=10, preserve_input=False, **compress_kwargs):
                 mgr._get_connection().execute(

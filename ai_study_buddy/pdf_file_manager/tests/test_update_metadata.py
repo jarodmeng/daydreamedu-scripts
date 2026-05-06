@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-from ai_study_buddy.pdf_file_manager.pdf_file_manager import PdfFileManager
+from ai_study_buddy.pdf_file_manager.pdf_file_manager import InvalidDocTypeError, PdfFileManager
 
 from .conftest import FIXTURE_ROOT, fixture_has_pdfs
 
@@ -89,6 +89,29 @@ def test_update_metadata_invalid_file_type_raises():
             with pytest.raises(ValueError) as exc_info:
                 mgr.update_metadata(reg.id, file_type="bogus")
             assert "file_type" in str(exc_info.value).lower()
+        finally:
+            Path(db_path).unlink(missing_ok=True)
+
+
+def test_update_metadata_doc_type_persists_and_rejects_invalid():
+    if not fixture_has_pdfs():
+        pytest.skip("Fixture PDFs not present")
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmpdir = Path(tmpdir)
+        shutil.copytree(FIXTURE_ROOT, tmpdir / "fixture", dirs_exist_ok=True)
+        pdfs = list((tmpdir / "fixture").rglob("*.pdf"))
+        with tempfile.NamedTemporaryFile(suffix=".db", delete=False, dir=tmpdir) as f:
+            db_path = f.name
+        try:
+            mgr = PdfFileManager(db_path=db_path)
+            reg = mgr.register_file(pdfs[0])
+            updated = mgr.update_metadata(reg.id, doc_type="exercise")
+            assert updated.doc_type == "exercise"
+            got = mgr.get_file(reg.id)
+            assert got is not None and got.doc_type == "exercise"
+
+            with pytest.raises(InvalidDocTypeError):
+                mgr.update_metadata(reg.id, doc_type="worksheet")
         finally:
             Path(db_path).unlink(missing_ok=True)
 

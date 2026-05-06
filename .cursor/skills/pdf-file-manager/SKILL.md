@@ -7,7 +7,7 @@ description: Use the AI Study Buddy `pdf_file_manager` utility (SQLite registry 
 
 Use this skill for registry-backed PDF work under [`ai_study_buddy/pdf_file_manager/`](../../../ai_study_buddy/pdf_file_manager/).
 
-**What it is:** A local Python library (`PdfFileManager`) that keeps **`pdf_files`**, relations, **`file_groups`**, and **`book_answer_mappings`** aligned with on-disk paths. Every mutation is recorded in **`operation_log`**. The package tracks exams, worksheets, books, book exercises, activities, practice, notes, and templates (with optional completions), including **first-class book unit → answer-page ranges** (not stored in `pdf_files.metadata`).
+**What it is:** A local Python library (`PdfFileManager`) that keeps **`pdf_files`**, relations, **`file_groups`**, and **`book_answer_mappings`** aligned with on-disk paths. Every mutation is recorded in **`operation_log`**. The package tracks exams, exercises, books, activities, notes, and templates (with optional completions), including **first-class book unit → answer-page ranges** (not stored in `pdf_files.metadata`).
 
 **Current package version** is stated in [README.md](../../../ai_study_buddy/pdf_file_manager/README.md) (header). Behaviour details: [SPEC.md](../../../ai_study_buddy/pdf_file_manager/SPEC.md), [DATA_MODEL.md](../../../ai_study_buddy/pdf_file_manager/DATA_MODEL.md), [ARCHITECTURE.md](../../../ai_study_buddy/pdf_file_manager/ARCHITECTURE.md).
 
@@ -40,7 +40,7 @@ The SQLite file and schema are implementation details. Touch them directly only 
 | [SPEC.md](../../../ai_study_buddy/pdf_file_manager/SPEC.md) | Operation contract, scan/compress edge cases, rename/move semantics. |
 | [DATA_MODEL.md](../../../ai_study_buddy/pdf_file_manager/DATA_MODEL.md) | Fields, dataclasses, **exam group completeness** (compulsory `metadata.unit`). |
 | [TESTING.md](../../../ai_study_buddy/pdf_file_manager/TESTING.md) | How tests are organised; when to add tests for registry changes. |
-| [scripts/validate_pdf_registry_integrity.py](../../../ai_study_buddy/pdf_file_manager/scripts/validate_pdf_registry_integrity.py) | Reproducible audits: `unknown` doc types, missing `student_id` in student-scoped paths, raw/main metadata drift. |
+| [scripts/validate_pdf_registry_integrity.py](../../../ai_study_buddy/pdf_file_manager/scripts/validate_pdf_registry_integrity.py) | Reproducible audits: missing `student_id` in student-scoped paths, raw/main metadata drift, and other registry hygiene checks. |
 | [scripts/backup_pdf_registry.py](../../../ai_study_buddy/pdf_file_manager/scripts/backup_pdf_registry.py) | Optional cloud backup of the gitignored DB (see README). |
 
 ## Python API surface

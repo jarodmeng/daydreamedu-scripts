@@ -176,7 +176,7 @@ def test_set_book_answer_mapping_allows_cross_book_group_mapping_for_book_files(
             notes_file = mgr.register_file(
                 _make_pdf(root / "notes.pdf"),
                 file_type="main",
-                doc_type="notes",
+                doc_type="note",
                 subject="science",
             )
             mgr.add_to_file_group(science_group.id, notes_file.id)

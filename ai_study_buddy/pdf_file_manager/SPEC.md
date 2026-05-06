@@ -40,15 +40,15 @@ Student assignment precedence during scan:
 
 **Already registered files** (matched by absolute path) are skipped.
 
-Each newly processed file produces `register` and (where applicable) `compress` + `link` entries in `operation_log`. `doc_type` defaults to `'unknown'`; classify afterwards with `update_metadata`.
+Each newly processed file produces `register` and (where applicable) `compress` + `link` entries in `operation_log`. `doc_type` must be one of the canonical values (`exam`, `exercise`, `book`, `activity`, `note`); classify afterwards with `update_metadata` if path inference is insufficient.
 
-#### `register_file(path, file_type=None, doc_type='unknown', student_id=None, subject=None, is_template=False, metadata=None, notes=None) -> PdfFile`
+#### `register_file(path, file_type=None, doc_type='exam', student_id=None, subject=None, is_template=False, metadata=None, notes=None) -> PdfFile`
 
-Manually register a single file without compression. Infers `file_type` from filename unless overridden: `_raw_` → `raw`, `_c_` → `main`, else `unknown`. If `student_id` is not provided, the manager attempts to infer it from a registered `students.email` path segment. Raises `FileNotFoundError` if path absent. Raises `AlreadyRegisteredError` if already registered. Writes a `register` log entry.
+Manually register a single file without compression. Infers `file_type` from filename unless overridden: `_raw_` → `raw`, `_c_` → `main`, else `unknown`. `doc_type` must be one of the canonical values (`exam`, `exercise`, `book`, `activity`, `note`) or the call raises `InvalidDocTypeError`. If `student_id` is not provided, the manager attempts to infer it from a registered `students.email` path segment. Raises `FileNotFoundError` if path absent. Raises `AlreadyRegisteredError` if already registered. Writes a `register` log entry.
 
 #### `compress_and_register(file_id_or_path, force=False, min_savings_pct=10, preserve_input=False, **compress_kwargs) -> CompressResult`
 
-Composite: register (if needed) then compress. When given a **path** that is not yet in the registry, the file is registered first as `file_type='unknown'`, then the steps below run. When given a **file_id** or a path that is already registered, the existing record is used.
+Composite: register (if needed) then compress. When given a **path** that is not yet in the registry, the file is registered first as `file_type='unknown'` (with a canonical `doc_type`), then the steps below run. When given a **file_id** or a path that is already registered, the existing record is used.
 
 1. **Resolve to a record:** If `file_id_or_path` is a path with no matching registry row, call `register_file(path)` (creating `file_type='unknown'`), then use that record. Otherwise look up by file_id or path; raise `NotFoundError` if absent.
 2. Validate `file_type == 'unknown'` (not yet processed); raise `ValueError` if already `main` or `raw`.
@@ -252,7 +252,7 @@ Remove relation pair. Updates `has_raw` if it was a raw↔main relation. Writes 
 
 #### `link_to_template(completed_id, template_id, inherit_metadata=True) -> FileRelation`
 
-Link a completed file to its template. Creates `template_for` (template → completed) and `completed_from` (completed → template) rows. If `inherit_metadata=True`, copies `subject`, `doc_type` (if completed has `doc_type='unknown'`), and merges `metadata` from template into completed (does not overwrite existing keys on completed). Optionally warn if `page_count` differs. **Validation:** Raises `ValueError` if the completed file already has a template; if either file is not `file_type='main'`; if the template does not have `is_template=True`; or if the completed file does not have `is_template=False`. Writes a `link_template` log entry.
+Link a completed file to its template. Creates `template_for` (template → completed) and `completed_from` (completed → template) rows. If `inherit_metadata=True`, copies `subject`, copies `doc_type` only when the completed file has no `doc_type` value, and merges `metadata` from template into completed (does not overwrite existing keys on completed). Optionally warn if `page_count` differs. **Validation:** Raises `ValueError` if the completed file already has a template; if either file is not `file_type='main'`; if the template does not have `is_template=True`; or if the completed file does not have `is_template=False`. Writes a `link_template` log entry.
 
 #### `unlink_template(completed_id)`
 
@@ -347,7 +347,7 @@ mgr.add_scan_root(
 results = mgr.scan_for_new_files()
 
 # Classify
-f = mgr.find_files(doc_type="unknown")[0]
+f = mgr.find_files(file_type="unknown")[0]
 f = mgr.update_metadata(f.id, doc_type="exam", subject="chinese", metadata={
     "paper_type": "eoy", "grade": "p6",
     "school": "st_gabriels", "exam_date": "2025-11-12"
@@ -369,7 +369,7 @@ mgr.set_file_group_anchor(g.id, p2a.id)
 # Search
 exams     = mgr.find_files(doc_type="exam", student_id="winston")
 templates = mgr.find_files(is_template=True, subject="science")
-untagged  = mgr.find_files(doc_type="unknown")
+untagged  = mgr.find_files(file_type="unknown")
 no_raw    = mgr.find_files(file_type="main", has_raw=False)
 
 # Link completed file to template (inherit subject, doc_type, metadata)

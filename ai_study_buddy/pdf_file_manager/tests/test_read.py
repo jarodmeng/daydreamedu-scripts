@@ -96,7 +96,7 @@ def test_find_files_doc_type_filter():
         try:
             mgr = PdfFileManager(db_path=db_path)
             mgr.register_file(pdfs[0], doc_type="exam")
-            mgr.register_file(pdfs[1], doc_type="worksheet")
+            mgr.register_file(pdfs[1], doc_type="exercise")
             exam = mgr.find_files(doc_type="exam")
             assert len(exam) == 1 and exam[0].doc_type == "exam"
         finally:

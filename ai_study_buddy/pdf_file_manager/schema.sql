@@ -15,8 +15,8 @@ CREATE TABLE IF NOT EXISTS pdf_files (
     path           TEXT NOT NULL UNIQUE,
     file_type      TEXT NOT NULL DEFAULT 'unknown'
                    CHECK(file_type IN ('main', 'raw', 'unknown')),
-    doc_type       TEXT NOT NULL DEFAULT 'unknown'
-                   CHECK(doc_type IN ('exam', 'worksheet', 'book', 'book_exercise', 'activity', 'practice', 'notes', 'unknown')),
+    doc_type       TEXT NOT NULL DEFAULT 'exam'
+                   CHECK(doc_type IN ('exam', 'exercise', 'book', 'activity', 'note')),
     student_id     TEXT REFERENCES students(id),
     subject        TEXT
                    CHECK(subject IN ('english', 'math', 'science', 'chinese')),

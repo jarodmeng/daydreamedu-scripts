@@ -1,8 +1,8 @@
 # pdf_file_manager
 
-**Version: v0.3.8**
+**Version: v0.3.9**
 
-A local utility that keeps a SQLite registry of PDF files in the study archive. It tracks exams, worksheets, books, book exercises, activities, notes, and templates (with optional completed variants), keeps on-disk paths and database records in sync, and now supports first-class book unit → answer-page mappings inside `group_type='book'` collections. You can scan one or more folders for new PDFs, optionally compress and archive originals, classify documents by type and metadata, group multi-file documents (e.g. exam booklets or book folders), link completions to templates, and query or import validated book-answer coverage. Every state-mutating operation is recorded in an append-only operation log.
+A local utility that keeps a SQLite registry of PDF files in the study archive. It tracks exams, exercises, books, activities, notes, and templates (with optional completed variants), keeps on-disk paths and database records in sync, and supports first-class book unit → answer-page mappings inside `group_type='book'` collections. You can scan one or more folders for new PDFs, optionally compress and archive originals, classify documents by type and metadata, group multi-file documents (e.g. exam booklets or book folders), link completions to templates, and query or import validated book-answer coverage. Every state-mutating operation is recorded in an append-only operation log.
 
 **Typical workflow:** Add scan roots (e.g. Google Drive folders) and students → run **scan** on the exact folder you want to ingest → **classify** with `doc_type`, `subject`, and metadata → use **suggest-groups** for exams, or let scan infer/group `.../Book/<book name>/...` folders as books, then link templates as needed. For books, grouped members are canonical general-scope templates; student mirror files are represented via template links, not duplicate group members. Only main files are ingested by the pipeline; raw archives are kept for traceability.
 
@@ -14,7 +14,7 @@ A local utility that keeps a SQLite registry of PDF files in the study archive. 
 
 **Student inference:** When `student_id` is not supplied explicitly by a configured scan root or direct API call, the manager can now fall back to matching registered `students.email` path segments so student-scoped scans do not silently leave `student_id` unset. New scan roots created without `student_id` now also auto-infer and persist `student_id` from a unique matching email segment in the root path.
 
-**Integrity validation:** Use [`scripts/validate_pdf_registry_integrity.py`](./scripts/validate_pdf_registry_integrity.py) to reproducibly audit the registry for lingering `doc_type='unknown'` files, missing `student_id` in student-scoped folders, and raw/main invariant metadata drift.
+**Integrity validation:** Use [`scripts/validate_pdf_registry_integrity.py`](./scripts/validate_pdf_registry_integrity.py) to reproducibly audit the registry for missing `student_id` in student-scoped folders, raw/main invariant metadata drift, and other hygiene checks.
 
 **Machine interface:** The supported machine-facing contract is the Python API in [`pdf_file_manager.py`](./pdf_file_manager.py) via `PdfFileManager`. The old built-in CLI has been removed to avoid maintaining a second, partial interface.
 
@@ -22,7 +22,7 @@ A local utility that keeps a SQLite registry of PDF files in the study archive. 
 
 ## Type dimensions
 
-Every file has two independent attributes: **file_type** (main vs raw vs unknown — which file is the primary one for ingestion) and **doc_type** (exam, worksheet, book, book_exercise, activity, practice, notes, unknown — what kind of content). The former drives processing and naming; the latter drives metadata shape and how the ingestion pipeline routes the file.
+Every file has two independent attributes: **file_type** (main vs raw vs unknown — which file is the primary one for ingestion) and **doc_type** (`exam`, `exercise`, `book`, `activity`, `note` — what kind of content). The former drives processing and naming; the latter drives metadata shape and how the ingestion pipeline routes the file.
 
 For a quick reference on file-level metadata vs group-level fields (including `metadata.unit`, `label`, `group_type`, and legacy `role`), see [`DATA_MODEL.md`](./DATA_MODEL.md).
 

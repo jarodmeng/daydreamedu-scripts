@@ -4,6 +4,14 @@ All notable changes to the pdf_file_manager utility are documented here.
 
 ---
 
+## [v0.3.9] — Canonical doc_type enums and strict validation
+
+- **Canonical `doc_type` set:** `PdfFile.doc_type` is now constrained to the canonical values `exam`, `exercise`, `book`, `activity`, and `note`. Legacy/unused values (`worksheet`, `notes`, `book_exercise`, `practice`, `unknown`) are no longer accepted.
+- **Strict validation:** All code paths that accept `doc_type` (including `register_file(...)`, `update_metadata(..., doc_type=...)`, `_refresh_from_path(...)`, and path inference) now route through a single `_normalize_doc_type(...)` helper, which raises `InvalidDocTypeError` on any non-canonical value instead of silently accepting or mapping it.
+- **Path inference alignment:** `_infer_from_path(...)` maps content-folder segments to canonical enums (`Exercise` → `exercise`, `Note` → `note`) while preserving `Exam`, `Book`, and `Activity` behaviour. Existing inference tests updated accordingly.
+- **Registry migration helper:** Added `scripts/migrate_doc_type_enums.py` for a one-shot migration of existing registries, rewriting `worksheet`→`exercise` and `notes`→`note` and asserting that no rows remain in removed/legacy values. Supports `--dry-run` to preview changes.
+- **Docs:** Updated `DATA_MODEL.md` `PdfFile.doc_type` reference to the new enum set and documented strict failure behaviour in this changelog entry.
+
 ## [v0.3.8] — Delete integrity hardening for `file_relations`
 
 - **`delete_file`:** Before removing the `pdf_files` row, deletes every `file_relations` row whose `source_id` or `target_id` matches the file id (raw/main, template/completion, etc.), so the registry does not retain orphan edges when SQLite foreign-key cascades are inactive on the connection.
