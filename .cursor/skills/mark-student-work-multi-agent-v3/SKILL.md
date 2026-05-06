@@ -1,0 +1,66 @@
+---
+name: mark-student-work-multi-agent-v3
+description: v3 orchestrator entrypoint for student-work marking. Uses deterministic input normalization/registration-first resolution, mode guardrails, and redo-practice reference resolution before downstream phase execution.
+---
+
+# v3 Orchestrator Entrypoint (Phase A/B + runtime delegation boundary)
+
+This skill is the top-level v3 orchestrator entrypoint and runtime policy boundary.
+
+Use these workflow APIs from `ai_study_buddy.marking.workflows.mark_student_work_multi_agent_v3`:
+
+- `V3InputRequest`
+- `resolve_attempt_input_to_pdf_file(...)`
+- `resolve_v3_marking_context(...)`
+- `build_context_resolution_debug_record(...)`
+- `write_context_resolution_debug_artifact(...)`
+- `V3ModeSignals`
+- `resolve_v3_mode(...)`
+- `require_no_user_asset_contradiction(...)`
+- `resolve_redo_practice_reference(...)`
+
+## Phase A contract (must pass before any phase execution)
+
+1. Normalize user input into `V3InputRequest` from one of:
+   - `attempt_file_id_or_path` (`file_id`)
+   - `attempt_file_id_or_path` (full path)
+   - `student_name + file_name`
+2. Resolve attempt file through `resolve_attempt_input_to_pdf_file(...)`.
+   - This enforces registration-first behavior for unregistered path input.
+3. Resolve canonical marking context through `resolve_v3_marking_context(...)`.
+4. Persist context-resolution provenance debug artifact:
+   - build record with `build_context_resolution_debug_record(...)`
+   - write file with `write_context_resolution_debug_artifact(...)` to `debug/context_resolution_provenance.json` under run bundle.
+
+## Phase B contract (must pass before Phase C+)
+
+1. Build `V3ModeSignals` from runtime/user signals.
+2. Enforce contradiction stop gate via `require_no_user_asset_contradiction(...)`.
+3. Resolve mode via `resolve_v3_mode(...)`.
+   - hard-fail when signals are ambiguous.
+   - no template-link bypass override.
+4. If mode is `redo-practice`, resolve reference through `resolve_redo_practice_reference(...)`.
+   - use first/original marking result as golden reference.
+   - include amendment payload when present.
+
+## Phase 2 / Phase 3 `Task` spawning (mandatory)
+
+When using the `Task` tool to launch grading subagents after Phase A/B:
+
+- **Phase 2:** `subagent_type="marking-phase2-fast-pass-grader-v3"`
+- **Phase 3:** `subagent_type="marking-phase3-deep-dive-v3"`
+
+**Model selection:** Do **not** pass a `model` argument on these `Task` calls. The subagent definitions use frontmatter `model: inherit`; omitting `model` preserves that behavior (same policy as `.cursor/skills/mark-student-work-multi-agent-v2/SKILL.md` for its phase workers).
+
+**Phase 2 / Phase 3 prompt reminder:** Ensure Task prompts reinforce agent rules: **`diagnosis.reasoning` is only for learner-centric mistake explanation**—not provenance or how teacher marks were read (see `.cursor/agents/marking-phase2-fast-pass-grader-v3.md` and `marking-phase3-deep-dive-v3.md`).
+
+## Downstream phase ownership (Phase C/D/E)
+
+- This skill remains responsible for runtime orchestration decisions after Phase A/B (Task fan-out/fan-in, bounded concurrency, targeted retries, and escalation behavior).
+- Deterministic data-shaping contracts for Phase C/D/E are implemented in `ai_study_buddy.marking.workflows.mark_student_work_multi_agent_v3` and related helpers; invoke those APIs rather than re-implementing transforms in prompts.
+- Finalization must remain on package boundaries (`validate_marking_artifact_dict(...)` then `write_marking_artifact(...)`).
+
+## Orchestrator boundary
+
+- Do not perform grading/transcription directly in this skill.
+- Treat this skill as the control-plane entrypoint: it enforces A/B contracts directly and orchestrates downstream C/D/E runtime flow through deterministic workflow APIs and phase subagents.
