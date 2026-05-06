@@ -8,7 +8,7 @@ Canonical marking pipeline for AI Study Buddy. This package defines the
 3. render markdown as a derived view
 4. support human note edits in the canonical JSON
 
-Current version: `v0.3.1`
+Current version: `v0.3.3`
 
 ## Package Scope
 
@@ -98,7 +98,7 @@ Example `context` snippet:
 
 Per-run renders, answer crops, and disposable `_mark_*.py` / `_render_*.py` helpers live under the standardized bundle root in `context.marking_asset` (for example `ai_study_buddy/context/marking_assets/<student>/<subject>/<artifact_stem>/`), not in this package root.
 
-## File Question Info Helpers (`v0.3.1+`)
+## File Question Info Helpers (`v0.3.2+`)
 
 Detectors for Chinese/English/Higher Chinese/Math/Science write `question_sections.json` under:
 
@@ -126,6 +126,31 @@ finalize_question_sections_snapshot(
     context_root=Path("ai_study_buddy/context"),
 )
 ```
+
+Reader/consumer helpers for v3 readiness:
+
+```python
+from ai_study_buddy.marking.file_question_info import (
+    get_latest_question_sections_for_file_id,
+    iter_sections_ordered,
+    iter_questions_ordered,
+    question_page_map_from_question_sections,
+    section_hint_strings_for_context,
+)
+
+source = get_latest_question_sections_for_file_id(template_file_id)
+payload = source["payload"]  # runtime-validated when require_valid=True (default)
+sections = iter_sections_ordered(payload)
+questions = iter_questions_ordered(payload)
+page_map_rows = list(question_page_map_from_question_sections(payload).values())
+section_hints = section_hint_strings_for_context(payload)
+```
+
+READ-flag behavior for lookup helpers:
+
+- `LEARNING_DB_ENABLE_READS=1` (default): prefer DB-backed lookup.
+- `LEARNING_DB_READ_FALLBACK_FILESYSTEM=1`: allow filesystem fallback on DB miss.
+- Divergence guard (default `detect_divergence=True`): when DB and filesystem artifacts both exist and differ for the same file, lookup raises `QuestionSectionsLookupError`.
 
 ## Quick Start
 

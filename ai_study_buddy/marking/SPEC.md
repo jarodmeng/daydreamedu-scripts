@@ -17,6 +17,7 @@ The package guarantees:
 6. safe run-level artifact cleanup for canonical JSON, derived report, and marking-asset bundle
 7. a review-domain backend contract under `ai_study_buddy.marking.review` for attempt review payload shaping and companion artifact writes
 8. deterministic, schema-validated detector artifacts under `context/file_question_info/**` via `marking.file_question_info`
+9. deterministic reader/consumer helpers over validated `question_sections.json` payloads for section/question iteration, map bridging, and template-oriented lookup
 
 ## Canonical Data Contract
 
@@ -134,6 +135,34 @@ python3 -m ai_study_buddy.marking.file_question_info.validate <run_folder>/quest
 ```
 
 If validation fails, the detector run must not be treated as successful by downstream consumers.
+
+### 3.1) File question info reader/consumer contract (`v0.3.2+`)
+
+Reader APIs must be deterministic and fail closed:
+
+1. `iter_sections_ordered(payload)` and `iter_questions_ordered(payload)`:
+   - consume validated payloads
+   - preserve document order
+   - return normalized row contracts without mutating input
+2. `build_detector_question_id_list(payload)` / `assert_unique_detector_question_ids(payload)`:
+   - provide ordered IDs for QC
+   - duplicate `question_index` is hard-fail (`QuestionSectionsDuplicateQuestionIdError`)
+3. `question_page_map_from_question_sections(payload, ...)`:
+   - emits rows compatible with `marking_result.v1.6` `context.question_page_map` items
+   - each row includes `result_id`, `attempt_page_start`, `confidence`, `source`, optional `note`
+4. `section_hint_strings_for_context(payload)`:
+   - emits stable section hint labels (with index prefix `S{n}: ...`) for orchestration/prompt narrowing
+5. template-oriented lookup helpers:
+   - `get_latest_question_sections_for_file_id(...)`
+   - `get_latest_question_sections_for_pdf_file(...)`
+   - `resolve_question_sections_for_template_file(...)` (reader-only; no detector invocation)
+
+Lookup source policy is governed by existing learning DB READ flags:
+
+1. `LEARNING_DB_ENABLE_READS`
+2. `LEARNING_DB_READ_FALLBACK_FILESYSTEM`
+
+When both DB and filesystem artifacts exist for the same file and divergence detection is enabled, readers raise `QuestionSectionsLookupError` instead of silently choosing one source.
     - `source` (`manual_visual|ai_visual_backfill|script_inferred`)
   - optional fields:
     - `evidence_image` (null or non-empty string)

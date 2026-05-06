@@ -61,6 +61,23 @@ Current package modules are grouped into four layers.
 
 This submodule provides `load`/`validate` and a dedicated CLI entrypoint (`python3 -m ai_study_buddy.marking.file_question_info.validate <path>`) so detector runs can fail closed when outputs are not structurally trustworthy.
 
+It also provides reader/consumer primitives used by v3-oriented orchestration:
+
+- normalized iteration (`iter_sections_ordered`, `iter_questions_ordered`)
+- duplicate-ID QC (`build_detector_question_id_list`, `assert_unique_detector_question_ids`)
+- deterministic map bridge (`question_page_map_from_question_sections`)
+- section hints (`section_hint_strings_for_context`)
+- template-oriented lookup (`get_latest_question_sections_for_file_id`, `get_latest_question_sections_for_pdf_file`, `resolve_question_sections_for_template_file`)
+
+Read-source behavior follows learning DB READ flags:
+
+- `LEARNING_DB_ENABLE_READS` controls DB-backed reads.
+- `LEARNING_DB_READ_FALLBACK_FILESYSTEM` controls filesystem fallback on DB miss.
+
+Transition safety:
+
+- when DB and filesystem artifacts both exist and divergence detection is enabled, lookup helpers raise `QuestionSectionsLookupError` for explicit debugging.
+
 ### B. Workflow layer (`workflows/`)
 
 - `migrate_learning_reports.py`: markdown -> canonical JSON migration

@@ -12,6 +12,7 @@ Primary automated coverage lives in:
 - `ai_study_buddy/marking/tests/test_marking_asset_bundle.py`
 - `ai_study_buddy/marking/tests/test_marking_asset_render.py`
 - `ai_study_buddy/marking/tests/test_file_question_info.py`
+- `ai_study_buddy/marking/tests/test_v3_workflow_helpers.py`
 - `ai_study_buddy/marking/tests/test_marking_time.py`
 - `ai_study_buddy/marking/tests/test_migration.py`
 - `ai_study_buddy/marking/tests/test_review_workspace_amendments.py`
@@ -38,6 +39,17 @@ These tests cover:
 - partial-marking metadata backfill workflow (`backfill_is_partial_v1_3.py`)
 - dispatch/version handling errors (unsupported or missing `schema_version`)
 - review-domain amendment validation, merge behavior, and API persistence responses
+- `file_question_info` consumer/read contracts (`v0.3.2`):
+  - ordered section/question iterators
+  - duplicate-ID hard-fail behavior
+  - DB/FS lookup and divergence behavior under READ flags
+  - `question_page_map` compatibility with `marking_result.v1.6`
+- v3 workflow helper/runtime contracts (`v0.3.3`):
+  - Phase A input normalization + registration-first resolution
+  - Phase B mode precedence/ambiguity and redo-practice golden reference resolution
+  - Phase C authoritative template question-section resolution + detector-fallback validation
+  - Phase D section-scoped execution planning/aggregation/retry-target routing + runtime trace
+  - Phase E question-scoped deep-dive planning/execution/retry + finalization write path and debug traces
 
 ## Run Tests
 
@@ -67,6 +79,15 @@ python3 -m pytest ai_study_buddy/marking/tests/test_migration.py -q
 
 # Review-domain amendment tests only
 python3 -m pytest ai_study_buddy/marking/tests/test_review_workspace_amendments.py -q
+
+# file_question_info consumer/read tests (v0.3.2)
+python3 -m pytest ai_study_buddy/marking/tests/test_file_question_info.py -q
+
+# v3 workflow helper/runtime tests (v0.3.3)
+python3 -m pytest ai_study_buddy/marking/tests/test_v3_workflow_helpers.py -q
+
+# Recommended focused gate for v3 + file_question_info work
+python3 -m pytest ai_study_buddy/marking/tests/test_v3_workflow_helpers.py ai_study_buddy/marking/tests/test_file_question_info.py -q
 ```
 
 ## Suggested Quality Gate
@@ -80,6 +101,9 @@ Before merging marking-related changes:
 5. For backfill changes, verify migration tests pass (includes backfill dry-run/apply coverage).
 6. For schema changes, verify fixture-based schema tests and parity checks pass.
 7. For producer-flow changes, verify resolver-only context contract tests pass.
+8. For `v0.3.2`/`v0.3.3` surfaces, run:
+   - `test_file_question_info.py`
+   - `test_v3_workflow_helpers.py`
 
 ## Schema Fixture And Parity Conventions
 

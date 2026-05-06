@@ -1,113 +1,299 @@
-# Proposal 15: Consumer layer and marking orchestration for question_sections.json
+# Proposal 15: `file_question_info` consumer tooling for v3 readiness
 
-## What this proposal is
+## Status
 
-Validated **`question_sections.json`** is usable **ergonomically**: stable iterators over sections and questions, a bridge into **`context.question_page_map`**, and marking workflows (**`mark-student-work-multi-agent-v2`** SKILL + **`marking-phase*.md`**) that **prefer** that structure when **`file_question_info`** exists instead of hand-walking **`sections[i]`** in prose. This proposal is **self-contained**: its APIs and rollouts live here; it **does not** redefine on-disk layout, **`rendered_pages/`** naming, or the canonical **`load`/`validate`** gate (Proposal **13** owns those).
+Implemented as of 2026-05-05.
 
-**Related:** Proposal **14** mirrors detector JSON into **`study_buddy.db`** and needs **`load`/`validate`** from Proposal **13**; it does **not** require this document. SKILL and marking agents **can** adopt consumer helpers **before or after** the SQLite mirror, depending on prioritization.
+Proposal 13 and Proposal 14 are implemented and are prerequisites:
 
-## Prerequisite APIs (from Proposal 13)
+- Proposal 13: `file_question_info` path/render/load/validate foundations.
+- Proposal 14: validated `question_sections.json` mirrored into `study_buddy.db`.
 
-Consumer and orchestration work assumes these exist (see **`13-file-question-info-marking-python-apis.md`**):
+## Goal
 
-- **`file_question_info_run_dir_for_pdf`**
-- **`render_file_question_info_pages_for_pdf`**
-- **`load_question_sections_json`**
-- **`validate_question_sections_dict`**
-- Aligned **`.cursor/agents/*-question-section-detector*.md`** specs (registry prerequisite, mandatory terminal **`load`/`validate`**)
+Build a robust reader/consumer layer for `question_sections.json` so a future v3 orchestrator can consume authoritative question structure without ad hoc JSON traversal.
 
-Timeline: **Proposal 13 can merge independently**; this document **waits on** those symbols when implementing iterators/orchestration, not the other way around.
+This proposal intentionally does **not** implement the `mark-student-work-multi-agent-v3` workflow itself.
 
-## How this relates to Proposal 13
+## Scope boundaries
 
-Proposal **13** answers **where** artifacts live on disk, **how** page PNGs are produced, and **whether** persisted JSON conforms to **`schema_version`**. This proposal answers **what callers do next**: typed walks of the payload, **`question_page_map`** construction, and doc updates so multi-agent marking treats that structure as **first-class**. The numbering of phases below (**E–H**) is **local to this file**—it does **not** line up with Proposal **13**’s letters (**13** stops at **Phase E**, marking **`README`/`CHANGELOG`**; **15** uses **E–H** only here).
+In scope:
 
-## Sibling scopes (cross-reference)
+- Reader/consumer APIs in `ai_study_buddy.marking.file_question_info`.
+- Deterministic bridge to `context.question_page_map`.
+- Template-oriented lookup helpers that v3 orchestration can call.
+- Duplicate-ID and structure QC helper APIs.
+- Tests and docs for the tooling surface.
 
-| Doc | Responsibility |
-|-----|----------------|
-| [**13**](13-file-question-info-marking-python-apis.md) | **`run_folder`**, **`rendered_pages/`**, canonical **`load`/`validate`**, detector agent alignment (**Phase D**), marking package **`README`/`CHANGELOG`** (**Phase E**) |
-| **15** (this) | iterators (§**3**), **`question_page_map`** bridge (§**4**), SKILL + **`marking-phase*`** rewires |
-| [**14**](14-persist-file-question-info-in-study-buddy-db.md) | SQLite ingest; **`validate`** before **`upsert`** |
+Out of scope:
 
-## Proposed Python surface (extends `marking.file_question_info`)
+- Editing `.cursor/skills/mark-student-work-multi-agent-v2/SKILL.md` for behavior migration.
+- Updating `marking-phase*.md` orchestration behavior.
+- Designing v3 mode policies end-to-end.
+- Any detector writing/OCR logic.
 
-Assume `validate_question_sections_dict(payload)` has already run (Proposal 13). Section 3 and section 4 helpers dispatch by `schema_version`; subjects do not share one rigid dataclass.
+## Design principles for v3-readiness
 
-### Section 3: Normalized consumer views
+1. **Template-first structure authority:** tooling should make template-linked `question_sections` retrieval first-class.
+2. **Fail-closed defaults:** missing/invalid structure should raise typed errors, not degrade silently.
+3. **Immutable normalized views:** consumer helpers return stable row contracts detached from raw payload shape drift.
+4. **Deterministic mapping:** same payload produces identical `question_page_map` output.
+5. **Explicit ambiguity handling:** duplicate `question_index` values are hard errors.
 
-Higher-level helpers return immutable dataclass or typed-dict rows:
+## Proposed API surface
 
-- `iter_sections_ordered(payload)` — at minimum: `question_type`, optional `printed_section_title`, `questions_page_range`, optional `stem_page_range`, optional `answers_page_range` / `answer_page_range`, `answers_in_separate_booklet` when present.
+Add the following public helpers to `ai_study_buddy.marking.file_question_info`.
 
-- `iter_questions_ordered(payload)` — stable `question_index` (for example `Q1`, `Q11(a)`), optional `question_mark`, optional `start_page`, `section_index`, `question_type` (section-level label). Walk each section's `question_info` in document order (Chinese, English, Higher Chinese, Math, Science contracts).
+### A. Payload normalization and iteration
 
-Use iterators for structure QC, SKILL migration, and mapper-or-detector parity while orchestration flips to JSON-backed structure.
+- `iter_sections_ordered(payload: Mapping[str, object]) -> tuple[SectionRow, ...]`
+- `iter_questions_ordered(payload: Mapping[str, object]) -> tuple[QuestionRow, ...]`
 
-### Section 4: Bridge to `question_page_map`
+Behavior contract:
 
-Validated `question_sections.json` is the structural source of truth for `context.question_page_map` (given registry resolution and page-index conventions). Extend marking enums so rows can use `detector_layout`-style `source` / `confidence` / `note`, not a permanent `script_inferred` story.
+- Require pre-validated payload (`validate_question_sections_dict`).
+- Preserve source order.
+- Use canonical `answers_page_range` only.
+- Do not mutate input payload.
 
-- `build_detector_question_id_list(payload) -> tuple[str, ...]` — ordered `question_index` values for duplicate-ID and ordering checks (same gates as Phase 1 mapper QC today).
+### B. QC and identity helpers
 
-- `question_page_map_from_question_sections(...)` (name TBD) — from `iter_questions_ordered`, map `start_page` and subject-specific span fields into `attempt_page_start` / `attempt_page_end` for `context.question_page_map`, keyed by `question_index`, with `bundle_attempt_page_offset` for 1-based detector pages vs bundle numbering. Residual risk handled by validation, review, and detector re-run—not by downgrading JSON to a weak hint.
+- `build_detector_question_id_list(payload: Mapping[str, object]) -> tuple[str, ...]`
+- `assert_unique_detector_question_ids(payload: Mapping[str, object]) -> None`
 
-- `section_hint_strings_for_context(detector_payload) -> tuple[str, ...]` — one short label per section (`question_type`, optionally with `printed_section_title`). Does not set `MarkingContext.question_selection.section_hint` automatically; exposes a canonical menu for UI, `question_refs`, or Phase 2/3 prompts.
+Behavior contract:
 
-### Additional non-goals
+- `build_detector_question_id_list` is raw ordered extraction.
+- `assert_unique_detector_question_ids` raises typed error with duplicate IDs listed and stable message format for caller UX.
 
-Inherits Proposal 13 Explicit non-goals (no `question_sections.json` writer in this package, no OCR/layout inference, no fabricated payloads off registry policy). Also: no automatic overwrite of Phase 3 `max_marks` from detector fields without human policy (Phase 2 remains authoritative per SKILL).
+### C. Page-map bridge
 
-## Implementation plan: Phases E through H
+- `question_page_map_from_question_sections(payload: Mapping[str, object], *, bundle_attempt_page_offset: int = 0, source: str = "detector_layout", confidence: str = "high", note: str | None = None) -> dict[str, dict[str, object]]`
+- `section_hint_strings_for_context(payload: Mapping[str, object]) -> tuple[str, ...]`
 
-Phase letters **E–H** belong **only** to this document’s sequencing. Extend **`marking/file_question_info/api.py`** **`__all__`** with §**3**/**§**4 names when stable. Phase **H** freezes **`README` `python -c`** snippets so they stay byte-identical across **`*-question-section-detector`** footers (updated under Proposal **13**), **`marking-phase*.md`**, and **`mark-student-work-multi-agent-v2/SKILL.md`**.
+Behavior contract:
 
-### Phase E — iterators (section 3)
+- Build deterministic rows keyed by `question_index`.
+- Compute `attempt_page_start`/`attempt_page_end` deterministically from ordered rows and section ranges.
+- Attach `source`/`confidence`/`note` metadata fields consistently.
+- Duplicate `question_index` is hard-fail (no production merge policy).
 
-Objective: `iter_sections_ordered` / `iter_questions_ordered` walk validated payloads without raw `sections[i]` in callers.
+### D. Template-oriented lookup helpers (new for v3 readiness)
 
-Todos: row types; iterators and tests per schema_version; edge cases (empty `question_info`, multi-section Higher Chinese). Ordering tests vs `build_detector_question_id_list` once Phase F exists.
+- `get_latest_question_sections_for_file_id(file_id: str, *, conn: sqlite3.Connection | None = None, context_root: Path | None = None, require_valid: bool = True, detect_divergence: bool = True) -> QuestionSectionsSource`
+- `get_latest_question_sections_for_pdf_file(pdf_file: PdfFile, *, conn: sqlite3.Connection | None = None, context_root: Path | None = None, require_valid: bool = True, detect_divergence: bool = True) -> QuestionSectionsSource`
 
-Success: after `validate_question_sections_dict`, iterators do not raise KeyError on schema-guaranteed fields.
+`QuestionSectionsSource` should include:
 
-### Phase F — marking bridge (section 4)
+- `payload: dict[str, object]`
+- `schema_version: str`
+- `source_kind: Literal["db", "filesystem"]`
+- `source_locator: str` (for example run_id or absolute json path)
+- `template_file_id: str`
+- `validated_at_runtime: bool`
 
-Objective: deterministic `question_page_map`-shaped output and duplicate-ID tooling for SKILL QC.
+Lookup behavior:
 
-Todos: `build_detector_question_id_list` vs Phase E fixtures; `question_page_map_from_question_sections` with offset; math + english variance tests; `section_hint_strings_for_context` length and titles; `source`/`confidence`/`note` aligned with `4-question-page-mapping-v1_4.md`.
+- Regulate source-of-truth behavior using existing learning DB READ flags:
+  - `LEARNING_DB_ENABLE_READS`
+  - `LEARNING_DB_READ_FALLBACK_FILESYSTEM`
+- Transitional safety policy: when both DB row and filesystem JSON exist for the same logical artifact, compare them. If they diverge, raise `QuestionSectionsLookupError` (debug-first hard fail).
+- If both exist and match, default to DB as returned source while recording provenance.
+- Always run runtime `validate_question_sections_dict` when `require_valid=True`.
+- Return typed not-found error when no artifact exists.
 
-Success: map output matches `context.question_page_map` consumer expectations; duplicate `question_index` scenarios produce deterministic failures or tuples as designed.
+### E. Orchestrator-facing resolution helper (reader-only)
 
-### Phase G — marking pipeline agents and SKILL
+- `resolve_question_sections_for_template_file(*, template_file: PdfFile, detect_divergence: bool = True) -> QuestionSectionsSource`
 
-Objective: when `file_question_info` is present, prefer `run_folder` then `load_question_sections_json` then `validate_question_sections_dict` then `question_page_map_from_question_sections`, `build_detector_question_id_list`, `section_hint_strings_for_context`—not ad hoc crawling of `sections[i]` in prose alone. Proposal 14 is not required for this cut.
+Behavior contract:
 
-Scope: `.cursor/agents/marking-phase1-mapper.md`, `marking-phase2-fast-pass-grader.md`, `marking-phase3-deep-dive.md`, `marking-phase4-taxonomy-tagger.md`, `.cursor/skills/mark-student-work-multi-agent-v2/SKILL.md`, `8-multi-agent-marking-architecture.md`. **`.cursor/agents/*-question-section-detector*.md`** copy is Proposal **13**’s responsibility; this proposal consumes validated JSON emitted under that contract.
+- Reader-only helper that resolves authoritative template question sections via the lookup APIs in this proposal.
+- It does not invoke detectors. Detector fallback orchestration is owned by Proposal 16/v3 workflow logic.
 
-Depends on Proposal **13** **`validate_question_sections_dict`** (**always**) and **`file_question_info_run_dir_for_pdf`** (**strongly recommended** for SKILL path discovery); Phase **E** optional if callers only invoke Phase **F** helpers directly.
+### Typed errors
 
-G.1 — Update each `marking-phase*.md`: Phase 1 prefers detector-backed `question_page_map` plus `build_detector_question_id_list` QC with explicit image-only mapper fallback (binary choice, no hybrid). Phases 2–4 align prompts and taxonomy with map rows and `question_info` where applicable. `rg` review for matching import paths vs Phase H.
+Add consumer-specific typed errors under `marking.file_question_info.errors`:
 
-G.2 — SKILL: Phase 1 preamble locates JSON via `PdfFile` and `file_question_info_run_dir_for_pdf`; load and validate; build map and QC; skip Phase 1 mapper when fallback is not needed. Optional `section_hint_strings_for_context` in Phase 2 batching. Align `8-multi-agent-marking-architecture.md` diagram with validate to map to QC to phases.
+- `QuestionSectionsConsumerError` (base)
+- `QuestionSectionsDuplicateQuestionIdError`
+- `QuestionSectionsNotFoundError`
+- `QuestionSectionsLookupError`
 
-Testing: golden path with on-disk `file_question_info`; fallback when JSON missing or invalid; corrupt JSON must not silently succeed; SKILL and `marking-phase1-mapper` policies match.
+## Detailed implementation plan
 
-Success — agents: all four `marking-phase*.md` state Phase F vs mapper-only; QC parity when JSON path applies; no contradiction of `question_page_map` without documented override.
+### Phase A: Core consumer rows and iteration
 
-Success — SKILL + architecture: deterministic imports or pointer to `README`; happy path uses Phase F helpers; single ordering narrative (validate, map, QC, fan-out).
+Objective: stable normalized section/question iteration.
 
-### Phase H — consolidation
+Todo checklist:
 
-Objective: ship §**3** and §**4** exports; freeze canonical import paths for **`*-question-section-detector`** footers (Proposal **13**) and for Phase **G** consumers (`marking-phase*.md`, `SKILL.md`).
+- [x] Implement `SectionRow` and `QuestionRow` contracts.
+- [x] Implement `iter_sections_ordered` and `iter_questions_ordered`.
+- [x] Enforce canonical `answers_page_range` handling.
+- [x] Export helpers in `api.py` and package `__init__.py`.
 
-Todos: `api.py` `__all__` lists foundation exports landed by Proposal **13** plus §**3**–§**4** when stable; `CHANGELOG` / `README` when shipped; lock `python -c` blocks across detector footers, marking agents, SKILL, `README`; optional CLI `validate_question_sections <path>` respects Proposal **13** non-goals (no mandated writer in **`file_question_info`**).
+Test checklist:
 
-Success: clean-env imports; pytest over `file_question_info` + consumer tests; one stable import story across all cited docs.
+- [x] Coverage for all supported schema families/versions.
+- [x] Ordering and immutability tests.
+- [x] Empty-section and mixed-section edge cases.
+- [x] Canonical field handling covered (no legacy alias support).
+
+Success criteria:
+
+- deterministic row outputs and zero raw `sections[i]` dependency in consumers.
+
+### Phase B: QC and mapping bridge helpers
+
+Objective: deterministic `question_page_map` generation and duplicate-ID enforcement.
+
+Todo checklist:
+
+- [x] Implement `build_detector_question_id_list`.
+- [x] Implement `assert_unique_detector_question_ids`.
+- [x] Implement `question_page_map_from_question_sections`.
+- [x] Implement `section_hint_strings_for_context`.
+
+Test checklist:
+
+- [x] duplicate-ID failures have stable error shape.
+- [x] map output golden tests by subject family.
+- [x] offset behavior tests.
+- [x] compatibility checks with current `question_page_map` consumers.
+
+Success criteria:
+
+- map generation is reproducible and QC errors are actionable.
+
+### Phase C: Template-oriented lookup APIs
+
+Objective: provide v3-ready retrieval APIs for authoritative template question structure.
+
+Todo checklist:
+
+- [x] Implement DB-first lookup by `file_id` (Proposal 14 tables).
+- [x] Implement filesystem fallback lookup only when `LEARNING_DB_READ_FALLBACK_FILESYSTEM=1`.
+- [x] Implement `QuestionSectionsSource` wrapper contract.
+- [x] Implement strict validation behavior with `require_valid=True` default.
+
+Test checklist:
+
+- [x] DB-hit path returns expected payload/source metadata.
+- [x] filesystem-fallback path returns expected payload/source metadata.
+- [x] no-data path raises `QuestionSectionsNotFoundError`.
+- [x] invalid payload path raises validation/lookup typed errors.
+
+Success criteria:
+
+- caller can ask for authoritative question sections by template `file_id` with one API call.
+
+### Phase D: Consolidation and handoff to v3 workflow proposal
+
+Objective: lock tooling interface before orchestration migration.
+
+Todo checklist:
+
+- [x] finalize public exports and docstrings.
+- [x] add usage snippets for "template file_id -> validated payload -> map" flow.
+- [x] ensure errors are documented for orchestrator consumption.
+- [x] add proposal handoff notes to Proposal 16 (v3 workflow).
+
+Test checklist:
+
+- [x] full marking-related test run includes consumer + lookup suites.
+- [x] import path smoke tests for all new public helpers.
+- [x] docs snippet smoke tests.
+
+Success criteria:
+
+- Proposal 15 delivers a stable tooling layer that Proposal 16 can consume directly.
+
+Implementation notes (completed):
+
+Usage snippet: template `file_id` -> validated payload -> map
+
+```python
+from ai_study_buddy.marking.file_question_info import (
+    get_latest_question_sections_for_file_id,
+    question_page_map_from_question_sections,
+)
+
+source = get_latest_question_sections_for_file_id(template_file_id)
+payload = source["payload"]
+question_page_map = list(question_page_map_from_question_sections(payload).values())
+```
+
+Usage snippet: template `PdfFile` -> validated payload -> section hints
+
+```python
+from ai_study_buddy.marking.file_question_info import (
+    get_latest_question_sections_for_pdf_file,
+    section_hint_strings_for_context,
+)
+
+source = get_latest_question_sections_for_pdf_file(template_pdf_file)
+payload = source["payload"]
+section_hints = section_hint_strings_for_context(payload)
+```
+
+Orchestrator error contract (reader layer):
+
+- `QuestionSectionsNotFoundError`: no authoritative artifact found for template file under current READ-flag policy.
+- `QuestionSectionsValidationError`: payload exists but fails schema/runtime validation.
+- `QuestionSectionsDuplicateQuestionIdError`: duplicate `question_index` detected during map/QC helpers.
+- `QuestionSectionsLookupError`: lookup/path divergence or DB/FS read failures.
+- `QuestionSectionsConsumerError`: normalized-row construction failed (defensive structural guard).
+
+Proposal 16 handoff notes:
+
+- Proposal 16 should call reader-only lookup helpers first (`get_latest_question_sections_for_file_id` / `..._for_pdf_file` / `resolve_question_sections_for_template_file`).
+- Detector fallback orchestration remains owned by Proposal 16 (outside Proposal 15 reader layer).
+- Section-level Phase 2 and question-level Phase 3 routing should consume:
+  - `iter_sections_ordered`
+  - `iter_questions_ordered`
+  - `question_page_map_from_question_sections`
+  - `section_hint_strings_for_context`
+- `question_page_map_from_question_sections` output is compatible with current `marking_result` page-map schema (`result_id`, `attempt_page_start`, `confidence`, `source`, optional `note`).
+
+### Phase E: Marking module documentation updates
+
+Objective: ensure `ai_study_buddy/marking` docs accurately reflect the shipped consumer/read APIs and lookup behavior.
+
+Todo checklist:
+
+- [x] update `ai_study_buddy/marking/README.md` with new `file_question_info` consumer/lookup usage.
+- [x] update `ai_study_buddy/marking/SPEC.md` with reader contracts and fail-closed behaviors.
+- [x] update `ai_study_buddy/marking/ARCHITECTURE.md` with DB-read and filesystem-fallback behavior via READ flags.
+- [x] add `CHANGELOG` entry under `ai_study_buddy/marking/CHANGELOG.md` for user-visible API additions/behavior.
+
+Test checklist:
+
+- [x] verify all documentation code snippets/import paths run successfully in a clean shell.
+- [x] run a terminology consistency pass (`question_sections`, `question_page_map`, duplicate-ID hard fail, READ flags).
+- [x] confirm no docs contradict Proposal 13/14/16 boundaries.
+
+Success criteria:
+
+- `marking/` documentation is internally consistent and matches implemented behavior with no stale guidance.
+
+## Decisions
+
+Decided:
+
+1. Source regulation will follow existing learning DB READ flags:
+   - `LEARNING_DB_ENABLE_READS`
+   - `LEARNING_DB_READ_FALLBACK_FILESYSTEM`
+2. Duplicate `question_index` is hard-fail in consumer/map helpers.
+3. During transition, when both DB and JSON exist for the same artifact and differ, raise exception for debugging.
+4. `resolve_question_sections_for_template_file(...)` is reader-only in Proposal 15; detector fallback stays in Proposal 16 workflow orchestration.
+
+5. Keep `attempt_page_end` inference fixed and deterministic in Proposal 15 (not strategy-configurable yet).
+6. Use `TypedDict` (or Protocol-like mapping contract) for public row outputs to preserve schema-evolution flexibility; internal implementation may still use frozen dataclasses.
+7. Keep `section_hint_strings_for_context(...)` for orchestrator/UI prompt narrowing, and include section index prefixes by default (for example `S1: MCQ`, `S2: Open-ended`) to reduce ambiguity.
 
 ## References
 
-- `13-file-question-info-marking-python-apis.md`
-- `14-persist-file-question-info-in-study-buddy-db.md`
-- `4-question-page-mapping-v1_4.md`, `8-multi-agent-marking-architecture.md`
-- `.cursor/agents/*-question-section-detector*.md` — layout + mandatory **`load`/`validate`** (Proposal **13**)
-- `.cursor/skills/mark-student-work-multi-agent-v2/SKILL.md`, `.cursor/agents/marking-phase*.md`
+- [13-file-question-info-marking-python-apis.md](13-file-question-info-marking-python-apis.md)
+- [14-persist-file-question-info-in-study-buddy-db.md](14-persist-file-question-info-in-study-buddy-db.md)
+- [16-mark-student-work-multi-agent-v3-workflow.md](16-mark-student-work-multi-agent-v3-workflow.md)

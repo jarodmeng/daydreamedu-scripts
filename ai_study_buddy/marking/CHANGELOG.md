@@ -4,6 +4,87 @@ All notable changes to `ai_study_buddy.marking` are documented in this file.
 
 Committed changes under `ai_study_buddy/marking/` should add an entry here and bump **Current version** in `README.md` (semver: **patch** for docs or small renderer tweaks, **minor** for schema or public API changes). `SPEC.md` / `TESTING.md` titles do not carry the package version.
 
+## [0.3.3] - 2026-05-05
+
+Patch: add v3 multi-agent workflow implementation scaffolding (thin orchestrator + deterministic helper layer) and dedicated v3 phase subagent definitions.
+
+### Added
+
+- `marking/workflows/v3_helpers.py`:
+  - deterministic v3 helper functions for:
+    - phase-3 routing target selection (`select_phase3_question_ids`)
+    - language-policy violation detection (`find_language_violations`)
+    - human-note policy violation detection (`find_human_note_policy_violations`)
+    - authoritative marks extraction from `file_question_info` (`build_authoritative_marks_by_question`)
+    - phase-2/phase-3 merge with authority enforcement (`merge_phase2_phase3_rows`)
+    - generation telemetry shaping (`build_generation_telemetry`)
+- `marking/workflows/mark_student_work_multi_agent_v3.py`:
+  - thin orchestration scaffolding for v3:
+    - mode resolution (`book-practice`, `embedded-answer`, `teacher-annotated`, `redo-practice`)
+    - contradiction hard-stop gate
+    - template `question_sections` authority resolution handoff
+    - deterministic finalize-prep wiring through helper layer
+- new v3 phase subagent definitions:
+  - `.cursor/agents/marking-phase2-fast-pass-grader-v3.md`
+  - `.cursor/agents/marking-phase3-deep-dive-v3.md`
+- tests:
+  - `marking/tests/test_v3_workflow_helpers.py`
+
+### Changed
+
+- v3 merge path now enforces `file_question_info`-driven mark authority (no `max_marks` trust from phase subagent payloads).
+
+## [0.3.2] - 2026-05-05
+
+Patch: add `file_question_info` consumer/read tooling and document v3-readiness contracts.
+
+### Added
+
+- `marking/file_question_info/api.py` public consumer/read helpers:
+  - `iter_sections_ordered(...)`
+  - `iter_questions_ordered(...)`
+  - `build_detector_question_id_list(...)`
+  - `assert_unique_detector_question_ids(...)`
+  - `question_page_map_from_question_sections(...)`
+  - `section_hint_strings_for_context(...)`
+  - `get_latest_question_sections_for_file_id(...)`
+  - `get_latest_question_sections_for_pdf_file(...)`
+  - `resolve_question_sections_for_template_file(...)` (reader-only)
+- new typed consumer/lookup errors:
+  - `QuestionSectionsConsumerError`
+  - `QuestionSectionsDuplicateQuestionIdError`
+  - `QuestionSectionsNotFoundError`
+  - `QuestionSectionsLookupError`
+
+### Changed
+
+- `question_page_map_from_question_sections(...)` emits rows compatible with current `marking_result.v1.6` page-map schema (`result_id`, `attempt_page_start`, `confidence`, `source`, optional `note`).
+- duplicate `question_index` handling is hard-fail in consumer/map helpers.
+- lookup source behavior is governed by existing READ flags:
+  - `LEARNING_DB_ENABLE_READS`
+  - `LEARNING_DB_READ_FALLBACK_FILESYSTEM`
+- transition divergence guard: when DB+filesystem artifacts exist and differ for same file, readers raise `QuestionSectionsLookupError` when divergence detection is enabled.
+
+### Tests
+
+- expanded `marking/tests/test_file_question_info.py` to cover:
+  - iterator normalization and ordering
+  - duplicate-ID hard-fail behavior
+  - subject-family map goldens
+  - compatibility with `marking_result` `question_page_map` validation
+  - DB/FS lookup behavior under READ flags
+  - invalid stored payload typed-error behavior
+
+### Documentation
+
+- `README.md`:
+  - bump current version to `v0.3.2`
+  - add consumer/read helper usage snippets and READ-flag behavior notes
+- `SPEC.md`:
+  - add reader/consumer contract section for `file_question_info`
+- `ARCHITECTURE.md`:
+  - document reader/consumer layer responsibilities and READ-flag source policy
+
 ## [0.3.1] - 2026-05-05
 
 Patch: complete Proposal 14 persistence rollout for `file_question_info`, including DB migration/import/dual-write wiring, schema-version standardization updates, and run-level timestamp enforcement.
