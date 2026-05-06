@@ -11,24 +11,9 @@ Use this mental model when classifying files and building groups:
 - File-level metadata lives in `pdf_files.metadata` (for example `content_folder`, `grade_or_scope`, `unit`, `chinese_variant`, `exam_date`).
 - Group-level identity lives in `file_groups` (`label`, `group_type`, `anchor_id`, `notes`).
 - Book-answer coverage lives in `book_answer_mappings` (unit file, answer file, inclusive page range, split-page flags, provenance).
-- Per-member function labels are represented canonically by `pdf_files.metadata.unit`.
+- `metadata.unit` is enforced as **book-only** metadata.
 - For `doc_type='book'`: `metadata.unit` is the per-file chapter/unit label, while the shared book identity belongs in the `book` group's `label`.
 - For `doc_type='book'` answer coverage: the shared book identity still belongs to the `book` group, while page-level answer coverage belongs in `book_answer_mappings`.
-
-## Exam group completeness (compulsory `metadata.unit`)
-
-When checking whether an `exam` group has a **full** set of papers for ingestion or QA, use **compulsory** units only. Optional units may be present but must not be required for “complete.”
-
-Collect the set of non-empty `metadata.unit` values from **`main`** members with `is_template = 0` in the group. The group is **incomplete** if any compulsory unit below is missing from that set.
-
-| Subject | Compulsory `unit` values | Optional (do not require for completeness) |
-|--------|---------------------------|---------------------------------------------|
-| **chinese** (华文 and 高华) | `questions`, `answers` | `composition` |
-| **math** | `Paper 1`, `Paper 2` | — |
-| **english** | `Paper 1`, `Paper 2 Booklet A`, `Paper 2 Booklet B` | `Oral`, `Listening Comprehension` |
-| **science** | `Booklet A`, `Booklet B` | — |
-
-Mains with no `unit` (or empty `unit`) contribute nothing to the set until metadata is filled.
 
 ## Common metadata fields
 
@@ -36,13 +21,14 @@ These are common keys used in `PdfFile.metadata`:
 
 - `content_folder` (path-derived): `Exam`, `Exercise`, `Book`, `Activity`, `Note`
 - `grade_or_scope` (path-derived): `P3`, `P4`, `P5`, `P6`, `PSLE`, `Archive`
-- `unit` (all grouped content): per-file function/unit label (for example `paper1`, `answers`, `Part D Topical Practice Fractions`)
+- `unit` (book-only): per-file unit label for `doc_type='book'` files
 - `chinese_variant` (Chinese exam files): `standard` (**Standard** 华文 / non-HC) or `higher` (高华) — not the same as SEAB “Foundation Chinese Language”. The legacy spelling `foundation` is **invalid** and must not appear in stored JSON (`InvalidMetadataError` on load/persist).
 - `exam_date`, `paper_type`, `school`, `topic`: optional workflow fields
 
 Important behavior:
 
 - `update_metadata(..., metadata=...)` merges keys; it does not replace the full metadata object.
+- `register_file(..., metadata=...)` and `update_metadata(..., metadata=...)` reject non-empty `metadata.unit` unless `doc_type='book'` (`InvalidMetadataError`).
 - `update_metadata(..., file_type=...)` can set or repair `pdf_files.file_type` (`main`, `raw`, `unknown`) without touching disk; use with `rename_file` when the on-disk main was renamed (for example to `_c_…`) but the registry path was not updated.
 
 ## Group fields
@@ -56,7 +42,7 @@ Important behavior:
 
 `FileGroupMember` rows add:
 
-- `role`: legacy compatibility field on membership rows; prefer `PdfFile.metadata.unit` for new labeling
+- `role`: legacy compatibility field on membership rows; when passed to `add_to_file_group(..., role=...)`, it is only allowed for `doc_type='book'` files
 
 ## Returned data classes
 

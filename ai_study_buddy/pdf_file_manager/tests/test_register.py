@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-from ai_study_buddy.pdf_file_manager.pdf_file_manager import AlreadyRegisteredError, PdfFileManager
+from ai_study_buddy.pdf_file_manager.pdf_file_manager import AlreadyRegisteredError, InvalidMetadataError, PdfFileManager
 
 from .conftest import FIXTURE_ROOT, fixture_has_pdfs
 
@@ -156,5 +156,23 @@ def test_register_file_accepts_optional_args():
             row = conn.execute("SELECT doc_type, student_id, subject FROM pdf_files WHERE path = ?", (str(path.resolve()),)).fetchone()
             assert row[0] == "exam" and row[1] == "w" and row[2] == "math"
             conn.close()
+        finally:
+            Path(db_path).unlink(missing_ok=True)
+
+
+def test_register_file_rejects_unit_metadata_for_non_book_doc_type():
+    if not fixture_has_pdfs():
+        pytest.skip("Fixture PDFs not present")
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmpdir = Path(tmpdir)
+        shutil.copytree(FIXTURE_ROOT, tmpdir / "fixture", dirs_exist_ok=True)
+        pdfs = list((tmpdir / "fixture").rglob("*.pdf"))
+        path = pdfs[0]
+        with tempfile.NamedTemporaryFile(suffix=".db", delete=False, dir=tmpdir) as f:
+            db_path = f.name
+        try:
+            mgr = PdfFileManager(db_path=db_path)
+            with pytest.raises(InvalidMetadataError):
+                mgr.register_file(path, doc_type="exam", metadata={"unit": "Paper 1"})
         finally:
             Path(db_path).unlink(missing_ok=True)

@@ -198,6 +198,19 @@ def _metadata_json_for_persist(metadata: dict | None) -> str | None:
     return json.dumps(d)
 
 
+def _reject_unit_for_non_book_doc_type(metadata: dict | None, doc_type: str | None) -> None:
+    """Raise when metadata.unit is set for non-book doc_type."""
+    if not metadata:
+        return
+    if metadata.get("unit") in (None, ""):
+        return
+    if doc_type != "book":
+        raise InvalidMetadataError(
+            "metadata.unit is only allowed when doc_type='book'; "
+            f"got doc_type={doc_type!r} with metadata.unit={metadata.get('unit')!r}"
+        )
+
+
 def _metadata_json_from_sql_value(raw_meta) -> str | None:
     """Serialize DB metadata column for INSERT/UPDATE with chinese_variant validation."""
     if raw_meta is None:
@@ -739,6 +752,7 @@ class PdfFileManager:
         if subject is not None and subject not in ("english", "math", "science", "chinese"):
             raise ValueError(f"subject must be one of english, math, science, chinese; got {subject!r}")
         doc_type = self._normalize_doc_type(doc_type)
+        _reject_unit_for_non_book_doc_type(metadata, doc_type)
         now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
         file_id = str(uuid.uuid4())
         conn.execute(
@@ -1314,6 +1328,8 @@ class PdfFileManager:
             else:
                 current = dict(current) if current else {}
             merged = {**current, **metadata}
+            effective_doc_type = doc_type if doc_type is not None else row["doc_type"]
+            _reject_unit_for_non_book_doc_type(merged, effective_doc_type)
             _reject_invalid_chinese_variant_in_metadata(merged)
             updates.append("metadata = ?")
             params.append(json.dumps(merged) if merged else None)
@@ -2091,6 +2107,8 @@ class PdfFileManager:
         # metadata (if unit is not already set) instead of relying on
         # file_group_members.role.
         if role is not None:
+            if row.doc_type != "book":
+                raise ValueError("add_to_file_group(role=...) is only allowed for doc_type='book' files")
             current_meta = row.metadata if isinstance(row.metadata, dict) else {}
             if not current_meta.get("unit"):
                 self.update_metadata(file_id, metadata={"unit": role})

@@ -44,7 +44,7 @@ Each newly processed file produces `register` and (where applicable) `compress` 
 
 #### `register_file(path, file_type=None, doc_type='exam', student_id=None, subject=None, is_template=False, metadata=None, notes=None) -> PdfFile`
 
-Manually register a single file without compression. Infers `file_type` from filename unless overridden: `_raw_` → `raw`, `_c_` → `main`, else `unknown`. `doc_type` must be one of the canonical values (`exam`, `exercise`, `book`, `activity`, `note`) or the call raises `InvalidDocTypeError`. If `student_id` is not provided, the manager attempts to infer it from a registered `students.email` path segment. Raises `FileNotFoundError` if path absent. Raises `AlreadyRegisteredError` if already registered. Writes a `register` log entry.
+Manually register a single file without compression. Infers `file_type` from filename unless overridden: `_raw_` → `raw`, `_c_` → `main`, else `unknown`. `doc_type` must be one of the canonical values (`exam`, `exercise`, `book`, `activity`, `note`) or the call raises `InvalidDocTypeError`. `metadata.unit` is enforced as book-only: a non-empty `metadata.unit` with `doc_type != 'book'` raises `InvalidMetadataError`. If `student_id` is not provided, the manager attempts to infer it from a registered `students.email` path segment. Raises `FileNotFoundError` if path absent. Raises `AlreadyRegisteredError` if already registered. Writes a `register` log entry.
 
 #### `compress_and_register(file_id_or_path, force=False, min_savings_pct=10, preserve_input=False, **compress_kwargs) -> CompressResult`
 
@@ -148,7 +148,7 @@ Run `mv <old> <new_dir/name>`. Update `path`, `updated_at`. Write `move` log ent
 
 #### `update_metadata(file_id_or_path, doc_type=None, student_id=None, subject=None, is_template=None, metadata=None, notes=None, file_type=None) -> PdfFile`
 
-Update `doc_type`, `student_id`, `subject`, `is_template`, `metadata` (merged, not replaced), `notes`, and/or **`file_type`** (`'main'`, `'raw'`, or `'unknown'`) without touching disk. Primary classification method. Raises `ValueError` if `subject` is not one of the allowed values, or if `file_type` is not one of `main`, `raw`, `unknown`. Writes `update_metadata` log entry.
+Update `doc_type`, `student_id`, `subject`, `is_template`, `metadata` (merged, not replaced), `notes`, and/or **`file_type`** (`'main'`, `'raw'`, or `'unknown'`) without touching disk. Primary classification method. Raises `ValueError` if `subject` is not one of the allowed values, or if `file_type` is not one of `main`, `raw`, `unknown`. `metadata.unit` is enforced as book-only on the effective doc type (incoming `doc_type` when provided, otherwise the existing row doc type); violations raise `InvalidMetadataError`. Writes `update_metadata` log entry.
 
 When any invariant document-level fields are updated on a file that is part of a linked raw/main pair, the same changes are propagated to the counterpart record to keep the pair in sync. This currently applies to:
 
@@ -189,7 +189,7 @@ Audit linked raw/main pairs for invariant metadata drift and repair it by copyin
 Create empty group. Writes `group_create` log entry.
 
 #### `add_to_file_group(group_id, file_id, role=None) -> FileGroupMember`
-Only `main` files may be added (raises `ValueError` for `raw` files). `role` is accepted for backward compatibility and mapped to `metadata.unit` when the file has no unit yet; new function labels should use `metadata.unit` as the canonical location. Writes `group_add` log entry.
+Only `main` files may be added (raises `ValueError` for `raw` files). `role` is accepted for backward compatibility and mapped to `metadata.unit` when the file has no unit yet, but this path is allowed only for `doc_type='book'`; passing `role` for non-book files raises `ValueError`. Writes `group_add` log entry.
 
 #### `remove_from_file_group(group_id, file_id)`
 Clears `anchor_id` if pointed here. Writes `group_remove` log entry.
@@ -358,9 +358,6 @@ suggestions = mgr.suggest_groups()
 
 # Create exam group
 g = mgr.create_file_group("Chinese EoY P6 2025", group_type="exam")
-mgr.update_metadata(p1.id,  metadata={"unit": "paper1"})
-mgr.update_metadata(p2q.id, metadata={"unit": "paper2_questions"})
-mgr.update_metadata(p2a.id, metadata={"unit": "paper2_answers"})
 mgr.add_to_file_group(g.id, p1.id)
 mgr.add_to_file_group(g.id, p2q.id)
 mgr.add_to_file_group(g.id, p2a.id)
@@ -408,6 +405,7 @@ For all returned data class shapes (`PdfFile`, `FileGroup`, `FileGroupMember`, a
 | `mv` / `rename` and destination path already exists (and source path still exists on disk) | Raise `ValueError`; no changes; no log entry |
 | `rename_file` and source path missing but destination path already exists | DB-only sync: update `name`, `path`, `updated_at`; if destination is a file, refresh `size_bytes`; write `rename` log |
 | `update_metadata` with invalid `file_type` | Raise `ValueError`; must be `main`, `raw`, or `unknown` |
+| `register_file` / `update_metadata` with non-empty `metadata.unit` and `doc_type != 'book'` | Raise `InvalidMetadataError` |
 | `update_metadata` promoting `unknown` → `main` with `doc_type` / `subject` / `metadata` on a linked main | Invariant fields sync to raw using the **updated** `file_type` |
 | `scan_for_new_files` with no scan roots configured | Raise `ConfigError` pointing to adding a scan root programmatically or through manager configuration |
 | `_raw_` file found during scan but main file not registered | Register as `file_type='raw'`; skip auto-link; warn to run `link` manually |
@@ -415,6 +413,7 @@ For all returned data class shapes (`PdfFile`, `FileGroup`, `FileGroupMember`, a
 | Database file does not exist at startup | Auto-created with schema on first use |
 | `delete_file` on the anchor of a file group | Set `anchor_id=NULL`; log warning; continue |
 | `add_to_file_group` with a `raw` file | Raise `ValueError`; only `main` files may join groups |
+| `add_to_file_group(..., role=...)` on a non-book file | Raise `ValueError` |
 | `add_to_file_group` on a file already in a different group | Allowed; log info |
 | `open_file_group` with no anchor set | Raise `ConfigError`; suggest `group anchor` |
 | `delete_file_group` | Only group record and memberships are removed; member files remain in the registry and on disk |

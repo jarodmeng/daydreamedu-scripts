@@ -4,6 +4,18 @@ All notable changes to the pdf_file_manager utility are documented here.
 
 ---
 
+## [v0.3.11] — Enforce `metadata.unit` as book-only
+
+- `register_file(...)` now raises `InvalidMetadataError` when `metadata.unit` is provided and `doc_type != 'book'`.
+- `update_metadata(...)` now validates the effective doc type (existing or newly supplied) and raises `InvalidMetadataError` if the merged metadata would keep/set `unit` on non-book rows.
+- `add_to_file_group(..., role=...)` now raises `ValueError` for non-book files; role-to-`metadata.unit` mapping remains supported only for `doc_type='book'`.
+- `link_to_template(..., inherit_metadata=True)` behavior is unchanged (secondary metadata copier).
+- Tests added/updated:
+  - `test_register_file_rejects_unit_metadata_for_non_book_doc_type`
+  - `test_update_metadata_rejects_unit_for_non_book_doc_type`
+  - `test_add_to_file_group_role_on_non_book_raises`
+  - `test_delete_metadata_keys_removes_keys_and_syncs_to_raw` now uses `doc_type='book'`.
+
 ## [v0.3.10] — Metadata key deletion API
 
 - Added `delete_metadata_keys(file_id_or_path, keys)` to `PdfFileManager` for explicit metadata-key removal (instead of merge-only nulling via `update_metadata`).

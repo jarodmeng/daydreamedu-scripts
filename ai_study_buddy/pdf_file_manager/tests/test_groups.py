@@ -84,6 +84,26 @@ def test_add_to_file_group_with_raw_raises():
             Path(db_path).unlink(missing_ok=True)
 
 
+def test_add_to_file_group_role_on_non_book_raises():
+    if not fixture_has_pdfs():
+        pytest.skip("Fixture PDFs not present")
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmpdir = Path(tmpdir)
+        shutil.copytree(FIXTURE_ROOT, tmpdir / "fixture", dirs_exist_ok=True)
+        pdfs = list((tmpdir / "fixture").rglob("*.pdf"))
+        with tempfile.NamedTemporaryFile(suffix=".db", delete=False, dir=tmpdir) as f:
+            db_path = f.name
+        try:
+            mgr = PdfFileManager(db_path=db_path)
+            main_id = mgr.compress_and_register(pdfs[0], min_savings_pct=0).main_file_id
+            mgr.update_metadata(main_id, doc_type="exam")
+            g = mgr.create_file_group("G", group_type="exam")
+            with pytest.raises(ValueError):
+                mgr.add_to_file_group(g.id, main_id, role="Paper 1")
+        finally:
+            Path(db_path).unlink(missing_ok=True)
+
+
 def test_remove_from_file_group():
     if not fixture_has_pdfs():
         pytest.skip("Fixture PDFs not present")

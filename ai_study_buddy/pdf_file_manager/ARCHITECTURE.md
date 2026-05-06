@@ -46,10 +46,10 @@ So a full path might be: `DaydreamEdu/Singapore Primary Math/<student email>/P6/
 | Folder | Description | Suggested `doc_type` | Question-level breakdown |
 |--------|-------------|----------------------|---------------------------|
 | **Exam** | Weighted assessments (end of term), end-of-year assessments (full year). | `exam` | Yes — can be broken into individual questions. |
-| **Exercise** | Day-to-day exercises. | `worksheet` or `book_exercise` | Yes. |
+| **Exercise** | Day-to-day exercises. | `exercise` | Yes. |
 | **Book** | Whole-book or book-organized PDFs managed at the book level. | `book` | Not necessarily by questions. |
 | **Activity** | Topic-related study activities; often accompany a textbook or topic. | `activity` | Not necessarily by questions. |
-| **Note** | Study notes; various formats. | `notes` | Not necessarily by questions. |
+| **Note** | Study notes; various formats. | `note` | Not necessarily by questions. |
 
 **Book-derived content and special prefixes:** Some content comes from named books; filenames may use a prefix to indicate source:
 
@@ -64,7 +64,7 @@ Content from these books may be split across multiple folders by "nature of the 
 
 **Human-supplied metadata:** Not all metadata can be derived from folder structure, file name, or file content. Fields such as `school`, `exam_date`, `paper_type`, `chinese_variant`, `topic`, and free-form `notes` typically require a **human reviewer** to provide or confirm them. The file manager supports this via the **classify** workflow: after scan (or register), the user runs `classify` / `update_metadata` (CLI or API) to set `doc_type`, `subject`, and any metadata fields. Newly scanned files default to `doc_type='unknown'`; use `find_files(doc_type='unknown')` or `list --doc-type unknown` to surface files that still need classification. Template linking and suggest-groups are most useful once classification (and, for exams, `exam_date`) has been filled in.
 
-**Answers files:** Answer keys (e.g. "PP Math Answers.pdf", "English Practice 1000+ Answers.pdf") apply to a book or set of exercises but do not sit under one content folder. In practice they often sit **directly under the subject folder** (L1 only), e.g. `DaydreamEdu/Singapore Primary English/English Practice 1000+ Answers.pdf`. **Recommended approach:** Register the Answers file as a normal file with `doc_type='notes'` and `metadata.source_book` so it is findable and queryable; then add it to the book's file group with `role='answers'`, alongside the question/exercise files, so opening the group shows questions and answers together. A dedicated relation type (e.g. `answer_key_for`) can be added later if the workflow demands it.
+**Answers files:** Answer keys (e.g. "PP Math Answers.pdf", "English Practice 1000+ Answers.pdf") apply to a book or set of exercises but do not sit under one content folder. In practice they often sit **directly under the subject folder** (L1 only), e.g. `DaydreamEdu/Singapore Primary English/English Practice 1000+ Answers.pdf`. **Recommended approach:** Register the Answers file as a normal file with `doc_type='note'` and `metadata.source_book` so it is findable and queryable. If you add it to a book group, add it without `role` unless the file itself is `doc_type='book'` (role-to-`metadata.unit` mapping is enforced as book-only). A dedicated relation type (e.g. `answer_key_for`) can be added later if the workflow demands it.
 
 ---
 
@@ -417,7 +417,7 @@ When `register_file` is called directly, `file_type` is inferred from the filena
 
 The pipeline queries the file manager to determine:
 - `doc_type` and `metadata` → infer `paper_type`, `subject`, `student_id`, `school` on the `documents` row without re-prompting
-- `get_file_group_membership(file_id)` → find the exam group, set `exam_id` on all resulting `documents` rows, read `role` to infer per-booklet `paper_type`
+- `get_file_group_membership(file_id)` → find the exam group, set `exam_id` on all resulting `documents` rows
 
 Only `main` files are ingested. The pipeline never processes `raw` archives.
 

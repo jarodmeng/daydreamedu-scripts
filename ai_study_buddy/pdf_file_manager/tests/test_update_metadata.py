@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-from ai_study_buddy.pdf_file_manager.pdf_file_manager import InvalidDocTypeError, PdfFileManager
+from ai_study_buddy.pdf_file_manager.pdf_file_manager import InvalidDocTypeError, InvalidMetadataError, PdfFileManager
 
 from .conftest import FIXTURE_ROOT, fixture_has_pdfs
 
@@ -154,6 +154,24 @@ def test_update_metadata_file_type_syncs_invariant_fields_to_raw():
             Path(db_path).unlink(missing_ok=True)
 
 
+def test_update_metadata_rejects_unit_for_non_book_doc_type():
+    if not fixture_has_pdfs():
+        pytest.skip("Fixture PDFs not present")
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmpdir = Path(tmpdir)
+        shutil.copytree(FIXTURE_ROOT, tmpdir / "fixture", dirs_exist_ok=True)
+        pdfs = list((tmpdir / "fixture").rglob("*.pdf"))
+        with tempfile.NamedTemporaryFile(suffix=".db", delete=False, dir=tmpdir) as f:
+            db_path = f.name
+        try:
+            mgr = PdfFileManager(db_path=db_path)
+            reg = mgr.register_file(pdfs[0], doc_type="exam")
+            with pytest.raises(InvalidMetadataError):
+                mgr.update_metadata(reg.id, metadata={"unit": "Paper 1"})
+        finally:
+            Path(db_path).unlink(missing_ok=True)
+
+
 def test_delete_metadata_keys_removes_keys_and_syncs_to_raw():
     if not fixture_has_pdfs():
         pytest.skip("Fixture PDFs not present")
@@ -170,8 +188,8 @@ def test_delete_metadata_keys_removes_keys_and_syncs_to_raw():
             db_path = f.name
         try:
             mgr = PdfFileManager(db_path=db_path)
-            main_reg = mgr.register_file(main_disk, file_type="main", metadata={"unit": "Paper 1", "topic": "mock"})
-            raw_reg = mgr.register_file(raw_disk, file_type="raw", metadata={"unit": "Paper 1", "topic": "mock"})
+            main_reg = mgr.register_file(main_disk, file_type="main", doc_type="book", metadata={"unit": "Paper 1", "topic": "mock"})
+            raw_reg = mgr.register_file(raw_disk, file_type="raw", doc_type="book", metadata={"unit": "Paper 1", "topic": "mock"})
             mgr.link_files(main_reg.id, raw_reg.id, "raw_source")
 
             updated_main = mgr.delete_metadata_keys(main_reg.id, ["unit"])
