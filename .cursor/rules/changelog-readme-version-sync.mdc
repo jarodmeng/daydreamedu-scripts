@@ -1,0 +1,14 @@
+---
+description: Keep README version in sync with companion changelog bumps
+globs: "**/{CHANGELOG.md,README.md}"
+alwaysApply: false
+---
+
+# Changelog/README Version Sync
+
+When updating a module's `CHANGELOG.md` with a new version bump, always update the companion `README.md` version line in the same change when that README tracks a version.
+
+Checklist:
+- If `CHANGELOG.md` adds a new `vX.Y.Z` section, set companion `README.md` version text (for example `**Version: vX.Y.Z**`) to the same version.
+- Apply this rule to any directory that has both `CHANGELOG.md` and `README.md`.
+- Do not leave changelog and README on different versions where README includes a module version line.
