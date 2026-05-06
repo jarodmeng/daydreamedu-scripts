@@ -4,6 +4,13 @@ All notable changes to the pdf_file_manager utility are documented here.
 
 ---
 
+## [v0.3.10] — Metadata key deletion API
+
+- Added `delete_metadata_keys(file_id_or_path, keys)` to `PdfFileManager` for explicit metadata-key removal (instead of merge-only nulling via `update_metadata`).
+- The new API validates input keys, updates the row metadata JSON, logs `delete_metadata_keys`, and preserves existing metadata keys not targeted for deletion.
+- Raw/main parity is maintained: deleting metadata keys on one side of a linked pair propagates the same key deletion to the counterpart.
+- Added `test_delete_metadata_keys_removes_keys_and_syncs_to_raw` in `tests/test_update_metadata.py`.
+
 ## [v0.3.9] — Canonical doc_type enums and strict validation
 
 - **Canonical `doc_type` set:** `PdfFile.doc_type` is now constrained to the canonical values `exam`, `exercise`, `book`, `activity`, and `note`. Legacy/unused values (`worksheet`, `notes`, `book_exercise`, `practice`, `unknown`) are no longer accepted.

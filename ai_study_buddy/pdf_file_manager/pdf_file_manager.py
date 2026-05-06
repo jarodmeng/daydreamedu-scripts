@@ -1361,6 +1361,65 @@ class PdfFileManager:
                     self.update_metadata(counterpart.id, _skip_main_raw_sync=True, **sync_kwargs)
         return self.get_file(file_id)
 
+    def delete_metadata_keys(
+        self,
+        file_id_or_path,
+        keys: list[str],
+        _skip_main_raw_sync: bool = False,
+    ) -> PdfFile:
+        if not keys:
+            raise ValueError("keys must be a non-empty list of metadata keys")
+        if any((not isinstance(k, str)) or (not k.strip()) for k in keys):
+            raise ValueError("keys must contain only non-empty strings")
+
+        file_id, _, row = self._resolve_file_record(file_id_or_path)
+        current = row["metadata"]
+        if isinstance(current, str):
+            current = json.loads(current) if current else {}
+        else:
+            current = dict(current) if current else {}
+        if not current:
+            return self.get_file(file_id)
+
+        keys_set = set(keys)
+        mutated = False
+        for key in keys_set:
+            if key in current:
+                current.pop(key, None)
+                mutated = True
+        if not mutated:
+            return self.get_file(file_id)
+
+        _reject_invalid_chinese_variant_in_metadata(current)
+        conn = self._get_connection()
+        before = {k: row[k] for k in row.keys()}
+        now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+        conn.execute(
+            "UPDATE pdf_files SET metadata = ?, updated_at = ? WHERE id = ?",
+            (json.dumps(current) if current else None, now, file_id),
+        )
+        conn.commit()
+        after_row = conn.execute("SELECT * FROM pdf_files WHERE id = ?", (file_id,)).fetchone()
+        after = {k: after_row[k] for k in after_row.keys()} if after_row else {}
+        self._log_operation(
+            "delete_metadata_keys",
+            file_id=file_id,
+            before_state=json.dumps(before),
+            after_state=json.dumps(after),
+            notes=json.dumps({"keys": sorted(keys_set)}),
+        )
+
+        if not _skip_main_raw_sync:
+            raw_file, main_file = self._get_raw_main_pair(file_id)
+            counterpart = None
+            effective_type = after_row["file_type"] if after_row else row["file_type"]
+            if raw_file and main_file:
+                counterpart = raw_file if effective_type == "main" else main_file
+            if counterpart and counterpart.id != file_id:
+                self.delete_metadata_keys(counterpart.id, list(keys_set), _skip_main_raw_sync=True)
+
+        return self.get_file(file_id)
+
     def rename_file(self, file_id_or_path, new_name: str) -> PdfFile:
         file_id, file_path, row = self._resolve_file_record(file_id_or_path)
         old_path = Path(file_path)

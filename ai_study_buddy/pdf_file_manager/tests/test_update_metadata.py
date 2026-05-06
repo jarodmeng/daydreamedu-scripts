@@ -152,3 +152,39 @@ def test_update_metadata_file_type_syncs_invariant_fields_to_raw():
             assert raw.doc_type == "exam" and raw.subject == "english"
         finally:
             Path(db_path).unlink(missing_ok=True)
+
+
+def test_delete_metadata_keys_removes_keys_and_syncs_to_raw():
+    if not fixture_has_pdfs():
+        pytest.skip("Fixture PDFs not present")
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmpdir = Path(tmpdir)
+        shutil.copytree(FIXTURE_ROOT, tmpdir / "fixture", dirs_exist_ok=True)
+        pdfs = list((tmpdir / "fixture").rglob("*.pdf"))
+        assert len(pdfs) >= 2
+        main_disk = tmpdir / "_c_meta_remove_demo.pdf"
+        raw_disk = tmpdir / "_raw_meta_remove_demo.pdf"
+        shutil.copy2(pdfs[0], main_disk)
+        shutil.copy2(pdfs[1], raw_disk)
+        with tempfile.NamedTemporaryFile(suffix=".db", delete=False, dir=tmpdir) as f:
+            db_path = f.name
+        try:
+            mgr = PdfFileManager(db_path=db_path)
+            main_reg = mgr.register_file(main_disk, file_type="main", metadata={"unit": "Paper 1", "topic": "mock"})
+            raw_reg = mgr.register_file(raw_disk, file_type="raw", metadata={"unit": "Paper 1", "topic": "mock"})
+            mgr.link_files(main_reg.id, raw_reg.id, "raw_source")
+
+            updated_main = mgr.delete_metadata_keys(main_reg.id, ["unit"])
+            updated_raw = mgr.get_file(raw_reg.id)
+            assert updated_main is not None and updated_raw is not None
+            assert updated_main.metadata is not None and "unit" not in updated_main.metadata
+            assert updated_raw.metadata is not None and "unit" not in updated_raw.metadata
+            assert updated_main.metadata.get("topic") == "mock"
+            assert updated_raw.metadata.get("topic") == "mock"
+
+            conn = sqlite3.connect(db_path)
+            log = conn.execute("SELECT operation FROM operation_log WHERE operation = 'delete_metadata_keys'").fetchall()
+            conn.close()
+            assert len(log) >= 2
+        finally:
+            Path(db_path).unlink(missing_ok=True)
