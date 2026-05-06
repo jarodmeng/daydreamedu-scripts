@@ -61,7 +61,7 @@ If a subagent output violates language policy, treat it as malformed output and 
 - Do **not** write AI summaries, inferred mistake explanations, or paraphrased diagnosis into `human_note`.
 - If there is no clear human annotation for that question, set `human_note = null`.
 - If annotation exists but is not fully legible, use a minimal transcription with explicit uncertainty marker (for example `[illegible annotation]`) rather than fabricating text.
-- Put AI interpretation in `diagnosis.reasoning`, never in `human_note`.
+- Put **student-focused pedagogical interpretation** (why the answer is wrong, partial, or what misconception applies) in `diagnosis.reasoning`, never in `human_note`. Do **not** use `diagnosis.reasoning` for grading provenance, teacher-mark narration, or orchestration/meta text (“teacher tick”, “margin shows”, “in teacher-annotated mode…”).
 
 **CRITICAL ORCHESTRATOR BOUNDARY:**
 You are the Orchestrator. You manage the workflow, but you **MUST NEVER** perform the grading, transcription, or tagging tasks yourself. 

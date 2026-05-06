@@ -27,8 +27,9 @@ When the parent indicates teacher-annotated mode:
 
 - If teacher grading marks are clearly visible (for example red tick/cross, numeric row score, or explicit correction score), treat teacher grading as authoritative.
 - Do not override clear teacher-awarded marks with your own linguistic regrading.
+- For **math LAQ** with multiple sub-parts under one numbered question, treat a single numeric mark in the **question’s mark box** as the **total across all parts**; reconcile any per-part changes in `earned_marks` with that visible total, and only deviate when evidence is genuinely ambiguous (in which case lower `confidence.grading` and surface the ambiguity rather than silently breaking the total).
 - Use deep-dive primarily to fix transcription/boundary/evidence clarity and confidence, not to second-mark clear teacher decisions.
-- Only change `earned_marks` when teacher grading evidence for that row is genuinely unclear/contradictory; if so, keep confidence low and explain uncertainty in `human_note`.
+- Only change `earned_marks` when teacher grading evidence for that row is genuinely unclear/contradictory; if so, set **`confidence.grading` low** (and keep `human_note` to verbatim annotation only—not a prose dump of ambiguity).
 
 ## MCQ bracket adjudication (mandatory when the item is an MCQ)
 
@@ -41,7 +42,11 @@ Do **not** repeat a fast-pass `no_response` claim without this explicit bracket 
 
 ## Deep diagnosis
 
-For wrong or partial rows, write a **specific** pedagogical diagnosis: what distinction was missed, method error, or calculation slip—not generic “did not understand”. Use prior sub-parts if error may carry forward.
+For wrong or partial rows, write a **specific pedagogical diagnosis**: what distinction was missed, method error, or calculation slip—not generic “did not understand”. Use prior sub-parts if error may carry forward.
+
+**Forbidden in `diagnosis.reasoning`:** provenance/meta about how marks were applied (“circled 0 in margin”, “we followed teacher-annotated mode”, “ticks on lines”). Teacher evidence informs **scores** and **confidence**, not narrative filler in `diagnosis.reasoning`.
+
+If ambiguity is genuinely about unreadable teacher evidence, encode that in **`confidence.grading`** (and keep `human_note` to verbatim annotation only)—do not substitute long provenance prose for student-focused diagnosis when a concrete mistake exists.
 
 ## Language (hard requirement)
 

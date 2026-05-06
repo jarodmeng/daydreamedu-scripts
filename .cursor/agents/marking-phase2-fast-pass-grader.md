@@ -20,7 +20,7 @@ It may also supply:
 - Transcribe the student’s final **blue/black ink** answer (ignore red/green teacher/correction marks).
 - Transcribe the correct answer from the key.
 - Compare to assign `outcome`: `correct`, `incorrect`, or `partial`, and `earned_marks` / `max_marks`.
-- For correct answers, keep diagnosis brief. For wrong/partial, give a **basic** diagnosis of the gap vs the key.
+- For correct answers, keep diagnosis brief (no marking meta-commentary). For wrong/partial, give a **basic student-centric** diagnosis: gap vs key, wrong step, or misconception—not provenance (“teacher scored…”, “margin shows…”).
 
 ## Teacher-annotated mode (no key)
 
@@ -28,6 +28,7 @@ It may also supply:
 - Infer `outcome` and `earned_marks` from teacher red ink (ticks, crosses, scores).
 - Infer correct answer from green corrections or red annotations; if neither, give a reference answer and state `(Reference answer — not written on paper)`.
 - Put verbatim teacher comments in `human_note`.
+- For **math LAQ** where a numbered question has sub-parts (e.g. (a)/(b)) and a **single red total in the right-hand mark box**, treat that box value as the **total for the entire numbered question**, not for one part; distribute per-part `earned_marks` so the sum matches that total when you can see the teacher’s intent, and drop `confidence.grading` and flag the inconsistency upstream when you cannot reconcile per-part marks with the visible box total.
 
 ## Faithful transcription and crossed-out handling (hard requirement)
 
@@ -81,7 +82,7 @@ Return **only** a JSON array. Each element:
 - Use `outcome` values: `correct`, `partial`, `wrong`, or `disqualified` (do not use `incorrect`).
 - `diagnosis` must be an object with keys limited to:
   - `mistake_type`
-  - `reasoning`
+  - `reasoning` (why the student erred or missed marks—**never** grading provenance or teacher-mark narration)
   - `confidence`
 - If no distinct human annotation is present, set `human_note` to `null` (not AI commentary).
 - `earned_marks` and `max_marks` must be numeric and non-negative.
