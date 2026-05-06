@@ -7,7 +7,7 @@ import json
 import re
 from pathlib import Path
 
-from ai_study_buddy.marking.core.artifact_paths import build_marking_artifact_path, normalize_attempt_stem
+from ai_study_buddy.marking.core.artifact_paths import build_marking_artifact_path
 from ai_study_buddy.marking.core.artifact_schema import SCHEMA_VERSION, compute_percentage, validate_marking_artifact_dict
 from ai_study_buddy.marking.core.artifact_writer import write_marking_artifact
 from ai_study_buddy.marking.core.marking_time import to_marking_iso
@@ -23,7 +23,7 @@ from ai_study_buddy.marking.core.models import (
     ReviewMeta,
 )
 from ai_study_buddy.marking.core.taxonomy import derive_skill_tags_from_embedding_label
-from ai_study_buddy.pdf_file_manager.pdf_file_manager import PdfFileManager
+from ai_study_buddy.pdf_file_manager.pdf_file_manager import PdfFileManager, normalize_pdf_display_name
 
 _HEADER_RE = re.compile(r"^##\s+(?P<title>.+?)\s*$", re.MULTILINE)
 _RESULT_LINE_RE = re.compile(r"^- (?P<label>[^:]+): (?P<value>.+)$")
@@ -195,10 +195,10 @@ def _derive_unit_label(unit_file_id: str | None, template_file_path: str | None)
         except Exception:
             unit_file = None
         if unit_file is not None and getattr(unit_file, "name", None):
-            return normalize_attempt_stem(unit_file.name)
+            return normalize_pdf_display_name(unit_file.name)
     extracted = _extract_pdf_path_from_mixed_text(template_file_path)
     if extracted:
-        return normalize_attempt_stem(Path(extracted).name)
+        return normalize_pdf_display_name(Path(extracted).name)
     return None
 
 

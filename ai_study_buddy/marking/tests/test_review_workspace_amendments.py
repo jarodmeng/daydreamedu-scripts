@@ -40,6 +40,7 @@ class _FakeStudent:
 class _FakeFile:
     id = "attempt-1"
     name = "attempt.pdf"
+    normal_name = "attempt"
     path = "/tmp/attempt.pdf"
     file_type = "main"
     doc_type = "book"

@@ -78,6 +78,11 @@ class PdfFile:
     updated_at: str
     notes: str | None
 
+    @property
+    def normal_name(self) -> str:
+        """Canonical display name with technical prefixes and extension removed."""
+        return normalize_pdf_display_name(self.name)
+
 @dataclass
 class CompressResult:
     """Result of compress_and_register; includes main_file_id."""
@@ -173,6 +178,32 @@ class GoodNotesTemplateLinkOutcome:
 
 def _looks_like_compressed_main_name(name: str) -> bool:
     return name.startswith("_c_") or name.startswith("c_")
+
+
+def has_raw_pdf_prefix(name: str) -> bool:
+    """Return True if basename starts with a known raw prefix."""
+    return name.startswith("_raw_") or name.startswith("raw_")
+
+
+def normalize_pdf_display_name(name_or_path: str | Path) -> str:
+    """Normalize a PDF filename/path to a human-facing stem.
+
+    Rules:
+    - Keep only the basename.
+    - Remove extension via ``Path(...).stem``.
+    - Iteratively strip technical prefixes: ``_raw_``, ``_c_``, ``raw_``, ``c_``.
+    """
+    stem = Path(str(name_or_path)).stem
+    prefixes = ("_raw_", "_c_", "raw_", "c_")
+    changed = True
+    while changed:
+        changed = False
+        for prefix in prefixes:
+            if stem.startswith(prefix):
+                stem = stem[len(prefix) :]
+                changed = True
+                break
+    return stem
 
 
 def _reject_invalid_chinese_variant_in_metadata(metadata: dict | None) -> None:
@@ -936,6 +967,8 @@ class PdfFileManager:
             return name[5:]
         if name.startswith("_c_"):
             return name[3:]
+        if name.startswith("raw_"):
+            return name[4:]
         if name.startswith("c_"):
             return name[2:]
         return name

@@ -15,7 +15,6 @@ from ai_study_buddy.marking.core.artifact_paths import (
     build_learning_report_path,
     build_marking_artifact_path,
     build_marking_run_paths,
-    normalize_attempt_stem,
 )
 from ai_study_buddy.marking.core.artifact_schema import (
     AMENDMENT_SCHEMA_PATH,
@@ -47,6 +46,7 @@ from ai_study_buddy.marking.core.models import (
     ReviewMeta,
 )
 from ai_study_buddy.marking.workflows.report_renderer import render_learning_report_from_json
+from ai_study_buddy.pdf_file_manager.pdf_file_manager import normalize_pdf_display_name
 
 
 def _sample_artifact() -> MarkingArtifact:
@@ -261,10 +261,10 @@ def test_marking_amendment_schema_rejects_unsupported_question_field():
     assert any(error.validator in {"propertyNames", "additionalProperties"} for error in errors)
 
 
-def test_normalize_attempt_stem_strips_known_prefixes():
-    assert normalize_attempt_stem("c_example.pdf") == "example"
-    assert normalize_attempt_stem("_c_example.pdf") == "example"
-    assert normalize_attempt_stem("_raw_example.pdf") == "example"
+def test_normalize_pdf_display_name_strips_known_prefixes():
+    assert normalize_pdf_display_name("c_example.pdf") == "example"
+    assert normalize_pdf_display_name("_c_example.pdf") == "example"
+    assert normalize_pdf_display_name("_raw_example.pdf") == "example"
 
 
 def test_build_attempt_basename_uses_timestamp_suffix():

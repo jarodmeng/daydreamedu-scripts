@@ -9,7 +9,7 @@ from jsonschema import Draft202012Validator
 
 from ai_study_buddy.learning_db.core.config import learning_db_read_fallback_filesystem, learning_db_reads_enabled
 from ai_study_buddy.learning_db.core.connection import default_db_path, get_connection
-from ai_study_buddy.marking.core.artifact_paths import normalize_attempt_stem
+from ai_study_buddy.pdf_file_manager.pdf_file_manager import normalize_pdf_display_name
 from ai_study_buddy.marking.file_question_info.errors import (
     FileQuestionInfoError,
     InvalidGradeOrScopeError,
@@ -205,7 +205,7 @@ def _grade_segment_from_pdf_file(pdf_file) -> str:
 
 
 def _slug_from_pdf_file(pdf_file) -> str:
-    return normalize_attempt_stem(Path(pdf_file.path).resolve())
+    return normalize_pdf_display_name(Path(pdf_file.path).resolve())
 
 
 def _file_question_info_run_dir(

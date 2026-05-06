@@ -4,6 +4,22 @@ All notable changes to the pdf_file_manager utility are documented here.
 
 ---
 
+## [v0.3.12] — Canonical normalized file names
+
+- Added canonical helper `normalize_pdf_display_name(name_or_path)` in `pdf_file_manager` as the single source of truth for human-facing filename normalization.
+- Added computed `PdfFile.normal_name` (non-persisted) that delegates to the canonical helper.
+- Normalization behavior:
+  - iterative prefix stripping: `_raw_`, `_c_`, `raw_`, `c_`
+  - extension removal via `Path(...).stem`
+- Added `has_raw_pdf_prefix(name)` helper and migrated review completion-candidate checks to it.
+- Migrated downstream `ai_study_buddy` production modules away from ad hoc prefix stripping to canonical normalization:
+  - marking review title fallbacks
+  - marking artifact-path normalization usage
+  - split-book answer context parsing
+  - file-question-info and marking migration workflows
+- Added tests in `tests/test_normal_name.py` and updated marking artifact-core normalization expectations.
+- No schema/database migration was required.
+
 ## [v0.3.11] — Enforce `metadata.unit` as book-only
 
 - `register_file(...)` now raises `InvalidMetadataError` when `metadata.unit` is provided and `doc_type != 'book'`.

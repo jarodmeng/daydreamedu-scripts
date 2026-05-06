@@ -64,7 +64,8 @@ class ScanRoot:
 @dataclass
 class PdfFile:
     id: str
-    name: str
+    name: str                # exact on-disk basename, including technical prefix + extension
+    normal_name: str         # computed (not persisted): normalized display stem
     path: str
     file_type: str           # 'main' | 'raw' | 'unknown'
     doc_type: str            # 'exam' | 'exercise' | 'book' | 'activity' | 'note'
@@ -145,3 +146,10 @@ class ScanResult:
     raw_archive: PdfFile | None
     compressed: bool
 ```
+
+`PdfFile.normal_name` is derived from `name` using canonical normalization in `pdf_file_manager`:
+
+- iterative prefix stripping: `_raw_`, `_c_`, `raw_`, `c_`
+- extension removal via `Path(...).stem`
+
+This value is computed at runtime and is **not** stored as a DB column.

@@ -19,11 +19,12 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from ai_study_buddy.marking.core.artifact_paths import normalize_attempt_stem, slugify_student
+from ai_study_buddy.marking.core.artifact_paths import slugify_student
 from ai_study_buddy.marking.core.artifact_schema import validate_marking_artifact_dict
 from ai_study_buddy.marking.core.artifact_writer import write_marking_artifact
 from ai_study_buddy.marking.core.models import MarkingArtifact
 from ai_study_buddy.marking.workflows.report_renderer import render_learning_report_from_json
+from ai_study_buddy.pdf_file_manager.pdf_file_manager import normalize_pdf_display_name
 
 _LEGACY_ROOT = ".marking_scratch"
 _ASSET_ROOT = "marking_assets"
@@ -125,7 +126,7 @@ def _guess_asset_path_from_attempt(
 
     student_slug = slugify_student(context.get("student_id"), context.get("student_name"))
     attempt_name = Path(attempt_file_path).name
-    stem = normalize_attempt_stem(attempt_name)
+    stem = normalize_pdf_display_name(attempt_name)
     stem_tokens = _extract_tokens(stem)
     if not stem_tokens:
         return None

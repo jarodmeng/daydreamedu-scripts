@@ -6,8 +6,7 @@ import re
 
 from ai_study_buddy.marking.core.marking_time import format_basename_timestamp
 from ai_study_buddy.marking.core.models import MarkingArtifact
-
-_PREFIXES = ("_raw_", "_c_", "raw_", "c_")
+from ai_study_buddy.pdf_file_manager.pdf_file_manager import normalize_pdf_display_name
 
 
 def parse_iso_datetime(value: str) -> datetime:
@@ -17,22 +16,9 @@ def parse_iso_datetime(value: str) -> datetime:
     return datetime.fromisoformat(normalized)
 
 
-def normalize_attempt_stem(name_or_path: str | Path) -> str:
-    stem = Path(name_or_path).stem
-    changed = True
-    while changed:
-        changed = False
-        for prefix in _PREFIXES:
-            if stem.startswith(prefix):
-                stem = stem[len(prefix) :]
-                changed = True
-                break
-    return stem
-
-
 def derive_unit_label_from_attempt_name(name_or_path: str | Path) -> str:
     """Human-facing unit label derived from attempt/template filename."""
-    return normalize_attempt_stem(name_or_path)
+    return normalize_pdf_display_name(name_or_path)
 
 
 def format_artifact_timestamp(value: str | datetime) -> str:
@@ -41,7 +27,7 @@ def format_artifact_timestamp(value: str | datetime) -> str:
 
 
 def build_attempt_basename(name_or_path: str | Path, *, marked_at: str | datetime) -> str:
-    stem = normalize_attempt_stem(name_or_path)
+    stem = normalize_pdf_display_name(name_or_path)
     return f"{stem}__{format_artifact_timestamp(marked_at)}"
 
 

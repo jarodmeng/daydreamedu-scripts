@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from pathlib import Path
 from typing import Any
 
 from ai_study_buddy.marking.core.artifact_lookup import find_marking_artifacts_for_attempt
@@ -9,7 +8,11 @@ from ai_study_buddy.marking.review.amendment_service import (
     normalize_amendment_state,
     resolve_marking_result,
 )
-from ai_study_buddy.pdf_file_manager.pdf_file_manager import PdfFile, PdfFileManager
+from ai_study_buddy.pdf_file_manager.pdf_file_manager import (
+    PdfFile,
+    PdfFileManager,
+    has_raw_pdf_prefix,
+)
 from ai_study_buddy.marking.review.models import (
     attempt_title,
     infer_grade_bucket,
@@ -25,8 +28,7 @@ def _is_completion_candidate(file: PdfFile) -> bool:
         return False
     if file.file_type == "raw":
         return False
-    name_lower = file.name.lower()
-    if name_lower.startswith("_raw_") or name_lower.startswith("raw_"):
+    if has_raw_pdf_prefix(file.name.lower()):
         return False
     return True
 
@@ -50,7 +52,7 @@ def _attempt_summary(
     created_at: str | None = None
     subject_context: str | None = infer_subject_context(completion.subject)
     book_label: str | None = None
-    title = Path(completion.path).stem
+    title = completion.normal_name
     attempt_sequence: int | None = None
     is_partial: bool | None = None
     review_status = "not_started"

@@ -47,11 +47,22 @@ The SQLite file and schema are implementation details. Touch them directly only 
 
 Use **`PdfFileManager`** for registry operations. Useful helpers:
 
+- **`normalize_pdf_display_name(name_or_path)`** — canonical filename normalizer (iteratively strips `_raw_`, `_c_`, `raw_`, `c_`, then removes extension via `Path(...).stem`).
 - **`repair_main_raw_metadata_drift()`** — batch-fix document-level drift between linked raw/main rows ([CHANGELOG v0.2.6](../../../ai_study_buddy/pdf_file_manager/CHANGELOG.md)).
 - **`import_book_answer_mappings_from_json(...)`** — bulk import validated mapping JSON.
 - **`ensure_book_group_from_path`**, **`delete_file_group`**, **`update_file_group_notes`** — group lifecycle/edits.
 - **`link_template_by_paths`**, **`ensure_student`**, **`ensure_scan_root`** — convenience wrappers.
 - **`PdfFileManager.find_leaf_dirs`** — static helper used with coverage analysis.
+
+## Canonical naming rule
+
+When you need a human-facing filename stem or slug:
+
+- For `PdfFile` objects, use **`pdf_file.normal_name`**.
+- For raw paths/strings, use **`normalize_pdf_display_name(name_or_path)`**.
+- Do **not** hand-roll prefix stripping with ad hoc string operations (`removeprefix`, `startswith` chains, manual `.stem` logic) in downstream modules.
+
+This keeps naming behavior consistent across marking, file-question-info, and split-book workflows.
 
 ## Lookup workflow
 

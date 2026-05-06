@@ -5,7 +5,11 @@ from pathlib import Path
 from typing import Any
 
 from ai_study_buddy.marking.core.artifact_lookup import find_marking_artifacts_for_attempt
-from ai_study_buddy.pdf_file_manager.pdf_file_manager import PdfFile, PdfFileManager
+from ai_study_buddy.pdf_file_manager.pdf_file_manager import (
+    PdfFile,
+    PdfFileManager,
+    has_raw_pdf_prefix,
+)
 from ai_study_buddy.marking.review.amendment_service import (
     build_amendment_context,
     normalize_amendment_state,
@@ -66,8 +70,7 @@ def _is_completion_candidate(file: PdfFile) -> bool:
         return False
     if file.file_type == "raw":
         return False
-    name_lower = file.name.lower()
-    if name_lower.startswith("_raw_") or name_lower.startswith("raw_"):
+    if has_raw_pdf_prefix(file.name.lower()):
         return False
     return True
 
@@ -146,7 +149,7 @@ def get_attempt_detail(
     subject_context = infer_subject_context(completion.subject)
     attempt = {
         "attempt_id": completion.id,
-        "title": Path(completion.path).stem,
+        "title": completion.normal_name,
         "student_id": completion.student_id,
         "subject_context": subject_context,
         "collection_kind": "exam" if completion.doc_type == "exam" else "book",

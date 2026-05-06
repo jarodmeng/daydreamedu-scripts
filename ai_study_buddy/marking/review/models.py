@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from pathlib import Path
 from typing import Any
+
+from ai_study_buddy.pdf_file_manager.pdf_file_manager import normalize_pdf_display_name
 
 STATIC_ROUTE_PREFIX = "/review-workspace-static"
 
@@ -31,10 +32,10 @@ def attempt_title(context: dict[str, Any], *, attempt_path: str | None = None) -
     if isinstance(unit_label, str) and unit_label.strip():
         return unit_label.strip()
     if isinstance(attempt_path, str) and attempt_path.strip():
-        return Path(attempt_path).stem
+        return normalize_pdf_display_name(attempt_path)
     attempt_file_path = context.get("attempt_file_path")
     if isinstance(attempt_file_path, str) and attempt_file_path.strip():
-        return Path(attempt_file_path).stem
+        return normalize_pdf_display_name(attempt_file_path)
     return "Untitled Attempt"
 
 

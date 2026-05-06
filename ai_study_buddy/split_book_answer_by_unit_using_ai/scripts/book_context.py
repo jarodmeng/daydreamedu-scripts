@@ -17,7 +17,7 @@ REPO_ROOT = ROOT.parents[1]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from ai_study_buddy.pdf_file_manager.pdf_file_manager import PdfFileManager
+from ai_study_buddy.pdf_file_manager.pdf_file_manager import PdfFileManager, normalize_pdf_display_name
 
 ANSWER_KEYWORDS = (
     "answer",
@@ -146,10 +146,7 @@ def identify_answer_file(files):
 
 
 def parse_epo_unit_index(file) -> int | None:
-    basename = file.name
-    if basename.lower().endswith(".pdf"):
-        basename = basename[:-4]
-    basename = basename.removeprefix("_c_").removeprefix("c_")
+    basename = normalize_pdf_display_name(file.name)
     match = re.fullmatch(r"EPO_(.+)_(\d{2})(?: \(empty\))?", basename)
     if not match:
         return None
@@ -216,9 +213,7 @@ def parse_unit_index(file) -> int:
     if match:
         return int(match.group(1))
 
-    file_name_norm = file.name.strip().lower().removeprefix("_c_").removeprefix("c_")
-    if file_name_norm.endswith(".pdf"):
-        file_name_norm = file_name_norm[:-4]
+    file_name_norm = normalize_pdf_display_name(file.name).strip().lower()
     if file_name_norm in MATH_PSLE_UNIT_ORDER:
         return MATH_PSLE_UNIT_ORDER[file_name_norm]
 

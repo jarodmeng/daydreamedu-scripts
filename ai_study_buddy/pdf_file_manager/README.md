@@ -1,6 +1,6 @@
 # pdf_file_manager
 
-**Version: v0.3.11**
+**Version: v0.3.12**
 
 A local utility that keeps a SQLite registry of PDF files in the study archive. It tracks exams, exercises, books, activities, notes, and templates (with optional completed variants), keeps on-disk paths and database records in sync, and supports first-class book unit → answer-page mappings inside `group_type='book'` collections. You can scan one or more folders for new PDFs, optionally compress and archive originals, classify documents by type and metadata, group multi-file documents (e.g. exam booklets or book folders), link completions to templates, and query or import validated book-answer coverage. Every state-mutating operation is recorded in an append-only operation log.
 
@@ -26,6 +26,14 @@ Every file has two independent attributes: **file_type** (main vs raw vs unknown
 `metadata.unit` is enforced as a **book-only** metadata key (`doc_type='book'`).
 
 For a quick reference on file-level metadata vs group-level fields (including `metadata.unit`, `label`, `group_type`, and legacy `role`), see [`DATA_MODEL.md`](./DATA_MODEL.md).
+
+### Name fields (`name` vs `normal_name`)
+
+- `PdfFile.name` is the exact on-disk basename (for example `_c_P5 Science WA2 (Booklet A).pdf`).
+- `PdfFile.normal_name` is a computed display stem (for example `P5 Science WA2 (Booklet A)`), normalized by:
+  - iterative prefix stripping: `_raw_`, `_c_`, `raw_`, `c_`
+  - extension removal via `Path(...).stem`
+- Shared helper: `normalize_pdf_display_name(name_or_path)` in `pdf_file_manager.py`.
 
 ---
 
