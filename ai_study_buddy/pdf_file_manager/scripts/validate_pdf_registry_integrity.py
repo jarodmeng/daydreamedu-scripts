@@ -10,11 +10,15 @@ ad hoc investigation:
 
 Health checks (for large registry operations):
 
-5. all registered rows point to an existing on-disk file
-6. general-scope ``.../Book/<book name>/`` mains share one book file group and have non-empty ``metadata.unit``
-7. all student-scope files have ``student_id``
-8. all general-scope files have ``is_template=true``
-9. all student-scope files have ``is_template=false``
+4. all registered rows point to an existing on-disk file
+5. general-scope ``.../Book/<book name>/`` mains share one book file group and have non-empty ``metadata.unit``
+6. all student-scope files have ``student_id``
+7. all general-scope files have ``is_template=true``
+8. all student-scope files have ``is_template=false``
+9. any stored ``subject`` must be in the allowed enum set
+10. any populated ``metadata.grade_or_scope`` must be in the allowed token set
+11. raw/main relation graph is consistent (has_raw, reciprocal edges, and valid endpoint types)
+12. template files are constrained to ``doc_type`` in ``exam``, ``exercise``, ``book``
 
 Usage:
   python3 -m ai_study_buddy.pdf_file_manager.scripts.validate_pdf_registry_integrity
@@ -72,6 +76,87 @@ def collect_invalid_chinese_variant_foundation(mgr: PdfFileManager) -> list[dict
                     "file_type": row["file_type"],
                 }
             )
+    return bad
+
+
+def collect_invalid_subject_values(mgr: PdfFileManager) -> list[dict]:
+    conn = mgr._get_connection()
+    rows = conn.execute(
+        """
+        SELECT id, path, file_type, doc_type, subject
+        FROM pdf_files
+        WHERE subject IS NOT NULL
+        ORDER BY path
+        """
+    ).fetchall()
+    allowed = set(mgr._ALLOWED_SUBJECTS)
+    bad: list[dict] = []
+    for row in rows:
+        if row["subject"] in allowed:
+            continue
+        bad.append(
+            {
+                "id": row["id"],
+                "path": row["path"],
+                "file_type": row["file_type"],
+                "doc_type": row["doc_type"],
+                "subject": row["subject"],
+            }
+        )
+    return bad
+
+
+def collect_invalid_grade_or_scope_values(mgr: PdfFileManager) -> list[dict]:
+    conn = mgr._get_connection()
+    rows = conn.execute(
+        """
+        SELECT id, path, file_type, doc_type, metadata
+        FROM pdf_files
+        WHERE metadata IS NOT NULL
+        ORDER BY path
+        """
+    ).fetchall()
+    allowed = set(mgr._GRADE_SCOPE_SEGMENTS)
+    bad: list[dict] = []
+    for row in rows:
+        try:
+            metadata = json.loads(row["metadata"]) if row["metadata"] else {}
+        except json.JSONDecodeError:
+            continue
+        if not isinstance(metadata, dict):
+            continue
+        grade = metadata.get("grade_or_scope")
+        if grade is None:
+            continue
+        if isinstance(grade, str) and grade in allowed:
+            continue
+        bad.append(
+            {
+                "id": row["id"],
+                "path": row["path"],
+                "file_type": row["file_type"],
+                "doc_type": row["doc_type"],
+                "grade_or_scope": grade,
+            }
+        )
+    return bad
+
+
+def collect_template_invalid_doc_type(mgr: PdfFileManager) -> list[dict]:
+    allowed_template_doc_types = {"exam", "exercise", "book"}
+    bad: list[dict] = []
+    for file in mgr.find_files(is_template=True):
+        if file.doc_type in allowed_template_doc_types:
+            continue
+        bad.append(
+            {
+                "id": file.id,
+                "path": file.path,
+                "file_type": file.file_type,
+                "doc_type": file.doc_type,
+                "is_template": file.is_template,
+            }
+        )
     return bad
 
 
@@ -325,6 +410,123 @@ def collect_main_raw_metadata_drift(mgr: PdfFileManager) -> list[dict]:
     return issues
 
 
+def collect_raw_main_relation_issues(mgr: PdfFileManager) -> list[dict]:
+    conn = mgr._get_connection()
+    rows = conn.execute(
+        """
+        SELECT id, path, file_type, has_raw
+        FROM pdf_files
+        ORDER BY path
+        """
+    ).fetchall()
+    files_by_id: dict[str, dict] = {row["id"]: dict(row) for row in rows}
+
+    rel_rows = conn.execute(
+        """
+        SELECT source_id, target_id, relation_type
+        FROM file_relations
+        WHERE relation_type IN ('raw_source', 'main_version')
+        """
+    ).fetchall()
+    raw_source_edges = {(row["source_id"], row["target_id"]) for row in rel_rows if row["relation_type"] == "raw_source"}
+    main_version_edges = {(row["source_id"], row["target_id"]) for row in rel_rows if row["relation_type"] == "main_version"}
+
+    issues: list[dict] = []
+
+    # main -> raw edge must point to main/raw and have reciprocal raw -> main edge
+    for main_id, raw_id in sorted(raw_source_edges):
+        main = files_by_id.get(main_id)
+        raw = files_by_id.get(raw_id)
+        if main is None or raw is None:
+            issues.append(
+                {
+                    "issue": "raw_source_dangling_endpoint",
+                    "main_id": main_id,
+                    "raw_id": raw_id,
+                }
+            )
+            continue
+        if main["file_type"] != "main" or raw["file_type"] != "raw":
+            issues.append(
+                {
+                    "issue": "raw_source_wrong_endpoint_types",
+                    "main_id": main_id,
+                    "main_path": main["path"],
+                    "main_file_type": main["file_type"],
+                    "raw_id": raw_id,
+                    "raw_path": raw["path"],
+                    "raw_file_type": raw["file_type"],
+                }
+            )
+        if (raw_id, main_id) not in main_version_edges:
+            issues.append(
+                {
+                    "issue": "missing_main_version_reciprocal",
+                    "main_id": main_id,
+                    "main_path": main["path"],
+                    "raw_id": raw_id,
+                    "raw_path": raw["path"],
+                }
+            )
+
+    # raw -> main edge must point to raw/main and have reciprocal main -> raw edge
+    for raw_id, main_id in sorted(main_version_edges):
+        raw = files_by_id.get(raw_id)
+        main = files_by_id.get(main_id)
+        if raw is None or main is None:
+            issues.append(
+                {
+                    "issue": "main_version_dangling_endpoint",
+                    "raw_id": raw_id,
+                    "main_id": main_id,
+                }
+            )
+            continue
+        if raw["file_type"] != "raw" or main["file_type"] != "main":
+            issues.append(
+                {
+                    "issue": "main_version_wrong_endpoint_types",
+                    "raw_id": raw_id,
+                    "raw_path": raw["path"],
+                    "raw_file_type": raw["file_type"],
+                    "main_id": main_id,
+                    "main_path": main["path"],
+                    "main_file_type": main["file_type"],
+                }
+            )
+        if (main_id, raw_id) not in raw_source_edges:
+            issues.append(
+                {
+                    "issue": "missing_raw_source_reciprocal",
+                    "raw_id": raw_id,
+                    "raw_path": raw["path"],
+                    "main_id": main_id,
+                    "main_path": main["path"],
+                }
+            )
+
+    # has_raw on main files should mirror raw_source existence
+    main_ids_with_raw_source = {main_id for main_id, _raw_id in raw_source_edges}
+    for row in rows:
+        if row["file_type"] != "main":
+            continue
+        has_raw_expected = row["id"] in main_ids_with_raw_source
+        has_raw_actual = bool(row["has_raw"])
+        if has_raw_expected == has_raw_actual:
+            continue
+        issues.append(
+            {
+                "issue": "main_has_raw_mismatch",
+                "id": row["id"],
+                "path": row["path"],
+                "has_raw": has_raw_actual,
+                "expected_has_raw": has_raw_expected,
+            }
+        )
+
+    return issues
+
+
 def build_report(mgr: PdfFileManager) -> dict:
     missing_on_disk_files = collect_missing_on_disk_files(mgr)
     book_folder_group_unit_issues = collect_book_folder_group_unit_issues(mgr)
@@ -335,6 +537,10 @@ def build_report(mgr: PdfFileManager) -> dict:
     missing_student_id = collect_missing_student_id(mgr)
     main_raw_drift = collect_main_raw_metadata_drift(mgr)
     invalid_chinese_variant_foundation = collect_invalid_chinese_variant_foundation(mgr)
+    invalid_subject_values = collect_invalid_subject_values(mgr)
+    invalid_grade_or_scope_values = collect_invalid_grade_or_scope_values(mgr)
+    raw_main_relation_issues = collect_raw_main_relation_issues(mgr)
+    template_invalid_doc_type = collect_template_invalid_doc_type(mgr)
     return {
         "db_path": str(Path(mgr.db_path).resolve()),
         "summary": {
@@ -346,6 +552,10 @@ def build_report(mgr: PdfFileManager) -> dict:
             "missing_student_id": len(missing_student_id),
             "main_raw_metadata_drift": len(main_raw_drift),
             "invalid_chinese_variant_foundation": len(invalid_chinese_variant_foundation),
+            "invalid_subject_values": len(invalid_subject_values),
+            "invalid_grade_or_scope_values": len(invalid_grade_or_scope_values),
+            "raw_main_relation_issues": len(raw_main_relation_issues),
+            "template_invalid_doc_type": len(template_invalid_doc_type),
         },
         "checks": {
             "missing_on_disk_files": missing_on_disk_files,
@@ -356,6 +566,10 @@ def build_report(mgr: PdfFileManager) -> dict:
             "missing_student_id": missing_student_id,
             "main_raw_metadata_drift": main_raw_drift,
             "invalid_chinese_variant_foundation": invalid_chinese_variant_foundation,
+            "invalid_subject_values": invalid_subject_values,
+            "invalid_grade_or_scope_values": invalid_grade_or_scope_values,
+            "raw_main_relation_issues": raw_main_relation_issues,
+            "template_invalid_doc_type": template_invalid_doc_type,
         },
     }
 
@@ -408,6 +622,32 @@ def _print_human_report(report: dict, *, limit: int) -> None:
     print("\nInvalid metadata.chinese_variant=foundation (use 'standard' for Standard 华文):")
     for item in report["checks"]["invalid_chinese_variant_foundation"][:limit]:
         print(f"- {item['path']} [{item['file_type']}] id={item['id']}")
+
+    print("\nInvalid subject enum values:")
+    for item in report["checks"]["invalid_subject_values"][:limit]:
+        print(f"- {item['path']} [{item['file_type']}/{item['doc_type']}] subject={item['subject']!r}")
+
+    print("\nInvalid metadata.grade_or_scope values:")
+    for item in report["checks"]["invalid_grade_or_scope_values"][:limit]:
+        print(
+            f"- {item['path']} [{item['file_type']}/{item['doc_type']}] "
+            f"grade_or_scope={item['grade_or_scope']!r}"
+        )
+
+    print("\nRaw/main relation consistency issues:")
+    for item in report["checks"]["raw_main_relation_issues"][:limit]:
+        issue = item.get("issue")
+        if issue == "main_has_raw_mismatch":
+            print(
+                f"- {item['path']} [main] has_raw={item['has_raw']} "
+                f"expected={item['expected_has_raw']}"
+            )
+        else:
+            print(f"- {issue}: {item}")
+
+    print("\nTemplate files with invalid doc_type (allowed: exam, exercise, book):")
+    for item in report["checks"]["template_invalid_doc_type"][:limit]:
+        print(f"- {item['path']} [{item['file_type']}/{item['doc_type']}] id={item['id']}")
 
 
 def main() -> int:
