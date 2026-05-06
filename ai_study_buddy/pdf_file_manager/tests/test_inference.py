@@ -161,7 +161,7 @@ def test_register_file_infers_student_id_from_registered_student_email_folder():
 
 def test_infer_from_path_is_template_true_when_at_in_drive_segment_only():
     """Path with @ in a non-student segment (e.g. GoogleDrive-user@gmail.com) and P6 in path → is_template=True.
-    Student folder = @ segment immediately followed by grade/scope (P3–P6, PSLE, Archive)."""
+    Student folder = @ segment immediately followed by grade/scope (P3–P6, PSLE)."""
     path = Path(
         "/Users/dev/Library/CloudStorage/GoogleDrive-owner@example.com/My Drive/DaydreamEdu/Singapore Primary Math/P6/Exam/paper.pdf"
     )

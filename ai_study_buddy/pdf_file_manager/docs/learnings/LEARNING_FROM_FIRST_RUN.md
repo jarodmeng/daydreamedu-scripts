@@ -209,7 +209,7 @@ This section summarizes how the one‑off scripts use `PdfFileManager` and what 
   - `_infer_from_path` uses the full path to infer:
     - `subject` (`english`, `math`, `science`, `chinese`).
     - `doc_type` (`exam`, `worksheet`, `activity`, `notes`) based on `Exam`/`Exercise`/`Activity`/`Note` segments.
-    - `is_template` by checking for grade/scope segments (P3–P6, PSLE, Archive) vs student folders.
+    - `is_template` by checking for grade/scope segments (P1–P6, PSLE) vs student folders.
     - Extra metadata such as `grade_or_scope` and `chinese_variant`.
 
 #### Typical scanning workflow

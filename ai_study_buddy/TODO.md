@@ -30,6 +30,7 @@ _No open items._
 - [ ] **P2-1** · 2026-05-06 11:15 SGT: Defer archiving `.cursor/skills/mark-student-work-multi-agent-v2` and its v2 subagents in `.cursor/agents/` until v3 completes production burn-in; keep v2 as fallback safety net, then archive after v3 is validated across subjects/modes and no active workflows depend on v2.
 - [ ] **P2-2** · 2026-05-06 12:08 SGT: Implement `pdf_file_manager/docs/proposals/11-hardening-agent-facing-api-and-skill-for-pdffile-shape.md` (agent-facing PdfFile shape hardening)—proposal drafted, implementation still pending.
 - [ ] **P2-3** · 2026-05-06 12:48 SGT: Close the parity gap between **surgical edits** to a `marking_result` JSON file (e.g. one `question_results[]` row or a few fields) and **learning DB sync**: today, `learning_db.ingest.import_context_json` re-import drives a full artifact upsert and replaces all `marking_question_results` (and related) rows for that artifact—there is no supported path for **targeted partial overwrite** keyed by `artifact_path` / `result_id` / changed fields without re-processing the entire JSON payload through the importer.
+- [ ] **P2-4** · 2026-05-06 21:46 SGT: Reduce filename dependence in `marking/core/context_resolver.py` by improving `_infer_unit_label` fallback behavior (currently `derive_unit_label_from_attempt_name(file.name)`), preferring stricter metadata-first resolution where feasible.
 
 ## Completed
 

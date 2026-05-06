@@ -4,6 +4,14 @@ All notable changes to the pdf_file_manager utility are documented here.
 
 ---
 
+## [v0.3.13] — Remove `Archive` from grade/scope inference tokens
+
+- Removed `Archive` from `PdfFileManager._GRADE_SCOPE_SEGMENTS`; accepted grade/scope inference tokens are now `P1`-`P6` and `PSLE`.
+- Updated `_infer_from_path(...)` inference docstring/comments and student-mirror rule wording to match the new token set.
+- Updated related tests/docs that described grade/scope inference tokens (including proposal/learning notes) so they no longer present `Archive` as an active accepted value.
+- Added a historical-context note in `DECISIONS.md` where older decisions still mention `Archive` as part of earlier model assumptions.
+- No registry data migration required (no live rows used `metadata.grade_or_scope='Archive'` at change time).
+
 ## [v0.3.12] — Canonical normalized file names
 
 - Added canonical helper `normalize_pdf_display_name(name_or_path)` in `pdf_file_manager` as the single source of truth for human-facing filename normalization.

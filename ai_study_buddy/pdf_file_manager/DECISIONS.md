@@ -214,6 +214,8 @@ The Python library had grown into the real contract for the utility, while the b
 
 All scanned files were consolidated into a single root: `DaydreamEdu` (Google Drive). The hierarchy is: **L1** = subject (Chinese, Math, Science, English); **L2** = student folder (email-named) or general scope (P5, P6, PSLE, Archive); **L3** = content type (Exam, Exercise, Activity, Note). Some content comes from named books (prefixes PP = Power Pack, EPO = English Practice 1000+). "Answers" files (answer keys) do not sit under one folder and need a consistent treatment.
 
+> Historical note: this decision captures the model at the time. Current `grade_or_scope` inference tokens exclude `Archive` and use `P1`-`P6`, `PSLE`.
+
 ### Decisions
 
 1. **Source folders** — Document the single consolidated root and the L1/L2/L3 structure in the spec. Treat the previous multi-root setup (Winston/Emma separate drives) as superseded by this layout; one scan root (DaydreamEdu) with path-based inference covers the hierarchy.

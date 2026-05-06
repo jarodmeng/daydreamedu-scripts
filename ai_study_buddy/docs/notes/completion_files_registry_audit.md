@@ -13,7 +13,7 @@ This note records definitions, tallies, registry corrections (metadata and templ
 All of the following must hold:
 
 1. **Location:** Resolved path is under **`DAYDREAMEDU_ROOT`** or **`GOODNOTES_ROOT`** (`resolve_daydreamedu_root()` / `resolve_goodnotes_root()` in `ai_study_buddy/files/roots.py`).
-2. **Student scope:** `PdfFileManager._path_has_student_mirror_layout(path)` is true (email segment immediately followed by `P1`–`P6`, `PSLE`, or `Archive`).
+2. **Student scope:** `PdfFileManager._path_has_student_mirror_layout(path)` is true (email segment immediately followed by `P1`–`P6` or `PSLE`).
 3. **Leaf folder:** The PDF’s **parent directory** contains at least one `*.pdf` directly, and passes the **leaf exclusions** for that root (same idea as the Cursor leaf-registry reports):
    - **DaydreamEdu:** `.cursor/commands/daydreamedu-leaf-registry-report.md` — exclude leaf at repo root (`.`); exclude leaves whose final segment is `Note` or `Notes` (case-insensitive).
    - **GoodNotes:** `.cursor/commands/goodnotes-leaf-registry-report.md` — additionally exclude any path under a `Not completed` segment (case-insensitive); exclude leaf folders whose relative path from the GoodNotes root is exactly `.` or `Coding`.

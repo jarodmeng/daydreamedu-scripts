@@ -280,7 +280,7 @@ class PdfFileManager:
     # Canonical doc_type values; keep in sync with DATA_MODEL.md / SPEC.md / README.md.
     _ALLOWED_DOC_TYPES = ("exam", "exercise", "book", "activity", "note")
     _ALLOWED_GROUP_TYPES = ("exam", "book", "book_exercise", "collection")
-    _GRADE_SCOPE_SEGMENTS = ("P1", "P2", "P3", "P4", "P5", "P6", "PSLE", "Archive")
+    _GRADE_SCOPE_SEGMENTS = ("P1", "P2", "P3", "P4", "P5", "P6", "PSLE")
 
     def __init__(self, db_path=None):
         self._db_path = Path(db_path).resolve() if db_path else _default_db_path()
@@ -1013,7 +1013,7 @@ class PdfFileManager:
     @classmethod
     def _infer_from_path(cls, path: Path) -> dict:
         """Infer subject, doc_type, is_template, and metadata from path segments (DaydreamEdu layout).
-        is_template: True when path has a grade/scope segment (P1–P6, PSLE, Archive) and no *student folder*
+        is_template: True when path has a grade/scope segment (P1–P6, PSLE) and no *student folder*
         (a segment containing @ immediately followed by a grade/scope segment). False when such a student folder exists.
         So Drive paths like .../GoogleDrive-user@gmail.com/.../P6/Exam yield is_template=True;
         .../user@mail.com/P5/Exam yields is_template=False.

@@ -95,7 +95,7 @@ Target: `PdfFileManager.ensure_book_group_from_path` in `pdf_file_manager.py` (a
 
 ### Shared predicate (keep in sync with `_infer_from_path`)
 
-`_infer_from_path` treats a path as a **student mirror** when some segment contains `@` and the **next** segment is a grade/scope token (`P1`–`P6`, `PSLE`, `Archive`) — see `has_student_folder` in `PdfFileManager._infer_from_path`.
+`_infer_from_path` treats a path as a **student mirror** when some segment contains `@` and the **next** segment is a grade/scope token (`P1`–`P6`, `PSLE`) — see `has_student_folder` in `PdfFileManager._infer_from_path`.
 
 - [ ] **Extract** a single helper (e.g. `_path_has_student_mirror_layout(path: Path) -> bool`) that implements **the same** rule as `has_student_folder` in `_infer_from_path`, so Option B and any path-based checks do not drift from inference.
 - [ ] **Refactor** `_infer_from_path` to use that helper for `has_student_folder` (single source of truth).
@@ -187,5 +187,5 @@ Target: `PdfFileManager.ensure_book_group_from_path` in `pdf_file_manager.py` (a
 ## References
 
 - `PdfFileManager.ensure_book_group_from_path` — current label-based lookup and member sync.
-- `PdfFileManager._infer_from_path` — `is_template` and grade/student-folder heuristics (include **P1**–**P6**, **PSLE**, **Archive** in `grade_scope`).
+- `PdfFileManager._infer_from_path` — `is_template` and grade/student-folder heuristics (include **P1**–**P6**, **PSLE** in `grade_scope`).
 - Reprocess workflow: `.cursor/skills/reprocess-student-completion-from-general/SKILL.md` (Phase B scans two roots).
