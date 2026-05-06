@@ -799,7 +799,7 @@ The operation layer should explicitly document behavior for:
 Add a backup script mirroring the `pdf_registry.db` backup flow:
 
 ```text
-python3 -m ai_study_buddy.learning_db.backup_study_buddy_db
+python3 -m ai_study_buddy.learning_db.cli.backup_study_buddy_db
 ```
 
 Default backup destination should be the same cloud-synced DB folder and retention model used by `pdf_registry.db` (including cold-storage workflow), with an env override:
@@ -809,10 +809,10 @@ Default backup destination should be the same cloud-synced DB folder and retenti
 Maintenance commands:
 
 ```text
-python3 -m ai_study_buddy.learning_db.migrate
-python3 -m ai_study_buddy.learning_db.import_context_json --dry-run
-python3 -m ai_study_buddy.learning_db.import_context_json
-python3 -m ai_study_buddy.learning_db.validate_study_buddy_db
+python3 -m ai_study_buddy.learning_db.core.migrate
+python3 -m ai_study_buddy.learning_db.ingest.import_context_json --dry-run
+python3 -m ai_study_buddy.learning_db.ingest.import_context_json
+python3 -m ai_study_buddy.learning_db.cli.validate_study_buddy_db
 ```
 
 Validation should check:
@@ -992,7 +992,7 @@ These decisions are now fixed for implementation unless explicitly revised.
    - Add explicit retry path (`--retry-quarantine` with filters) that reprocesses open quarantine rows and marks them resolved on success.
    - Validation must report open quarantine rows and their failure classes as part of migration readiness checks.
    - CLI contract:
-     - `python3 -m ai_study_buddy.learning_db.import_context_json --retry-quarantine`
+     - `python3 -m ai_study_buddy.learning_db.ingest.import_context_json --retry-quarantine`
      - optional filters: `--status open` (default), `--artifact-family <...>`, `--failure-stage <...>`, `--limit N`, `--dry-run`
      - end-of-run summary includes imported/updated/quarantined/resolved counts plus top failure codes
      - exit code `0` for completed run (even with remaining open quarantine), `1` for fatal runtime failure
@@ -1030,9 +1030,9 @@ These decisions are now fixed for implementation unless explicitly revised.
 ### Phase 0 - Foundation and schema bootstrapping
 
 - [x] Create `ai_study_buddy/learning_db/__init__.py`.
-- [x] Create `ai_study_buddy/learning_db/connection.py` with default DB path `ai_study_buddy/db/study_buddy.db`.
+- [x] Create `ai_study_buddy/learning_db/core/connection.py` with default DB path `ai_study_buddy/db/study_buddy.db`.
 - [x] Create `ai_study_buddy/learning_db/migrations/001_initial_schema.sql`.
-- [x] Create `ai_study_buddy/learning_db/migrate.py` with idempotent migration application.
+- [x] Create `ai_study_buddy/learning_db/core/migrate.py` with idempotent migration application.
 - [x] Enable SQLite foreign keys for every connection.
 - [x] Add tests for fresh DB creation and migration idempotency.
 - [x] Add `operation_log` table to initial schema and helper APIs for append-only operation logging.
@@ -1043,7 +1043,7 @@ These decisions are now fixed for implementation unless explicitly revised.
 
 ### Phase 1 - Historical import (read-only indexing)
 
-- [x] Create `ai_study_buddy/learning_db/import_context_json.py`.
+- [x] Create `ai_study_buddy/learning_db/ingest/import_context_json.py`.
 - [x] Import `context/marking_results/**/*.json` into `marking_artifacts`, `marking_question_results`, and `marking_question_page_map`.
 - [x] Import `context/marking_amendments/**/*.json` into `marking_amendments` and `marking_question_amendments`.
 - [x] Import `context/student_review_states/**/*.json` into `student_review_states` and `student_review_notes`.
@@ -1059,17 +1059,17 @@ These decisions are now fixed for implementation unless explicitly revised.
 
 ### Phase 2 - Read-path parity with fallback
 
-- [x] Centralize runtime defaults + env overrides for **read-path** flags: `LEARNING_DB_ENABLE_READS`, `LEARNING_DB_READ_FALLBACK_FILESYSTEM` (implemented in `ai_study_buddy/learning_db/config.py`; see **Runtime flags** above).
+- [x] Centralize runtime defaults + env overrides for **read-path** flags: `LEARNING_DB_ENABLE_READS`, `LEARNING_DB_READ_FALLBACK_FILESYSTEM` (implemented in `ai_study_buddy/learning_db/core/config.py`; see **Runtime flags** above).
 - [x] Add `LearningDbReadRepository` read façade + helpers (`learning_repository.py`, `read_marking.py`, `read_documents.py`) — latest artifact list per attempt mirrors `find_marking_artifacts_for_attempt`; review-state and amendment payloads by relative path under `context/`.
 - [x] Add DB-backed lookup path behind `LEARNING_DB_ENABLE_READS` (`find_marking_artifacts_for_attempt` + `StudentReviewRepository` loaders).
 - [x] Keep filesystem fallback controlled by `LEARNING_DB_READ_FALLBACK_FILESYSTEM`.
 - [x] Add regression tests covering filesystem-only vs DB-backed vs DB+fallback-disabled for marking lookup (`learning_db/tests/test_phase2_reads.py`); broaden Review Workspace E2E when parity harness lands.
 - [x] Operational checkpoint: filesystem read fallback stays **default-on** (`LEARNING_DB_READ_FALLBACK_FILESYSTEM`) until Phase 4 read cutover policy; parity on current corpus verified (Phase 2 sign-off below).
-- [x] Create `ai_study_buddy/learning_db/validate_study_buddy_db.py`.
+- [x] Create `ai_study_buddy/learning_db/cli/validate_study_buddy_db.py`.
 - [x] Validate source JSON counts against DB row counts for the three artifact families.
 - [x] Validate every amendment resolves to a known marking artifact.
 - [x] Validate every review state resolves to a known marking artifact.
-- [x] Validate latest-artifact DB query parity against `find_marking_artifacts_for_attempt(...)` (`learning_db/reader_parity.py`, exposed via `python3 -m ai_study_buddy.learning_db.validate_study_buddy_db --reader-parity`).
+- [x] Validate latest-artifact DB query parity against `find_marking_artifacts_for_attempt(...)` (`learning_db/cli/reader_parity.py`, exposed via `python3 -m ai_study_buddy.learning_db.cli.validate_study_buddy_db --reader-parity`).
 - [x] Validate the Abigail Practice 9 example: base marking has `C1` **`partial` / `4`/`5` earned**; amendment JSON sets `outcome` **`correct`** and **`earned_marks` `5`** (paths in the examples earlier in this doc).
 - [x] Quarantine UX: default validation output mentions **`open`/`ignored`** only when attention is needed; optional **`--quarantine-history`** prints full status counts (includes resolved audit trail).
 - [x] Full-corpus parity: three consecutive **`--reader-parity`** runs on unchanged corpus — **`0` mismatches**, **`0` errors**, **`499`** completion mains checked per run (critical **`0`**; non-critical drift **`0`**).
@@ -1078,7 +1078,7 @@ These decisions are now fixed for implementation unless explicitly revised.
 ##### Phase 2 sign-off (2026-04-29)
 
 - **Reader parity:**  
-  `python3 -m ai_study_buddy.learning_db.validate_study_buddy_db --db-path ai_study_buddy/db/study_buddy.db --context-root ai_study_buddy/context --pdf-registry ai_study_buddy/db/pdf_registry.db --reader-parity`  
+  `python3 -m ai_study_buddy.learning_db.cli.validate_study_buddy_db --db-path ai_study_buddy/db/study_buddy.db --context-root ai_study_buddy/context --pdf-registry ai_study_buddy/db/pdf_registry.db --reader-parity`  
   run **three** times sequentially — each run: **`parity_checked=499`**, **`mismatches=0`**, **`errors=0`**.
 - **Structural checks** at sign-off: source JSON row counts aligned with DB; **no `open`** import quarantine rows (`--quarantine-history` shows **`resolved`** history only).
 
@@ -1088,7 +1088,7 @@ These decisions are now fixed for implementation unless explicitly revised.
 
 **Operational learning (flags, canonical vs snapshot paths):** [LEARNING_DUAL_WRITE_PHASE3.md](../learning_db/docs/learnings/LEARNING_DUAL_WRITE_PHASE3.md).
 
-- [x] Centralize runtime defaults + env overrides for **write-path** flags (`learning_db/config.py`): `LEARNING_DB_ENABLE_DUAL_WRITE`, `LEARNING_DB_STRICT_DUAL_WRITE`, `LEARNING_DB_ENABLE_JSON_EXPORT`; dual-write callers consult these via helpers.
+- [x] Centralize runtime defaults + env overrides for **write-path** flags (`learning_db/core/config.py`): `LEARNING_DB_ENABLE_DUAL_WRITE`, `LEARNING_DB_STRICT_DUAL_WRITE`, `LEARNING_DB_ENABLE_JSON_EXPORT`; dual-write callers consult these via helpers.
 - [x] Add DB upsert after **`write_marking_artifact`** writes validated JSON (**`dual_write.maybe_dual_write_snapshot(..., family=\"marking_result\")`** reads the snapshot bytes; same upsert machinery as importer).
 - [x] Add DB write mirror for `StudentReviewRepository.save_review_state(...)` (`family=\"student_review_state\"`).
 - [x] Add DB write mirror for `StudentReviewRepository.save_amendment(...)` (`family=\"marking_amendment\"`).
@@ -1119,7 +1119,7 @@ These decisions are now fixed for implementation unless explicitly revised.
 
 ### Phase 5 - Backup/retention hardening and cutover
 
-- [x] Create `ai_study_buddy/learning_db/backup_study_buddy_db.py`.
+- [x] Create `ai_study_buddy/learning_db/cli/backup_study_buddy_db.py`.
 - [x] Use the same default cloud-synced DB backup folder as `pdf_registry.db` when available.
 - [ ] Reuse the same retention/cold-storage strategy as `pdf_registry.db` backup flow.
 - [x] Support `STUDY_BUDDY_DB_BACKUP_DIR`.

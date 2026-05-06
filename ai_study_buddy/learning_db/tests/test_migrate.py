@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from ai_study_buddy.learning_db.connection import get_connection
-from ai_study_buddy.learning_db.migrate import apply_migrations
+from ai_study_buddy.learning_db.core.connection import get_connection
+from ai_study_buddy.learning_db.core.migrate import apply_migrations
 
 
 def test_apply_migrations_is_idempotent(tmp_path: Path) -> None:

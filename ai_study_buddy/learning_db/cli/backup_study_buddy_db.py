@@ -9,7 +9,7 @@ from pathlib import Path
 from zoneinfo import ZoneInfo
 
 from ai_study_buddy.files.roots import resolve_daydreamedu_root
-from ai_study_buddy.learning_db.connection import default_db_path
+from ai_study_buddy.learning_db.core.connection import default_db_path
 
 SINGAPORE_TZ = ZoneInfo("Asia/Singapore")
 

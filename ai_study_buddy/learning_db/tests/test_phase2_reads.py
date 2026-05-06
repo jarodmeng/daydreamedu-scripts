@@ -7,10 +7,10 @@ from pathlib import Path
 
 import pytest
 
-from ai_study_buddy.learning_db.import_context_json import run_import
-from ai_study_buddy.learning_db.migrate import apply_migrations
-from ai_study_buddy.learning_db.read_documents import fetch_marking_artifact_raw_json
-from ai_study_buddy.learning_db.connection import get_connection
+from ai_study_buddy.learning_db.ingest.import_context_json import run_import
+from ai_study_buddy.learning_db.core.migrate import apply_migrations
+from ai_study_buddy.learning_db.read.read_documents import fetch_marking_artifact_raw_json
+from ai_study_buddy.learning_db.core.connection import get_connection
 from ai_study_buddy.marking.core.artifact_lookup import find_marking_artifacts_for_attempt
 from ai_study_buddy.pdf_file_manager.pdf_file_manager import PdfFileManager
 

@@ -99,12 +99,12 @@ Patch: complete Proposal 14 persistence rollout for `file_question_info`, includ
 
 ### Changed
 
-- `learning_db/import_context_json.py`:
+- `learning_db/ingest/import_context_json.py`:
   - adds `upsert_file_question_info_run(...)`
   - extends scanner/import family support for `context/file_question_info/**/question_sections.json`
   - adds `file_question_info` quarantine routing/error-code mapping
   - enforces required run-level timestamps (`created_at`, `updated_at`) for `file_question_info` imports
-- `learning_db/dual_write.py`:
+- `learning_db/ingest/dual_write.py`:
   - adds `family=\"file_question_info\"` projection routing
 - `marking/file_question_info/api.py`:
   - validator schema map now targets latest detector schema versions:

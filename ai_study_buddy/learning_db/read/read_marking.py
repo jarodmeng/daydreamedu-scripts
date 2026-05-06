@@ -35,7 +35,7 @@ def find_marking_artifact_refs_from_db(
         return []
 
     try:
-        from ai_study_buddy.learning_db.connection import get_connection
+        from ai_study_buddy.learning_db.core.connection import get_connection
     except ImportError:
         return []
 

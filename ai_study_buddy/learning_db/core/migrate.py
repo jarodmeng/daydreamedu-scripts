@@ -5,13 +5,13 @@ from datetime import datetime
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
-from ai_study_buddy.learning_db.connection import default_db_path, get_connection
+from ai_study_buddy.learning_db.core.connection import default_db_path, get_connection
 
 SINGAPORE_TZ = ZoneInfo("Asia/Singapore")
 
 
 def _migration_dir() -> Path:
-    return Path(__file__).resolve().parent / "migrations"
+    return Path(__file__).resolve().parent.parent / "migrations"
 
 
 def apply_migrations(db_path: Path | None = None) -> list[str]:

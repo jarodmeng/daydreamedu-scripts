@@ -7,9 +7,9 @@ from pathlib import Path
 
 import pytest
 
-from ai_study_buddy.learning_db.connection import get_connection
-from ai_study_buddy.learning_db.dual_write import maybe_dual_write_from_canonical
-from ai_study_buddy.learning_db.migrate import apply_migrations
+from ai_study_buddy.learning_db.core.connection import get_connection
+from ai_study_buddy.learning_db.ingest.dual_write import maybe_dual_write_from_canonical
+from ai_study_buddy.learning_db.core.migrate import apply_migrations
 
 
 def _minimal_valid_marking_payload() -> dict:

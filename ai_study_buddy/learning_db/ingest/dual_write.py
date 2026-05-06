@@ -14,18 +14,18 @@ import sqlite3
 from pathlib import Path
 from typing import Any, Literal
 
-from ai_study_buddy.learning_db.config import (
+from ai_study_buddy.learning_db.core.config import (
     learning_db_dual_write_enabled,
     learning_db_strict_dual_write,
 )
-from ai_study_buddy.learning_db.connection import default_db_path, get_connection
-from ai_study_buddy.learning_db.migrate import apply_migrations
-from ai_study_buddy.learning_db.repository import OperationEvent, validate_actor, write_operation_log
+from ai_study_buddy.learning_db.core.connection import default_db_path, get_connection
+from ai_study_buddy.learning_db.core.migrate import apply_migrations
+from ai_study_buddy.learning_db.core.repository import OperationEvent, validate_actor, write_operation_log
 
 Family = Literal["marking_result", "marking_amendment", "student_review_state", "file_question_info"]
 
-_ACTOR_PRIMARY = validate_actor("script:ai_study_buddy.learning_db.dual_write")
-_ACTOR_AUDIT = validate_actor("script:ai_study_buddy.learning_db.dual_write#audit")
+_ACTOR_PRIMARY = validate_actor("script:ai_study_buddy.learning_db.ingest.dual_write")
+_ACTOR_AUDIT = validate_actor("script:ai_study_buddy.learning_db.ingest.dual_write#audit")
 
 
 def _sha256_text(text: str) -> str:
@@ -70,7 +70,7 @@ def _commit_projection(
     source_hash: str,
     metadata_source_tag: str,
 ) -> None:
-    from ai_study_buddy.learning_db.import_context_json import (
+    from ai_study_buddy.learning_db.ingest.import_context_json import (
         upsert_file_question_info_run,
         upsert_marking_amendment,
         upsert_marking_result,

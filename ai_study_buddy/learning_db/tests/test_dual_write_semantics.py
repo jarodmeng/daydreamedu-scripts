@@ -10,10 +10,10 @@ from unittest.mock import patch
 
 import pytest
 
-import ai_study_buddy.learning_db.connection as connmod
-import ai_study_buddy.learning_db.dual_write as dual_write_mod
-from ai_study_buddy.learning_db.dual_write import maybe_dual_write_from_canonical, maybe_dual_write_snapshot
-from ai_study_buddy.learning_db.migrate import apply_migrations
+import ai_study_buddy.learning_db.core.connection as connmod
+import ai_study_buddy.learning_db.ingest.dual_write as dual_write_mod
+from ai_study_buddy.learning_db.ingest.dual_write import maybe_dual_write_from_canonical, maybe_dual_write_snapshot
+from ai_study_buddy.learning_db.core.migrate import apply_migrations
 
 
 def _minimal_valid_marking(*, stem: str) -> dict:
@@ -109,7 +109,7 @@ def test_strict_projection_failure_unlinks_valid_snapshot(monkeypatch: pytest.Mo
         raise RuntimeError("simulated_projection_failure")
 
     with patch(
-        "ai_study_buddy.learning_db.import_context_json.upsert_marking_result",
+        "ai_study_buddy.learning_db.ingest.import_context_json.upsert_marking_result",
         side_effect=boom,
     ):
         with pytest.raises(RuntimeError, match="simulated_projection_failure"):
@@ -140,7 +140,7 @@ def test_soft_projection_failure_keeps_snapshot(monkeypatch: pytest.MonkeyPatch,
         raise RuntimeError("simulated_projection_failure")
 
     with patch(
-        "ai_study_buddy.learning_db.import_context_json.upsert_marking_result",
+        "ai_study_buddy.learning_db.ingest.import_context_json.upsert_marking_result",
         side_effect=boom,
     ):
         assert maybe_dual_write_snapshot(

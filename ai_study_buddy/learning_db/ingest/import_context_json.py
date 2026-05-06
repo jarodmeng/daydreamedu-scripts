@@ -10,9 +10,9 @@ from typing import Any
 
 from jsonschema import Draft202012Validator
 
-from ai_study_buddy.learning_db.connection import default_context_root, default_db_path, get_connection
-from ai_study_buddy.learning_db.migrate import apply_migrations
-from ai_study_buddy.learning_db.repository import (
+from ai_study_buddy.learning_db.core.connection import default_context_root, default_db_path, get_connection
+from ai_study_buddy.learning_db.core.migrate import apply_migrations
+from ai_study_buddy.learning_db.core.repository import (
     OperationEvent,
     get_or_create_identity_map,
     mark_quarantine_resolved,
@@ -62,7 +62,7 @@ def _artifact_stem_from_path(rel_path: str) -> str:
 
 
 def _operation_actor() -> str:
-    return validate_actor("script:ai_study_buddy.learning_db.import_context_json")
+    return validate_actor("script:ai_study_buddy.learning_db.ingest.import_context_json")
 
 
 def _validate_marking_amendment(payload: dict[str, Any]) -> None:

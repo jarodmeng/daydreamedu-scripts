@@ -120,9 +120,9 @@ def write_marking_artifact(
 
     canonical = json.dumps(payload, indent=2, ensure_ascii=True) + "\n"
 
-    from ai_study_buddy.learning_db.config import learning_db_dual_write_enabled, learning_db_json_export_enabled
-    from ai_study_buddy.learning_db.dual_write import maybe_dual_write_from_canonical, maybe_dual_write_snapshot
-    from ai_study_buddy.learning_db.write_boundary_audit import audit_write_boundary_event
+    from ai_study_buddy.learning_db.core.config import learning_db_dual_write_enabled, learning_db_json_export_enabled
+    from ai_study_buddy.learning_db.ingest.dual_write import maybe_dual_write_from_canonical, maybe_dual_write_snapshot
+    from ai_study_buddy.learning_db.cli.write_boundary_audit import audit_write_boundary_event
 
     ctxp = Path(context_root).expanduser().resolve()
 

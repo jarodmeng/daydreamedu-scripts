@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from ai_study_buddy.learning_db.dual_write import maybe_dual_write_snapshot
+from ai_study_buddy.learning_db.ingest.dual_write import maybe_dual_write_snapshot
 from ai_study_buddy.marking.file_question_info.api import load_question_sections_json, validate_question_sections_dict
 
 

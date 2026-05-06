@@ -7,7 +7,7 @@ from contextlib import contextmanager
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from ai_study_buddy.learning_db.migrate import apply_migrations
+from ai_study_buddy.learning_db.core.migrate import apply_migrations
 from ai_study_buddy.marking.core.artifact_lookup import (
     MarkingArtifactRef,
     MatchCondition,

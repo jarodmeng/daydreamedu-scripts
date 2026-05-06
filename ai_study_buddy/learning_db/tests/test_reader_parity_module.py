@@ -5,9 +5,9 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from ai_study_buddy.learning_db.import_context_json import run_import
-from ai_study_buddy.learning_db.migrate import apply_migrations
-from ai_study_buddy.learning_db.reader_parity import run_reader_parity
+from ai_study_buddy.learning_db.ingest.import_context_json import run_import
+from ai_study_buddy.learning_db.core.migrate import apply_migrations
+from ai_study_buddy.learning_db.cli.reader_parity import run_reader_parity
 
 
 def _touch(path: Path) -> Path:

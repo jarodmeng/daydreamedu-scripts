@@ -7,8 +7,8 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
-from ai_study_buddy.learning_db.connection import default_db_path, get_connection
-from ai_study_buddy.learning_db.migrate import apply_migrations
+from ai_study_buddy.learning_db.core.connection import default_db_path, get_connection
+from ai_study_buddy.learning_db.core.migrate import apply_migrations
 
 SINGAPORE_TZ = ZoneInfo("Asia/Singapore")
 

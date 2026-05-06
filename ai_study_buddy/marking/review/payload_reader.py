@@ -11,11 +11,11 @@ def read_marking_result_payload(*, marking_result_json: Path, context_root: Path
     rel_path = _relative_to_context(marking_result_json, context_root)
 
     try:
-        from ai_study_buddy.learning_db.config import (
+        from ai_study_buddy.learning_db.core.config import (
             learning_db_read_fallback_filesystem,
             learning_db_reads_enabled,
         )
-        from ai_study_buddy.learning_db.read_documents import fetch_marking_artifact_raw_json
+        from ai_study_buddy.learning_db.read.read_documents import fetch_marking_artifact_raw_json
     except ImportError:
         return _read_json_payload(marking_result_json)
 

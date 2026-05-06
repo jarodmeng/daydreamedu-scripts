@@ -8,8 +8,8 @@ from unittest.mock import patch
 import pytest
 from jsonschema import Draft202012Validator
 
-from ai_study_buddy.learning_db.connection import get_connection
-from ai_study_buddy.learning_db.migrate import apply_migrations
+from ai_study_buddy.learning_db.core.connection import get_connection
+from ai_study_buddy.learning_db.core.migrate import apply_migrations
 from ai_study_buddy.marking.core.artifact_paths import (
     build_attempt_basename,
     build_learning_report_path,

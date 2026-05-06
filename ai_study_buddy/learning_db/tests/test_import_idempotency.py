@@ -6,10 +6,10 @@ import hashlib
 import json
 from pathlib import Path
 
-from ai_study_buddy.learning_db.connection import get_connection
-from ai_study_buddy.learning_db.import_context_json import run_import
-from ai_study_buddy.learning_db.migrate import apply_migrations
-from ai_study_buddy.learning_db.repository import now_iso
+from ai_study_buddy.learning_db.core.connection import get_connection
+from ai_study_buddy.learning_db.ingest.import_context_json import run_import
+from ai_study_buddy.learning_db.core.migrate import apply_migrations
+from ai_study_buddy.learning_db.core.repository import now_iso
 from ai_study_buddy.learning_db.tests.fixtures import _minimal_mr
 
 

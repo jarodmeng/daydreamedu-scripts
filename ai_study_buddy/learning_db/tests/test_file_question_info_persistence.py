@@ -6,10 +6,10 @@ from pathlib import Path
 
 import pytest
 
-from ai_study_buddy.learning_db.connection import default_context_root, get_connection
-from ai_study_buddy.learning_db.dual_write import maybe_dual_write_snapshot
-from ai_study_buddy.learning_db.import_context_json import run_import
-from ai_study_buddy.learning_db.migrate import apply_migrations
+from ai_study_buddy.learning_db.core.connection import default_context_root, get_connection
+from ai_study_buddy.learning_db.ingest.dual_write import maybe_dual_write_snapshot
+from ai_study_buddy.learning_db.ingest.import_context_json import run_import
+from ai_study_buddy.learning_db.core.migrate import apply_migrations
 
 
 def _copy_one_file_question_info_sample(tmp_path: Path) -> tuple[Path, Path]:

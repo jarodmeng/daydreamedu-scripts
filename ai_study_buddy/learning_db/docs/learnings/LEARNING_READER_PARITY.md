@@ -25,7 +25,7 @@ See the rollout proposal and Phase 2 sign-off: [L4_LOCAL_LEARNING_DB.md](../../.
 **Commands:**
 
 ```text
-python3 -m ai_study_buddy.learning_db.validate_study_buddy_db \
+python3 -m ai_study_buddy.learning_db.cli.validate_study_buddy_db \
   --db-path ai_study_buddy/db/study_buddy.db \
   --context-root ai_study_buddy/context
 ```
@@ -33,7 +33,7 @@ python3 -m ai_study_buddy.learning_db.validate_study_buddy_db \
 Structural only (cheap). Add reader parity:
 
 ```text
-python3 -m ai_study_buddy.learning_db.validate_study_buddy_db \
+python3 -m ai_study_buddy.learning_db.cli.validate_study_buddy_db \
   --db-path ai_study_buddy/db/study_buddy.db \
   --context-root ai_study_buddy/context \
   --pdf-registry ai_study_buddy/db/pdf_registry.db \
@@ -43,7 +43,7 @@ python3 -m ai_study_buddy.learning_db.validate_study_buddy_db \
 Speed up local iteration:
 
 ```text
-python3 -m ai_study_buddy.learning_db.validate_study_buddy_db ... --reader-parity --parity-limit 50
+python3 -m ai_study_buddy.learning_db.cli.validate_study_buddy_db ... --reader-parity --parity-limit 50
 ```
 
 **Environment during parity:** `reader_parity` temporarily sets `STUDY_BUDDY_DB_PATH` and `STUDY_BUDDY_CONTEXT_ROOT` for the run and restores the previous process env afterward so ad-hoc shells are not polluted.
@@ -81,11 +81,11 @@ See also: import/quarantine behaviours in [LEARNING_JSON_FIELD_COVERAGE_AND_IMPO
 ## Operational checklist (after changing context JSON or lookups)
 
 ```text
-python3 -m ai_study_buddy.learning_db.import_context_json
-python3 -m ai_study_buddy.learning_db.validate_study_buddy_db \
+python3 -m ai_study_buddy.learning_db.ingest.import_context_json
+python3 -m ai_study_buddy.learning_db.cli.validate_study_buddy_db \
   --db-path ai_study_buddy/db/study_buddy.db \
   --context-root ai_study_buddy/context
-python3 -m ai_study_buddy.learning_db.validate_study_buddy_db \
+python3 -m ai_study_buddy.learning_db.cli.validate_study_buddy_db \
   --db-path ai_study_buddy/db/study_buddy.db \
   --context-root ai_study_buddy/context \
   --pdf-registry ai_study_buddy/db/pdf_registry.db \

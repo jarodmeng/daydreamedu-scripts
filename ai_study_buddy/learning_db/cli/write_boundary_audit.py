@@ -3,9 +3,9 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-from ai_study_buddy.learning_db.connection import default_db_path, get_connection
-from ai_study_buddy.learning_db.migrate import apply_migrations
-from ai_study_buddy.learning_db.repository import OperationEvent, validate_actor, write_operation_log
+from ai_study_buddy.learning_db.core.connection import default_db_path, get_connection
+from ai_study_buddy.learning_db.core.migrate import apply_migrations
+from ai_study_buddy.learning_db.core.repository import OperationEvent, validate_actor, write_operation_log
 
 
 def audit_write_boundary_event(

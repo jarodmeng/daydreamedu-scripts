@@ -6,7 +6,7 @@ After Phase 2 read-path parity sign-off, marking/review snapshots can optionally
 
 Proposal index: [L4_LOCAL_LEARNING_DB.md](../../../docs/L4_LOCAL_LEARNING_DB.md).
 
-## Runtime flags (`learning_db/config.py`)
+## Runtime flags (`learning_db/core/config.py`)
 
 | Env | Typical default | Role |
 |-----|-----------------|------|

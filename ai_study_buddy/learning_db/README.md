@@ -46,16 +46,16 @@ From repo root:
 
 ```bash
 # apply pending migrations
-python3 -m ai_study_buddy.learning_db.migrate
+python3 -m ai_study_buddy.learning_db.core.migrate
 
 # import all families from context/
-python3 -m ai_study_buddy.learning_db.import_context_json
+python3 -m ai_study_buddy.learning_db.ingest.import_context_json
 
 # import one family only (example: file_question_info)
-python3 -m ai_study_buddy.learning_db.import_context_json --artifact-family file_question_info
+python3 -m ai_study_buddy.learning_db.ingest.import_context_json --artifact-family file_question_info
 
 # retry quarantine entries only
-python3 -m ai_study_buddy.learning_db.import_context_json \
+python3 -m ai_study_buddy.learning_db.ingest.import_context_json \
   --artifact-family file_question_info \
   --retry-quarantine --status open
 ```

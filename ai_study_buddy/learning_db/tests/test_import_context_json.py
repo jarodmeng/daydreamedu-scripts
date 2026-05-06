@@ -5,9 +5,9 @@ from pathlib import Path
 
 import pytest
 
-from ai_study_buddy.learning_db.connection import default_context_root, get_connection
-from ai_study_buddy.learning_db.import_context_json import run_import
-from ai_study_buddy.learning_db.migrate import apply_migrations
+from ai_study_buddy.learning_db.core.connection import default_context_root, get_connection
+from ai_study_buddy.learning_db.ingest.import_context_json import run_import
+from ai_study_buddy.learning_db.core.migrate import apply_migrations
 
 
 def _copy_real_sample_context(tmp_path: Path) -> Path:

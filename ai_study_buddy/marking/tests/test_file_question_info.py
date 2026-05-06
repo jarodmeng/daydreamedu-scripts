@@ -35,8 +35,8 @@ from ai_study_buddy.marking.file_question_info.errors import (
     QuestionSectionsValidationError,
     UnknownQuestionSectionsSchemaVersionError,
 )
-from ai_study_buddy.learning_db.connection import get_connection
-from ai_study_buddy.learning_db.migrate import apply_migrations
+from ai_study_buddy.learning_db.core.connection import get_connection
+from ai_study_buddy.learning_db.core.migrate import apply_migrations
 from ai_study_buddy.pdf_file_manager.pdf_file_manager import PdfFile
 
 

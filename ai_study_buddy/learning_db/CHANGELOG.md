@@ -2,6 +2,30 @@
 
 All notable changes to `ai_study_buddy.learning_db` are documented in this file.
 
+## [0.1.2] - 2026-05-06
+
+Patch: strict cleanup of `learning_db` package layout with full internal migration to submodule paths.
+
+### Changed
+
+- Package structure:
+  - added implementation subpackages: `core/`, `read/`, `ingest/`, `cli/`
+  - moved implementation modules from package root into those subpackages
+- Strict cleanup:
+  - removed legacy root module files after migrating internal imports/tests/docs to subpackages
+  - package root now keeps only `__init__.py` plus docs/directories
+- Migration runner:
+  - updated `core/migrate.py` to resolve SQL files from package-level `migrations/` after relocation
+
+### Validation
+
+- `PYTHONPATH=. python3 -m pytest ai_study_buddy/learning_db/tests` (31 passed)
+- `PYTHONPATH=. python3 -m pytest ai_study_buddy/marking/tests/test_artifact_core.py ai_study_buddy/marking/tests/test_file_question_info.py` (77 passed)
+- submodule entrypoint smoke checks:
+  - `python3 -m ai_study_buddy.learning_db.core.migrate --help`
+  - `python3 -m ai_study_buddy.learning_db.ingest.import_context_json --help`
+  - `python3 -m ai_study_buddy.learning_db.cli.validate_study_buddy_db --help`
+
 ## [0.1.1] - 2026-05-05
 
 Patch: operationalized `file_question_info` persistence rollout and documented the `learning_db` module.

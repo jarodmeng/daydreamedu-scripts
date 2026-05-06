@@ -3,7 +3,7 @@
 ## 1) Apply Migrations
 
 ```bash
-python3 -m ai_study_buddy.learning_db.migrate
+python3 -m ai_study_buddy.learning_db.core.migrate
 ```
 
 ## 2) Backfill Imports
@@ -11,13 +11,13 @@ python3 -m ai_study_buddy.learning_db.migrate
 ### Full backfill
 
 ```bash
-python3 -m ai_study_buddy.learning_db.import_context_json
+python3 -m ai_study_buddy.learning_db.ingest.import_context_json
 ```
 
 ### Family-specific backfill (`file_question_info`)
 
 ```bash
-python3 -m ai_study_buddy.learning_db.import_context_json --artifact-family file_question_info
+python3 -m ai_study_buddy.learning_db.ingest.import_context_json --artifact-family file_question_info
 ```
 
 Expected summary shape:
@@ -51,7 +51,7 @@ ORDER BY COUNT(*) DESC;
 ## 5) Retry Quarantine
 
 ```bash
-python3 -m ai_study_buddy.learning_db.import_context_json \
+python3 -m ai_study_buddy.learning_db.ingest.import_context_json \
   --artifact-family file_question_info \
   --retry-quarantine --status open
 ```
@@ -59,7 +59,7 @@ python3 -m ai_study_buddy.learning_db.import_context_json \
 Optional stage filter:
 
 ```bash
-python3 -m ai_study_buddy.learning_db.import_context_json \
+python3 -m ai_study_buddy.learning_db.ingest.import_context_json \
   --artifact-family file_question_info \
   --retry-quarantine --status open --failure-stage schema_validate
 ```

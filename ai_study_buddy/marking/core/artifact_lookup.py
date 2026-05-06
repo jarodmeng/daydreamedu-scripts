@@ -95,11 +95,11 @@ def find_marking_artifacts_for_attempt(
     root = Path(context_root)
 
     try:
-        from ai_study_buddy.learning_db.config import (
+        from ai_study_buddy.learning_db.core.config import (
             learning_db_read_fallback_filesystem,
             learning_db_reads_enabled,
         )
-        from ai_study_buddy.learning_db.read_marking import find_marking_artifact_refs_from_db
+        from ai_study_buddy.learning_db.read.read_marking import find_marking_artifact_refs_from_db
     except ImportError:
         return _find_via_filesystem(
             completion_file=completion_file,

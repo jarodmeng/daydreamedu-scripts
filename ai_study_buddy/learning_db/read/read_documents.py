@@ -6,7 +6,7 @@ import json
 import sqlite3
 from pathlib import Path
 
-from ai_study_buddy.learning_db.connection import get_connection
+from ai_study_buddy.learning_db.core.connection import get_connection
 
 
 def _parse_raw_dict(raw_js: object) -> dict | None:

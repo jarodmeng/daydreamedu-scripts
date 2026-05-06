@@ -10,11 +10,11 @@ from __future__ import annotations
 
 from typing import Any
 
-from ai_study_buddy.learning_db.read_documents import (
+from ai_study_buddy.learning_db.read.read_documents import (
     fetch_marking_amendment_raw_json as _fetch_amendment,
     fetch_student_review_state_raw_json as _fetch_review,
 )
-from ai_study_buddy.learning_db.read_marking import find_marking_artifact_refs_from_db as _find_refs
+from ai_study_buddy.learning_db.read.read_marking import find_marking_artifact_refs_from_db as _find_refs
 
 
 class LearningDbReadRepository:

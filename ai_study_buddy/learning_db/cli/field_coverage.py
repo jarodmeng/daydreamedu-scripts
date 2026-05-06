@@ -14,8 +14,8 @@ Coverage for one file =
 
 Run:
 
-  python3 -m ai_study_buddy.learning_db.field_coverage
-  python3 -m ai_study_buddy.learning_db.field_coverage --exclude-raw-json
+  python3 -m ai_study_buddy.learning_db.cli.field_coverage
+  python3 -m ai_study_buddy.learning_db.cli.field_coverage --exclude-raw-json
 """
 from __future__ import annotations
 
@@ -27,8 +27,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from ai_study_buddy.learning_db.connection import default_context_root, default_db_path, get_connection
-from ai_study_buddy.learning_db.migrate import apply_migrations
+from ai_study_buddy.learning_db.core.connection import default_context_root, default_db_path, get_connection
+from ai_study_buddy.learning_db.core.migrate import apply_migrations
 
 
 def _flatten_leaf_paths(prefix: str, obj: Any) -> dict[str, Any]:

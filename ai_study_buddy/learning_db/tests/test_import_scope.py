@@ -5,11 +5,11 @@ from pathlib import Path
 
 import pytest
 
-from ai_study_buddy.learning_db.import_context_json import (
+from ai_study_buddy.learning_db.ingest.import_context_json import (
     rel_path_matches_scope,
     run_import,
 )
-from ai_study_buddy.learning_db.migrate import apply_migrations
+from ai_study_buddy.learning_db.core.migrate import apply_migrations
 
 from ai_study_buddy.learning_db.tests.fixtures import _minimal_mr
 

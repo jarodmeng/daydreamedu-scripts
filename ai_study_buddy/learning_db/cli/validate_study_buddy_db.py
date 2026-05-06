@@ -4,8 +4,8 @@ import argparse
 from dataclasses import dataclass
 from pathlib import Path
 
-from ai_study_buddy.learning_db.connection import default_context_root, default_db_path, get_connection
-from ai_study_buddy.learning_db.migrate import apply_migrations
+from ai_study_buddy.learning_db.core.connection import default_context_root, default_db_path, get_connection
+from ai_study_buddy.learning_db.core.migrate import apply_migrations
 
 
 @dataclass
@@ -137,7 +137,7 @@ def main() -> int:
 
     exit_code = 0
     if args.reader_parity:
-        from ai_study_buddy.learning_db.reader_parity import print_reader_parity_report, run_reader_parity
+        from ai_study_buddy.learning_db.cli.reader_parity import print_reader_parity_report, run_reader_parity
 
         pdf_reg = Path(args.pdf_registry).expanduser().resolve() if args.pdf_registry else None
         rp = run_reader_parity(

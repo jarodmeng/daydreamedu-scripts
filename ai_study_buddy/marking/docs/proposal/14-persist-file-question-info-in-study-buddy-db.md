@@ -100,7 +100,7 @@ Standardization rule:
 
 ## Write path (learning_db)
 
-Add to `ai_study_buddy/learning_db/import_context_json.py`:
+Add to `ai_study_buddy/learning_db/ingest/import_context_json.py`:
 
 1. `upsert_file_question_info_run(conn, *, payload, rel_path, source_hash) -> str`
 2. Validate with `validate_question_sections_dict(payload)`.
@@ -130,7 +130,7 @@ For each file:
 
 ## Dual-write integration
 
-Extend `ai_study_buddy/learning_db/dual_write.py`:
+Extend `ai_study_buddy/learning_db/ingest/dual_write.py`:
 
 - Add family literal: `"file_question_info"`
 - Route to `upsert_file_question_info_run` in `_commit_projection`
@@ -215,7 +215,7 @@ Success criteria:
 
 Backfill status (completed 2026-05-05):
 
-- Import command: `PYTHONPATH=. python3 -m ai_study_buddy.learning_db.import_context_json --artifact-family file_question_info`
+- Import command: `PYTHONPATH=. python3 -m ai_study_buddy.learning_db.ingest.import_context_json --artifact-family file_question_info`
 - Import summary: `scanned=23 imported=23 updated=0 quarantined=0 resolved=0`
 - DB counts after backfill:
 - `file_question_info_runs=23`
@@ -226,7 +226,7 @@ Backfill status (completed 2026-05-05):
 Maintainer runbook (backfill + verification):
 
 1. Run importer for file-question-info family only:
-- `PYTHONPATH=. python3 -m ai_study_buddy.learning_db.import_context_json --artifact-family file_question_info`
+- `PYTHONPATH=. python3 -m ai_study_buddy.learning_db.ingest.import_context_json --artifact-family file_question_info`
 
 2. Expected import-summary shape:
 - `file_question_info: scanned=<N> imported=<N|0> updated=<0|N> quarantined=<0|K> resolved=<...>`
@@ -249,7 +249,7 @@ Objective: Keep runtime writes and DB mirror behavior consistent with existing d
 
 Todo checklist:
 
-- [x] Extend `Family` literal in `learning_db/dual_write.py` to include `"file_question_info"`
+- [x] Extend `Family` literal in `learning_db/ingest/dual_write.py` to include `"file_question_info"`
 - [x] Route `"file_question_info"` to `upsert_file_question_info_run` in `_commit_projection`
 - [x] Preserve strict/non-strict semantics and operation-log auditing behavior
 - [x] Add a centralized post-write helper for detector workflows (shared function) that performs validation + dual-write for `question_sections.json`.
@@ -312,6 +312,6 @@ Quarantine error codes:
 ## References
 
 - [13-file-question-info-marking-python-apis.md](./13-file-question-info-marking-python-apis.md)
-- `ai_study_buddy/learning_db/import_context_json.py`
-- `ai_study_buddy/learning_db/dual_write.py`
-- `ai_study_buddy/learning_db/repository.py`
+- `ai_study_buddy/learning_db/ingest/import_context_json.py`
+- `ai_study_buddy/learning_db/ingest/dual_write.py`
+- `ai_study_buddy/learning_db/core/repository.py`

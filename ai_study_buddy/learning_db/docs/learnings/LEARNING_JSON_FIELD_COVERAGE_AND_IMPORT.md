@@ -13,7 +13,7 @@ See also the rollout proposal: [L4_LOCAL_LEARNING_DB.md](../../../docs/L4_LOCAL_
 
 ## Tooling
 
-Implementation: [`field_coverage.py`](../../field_coverage.py) (module: `ai_study_buddy.learning_db.field_coverage`).
+Implementation: [`field_coverage.py`](../../field_coverage.py) (module: `ai_study_buddy.learning_db.cli.field_coverage`).
 
 **Metrics (per file, then aggregated by leaf count):**
 
@@ -32,15 +32,15 @@ Arrays that are logically unordered for identity (e.g. `question_results`, `ques
 Commands:
 
 ```text
-python3 -m ai_study_buddy.learning_db.field_coverage
-python3 -m ai_study_buddy.learning_db.field_coverage --exclude-raw-json
+python3 -m ai_study_buddy.learning_db.cli.field_coverage
+python3 -m ai_study_buddy.learning_db.cli.field_coverage --exclude-raw-json
 ```
 
 Optional: `--db-path`, `--context-root` (same semantics as other `learning_db` CLIs).
 
 ## Observed outcome (representative corpus, 2026-04)
 
-On a successfully imported corpus (**163** `marking_results`, **22** `marking_amendments`, **27** `student_review_states`), `python3 -m ai_study_buddy.learning_db.field_coverage` printed **exact** weighted coverage (matched leaf paths ÷ leaf paths in source files):
+On a successfully imported corpus (**163** `marking_results`, **22** `marking_amendments`, **27** `student_review_states`), `python3 -m ai_study_buddy.learning_db.cli.field_coverage` printed **exact** weighted coverage (matched leaf paths ÷ leaf paths in source files):
 
 | Mode | marking_result | marking_amendment | student_review_state | All families (weighted) |
 |------|----------------|-------------------|----------------------|-------------------------|
@@ -66,15 +66,15 @@ Re-run the commands after imports change; file counts and leaf totals will move 
 After changing context JSON or the DB:
 
 ```text
-python3 -m ai_study_buddy.learning_db.import_context_json
-python3 -m ai_study_buddy.learning_db.validate_study_buddy_db
-python3 -m ai_study_buddy.learning_db.field_coverage --exclude-raw-json
+python3 -m ai_study_buddy.learning_db.ingest.import_context_json
+python3 -m ai_study_buddy.learning_db.cli.validate_study_buddy_db
+python3 -m ai_study_buddy.learning_db.cli.field_coverage --exclude-raw-json
 ```
 
 Optional backup:
 
 ```text
-python3 -m ai_study_buddy.learning_db.backup_study_buddy_db
+python3 -m ai_study_buddy.learning_db.cli.backup_study_buddy_db
 ```
 
 ## Takeaway

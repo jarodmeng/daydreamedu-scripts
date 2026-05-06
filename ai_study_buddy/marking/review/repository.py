@@ -23,7 +23,7 @@ class StudentReviewRepository:
         subject_context: str,
         artifact_stem: str,
     ) -> dict[str, Any]:
-        from ai_study_buddy.learning_db.read_documents import (
+        from ai_study_buddy.learning_db.read.read_documents import (
             fetch_student_review_state_raw_json,
             relative_review_state_path,
         )
@@ -32,7 +32,7 @@ class StudentReviewRepository:
         learns = False
         fallback_fs = True
         try:
-            from ai_study_buddy.learning_db.config import (
+            from ai_study_buddy.learning_db.core.config import (
                 learning_db_read_fallback_filesystem,
                 learning_db_reads_enabled,
             )
@@ -78,10 +78,10 @@ class StudentReviewRepository:
         )
         canonical = json.dumps(payload, indent=2, ensure_ascii=True) + "\n"
 
-        from ai_study_buddy.learning_db.config import learning_db_dual_write_enabled, learning_db_json_export_enabled
-        from ai_study_buddy.learning_db.dual_write import maybe_dual_write_from_canonical, maybe_dual_write_snapshot
-        from ai_study_buddy.learning_db.read_documents import relative_review_state_path
-        from ai_study_buddy.learning_db.write_boundary_audit import audit_write_boundary_event
+        from ai_study_buddy.learning_db.core.config import learning_db_dual_write_enabled, learning_db_json_export_enabled
+        from ai_study_buddy.learning_db.ingest.dual_write import maybe_dual_write_from_canonical, maybe_dual_write_snapshot
+        from ai_study_buddy.learning_db.read.read_documents import relative_review_state_path
+        from ai_study_buddy.learning_db.cli.write_boundary_audit import audit_write_boundary_event
 
         rel_posix = relative_review_state_path(student_id, subject_context, artifact_stem)
 
@@ -134,7 +134,7 @@ class StudentReviewRepository:
         subject_context: str,
         artifact_stem: str,
     ) -> dict[str, Any] | None:
-        from ai_study_buddy.learning_db.read_documents import (
+        from ai_study_buddy.learning_db.read.read_documents import (
             fetch_student_review_state_raw_json,
             relative_review_state_path,
         )
@@ -143,7 +143,7 @@ class StudentReviewRepository:
         learns = False
         fallback_fs = True
         try:
-            from ai_study_buddy.learning_db.config import (
+            from ai_study_buddy.learning_db.core.config import (
                 learning_db_read_fallback_filesystem,
                 learning_db_reads_enabled,
             )
@@ -183,7 +183,7 @@ class StudentReviewRepository:
         subject_context: str,
         artifact_stem: str,
     ) -> dict[str, Any] | None:
-        from ai_study_buddy.learning_db.read_documents import (
+        from ai_study_buddy.learning_db.read.read_documents import (
             fetch_marking_amendment_raw_json,
             relative_amendment_path,
         )
@@ -192,7 +192,7 @@ class StudentReviewRepository:
         learns = False
         fallback_fs = True
         try:
-            from ai_study_buddy.learning_db.config import (
+            from ai_study_buddy.learning_db.core.config import (
                 learning_db_read_fallback_filesystem,
                 learning_db_reads_enabled,
             )
@@ -238,10 +238,10 @@ class StudentReviewRepository:
         )
         canonical = json.dumps(payload, indent=2, ensure_ascii=True) + "\n"
 
-        from ai_study_buddy.learning_db.config import learning_db_dual_write_enabled, learning_db_json_export_enabled
-        from ai_study_buddy.learning_db.dual_write import maybe_dual_write_from_canonical, maybe_dual_write_snapshot
-        from ai_study_buddy.learning_db.read_documents import relative_amendment_path
-        from ai_study_buddy.learning_db.write_boundary_audit import audit_write_boundary_event
+        from ai_study_buddy.learning_db.core.config import learning_db_dual_write_enabled, learning_db_json_export_enabled
+        from ai_study_buddy.learning_db.ingest.dual_write import maybe_dual_write_from_canonical, maybe_dual_write_snapshot
+        from ai_study_buddy.learning_db.read.read_documents import relative_amendment_path
+        from ai_study_buddy.learning_db.cli.write_boundary_audit import audit_write_boundary_event
 
         rel_posix = relative_amendment_path(student_id, subject_context, artifact_stem)
 
