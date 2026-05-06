@@ -1,6 +1,7 @@
 ### Overview
 
 This document captures the main patterns and lessons from the first round of one‑off scripts built on top of `pdf_file_manager` (now housed under `scripts/archive/`). **Proposals 1–4 have been implemented** as of v0.1.1; see [CHANGELOG.md](../../CHANGELOG.md) § v0.1.1 and the [proposals](../proposals) folder.
+Historical note: this learning doc preserves period-specific wording from early iterations (including legacy enum names and CLI references). For current behavior and canonical doc_type enums, follow `README.md`, `SPEC.md`, and `DATA_MODEL.md`.
 
 The learnings here are based on the following scripts present at the time of writing (all paths are under `ai_study_buddy/pdf_file_manager/scripts/archive/`):
 

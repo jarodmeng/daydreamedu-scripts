@@ -2,6 +2,8 @@
 
 **Happy path item:** [Scan CLI] — Use `scan_for_new_files` in a dry‑run‑then‑real pattern whenever you add new PDFs, ideally via a `scan` CLI with `--root`, `--dry-run`, and `--progress`.
 
+> Historical note: this proposal captures an earlier CLI design phase. The built-in `pdf_file_manager` CLI has since been removed; use the Python `PdfFileManager` API as the supported machine interface.
+
 ---
 
 ## Motivation

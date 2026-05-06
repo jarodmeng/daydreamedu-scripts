@@ -4,6 +4,8 @@
 - [Coverage/diagnostics] — Use diagnostics/coverage tools (e.g. a `coverage` CLI) so all relevant leaf folders are in `scan_roots` and the registry does not drift from the filesystem.  
 - [Safer migrations — read‑only facility] — Provide a supported way to get registry-derived data (paths, leaf dirs from `pdf_files`) so reporting and diagnostics don’t require raw SQL or a separate DB connection. (Migration *practice* — prefer high‑level APIs, confine SQL to one‑off scripts — is in the learnings howto.)
 
+> Historical note: this proposal includes CLI-oriented wording from an earlier phase. Current supported interface is the Python `PdfFileManager` API.
+
 ---
 
 ## Motivation

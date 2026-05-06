@@ -218,7 +218,7 @@ These tests give confidence that Phase 4 (Relations & groups) is complete. Use a
 | # | Test | What it proves |
 |---|------|----------------|
 | **4.20** | **suggest_groups returns candidates** | Register 2+ files (copy fixture PDF to temp with different names). Set each: `doc_type='exam'`, `student_id='w'`, `subject='science'`, `metadata={'exam_date': '2025-11-12'}`. `suggest_groups()` returns at least one suggestion with 2+ candidate_files and matching match_basis. Proves: suggest. |
-| **4.21** | **suggest_groups unclassified excluded** | Same 2 files but leave one with `doc_type='unknown'`. Suggestions only include classified; or empty if none match. Proves: only exam + metadata. |
+| **4.21** | **suggest_groups non-exam excluded** | Same 2 files but set one to `doc_type='activity'`. Suggestions only include exam candidates; or empty if none match. Proves: only exam + metadata. |
 
 ### open_file_group
 

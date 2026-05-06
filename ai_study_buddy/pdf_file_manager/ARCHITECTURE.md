@@ -2,7 +2,7 @@
 
 > Schema, data model, source layout, and integrations.
 >
-> See [README.md](./README.md) for overview; [SPEC.md](./SPEC.md) for API and CLI contract.
+> See [README.md](./README.md) for overview; [SPEC.md](./SPEC.md) for API contract.
 
 ---
 
@@ -62,7 +62,7 @@ Content from these books may be split across multiple folders by "nature of the 
 
 **Folder-based inference (optional):** When registering or scanning under this root, the file manager can infer: **subject** from L1 folder name — match a known subject word (e.g. `Chinese`, `Math`, `Science`, `English`), including when L1 is longer (e.g. `Singapore Primary English` → `english`); **student_id** when a path segment matches a registered `students.email` value (otherwise the path is treated as general scope); **is_template** — `True` when the file is under a general-scope L2 folder (any non-email L2, e.g. `P3`, `P4`, `P5`, `P6`, `PSLE`, `Archive`), `False` when under a student (email-named) folder; **metadata.grade_or_scope** from L2 when not student-specific; **metadata.content_folder** from L3 (`Exam`, `Exercise`, `Book`, `Activity`, `Note`); **metadata.source_book** from filename prefix when recognised (e.g. `PP`, `PP `, `EPO`, `EPO_`); **metadata.unit** for files under `.../Book/<book name>/...`, inferred from filename after removing technical prefixes like `_c_` / `_raw_` and trimming a redundant shared label where possible. For **files directly under L1** (no L2/L3, e.g. answer keys in `Subject/Answers.pdf`), only subject and optionally `source_book` from the filename are inferred; `is_template`, `content_folder`, and `grade_or_scope` are not set by path. Inference is best-effort; any inferred value can be overridden by a human. **Precedence:** When a scan root has `student_id` set, that value is used for all files discovered under that root and overrides path-based student inference. **Implementation:** `_infer_from_path(path)` implements subject/doc_type/is_template/metadata inference, and the manager separately resolves `student_id` from registered student emails found in the path when an explicit scan-root `student_id` is not provided.
 
-**Human-supplied metadata:** Not all metadata can be derived from folder structure, file name, or file content. Fields such as `school`, `exam_date`, `paper_type`, `chinese_variant`, `topic`, and free-form `notes` typically require a **human reviewer** to provide or confirm them. The file manager supports this via the **classify** workflow: after scan (or register), the user runs `classify` / `update_metadata` (CLI or API) to set `doc_type`, `subject`, and any metadata fields. Newly scanned files default to `doc_type='unknown'`; use `find_files(doc_type='unknown')` or `list --doc-type unknown` to surface files that still need classification. Template linking and suggest-groups are most useful once classification (and, for exams, `exam_date`) has been filled in.
+**Human-supplied metadata:** Not all metadata can be derived from folder structure, file name, or file content. Fields such as `school`, `exam_date`, `paper_type`, `chinese_variant`, `topic`, and free-form `notes` typically require a **human reviewer** to provide or confirm them. The file manager supports this via API classification updates (`update_metadata(...)`) after scan/register so files have accurate `doc_type`, `subject`, and metadata values. Template linking and `suggest_groups()` are most useful once classification (and, for exams, `exam_date`) has been filled in.
 
 **Answers files:** Answer keys (e.g. "PP Math Answers.pdf", "English Practice 1000+ Answers.pdf") apply to a book or set of exercises but do not sit under one content folder. In practice they often sit **directly under the subject folder** (L1 only), e.g. `DaydreamEdu/Singapore Primary English/English Practice 1000+ Answers.pdf`. **Recommended approach:** Register the Answers file as a normal file with `doc_type='note'` and `metadata.source_book` so it is findable and queryable. If you add it to a book group, add it without `role` unless the file itself is `doc_type='book'` (role-to-`metadata.unit` mapping is enforced as book-only). A dedicated relation type (e.g. `answer_key_for`) can be added later if the workflow demands it.
 
@@ -112,8 +112,8 @@ CREATE TABLE pdf_files (
     path           TEXT NOT NULL UNIQUE,         -- absolute path on disk
     file_type      TEXT NOT NULL DEFAULT 'unknown'
                    CHECK(file_type IN ('main', 'raw', 'unknown')),
-    doc_type       TEXT NOT NULL DEFAULT 'unknown'
-                   CHECK(doc_type IN ('exam', 'worksheet', 'book', 'book_exercise', 'activity', 'practice', 'notes', 'unknown')),
+    doc_type       TEXT NOT NULL DEFAULT 'exam'
+                   CHECK(doc_type IN ('exam', 'exercise', 'book', 'activity', 'note')),
     student_id     TEXT REFERENCES students(id),
     subject        TEXT
                    CHECK(subject IN ('english', 'math', 'science', 'chinese')),
@@ -267,19 +267,16 @@ In both modes, invariant document metadata is intended to remain aligned between
 | `doc_type` | Description | Typical source | Maps from L3 folder |
 |------------|-------------|----------------|---------------------|
 | `exam` | Formal school exam — WA, EoY, mid-year, weighted assessment | Scanner app, download | Exam |
-| `worksheet` | Standalone practice worksheet — teacher-issued, tuition center, printed online | Scanner app | Exercise |
+| `exercise` | Standalone practice worksheet/exercise — teacher-issued, tuition center, printed online | Scanner app | Exercise |
 | `book` | Whole-book or book-organized PDFs managed at the book level | Scanner app or download | Book |
-| `book_exercise` | Pages from a physical textbook/workbook (contiguous page range for one exercise) | Scanner app | Exercise (when from a book) |
 | `activity` | Topic-related study activities; accompany a textbook or topic; not necessarily question-based | Scanner app | Activity |
-| `practice` | Generic practice material not fitting above categories | Various | — |
-| `notes` | Teacher notes, revision summaries, reference sheets | Scanner app or download | Note |
-| `unknown` | Default; not yet classified | — | — |
+| `note` | Teacher notes, revision summaries, reference sheets | Scanner app or download | Note |
 
 ---
 
 ## Templates (`is_template`)
 
-A **template** is a blank or master version of a document — no student content yet. It can be any `doc_type` (exam, worksheet, book_exercise, etc.). Examples: a blank WA paper in the shared DaydreamEdu folder; a scanned blank book exercise. Templates typically have `student_id=NULL`. When a student completes the document (e.g. in Goodnotes), the resulting PDF is a **completion** of that template: `is_template=False`, `student_id` set, and linked via `template_for` / `completed_from` relations.
+A **template** is a blank or master version of a document — no student content yet. It can be any `doc_type` (exam, exercise, book, activity, note). Templates typically have `student_id=NULL`. When a student completes the document (e.g. in GoodNotes), the resulting PDF is a **completion** of that template: `is_template=False`, `student_id` set, and linked via `template_for` / `completed_from` relations.
 
 **Why a boolean, not a `doc_type` value:** "Template" describes *role* (blank vs. filled), not *content type*. An exam template and an exam completion are both `doc_type='exam'`; one has `is_template=True`, the other `is_template=False`.
 
@@ -312,7 +309,7 @@ The `metadata` column stores a JSON object. `student_id` and `subject` are first
 
 `paper_type` values: `wa`, `eoy`, `mid_year`, `practice`. `chinese_variant` is used only when `subject='chinese'`. The last four fields are optional and often inferred from path or filename.
 
-### `worksheet`
+### `exercise`
 
 ```json
 {
@@ -322,19 +319,6 @@ The `metadata` column stores a JSON object. `student_id` and `subject` are first
 ```
 
 `source` is free-form: teacher name, tuition center, website, etc.
-
-### `book_exercise`
-
-```json
-{
-  "book_title": "My Pals Are Here! Maths 6A",
-  "chapter":    "Chapter 3: Fractions",
-  "exercise":   "Exercise 3A",
-  "page_range": "10-18"
-}
-```
-
-`page_range` refers to physical page numbers in the book, not PDF page count.
 
 ### `book`
 
@@ -358,7 +342,7 @@ The `metadata` column stores a JSON object. `student_id` and `subject` are first
 
 Topic and source are optional; use when the activity accompanies a specific topic or book.
 
-### `practice` and `notes`
+### `note`
 
 ```json
 {
@@ -403,13 +387,13 @@ When `register_file` is called directly, `file_type` is inferred from the filena
 | Name does not start with `_raw_` | `unknown` (becomes `main` after `compress_and_register`) |
 | Explicitly overridden by caller | caller-provided value |
 
-`doc_type` defaults to `unknown`. `student_id` is populated from the scan root's `student_id` if present; otherwise the manager falls back to matching registered `students.email` path segments when available.
+`doc_type` defaults to `exam`. `student_id` is populated from the scan root's `student_id` if present; otherwise the manager falls back to matching registered `students.email` path segments when available.
 
 ---
 
 ## Integration with compress_pdf
 
-`compress_and_register` delegates to `compress_pdf.compress_pdf()` via direct Python import. The file manager passes `output_name` so that the compressed output is written directly to the final main filename; no `_c_` or other intermediate prefix is used in the file manager workflow, and no extra renaming step is required.
+`compress_and_register` delegates to `compress_pdf.compress_pdf()` via direct Python import. The file manager passes `output_name` so the compressed output is written as the final `_c_<name>` main filename in-place.
 
 ---
 

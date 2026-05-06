@@ -2,6 +2,8 @@
 
 **Happy path item:** [Template linking] — Use template linking (and file groups) as thin layers on top of `find_files` + filename heuristics, with a `link_template_by_paths` or `link-template` CLI so scripts only supply path pairs.
 
+> Historical note: this proposal preserves earlier CLI helper ideas. The built-in `pdf_file_manager` CLI is no longer supported; use the Python `PdfFileManager` API.
+
 ---
 
 ## Motivation

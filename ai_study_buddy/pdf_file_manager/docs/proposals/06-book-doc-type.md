@@ -3,6 +3,8 @@
 > **Context:** We now have a dedicated `Book/` folder under the DaydreamEdu tree, for example `Singapore Primary Chinese/PSLE/Book/Power Pack Chinese PSLE`. The current `pdf_file_manager` model has `book_exercise` for exercise-sized extracts from a book, but no first-class way to represent a whole book or a book-organized set of book PDFs, either as a file classification or as a logical file group.
 >
 > **Status:** Implemented.
+>
+> **Historical note:** This proposal records pre-canonicalization design context and intentionally includes legacy enum names. The current canonical `doc_type` set is `exam`, `exercise`, `book`, `activity`, `note` (see `README.md` / `SPEC.md`).
 
 ---
 
