@@ -4,6 +4,30 @@ All notable changes to `ai_study_buddy.marking` are documented in this file.
 
 Committed changes under `ai_study_buddy/marking/` should add an entry here and bump **Current version** in `README.md` (semver: **patch** for docs or small renderer tweaks, **minor** for schema or public API changes). `SPEC.md` / `TESTING.md` titles do not carry the package version.
 
+## [0.3.4] - 2026-05-07
+
+Patch: clarify teacher-annotated ink-color grading policy for v3 marking workers and align one live WA1 artifact with that policy.
+
+### Changed
+
+- `.cursor/agents/marking-phase2-fast-pass-grader-v3.md`:
+  - added explicit ink policy for teacher-annotated runs:
+    - black/blue writing = original student attempt evidence,
+    - green ink = student correction/rework excluded from original-attempt scoring,
+    - red ink = teacher-mark authority when clear.
+- `.cursor/agents/marking-phase3-deep-dive-v3.md`:
+  - added matching ink policy guidance for deep-dive adjudication.
+- `.cursor/skills/mark-student-work-multi-agent-v3/SKILL.md`:
+  - added prompt reminder so orchestrator Task prompts pass the same ink policy into Phase 2/3 workers.
+
+### Operational follow-up
+
+- Rewrote `P4 Science WA1__20260507_202635.json` through `write_marking_artifact(...)` after applying the ink policy to `Q13(b)`:
+  - treated green correction as non-authoritative for original-attempt grading,
+  - aligned to red teacher cross on original answer,
+  - recomputed score and regenerated report.
+- Backfilled `context.question_page_map` for that run from authoritative `question_sections` (`start_page`) and rewrote via package write boundary.
+
 ## [0.3.3] - 2026-05-05
 
 Patch: add v3 multi-agent workflow implementation scaffolding (thin orchestrator + deterministic helper layer) and dedicated v3 phase subagent definitions.

@@ -35,6 +35,11 @@ from ai_study_buddy.marking.workflows.mark_student_work_multi_agent_v3 import (
     write_context_resolution_debug_artifact,
     plan_phase2_batches,
     plan_phase3_batches,
+    find_latest_in_progress_bundle,
+    collect_stale_partial_bundle_paths,
+    write_run_state,
+    resolve_or_create_bundle_for_v3_run,
+    cleanup_stale_partials_for_v3_run,
 )
 from ai_study_buddy.marking.core.models import (
     ArtifactQuestionResult,
@@ -180,6 +185,134 @@ def test_require_no_user_asset_contradiction():
     require_no_user_asset_contradiction(has_contradiction=False)
     with pytest.raises(V3WorkflowError, match="contradicts"):
         require_no_user_asset_contradiction(has_contradiction=True)
+
+
+def test_find_latest_in_progress_bundle_prefers_latest_unfinalized():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        root = Path(tmpdir)
+        subject = "singapore_primary_science"
+        student_slug = "emma"
+        base = root / "marking_assets" / student_slug / subject
+        old_partial = base / "P4 Science WA1__20260507_202347"
+        old_partial.mkdir(parents=True, exist_ok=True)
+        write_run_state(bundle_root=old_partial, state="phase_ab_done")
+
+        finalized = base / "P4 Science WA1__20260507_202635"
+        finalized.mkdir(parents=True, exist_ok=True)
+        (finalized / "debug").mkdir(parents=True, exist_ok=True)
+        (finalized / "debug" / "phasee_finalization_trace.json").write_text("{}", encoding="utf-8")
+        write_run_state(bundle_root=finalized, state="finalized")
+
+        newer_partial = base / "P4 Science WA1__20260507_202700"
+        newer_partial.mkdir(parents=True, exist_ok=True)
+        write_run_state(bundle_root=newer_partial, state="phase2_done")
+
+        selected = find_latest_in_progress_bundle(
+            context_root=root,
+            attempt_file_path="/tmp/_c_P4 Science WA1.pdf",
+            student_id="emma",
+            student_name=None,
+            subject_context=subject,
+        )
+        assert selected is not None
+        assert selected.name == "P4 Science WA1__20260507_202700"
+
+
+def test_collect_stale_partial_bundle_paths_excludes_keep_and_finalized():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        root = Path(tmpdir)
+        subject = "singapore_primary_science"
+        student_slug = "emma"
+        base = root / "marking_assets" / student_slug / subject
+
+        keep = base / "P4 Science WA1__20260507_202635"
+        keep.mkdir(parents=True, exist_ok=True)
+        write_run_state(bundle_root=keep, state="phase2_done")
+
+        stale = base / "P4 Science WA1__20260507_202347"
+        stale.mkdir(parents=True, exist_ok=True)
+        write_run_state(bundle_root=stale, state="phase_ab_done")
+
+        finalized = base / "P4 Science WA1__20260507_202800"
+        finalized.mkdir(parents=True, exist_ok=True)
+        (finalized / "debug").mkdir(parents=True, exist_ok=True)
+        (finalized / "debug" / "phasee_finalization_trace.json").write_text("{}", encoding="utf-8")
+        write_run_state(bundle_root=finalized, state="finalized")
+
+        stale_paths = collect_stale_partial_bundle_paths(
+            context_root=root,
+            attempt_file_path="/tmp/_c_P4 Science WA1.pdf",
+            student_id="emma",
+            student_name=None,
+            subject_context=subject,
+            keep_bundle_root=keep,
+        )
+        assert [p.name for p in stale_paths] == ["P4 Science WA1__20260507_202347"]
+
+
+def test_resolve_or_create_bundle_for_v3_run_resumes_existing_partial():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        root = Path(tmpdir)
+        subject = "singapore_primary_science"
+        existing = (
+            root
+            / "marking_assets"
+            / "emma"
+            / subject
+            / "P4 Science WA1__20260507_202347"
+        )
+        existing.mkdir(parents=True, exist_ok=True)
+        write_run_state(bundle_root=existing, state="phase_ab_done")
+
+        selected = resolve_or_create_bundle_for_v3_run(
+            context_root=root,
+            attempt_file_path="/tmp/_c_P4 Science WA1.pdf",
+            student_id="emma",
+            student_name=None,
+            subject_context=subject,
+            run_marked_at="2026-05-07T20:30:00+08:00",
+            allow_resume=True,
+        )
+        assert selected.resumed_existing is True
+        assert selected.bundle_root.name == "P4 Science WA1__20260507_202347"
+        assert selected.marking_asset_rel.endswith(
+            "marking_assets/emma/singapore_primary_science/P4 Science WA1__20260507_202347"
+        )
+        assert selected.artifact_json_path.name == "P4 Science WA1__20260507_202347.json"
+
+
+def test_cleanup_stale_partials_for_v3_run_moves_only_stale_nonfinalized():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        root = Path(tmpdir)
+        subject = "singapore_primary_science"
+        base = root / "marking_assets" / "emma" / subject
+
+        keep = base / "P4 Science WA1__20260507_202635"
+        keep.mkdir(parents=True, exist_ok=True)
+        write_run_state(bundle_root=keep, state="phase3_done")
+
+        stale = base / "P4 Science WA1__20260507_202347"
+        stale.mkdir(parents=True, exist_ok=True)
+        write_run_state(bundle_root=stale, state="phase_ab_done")
+
+        finalized = base / "P4 Science WA1__20260507_202800"
+        finalized.mkdir(parents=True, exist_ok=True)
+        (finalized / "debug").mkdir(parents=True, exist_ok=True)
+        (finalized / "debug" / "phasee_finalization_trace.json").write_text("{}", encoding="utf-8")
+
+        moved = cleanup_stale_partials_for_v3_run(
+            context_root=root,
+            attempt_file_path="/tmp/_c_P4 Science WA1.pdf",
+            student_id="emma",
+            student_name=None,
+            subject_context=subject,
+            keep_bundle_root=keep,
+        )
+        assert len(moved) == 1
+        assert moved[0].name.startswith("P4 Science WA1__20260507_202347")
+        assert keep.exists()
+        assert finalized.exists()
+        assert not stale.exists()
 
 
 def test_prepare_finalize_rows_applies_qc():

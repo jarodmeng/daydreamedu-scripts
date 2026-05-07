@@ -7,11 +7,13 @@ from pathlib import Path
 from typing import Any, Callable, Mapping, Sequence
 
 from ai_study_buddy.marking import (
+    build_marking_run_paths,
     find_marking_artifacts_for_attempt,
     resolve_marking_context,
     validate_marking_artifact_dict,
     write_marking_artifact,
 )
+from ai_study_buddy.marking.core.artifact_paths import slugify_student
 from ai_study_buddy.marking.core.artifact_schema import compute_percentage
 from ai_study_buddy.marking.core.models import (
     ArtifactQuestionResult,
@@ -32,7 +34,11 @@ from ai_study_buddy.marking.file_question_info import (
     validate_question_sections_dict,
 )
 from ai_study_buddy.marking.review.repository import StudentReviewRepository
-from ai_study_buddy.pdf_file_manager.pdf_file_manager import PdfFile, PdfFileManager
+from ai_study_buddy.pdf_file_manager.pdf_file_manager import (
+    PdfFile,
+    PdfFileManager,
+    normalize_pdf_display_name,
+)
 from ai_study_buddy.marking.workflows.v3_helpers import (
     MergeResult,
     build_authoritative_marks_by_question,
@@ -101,6 +107,21 @@ class V3ContextResolutionDebug:
     resolved_template_file_path: str | None
     marking_mode: str
     context_resolution: Mapping[str, Any] | None
+
+
+@dataclass(frozen=True)
+class V3BundleCandidate:
+    bundle_root: Path
+    finalized: bool
+    run_state: Mapping[str, Any] | None
+
+
+@dataclass(frozen=True)
+class V3BundleSelection:
+    bundle_root: Path
+    artifact_json_path: Path
+    marking_asset_rel: str
+    resumed_existing: bool
 
 
 def _is_path_like(value: str) -> bool:
@@ -228,6 +249,233 @@ def write_context_resolution_debug_artifact(
     }
     out_path.write_text(json.dumps(payload, indent=2, ensure_ascii=True) + "\n", encoding="utf-8")
     return out_path
+
+
+def _run_state_path(bundle_root: Path) -> Path:
+    return bundle_root / "debug" / "run_state.json"
+
+
+def read_run_state(*, bundle_root: Path) -> Mapping[str, Any] | None:
+    path = _run_state_path(bundle_root)
+    if not path.exists():
+        return None
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return None
+    return payload if isinstance(payload, Mapping) else None
+
+
+def write_run_state(
+    *,
+    bundle_root: Path,
+    state: str,
+    metadata: Mapping[str, Any] | None = None,
+) -> Path:
+    debug_dir = bundle_root / "debug"
+    debug_dir.mkdir(parents=True, exist_ok=True)
+    out = _run_state_path(bundle_root)
+    payload: dict[str, Any] = {"state": state, "updated_at": _utc_now_iso()}
+    if metadata:
+        payload["metadata"] = dict(metadata)
+    out.write_text(json.dumps(payload, indent=2, ensure_ascii=True) + "\n", encoding="utf-8")
+    return out
+
+
+def list_attempt_bundle_candidates(
+    *,
+    context_root: Path,
+    attempt_file_path: str | Path,
+    student_id: str | None,
+    student_name: str | None,
+    subject_context: str,
+) -> tuple[V3BundleCandidate, ...]:
+    student_slug = slugify_student(student_id, student_name)
+    root = (Path(context_root) / "marking_assets" / student_slug / subject_context).resolve()
+    if not root.exists():
+        return ()
+
+    stem = normalize_pdf_display_name(attempt_file_path)
+    prefix = f"{stem}__"
+    out: list[V3BundleCandidate] = []
+    for child in root.iterdir():
+        if not child.is_dir() or not child.name.startswith(prefix):
+            continue
+        finalized = (child / "debug" / "phasee_finalization_trace.json").exists()
+        out.append(
+            V3BundleCandidate(
+                bundle_root=child,
+                finalized=finalized,
+                run_state=read_run_state(bundle_root=child),
+            )
+        )
+    out.sort(key=lambda item: item.bundle_root.name)
+    return tuple(out)
+
+
+def find_latest_in_progress_bundle(
+    *,
+    context_root: Path,
+    attempt_file_path: str | Path,
+    student_id: str | None,
+    student_name: str | None,
+    subject_context: str,
+) -> Path | None:
+    candidates = list_attempt_bundle_candidates(
+        context_root=context_root,
+        attempt_file_path=attempt_file_path,
+        student_id=student_id,
+        student_name=student_name,
+        subject_context=subject_context,
+    )
+    in_progress = [c for c in candidates if not c.finalized]
+    if not in_progress:
+        return None
+    return in_progress[-1].bundle_root
+
+
+def collect_stale_partial_bundle_paths(
+    *,
+    context_root: Path,
+    attempt_file_path: str | Path,
+    student_id: str | None,
+    student_name: str | None,
+    subject_context: str,
+    keep_bundle_root: Path | None,
+) -> tuple[Path, ...]:
+    keep = keep_bundle_root.resolve() if keep_bundle_root is not None else None
+    candidates = list_attempt_bundle_candidates(
+        context_root=context_root,
+        attempt_file_path=attempt_file_path,
+        student_id=student_id,
+        student_name=student_name,
+        subject_context=subject_context,
+    )
+    out: list[Path] = []
+    for c in candidates:
+        if c.finalized:
+            continue
+        resolved = c.bundle_root.resolve()
+        if keep is not None and resolved == keep:
+            continue
+        out.append(resolved)
+    return tuple(out)
+
+
+def move_bundle_to_trash(*, bundle_root: Path) -> Path:
+    src = Path(bundle_root).resolve()
+    if not src.exists():
+        return src
+    trash_root = Path.home() / ".Trash"
+    trash_root.mkdir(parents=True, exist_ok=True)
+    dest = trash_root / src.name
+    if dest.exists():
+        suffix = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+        dest = trash_root / f"{src.name}__{suffix}"
+    src.rename(dest)
+    return dest
+
+
+def _derive_artifact_path_for_bundle(
+    *,
+    context_root: Path,
+    bundle_root: Path,
+    student_id: str | None,
+    student_name: str | None,
+    subject_context: str,
+) -> Path:
+    student_slug = slugify_student(student_id, student_name)
+    return (
+        Path(context_root).resolve()
+        / "marking_results"
+        / student_slug
+        / subject_context
+        / f"{bundle_root.name}.json"
+    )
+
+
+def resolve_or_create_bundle_for_v3_run(
+    *,
+    context_root: Path,
+    attempt_file_path: str | Path,
+    student_id: str | None,
+    student_name: str | None,
+    subject_context: str,
+    run_marked_at: str,
+    allow_resume: bool = True,
+) -> V3BundleSelection:
+    root = Path(context_root).resolve()
+    resumed = False
+    bundle_root: Path
+    artifact_json_path: Path
+    marking_asset_rel: str
+
+    if allow_resume:
+        existing = find_latest_in_progress_bundle(
+            context_root=root,
+            attempt_file_path=attempt_file_path,
+            student_id=student_id,
+            student_name=student_name,
+            subject_context=subject_context,
+        )
+        if existing is not None:
+            bundle_root = existing.resolve()
+            artifact_json_path = _derive_artifact_path_for_bundle(
+                context_root=root,
+                bundle_root=bundle_root,
+                student_id=student_id,
+                student_name=student_name,
+                subject_context=subject_context,
+            )
+            marking_asset_rel = str(bundle_root.relative_to(root)).replace("\\", "/")
+            resumed = True
+            bundle_root.mkdir(parents=True, exist_ok=True)
+            return V3BundleSelection(
+                bundle_root=bundle_root,
+                artifact_json_path=artifact_json_path,
+                marking_asset_rel=marking_asset_rel,
+                resumed_existing=resumed,
+            )
+
+    artifact_json_path, marking_asset_rel, bundle_root = build_marking_run_paths(
+        attempt_file_path=attempt_file_path,
+        student_id=student_id,
+        student_name=student_name,
+        subject_context=subject_context,
+        marked_at=run_marked_at,
+        context_root=root,
+    )
+    bundle_root = bundle_root.resolve()
+    bundle_root.mkdir(parents=True, exist_ok=True)
+    return V3BundleSelection(
+        bundle_root=bundle_root,
+        artifact_json_path=artifact_json_path,
+        marking_asset_rel=marking_asset_rel,
+        resumed_existing=resumed,
+    )
+
+
+def cleanup_stale_partials_for_v3_run(
+    *,
+    context_root: Path,
+    attempt_file_path: str | Path,
+    student_id: str | None,
+    student_name: str | None,
+    subject_context: str,
+    keep_bundle_root: Path,
+) -> tuple[Path, ...]:
+    stale = collect_stale_partial_bundle_paths(
+        context_root=Path(context_root).resolve(),
+        attempt_file_path=attempt_file_path,
+        student_id=student_id,
+        student_name=student_name,
+        subject_context=subject_context,
+        keep_bundle_root=keep_bundle_root,
+    )
+    moved: list[Path] = []
+    for candidate in stale:
+        moved.append(move_bundle_to_trash(bundle_root=candidate))
+    return tuple(moved)
 
 
 def resolve_v3_mode(signals: V3ModeSignals) -> str:

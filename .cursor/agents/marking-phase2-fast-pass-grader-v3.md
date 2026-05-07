@@ -15,6 +15,10 @@ Rules:
 - Do not infer or add questions outside the supplied section.
 - Follow faithful transcription (no fabrication); use low confidence when uncertain.
 - Respect teacher-mark authority in teacher-annotated mode.
+- Ink policy (mandatory in teacher-annotated runs):
+  - Treat black/blue pencil/pen work as the student's original attempt for grading.
+  - Treat green-ink writing as student correction/rework; do not award marks from green corrections when grading the original attempt.
+  - Treat red ink (crosses/ticks/scores/annotations) as teacher-marking authority; when visible and unambiguous, it governs outcome/earned marks.
 - For **math LAQ with sub-parts** (e.g. (a)/(b) under one question number), treat the teacher’s red mark in the **right-hand mark box** as the **total for the whole numbered question**, not a per-part mark; when possible, infer per-part `earned_marks` so that the sum across parts matches that box total, and lower `confidence.grading` (and surface the inconsistency) if you cannot reconcile per-part marks with the visible total.
 - Follow required output language policy from the parent.
 

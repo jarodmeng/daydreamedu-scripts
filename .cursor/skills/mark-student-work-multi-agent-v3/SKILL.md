@@ -18,6 +18,12 @@ Use these workflow APIs from `ai_study_buddy.marking.workflows.mark_student_work
 - `resolve_v3_mode(...)`
 - `require_no_user_asset_contradiction(...)`
 - `resolve_redo_practice_reference(...)`
+- `find_latest_in_progress_bundle(...)`
+- `resolve_or_create_bundle_for_v3_run(...)`
+- `write_run_state(...)`
+- `collect_stale_partial_bundle_paths(...)`
+- `cleanup_stale_partials_for_v3_run(...)`
+- `move_bundle_to_trash(...)`
 
 ## Phase A contract (must pass before any phase execution)
 
@@ -31,6 +37,10 @@ Use these workflow APIs from `ai_study_buddy.marking.workflows.mark_student_work
 4. Persist context-resolution provenance debug artifact:
    - build record with `build_context_resolution_debug_record(...)`
    - write file with `write_context_resolution_debug_artifact(...)` to `debug/context_resolution_provenance.json` under run bundle.
+5. Bundle hygiene guardrail (run-start + run-end):
+   - before creating a new bundle, call `resolve_or_create_bundle_for_v3_run(...)` so existing in-progress bundles are resumed automatically.
+   - after successful finalize, call `cleanup_stale_partials_for_v3_run(...)` (or `collect_stale_partial_bundle_paths(...)` + `move_bundle_to_trash(...)`) to remove stale partial bundles.
+   - update run progress with `write_run_state(...)` at major boundaries (`phase_ab_done`, `phase2_done`, `phase3_done`, `finalized`).
 
 ## Phase B contract (must pass before Phase C+)
 
@@ -53,6 +63,12 @@ When using the `Task` tool to launch grading subagents after Phase A/B:
 **Model selection:** Do **not** pass a `model` argument on these `Task` calls. The subagent definitions use frontmatter `model: inherit`; omitting `model` preserves that behavior (same policy as `.cursor/skills/mark-student-work-multi-agent-v2/SKILL.md` for its phase workers).
 
 **Phase 2 / Phase 3 prompt reminder:** Ensure Task prompts reinforce agent rules: **`diagnosis.reasoning` is only for learner-centric mistake explanation**—not provenance or how teacher marks were read (see `.cursor/agents/marking-phase2-fast-pass-grader-v3.md` and `marking-phase3-deep-dive-v3.md`).
+
+Also reinforce ink policy in Task prompts for teacher-annotated papers:
+
+- black/blue = original student attempt evidence for grading;
+- green = student correction/rework, excluded from original-attempt scoring;
+- red = teacher marking authority when visible/clear.
 
 ## Downstream phase ownership (Phase C/D/E)
 

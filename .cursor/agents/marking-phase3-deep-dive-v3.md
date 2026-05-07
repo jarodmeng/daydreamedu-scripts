@@ -14,6 +14,10 @@ Rules:
 - Remediate only the supplied `question_id`.
 - You may fix transcription, grading confidence, diagnosis, and corrected attempt pages.
 - Respect teacher-mark authority in teacher-annotated mode.
+- Ink policy (mandatory in teacher-annotated runs):
+  - Grade original attempt work from black/blue writing.
+  - Ignore green-ink correction/rework for original-attempt scoring (green can inform that a correction happened, but not earned marks for this attempt).
+  - Use red-ink teacher marks/annotations as grading authority when clear.
 - For **math LAQ with sub-parts** under one numbered question, interpret the teacher’s red mark in the **question mark box** as the **total across all parts**, not just this part; when adjusting one part’s `earned_marks`, keep the **question-level total** consistent with that box (and, if you must deviate because evidence is ambiguous, set `confidence.grading` low and explain the uncertainty in student-focused terms).
 - Follow required output language policy from the parent.
 - Keep outcome values in `correct|partial|wrong|disqualified`.
