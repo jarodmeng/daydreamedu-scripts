@@ -4,8 +4,10 @@ When this command runs, produce a **summary report** comparing **leaf folders** 
 
 ## Rules
 
-- Follow `.cursor/skills/pdf-file-manager/SKILL.md`: use **`PdfFileManager`** from `ai_study_buddy/pdf_file_manager/pdf_file_manager.py` and root resolution from `ai_study_buddy/files/roots.py` (`resolve_goodnotes_root()`). Do **not** query the SQLite registry with ad hoc SQL for this task.
-- Resolve the GoodNotes root with `resolve_goodnotes_root()` (uses `GOODNOTES_ROOT`, `ai_study_buddy/local_goodnotes_root.txt`, or sibling discovery). If it returns `None`, say so and stop.
+- Follow `.cursor/skills/pdf-file-manager/SKILL.md`: use **`PdfFileManager`** from `ai_study_buddy/pdf_file_manager/pdf_file_manager.py`.
+- Resolve the GoodNotes root with **`resolve_goodnotes_root()`** from `ai_study_buddy/files/roots.py` (uses `GOODNOTES_ROOT`, `ai_study_buddy/local_goodnotes_root.txt`, or sibling discovery). If it returns `None`, say so and stop.
+- **Enumerate leaf folders only via `ai_study_buddy.files`:** use **`list_goodnotes_leaf_folders_under_root(root)`** (default **`exclude_not_completed=True`**) from `ai_study_buddy.files.leaf_folders` (or `from ai_study_buddy.files import …`). Do **not** hand-roll traversal / exclusions — with the default flag the helper matches this command’s definitions (**Not completed**, **`^x[A-Z].*$`**, root `.`). Other tools may pass **`exclude_not_completed=False`** to include WIP `Not completed` folders for browsing only.
+- Do **not** query the SQLite registry with ad hoc SQL for this task.
 
 ## Definitions
 
@@ -20,7 +22,18 @@ When this command runs, produce a **summary report** comparing **leaf folders** 
 
 ## What to run
 
-Execute a short **Python one-shot** from the repo root with package imports (no `sys.path` mutation): `from ai_study_buddy.pdf_file_manager import PdfFileManager` and `from ai_study_buddy.files.roots import resolve_goodnotes_root`. Use the default registry path from the utility / `PDF_REGISTRY_PATH` if set.
+Execute a short **Python one-shot** from the repo root with package imports (no `sys.path` mutation):
+
+- `from ai_study_buddy.pdf_file_manager import PdfFileManager`
+- `from ai_study_buddy.files.roots import resolve_goodnotes_root`
+- `from ai_study_buddy.files.leaf_folders import list_goodnotes_leaf_folders_under_root, list_leaf_folders_under_root`
+
+Use the default registry path from the utility / `PDF_REGISTRY_PATH` if set.
+
+### Leaf folders (required)
+
+- After resolving `root = resolve_goodnotes_root()`, set **`included_leaves = list_goodnotes_leaf_folders_under_root(root)`** (omit **`exclude_not_completed`** so it stays **True** — this report targets registration-ready leaves, not WIP `Not completed` subtrees). Use only these paths for totals, buckets, and the full folder table.
+- To report **Excluded leaf folders**: `all_leaves = list_leaf_folders_under_root(root, include_suffixes={".pdf"})`, then **`excluded_leaves = sorted(set(all_leaves) - set(included_leaves))`**.
 
 ### Implementation hardening (required)
 

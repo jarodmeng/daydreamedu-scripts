@@ -2,7 +2,7 @@
 
 This document is the **contract** for the public Python API of `ai_study_buddy.files`. It is registry-agnostic: no SQLite, no `PdfFileManager`, no scan-root configuration.
 
-**Version:** align with [README.md](./README.md) (package `v0.1.0` baseline).
+**Version:** align with [README.md](./README.md) (package `v0.1.3` baseline).
 
 ---
 
@@ -60,19 +60,25 @@ Input set `include_suffixes` is normalized:
 
 Both default `include_suffixes` to `{".pdf"}` when omitted.
 
-#### `list_goodnotes_leaf_folders_under_root(root, *, include_suffixes=None)`
+#### `list_goodnotes_leaf_folders_under_root(root, *, include_suffixes=None, exclude_not_completed=True)`
 
 Builds an internal excluded set from **all** leaves (under the same suffix set), then excludes any leaf that:
 
 - equals `root` (resolved), or
 - has any path segment matching regex `^x[A-Z].*$` (segment name only), or
-- has any path segment equal to `Not completed` (case-insensitive).
+- when **`exclude_not_completed`** is `True` (default): has any path segment equal to `Not completed` (case-insensitive). When `False`, those leaves stay **included** (e.g. browse WIP completion PDFs); root and x-prefix exclusions still apply.
 
 Then calls `list_leaf_folders_under_root` with that excluded set.
 
 #### `list_daydreamedu_leaf_folders_under_root(root, *, include_suffixes=None)`
 
-Builds an internal excluded set: any leaf that equals `root` (resolved) or whose **final directory name** is `Note` or `Notes` (case-insensitive). Then calls `list_leaf_folders_under_root`.
+Builds an internal excluded set: any leaf that equals `root` (resolved) — the root-relative `.` leaf when the sync root contains direct PDFs (`daydreamedu-leaf-registry-report` parity). Then calls `list_leaf_folders_under_root`.
+
+### 2.5 `is_goodnotes_excluded_relative_path(rel: str, *, exclude_not_completed=True) -> bool`
+
+- **Input *rel*:** a path string relative to ``GOODNOTES_ROOT``, using `/` segments (may be normalized by the caller). Empty or whitespace-only means the sync root itself → returns `False`.
+- **True** if any non-empty path segment matches `^x[A-Z].*$`, or (when *exclude_not_completed* is `True`) any segment equals `Not completed` case-insensitively.
+- **Purpose:** single source for GoodNotes “structural” exclusions when walking a tree (for example `root_pdf_browser`), without duplicating regex rules. Aligns with `list_goodnotes_leaf_folders_under_root` when the same *exclude_not_completed* flag is passed.
 
 ---
 
@@ -92,6 +98,7 @@ Canonical imports:
 from ai_study_buddy.files import (
     resolve_daydreamedu_root,
     resolve_goodnotes_root,
+    is_goodnotes_excluded_relative_path,
     list_leaf_folders_under_root,
     list_daydreamedu_leaf_folders_under_root,
     list_goodnotes_leaf_folders_under_root,

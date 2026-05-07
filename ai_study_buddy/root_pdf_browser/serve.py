@@ -17,7 +17,11 @@ _REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
-from ai_study_buddy.files.roots import resolve_daydreamedu_root, resolve_goodnotes_root
+from ai_study_buddy.files import resolve_daydreamedu_root, resolve_goodnotes_root
+from ai_study_buddy.files.leaf_folders import (
+    list_daydreamedu_leaf_folders_under_root,
+    list_goodnotes_leaf_folders_under_root,
+)
 
 ROOT_IDS = ("daydreamedu", "goodnotes")
 STATIC_DIR = Path(__file__).resolve().parent / "static"
@@ -47,6 +51,33 @@ def _roots_config() -> dict[str, Path]:
     return out
 
 
+def _normalize_tree_rel(rel: str) -> str:
+    """Sync-root-relative posix key; root itself is ''."""
+    rel = rel.strip().replace("\\", "/")
+    if rel in ("", "."):
+        return ""
+    while "//" in rel:
+        rel = rel.replace("//", "/")
+    return rel.strip("/")
+
+
+def _posix_rel_under(root_rr: Path, path: Path) -> str:
+    return _normalize_tree_rel(path.resolve().relative_to(root_rr).as_posix())
+
+
+def _leaf_relative_paths_sync_root(root: Path, *, rid: str) -> frozenset[str]:
+    """POSIX rel paths (from resolved sync root) to each PDF leaf folder (see ai_study_buddy.files)."""
+
+    rr = root.resolve()
+    if rid == "daydreamedu":
+        leaves = list_daydreamedu_leaf_folders_under_root(root)
+    elif rid == "goodnotes":
+        leaves = list_goodnotes_leaf_folders_under_root(root, exclude_not_completed=False)
+    else:
+        return frozenset()
+    return frozenset(_posix_rel_under(rr, leaf) for leaf in leaves)
+
+
 def safe_resolve_under_root(root: Path, rel: str) -> Path | None:
     """Return resolved path if *rel* stays under *root*; else None."""
     root_resolved = root.resolve()
@@ -65,13 +96,41 @@ def safe_resolve_under_root(root: Path, rel: str) -> Path | None:
     return full
 
 
-def list_dir_children(root: Path, rel: str) -> tuple[list[str], list[str]] | None:
-    """Return (subdir_names, pdf_basenames) for immediate children, or None if invalid."""
+def _on_leaf_prefix_tree(leaf_rels: frozenset[str], curr_rel: str) -> bool:
+    """True if *curr_rel* is the sync root ('') or a strict prefix segment path to ≥1 leaf folder."""
+
+    curr = _normalize_tree_rel(curr_rel)
+    if curr == "":
+        return True
+    for lf in leaf_rels:
+        if lf == curr or lf.startswith(curr + "/"):
+            return True
+    return False
+
+
+def list_dir_children(
+    root: Path,
+    rel: str,
+    *,
+    leaf_rels: frozenset[str],
+) -> tuple[list[str], list[str]] | None:
+    """Return (subdir_names, pdf_basenames) restricted to branches that reach a PDF leaf folder."""
+
+    root_resolved = root.resolve()
     target = safe_resolve_under_root(root, rel)
     if target is None or not target.is_dir():
         return None
+
+    curr = _posix_rel_under(root_resolved, target)
+    if not leaf_rels:
+        return ([], []) if curr == "" else None
+    if not _on_leaf_prefix_tree(leaf_rels, curr):
+        return None
+
     dirs: list[str] = []
     pdfs: list[str] = []
+    listing_pdfs_here = curr in leaf_rels
+
     try:
         for child in target.iterdir():
             name = child.name
@@ -79,21 +138,40 @@ def list_dir_children(root: Path, rel: str) -> tuple[list[str], list[str]] | Non
                 continue
             try:
                 if child.is_dir():
-                    dirs.append(name)
-                elif child.is_file() and child.suffix.lower() == ".pdf":
+                    nxt_rel = _posix_rel_under(root_resolved, child)
+                    if _on_leaf_prefix_tree(leaf_rels, nxt_rel):
+                        dirs.append(name)
+                elif (
+                    listing_pdfs_here
+                    and child.is_file()
+                    and child.suffix.lower() == ".pdf"
+                ):
                     pdfs.append(name)
             except OSError:
                 continue
     except OSError:
         return None
+
     dirs.sort(key=str.lower)
     pdfs.sort(key=str.lower)
     return dirs, pdfs
 
 
+def _pdf_blocked_not_under_leaf_folder(
+    root: Path, leaf_rels: frozenset[str], rel: str
+) -> bool:
+    """True when *rel* resolves to a file whose parent folder is not a leaf folder."""
+
+    root_r = root.resolve()
+    t = safe_resolve_under_root(root, rel)
+    if t is None or not t.is_file() or t.suffix.lower() != ".pdf":
+        return True
+    parent_rel = _posix_rel_under(root_r, t.parent)
+    return parent_rel not in leaf_rels
+
+
 def _content_disposition_inline(filename: str) -> str:
     """Return a Content-Disposition value safe for UTF-8 filenames."""
-    # Keep the fallback strictly ASCII for old clients.
     fallback_ascii = filename.encode("ascii", "replace").decode("ascii").replace('"', "")
     utf8_encoded = quote(filename, safe="")
     return f'inline; filename="{fallback_ascii}"; filename*=UTF-8\'\'{utf8_encoded}'
@@ -101,6 +179,7 @@ def _content_disposition_inline(filename: str) -> str:
 
 class RootPdfHandler(BaseHTTPRequestHandler):
     roots: dict[str, Path] = {}
+    leaf_rels_by_id: dict[str, frozenset[str]] = {}
 
     def log_message(self, format, *args):
         return
@@ -153,7 +232,8 @@ class RootPdfHandler(BaseHTTPRequestHandler):
             if root is None:
                 self._send_error_json(400, "Unknown or unavailable root id")
                 return
-            children = list_dir_children(root, rel)
+            leaf_set = self.leaf_rels_by_id.get(rid, frozenset())
+            children = list_dir_children(root, rel, leaf_rels=leaf_set)
             if children is None:
                 self._send_error_json(400, "Not a directory or path not allowed")
                 return
@@ -167,6 +247,10 @@ class RootPdfHandler(BaseHTTPRequestHandler):
             root = self.roots.get(rid)
             if root is None:
                 self.send_error(400, "Unknown root")
+                return
+            leaf_set = self.leaf_rels_by_id.get(rid, frozenset())
+            if _pdf_blocked_not_under_leaf_folder(root, leaf_set, rel):
+                self.send_error(404, "Not found")
                 return
             target = safe_resolve_under_root(root, rel)
             if target is None or not target.is_file():
@@ -202,6 +286,10 @@ class RootPdfHandler(BaseHTTPRequestHandler):
         root = self.roots.get(rid)
         if root is None:
             self.send_error(400, "Unknown root")
+            return
+        leaf_set = self.leaf_rels_by_id.get(rid, frozenset())
+        if _pdf_blocked_not_under_leaf_folder(root, leaf_set, rel):
+            self.send_error(404, "Not found")
             return
         target = safe_resolve_under_root(root, rel)
         if target is None or not target.is_file():
@@ -239,16 +327,24 @@ def main() -> int:
             "No roots configured. Set DAYDREAMEDU_ROOT and/or GOODNOTES_ROOT, or add paths to\n"
             "  ai_study_buddy/local_daydreamedu_root.txt\n"
             "  ai_study_buddy/local_goodnotes_root.txt\n"
-            "See ai_study_buddy/files/roots.py for resolution order.",
+            "See ai_study_buddy/files (roots) for resolution order.",
             file=sys.stderr,
         )
         return 1
 
+    leaf_map: dict[str, frozenset[str]] = {
+        rid: _leaf_relative_paths_sync_root(root, rid=rid) for rid, root in roots.items()
+    }
+
     RootPdfHandler.roots = roots
+    RootPdfHandler.leaf_rels_by_id = leaf_map
     server = ThreadingHTTPServer(("127.0.0.1", args.port), RootPdfHandler)
     url = f"http://127.0.0.1:{args.port}/"
     print(f"Root PDF browser at {url}", flush=True)
     print(f"Serving: {', '.join(f'{k}={v}' for k, v in roots.items())}", flush=True)
+    for rid in roots:
+        n = len(leaf_map.get(rid, frozenset()))
+        print(f"  leaf-folder index ({rid}): {n} dirs", flush=True)
     print("--- root-pdf-browser: ready (Ctrl+C to stop) ---", flush=True)
     if not args.no_browser:
         _open_browser_delayed(url)

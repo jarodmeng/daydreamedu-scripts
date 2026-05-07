@@ -96,13 +96,11 @@ These are not hardcoded into the generic function, but represented as policy def
   - excluded leaf folders (absolute): all leaf folders under root that are either:
     - equal to root (`"."`), or
     - under any path containing a segment matching `^x[A-Z].*$` (lowercase `x`, second character uppercase), or
-    - under any path containing a segment `Not completed` (case-insensitive)
+    - under any path containing a segment `Not completed` (case-insensitive), **unless** callers use **`list_goodnotes_leaf_folders_under_root(..., exclude_not_completed=False)`** (e.g. browse WIP PDFs — not for registration-gap reports)
 
 - **DaydreamEdu report defaults**
   - include suffixes: `{".pdf"}`
-  - excluded leaf folders (absolute): all leaf folders under root that are either:
-    - equal to root (`"."`), or
-    - have final folder name `Note` or `Notes` (case-insensitive)
+  - excluded leaf folders (absolute): leaf folders equal to root (`"."`) only when the sync root qualifies as a leaf (direct PDFs under `DAYDREAMEDU_ROOT`) — parity with `.cursor/commands/daydreamedu-leaf-registry-report.md` and [`L4_FILE_FRAMEWORK.md`](./L4_FILE_FRAMEWORK.md).
 
 This preserves deterministic behavior while keeping API generic for future `.md`, `.png`, etc.
 
@@ -180,7 +178,7 @@ This preserves deterministic behavior while keeping API generic for future `.md`
 
 ### Phase 3 — Profile helpers for command parity
 - [x] Implement helper to compute GoodNotes excluded leaf folders as absolute paths (root, any path containing segment matching `^x[A-Z].*$`, any path containing `Not completed` segment).
-- [x] Implement helper to compute DaydreamEdu excluded leaf folders as absolute paths (root, leaf basename `Note`/`Notes`).
+- [x] Implement helper to compute DaydreamEdu excluded leaf folders as absolute paths (root-as-leaf only).
 - [x] Validate helper output against current cursor-command definitions on representative sample trees.
 
 ### Phase 4 — Compatibility and migration

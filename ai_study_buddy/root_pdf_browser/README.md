@@ -2,12 +2,12 @@
 
 Local **two-pane** browser for PDFs under your configured **DaydreamEdu** and **GoodNotes** filesystem roots (dev / ops tooling). Runs a tiny HTTP server on loopback only; paths are constrained so requests cannot escape a chosen root.
 
-**Current version:** `v0.1` — see [CHANGELOG.md](./CHANGELOG.md).
+**Current version:** `v0.1.2` — see [CHANGELOG.md](./CHANGELOG.md).
 
 ## Requirements
 
 - Python 3 from the repo (same interpreter you use elsewhere in this workspace).
-- At least one root configured via `DAYDREAMEDU_ROOT` and/or `GOODNOTES_ROOT`, or fallback files `ai_study_buddy/local_daydreamedu_root.txt` and `local_goodnotes_root.txt`. Resolution order and semantics are documented in [`ai_study_buddy/files/roots.py`](../files/roots.py).
+- At least one root configured via `DAYDREAMEDU_ROOT` and/or `GOODNOTES_ROOT`, or fallback files `ai_study_buddy/local_daydreamedu_root.txt` and `local_goodnotes_root.txt`. Roots come from [`ai_study_buddy.files`](../files/) (`resolve_daydreamedu_root` / `resolve_goodnotes_root`).
 
 ## Quick start
 
@@ -45,6 +45,8 @@ Forwarded flags apply to `serve`, e.g. `--port 8771 --no-browser`. Launcher-only
 | `/api/pdf` | GET, HEAD | Query `id`, `rel` — PDF bytes or headers only |
 
 All file access goes through `safe_resolve_under_root`; dotfiles are skipped in listings.
+
+**Navigation model:** the tree is built from **`ai_study_buddy.files` PDF leaf folders** only — prefixes of **`list_daydreamedu_leaf_folders_under_root(daydreamedu_root)`** and **`list_goodnotes_leaf_folders_under_root(goodnotes_root, exclude_not_completed=False)`**. Directories that never lead to a leaf folder are hidden (for example stray top-level **`db/`** without PDF leaves). **`/api/pdf`** is served only when the PDF’s parent directory is itself a leaf folder in that snapshot. If a synced root contains **zero** qualifying leaf folders, that root opens with an empty tree at the top level. Restart the server to refresh the index after big filesystem changes.
 
 ## Tests
 

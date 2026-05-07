@@ -4,8 +4,10 @@ When this command runs, produce a **summary report** comparing **leaf folders** 
 
 ## Rules
 
-- Follow `.cursor/skills/pdf-file-manager/SKILL.md`: use **`PdfFileManager`** from `ai_study_buddy/pdf_file_manager/pdf_file_manager.py` and root resolution from `ai_study_buddy/files/roots.py` (`resolve_daydreamedu_root()`). Do **not** query the SQLite registry with ad hoc SQL for this task.
-- Resolve the DaydreamEdu root with `resolve_daydreamedu_root()` (uses `DAYDREAMEDU_ROOT` or `ai_study_buddy/local_daydreamedu_root.txt`). If it returns `None`, say so and stop.
+- Follow `.cursor/skills/pdf-file-manager/SKILL.md`: use **`PdfFileManager`** from `ai_study_buddy/pdf_file_manager/pdf_file_manager.py`.
+- Resolve the DaydreamEdu root with **`resolve_daydreamedu_root()`** from `ai_study_buddy/files/roots.py`. If it returns `None`, say so and stop.
+- **Enumerate leaf folders only via `ai_study_buddy.files`:** use **`list_daydreamedu_leaf_folders_under_root(root)`** from `ai_study_buddy.files.leaf_folders` (or `from ai_study_buddy.files import …`). Do **not** hand-roll `os.walk` / exclusion logic for this report — the helper matches these definitions and avoids drift vs GoodNotes/other tools.
+- Do **not** query the SQLite registry with ad hoc SQL for this task.
 
 ## Path layout (DaydreamEdu root)
 
@@ -30,7 +32,18 @@ Legacy paths without a `template/` or `completion/` prefix are obsolete after th
 
 ## What to run
 
-Execute a short **Python one-shot** from the repo root with package imports (no `sys.path` mutation): `from ai_study_buddy.pdf_file_manager import PdfFileManager` and `from ai_study_buddy.files.roots import resolve_daydreamedu_root`. Use the default registry path from the utility / `PDF_REGISTRY_PATH` if set.
+Execute a short **Python one-shot** from the repo root with package imports (no `sys.path` mutation):
+
+- `from ai_study_buddy.pdf_file_manager import PdfFileManager`
+- `from ai_study_buddy.files.roots import resolve_daydreamedu_root`
+- `from ai_study_buddy.files.leaf_folders import list_daydreamedu_leaf_folders_under_root, list_leaf_folders_under_root`
+
+Use the default registry path from the utility / `PDF_REGISTRY_PATH` if set.
+
+### Leaf folders (required)
+
+- After resolving `root = resolve_daydreamedu_root()`, set **`included_leaves = list_daydreamedu_leaf_folders_under_root(root)`**. Use only these paths for `leaf_folders_total`, scan-root splits, registration buckets, and the full folder table.
+- To report **Excluded leaf folders** (item 3 below): compute `all_leaves = list_leaf_folders_under_root(root, include_suffixes={".pdf"})`, then **`excluded_leaves = sorted(set(all_leaves) - set(included_leaves))`**. That difference is exactly the profile exclusions (typically the `.` root leaf when present); do not duplicate exclusion rules in-line.
 
 ### Implementation hardening (required)
 
