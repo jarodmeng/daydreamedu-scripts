@@ -2,7 +2,7 @@
 
 Local **two-pane** browser for PDFs under your configured **DaydreamEdu** and **GoodNotes** filesystem roots (dev / ops tooling). Runs a tiny HTTP server on loopback only; paths are constrained so requests cannot escape a chosen root.
 
-**Current version:** `v0.1.2` — see [CHANGELOG.md](./CHANGELOG.md).
+**Current version:** `v0.1.3` — see [CHANGELOG.md](./CHANGELOG.md).
 
 ## Requirements
 
@@ -45,6 +45,8 @@ Forwarded flags apply to `serve`, e.g. `--port 8771 --no-browser`. Launcher-only
 | `/api/pdf` | GET, HEAD | Query `id`, `rel` — PDF bytes or headers only |
 
 All file access goes through `safe_resolve_under_root`; dotfiles are skipped in listings.
+
+**Raw-file filter (UI-only):** by default the sidebar hides PDFs whose basename starts with **`_raw_`** (the registry's raw-archive convention). A leaf folder containing other PDFs gets a small "(N _raw_ files hidden)" hint; an otherwise-empty leaf collapses to that same hint instead of "(empty)". Toggle **Show `_raw_` files** at the top of the sidebar to reveal them; the choice is persisted in `localStorage` (`root_pdf_browser.showRaw`). The server still serves these files when requested directly via `/api/pdf` — the filter is purely client-side.
 
 **Navigation model:** the tree is built from **`ai_study_buddy.files` PDF leaf folders** only — prefixes of **`list_daydreamedu_leaf_folders_under_root(daydreamedu_root)`** and **`list_goodnotes_leaf_folders_under_root(goodnotes_root, exclude_not_completed=False)`**. Directories that never lead to a leaf folder are hidden (for example stray top-level **`db/`** without PDF leaves). **`/api/pdf`** is served only when the PDF’s parent directory is itself a leaf folder in that snapshot. If a synced root contains **zero** qualifying leaf folders, that root opens with an empty tree at the top level. Restart the server to refresh the index after big filesystem changes.
 

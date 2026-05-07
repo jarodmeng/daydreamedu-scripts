@@ -10,6 +10,12 @@
   <div id="layout">
     <aside id="sidebar" aria-label="Folder trees">
       <h1>Root PDF browser</h1>
+      <section class="sidebar-controls" aria-label="Display options">
+        <label class="toggle-row" title="When off, files whose basename starts with _raw_ are hidden from the tree.">
+          <input type="checkbox" id="show-raw-toggle">
+          <span>Show <code>_raw_</code> files</span>
+        </label>
+      </section>
       <section id="bookmarks-section" class="bookmarks-section" aria-label="Bookmarked PDFs">
         <div class="bookmarks-section-head">
           <h2 class="bookmarks-heading">Bookmarks</h2>

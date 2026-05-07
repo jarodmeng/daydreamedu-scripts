@@ -2,13 +2,41 @@
   "use strict";
 
   const BOOKMARKS_KEY = "root_pdf_browser.bookmarks";
+  const SHOW_RAW_KEY = "root_pdf_browser.showRaw";
+  const RAW_PREFIX = "_raw_";
 
   /** @type {Record<string, { id: string, label: string, path: string }>} */
   let rootsById = {};
+  /** @type {Array<{ id: string, label: string, path: string }>} */
+  let rootsList = [];
 
   /** Currently opened PDF in the right pane (for left-panel highlight). */
   let currentViewRootId = null;
   let currentViewRel = null;
+
+  function getShowRaw() {
+    try {
+      return localStorage.getItem(SHOW_RAW_KEY) === "1";
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function setShowRaw(on) {
+    try {
+      localStorage.setItem(SHOW_RAW_KEY, on ? "1" : "0");
+    } catch (e) {
+      /* ignore */
+    }
+  }
+
+  function isRawPdfName(name) {
+    return typeof name === "string" && name.startsWith(RAW_PREFIX);
+  }
+
+  function applyShowRawClass() {
+    document.body.classList.toggle("hide-raw", !getShowRaw());
+  }
 
   function joinRel(parent, name) {
     if (!parent) return name;
@@ -416,6 +444,12 @@
         ul.removeChild(placeholder);
         const dirs = data.dirs || [];
         const pdfs = data.pdfs || [];
+        let rawCount = 0;
+        pdfs.forEach(function (n) {
+          if (isRawPdfName(n)) {
+            rawCount += 1;
+          }
+        });
         if (dirs.length === 0 && pdfs.length === 0) {
           const li = document.createElement("li");
           li.className = "empty-folder";
@@ -444,6 +478,9 @@
         pdfs.forEach(function (name) {
           const fullRel = joinRel(rel, name);
           const li = document.createElement("li");
+          if (isRawPdfName(name)) {
+            li.classList.add("is-raw-row");
+          }
           const row = document.createElement("div");
           row.className = "pdf-row";
           row.setAttribute("data-root-id", rootId);
@@ -478,6 +515,13 @@
           bm.textContent = on ? "\u2605" : "\u2606";
           bm.setAttribute("aria-label", on ? "Remove bookmark" : "Add bookmark");
         });
+        if (rawCount > 0) {
+          const li = document.createElement("li");
+          li.className = "raw-hidden-hint";
+          li.textContent =
+            rawCount + " _raw_ file" + (rawCount === 1 ? "" : "s") + " hidden";
+          ul.appendChild(li);
+        }
         syncCurrentViewHighlight();
       })
       .catch(function (err) {
@@ -578,8 +622,41 @@
     });
   }
 
+  function renderAllRoots() {
+    const container = document.getElementById("roots-container");
+    if (!container) {
+      return;
+    }
+    container.innerHTML = "";
+    if (rootsList.length === 0) {
+      container.textContent = "No roots available.";
+      renderBookmarksPanel();
+      syncCurrentViewHighlight();
+      return;
+    }
+    rootsList.forEach(function (r) {
+      container.appendChild(renderRootBlock(r));
+    });
+    renderBookmarksPanel();
+  }
+
+  function wireShowRawToggle() {
+    const cb = document.getElementById("show-raw-toggle");
+    if (!cb || cb.dataset.wired) {
+      return;
+    }
+    cb.dataset.wired = "1";
+    cb.checked = getShowRaw();
+    cb.addEventListener("change", function () {
+      setShowRaw(cb.checked);
+      applyShowRawClass();
+    });
+  }
+
   function boot() {
+    applyShowRawClass();
     wireBookmarksToolbar();
+    wireShowRawToggle();
     renderBookmarksPanel();
     setupSidebarResize();
     init();
@@ -595,22 +672,15 @@
         const container = document.getElementById("roots-container");
         loading.hidden = true;
         container.hidden = false;
-        container.innerHTML = "";
         const roots = cfg.roots || [];
         rootsById = {};
         roots.forEach(function (r) {
           rootsById[r.id] = { id: r.id, label: r.label, path: r.path };
         });
-        if (roots.length === 0) {
-          container.textContent = "No roots available.";
-          renderBookmarksPanel();
-          syncCurrentViewHighlight();
-          return;
-        }
-        roots.forEach(function (r) {
-          container.appendChild(renderRootBlock(r));
+        rootsList = roots.map(function (r) {
+          return { id: r.id, label: r.label, path: r.path };
         });
-        renderBookmarksPanel();
+        renderAllRoots();
       })
       .catch(function (err) {
         document.getElementById("roots-loading").textContent =

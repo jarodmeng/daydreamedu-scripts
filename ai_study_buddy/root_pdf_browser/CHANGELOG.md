@@ -4,6 +4,13 @@ All notable changes to **root_pdf_browser** are documented here.
 
 ---
 
+## [v0.1.3] — Hide `_raw_*` files by default with sidebar toggle
+
+- **Sidebar control:** new **Show `_raw_` files** checkbox (top of sidebar). Default **off**: PDFs whose basename starts with **`_raw_`** are hidden from the tree on the client. Toggle is persisted in `localStorage` (`root_pdf_browser.showRaw`).
+- **In-place visibility (no re-render):** every PDF is rendered once per folder; `_raw_*` rows are tagged `is-raw-row` and shown/hidden via `body.hide-raw` CSS rules. Flipping the toggle no longer collapses already-expanded `<details>` along the path you were traversing.
+- **Hint UX:** any leaf folder that contains `_raw_` files always renders a faint "N _raw_ files hidden" hint line; the same CSS rule (`body:not(.hide-raw)`) hides that hint once `_raw_` rows are visible. Truly empty folders still show "(empty)".
+- **Server unchanged:** filter is purely UI-side; `/api/list` still returns every PDF, and `/api/pdf` still serves `_raw_*.pdf` directly when requested. No changes to path confinement or leaf-folder logic.
+
 ## [v0.1.2] — Leaf-prefix navigation from `files` leaf-folder lists
 
 - **Browse tree** = POSIX prefixes of **`list_daydreamedu_leaf_folders_under_root`** / **`list_goodnotes_leaf_folders_under_root(..., exclude_not_completed=False)`** (computed once at startup; printed counts per root).
