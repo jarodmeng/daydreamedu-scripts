@@ -11,9 +11,9 @@ When this command runs, produce a **summary report** comparing **leaf folders** 
 
 - **Leaf folder:** A directory under the GoodNotes root that has **at least one `*.pdf` file directly inside it**, regardless of whether it has subdirectories.
 - **Excluded folder subtree:** Any directory whose path contains a segment named exactly `Not completed` (case-insensitive). Exclude these directories and all descendants from traversal and reporting.
+- **Excluded folder subtree (x-prefix):** Any directory whose path contains a segment matching regex `^x[A-Z].*$` (lowercase `x`, second character uppercase). Exclude these directories and all descendants from traversal and reporting.
 - **Excluded leaf folders:** Treat these relative paths as fully excluded from `leaf_folders_total` and every subsequent count/table in this report:
   - `.`
-  - `Coding`
 - **Registered:** A PDF's **`Path.resolve()`** string matches a row from `PdfFileManager().find_files()` (build a set of resolved `path` strings).
 - **Unregistered in a leaf:** At least one direct `*.pdf` in that folder whose resolved path is not in that set.
 - **Scan root:** Compare each leaf folder's resolved path **as a string** to `PdfFileManager().list_scan_roots()` (same resolved-path string set as below). **Do not** test `pathlib.Path` objects for membership in those sets.

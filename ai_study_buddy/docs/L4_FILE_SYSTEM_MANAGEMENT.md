@@ -95,7 +95,7 @@ These are not hardcoded into the generic function, but represented as policy def
   - include suffixes: `{".pdf"}`
   - excluded leaf folders (absolute): all leaf folders under root that are either:
     - equal to root (`"."`), or
-    - under `root / "Coding"`, or
+    - under any path containing a segment matching `^x[A-Z].*$` (lowercase `x`, second character uppercase), or
     - under any path containing a segment `Not completed` (case-insensitive)
 
 - **DaydreamEdu report defaults**
@@ -179,7 +179,7 @@ This preserves deterministic behavior while keeping API generic for future `.md`
 - [x] Add convenience wrappers for DaydreamEdu/GoodNotes policy defaults.
 
 ### Phase 3 — Profile helpers for command parity
-- [x] Implement helper to compute GoodNotes excluded leaf folders as absolute paths (root, under `Coding`, any path containing `Not completed` segment).
+- [x] Implement helper to compute GoodNotes excluded leaf folders as absolute paths (root, any path containing segment matching `^x[A-Z].*$`, any path containing `Not completed` segment).
 - [x] Implement helper to compute DaydreamEdu excluded leaf folders as absolute paths (root, leaf basename `Note`/`Notes`).
 - [x] Validate helper output against current cursor-command definitions on representative sample trees.
 

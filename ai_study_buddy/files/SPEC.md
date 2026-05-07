@@ -65,7 +65,7 @@ Both default `include_suffixes` to `{".pdf"}` when omitted.
 Builds an internal excluded set from **all** leaves (under the same suffix set), then excludes any leaf that:
 
 - equals `root` (resolved), or
-- has relative path (to `root`) whose **first** segment is `Coding` (case-insensitive), or
+- has any path segment matching regex `^x[A-Z].*$` (segment name only), or
 - has any path segment equal to `Not completed` (case-insensitive).
 
 Then calls `list_leaf_folders_under_root` with that excluded set.
