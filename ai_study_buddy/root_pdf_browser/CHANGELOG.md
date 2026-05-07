@@ -4,6 +4,10 @@ All notable changes to **root_pdf_browser** are documented here.
 
 ---
 
+## [v0.1.5] — Clarify unregistered-file indicator
+
+- **Badge semantics:** unregistered files now use **`⚠️`** (registered stays **`📄`**) so non-registered status is explicit at a glance.
+
 ## [v0.1.4] — Registry badges and runtime correlation
 
 - **Registry-aware badges:** `/api/list` now resolves **scan-root** and **per-PDF registration** at request time via `ai_study_buddy.files.pdf_registry_paths.RegistryPathIndex` and friends. The tree shows small 📁 / 📄 glyphs beside scan-root folders and registered PDFs (idempotent, no duplicated tags).

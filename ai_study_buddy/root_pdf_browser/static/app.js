@@ -380,7 +380,7 @@
     }
     const badge = document.createElement("span");
     badge.className = isRegistered ? "pdf-reg-badge is-registered" : "pdf-reg-badge is-unregistered";
-    badge.textContent = "📄";
+    badge.textContent = isRegistered ? "📄" : "⚠️";
     buttonEl.appendChild(document.createTextNode(" "));
     buttonEl.appendChild(badge);
   }
