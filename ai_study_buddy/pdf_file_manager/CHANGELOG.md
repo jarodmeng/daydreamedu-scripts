@@ -4,6 +4,11 @@ All notable changes to the pdf_file_manager utility are documented here.
 
 ---
 
+## [v0.3.15] — Wake backup: centralized under `utils/backup` only
+
+- Removed `pdf_file_manager/scripts/run_backup_on_wake.sh` and `install_run_on_wake.sh` (superseded by `ai_study_buddy/utils/backup/`).
+- Added `utils/backup/migrate_wakeup_backup_paths.py` (+ `.sh` wrapper) to rewrite `~/.wakeup` after pulling this change if it still referenced the old script paths.
+
 ## [v0.3.14] — D_ROOT `template/` / `completion/` layout: scripts and docs
 
 - **Completed operational migration** (outside core API changes): DaydreamEdu on-disk and registry paths now use a branch-first layout under `DAYDREAMEDU_ROOT`: `template/<subject>/…` and `completion/<subject>/…` (see [`docs/proposals/14-d-root-template-completion-top-level-split.md`](./docs/proposals/14-d-root-template-completion-top-level-split.md)).

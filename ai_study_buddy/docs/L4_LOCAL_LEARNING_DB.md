@@ -40,10 +40,7 @@ The goal is not to deploy Postgres immediately. The goal is to build a local SQL
 
 Implementation update (2026-05-06):
 
-- `learning_db` now includes wake-triggered auto backup scripts under `ai_study_buddy/learning_db/scripts/`:
-  - `install_run_on_wake.sh`
-  - `run_backup_on_wake.sh`
-  - `uninstall_run_on_wake.sh`
+- Wake-triggered auto backup shell for `study_buddy.db` lives under `ai_study_buddy/utils/backup/` (`run_learning_db_wake.sh`, `install_learning_db_wake.sh`, `uninstall_learning_db_wake.sh`). The pdf-registry `install_pdf_registry_wake.sh` uses `run_wake_all.sh`, which backs up **both** DBs on wake. After upgrades, migrate `~/.wakeup` with `utils/backup/migrate_wakeup_backup_paths.sh` if needed.
 - backup retention tiering is implemented via:
   - `python3 -m ai_study_buddy.learning_db.cli.apply_backup_tiering`
 

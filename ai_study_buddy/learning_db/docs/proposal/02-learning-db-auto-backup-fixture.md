@@ -9,9 +9,13 @@ Decision updates (2026-05-06):
 - Use the same tiering defaults as `pdf_registry` for now.
 - Add `--dry-run` to tiering CLI.
 
+Operational update (2026-05-07):
+- Wake shell scripts are canonical under `ai_study_buddy/utils/backup/` (`run_learning_db_wake.sh`, `install_learning_db_wake.sh`, `uninstall_learning_db_wake.sh`; combined pdf+study flow via `run_wake_all.sh`).
+- Older `pdf_file_manager/scripts/*` / `learning_db/scripts/*` wake shims **removed** — after pulling, run `bash ai_study_buddy/utils/backup/migrate_wakeup_backup_paths.sh` when `~/.wakeup` still quotes legacy paths (use `--dry-run` first).
+
 ## Goal
 
-Add an operational fixture for automatic backups of `study_buddy.db`, similar to the existing `pdf_file_manager/scripts` wake-backup setup for `pdf_registry.db`.
+Add an operational fixture for automatic backups of `study_buddy.db`, aligned with (and hosted alongside) the wake-backup tooling for `pdf_registry.db` under `ai_study_buddy/utils/backup/`.
 
 The fixture should:
 
@@ -24,7 +28,7 @@ The fixture should:
 
 `learning_db` now stores production-adjacent projection state used by marking and review workflows. Manual backup commands exist, but backup reliability currently depends on humans remembering to run them.
 
-The `pdf_file_manager` package already uses a practical wake-triggered mechanism (`sleepwatcher` + `~/.wakeup` + user launch agent) that has proven low-friction. Reusing that pattern for `study_buddy.db` lowers operational risk and avoids inventing a second operational model.
+Wake-triggered backup uses the same machinery (`sleepwatcher` + `~/.wakeup` + LaunchAgent pattern), now centralized under `utils/backup/` for both SQLite DBs (`run_wake_all.sh` backs up both sequentially).
 
 ## Current state
 
@@ -35,24 +39,24 @@ The `pdf_file_manager` package already uses a practical wake-triggered mechanism
   - unchanged-since-last-backup skip checks,
   - optional timestamped file mode,
   - append-only backup log (`study_buddy_backup.log`).
-- Missing piece:
-  - no native auto-trigger fixture comparable to `pdf_file_manager/scripts/install_run_on_wake.sh`.
+- Missing piece (historic):
+  - ~~no wake installer comparable to the pdf-registry path~~ superseded — see `ai_study_buddy/utils/backup/`.
 
-## Proposed solution
+## Proposed solution (historical checklist)
 
-Create a small script fixture under `learning_db/scripts/` that mirrors the established `pdf_file_manager/scripts/` setup.
+Wake scripts ultimately live under `ai_study_buddy/utils/backup/` (not `learning_db/scripts/`).
 
-### 1) New scripts
+### 1) Shell scripts — canonical paths
 
-Add:
+Implemented as:
 
-- `ai_study_buddy/learning_db/scripts/run_backup_on_wake.sh`
-- `ai_study_buddy/learning_db/scripts/install_run_on_wake.sh`
-- `ai_study_buddy/learning_db/scripts/uninstall_run_on_wake.sh`
+- `ai_study_buddy/utils/backup/run_learning_db_wake.sh`
+- `ai_study_buddy/utils/backup/install_learning_db_wake.sh`
+- `ai_study_buddy/utils/backup/uninstall_learning_db_wake.sh`
 
 Behavior:
 
-- `run_backup_on_wake.sh`
+- `run_learning_db_wake.sh` (wake runner)
   - sets deterministic `PATH`/`PYTHONPATH` for launchd context,
   - appends logs to `~/Library/Logs/study_buddy_backup_on_wake.log`,
   - retries backup command with bounded attempts (for transient mount/sync timing),
@@ -60,14 +64,14 @@ Behavior:
     - `python3 -m ai_study_buddy.learning_db.cli.backup_study_buddy_db --timestamp`,
   - applies retention tiering (see section below).
 
-- `install_run_on_wake.sh`
+- `install_learning_db_wake.sh`
   - verifies `sleepwatcher` exists,
   - appends wake hook to `~/.wakeup` (idempotent),
   - ensures `~/.sleep` exists,
   - installs user launch agent plist (dedicated label for learning DB),
   - unload/load cycle for immediate activation.
 
-- `uninstall_run_on_wake.sh`
+- `uninstall_learning_db_wake.sh`
   - unloads and removes plist,
   - removes fixture line from `~/.wakeup`,
   - preserves unrelated user wake hooks.
@@ -121,7 +125,7 @@ Update the following after implementation:
 
 - **Todos (checklist)**
   - [ ] Confirm current `backup_study_buddy_db.py` behavior still matches this proposal (default destination, skip logic, timestamp mode, log file naming).
-  - [ ] Confirm parity targets from `pdf_file_manager/scripts` for installer/wake flow and retry behavior.
+  - [ ] Confirm parity targets from `utils/backup` pdf-registry installers for wake flow and retry behavior.
   - [ ] Confirm canonical script names, launch agent label, and log paths for `learning_db`.
 - **Tests/checks (checklist)**
   - [ ] `python3 -m ai_study_buddy.learning_db.cli.backup_study_buddy_db --timestamp --force --dest <tmp-dir>`
@@ -148,16 +152,16 @@ Update the following after implementation:
 ### Phase 2 - Add wake runner and installer fixture
 
 - **Todos (checklist)**
-  - [ ] Add `ai_study_buddy/learning_db/scripts/run_backup_on_wake.sh`.
-  - [ ] Add `ai_study_buddy/learning_db/scripts/install_run_on_wake.sh`.
-  - [ ] Add `ai_study_buddy/learning_db/scripts/uninstall_run_on_wake.sh`.
+  - [x] Add `ai_study_buddy/utils/backup/run_learning_db_wake.sh`.
+  - [x] Add `ai_study_buddy/utils/backup/install_learning_db_wake.sh`.
+  - [x] Add `ai_study_buddy/utils/backup/uninstall_learning_db_wake.sh`.
   - [ ] Ensure wake runner uses bounded retries, invokes timestamped backup, then invokes tiering.
   - [ ] Ensure installer is idempotent for `~/.wakeup`, `~/.sleep`, and launch agent installation.
 - **Tests/checks (checklist)**
-  - [ ] `bash ai_study_buddy/learning_db/scripts/install_run_on_wake.sh`
+  - [ ] `bash ai_study_buddy/utils/backup/install_learning_db_wake.sh`
   - [ ] `launchctl list | rg study-buddy-backup-on-wake`
-  - [ ] `rg "learning_db/scripts/run_backup_on_wake.sh" ~/.wakeup` (single match)
-  - [ ] `bash ai_study_buddy/learning_db/scripts/run_backup_on_wake.sh`
+  - [ ] `rg utils/backup/run_learning_db_wake ~/.wakeup` (single match when using learning-only hook)
+  - [ ] `bash ai_study_buddy/utils/backup/run_learning_db_wake.sh`
   - [ ] Verify backup and logs:
     - timestamped `study_buddy_*.db` appears in backup directory,
     - `study_buddy_backup.log` appends an event,
@@ -173,7 +177,7 @@ Update the following after implementation:
   - [ ] Update `ai_study_buddy/docs/L4_LOCAL_LEARNING_DB.md` with cross-reference to this fixture.
   - [ ] Update `ai_study_buddy/learning_db/CHANGELOG.md` with the feature note.
 - **Tests/checks (checklist)**
-  - [ ] `rg "run_backup_on_wake|install_run_on_wake|apply_backup_tiering" ai_study_buddy/learning_db -g "*.md"`
+  - [ ] `rg "migrate_wakeup|install_learning_db_wake|apply_backup_tiering|utils/backup" ai_study_buddy/learning_db -g "*.md"`
   - [ ] Validate all documented commands run as written on one machine.
 - **Success criteria**
   - Operational docs are complete and consistent with implemented paths/commands; no stale references remain.
@@ -185,9 +189,9 @@ Update the following after implementation:
   - [ ] Confirm no regressions to existing one-shot backup CLI behavior.
   - [ ] Mark proposal status as Implemented with date and any deviations.
 - **Tests/checks (checklist)**
-  - [ ] `bash ai_study_buddy/learning_db/scripts/install_run_on_wake.sh`
-  - [ ] `bash ai_study_buddy/learning_db/scripts/run_backup_on_wake.sh`
-  - [ ] `bash ai_study_buddy/learning_db/scripts/uninstall_run_on_wake.sh`
+  - [ ] `bash ai_study_buddy/utils/backup/install_learning_db_wake.sh`
+  - [ ] `bash ai_study_buddy/utils/backup/run_learning_db_wake.sh`
+  - [ ] `bash ai_study_buddy/utils/backup/uninstall_learning_db_wake.sh`
   - [ ] Re-run one-shot backup CLI in both normal and `--force` modes.
 - **Success criteria**
   - Fixture is production-ready for local developer machines, and proposal state is fully reconciled with implementation.
@@ -206,9 +210,12 @@ Update the following after implementation:
 
 ## References
 
-- Existing wake fixture scripts:
-  - `ai_study_buddy/pdf_file_manager/scripts/install_run_on_wake.sh`
-  - `ai_study_buddy/pdf_file_manager/scripts/run_backup_on_wake.sh`
+- Combined wake fixture (recommended):
+  - `ai_study_buddy/utils/backup/install_pdf_registry_wake.sh`
+  - `ai_study_buddy/utils/backup/run_wake_all.sh`
+- Learning-only hooks:
+  - `ai_study_buddy/utils/backup/install_learning_db_wake.sh`
+  - `ai_study_buddy/utils/backup/run_learning_db_wake.sh`
 - Existing backup CLIs:
   - `ai_study_buddy/pdf_file_manager/scripts/backup_pdf_registry.py`
   - `ai_study_buddy/learning_db/cli/backup_study_buddy_db.py`

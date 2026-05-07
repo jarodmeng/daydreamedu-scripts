@@ -128,18 +128,20 @@ Behavior:
 Install:
 
 ```bash
-bash ai_study_buddy/learning_db/scripts/install_run_on_wake.sh
+bash ai_study_buddy/utils/backup/install_learning_db_wake.sh
 ```
 
 Uninstall:
 
 ```bash
-bash ai_study_buddy/learning_db/scripts/uninstall_run_on_wake.sh
+bash ai_study_buddy/utils/backup/uninstall_learning_db_wake.sh
 ```
 
 Verification:
 
 ```bash
 launchctl list | rg study-buddy-backup-on-wake
-rg "learning_db/scripts/run_backup_on_wake.sh" ~/.wakeup
+rg -E 'utils/backup/run_(wake_all|learning_db_wake)' ~/.wakeup
 ```
+
+Prefer one combined hook: run `bash ai_study_buddy/utils/backup/install_pdf_registry_wake.sh` so `~/.wakeup` runs `run_wake_all.sh`; then the learning-db–only installer usually skips (`~/.wakeup` already covered).

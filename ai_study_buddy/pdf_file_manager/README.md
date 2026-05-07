@@ -111,16 +111,25 @@ The registry DB (`ai_study_buddy/db/pdf_registry.db`) is gitignored. To back it 
 Once the file is inside your Google Drive folder, it will sync to the cloud automatically.
 
 **Run backup on wake (optional)**  
-To back up automatically when the Mac wakes from sleep (only if the DB changed), use [sleepwatcher](https://formulae.brew.sh/formula/sleepwatcher):
+To back up automatically when the Mac wakes from sleep (only if DBs changed), use [sleepwatcher](https://formulae.brew.sh/formula/sleepwatcher):
 
 ```bash
 brew install sleepwatcher
-./ai_study_buddy/pdf_file_manager/scripts/install_run_on_wake.sh
+bash ai_study_buddy/utils/backup/install_pdf_registry_wake.sh
 ```
 
-This installs a user LaunchAgent that runs wake maintenance after each wake:
+All wake helpers live under `ai_study_buddy/utils/backup/`: `install_pdf_registry_wake.sh`, `run_wake_all.sh`, `run_pdf_registry_wake.sh`, `run_learning_db_wake.sh`.
 
-1. timestamped backup (`backup_pdf_registry.py --timestamp`)
-2. tiering/prune (`apply_backup_tiering.py --hot-days 7 --cold-days 60`)
+This installs `com.daydreamedu.pdf-registry-backup-on-wake` so `~/.wakeup` runs `run_wake_all.sh`:
 
-The backup step still skips when unchanged. To remove: `launchctl unload ~/Library/LaunchAgents/com.daydreamedu.pdf-registry-backup-on-wake.plist` and edit or remove `~/.wakeup`.
+1. PDF registry timestamped backup and tiering
+2. `study_buddy.db` timestamped backup and tiering
+
+**Upgrading:** if `~/.wakeup` still quotes removed paths under `pdf_file_manager/scripts/` or `learning_db/scripts/`, run:
+
+```bash
+bash ai_study_buddy/utils/backup/migrate_wakeup_backup_paths.sh --dry-run   # preview
+bash ai_study_buddy/utils/backup/migrate_wakeup_backup_paths.sh             # rewrite ~/.wakeup
+```
+
+Each backup step skips when unchanged. To remove the agent: `launchctl unload ~/Library/LaunchAgents/com.daydreamedu.pdf-registry-backup-on-wake.plist` and edit `~/.wakeup` as needed.

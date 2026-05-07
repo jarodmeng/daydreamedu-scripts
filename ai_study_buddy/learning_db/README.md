@@ -2,7 +2,7 @@
 
 SQLite projection layer for AI Study Buddy canonical JSON artifacts under `ai_study_buddy/context/`.
 
-Current version: `0.1.4`
+Current version: `0.1.5`
 
 ## Scope
 
@@ -68,17 +68,16 @@ python3 -m ai_study_buddy.learning_db.cli.backup_study_buddy_db --timestamp
 # retention tiering (use --dry-run first)
 python3 -m ai_study_buddy.learning_db.cli.apply_backup_tiering --dry-run
 
-# install wake-triggered auto-backup fixture
-bash ai_study_buddy/learning_db/scripts/install_run_on_wake.sh
+# install wake-triggered auto-backup fixture (learning-only; combined install is install_pdf_registry_wake.sh)
+bash ai_study_buddy/utils/backup/install_learning_db_wake.sh
 ```
 
 ## Auto Backup on Wake
 
-The `learning_db` package includes a wake-triggered auto-backup fixture that mirrors the `pdf_registry` pattern:
+Wake backup shell lives beside other shared utilities:
 
-- installer: `ai_study_buddy/learning_db/scripts/install_run_on_wake.sh`
-- runner: `ai_study_buddy/learning_db/scripts/run_backup_on_wake.sh`
-- uninstaller: `ai_study_buddy/learning_db/scripts/uninstall_run_on_wake.sh`
+- installers/runners/uninstaller: `ai_study_buddy/utils/backup/install_learning_db_wake.sh`, `run_learning_db_wake.sh`, `uninstall_learning_db_wake.sh`
+- upgrade `~/.wakeup`: `bash ai_study_buddy/utils/backup/migrate_wakeup_backup_paths.sh` (`--dry-run` first)
 
 Behavior:
 
@@ -86,6 +85,8 @@ Behavior:
 - skip when source DB is unchanged
 - apply retention tiering (`hot-days=7`, `cold-days=60`)
 - write wake logs to `~/Library/Logs/study_buddy_backup_on_wake.log`
+
+Combined wake flow: `ai_study_buddy/utils/backup/run_wake_all.sh` invokes `run_pdf_registry_wake.sh` then `run_learning_db_wake.sh`. Installs driven by `install_pdf_registry_wake.sh` quote `run_wake_all.sh` in `~/.wakeup`.
 
 Backup destination is controlled by `STUDY_BUDDY_DB_BACKUP_DIR` (default: `<DaydreamEdu root>/db`).
 

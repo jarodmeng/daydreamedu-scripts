@@ -2,6 +2,19 @@
 
 All notable changes to `ai_study_buddy.learning_db` are documented in this file.
 
+## [0.1.5] - 2026-05-07
+
+### Changed
+
+- Wake backup for `study_buddy.db` lives only under **`ai_study_buddy/utils/backup/`** (`run_learning_db_wake.sh`, `install_learning_db_wake.sh`, `uninstall_learning_db_wake.sh`; combined pdf + study backup via **`run_wake_all.sh`** / **`install_pdf_registry_wake.sh`**).
+- **`learning_db/scripts/`** wake shims (`install_run_on_wake.sh`, `run_backup_on_wake.sh`, `uninstall_run_on_wake.sh`) and that directory removed after a transitional period; installers detect only **`utils/backup`** paths.
+- **`pdf_file_manager`** wake shim scripts removed the same way (see **`pdf_file_manager` CHANGELOG `[v0.3.15]`**).
+- Learning-only **`install_learning_db_wake.sh`**: when `~/.wakeup` already invokes **`utils/backup/run_wake_all.sh`** and **`com.daydreamedu.pdf-registry-backup-on-wake`** is installed, skip appending another wake line and skip loading a second sleepwatcher LaunchAgent.
+
+### Added
+
+- **`migrate_wakeup_backup_paths.py`** and **`migrate_wakeup_backup_paths.sh`** — rewrite **`~/.wakeup`** lines from old shim paths (`pdf_file_manager/scripts/run_backup_on_wake.sh`, **`learning_db/scripts/run_backup_on_wake.sh`**) to canonical **`utils/backup`** scripts; drop redundant **`run_learning_db_wake.sh`** when **`run_wake_all.sh`** is present.
+
 ## [0.1.4] - 2026-05-06
 
 Patch: module documentation (`SPEC.md`, `ARCHITECTURE.md`) and README version line.
@@ -26,10 +39,7 @@ Patch: add wake-triggered backup fixture and retention tiering for `study_buddy.
 - New tiering CLI:
   - `python3 -m ai_study_buddy.learning_db.cli.apply_backup_tiering`
   - supports `--hot-days`/`--cold-days` and `--dry-run`
-- Wake automation scripts:
-  - `ai_study_buddy/learning_db/scripts/run_backup_on_wake.sh`
-  - `ai_study_buddy/learning_db/scripts/install_run_on_wake.sh`
-  - `ai_study_buddy/learning_db/scripts/uninstall_run_on_wake.sh`
+- Wake automation scripts under **`learning_db/scripts/`** (`run_backup_on_wake.sh`, `install_run_on_wake.sh`, `uninstall_run_on_wake.sh`); **canonical paths and migration** summarized under **[0.1.5]**.
 
 ### Changed
 

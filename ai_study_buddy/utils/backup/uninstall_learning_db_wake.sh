@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Uninstall "run study_buddy backup on wake" sleepwatcher fixture.
+# Uninstall study-buddy LaunchAgent strip learning-only lines from ~/.wakeup (combined runner untouched).
 
 set -euo pipefail
 PLIST_ID="com.daydreamedu.study-buddy-backup-on-wake"
@@ -22,14 +22,17 @@ import sys
 
 wakeup = Path(sys.argv[1])
 tmp = Path(sys.argv[2])
-needle = "learning_db/scripts/run_backup_on_wake.sh"
+needles = (
+    "learning_db/scripts/run_backup_on_wake.sh",
+    "utils/backup/run_learning_db_wake.sh",
+)
 lines = wakeup.read_text(encoding="utf-8").splitlines()
-filtered = [line for line in lines if needle not in line]
+filtered = [line for line in lines if not any(n in line for n in needles)]
 tmp.write_text("\n".join(filtered) + ("\n" if filtered else ""), encoding="utf-8")
 PY
   mv "$TMP_FILE" "$WAKEUP"
   chmod +x "$WAKEUP"
-  echo "Removed learning_db wake hook from $WAKEUP"
+  echo "Removed learning-only wake hook lines from $WAKEUP"
 else
   echo "No ~/.wakeup found."
 fi

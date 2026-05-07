@@ -452,5 +452,5 @@ For all returned data class shapes (`PdfFile`, `FileGroup`, `FileGroupMember`, a
 | `get_operation_log` query | ✅ Implemented |
 | Backup utility (`backup_pdf_registry.py`) | ✅ Implemented |
 | Backup tiering utility (`apply_backup_tiering.py`) | ✅ Implemented |
-| Wake automation (`run_backup_on_wake.sh`) with timestamp + tiering | ✅ Implemented |
+| Wake automation (`utils/backup/run_wake_all.sh` etc.) with timestamp + tiering | ✅ Implemented |
 | Built-in CLI layer | ❌ Removed |
