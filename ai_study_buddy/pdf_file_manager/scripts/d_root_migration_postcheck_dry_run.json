@@ -1,0 +1,18 @@
+{
+  "d_root": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu",
+  "mode": "dry_run",
+  "filters": {
+    "subject": null,
+    "branch": null
+  },
+  "stats": {
+    "file_already_prefixed": 5247,
+    "scan_root_already_prefixed": 138
+  },
+  "file_moves_preview": [],
+  "scan_root_updates_preview": [],
+  "collision_examples": {
+    "file_duplicate_target_paths": [],
+    "scan_root_duplicate_target_paths": []
+  }
+}

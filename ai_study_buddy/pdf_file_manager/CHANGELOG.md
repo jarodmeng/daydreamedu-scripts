@@ -4,6 +4,16 @@ All notable changes to the pdf_file_manager utility are documented here.
 
 ---
 
+## [v0.3.14] — D_ROOT `template/` / `completion/` layout: scripts and docs
+
+- **Completed operational migration** (outside core API changes): DaydreamEdu on-disk and registry paths now use a branch-first layout under `DAYDREAMEDU_ROOT`: `template/<subject>/…` and `completion/<subject>/…` (see [`docs/proposals/14-d-root-template-completion-top-level-split.md`](./docs/proposals/14-d-root-template-completion-top-level-split.md)).
+- **One-off scripts** under `scripts/`:
+  - `_migrate_d_root_top_level_branches.py` — dry-run and batched `PdfFileManager` moves + scan-root updates.
+  - `_repair_raw_main_relation_dangling_edges.py` — remove orphan `file_relations` raw/main edges (optional post-migration hygiene).
+  - `_prune_empty_dirs_d_root.py` — prune empty directories under D_ROOT; `--evict-macos-metadata` removes `.DS_Store` / `.localized` when they block `rmdir` (macOS / Google Drive).
+- **Docs:** [`ai_study_buddy/docs/L4_FILE_FRAMEWORK.md`](../docs/L4_FILE_FRAMEWORK.md) on-disk diagram and notes; [`.cursor/commands/daydreamedu-leaf-registry-report.md`](../../.cursor/commands/daydreamedu-leaf-registry-report.md) path layout and cleanup guidance.
+- **No change** to `pdf_file_manager.py` library semantics in this patch; strict enforcement of the new path shape in write APIs remains **deferred** (see proposal closure).
+
 ## [v0.3.13] — Remove `Archive` from grade/scope inference tokens
 
 - Removed `Archive` from `PdfFileManager._GRADE_SCOPE_SEGMENTS`; accepted grade/scope inference tokens are now `P1`-`P6` and `PSLE`.

@@ -1,0 +1,294 @@
+{
+  "d_root": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu",
+  "mode": "execute",
+  "filters": {
+    "subject": "Singapore Primary Math",
+    "branch": "template"
+  },
+  "stats": {
+    "file_skipped_by_filter": 4081,
+    "file_candidates": 1166,
+    "file_candidates_template": 1166,
+    "scan_root_skipped_by_filter": 120,
+    "scan_root_candidates": 18,
+    "scan_root_candidates_template": 18
+  },
+  "file_moves_preview": [
+    {
+      "file_id": "d7563675-e072-40ac-b8f3-f7c4653d3abb",
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Math/P6/Exam/_c_P6 WA1 practice paper 3.pdf",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/template/Singapore Primary Math/P6/Exam/_c_P6 WA1 practice paper 3.pdf",
+      "branch": "template",
+      "subject": "Singapore Primary Math"
+    },
+    {
+      "file_id": "a2cb7b4c-e047-49a6-b88e-bf82a3195e1c",
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Math/P6/Exam/_raw_P6 WA1 practice paper 3.pdf",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/template/Singapore Primary Math/P6/Exam/_raw_P6 WA1 practice paper 3.pdf",
+      "branch": "template",
+      "subject": "Singapore Primary Math"
+    },
+    {
+      "file_id": "ad2c2151-604c-491a-9f96-521be165d322",
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Math/P6/Exam/_c_P6 WA1 practice paper 1.pdf",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/template/Singapore Primary Math/P6/Exam/_c_P6 WA1 practice paper 1.pdf",
+      "branch": "template",
+      "subject": "Singapore Primary Math"
+    },
+    {
+      "file_id": "6c79d266-ad85-4724-98d5-d98e65c06350",
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Math/P6/Exam/_raw_P6 WA1 practice paper 1.pdf",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/template/Singapore Primary Math/P6/Exam/_raw_P6 WA1 practice paper 1.pdf",
+      "branch": "template",
+      "subject": "Singapore Primary Math"
+    },
+    {
+      "file_id": "58f3fe0f-06d5-468e-bcd8-998291634e9d",
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Math/P5/Exercise/_c_p5.math.001.P5 Term 1 Weekend Worksheet 1.pdf",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/template/Singapore Primary Math/P5/Exercise/_c_p5.math.001.P5 Term 1 Weekend Worksheet 1.pdf",
+      "branch": "template",
+      "subject": "Singapore Primary Math"
+    },
+    {
+      "file_id": "380b25e6-b189-44cb-916f-176946dae964",
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Math/P5/Exercise/_raw_p5.math.001.P5 Term 1 Weekend Worksheet 1.pdf",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/template/Singapore Primary Math/P5/Exercise/_raw_p5.math.001.P5 Term 1 Weekend Worksheet 1.pdf",
+      "branch": "template",
+      "subject": "Singapore Primary Math"
+    },
+    {
+      "file_id": "b50ac8ec-f1ed-4c01-8b78-55a7a9d05fa6",
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Math/P6/Exam/_c_p6.math.wa2.1.pdf",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/template/Singapore Primary Math/P6/Exam/_c_p6.math.wa2.1.pdf",
+      "branch": "template",
+      "subject": "Singapore Primary Math"
+    },
+    {
+      "file_id": "716d45b6-d9e8-4985-95ca-e194433d8944",
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Math/P6/Exam/_raw_p6.math.wa2.1.pdf",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/template/Singapore Primary Math/P6/Exam/_raw_p6.math.wa2.1.pdf",
+      "branch": "template",
+      "subject": "Singapore Primary Math"
+    },
+    {
+      "file_id": "29b02902-c007-4ee4-909f-af48abbcac47",
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Math/P6/Exam/_c_p6.math.wa2.2.pdf",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/template/Singapore Primary Math/P6/Exam/_c_p6.math.wa2.2.pdf",
+      "branch": "template",
+      "subject": "Singapore Primary Math"
+    },
+    {
+      "file_id": "e635bcdb-6c63-45af-bb80-46a48071ee07",
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Math/P6/Exam/_raw_p6.math.wa2.2.pdf",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/template/Singapore Primary Math/P6/Exam/_raw_p6.math.wa2.2.pdf",
+      "branch": "template",
+      "subject": "Singapore Primary Math"
+    },
+    {
+      "file_id": "0bf604b2-4c3d-4986-9b8c-c2f3a652883c",
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Math/P6/Exam/_c_p6.math.wa2.3.pdf",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/template/Singapore Primary Math/P6/Exam/_c_p6.math.wa2.3.pdf",
+      "branch": "template",
+      "subject": "Singapore Primary Math"
+    },
+    {
+      "file_id": "0ee1aeb0-5473-4c6d-b09c-bfc17a8f032e",
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Math/P6/Exam/_raw_p6.math.wa2.3.pdf",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/template/Singapore Primary Math/P6/Exam/_raw_p6.math.wa2.3.pdf",
+      "branch": "template",
+      "subject": "Singapore Primary Math"
+    },
+    {
+      "file_id": "24e562ee-06b8-4f09-b515-3dd4e678a00e",
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Math/P6/Exam/_c_p6.math.wa2.7.pdf",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/template/Singapore Primary Math/P6/Exam/_c_p6.math.wa2.7.pdf",
+      "branch": "template",
+      "subject": "Singapore Primary Math"
+    },
+    {
+      "file_id": "00d78b32-c3e2-4324-85a9-01c21e1c5651",
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Math/P6/Exam/_raw_p6.math.wa2.7.pdf",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/template/Singapore Primary Math/P6/Exam/_raw_p6.math.wa2.7.pdf",
+      "branch": "template",
+      "subject": "Singapore Primary Math"
+    },
+    {
+      "file_id": "7fc0b61f-2b9d-408e-a236-85f72afa5cc9",
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Math/P6/Exam/_c_p6.math.wa2.6.pdf",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/template/Singapore Primary Math/P6/Exam/_c_p6.math.wa2.6.pdf",
+      "branch": "template",
+      "subject": "Singapore Primary Math"
+    },
+    {
+      "file_id": "8ce4f8d6-8606-411d-a09b-3650e7ae8710",
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Math/P6/Exam/_raw_p6.math.wa2.6.pdf",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/template/Singapore Primary Math/P6/Exam/_raw_p6.math.wa2.6.pdf",
+      "branch": "template",
+      "subject": "Singapore Primary Math"
+    },
+    {
+      "file_id": "6bce86f3-e2eb-4458-9d34-5f64aecf5ca8",
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Math/P6/Exam/_c_p6.math.wa2.4.pdf",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/template/Singapore Primary Math/P6/Exam/_c_p6.math.wa2.4.pdf",
+      "branch": "template",
+      "subject": "Singapore Primary Math"
+    },
+    {
+      "file_id": "5fd0ab13-491f-4ebb-86fb-58098b0e4ee8",
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Math/P6/Exam/_raw_p6.math.wa2.4.pdf",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/template/Singapore Primary Math/P6/Exam/_raw_p6.math.wa2.4.pdf",
+      "branch": "template",
+      "subject": "Singapore Primary Math"
+    },
+    {
+      "file_id": "48844436-d13b-4911-ba2b-8c2be8f70c46",
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Math/P6/Exam/_c_p6.math.wa2.5.pdf",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/template/Singapore Primary Math/P6/Exam/_c_p6.math.wa2.5.pdf",
+      "branch": "template",
+      "subject": "Singapore Primary Math"
+    },
+    {
+      "file_id": "ef2199fd-6c90-4bf5-8406-c32609aa8e65",
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Math/P6/Exam/_raw_p6.math.wa2.5.pdf",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/template/Singapore Primary Math/P6/Exam/_raw_p6.math.wa2.5.pdf",
+      "branch": "template",
+      "subject": "Singapore Primary Math"
+    }
+  ],
+  "scan_root_updates_preview": [
+    {
+      "id": "68391624-495c-4d33-9b5c-0c16050487df",
+      "student_id": null,
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Math/P6/Exam",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/template/Singapore Primary Math/P6/Exam",
+      "branch": "template"
+    },
+    {
+      "id": "fd8975fe-aa4f-40bc-8a71-bd4bad424e88",
+      "student_id": null,
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Math/P6/Exercise",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/template/Singapore Primary Math/P6/Exercise",
+      "branch": "template"
+    },
+    {
+      "id": "69ad949e-1883-4e92-8fab-493872536230",
+      "student_id": null,
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Math/PSLE/Exam",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/template/Singapore Primary Math/PSLE/Exam",
+      "branch": "template"
+    },
+    {
+      "id": "d26c7ae5-bed3-49ab-9395-89a45838e087",
+      "student_id": null,
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Math/PSLE/Exercise",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/template/Singapore Primary Math/PSLE/Exercise",
+      "branch": "template"
+    },
+    {
+      "id": "5a7fb171-f794-4b9a-b3a5-91b844f4dbed",
+      "student_id": null,
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Math/P3/Exam",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/template/Singapore Primary Math/P3/Exam",
+      "branch": "template"
+    },
+    {
+      "id": "3d19ea5b-4e5d-4ea4-ab0d-6d0d138e6c1f",
+      "student_id": null,
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Math/P4/Exam",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/template/Singapore Primary Math/P4/Exam",
+      "branch": "template"
+    },
+    {
+      "id": "758a87a8-7b5f-4267-849d-76fae3137bd9",
+      "student_id": null,
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Math/P5/Exam",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/template/Singapore Primary Math/P5/Exam",
+      "branch": "template"
+    },
+    {
+      "id": "10f94722-9824-4815-88a3-8145df436805",
+      "student_id": null,
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Math/P1/Book/Math Weekly Revision Primary 1",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/template/Singapore Primary Math/P1/Book/Math Weekly Revision Primary 1",
+      "branch": "template"
+    },
+    {
+      "id": "ae686ee5-457b-472a-b8f6-cec88caa2e72",
+      "student_id": null,
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Math/P1/Book/Visible Thinking in Mathematics Primary 1A",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/template/Singapore Primary Math/P1/Book/Visible Thinking in Mathematics Primary 1A",
+      "branch": "template"
+    },
+    {
+      "id": "c6425cdd-8d14-49c1-b179-c81794f1af5e",
+      "student_id": null,
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Math/P2/Exercise",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/template/Singapore Primary Math/P2/Exercise",
+      "branch": "template"
+    },
+    {
+      "id": "b17fe6b0-aa80-453f-8e97-90a8f4d5efcc",
+      "student_id": null,
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Math/P3/Book/Conquer Exam Standard Mathematics Problems with Terry Chew Primary 3",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/template/Singapore Primary Math/P3/Book/Conquer Exam Standard Mathematics Problems with Terry Chew Primary 3",
+      "branch": "template"
+    },
+    {
+      "id": "f1bd6ae9-8b0c-4c64-b0ec-a0ddd4bd0526",
+      "student_id": null,
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Math/P3/Book/High Ability Singapore Math Primary 3",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/template/Singapore Primary Math/P3/Book/High Ability Singapore Math Primary 3",
+      "branch": "template"
+    },
+    {
+      "id": "28a4fbe1-8968-43cc-b29e-664cb98eacf1",
+      "student_id": null,
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Math/P4/Book/Math Model Drawing Made Easy and Inspiring Primary 3 and 4",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/template/Singapore Primary Math/P4/Book/Math Model Drawing Made Easy and Inspiring Primary 3 and 4",
+      "branch": "template"
+    },
+    {
+      "id": "4cd7041c-afbe-460a-98b3-69bea7a23506",
+      "student_id": null,
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Math/P5/Book/Conquer Exam Standard Mathematics Problem Sums with Terry Chew Primary 5",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/template/Singapore Primary Math/P5/Book/Conquer Exam Standard Mathematics Problem Sums with Terry Chew Primary 5",
+      "branch": "template"
+    },
+    {
+      "id": "a9d6249a-b5df-425c-9688-749a36d1fc70",
+      "student_id": null,
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Math/P6/Book/Model Drawing Made Easy and Inspiring for P5 and P6",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/template/Singapore Primary Math/P6/Book/Model Drawing Made Easy and Inspiring for P5 and P6",
+      "branch": "template"
+    },
+    {
+      "id": "5db8cdb3-9ea0-4bc0-9dbc-ee07b8bb68e5",
+      "student_id": null,
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Math/PSLE/Book/Power Pack Math PSLE",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/template/Singapore Primary Math/PSLE/Book/Power Pack Math PSLE",
+      "branch": "template"
+    },
+    {
+      "id": "958060af-2764-49ef-92c8-1bae8a08a40c",
+      "student_id": null,
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Math/P5/Exercise",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/template/Singapore Primary Math/P5/Exercise",
+      "branch": "template"
+    },
+    {
+      "id": "7aedd050-6709-41eb-a24c-5735612286db",
+      "student_id": null,
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Math/P4/Exercise",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/template/Singapore Primary Math/P4/Exercise",
+      "branch": "template"
+    }
+  ],
+  "collision_examples": {
+    "file_duplicate_target_paths": [],
+    "scan_root_duplicate_target_paths": []
+  },
+  "execute_result": {
+    "files_moved": 1166,
+    "scan_roots_updated": 18
+  }
+}

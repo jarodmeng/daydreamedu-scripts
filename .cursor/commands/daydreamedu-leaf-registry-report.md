@@ -7,6 +7,19 @@ When this command runs, produce a **summary report** comparing **leaf folders** 
 - Follow `.cursor/skills/pdf-file-manager/SKILL.md`: use **`PdfFileManager`** from `ai_study_buddy/pdf_file_manager/pdf_file_manager.py` and root resolution from `ai_study_buddy/files/roots.py` (`resolve_daydreamedu_root()`). Do **not** query the SQLite registry with ad hoc SQL for this task.
 - Resolve the DaydreamEdu root with `resolve_daydreamedu_root()` (uses `DAYDREAMEDU_ROOT` or `ai_study_buddy/local_daydreamedu_root.txt`). If it returns `None`, say so and stop.
 
+## Path layout (DaydreamEdu root)
+
+Registered PDFs under `DAYDREAMEDU_ROOT` use a **branch-first** layout:
+
+- **Template (general-scope):** `template/<subject folder>/<grade>/<type>/…/file.pdf`
+- **Completion (student-scope):** `completion/<subject folder>/<student email>/<grade>/<type>/…/file.pdf`
+
+The first path segment under the sync root is always `template` or `completion`. Leaf-folder reports and scan roots follow this layout (for example a scan root might be `…/DaydreamEdu/template/Singapore Primary Math/P6/Exam` or `…/DaydreamEdu/completion/…/winston.…/P5/Exam`). When interpreting **relative** paths in tables, they typically start with `template/` or `completion/`.
+
+Legacy paths without a `template/` or `completion/` prefix are obsolete after the D_ROOT migration.
+
+**Empty legacy directories:** After bulk moves, old directory trees may remain as empty shells. Finder also leaves **`.DS_Store`** (and sometimes **`.localized`**) files, so folders are not empty to `rmdir` until those are removed. Filesystem-only cleanup: `python3 -m ai_study_buddy.pdf_file_manager.scripts._prune_empty_dirs_d_root` (dry-run default; `--execute` removes empty dirs bottom-up). Use **`--evict-macos-metadata`** together with `--execute` to delete only `.DS_Store` / `.localized` when they are the sole files in a directory, then remove the directory—repeat once if needed so parents collapse. Does not change the registry.
+
 ## Definitions
 
 - **Leaf folder:** A directory under the DaydreamEdu root that has **at least one `*.pdf` file directly inside it**, regardless of whether it has subdirectories.

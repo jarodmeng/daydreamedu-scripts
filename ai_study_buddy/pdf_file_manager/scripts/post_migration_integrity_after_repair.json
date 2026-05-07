@@ -1,0 +1,31 @@
+{
+  "db_path": "/Users/jarodm/github/jarodmeng/daydreamedu-scripts/ai_study_buddy/db/pdf_registry.db",
+  "summary": {
+    "missing_on_disk_files": 0,
+    "book_folder_group_unit_issues": 0,
+    "student_scope_missing_student_id": 0,
+    "general_scope_non_template": 0,
+    "student_scope_template_true": 0,
+    "missing_student_id": 0,
+    "main_raw_metadata_drift": 0,
+    "invalid_chinese_variant_foundation": 0,
+    "invalid_subject_values": 0,
+    "invalid_grade_or_scope_values": 0,
+    "raw_main_relation_issues": 0,
+    "template_invalid_doc_type": 0
+  },
+  "checks": {
+    "missing_on_disk_files": [],
+    "book_folder_group_unit_issues": [],
+    "student_scope_missing_student_id": [],
+    "general_scope_non_template": [],
+    "student_scope_template_true": [],
+    "missing_student_id": [],
+    "main_raw_metadata_drift": [],
+    "invalid_chinese_variant_foundation": [],
+    "invalid_subject_values": [],
+    "invalid_grade_or_scope_values": [],
+    "raw_main_relation_issues": [],
+    "template_invalid_doc_type": []
+  }
+}

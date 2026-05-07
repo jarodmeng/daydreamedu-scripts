@@ -1,0 +1,245 @@
+{
+  "d_root": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu",
+  "mode": "execute",
+  "filters": {
+    "subject": "Singapore Primary Chinese",
+    "branch": "template"
+  },
+  "stats": {
+    "file_skipped_by_filter": 4495,
+    "file_candidates": 752,
+    "file_candidates_template": 752,
+    "scan_root_skipped_by_filter": 127,
+    "scan_root_candidates": 11,
+    "scan_root_candidates_template": 11
+  },
+  "file_moves_preview": [
+    {
+      "file_id": "2a7c64e4-fc22-466b-9381-1279e2a4fe59",
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Chinese/P6/Exam/_c_p6.chinese.wa1.4.pdf",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/template/Singapore Primary Chinese/P6/Exam/_c_p6.chinese.wa1.4.pdf",
+      "branch": "template",
+      "subject": "Singapore Primary Chinese"
+    },
+    {
+      "file_id": "bb03bf06-5b44-4c53-bb53-6c43b4f6a128",
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Chinese/P6/Exam/_raw_p6.chinese.wa1.4.pdf",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/template/Singapore Primary Chinese/P6/Exam/_raw_p6.chinese.wa1.4.pdf",
+      "branch": "template",
+      "subject": "Singapore Primary Chinese"
+    },
+    {
+      "file_id": "00c66a06-a95e-44da-abaa-d5a67313684d",
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Chinese/P6/Exam/_c_p6.chinese.wa1.1.pdf",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/template/Singapore Primary Chinese/P6/Exam/_c_p6.chinese.wa1.1.pdf",
+      "branch": "template",
+      "subject": "Singapore Primary Chinese"
+    },
+    {
+      "file_id": "0e875f6f-6e63-4ff2-8f47-ff5eec622ba9",
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Chinese/P6/Exam/_raw_p6.chinese.wa1.1.pdf",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/template/Singapore Primary Chinese/P6/Exam/_raw_p6.chinese.wa1.1.pdf",
+      "branch": "template",
+      "subject": "Singapore Primary Chinese"
+    },
+    {
+      "file_id": "14583ceb-a7b9-4c34-a562-f47585ef049d",
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Chinese/P6/Exam/_c_p6.chinese.wa1.2.pdf",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/template/Singapore Primary Chinese/P6/Exam/_c_p6.chinese.wa1.2.pdf",
+      "branch": "template",
+      "subject": "Singapore Primary Chinese"
+    },
+    {
+      "file_id": "b7f3be7b-cedb-46a4-9cb8-5db26ab39287",
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Chinese/P6/Exam/_raw_p6.chinese.wa1.2.pdf",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/template/Singapore Primary Chinese/P6/Exam/_raw_p6.chinese.wa1.2.pdf",
+      "branch": "template",
+      "subject": "Singapore Primary Chinese"
+    },
+    {
+      "file_id": "d6baa99c-4a17-4ff6-ba8d-11e7fc0290d3",
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Chinese/P6/Exam/_c_p6.chinese.wa1.3.pdf",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/template/Singapore Primary Chinese/P6/Exam/_c_p6.chinese.wa1.3.pdf",
+      "branch": "template",
+      "subject": "Singapore Primary Chinese"
+    },
+    {
+      "file_id": "67a46e12-c2e1-4d0b-9827-8321f64e3263",
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Chinese/P6/Exam/_raw_p6.chinese.wa1.3.pdf",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/template/Singapore Primary Chinese/P6/Exam/_raw_p6.chinese.wa1.3.pdf",
+      "branch": "template",
+      "subject": "Singapore Primary Chinese"
+    },
+    {
+      "file_id": "7639b237-e17c-4d3b-b37e-09fb0cb52a53",
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Chinese/P6/Exam/_c_p6.chinese.wa2.5.pdf",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/template/Singapore Primary Chinese/P6/Exam/_c_p6.chinese.wa2.5.pdf",
+      "branch": "template",
+      "subject": "Singapore Primary Chinese"
+    },
+    {
+      "file_id": "9486bfa2-d1b5-40c6-9026-12caeef500c2",
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Chinese/P6/Exam/_raw_p6.chinese.wa2.5.pdf",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/template/Singapore Primary Chinese/P6/Exam/_raw_p6.chinese.wa2.5.pdf",
+      "branch": "template",
+      "subject": "Singapore Primary Chinese"
+    },
+    {
+      "file_id": "7dca7456-33c1-445d-91d2-20f6eda4be77",
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Chinese/P6/Exam/_c_p6.chinese.wa2.4.pdf",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/template/Singapore Primary Chinese/P6/Exam/_c_p6.chinese.wa2.4.pdf",
+      "branch": "template",
+      "subject": "Singapore Primary Chinese"
+    },
+    {
+      "file_id": "c229c195-0f61-4e0a-a577-b291e2451b2d",
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Chinese/P6/Exam/_raw_p6.chinese.wa2.4.pdf",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/template/Singapore Primary Chinese/P6/Exam/_raw_p6.chinese.wa2.4.pdf",
+      "branch": "template",
+      "subject": "Singapore Primary Chinese"
+    },
+    {
+      "file_id": "6e4d5481-0beb-492d-bbab-fa58e5d58aba",
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Chinese/P6/Exam/_c_p6.chinese.wa2.1.pdf",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/template/Singapore Primary Chinese/P6/Exam/_c_p6.chinese.wa2.1.pdf",
+      "branch": "template",
+      "subject": "Singapore Primary Chinese"
+    },
+    {
+      "file_id": "e2894d88-dd55-41e6-81b8-a938f848275b",
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Chinese/P6/Exam/_raw_p6.chinese.wa2.1.pdf",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/template/Singapore Primary Chinese/P6/Exam/_raw_p6.chinese.wa2.1.pdf",
+      "branch": "template",
+      "subject": "Singapore Primary Chinese"
+    },
+    {
+      "file_id": "3c2e238b-4cbd-40d0-b1a8-5a210123d86f",
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Chinese/P6/Exam/_c_p6.chinese.wa2.3.pdf",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/template/Singapore Primary Chinese/P6/Exam/_c_p6.chinese.wa2.3.pdf",
+      "branch": "template",
+      "subject": "Singapore Primary Chinese"
+    },
+    {
+      "file_id": "ed801041-26a8-43b4-81aa-fd41915a4144",
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Chinese/P6/Exam/_raw_p6.chinese.wa2.3.pdf",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/template/Singapore Primary Chinese/P6/Exam/_raw_p6.chinese.wa2.3.pdf",
+      "branch": "template",
+      "subject": "Singapore Primary Chinese"
+    },
+    {
+      "file_id": "3d1bfda1-d94e-4a43-a730-2f41c5386218",
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Chinese/P6/Exam/_c_p6.chinese.wa2.2.pdf",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/template/Singapore Primary Chinese/P6/Exam/_c_p6.chinese.wa2.2.pdf",
+      "branch": "template",
+      "subject": "Singapore Primary Chinese"
+    },
+    {
+      "file_id": "5573e7fb-4c71-4066-8525-502bf4f9065d",
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Chinese/P6/Exam/_raw_p6.chinese.wa2.2.pdf",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/template/Singapore Primary Chinese/P6/Exam/_raw_p6.chinese.wa2.2.pdf",
+      "branch": "template",
+      "subject": "Singapore Primary Chinese"
+    },
+    {
+      "file_id": "dad4fd32-c9d4-4f6e-afa9-5bb30801f27a",
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Chinese/P6/Exam/_c_p6.hc.wa1.2.pdf",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/template/Singapore Primary Chinese/P6/Exam/_c_p6.hc.wa1.2.pdf",
+      "branch": "template",
+      "subject": "Singapore Primary Chinese"
+    },
+    {
+      "file_id": "87886e81-59d8-47f6-958b-b9b2f313aec4",
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Chinese/P6/Exam/_raw_p6.hc.wa1.2.pdf",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/template/Singapore Primary Chinese/P6/Exam/_raw_p6.hc.wa1.2.pdf",
+      "branch": "template",
+      "subject": "Singapore Primary Chinese"
+    }
+  ],
+  "scan_root_updates_preview": [
+    {
+      "id": "57d3b5c1-2dad-4095-917e-16ba5ff8cd34",
+      "student_id": null,
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Chinese/P6/Exam",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/template/Singapore Primary Chinese/P6/Exam",
+      "branch": "template"
+    },
+    {
+      "id": "c4d27aac-a19f-4e5f-857d-8cfa7c057261",
+      "student_id": null,
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Chinese/PSLE/Exam",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/template/Singapore Primary Chinese/PSLE/Exam",
+      "branch": "template"
+    },
+    {
+      "id": "bd2ba002-bff8-429a-99e0-ed5ee0497490",
+      "student_id": null,
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Chinese/P2/Exercise",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/template/Singapore Primary Chinese/P2/Exercise",
+      "branch": "template"
+    },
+    {
+      "id": "844929b9-6a65-4b16-95bb-47d20a3730aa",
+      "student_id": null,
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Chinese/P4/Exam",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/template/Singapore Primary Chinese/P4/Exam",
+      "branch": "template"
+    },
+    {
+      "id": "7fa87d25-f974-4e1c-9c90-22ac164887d9",
+      "student_id": null,
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Chinese/P5/Book/Chinese Practice 1000+",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/template/Singapore Primary Chinese/P5/Book/Chinese Practice 1000+",
+      "branch": "template"
+    },
+    {
+      "id": "09c8bb29-9160-4eaa-b1ad-2790c4788bc4",
+      "student_id": null,
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Chinese/PSLE/Book/Power Pack Chinese PSLE",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/template/Singapore Primary Chinese/PSLE/Book/Power Pack Chinese PSLE",
+      "branch": "template"
+    },
+    {
+      "id": "945ac89d-d7d7-4f71-b7d6-35dd73b91822",
+      "student_id": null,
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Chinese/P4/Exercise",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/template/Singapore Primary Chinese/P4/Exercise",
+      "branch": "template"
+    },
+    {
+      "id": "c01e1d16-1a23-4737-864f-a6819304563c",
+      "student_id": null,
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Chinese/P6/Exercise",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/template/Singapore Primary Chinese/P6/Exercise",
+      "branch": "template"
+    },
+    {
+      "id": "42798aa8-8832-4f31-a1a2-8557c01b9f93",
+      "student_id": null,
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Chinese/P3/Exam",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/template/Singapore Primary Chinese/P3/Exam",
+      "branch": "template"
+    },
+    {
+      "id": "06ed526e-b45e-4dc5-a5a0-7a2590acb47e",
+      "student_id": null,
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Chinese/P5/Exam",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/template/Singapore Primary Chinese/P5/Exam",
+      "branch": "template"
+    },
+    {
+      "id": "2ffca5f2-3b69-4351-b7b2-f19ccca6ea96",
+      "student_id": null,
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/Singapore Primary Chinese/P5/Exercise",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/template/Singapore Primary Chinese/P5/Exercise",
+      "branch": "template"
+    }
+  ],
+  "collision_examples": {
+    "file_duplicate_target_paths": [],
+    "scan_root_duplicate_target_paths": []
+  },
+  "execute_result": {
+    "files_moved": 752,
+    "scan_roots_updated": 11
+  }
+}

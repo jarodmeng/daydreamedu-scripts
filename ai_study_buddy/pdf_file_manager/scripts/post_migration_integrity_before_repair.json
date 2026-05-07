@@ -1,0 +1,701 @@
+{
+  "db_path": "/Users/jarodm/github/jarodmeng/daydreamedu-scripts/ai_study_buddy/db/pdf_registry.db",
+  "summary": {
+    "missing_on_disk_files": 0,
+    "book_folder_group_unit_issues": 0,
+    "student_scope_missing_student_id": 0,
+    "general_scope_non_template": 0,
+    "student_scope_template_true": 0,
+    "missing_student_id": 0,
+    "main_raw_metadata_drift": 1,
+    "invalid_chinese_variant_foundation": 0,
+    "invalid_subject_values": 0,
+    "invalid_grade_or_scope_values": 0,
+    "raw_main_relation_issues": 130,
+    "template_invalid_doc_type": 0
+  },
+  "checks": {
+    "missing_on_disk_files": [],
+    "book_folder_group_unit_issues": [],
+    "student_scope_missing_student_id": [],
+    "general_scope_non_template": [],
+    "student_scope_template_true": [],
+    "missing_student_id": [],
+    "main_raw_metadata_drift": [
+      {
+        "raw_id": "6a3338d7-89b6-46e9-99dc-c8433d3738f1",
+        "raw_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary Science/winston.ry.meng@gmail.com/P6/Exercise/_raw_P6 Trackling novel and trending OE questions Term 1.pdf",
+        "main_id": "0a068b90-017b-4048-9134-3f1130f8f1d4",
+        "main_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary Science/winston.ry.meng@gmail.com/P6/Note/_c_P6 Trackling novel and trending OE questions Term 1.pdf",
+        "fields": [
+          {
+            "field": "doc_type",
+            "raw_value": "exercise",
+            "main_value": "note"
+          },
+          {
+            "field": "metadata.content_folder",
+            "raw_value": "Exercise",
+            "main_value": "Note"
+          }
+        ]
+      }
+    ],
+    "invalid_chinese_variant_foundation": [],
+    "invalid_subject_values": [],
+    "invalid_grade_or_scope_values": [],
+    "raw_main_relation_issues": [
+      {
+        "issue": "raw_source_dangling_endpoint",
+        "main_id": "0449af71-d997-4eb6-91e8-8bceafcf25f3",
+        "raw_id": "91381515-b653-4cd5-a90f-dd163cd8e490"
+      },
+      {
+        "issue": "raw_source_dangling_endpoint",
+        "main_id": "05e9660c-bb63-4831-9b02-364bb2b33779",
+        "raw_id": "c1539871-dbf1-4e53-b530-0152d24f12f6"
+      },
+      {
+        "issue": "raw_source_dangling_endpoint",
+        "main_id": "0878273c-023b-47b4-9fa4-45e35e561d51",
+        "raw_id": "47622867-999e-4e9d-9554-81d05a60e816"
+      },
+      {
+        "issue": "raw_source_dangling_endpoint",
+        "main_id": "0ab51a50-dfaf-4d87-baaa-f3d59b84d984",
+        "raw_id": "aee7eb4d-4682-4ac4-8058-36e9d3a760a8"
+      },
+      {
+        "issue": "raw_source_dangling_endpoint",
+        "main_id": "0b287aca-992d-4713-ab40-9b0878d805fa",
+        "raw_id": "6637bab5-13af-43fc-85d7-7062c92ce4b8"
+      },
+      {
+        "issue": "raw_source_dangling_endpoint",
+        "main_id": "107a943e-58c5-4aac-a678-f74b3a5de62f",
+        "raw_id": "2f61a8f3-8c9d-423b-ac24-9d82d9275d0a"
+      },
+      {
+        "issue": "raw_source_dangling_endpoint",
+        "main_id": "131e7166-a029-4b8c-9ad7-3ffcbff2335a",
+        "raw_id": "a21e1d19-1379-4a3f-91c6-bc34c233b8cf"
+      },
+      {
+        "issue": "raw_source_dangling_endpoint",
+        "main_id": "1a411bbd-b760-4470-989e-ab0d3dd8e8f9",
+        "raw_id": "ae0f0bd0-f5b8-4fce-9748-a94ec78f2745"
+      },
+      {
+        "issue": "raw_source_dangling_endpoint",
+        "main_id": "1db31a41-9b24-4d7a-82fe-097278a1567a",
+        "raw_id": "7151f5cb-9e2b-4818-a3a7-bbfa0a347c20"
+      },
+      {
+        "issue": "raw_source_dangling_endpoint",
+        "main_id": "1dd5e0d9-16dc-41ec-a8a7-109cd42cd90e",
+        "raw_id": "41b8cbcc-0459-414b-adb0-3e09ef1658e5"
+      },
+      {
+        "issue": "raw_source_dangling_endpoint",
+        "main_id": "225e46a8-b889-4b40-a06c-d5806440d875",
+        "raw_id": "80430ae2-b1c9-4a78-9d4f-cca3af814f0a"
+      },
+      {
+        "issue": "raw_source_dangling_endpoint",
+        "main_id": "27f1dd2d-d689-4791-882a-2f94d2d815d4",
+        "raw_id": "d8e63482-a8cc-4a24-9eab-dc99a9102952"
+      },
+      {
+        "issue": "raw_source_dangling_endpoint",
+        "main_id": "2cd4a778-465a-479e-a16c-9913219625e7",
+        "raw_id": "1d87659e-4d80-41f8-934f-5dbd03844f04"
+      },
+      {
+        "issue": "raw_source_dangling_endpoint",
+        "main_id": "2cef2f94-0ce5-4450-95b2-4b635ce1efcd",
+        "raw_id": "728d3278-f7b3-43ca-a3f2-f2d66c49bc81"
+      },
+      {
+        "issue": "raw_source_dangling_endpoint",
+        "main_id": "2ed1e102-ff2f-40ac-a659-e052331a8f76",
+        "raw_id": "5c825dc0-9819-4bce-9401-0ae1b0a2fcf3"
+      },
+      {
+        "issue": "raw_source_dangling_endpoint",
+        "main_id": "31dc5744-570b-46e4-9731-eff2fc890f0b",
+        "raw_id": "224857ad-2975-4dbd-aca4-a049f63568e2"
+      },
+      {
+        "issue": "raw_source_dangling_endpoint",
+        "main_id": "3831ddb6-2ec5-4d2a-bd3b-46666b13167f",
+        "raw_id": "bbc50ae7-ec72-428a-814a-bcae204cbd72"
+      },
+      {
+        "issue": "raw_source_dangling_endpoint",
+        "main_id": "38e32cfb-a55d-4bac-86ef-783403252f57",
+        "raw_id": "71e4b389-2ed7-4936-bc03-94766824ba2f"
+      },
+      {
+        "issue": "raw_source_dangling_endpoint",
+        "main_id": "3a010b66-cbcb-4780-b49f-9631c9e5cc2e",
+        "raw_id": "804648b2-8488-40b7-8028-1b9f34cd1bc3"
+      },
+      {
+        "issue": "raw_source_dangling_endpoint",
+        "main_id": "3e7ecc47-77e0-4f8d-b280-ba8bf937dd86",
+        "raw_id": "2249b73d-6f03-47c9-8a12-35e4c37898cd"
+      },
+      {
+        "issue": "raw_source_dangling_endpoint",
+        "main_id": "3ff08368-12d9-4ba3-b568-04f0fc482f4a",
+        "raw_id": "01e3b21d-9e05-47ef-aec0-d0c1cd07dee3"
+      },
+      {
+        "issue": "raw_source_dangling_endpoint",
+        "main_id": "49868286-f2b9-4006-ad23-48ed8068d1bf",
+        "raw_id": "a767b67f-e7f3-4df9-b344-992f4799de8e"
+      },
+      {
+        "issue": "raw_source_dangling_endpoint",
+        "main_id": "4a17a059-5608-4f7f-a7a6-ce8942766664",
+        "raw_id": "8039d728-4440-4e61-b559-2ded9e1fea70"
+      },
+      {
+        "issue": "raw_source_dangling_endpoint",
+        "main_id": "4c5d9c24-95af-4881-bbb2-debfc560d328",
+        "raw_id": "68c8c8fd-35b0-406a-aa0a-39af4af29527"
+      },
+      {
+        "issue": "raw_source_dangling_endpoint",
+        "main_id": "50bed654-43f4-4f04-af83-6549f70e3c04",
+        "raw_id": "8e590bbe-5986-4ce1-b4ac-f93c973051b7"
+      },
+      {
+        "issue": "raw_source_dangling_endpoint",
+        "main_id": "53e3c4e8-9d14-4976-b346-d8281e20f5f1",
+        "raw_id": "77d7574a-fea9-41ad-ac7e-bc03777f2ee7"
+      },
+      {
+        "issue": "raw_source_dangling_endpoint",
+        "main_id": "563f769a-eea8-4c70-b3fd-e3e9c2602624",
+        "raw_id": "229b13bf-5530-4ea2-a8d9-3389c8e93fa4"
+      },
+      {
+        "issue": "raw_source_dangling_endpoint",
+        "main_id": "5968005f-ae33-4e91-a7ef-9474b61d8c69",
+        "raw_id": "97c5623c-989d-4fe3-a80b-3e870329d6eb"
+      },
+      {
+        "issue": "raw_source_dangling_endpoint",
+        "main_id": "60b9a4db-e680-47ac-9797-fbed08623cff",
+        "raw_id": "8ae8dc72-5acd-439a-87b1-05ee4617a2e0"
+      },
+      {
+        "issue": "raw_source_dangling_endpoint",
+        "main_id": "63c3fe23-8a0b-4aba-abad-1b050b946650",
+        "raw_id": "29b79372-07ad-4576-881c-6a08bf72999c"
+      },
+      {
+        "issue": "raw_source_dangling_endpoint",
+        "main_id": "6c531484-177f-46a1-98d8-000b2f73022f",
+        "raw_id": "79c8f324-0a57-4825-bea9-ea387e4eb2c7"
+      },
+      {
+        "issue": "raw_source_dangling_endpoint",
+        "main_id": "6ff36bf1-3649-4d7f-ac66-d6e57213e3ed",
+        "raw_id": "c6314462-9866-41a8-9614-b2aabf15cb91"
+      },
+      {
+        "issue": "raw_source_dangling_endpoint",
+        "main_id": "740eb15d-4314-4942-9289-be3b6ab58086",
+        "raw_id": "059831eb-5469-4d84-acb1-48435e34116b"
+      },
+      {
+        "issue": "raw_source_dangling_endpoint",
+        "main_id": "782ab4e6-5f4b-4434-b79c-1dcbccb63e24",
+        "raw_id": "7d34e9f1-0cb7-4284-88f1-e6c6a57188bb"
+      },
+      {
+        "issue": "raw_source_dangling_endpoint",
+        "main_id": "7d3c8ff2-7750-473a-ad16-c4f714a1c61f",
+        "raw_id": "d202fd8f-ebad-4b8f-b692-27e2359feee0"
+      },
+      {
+        "issue": "raw_source_dangling_endpoint",
+        "main_id": "82faf9ca-5d79-450f-8b15-907880cdd508",
+        "raw_id": "8bbea111-585d-46f1-9703-5798b14fa12d"
+      },
+      {
+        "issue": "raw_source_dangling_endpoint",
+        "main_id": "92280bbf-70e9-4b50-b98f-e20cd4b46714",
+        "raw_id": "bdf6831f-5f00-4168-a9fa-4f0456b34925"
+      },
+      {
+        "issue": "raw_source_dangling_endpoint",
+        "main_id": "95aedd56-8fb0-4647-8b3b-d4fa9d65f4a0",
+        "raw_id": "8af86684-f0dd-48f1-815f-e9f8f929dcf4"
+      },
+      {
+        "issue": "raw_source_dangling_endpoint",
+        "main_id": "9d90c160-4ac6-4f14-92a9-7b7269b9bb54",
+        "raw_id": "b0b66938-a0b0-49d0-9a77-b090f9b08095"
+      },
+      {
+        "issue": "raw_source_dangling_endpoint",
+        "main_id": "9f558404-7fd3-4af7-8f78-e64cd315443f",
+        "raw_id": "e06607ae-8440-48a6-80c1-1b844f8abb51"
+      },
+      {
+        "issue": "raw_source_dangling_endpoint",
+        "main_id": "a7f0e29a-c89a-4c76-9aad-4e7953e9f3c9",
+        "raw_id": "fc92cdc4-e59c-4f62-8318-bfebbb265361"
+      },
+      {
+        "issue": "raw_source_dangling_endpoint",
+        "main_id": "ab1dae52-a37e-4501-b63d-78aedfc99623",
+        "raw_id": "85e3b935-a8f2-4d29-b77b-ce4b83d92f66"
+      },
+      {
+        "issue": "raw_source_dangling_endpoint",
+        "main_id": "ac9371d5-1504-47d7-8aa8-766f67dd103e",
+        "raw_id": "c913886d-0b9b-4c36-90b3-7d1ebc350c49"
+      },
+      {
+        "issue": "raw_source_dangling_endpoint",
+        "main_id": "b3140300-8ead-4ee9-b507-81f423710ea4",
+        "raw_id": "57a6760f-f716-45eb-aba0-ac54c5dc95c5"
+      },
+      {
+        "issue": "raw_source_dangling_endpoint",
+        "main_id": "b8b90450-b0a0-4855-a218-0c5fe37139e6",
+        "raw_id": "2d4026a7-08d8-4888-a67f-02a5bb3e6252"
+      },
+      {
+        "issue": "raw_source_dangling_endpoint",
+        "main_id": "b98e0941-2e35-4a28-8999-145607993c27",
+        "raw_id": "51bac976-fed4-4e84-92fc-334c664f13bc"
+      },
+      {
+        "issue": "raw_source_dangling_endpoint",
+        "main_id": "bb96f203-6224-42f1-a98c-4440ce8fae19",
+        "raw_id": "7d58ef1e-3ffa-4461-a438-7bd7d5ccc852"
+      },
+      {
+        "issue": "raw_source_dangling_endpoint",
+        "main_id": "bd1a4b5e-3f6e-4476-878a-0988e5d29826",
+        "raw_id": "e87489ef-6f9f-4200-91d5-9cf2500ed0a6"
+      },
+      {
+        "issue": "raw_source_dangling_endpoint",
+        "main_id": "c45e3403-2c3a-4ce9-b049-bf9343742fe7",
+        "raw_id": "65854fec-e857-47a4-8364-67a1ec047085"
+      },
+      {
+        "issue": "raw_source_dangling_endpoint",
+        "main_id": "c81c5b24-e349-48ff-83cb-72422bd07d70",
+        "raw_id": "4a5700d3-048d-4afc-87a4-1475d8a35e1f"
+      },
+      {
+        "issue": "raw_source_dangling_endpoint",
+        "main_id": "c93e6344-fb96-444c-9569-2968a29b2431",
+        "raw_id": "c8530cbc-0230-425a-b036-0e7a74617617"
+      },
+      {
+        "issue": "raw_source_dangling_endpoint",
+        "main_id": "d1486382-17cc-4acc-84fc-9b0f044c100b",
+        "raw_id": "02dcb628-2a65-44cb-9783-04f0ca14abff"
+      },
+      {
+        "issue": "raw_source_dangling_endpoint",
+        "main_id": "d22a326e-6156-4d56-8400-59f840a57eca",
+        "raw_id": "62e47a2c-d233-4b6c-afb9-f9c4f30b0409"
+      },
+      {
+        "issue": "raw_source_dangling_endpoint",
+        "main_id": "d29f879e-c531-4a4c-8c3b-4b65ff2024ce",
+        "raw_id": "90e2b45c-08e5-4d47-a896-b67f0f492c29"
+      },
+      {
+        "issue": "raw_source_dangling_endpoint",
+        "main_id": "d5167710-2949-43f7-ae17-7df9db994fa1",
+        "raw_id": "94009f87-d2b6-47e7-81bb-f5823f2c6aef"
+      },
+      {
+        "issue": "raw_source_dangling_endpoint",
+        "main_id": "ddc86b99-ba50-4fff-afd3-c3b3797aae4b",
+        "raw_id": "e3d341a3-8d90-46e5-9f6f-c14c8dc153bd"
+      },
+      {
+        "issue": "raw_source_dangling_endpoint",
+        "main_id": "defb4bc2-04b1-4a3b-80c0-6c8cb677fe31",
+        "raw_id": "92f66415-0d51-4619-a001-8e1db2f48ecd"
+      },
+      {
+        "issue": "raw_source_dangling_endpoint",
+        "main_id": "e11812da-33df-45c7-ac84-2431028c65ec",
+        "raw_id": "1d7c6c34-e51a-46ad-bd2f-d2abfd571ff2"
+      },
+      {
+        "issue": "raw_source_dangling_endpoint",
+        "main_id": "e5a00084-28dd-42f6-b88a-b1885dbd8140",
+        "raw_id": "71cd695e-2db8-493c-b2c6-80c7550cb0c7"
+      },
+      {
+        "issue": "raw_source_dangling_endpoint",
+        "main_id": "e9908024-d3cc-46f7-afa4-3e31b8423032",
+        "raw_id": "c081fdc4-fb8f-4e11-bba5-23df3d0a7068"
+      },
+      {
+        "issue": "raw_source_dangling_endpoint",
+        "main_id": "e9c61f7b-c162-42e8-b9e3-beb6541474f7",
+        "raw_id": "68fdeb6b-ebd4-4254-9858-6ffb53691fde"
+      },
+      {
+        "issue": "raw_source_dangling_endpoint",
+        "main_id": "ecbb155d-c823-417d-ba60-10b90e0097a7",
+        "raw_id": "29be7bed-f077-4eec-a518-caad67437a61"
+      },
+      {
+        "issue": "raw_source_dangling_endpoint",
+        "main_id": "f8edb264-f564-4008-932b-86530a806f64",
+        "raw_id": "81c5d4fb-a6ee-4402-993f-bab7d83816bd"
+      },
+      {
+        "issue": "raw_source_dangling_endpoint",
+        "main_id": "fe9a0a4a-c129-4ce7-8271-08396e992858",
+        "raw_id": "4ab40a80-7690-4531-804c-90fc62592464"
+      },
+      {
+        "issue": "raw_source_dangling_endpoint",
+        "main_id": "ff53167d-90e8-4f4b-8669-9d031b96d747",
+        "raw_id": "bc1d3a95-8688-4b0f-b195-12da5b5cae2e"
+      },
+      {
+        "issue": "main_version_dangling_endpoint",
+        "raw_id": "01e3b21d-9e05-47ef-aec0-d0c1cd07dee3",
+        "main_id": "3ff08368-12d9-4ba3-b568-04f0fc482f4a"
+      },
+      {
+        "issue": "main_version_dangling_endpoint",
+        "raw_id": "02dcb628-2a65-44cb-9783-04f0ca14abff",
+        "main_id": "d1486382-17cc-4acc-84fc-9b0f044c100b"
+      },
+      {
+        "issue": "main_version_dangling_endpoint",
+        "raw_id": "059831eb-5469-4d84-acb1-48435e34116b",
+        "main_id": "740eb15d-4314-4942-9289-be3b6ab58086"
+      },
+      {
+        "issue": "main_version_dangling_endpoint",
+        "raw_id": "1d7c6c34-e51a-46ad-bd2f-d2abfd571ff2",
+        "main_id": "e11812da-33df-45c7-ac84-2431028c65ec"
+      },
+      {
+        "issue": "main_version_dangling_endpoint",
+        "raw_id": "1d87659e-4d80-41f8-934f-5dbd03844f04",
+        "main_id": "2cd4a778-465a-479e-a16c-9913219625e7"
+      },
+      {
+        "issue": "main_version_dangling_endpoint",
+        "raw_id": "224857ad-2975-4dbd-aca4-a049f63568e2",
+        "main_id": "31dc5744-570b-46e4-9731-eff2fc890f0b"
+      },
+      {
+        "issue": "main_version_dangling_endpoint",
+        "raw_id": "2249b73d-6f03-47c9-8a12-35e4c37898cd",
+        "main_id": "3e7ecc47-77e0-4f8d-b280-ba8bf937dd86"
+      },
+      {
+        "issue": "main_version_dangling_endpoint",
+        "raw_id": "229b13bf-5530-4ea2-a8d9-3389c8e93fa4",
+        "main_id": "563f769a-eea8-4c70-b3fd-e3e9c2602624"
+      },
+      {
+        "issue": "main_version_dangling_endpoint",
+        "raw_id": "29b79372-07ad-4576-881c-6a08bf72999c",
+        "main_id": "63c3fe23-8a0b-4aba-abad-1b050b946650"
+      },
+      {
+        "issue": "main_version_dangling_endpoint",
+        "raw_id": "29be7bed-f077-4eec-a518-caad67437a61",
+        "main_id": "ecbb155d-c823-417d-ba60-10b90e0097a7"
+      },
+      {
+        "issue": "main_version_dangling_endpoint",
+        "raw_id": "2d4026a7-08d8-4888-a67f-02a5bb3e6252",
+        "main_id": "b8b90450-b0a0-4855-a218-0c5fe37139e6"
+      },
+      {
+        "issue": "main_version_dangling_endpoint",
+        "raw_id": "2f61a8f3-8c9d-423b-ac24-9d82d9275d0a",
+        "main_id": "107a943e-58c5-4aac-a678-f74b3a5de62f"
+      },
+      {
+        "issue": "main_version_dangling_endpoint",
+        "raw_id": "41b8cbcc-0459-414b-adb0-3e09ef1658e5",
+        "main_id": "1dd5e0d9-16dc-41ec-a8a7-109cd42cd90e"
+      },
+      {
+        "issue": "main_version_dangling_endpoint",
+        "raw_id": "47622867-999e-4e9d-9554-81d05a60e816",
+        "main_id": "0878273c-023b-47b4-9fa4-45e35e561d51"
+      },
+      {
+        "issue": "main_version_dangling_endpoint",
+        "raw_id": "4a5700d3-048d-4afc-87a4-1475d8a35e1f",
+        "main_id": "c81c5b24-e349-48ff-83cb-72422bd07d70"
+      },
+      {
+        "issue": "main_version_dangling_endpoint",
+        "raw_id": "4ab40a80-7690-4531-804c-90fc62592464",
+        "main_id": "fe9a0a4a-c129-4ce7-8271-08396e992858"
+      },
+      {
+        "issue": "main_version_dangling_endpoint",
+        "raw_id": "51bac976-fed4-4e84-92fc-334c664f13bc",
+        "main_id": "b98e0941-2e35-4a28-8999-145607993c27"
+      },
+      {
+        "issue": "main_version_dangling_endpoint",
+        "raw_id": "57a6760f-f716-45eb-aba0-ac54c5dc95c5",
+        "main_id": "b3140300-8ead-4ee9-b507-81f423710ea4"
+      },
+      {
+        "issue": "main_version_dangling_endpoint",
+        "raw_id": "5c825dc0-9819-4bce-9401-0ae1b0a2fcf3",
+        "main_id": "2ed1e102-ff2f-40ac-a659-e052331a8f76"
+      },
+      {
+        "issue": "main_version_dangling_endpoint",
+        "raw_id": "62e47a2c-d233-4b6c-afb9-f9c4f30b0409",
+        "main_id": "d22a326e-6156-4d56-8400-59f840a57eca"
+      },
+      {
+        "issue": "main_version_dangling_endpoint",
+        "raw_id": "65854fec-e857-47a4-8364-67a1ec047085",
+        "main_id": "c45e3403-2c3a-4ce9-b049-bf9343742fe7"
+      },
+      {
+        "issue": "main_version_dangling_endpoint",
+        "raw_id": "6637bab5-13af-43fc-85d7-7062c92ce4b8",
+        "main_id": "0b287aca-992d-4713-ab40-9b0878d805fa"
+      },
+      {
+        "issue": "main_version_dangling_endpoint",
+        "raw_id": "68c8c8fd-35b0-406a-aa0a-39af4af29527",
+        "main_id": "4c5d9c24-95af-4881-bbb2-debfc560d328"
+      },
+      {
+        "issue": "main_version_dangling_endpoint",
+        "raw_id": "68fdeb6b-ebd4-4254-9858-6ffb53691fde",
+        "main_id": "e9c61f7b-c162-42e8-b9e3-beb6541474f7"
+      },
+      {
+        "issue": "main_version_dangling_endpoint",
+        "raw_id": "7151f5cb-9e2b-4818-a3a7-bbfa0a347c20",
+        "main_id": "1db31a41-9b24-4d7a-82fe-097278a1567a"
+      },
+      {
+        "issue": "main_version_dangling_endpoint",
+        "raw_id": "71cd695e-2db8-493c-b2c6-80c7550cb0c7",
+        "main_id": "e5a00084-28dd-42f6-b88a-b1885dbd8140"
+      },
+      {
+        "issue": "main_version_dangling_endpoint",
+        "raw_id": "71e4b389-2ed7-4936-bc03-94766824ba2f",
+        "main_id": "38e32cfb-a55d-4bac-86ef-783403252f57"
+      },
+      {
+        "issue": "main_version_dangling_endpoint",
+        "raw_id": "728d3278-f7b3-43ca-a3f2-f2d66c49bc81",
+        "main_id": "2cef2f94-0ce5-4450-95b2-4b635ce1efcd"
+      },
+      {
+        "issue": "main_version_dangling_endpoint",
+        "raw_id": "77d7574a-fea9-41ad-ac7e-bc03777f2ee7",
+        "main_id": "53e3c4e8-9d14-4976-b346-d8281e20f5f1"
+      },
+      {
+        "issue": "main_version_dangling_endpoint",
+        "raw_id": "79c8f324-0a57-4825-bea9-ea387e4eb2c7",
+        "main_id": "6c531484-177f-46a1-98d8-000b2f73022f"
+      },
+      {
+        "issue": "main_version_dangling_endpoint",
+        "raw_id": "7d34e9f1-0cb7-4284-88f1-e6c6a57188bb",
+        "main_id": "782ab4e6-5f4b-4434-b79c-1dcbccb63e24"
+      },
+      {
+        "issue": "main_version_dangling_endpoint",
+        "raw_id": "7d58ef1e-3ffa-4461-a438-7bd7d5ccc852",
+        "main_id": "bb96f203-6224-42f1-a98c-4440ce8fae19"
+      },
+      {
+        "issue": "main_version_dangling_endpoint",
+        "raw_id": "8039d728-4440-4e61-b559-2ded9e1fea70",
+        "main_id": "4a17a059-5608-4f7f-a7a6-ce8942766664"
+      },
+      {
+        "issue": "main_version_dangling_endpoint",
+        "raw_id": "80430ae2-b1c9-4a78-9d4f-cca3af814f0a",
+        "main_id": "225e46a8-b889-4b40-a06c-d5806440d875"
+      },
+      {
+        "issue": "main_version_dangling_endpoint",
+        "raw_id": "804648b2-8488-40b7-8028-1b9f34cd1bc3",
+        "main_id": "3a010b66-cbcb-4780-b49f-9631c9e5cc2e"
+      },
+      {
+        "issue": "main_version_dangling_endpoint",
+        "raw_id": "81c5d4fb-a6ee-4402-993f-bab7d83816bd",
+        "main_id": "f8edb264-f564-4008-932b-86530a806f64"
+      },
+      {
+        "issue": "main_version_dangling_endpoint",
+        "raw_id": "85e3b935-a8f2-4d29-b77b-ce4b83d92f66",
+        "main_id": "ab1dae52-a37e-4501-b63d-78aedfc99623"
+      },
+      {
+        "issue": "main_version_dangling_endpoint",
+        "raw_id": "8ae8dc72-5acd-439a-87b1-05ee4617a2e0",
+        "main_id": "60b9a4db-e680-47ac-9797-fbed08623cff"
+      },
+      {
+        "issue": "main_version_dangling_endpoint",
+        "raw_id": "8af86684-f0dd-48f1-815f-e9f8f929dcf4",
+        "main_id": "95aedd56-8fb0-4647-8b3b-d4fa9d65f4a0"
+      },
+      {
+        "issue": "main_version_dangling_endpoint",
+        "raw_id": "8bbea111-585d-46f1-9703-5798b14fa12d",
+        "main_id": "82faf9ca-5d79-450f-8b15-907880cdd508"
+      },
+      {
+        "issue": "main_version_dangling_endpoint",
+        "raw_id": "8e590bbe-5986-4ce1-b4ac-f93c973051b7",
+        "main_id": "50bed654-43f4-4f04-af83-6549f70e3c04"
+      },
+      {
+        "issue": "main_version_dangling_endpoint",
+        "raw_id": "90e2b45c-08e5-4d47-a896-b67f0f492c29",
+        "main_id": "d29f879e-c531-4a4c-8c3b-4b65ff2024ce"
+      },
+      {
+        "issue": "main_version_dangling_endpoint",
+        "raw_id": "91381515-b653-4cd5-a90f-dd163cd8e490",
+        "main_id": "0449af71-d997-4eb6-91e8-8bceafcf25f3"
+      },
+      {
+        "issue": "main_version_dangling_endpoint",
+        "raw_id": "92f66415-0d51-4619-a001-8e1db2f48ecd",
+        "main_id": "defb4bc2-04b1-4a3b-80c0-6c8cb677fe31"
+      },
+      {
+        "issue": "main_version_dangling_endpoint",
+        "raw_id": "94009f87-d2b6-47e7-81bb-f5823f2c6aef",
+        "main_id": "d5167710-2949-43f7-ae17-7df9db994fa1"
+      },
+      {
+        "issue": "main_version_dangling_endpoint",
+        "raw_id": "97c5623c-989d-4fe3-a80b-3e870329d6eb",
+        "main_id": "5968005f-ae33-4e91-a7ef-9474b61d8c69"
+      },
+      {
+        "issue": "main_version_dangling_endpoint",
+        "raw_id": "a21e1d19-1379-4a3f-91c6-bc34c233b8cf",
+        "main_id": "131e7166-a029-4b8c-9ad7-3ffcbff2335a"
+      },
+      {
+        "issue": "main_version_dangling_endpoint",
+        "raw_id": "a767b67f-e7f3-4df9-b344-992f4799de8e",
+        "main_id": "49868286-f2b9-4006-ad23-48ed8068d1bf"
+      },
+      {
+        "issue": "main_version_dangling_endpoint",
+        "raw_id": "ae0f0bd0-f5b8-4fce-9748-a94ec78f2745",
+        "main_id": "1a411bbd-b760-4470-989e-ab0d3dd8e8f9"
+      },
+      {
+        "issue": "main_version_dangling_endpoint",
+        "raw_id": "aee7eb4d-4682-4ac4-8058-36e9d3a760a8",
+        "main_id": "0ab51a50-dfaf-4d87-baaa-f3d59b84d984"
+      },
+      {
+        "issue": "main_version_dangling_endpoint",
+        "raw_id": "b0b66938-a0b0-49d0-9a77-b090f9b08095",
+        "main_id": "9d90c160-4ac6-4f14-92a9-7b7269b9bb54"
+      },
+      {
+        "issue": "main_version_dangling_endpoint",
+        "raw_id": "bbc50ae7-ec72-428a-814a-bcae204cbd72",
+        "main_id": "3831ddb6-2ec5-4d2a-bd3b-46666b13167f"
+      },
+      {
+        "issue": "main_version_dangling_endpoint",
+        "raw_id": "bc1d3a95-8688-4b0f-b195-12da5b5cae2e",
+        "main_id": "ff53167d-90e8-4f4b-8669-9d031b96d747"
+      },
+      {
+        "issue": "main_version_dangling_endpoint",
+        "raw_id": "bdf6831f-5f00-4168-a9fa-4f0456b34925",
+        "main_id": "92280bbf-70e9-4b50-b98f-e20cd4b46714"
+      },
+      {
+        "issue": "main_version_dangling_endpoint",
+        "raw_id": "c081fdc4-fb8f-4e11-bba5-23df3d0a7068",
+        "main_id": "e9908024-d3cc-46f7-afa4-3e31b8423032"
+      },
+      {
+        "issue": "main_version_dangling_endpoint",
+        "raw_id": "c1539871-dbf1-4e53-b530-0152d24f12f6",
+        "main_id": "05e9660c-bb63-4831-9b02-364bb2b33779"
+      },
+      {
+        "issue": "main_version_dangling_endpoint",
+        "raw_id": "c6314462-9866-41a8-9614-b2aabf15cb91",
+        "main_id": "6ff36bf1-3649-4d7f-ac66-d6e57213e3ed"
+      },
+      {
+        "issue": "main_version_dangling_endpoint",
+        "raw_id": "c8530cbc-0230-425a-b036-0e7a74617617",
+        "main_id": "c93e6344-fb96-444c-9569-2968a29b2431"
+      },
+      {
+        "issue": "main_version_dangling_endpoint",
+        "raw_id": "c913886d-0b9b-4c36-90b3-7d1ebc350c49",
+        "main_id": "ac9371d5-1504-47d7-8aa8-766f67dd103e"
+      },
+      {
+        "issue": "main_version_dangling_endpoint",
+        "raw_id": "d202fd8f-ebad-4b8f-b692-27e2359feee0",
+        "main_id": "7d3c8ff2-7750-473a-ad16-c4f714a1c61f"
+      },
+      {
+        "issue": "main_version_dangling_endpoint",
+        "raw_id": "d8e63482-a8cc-4a24-9eab-dc99a9102952",
+        "main_id": "27f1dd2d-d689-4791-882a-2f94d2d815d4"
+      },
+      {
+        "issue": "main_version_dangling_endpoint",
+        "raw_id": "e06607ae-8440-48a6-80c1-1b844f8abb51",
+        "main_id": "9f558404-7fd3-4af7-8f78-e64cd315443f"
+      },
+      {
+        "issue": "main_version_dangling_endpoint",
+        "raw_id": "e3d341a3-8d90-46e5-9f6f-c14c8dc153bd",
+        "main_id": "ddc86b99-ba50-4fff-afd3-c3b3797aae4b"
+      },
+      {
+        "issue": "main_version_dangling_endpoint",
+        "raw_id": "e87489ef-6f9f-4200-91d5-9cf2500ed0a6",
+        "main_id": "bd1a4b5e-3f6e-4476-878a-0988e5d29826"
+      },
+      {
+        "issue": "main_version_dangling_endpoint",
+        "raw_id": "fc92cdc4-e59c-4f62-8318-bfebbb265361",
+        "main_id": "a7f0e29a-c89a-4c76-9aad-4e7953e9f3c9"
+      }
+    ],
+    "template_invalid_doc_type": []
+  }
+}
