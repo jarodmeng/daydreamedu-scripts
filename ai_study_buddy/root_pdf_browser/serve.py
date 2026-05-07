@@ -18,10 +18,15 @@ if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
 from ai_study_buddy.files import resolve_daydreamedu_root, resolve_goodnotes_root
+from ai_study_buddy.files.pdf_registry_paths import (
+    RegistryPathIndex,
+    is_pdf_registered,
+)
 from ai_study_buddy.files.leaf_folders import (
     list_daydreamedu_leaf_folders_under_root,
     list_goodnotes_leaf_folders_under_root,
 )
+from ai_study_buddy.pdf_file_manager import PdfFileManager
 
 ROOT_IDS = ("daydreamedu", "goodnotes")
 STATIC_DIR = Path(__file__).resolve().parent / "static"
@@ -238,7 +243,39 @@ class RootPdfHandler(BaseHTTPRequestHandler):
                 self._send_error_json(400, "Not a directory or path not allowed")
                 return
             dirs, pdfs = children
-            self._send_json(200, {"dirs": dirs, "pdfs": pdfs})
+            root_resolved = root.resolve()
+            target = safe_resolve_under_root(root, rel)
+            curr_rel = _posix_rel_under(root_resolved, target) if target is not None else ""
+            listing_pdfs_here = curr_rel in leaf_set
+            try:
+                idx = RegistryPathIndex.from_pdf_file_manager(PdfFileManager())
+            except Exception:
+                idx = None
+            leaf_scan_root: bool | None
+            pdf_status: dict[str, bool | None] = {}
+            dir_scan_roots: dict[str, bool] = {}
+            if idx is None:
+                leaf_scan_root = None
+            else:
+                leaf_scan_root = str(target.resolve()) in idx.scan_root_resolved_paths if target is not None else None
+                if target is not None:
+                    for dname in dirs:
+                        dir_scan_roots[dname] = str((target / dname).resolve()) in idx.scan_root_resolved_paths
+                if listing_pdfs_here and target is not None:
+                    for name in pdfs:
+                        pdf_path = target / name
+                        pdf_status[name] = is_pdf_registered(pdf_path, idx)
+            self._send_json(
+                200,
+                {
+                    "dirs": dirs,
+                    "pdfs": pdfs,
+                    "leafScanRoot": leaf_scan_root,
+                    "dirScanRoots": dir_scan_roots,
+                    "pdfRegistration": pdf_status,
+                    "registryAvailable": idx is not None,
+                },
+            )
             return
         if path == "/api/pdf":
             qs = parse_qs(parsed.query)

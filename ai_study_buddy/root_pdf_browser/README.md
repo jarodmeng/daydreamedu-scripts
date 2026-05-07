@@ -2,7 +2,7 @@
 
 Local **two-pane** browser for PDFs under your configured **DaydreamEdu** and **GoodNotes** filesystem roots (dev / ops tooling). Runs a tiny HTTP server on loopback only; paths are constrained so requests cannot escape a chosen root.
 
-**Current version:** `v0.1.3` — see [CHANGELOG.md](./CHANGELOG.md).
+**Current version:** `v0.1.4` — see [CHANGELOG.md](./CHANGELOG.md).
 
 ## Requirements
 

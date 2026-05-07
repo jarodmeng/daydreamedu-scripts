@@ -360,6 +360,31 @@
     return res.json();
   }
 
+  function appendScanRootBadge(summaryEl, isScanRoot) {
+    if (!summaryEl || isScanRoot !== true) {
+      return;
+    }
+    if (summaryEl.querySelector(".scan-root-badge")) {
+      return;
+    }
+    const badge = document.createElement("span");
+    badge.className = "scan-root-badge";
+    badge.textContent = "📁";
+    summaryEl.appendChild(document.createTextNode(" "));
+    summaryEl.appendChild(badge);
+  }
+
+  function appendPdfRegistrationBadge(buttonEl, isRegistered) {
+    if (!buttonEl || isRegistered == null) {
+      return;
+    }
+    const badge = document.createElement("span");
+    badge.className = isRegistered ? "pdf-reg-badge is-registered" : "pdf-reg-badge is-unregistered";
+    badge.textContent = "📄";
+    buttonEl.appendChild(document.createTextNode(" "));
+    buttonEl.appendChild(badge);
+  }
+
   /** Fragment hint for the browser’s built-in PDF viewer (PDFium in Chrome/Edge). */
   const PDF_VIEWER_FRAGMENT = "#page=1&view=Fit";
 
@@ -444,6 +469,9 @@
         ul.removeChild(placeholder);
         const dirs = data.dirs || [];
         const pdfs = data.pdfs || [];
+        const leafScanRoot = data.leafScanRoot === true;
+        const dirScanRoots = data.dirScanRoots || {};
+        const pdfRegistration = data.pdfRegistration || {};
         let rawCount = 0;
         pdfs.forEach(function (n) {
           if (isRawPdfName(n)) {
@@ -462,6 +490,7 @@
           const details = document.createElement("details");
           const summary = document.createElement("summary");
           summary.textContent = name;
+          appendScanRootBadge(summary, dirScanRoots[name] === true);
           details.appendChild(summary);
           const childHost = document.createElement("div");
           details.appendChild(childHost);
@@ -501,6 +530,7 @@
           btn.type = "button";
           btn.className = "pdf-link";
           btn.textContent = name;
+          appendPdfRegistrationBadge(btn, pdfRegistration[name]);
           btn.addEventListener("click", function () {
             openPdf(rootId, fullRel);
           });
@@ -515,6 +545,13 @@
           bm.textContent = on ? "\u2605" : "\u2606";
           bm.setAttribute("aria-label", on ? "Remove bookmark" : "Add bookmark");
         });
+        if (leafScanRoot) {
+          const parent = container && container.parentElement;
+          if (parent) {
+            const summaryEl = parent.querySelector(":scope > summary");
+            appendScanRootBadge(summaryEl, true);
+          }
+        }
         if (rawCount > 0) {
           const li = document.createElement("li");
           li.className = "raw-hidden-hint";

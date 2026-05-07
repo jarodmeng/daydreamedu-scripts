@@ -4,6 +4,12 @@ All notable changes to **root_pdf_browser** are documented here.
 
 ---
 
+## [v0.1.4] — Registry badges and runtime correlation
+
+- **Registry-aware badges:** `/api/list` now resolves **scan-root** and **per-PDF registration** at request time via `ai_study_buddy.files.pdf_registry_paths.RegistryPathIndex` and friends. The tree shows small 📁 / 📄 glyphs beside scan-root folders and registered PDFs (idempotent, no duplicated tags).
+- **Runtime snapshot:** registry information is pulled fresh for each listed folder; filesystem contents are still read live from disk.
+- **Layout tweaks:** denser tree spacing, smaller indents, and compact bookmark/filename gap so long filenames fit better.
+
 ## [v0.1.3] — Hide `_raw_*` files by default with sidebar toggle
 
 - **Sidebar control:** new **Show `_raw_` files** checkbox (top of sidebar). Default **off**: PDFs whose basename starts with **`_raw_`** are hidden from the tree on the client. Toggle is persisted in `localStorage` (`root_pdf_browser.showRaw`).
