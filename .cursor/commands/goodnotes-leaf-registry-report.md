@@ -6,8 +6,17 @@ When this command runs, produce a **summary report** comparing **leaf folders** 
 
 - Follow `.cursor/skills/pdf-file-manager/SKILL.md`: use **`PdfFileManager`** from `ai_study_buddy/pdf_file_manager/pdf_file_manager.py`.
 - Resolve the GoodNotes root with **`resolve_goodnotes_root()`** from `ai_study_buddy/files/roots.py` (uses `GOODNOTES_ROOT`, `ai_study_buddy/local_goodnotes_root.txt`, or sibling discovery). If it returns `None`, say so and stop.
-- **Enumerate leaf folders only via `ai_study_buddy.files`:** use **`list_goodnotes_leaf_folders_under_root(root)`** (default **`exclude_not_completed=True`**) from `ai_study_buddy.files.leaf_folders` (or `from ai_study_buddy.files import …`). Do **not** hand-roll traversal / exclusions — with the default flag the helper matches this command’s definitions (**Not completed**, **`^x[A-Z].*$`**, root `.`). Other tools may pass **`exclude_not_completed=False`** to include WIP `Not completed` folders for browsing only.
+- **Included / excluded leaves:** obtain **only** via **`partition_goodnotes_leaf_folders(root)`** (default **`exclude_not_completed=True`**; see §Centralized API). Do **not** call **`list_goodnotes_leaf_folders_under_root`** or **`list_leaf_folders_under_root`** yourself to build included/excluded sets — **`partition_*`** wraps the correct profile internally. Pass **`exclude_not_completed=False`** **only** when the user explicitly wants *Not completed* leaves in the included set.
 - Do **not** query the SQLite registry with ad hoc SQL for this task.
+- **Registry ↔ disk correlation (mandatory):** use **only** **`ai_study_buddy.files.pdf_registry_paths`** for resolved path sets, included/excluded leaf partitions, per-leaf registration status, and bucket rollups. Do **not** hand-build sets from `find_files()` / `list_scan_roots()`, reimplement **`resolved_path_from_registry_row`**, or duplicate **`partition_*`** / set-difference logic inline.
+
+## Centralized API (required)
+
+Implement this command **exclusively** through **`ai_study_buddy.files.pdf_registry_paths`** (also re-exported from **`ai_study_buddy.files`**):
+
+- **`RegistryPathIndex.from_pdf_file_manager(pfm)`** — sole source for **`registered_resolved_paths`**, **`scan_root_resolved_paths`**, and row counts.
+- **`partition_goodnotes_leaf_folders(root)`** — returns **`(included_leaves, excluded_leaves)`**; default **`exclude_not_completed=True`** matches this report. Do **not** call **`list_goodnotes_leaf_folders_under_root`** plus manual set difference. Pass **`exclude_not_completed=False`** **only** when the user explicitly wants *Not completed* leaves included (non-default).
+- **`leaf_registry_statuses_for_included_leaves`**, **`leaf_folder_registry_status`** (for excluded-leaf stats), **`registration_buckets`**, **`suspicious_all_leaves_marked_non_scan_root`** — same roles as the DaydreamEdu command.
 
 ## Definitions
 
@@ -16,54 +25,45 @@ When this command runs, produce a **summary report** comparing **leaf folders** 
 - **Excluded folder subtree (x-prefix):** Any directory whose path contains a segment matching regex `^x[A-Z].*$` (lowercase `x`, second character uppercase). Exclude these directories and all descendants from traversal and reporting.
 - **Excluded leaf folders:** Treat these relative paths as fully excluded from `leaf_folders_total` and every subsequent count/table in this report:
   - `.`
-- **Registered:** A PDF's **`Path.resolve()`** string matches a row from `PdfFileManager().find_files()` (build a set of resolved `path` strings).
-- **Unregistered in a leaf:** At least one direct `*.pdf` in that folder whose resolved path is not in that set.
-- **Scan root:** Compare each leaf folder's resolved path **as a string** to `PdfFileManager().list_scan_roots()` (same resolved-path string set as below). **Do not** test `pathlib.Path` objects for membership in those sets.
+- **Registered:** A direct PDF's resolved path string is in **`RegistryPathIndex.registered_resolved_paths`** (populated only via **`RegistryPathIndex.from_pdf_file_manager`** — do not rebuild this set manually).
+- **Unregistered in a leaf:** At least one direct `*.pdf` in that folder that is not registered per **`LeafFolderRegistryStatus`** / **`pdf_registry_paths`**.
+- **Scan root:** The leaf folder's resolved path string is in **`RegistryPathIndex.scan_root_resolved_paths`**. Use **`leaf_folder_registry_status`** / **`LeafFolderRegistryStatus.is_scan_root`**; do not hand-compare paths to `list_scan_roots()` rows outside **`pdf_registry_paths`**.
 
 ## What to run
 
-Execute a short **Python one-shot** from the repo root with package imports (no `sys.path` mutation):
+Execute a short **Python one-shot** from the repo root with package imports (no `sys.path` mutation). **Required imports:**
 
-- `from ai_study_buddy.pdf_file_manager import PdfFileManager`
-- `from ai_study_buddy.files.roots import resolve_goodnotes_root`
-- `from ai_study_buddy.files.leaf_folders import list_goodnotes_leaf_folders_under_root, list_leaf_folders_under_root`
+```python
+from ai_study_buddy.pdf_file_manager import PdfFileManager
+from ai_study_buddy.files.roots import resolve_goodnotes_root
+from ai_study_buddy.files.pdf_registry_paths import (
+    RegistryPathIndex,
+    partition_goodnotes_leaf_folders,
+    leaf_registry_statuses_for_included_leaves,
+    leaf_folder_registry_status,
+    registration_buckets,
+    suspicious_all_leaves_marked_non_scan_root,
+)
+```
 
 Use the default registry path from the utility / `PDF_REGISTRY_PATH` if set.
 
-### Leaf folders (required)
+### Pipeline (required)
 
-- After resolving `root = resolve_goodnotes_root()`, set **`included_leaves = list_goodnotes_leaf_folders_under_root(root)`** (omit **`exclude_not_completed`** so it stays **True** — this report targets registration-ready leaves, not WIP `Not completed` subtrees). Use only these paths for totals, buckets, and the full folder table.
-- To report **Excluded leaf folders**: `all_leaves = list_leaf_folders_under_root(root, include_suffixes={".pdf"})`, then **`excluded_leaves = sorted(set(all_leaves) - set(included_leaves))`**.
+1. `root = resolve_goodnotes_root()`. If `None`, stop.
+2. **`included_leaves, excluded_leaves = partition_goodnotes_leaf_folders(root)`** — default **`exclude_not_completed=True`** (registration-ready leaves only). **Only** this pair for included vs excluded (use **`partition_goodnotes_leaf_folders(root, exclude_not_completed=False)`** **only** when the user explicitly asked to include *Not completed* leaves).
+3. `pfm = PdfFileManager()` then **`index = RegistryPathIndex.from_pdf_file_manager(pfm)`**.
+4. **`statuses = leaf_registry_statuses_for_included_leaves(included_leaves, root, index)`**.
+5. For excluded leaf stats: **`leaf_folder_registry_status(p, root, index)`** for each `p` in **`excluded_leaves`**.
+6. **`buckets = registration_buckets(statuses)`**.
+7. If **`suspicious_all_leaves_marked_non_scan_root(index, statuses)`** is true, flag possible Path/str misuse before finalizing scan-root-related counts.
 
-### Implementation hardening (required)
+**Path / `Path` rule:** rely on **`LeafFolderRegistryStatus`** and **`RegistryPathIndex`** only; do not build parallel path sets outside **`pdf_registry_paths`**.
 
-- Treat `PdfFileManager().find_files()` and `PdfFileManager().list_scan_roots()` rows as **typed objects first** (`row.path`), not dicts.
-- Add a defensive path extractor that supports both object and dict shapes, and fails loudly if no path can be read:
+Collect (derive **only** from **`RegistryPathIndex`** and **`LeafFolderRegistryStatus`** / **`registration_buckets`**):
 
-```python
-from pathlib import Path
-
-def resolved_path_from_row(row) -> str:
-    raw_path = getattr(row, "path", None)
-    if raw_path is None and isinstance(row, dict):
-        raw_path = row.get("path")
-    if not raw_path:
-        raise ValueError(f"Row has no path attribute/key: {type(row)!r}")
-    return str(Path(raw_path).resolve())
-```
-
-- Build sets as **sets of resolved path strings** (not `Path` objects):
-  - `registered_paths = {resolved_path_from_row(f) for f in pfm.find_files()}`
-  - `scan_root_paths = {resolved_path_from_row(r) for r in pfm.list_scan_roots()}`
-- **Path vs string membership (required):** In Python, `pathlib.Path("/x") in {"/x"}` is **always false**. For every membership test against `registered_paths` or `scan_root_paths`, use the same string form as the sets, e.g. `str(leaf_folder.resolve()) in scan_root_paths` and `str(pdf_path.resolve()) in registered_paths`. Alternatively, build those sets as `set[Path]` using `Path(resolved_path_from_row(...))` everywhere — but **never** mix `Path` lookup with a `set[str]` (or vice versa).
-- Add **sanity checks** before counting folders:
-  - if `len(pfm.find_files()) > 0` and `len(registered_paths) == 0`, stop and report an extraction bug instead of returning misleading coverage counts.
-  - if `len(scan_root_paths) > 0` and every included leaf folder is classified as not a scan root, re-check for a `Path`/`str` membership bug before trusting the result.
-
-Collect:
-
-1. Count of registered PDF paths.
-2. Count of scan roots.
+1. Count of registered PDF paths — **`index.pdf_files_row_count`** (and/or **`len(index.registered_resolved_paths)`** if reporting unique resolved paths).
+2. Count of scan roots — **`index.scan_roots_row_count`**.
 3. **Excluded leaf folders**: list any present excluded leaf folders and their `unregistered/total` direct PDFs.
 4. Total leaf folders under GoodNotes (after exclusions), using the direct-PDF definition above.
 5. Of those leaf folders, count how many are scan roots vs not scan roots.

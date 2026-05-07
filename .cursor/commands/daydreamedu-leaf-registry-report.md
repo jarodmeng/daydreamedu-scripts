@@ -6,8 +6,20 @@ When this command runs, produce a **summary report** comparing **leaf folders** 
 
 - Follow `.cursor/skills/pdf-file-manager/SKILL.md`: use **`PdfFileManager`** from `ai_study_buddy/pdf_file_manager/pdf_file_manager.py`.
 - Resolve the DaydreamEdu root with **`resolve_daydreamedu_root()`** from `ai_study_buddy/files/roots.py`. If it returns `None`, say so and stop.
-- **Enumerate leaf folders only via `ai_study_buddy.files`:** use **`list_daydreamedu_leaf_folders_under_root(root)`** from `ai_study_buddy.files.leaf_folders` (or `from ai_study_buddy.files import …`). Do **not** hand-roll `os.walk` / exclusion logic for this report — the helper matches these definitions and avoids drift vs GoodNotes/other tools.
+- **Included / excluded leaves:** obtain **only** via **`partition_daydreamedu_leaf_folders(root)`** (see §Centralized API). Do **not** call **`list_daydreamedu_leaf_folders_under_root`** or **`list_leaf_folders_under_root`** yourself to build included/excluded sets — **`partition_*`** wraps the correct profile internally.
 - Do **not** query the SQLite registry with ad hoc SQL for this task.
+- **Registry ↔ disk correlation (mandatory):** use **only** **`ai_study_buddy.files.pdf_registry_paths`** for resolved path sets, included/excluded leaf partitions, per-leaf registration status, and bucket rollups. Do **not** hand-build sets from `find_files()` / `list_scan_roots()`, reimplement **`resolved_path_from_registry_row`**, or duplicate **`partition_*`** / set-difference logic inline.
+
+## Centralized API (required)
+
+Implement this command **exclusively** through **`ai_study_buddy.files.pdf_registry_paths`** (also re-exported from **`ai_study_buddy.files`**):
+
+- **`RegistryPathIndex.from_pdf_file_manager(pfm)`** — sole source for **`registered_resolved_paths`**, **`scan_root_resolved_paths`**, and row counts (`pdf_files_row_count`, `scan_roots_row_count`).
+- **`partition_daydreamedu_leaf_folders(root)`** — returns **`(included_leaves, excluded_leaves)`**; do **not** call **`list_daydreamedu_leaf_folders_under_root`** plus manual set difference.
+- **`leaf_registry_statuses_for_included_leaves(included_leaves, root, index)`** — per included leaf → **`LeafFolderRegistryStatus`**.
+- **`leaf_folder_registry_status(leaf_dir, root, index)`** — use for each **excluded** leaf when reporting excluded-folder stats (item 3 below).
+- **`registration_buckets(statuses)`** — **`ScanRootRegistrationBuckets`** for the four-way breakdown.
+- **`suspicious_all_leaves_marked_non_scan_root(index, statuses)`** — when `True`, treat scan-root totals as suspect until membership is re-checked (Path/str bug guard).
 
 ## Path layout (DaydreamEdu root)
 
@@ -26,54 +38,45 @@ Legacy paths without a `template/` or `completion/` prefix are obsolete after th
 
 - **Leaf folder:** A directory under the DaydreamEdu root that has **at least one `*.pdf` file directly inside it**, regardless of whether it has subdirectories.
 - **Excluded leaf folders:** Treat the root relative path `.` as fully excluded from `leaf_folders_total` and every subsequent count/table in this report if it would otherwise qualify as a leaf folder (direct `*.pdf` on the DaydreamEdu root).
-- **Registered:** A PDF's **`Path.resolve()`** string matches a row from `PdfFileManager().find_files()` (build a set of resolved `path` strings).
-- **Unregistered in a leaf:** At least one direct `*.pdf` in that folder whose resolved path is not in that set.
-- **Scan root:** Compare each leaf folder's resolved path **as a string** to `PdfFileManager().list_scan_roots()` (same resolved-path string set as below). **Do not** test `pathlib.Path` objects for membership in those sets.
+- **Registered:** A direct PDF's resolved path string is in **`RegistryPathIndex.registered_resolved_paths`** (populated only via **`RegistryPathIndex.from_pdf_file_manager`** — do not rebuild this set manually).
+- **Unregistered in a leaf:** At least one direct `*.pdf` in that folder that is not registered per **`LeafFolderRegistryStatus`** / **`pdf_registry_paths`**.
+- **Scan root:** The leaf folder's resolved path string is in **`RegistryPathIndex.scan_root_resolved_paths`**. Classification must come from **`leaf_folder_registry_status`** / **`LeafFolderRegistryStatus.is_scan_root`**, not ad hoc comparisons.
 
 ## What to run
 
-Execute a short **Python one-shot** from the repo root with package imports (no `sys.path` mutation):
+Execute a short **Python one-shot** from the repo root with package imports (no `sys.path` mutation). **Required imports** (adapt only the import list if the package layout changes—**not** the mandated functions):
 
-- `from ai_study_buddy.pdf_file_manager import PdfFileManager`
-- `from ai_study_buddy.files.roots import resolve_daydreamedu_root`
-- `from ai_study_buddy.files.leaf_folders import list_daydreamedu_leaf_folders_under_root, list_leaf_folders_under_root`
+```python
+from ai_study_buddy.pdf_file_manager import PdfFileManager
+from ai_study_buddy.files.roots import resolve_daydreamedu_root
+from ai_study_buddy.files.pdf_registry_paths import (
+    RegistryPathIndex,
+    partition_daydreamedu_leaf_folders,
+    leaf_registry_statuses_for_included_leaves,
+    leaf_folder_registry_status,
+    registration_buckets,
+    suspicious_all_leaves_marked_non_scan_root,
+)
+```
 
 Use the default registry path from the utility / `PDF_REGISTRY_PATH` if set.
 
-### Leaf folders (required)
+### Pipeline (required)
 
-- After resolving `root = resolve_daydreamedu_root()`, set **`included_leaves = list_daydreamedu_leaf_folders_under_root(root)`**. Use only these paths for `leaf_folders_total`, scan-root splits, registration buckets, and the full folder table.
-- To report **Excluded leaf folders** (item 3 below): compute `all_leaves = list_leaf_folders_under_root(root, include_suffixes={".pdf"})`, then **`excluded_leaves = sorted(set(all_leaves) - set(included_leaves))`**. That difference is exactly the profile exclusions (typically the `.` root leaf when present); do not duplicate exclusion rules in-line.
+1. `root = resolve_daydreamedu_root()`. If `None`, stop.
+2. `included_leaves, excluded_leaves = partition_daydreamedu_leaf_folders(root)` — **only** this pair for included vs excluded; do not recompute via `list_*` + set difference.
+3. `pfm = PdfFileManager()` then `index = RegistryPathIndex.from_pdf_file_manager(pfm)` — **only** this object for registry path sets and counts.
+4. `statuses = leaf_registry_statuses_for_included_leaves(included_leaves, root, index)` for all included-leaf rows.
+5. For **excluded** leaf stats: `leaf_folder_registry_status(p, root, index)` for each `p` in `excluded_leaves`.
+6. `buckets = registration_buckets(statuses)` for the four-way registration × scan-root breakdown.
+7. If **`suspicious_all_leaves_marked_non_scan_root(index, statuses)`** is true, flag possible Path/str misuse before finalizing scan-root-related counts.
 
-### Implementation hardening (required)
+**Path / `Path` rule:** rely on **`LeafFolderRegistryStatus`** and **`RegistryPathIndex`** (resolved **`str`** paths). Do not build parallel `registered_paths` / `scan_root_paths` sets or mix **`pathlib.Path`** membership with **`set[str]`** outside this module.
 
-- Treat `PdfFileManager().find_files()` and `PdfFileManager().list_scan_roots()` rows as **typed objects first** (`row.path`), not dicts.
-- Add a defensive path extractor that supports both object and dict shapes, and fails loudly if no path can be read:
+Collect (derive **only** from **`RegistryPathIndex`** and **`LeafFolderRegistryStatus`** / **`registration_buckets`** — no parallel bookkeeping):
 
-```python
-from pathlib import Path
-
-def resolved_path_from_row(row) -> str:
-    raw_path = getattr(row, "path", None)
-    if raw_path is None and isinstance(row, dict):
-        raw_path = row.get("path")
-    if not raw_path:
-        raise ValueError(f"Row has no path attribute/key: {type(row)!r}")
-    return str(Path(raw_path).resolve())
-```
-
-- Build sets as **sets of resolved path strings** (not `Path` objects):
-  - `registered_paths = {resolved_path_from_row(f) for f in pfm.find_files()}`
-  - `scan_root_paths = {resolved_path_from_row(r) for r in pfm.list_scan_roots()}`
-- **Path vs string membership (required):** In Python, `pathlib.Path("/x") in {"/x"}` is **always false**. For every membership test against `registered_paths` or `scan_root_paths`, use the same string form as the sets, e.g. `str(leaf_folder.resolve()) in scan_root_paths` and `str(pdf_path.resolve()) in registered_paths`. Alternatively, build those sets as `set[Path]` using `Path(resolved_path_from_row(...))` everywhere — but **never** mix `Path` lookup with a `set[str]` (or vice versa).
-- Add **sanity checks** before counting folders:
-  - if `len(pfm.find_files()) > 0` and `len(registered_paths) == 0`, stop and report an extraction bug instead of returning misleading coverage counts.
-  - if `len(scan_root_paths) > 0` and every included leaf folder is classified as not a scan root, re-check for a `Path`/`str` membership bug before trusting the result.
-
-Collect:
-
-1. Count of registered PDF paths.
-2. Count of scan roots.
+1. Count of registered PDF paths — **`index.pdf_files_row_count`** (and/or **`len(index.registered_resolved_paths)`** if reporting unique resolved paths).
+2. Count of scan roots — **`index.scan_roots_row_count`**.
 3. **Excluded leaf folders**: list any present excluded leaf folders and their `unregistered/total` direct PDFs.
 4. Total leaf folders under DaydreamEdu (after excluding `.` root if applicable), using the direct-PDF definition above.
 5. Of those leaf folders, count how many are scan roots vs not scan roots.

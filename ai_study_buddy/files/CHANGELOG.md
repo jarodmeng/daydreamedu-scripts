@@ -4,6 +4,11 @@ All notable changes to the **`ai_study_buddy.files`** package are documented her
 
 ---
 
+## [v0.2.0] — Centralized PDF registry path correlation (`pdf_registry_paths`)
+
+- New module **`pdf_registry_paths`**: **`resolved_path_from_registry_row`**, **`RegistryPathIndex.from_pdf_file_manager`**, **`direct_pdf_paths_in_leaf_folder`**, **`PdfFileRegistryStatus`**, **`is_pdf_registered`**, **`pdf_file_registry_status`**, **`leaf_pdf_file_registry_statuses`**, **`leaf_folder_registry_status`**, **`partition_daydreamedu_leaf_folders`**, **`partition_goodnotes_leaf_folders`**, **`leaf_registry_statuses_for_included_leaves`**, **`registration_buckets`** / **`ScanRootRegistrationBuckets`**, **`suspicious_all_leaves_marked_non_scan_root`** — aligns with DaydreamEdu / GoodNotes leaf-registry Cursor commands (resolved `str` path sets; no ad hoc SQL).
+- Re-exported from **`ai_study_buddy.files`**. README / SPEC updated; tests in **`tests/test_pdf_registry_paths.py`**.
+
 ## [v0.1.3] — `is_goodnotes_excluded_relative_path` for tree browsers
 
 - Added **`is_goodnotes_excluded_relative_path(rel, *, exclude_not_completed=True)`** — single gate for GoodNotes x-prefix and optional *Not completed* segment rules (same flags as `list_goodnotes_leaf_folders_under_root`). Used by `root_pdf_browser` with `exclude_not_completed=False`.

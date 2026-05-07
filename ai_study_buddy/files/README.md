@@ -1,10 +1,10 @@
 # ai_study_buddy.files
 
-**Version: v0.1.3**
+**Version: v0.2.0**
 
-Small, **registry-agnostic** helpers for local synced study material: resolve DaydreamEdu and GoodNotes roots from environment or gitignored config files, and list **leaf folders** (directories with direct files matching chosen suffixes) with optional profile-specific exclusions.
+Small helpers for local synced study material: resolve DaydreamEdu and GoodNotes roots from environment or gitignored config files, and list **leaf folders** (directories with direct files matching chosen suffixes) with optional profile-specific exclusions.
 
-This package does **not** import `PdfFileManager` or touch the PDF registry. Registry-aware workflows should compose `ai_study_buddy.files` with `ai_study_buddy.pdf_file_manager`.
+The core modules (`roots`, `leaf_folders`) are **registry-agnostic**. For correlating those on-disk leaves with **`pdf_registry.db`** rows via **`PdfFileManager`**, use **`pdf_registry_paths`** — centralized path-string sets and per-leaf status (same rules as `.cursor/commands/*-leaf-registry-report.md`).
 
 ---
 
@@ -14,6 +14,7 @@ This package does **not** import `PdfFileManager` or touch the PDF registry. Reg
 |--------|------|
 | [`roots.py`](./roots.py) | `resolve_daydreamedu_root()`, `resolve_goodnotes_root()` |
 | [`leaf_folders.py`](./leaf_folders.py) | `list_leaf_folders_under_root()`, profile wrappers for DaydreamEdu / GoodNotes |
+| [`pdf_registry_paths.py`](./pdf_registry_paths.py) | `RegistryPathIndex.from_pdf_file_manager()`, leaf vs registry / scan-root helpers (optional; imports `PdfFileManager`) |
 
 Public re-exports: [`__init__.py`](./__init__.py).
 
