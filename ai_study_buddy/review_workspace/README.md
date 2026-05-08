@@ -3,7 +3,7 @@
 This folder contains the backend/frontend app for Review Workspace, including
 student review-state notes and human grading amendment overlays.
 
-Current version: `v0.1.1`
+Current version: `v0.1.3`
 
 Current phase: `single-student alpha` (scope locked on April 23, 2026).
 

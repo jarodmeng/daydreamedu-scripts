@@ -596,6 +596,13 @@ function WorkspaceView({ detail, onBack }: { detail: AttemptDetail; onBack: () =
       ),
     [amendmentDraft, activeBaseQuestion, activeBasePageMap],
   );
+  const meaningfulAmendmentDraftForSave = useMemo(
+    () =>
+      pickMeaningfulDraft(amendmentDraft, (field) =>
+        field === "page_map.confidence" ? activePageMap?.confidence ?? null : getQuestionFieldValue(activeQuestion, field),
+      ),
+    [amendmentDraft, activeQuestion, activePageMap],
+  );
   const amendmentDirty = useMemo(
     () => !valuesEqual(meaningfulAmendmentDraft, meaningfulPersistedAmendmentDraft),
     [meaningfulAmendmentDraft, meaningfulPersistedAmendmentDraft],
@@ -743,7 +750,7 @@ function WorkspaceView({ detail, onBack }: { detail: AttemptDetail; onBack: () =
     if (!activeQuestionId || !amendmentDirty) {
       return;
     }
-    if (needsReviewerReason(meaningfulAmendmentDraft) && reviewerReason.trim().length === 0) {
+    if (needsReviewerReason(meaningfulAmendmentDraftForSave) && reviewerReason.trim().length === 0) {
       setAmendmentSaveStatus("error");
       setAmendmentError("Reviewer reason is required for score-changing amendments.");
       return;
@@ -752,7 +759,7 @@ function WorkspaceView({ detail, onBack }: { detail: AttemptDetail; onBack: () =
     const pageMapAmendment: Record<string, unknown> = { result_id: activeQuestionId };
     let hasPageMapChange = false;
 
-    Object.entries(meaningfulAmendmentDraft).forEach(([field, value]) => {
+    Object.entries(meaningfulAmendmentDraftForSave).forEach(([field, value]) => {
       if (field === "attempt_page_start") {
         pageMapAmendment.attempt_page_start = value;
         hasPageMapChange = true;

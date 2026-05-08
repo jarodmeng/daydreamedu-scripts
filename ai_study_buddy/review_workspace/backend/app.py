@@ -18,7 +18,6 @@ REPO_ROOT = _repo_root()
 
 app = FastAPI(
     title="AI Study Buddy Review Workspace Backend",
-    version="0.2.0",
 )
 
 app.add_middleware(

@@ -4,6 +4,18 @@ All notable changes to `ai_study_buddy/review_workspace` are documented here.
 
 ---
 
+## [v0.1.3] — Amendment save-diff hotfix (2026-05-08)
+
+Implemented:
+
+- fixed amendment save payload shaping so field diffs are computed against the current resolved question state (base + saved overlay), not only the immutable AI base.
+- this resolves a persistence gap where setting a field back to the AI base value could be dropped from the save payload and leave a stale prior override in place.
+
+Scope lock:
+
+- phase remains `single-student alpha`.
+- canonical `marking_result` artifacts remain read-only from this app surface.
+
 ## [v0.1.2] — Marking review-domain consolidation (2026-04-29)
 
 Implemented:
