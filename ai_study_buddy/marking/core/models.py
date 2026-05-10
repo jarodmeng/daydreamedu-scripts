@@ -18,6 +18,7 @@ class QuestionSelection:
 class MarkingContext:
     student_id: str | None
     student_name: str | None
+    subject_context: str
 
     attempt_file_id: str
     attempt_file_path: str
@@ -163,13 +164,14 @@ class MarkingArtifactContext:
         cls,
         context: MarkingContext,
         *,
-        subject_context: str,
+        subject_context: str | None = None,
         resolved_at: str,
     ) -> "MarkingArtifactContext":
+        resolved_subject_context = subject_context or context.subject_context
         return cls(
             student_id=context.student_id,
             student_name=context.student_name,
-            subject_context=subject_context,
+            subject_context=resolved_subject_context,
             attempt_file_id=context.attempt_file_id,
             attempt_file_path=context.attempt_file_path,
             template_file_id=context.template_file_id,

@@ -4,6 +4,43 @@ All notable changes to `ai_study_buddy.marking` are documented in this file.
 
 Committed changes under `ai_study_buddy/marking/` should add an entry here and bump **Current version** in `README.md` (semver: **patch** for docs or small renderer tweaks, **minor** for schema or public API changes). `SPEC.md` / `TESTING.md` titles do not carry the package version.
 
+## [0.3.6] - 2026-05-10
+
+Patch: make `subject_context` registry-sourced and strict across resolver/v3 finalization; remove path-token heuristics and add subject-failure debug artifact.
+
+### Added
+
+- `marking/core/subject_scope.py`:
+  - shared mapper `subject_context_from_pdf_subject(subject)` for:
+    - `english -> singapore_primary_english`
+    - `math -> singapore_primary_math`
+    - `science -> singapore_primary_science`
+    - `chinese -> singapore_primary_chinese`
+- `marking/workflows/audit_registry_subjects.py`:
+  - one-shot registry audit command for missing/invalid `pdf_files.subject` coverage.
+
+### Changed
+
+- `marking/core/models.py`:
+  - `MarkingContext.subject_context` is now required (`str`).
+  - `MarkingArtifactContext.from_marking_context(...)` now defaults to `context.subject_context` when explicit override is omitted.
+- `marking/core/context_resolver.py`:
+  - resolver now computes `subject_context` from registry (`template.subject` first, then `attempt.subject`).
+  - resolver now hard-fails when neither subject can be mapped.
+- `marking/file_question_info/api.py`:
+  - `_subject_scope_from_pdf_file(...)` now delegates to shared core subject mapper (single source of truth).
+- `marking/workflows/mark_student_work_multi_agent_v3.py`:
+  - removed path/filename subject heuristics from `_resolve_subject_context_from_runtime_context(...)`.
+  - v3 finalization now hard-fails if `context.subject_context` is missing/unusable.
+  - on this failure path, writes `debug/phasee_subject_context_failure.json` with diagnostic context.
+
+### Tests
+
+- updated resolver/v3 tests for strict subject behavior.
+- added resolver test: template subject missing -> fallback to attempt subject.
+- added resolver test: missing subjects on both files -> hard fail.
+- updated v3 cleanup test to use an in-test trash move stub so it runs in sandboxed environments.
+
 ## [0.3.5] - 2026-05-09
 
 Patch: drop unused `bundle_attempt_page_offset` from the question-sections → page-map bridge; stabilize corpus golden tests when multiple `question_sections.json` files share one `schema_version`.

@@ -53,13 +53,6 @@ V3_MODE_EMBEDDED_ANSWER = "embedded-answer"
 V3_MODE_TEACHER_ANNOTATED = "teacher-annotated"
 V3_MODE_REDO_PRACTICE = "redo-practice"
 
-_SUBJECT_CONTEXT_BY_TOKEN: dict[str, str] = {
-    "math": "singapore_primary_math",
-    "science": "singapore_primary_science",
-    "english": "singapore_primary_english",
-    "chinese": "singapore_primary_chinese",
-}
-
 
 class V3WorkflowError(ValueError):
     pass
@@ -1024,28 +1017,14 @@ def _resolve_subject_context_from_runtime_context(context: Any) -> str:
     explicit = getattr(context, "subject_context", None)
     if isinstance(explicit, str) and explicit.strip():
         return explicit.strip()
-
-    path_candidates: list[str] = []
-    for attr in ("attempt_file_path", "template_file_path", "answer_file_path"):
-        value = getattr(context, attr, None)
-        if isinstance(value, str) and value.strip():
-            path_candidates.append(value.strip().casefold())
-
-    # Prefer explicit subject tokens in filenames (for example ".science.")
-    # over broad directory hints (for example "/math/"), which can be noisy.
-    for candidate in path_candidates:
-        filename = Path(candidate).name
-        for token, subject_context in _SUBJECT_CONTEXT_BY_TOKEN.items():
-            if f".{token}." in filename:
-                return subject_context
-
-    for candidate in path_candidates:
-        for token, subject_context in _SUBJECT_CONTEXT_BY_TOKEN.items():
-            if f"/{token}/" in candidate or f".{token}." in candidate:
-                return subject_context
-
+    attempt_file_id = getattr(context, "attempt_file_id", None)
+    template_file_id = getattr(context, "template_file_id", None)
+    attempt_file_path = getattr(context, "attempt_file_path", None)
+    template_file_path = getattr(context, "template_file_path", None)
     raise V3WorkflowError(
-        "Unable to resolve subject_context from runtime context; provide a context with subject metadata/path hints"
+        "Unable to resolve subject_context from runtime context; expected resolved "
+        f"context.subject_context. attempt_file_id={attempt_file_id!r}, template_file_id={template_file_id!r}, "
+        f"attempt_file_path={attempt_file_path!r}, template_file_path={template_file_path!r}"
     )
 
 
@@ -1142,14 +1121,31 @@ def finalize_phase_e_artifact(
         "deep_dive_count": max(0, int(deep_dive_count)),
         "total_duration_seconds": None,
     }
-    artifact = _build_marking_artifact_from_rows(
-        context=context,
-        rows=merged_rows,
-        mode=mode,
-        notes="phase-e-finalize",
-        telemetry=telemetry,
-        created_at=created_at,
-    )
+    try:
+        artifact = _build_marking_artifact_from_rows(
+            context=context,
+            rows=merged_rows,
+            mode=mode,
+            notes="phase-e-finalize",
+            telemetry=telemetry,
+            created_at=created_at,
+        )
+    except V3WorkflowError as exc:
+        debug_dir = bundle_root / "debug"
+        debug_dir.mkdir(parents=True, exist_ok=True)
+        failure_path = debug_dir / "phasee_subject_context_failure.json"
+        failure_payload = {
+            "error": str(exc),
+            "attempt_file_id": getattr(context, "attempt_file_id", None),
+            "attempt_file_path": getattr(context, "attempt_file_path", None),
+            "template_file_id": getattr(context, "template_file_id", None),
+            "template_file_path": getattr(context, "template_file_path", None),
+            "answer_file_id": getattr(context, "answer_file_id", None),
+            "answer_file_path": getattr(context, "answer_file_path", None),
+            "subject_context": getattr(context, "subject_context", None),
+        }
+        failure_path.write_text(json.dumps(failure_payload, indent=2, ensure_ascii=True) + "\n", encoding="utf-8")
+        raise
     payload = artifact.to_dict()
     validate_marking_artifact_dict(payload)
     artifact_path = write_marking_artifact(artifact, context_root=context_root)

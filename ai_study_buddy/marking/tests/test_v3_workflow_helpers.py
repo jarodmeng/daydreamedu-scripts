@@ -300,14 +300,30 @@ def test_cleanup_stale_partials_for_v3_run_moves_only_stale_nonfinalized():
         (finalized / "debug").mkdir(parents=True, exist_ok=True)
         (finalized / "debug" / "phasee_finalization_trace.json").write_text("{}", encoding="utf-8")
 
-        moved = cleanup_stale_partials_for_v3_run(
-            context_root=root,
-            attempt_file_path="/tmp/_c_P4 Science WA1.pdf",
-            student_id="emma",
-            student_name=None,
-            subject_context=subject,
-            keep_bundle_root=keep,
-        )
+        trash_root = root / ".trash"
+
+        def _fake_move_bundle_to_trash(*, bundle_root: Path) -> Path:
+            src = Path(bundle_root).resolve()
+            trash_root.mkdir(parents=True, exist_ok=True)
+            dest = trash_root / src.name
+            src.rename(dest)
+            return dest
+
+        import ai_study_buddy.marking.workflows.mark_student_work_multi_agent_v3 as mod
+
+        original_move = mod.move_bundle_to_trash
+        mod.move_bundle_to_trash = _fake_move_bundle_to_trash
+        try:
+            moved = cleanup_stale_partials_for_v3_run(
+                context_root=root,
+                attempt_file_path="/tmp/_c_P4 Science WA1.pdf",
+                student_id="emma",
+                student_name=None,
+                subject_context=subject,
+                keep_bundle_root=keep,
+            )
+        finally:
+            mod.move_bundle_to_trash = original_move
         assert len(moved) == 1
         assert moved[0].name.startswith("P4 Science WA1__20260507_202347")
         assert keep.exists()
@@ -367,7 +383,7 @@ def test_resolve_attempt_input_student_plus_filename():
         mgr = PdfFileManager(db_path=str(base / "registry.db"))
         mgr.add_student("emma", "Emma", email="emma@example.com")
         pdf = _touch(base / "GoodNotes" / "Math" / "emma@example.com" / "_c_p6.math.wa1.2 (attempt).pdf")
-        reg = mgr.register_file(pdf, file_type="main", is_template=False, doc_type="exam", student_id="emma")
+        reg = mgr.register_file(pdf, file_type="main", is_template=False, doc_type="exam", subject="math", student_id="emma")
         out = resolve_attempt_input_to_pdf_file(
             manager=mgr,
             request=V3InputRequest(student_name="Emma", file_name=reg.name),
@@ -383,9 +399,9 @@ def test_resolve_v3_marking_context_from_input_request():
         template_path = _touch(base / "DaydreamEdu" / "Math" / "_c_p6.math.wa1.2.pdf")
         answer_path = _touch(base / "DaydreamEdu" / "Math" / "_c_p6.math.wa1.ans.pdf")
 
-        attempt = mgr.register_file(attempt_path, file_type="main", is_template=False, doc_type="exam")
-        template = mgr.register_file(template_path, file_type="main", is_template=True, doc_type="book")
-        answer = mgr.register_file(answer_path, file_type="main", is_template=False, doc_type="book")
+        attempt = mgr.register_file(attempt_path, file_type="main", is_template=False, doc_type="exam", subject="math")
+        template = mgr.register_file(template_path, file_type="main", is_template=True, doc_type="book", subject="math")
+        answer = mgr.register_file(answer_path, file_type="main", is_template=False, doc_type="book", subject="math")
         mgr.link_to_template(attempt.id, template.id)
         group = mgr.create_file_group("P6 Math WA1", group_type="book")
         mgr.add_to_file_group(group.id, template.id)
@@ -414,9 +430,9 @@ def test_write_context_resolution_debug_artifact():
         attempt_path = _touch(base / "GoodNotes" / "Math" / "_c_p6.math.wa1.2 (attempt).pdf")
         template_path = _touch(base / "DaydreamEdu" / "Math" / "_c_p6.math.wa1.2.pdf")
         answer_path = _touch(base / "DaydreamEdu" / "Math" / "_c_p6.math.wa1.ans.pdf")
-        attempt = mgr.register_file(attempt_path, file_type="main", is_template=False, doc_type="exam")
-        template = mgr.register_file(template_path, file_type="main", is_template=True, doc_type="book")
-        answer = mgr.register_file(answer_path, file_type="main", is_template=False, doc_type="book")
+        attempt = mgr.register_file(attempt_path, file_type="main", is_template=False, doc_type="exam", subject="math")
+        template = mgr.register_file(template_path, file_type="main", is_template=True, doc_type="book", subject="math")
+        answer = mgr.register_file(answer_path, file_type="main", is_template=False, doc_type="book", subject="math")
         mgr.link_to_template(attempt.id, template.id)
         group = mgr.create_file_group("P6 Math WA1", group_type="book")
         mgr.add_to_file_group(group.id, template.id)
@@ -735,9 +751,9 @@ def _build_context_with_mapping(tmp_path: Path):
     attempt_path = _touch(tmp_path / "GoodNotes" / "Math" / "_c_p6.math.wa1.2 (attempt).pdf")
     template_path = _touch(tmp_path / "DaydreamEdu" / "Math" / "_c_p6.math.wa1.2.pdf")
     answer_path = _touch(tmp_path / "DaydreamEdu" / "Math" / "_c_p6.math.wa1.ans.pdf")
-    attempt = mgr.register_file(attempt_path, file_type="main", is_template=False, doc_type="exam")
-    template = mgr.register_file(template_path, file_type="main", is_template=True, doc_type="book")
-    answer = mgr.register_file(answer_path, file_type="main", is_template=False, doc_type="book")
+    attempt = mgr.register_file(attempt_path, file_type="main", is_template=False, doc_type="exam", subject="math")
+    template = mgr.register_file(template_path, file_type="main", is_template=True, doc_type="book", subject="math")
+    answer = mgr.register_file(answer_path, file_type="main", is_template=False, doc_type="book", subject="math")
     mgr.link_to_template(attempt.id, template.id)
     group = mgr.create_file_group("P6 Math WA1", group_type="book")
     mgr.add_to_file_group(group.id, template.id)
@@ -827,11 +843,12 @@ def test_phase_e_runtime_and_finalize(monkeypatch, tmp_path):
     assert out.debug_trace_path.is_file()
 
 
-def test_phase_e_finalize_infers_subject_context_from_context_path(tmp_path):
+def test_phase_e_finalize_raises_without_subject_context_and_writes_debug_artifact(tmp_path):
     _, context = _build_context_with_mapping(tmp_path / "ctx_science")
     context = replace(
         context,
-        attempt_file_path=str(Path(context.attempt_file_path).with_name("_c_p6.science.wa1.2 (attempt).pdf")),
+        subject_context="",
+        attempt_file_path=str(Path(context.attempt_file_path).with_name("c_EPO_Comprehension_Open-ended_02.pdf")),
     )
     merged_rows = [
         {
@@ -846,17 +863,20 @@ def test_phase_e_finalize_infers_subject_context_from_context_path(tmp_path):
             "attempt_page_start": 1,
         }
     ]
-    out = finalize_phase_e_artifact(
-        context=context,
-        merged_rows=merged_rows,
-        mode="book-practice",
-        bundle_root=tmp_path / "bundle",
-        context_root=tmp_path / "context",
-        deep_dive_count=0,
-        phase2_subagents=1,
-    )
-    payload = json.loads(out.artifact_path.read_text(encoding="utf-8"))
-    assert payload["context"]["subject_context"] == "singapore_primary_science"
+    with pytest.raises(V3WorkflowError, match="Unable to resolve subject_context"):
+        finalize_phase_e_artifact(
+            context=context,
+            merged_rows=merged_rows,
+            mode="book-practice",
+            bundle_root=tmp_path / "bundle",
+            context_root=tmp_path / "context",
+            deep_dive_count=0,
+            phase2_subagents=1,
+        )
+    failure_debug = tmp_path / "bundle" / "debug" / "phasee_subject_context_failure.json"
+    assert failure_debug.is_file()
+    payload = json.loads(failure_debug.read_text(encoding="utf-8"))
+    assert "Unable to resolve subject_context" in payload["error"]
 
 
 def test_phase_e_runtime_retry_exhaustion_raises(monkeypatch, tmp_path):
@@ -935,9 +955,9 @@ def test_resolve_redo_practice_reference_uses_first_marking_result_and_loads_ame
         answer_path = _touch(base / "DaydreamEdu" / "Math" / "_c_p6.math.wa1.ans.pdf")
 
         mgr.add_student("emma", "Emma", email="emma@example.com")
-        attempt = mgr.register_file(attempt_path, file_type="main", is_template=False, doc_type="exam", student_id="emma")
-        template = mgr.register_file(template_path, file_type="main", is_template=True, doc_type="book")
-        answer = mgr.register_file(answer_path, file_type="main", is_template=False, doc_type="book")
+        attempt = mgr.register_file(attempt_path, file_type="main", is_template=False, doc_type="exam", subject="math", student_id="emma")
+        template = mgr.register_file(template_path, file_type="main", is_template=True, doc_type="book", subject="math")
+        answer = mgr.register_file(answer_path, file_type="main", is_template=False, doc_type="book", subject="math")
         mgr.link_to_template(attempt.id, template.id)
         group = mgr.create_file_group("P6 Math WA1", group_type="book")
         mgr.add_to_file_group(group.id, template.id)

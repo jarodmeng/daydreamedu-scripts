@@ -2,6 +2,7 @@ from pathlib import Path
 
 from ai_study_buddy.marking.core.artifact_paths import derive_unit_label_from_attempt_name
 from ai_study_buddy.marking.core.models import MarkingContext, QuestionSelection
+from ai_study_buddy.marking.core.subject_scope import subject_context_from_pdf_subject
 from ai_study_buddy.pdf_file_manager.pdf_file_manager import (
     AlreadyRegisteredError,
     BookAnswerMapping,
@@ -111,6 +112,7 @@ def resolve_marking_context(
     return MarkingContext(
         student_id=student.id if student else attempt_file.student_id,
         student_name=student.name if student else None,
+        subject_context=_resolve_subject_context(template_file=template_file, attempt_file=attempt_file),
         attempt_file_id=attempt_file.id,
         attempt_file_path=attempt_file.path,
         template_file_id=template_file.id,
@@ -131,6 +133,24 @@ def resolve_marking_context(
         question_selection=question_selection,
         marking_mode=resolved_mode,
     )
+
+
+def _resolve_subject_context(*, template_file: PdfFile | None, attempt_file: PdfFile) -> str:
+    if template_file is not None:
+        try:
+            return subject_context_from_pdf_subject(template_file.subject)
+        except ValueError:
+            pass
+    try:
+        return subject_context_from_pdf_subject(attempt_file.subject)
+    except ValueError as exc:
+        template_subject = template_file.subject if template_file is not None else None
+        raise MarkingContextResolutionError(
+            "Unable to resolve subject_context from registry subjects; "
+            f"template_subject={template_subject!r}, attempt_subject={attempt_file.subject!r}, "
+            f"template_file_id={template_file.id if template_file is not None else None!r}, "
+            f"attempt_file_id={attempt_file.id!r}"
+        ) from exc
 
 
 def _build_question_selection(

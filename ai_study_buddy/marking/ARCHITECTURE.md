@@ -33,6 +33,13 @@ The marking package is the canonical implementation layer for marking workflows.
 
 Business logic lives in `ai_study_buddy/marking/`; skills and runbooks orchestrate usage but should not duplicate core resolution logic.
 
+### Subject Context Rule (Proposal 18)
+
+- `context.subject_context` is resolver-owned and registry-sourced.
+- `resolve_marking_context(...)` is the only supported producer of canonical `subject_context` for runtime artifact generation.
+- v3 finalization must consume `context.subject_context` and must not infer subject from file path or filename tokens.
+- Unsupported/missing registry subjects are fail-closed errors (with debug artifact diagnostics in v3 finalize flow).
+
 ## 2) Module Boundaries
 
 Current package modules are grouped into four layers.

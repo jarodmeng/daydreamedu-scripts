@@ -9,6 +9,7 @@ from jsonschema import Draft202012Validator
 
 from ai_study_buddy.learning_db.core.config import learning_db_read_fallback_filesystem, learning_db_reads_enabled
 from ai_study_buddy.learning_db.core.connection import default_db_path, get_connection
+from ai_study_buddy.marking.core.subject_scope import subject_context_from_pdf_subject
 from ai_study_buddy.pdf_file_manager.pdf_file_manager import normalize_pdf_display_name
 from ai_study_buddy.marking.file_question_info.errors import (
     FileQuestionInfoError,
@@ -176,16 +177,10 @@ def _load_schema(schema_path: Path) -> dict[str, Any]:
 
 
 def _subject_scope_from_pdf_file(pdf_file) -> str:
-    subject = (pdf_file.subject or "").strip().casefold()
-    if subject == "english":
-        return "singapore_primary_english"
-    if subject == "math":
-        return "singapore_primary_math"
-    if subject == "science":
-        return "singapore_primary_science"
-    if subject == "chinese":
-        return "singapore_primary_chinese"
-    raise UnsupportedPdfSubjectError(f"unsupported pdf subject for file_id={pdf_file.id}: {pdf_file.subject!r}")
+    try:
+        return subject_context_from_pdf_subject(pdf_file.subject)
+    except ValueError as exc:
+        raise UnsupportedPdfSubjectError(f"unsupported pdf subject for file_id={pdf_file.id}: {pdf_file.subject!r}") from exc
 
 
 def _grade_segment_from_pdf_file(pdf_file) -> str:

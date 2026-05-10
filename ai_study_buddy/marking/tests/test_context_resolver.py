@@ -47,7 +47,7 @@ def test_resolve_context_can_auto_register_and_use_self_answer_override() -> Non
         mgr = PdfFileManager(db_path=str(base / "registry.db"))
         attempt_path, template_path = _make_goodnotes_paths(base)
 
-        template = mgr.register_file(template_path, file_type="main", is_template=True, doc_type="book")
+        template = mgr.register_file(template_path, file_type="main", is_template=True, doc_type="book", subject="math")
 
         context = resolve_marking_context(
             attempt_file_id_or_path=attempt_path,
@@ -93,7 +93,7 @@ def test_resolve_context_manual_answer_pages_override() -> None:
         mgr = PdfFileManager(db_path=str(base / "registry.db"))
         attempt_path, template_path = _make_goodnotes_paths(base)
 
-        template = mgr.register_file(template_path, file_type="main", is_template=True, doc_type="book")
+        template = mgr.register_file(template_path, file_type="main", is_template=True, doc_type="book", subject="math")
         context = resolve_marking_context(
             attempt_file_id_or_path=attempt_path,
             auto_register_attempt=True,
@@ -150,9 +150,9 @@ def test_resolve_context_without_override_uses_registry_answer_mapping() -> None
         attempt_path, template_path = _make_goodnotes_paths(base)
         answer_path = _touch(base / "DaydreamEdu" / "Singapore Primary Math" / "P4" / "Exam" / "_c_p4.math.wa1.ans.pdf")
 
-        attempt = mgr.register_file(attempt_path, file_type="main", is_template=False, doc_type="exam")
-        template = mgr.register_file(template_path, file_type="main", is_template=True, doc_type="book")
-        answer = mgr.register_file(answer_path, file_type="main", is_template=False, doc_type="book")
+        attempt = mgr.register_file(attempt_path, file_type="main", is_template=False, doc_type="exam", subject="math")
+        template = mgr.register_file(template_path, file_type="main", is_template=True, doc_type="book", subject="math")
+        answer = mgr.register_file(answer_path, file_type="main", is_template=False, doc_type="book", subject="math")
         mgr.link_to_template(attempt.id, template.id)
 
         group = mgr.create_file_group("P4 Math WA1", group_type="book")
@@ -202,8 +202,8 @@ def test_resolve_context_daydreamedu_attempt_path_accepted() -> None:
         _touch(attempt_path)
         _touch(template_path)
 
-        template = mgr.register_file(template_path, file_type="main", is_template=True, doc_type="book")
-        attempt = mgr.register_file(attempt_path, file_type="main", is_template=False, doc_type="exam")
+        template = mgr.register_file(template_path, file_type="main", is_template=True, doc_type="book", subject="math")
+        attempt = mgr.register_file(attempt_path, file_type="main", is_template=False, doc_type="exam", subject="math")
         mgr.link_to_template(attempt.id, template.id)
 
         context = resolve_marking_context(
@@ -221,8 +221,8 @@ def test_resolve_context_teacher_annotated_mode_returns_null_answer_mapping() ->
         base = Path(tmpdir)
         mgr = PdfFileManager(db_path=str(base / "registry.db"))
         attempt_path, template_path = _make_goodnotes_paths(base)
-        attempt = mgr.register_file(attempt_path, file_type="main", is_template=False, doc_type="exam")
-        template = mgr.register_file(template_path, file_type="main", is_template=True, doc_type="book")
+        attempt = mgr.register_file(attempt_path, file_type="main", is_template=False, doc_type="exam", subject="math")
+        template = mgr.register_file(template_path, file_type="main", is_template=True, doc_type="book", subject="math")
         mgr.link_to_template(attempt.id, template.id)
 
         context = resolve_marking_context(
@@ -238,13 +238,51 @@ def test_resolve_context_teacher_annotated_mode_returns_null_answer_mapping() ->
         assert context.answer_mapping_source == "teacher_annotated_completion"
 
 
+def test_resolve_context_raises_when_subject_missing_on_template_and_attempt() -> None:
+    with tempfile.TemporaryDirectory() as tmpdir:
+        base = Path(tmpdir)
+        mgr = PdfFileManager(db_path=str(base / "registry.db"))
+        attempt_path = _touch(base / "GoodNotes" / "Unknown Scope" / "emma@example.com" / "paper" / "_c_wa1.6 (attempt).pdf")
+        template_path = _touch(base / "DaydreamEdu" / "Unknown Scope" / "paper" / "_c_wa1.6.pdf")
+
+        attempt = mgr.register_file(attempt_path, file_type="main", is_template=False, doc_type="exam")
+        template = mgr.register_file(template_path, file_type="main", is_template=True, doc_type="book")
+        mgr.link_to_template(attempt.id, template.id)
+
+        with pytest.raises(MarkingContextResolutionError, match="Unable to resolve subject_context"):
+            resolve_marking_context(
+                attempt_file_id_or_path=attempt.id,
+                self_answer_pages=(1, 1),
+                manager=mgr,
+            )
+
+
+def test_resolve_context_falls_back_to_attempt_subject_when_template_subject_missing() -> None:
+    with tempfile.TemporaryDirectory() as tmpdir:
+        base = Path(tmpdir)
+        mgr = PdfFileManager(db_path=str(base / "registry.db"))
+        attempt_path = _touch(base / "GoodNotes" / "Singapore Primary Math" / "emma@example.com" / "P4" / "_c_p4.math.wa1.6 (attempt).pdf")
+        template_path = _touch(base / "DaydreamEdu" / "Unknown Scope" / "P4" / "_c_p4.wa1.6.pdf")
+
+        attempt = mgr.register_file(attempt_path, file_type="main", is_template=False, doc_type="exam", subject="math")
+        template = mgr.register_file(template_path, file_type="main", is_template=True, doc_type="book")
+        mgr.link_to_template(attempt.id, template.id)
+
+        context = resolve_marking_context(
+            attempt_file_id_or_path=attempt.id,
+            self_answer_pages=(1, 1),
+            manager=mgr,
+        )
+        assert context.subject_context == "singapore_primary_math"
+
+
 def test_resolve_context_rejects_self_answer_pages_with_teacher_annotated_mode() -> None:
     with tempfile.TemporaryDirectory() as tmpdir:
         base = Path(tmpdir)
         mgr = PdfFileManager(db_path=str(base / "registry.db"))
         attempt_path, template_path = _make_goodnotes_paths(base)
-        attempt = mgr.register_file(attempt_path, file_type="main", is_template=False, doc_type="exam")
-        template = mgr.register_file(template_path, file_type="main", is_template=True, doc_type="book")
+        attempt = mgr.register_file(attempt_path, file_type="main", is_template=False, doc_type="exam", subject="math")
+        template = mgr.register_file(template_path, file_type="main", is_template=True, doc_type="book", subject="math")
         mgr.link_to_template(attempt.id, template.id)
 
         with pytest.raises(MarkingContextResolutionError, match="self_answer_pages is only valid"):
