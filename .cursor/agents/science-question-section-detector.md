@@ -232,9 +232,43 @@ Each section must carry a **`question_info`** array — one element per printed 
 
 ### `question_topic`
 
-- Free-form short description of what the question tests, written as a natural-language phrase.
-- **Keep under 30 words.** Examples: `"life cycle of insect — identify stage where feeding does not occur"`, `"transport in plants — explain why water level differs between beakers"`, `"circulatory system — identify organ and compare blood composition"`, `"electrical circuits — predict which bulbs light up"`.
+- Write a **syllabus-mappable concept label**, not a generic scene description.
+- **Format (required):** `"<syllabus-aligned concept> — <what student must do>"`.
+- The left side must be a concise concept phrase aligned to Singapore Primary Science units in `syllabus_understanding.md` (theme/chapter/topic level), e.g.:
+  - `plant parts and functions`
+  - `plant respiratory and circulatory systems`
+  - `human digestive system`
+  - `human respiratory and circulatory systems`
+  - `electrical system (circuits/conductors/insulators)`
+  - `interaction of forces (magnets/friction/gravity/elastic spring force)`
+  - `cycles in plants and animals (life cycles)`
+  - `cycles in plants and animals (reproduction)`
+  - `cycles in matter and water (water changes of state / water cycle)`
+  - `energy forms and uses (heat/light/photosynthesis)`
+  - `energy conversion`
+  - `interactions within the environment`
+  - `diversity of materials`
+- The right side should briefly capture the demanded performance (`identify`, `compare`, `infer`, `explain`, `predict`) in context.
+- When the item explicitly assesses experiment design validity (changed/manipulated variable, measured variable, constants, control setup, fair comparison), include the cross-cutting skill token **`[Experiment > Fair-test]`** in the right side.
+  - Preferred form: `"<syllabus-aligned concept> — [Experiment > Fair-test] <task>"`
+  - Example: `"photosynthesis investigation design — [Experiment > Fair-test] identify dependent and constant variables"`
+- `Experiment > Fair-test` is an **additional skill signal**, not a replacement for syllabus concept anchoring.
+- **Keep under 30 words** total.
+- Prefer domain terms over local placeholders. Avoid topic strings centered on paper-specific labels only (`beaker S`, `line X`, `setup Y`) unless paired with the syllabus concept.
+- Avoid pure process-only phrasing like `"fair test — identify variables"` unless no domain signal exists; if unavoidable, include the best inferred concept first (e.g., `"photosynthesis investigation design — identify dependent and constant variables"`).
 - Omit or use `""` only when the question is illegible or the topic is genuinely unclear.
+
+Good examples:
+- `"cycles in plants and animals (life cycles) — identify stage where insect does not feed"`
+- `"human digestive system — explain why smaller food pieces are digested faster"`
+- `"cycles in matter and water (water cycle) — identify process and state change"`
+- `"electrical system (conductors/insulators) — predict which bulbs will light"`
+- `"photosynthesis investigation design — [Experiment > Fair-test] identify variables kept constant"`
+
+Weak examples (avoid):
+- `"graph interpretation — choose correct line"`
+- `"beaker S and T experiment"`
+- `"fair test design"`
 
 ## `section_total_marks`
 
