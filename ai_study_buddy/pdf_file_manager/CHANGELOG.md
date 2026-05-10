@@ -4,6 +4,12 @@ All notable changes to the pdf_file_manager utility are documented here.
 
 ---
 
+## [v0.3.16] — GoodNotes template resolver: `template/` branch + `completion/` paths
+
+- `PdfFileManager.resolve_goodnotes_template_path(...)` now searches **`DaydreamEdu/template/<subject>/…`** before the legacy layout (no top-level branch), so mirrored GoodNotes files still resolve after template/completion-branch migration.
+- Paths under **`DaydreamEdu/completion/…`** (or with a leading **`template/`** segment in the mirrored tail) strip that branch when deriving the general-scope remainder before probing candidate dirs.
+- Docstring documents legacy vs prefab layouts; tests in `tests/test_goodnotes_helper.py` cover template-only and completion-branch cases.
+
 ## [v0.3.15] — Wake backup: centralized under `utils/backup` only
 
 - Removed `pdf_file_manager/scripts/run_backup_on_wake.sh` and `install_run_on_wake.sh` (superseded by `ai_study_buddy/utils/backup/`).

@@ -1874,6 +1874,15 @@ class PdfFileManager:
           search the general-scope DaydreamEdu directory (subject/grade/content
           without the student email segment).
 
+        Daydream layouts:
+
+        - **Legacy:** ``DaydreamEdu/<subject>/…/<folder>``
+        - **Prefab branches:** ``DaydreamEdu/template/<subject>/…/<folder>``
+
+        Resolution tries ``template/<subject>/…`` first, then the legacy path (no
+        top-level branch), so mirrored GoodNotes completions still resolve after
+        a template/completion-branch migration.
+
         Raises ValueError if:
         - the path does not contain a ``GoodNotes`` or (student) ``DaydreamEdu``
           segment, or
@@ -1918,26 +1927,32 @@ class PdfFileManager:
                 f"Path does not contain a 'GoodNotes' or 'DaydreamEdu' segment: {p}"
             )
 
-        # General-scope DaydreamEdu directory: drop the student email segment.
-        # Policy: templates are only valid under general scope; student scope is
-        # not searched for template resolution.
-        general_dir: Path | None = None
-        if len(daydream_parts) >= idx + 3:
-            # Heuristic: the first segment after subject that contains '@' is the student
-            for j in range(idx + 2, len(daydream_parts) - 1):
-                if "@" in daydream_parts[j]:
-                    general_parts = daydream_parts.copy()
-                    general_parts.pop(j)
-                    general_dir = Path(*general_parts[:-1])
-                    break
+        # Directory segments under DaydreamEdu (exclude filename).
+        segments = daydream_parts[idx + 1 : -1]
 
-        if general_dir is None:
+        # Strip migrated top-level branch so we can build both template-branch and legacy paths.
+        if segments[:1] == ["completion"]:
+            segments = segments[1:]
+        elif segments[:1] == ["template"]:
+            segments = segments[1:]
+
+        # Drop the mirrored student-folder segment (`...@...`) once; templates are general-scope only.
+        for si, seg in enumerate(segments):
+            if "@" in seg:
+                segments = segments[:si] + segments[si + 1 :]
+                break
+
+        if not segments:
             raise ValueError(
                 f"Could not resolve mirrored template for {name}: "
                 "unable to derive a general-scope DaydreamEdu directory"
             )
 
-        search_dirs = [general_dir]
+        daydream_root = Path(*daydream_parts[: idx + 1])
+        remainder_dir = Path(*segments)
+
+        # Prefer migrated template-branch layout first, then legacy (no branch prefix).
+        search_dirs = [daydream_root / "template" / remainder_dir, daydream_root / remainder_dir]
 
         # Try each candidate basename in each candidate directory
         for d in search_dirs:

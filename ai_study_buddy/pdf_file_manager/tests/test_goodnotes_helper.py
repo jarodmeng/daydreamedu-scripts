@@ -206,6 +206,70 @@ def test_resolve_goodnotes_template_science_reviewed_general_scope():
         assert resolved == dd_tpl
 
 
+def test_resolve_goodnotes_template_under_top_level_template_branch():
+    """Migrated layout: `_c_*` templates live under DaydreamEdu/template/<subject>/… (no sibling legacy dir)."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        base = Path(tmpdir)
+        goodnotes = base / "GoodNotes"
+        daydream = base / "DaydreamEdu"
+
+        gn_path = (
+            goodnotes
+            / "Singapore Primary English"
+            / STUDENT_FOLDER_EMAIL
+            / "PSLE"
+            / "Book"
+            / "English Practice 1000"
+            / "c_EPO_Comprehension_Open-ended_02.pdf"
+        )
+        _touch(gn_path)
+
+        dd_tpl = (
+            daydream
+            / "template"
+            / "Singapore Primary English"
+            / "PSLE"
+            / "Book"
+            / "English Practice 1000"
+            / "_c_EPO_Comprehension_Open-ended_02.pdf"
+        )
+        _touch(dd_tpl)
+
+        resolved = PdfFileManager.resolve_goodnotes_template_path(gn_path)
+        assert resolved == dd_tpl
+
+
+def test_resolve_goodnotes_template_from_completion_branch_daydream_path():
+    """Student file under DaydreamEdu/completion/… should still resolve template/… _c_*."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        base = Path(tmpdir)
+        daydream = base / "DaydreamEdu"
+
+        dd_attempt = (
+            daydream
+            / "completion"
+            / "Singapore Primary English"
+            / STUDENT_FOLDER_EMAIL
+            / "PSLE"
+            / "Exercise"
+            / "EPO_Comprehension_Cloze_04 (attempt).pdf"
+        )
+        _touch(dd_attempt)
+
+        dd_tpl = (
+            daydream
+            / "template"
+            / "Singapore Primary English"
+            / "PSLE"
+            / "Exercise"
+            / "_c_EPO_Comprehension_Cloze_04.pdf"
+        )
+        _touch(dd_tpl)
+
+        resolved = PdfFileManager.resolve_goodnotes_template_path(dd_attempt)
+        assert resolved == dd_tpl
+
+
 def test_resolve_goodnotes_template_raises_when_no_match():
     """Helper should fail clearly when no matching DaydreamEdu _c_ file exists."""
     with tempfile.TemporaryDirectory() as tmpdir:
