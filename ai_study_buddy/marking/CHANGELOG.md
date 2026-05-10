@@ -4,6 +4,20 @@ All notable changes to `ai_study_buddy.marking` are documented in this file.
 
 Committed changes under `ai_study_buddy/marking/` should add an entry here and bump **Current version** in `README.md` (semver: **patch** for docs or small renderer tweaks, **minor** for schema or public API changes). `SPEC.md` / `TESTING.md` titles do not carry the package version.
 
+## [0.3.5] - 2026-05-09
+
+Patch: drop unused `bundle_attempt_page_offset` from the question-sections → page-map bridge; stabilize corpus golden tests when multiple `question_sections.json` files share one `schema_version`.
+
+### Changed
+
+- `marking/file_question_info/api.py`:
+  - `question_page_map_from_question_sections` no longer accepts `bundle_attempt_page_offset`; `attempt_page_start` is always each row’s `start_page` (template and completion are assumed aligned).
+- `marking/docs/proposal/15-file-question-info-consumer-layer-and-marking-orchestration.md`:
+  - signature and test checklist wording updated to match.
+- `marking/tests/test_file_question_info.py`:
+  - `_find_payload_for_schema_version` can narrow by `expected_question_count` and optional `expected_first3_page_map` so `test_question_page_map_golden_by_subject_family` picks a deterministic file among same-version corpora;
+  - consumer/map helper assertions updated for the default mapping only.
+
 ## [0.3.4] - 2026-05-07
 
 Patch: clarify teacher-annotated ink-color grading policy for v3 marking workers and align one live WA1 artifact with that policy.

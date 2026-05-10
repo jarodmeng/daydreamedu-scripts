@@ -450,7 +450,6 @@ def _compute_attempt_span(
 def question_page_map_from_question_sections(
     payload: Mapping[str, object],
     *,
-    bundle_attempt_page_offset: int = 0,
     source: str = "script_inferred",
     confidence: str = "high",
     note: str | None = None,
@@ -466,7 +465,6 @@ def question_page_map_from_question_sections(
         for idx, qrow in enumerate(questions):
             next_row = questions[idx + 1] if idx + 1 < len(questions) else None
             start, end = _compute_attempt_span(section_row=section_row, question_row=qrow, next_question_row=next_row)
-            start += bundle_attempt_page_offset
             _ = end  # computed for deterministic internal span logic, not stored in current page-map schema
             out[qrow["question_index"]] = {
                 "result_id": qrow["question_index"],

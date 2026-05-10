@@ -68,7 +68,7 @@ Behavior contract:
 
 ### C. Page-map bridge
 
-- `question_page_map_from_question_sections(payload: Mapping[str, object], *, bundle_attempt_page_offset: int = 0, source: str = "detector_layout", confidence: str = "high", note: str | None = None) -> dict[str, dict[str, object]]`
+- `question_page_map_from_question_sections(payload: Mapping[str, object], *, source: str = "detector_layout", confidence: str = "high", note: str | None = None) -> dict[str, dict[str, object]]`
 - `section_hint_strings_for_context(payload: Mapping[str, object]) -> tuple[str, ...]`
 
 Behavior contract:
@@ -159,7 +159,7 @@ Test checklist:
 
 - [x] duplicate-ID failures have stable error shape.
 - [x] map output golden tests by subject family.
-- [x] offset behavior tests.
+- [x] page-map bridge tests (`start_page` → `attempt_page_start`).
 - [x] compatibility checks with current `question_page_map` consumers.
 
 Success criteria:

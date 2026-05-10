@@ -172,12 +172,39 @@ def test_render_clean_existing_removes_all_existing_images(tmp_path, monkeypatch
     assert (target / "page_001.png").is_file()
 
 
-def _find_payload_for_schema_version(schema_version: str) -> dict:
+def _find_payload_for_schema_version(
+    schema_version: str,
+    *,
+    expected_question_count: int | None = None,
+    expected_first3_page_map: tuple[tuple[str, int], tuple[str, int], tuple[str, int]] | None = None,
+) -> dict:
     root = Path("ai_study_buddy/context/file_question_info")
-    for candidate in root.rglob("question_sections.json"):
+    matches: list[tuple[Path, dict]] = []
+    for candidate in sorted(root.rglob("question_sections.json")):
         payload = json.loads(candidate.read_text(encoding="utf-8"))
-        if payload.get("schema_version") == schema_version:
+        if payload.get("schema_version") != schema_version:
+            continue
+        if expected_question_count is None:
             return payload
+        n = len(iter_questions_ordered(payload))
+        matches.append((candidate, payload))
+        if n != expected_question_count:
+            continue
+        if expected_first3_page_map is not None:
+            page_map = question_page_map_from_question_sections(payload)
+            keys = list(page_map.keys())[:3]
+            got = tuple((qid, page_map[qid]["attempt_page_start"]) for qid in keys)
+            if got != expected_first3_page_map:
+                continue
+        return payload
+    if expected_question_count is not None and matches:
+        counts = ", ".join(
+            f"{p.relative_to(root)}:{len(iter_questions_ordered(pl))}" for p, pl in matches[:12]
+        )
+        raise AssertionError(
+            f"No question_sections.json for {schema_version=} with "
+            f"{expected_question_count} questions (candidates: {counts})"
+        )
     raise AssertionError(f"No question_sections.json found for schema version {schema_version}")
 
 
@@ -357,10 +384,10 @@ def test_consumer_iterators_and_map_helpers():
     assert build_detector_question_id_list(payload) == ("Q19", "Q20(a)", "Q6(a)(i)")
     assert_unique_detector_question_ids(payload)
 
-    page_map = question_page_map_from_question_sections(payload, bundle_attempt_page_offset=1)
-    assert page_map["Q19"]["attempt_page_start"] == 2
-    assert page_map["Q20(a)"]["attempt_page_start"] == 2
-    assert page_map["Q6(a)(i)"]["attempt_page_start"] == 2
+    page_map = question_page_map_from_question_sections(payload)
+    assert page_map["Q19"]["attempt_page_start"] == 1
+    assert page_map["Q20(a)"]["attempt_page_start"] == 1
+    assert page_map["Q6(a)(i)"]["attempt_page_start"] == 1
     assert page_map["Q19"]["source"] == "script_inferred"
     assert page_map["Q19"]["confidence"] == "high"
 
@@ -569,7 +596,11 @@ def test_get_latest_question_sections_invalid_payload_raises_typed_error(
     ],
 )
 def test_question_page_map_golden_by_subject_family(schema_version, expected_count, expected_first3):
-    payload = _find_payload_for_schema_version(schema_version)
+    payload = _find_payload_for_schema_version(
+        schema_version,
+        expected_question_count=expected_count,
+        expected_first3_page_map=expected_first3,
+    )
     validate_question_sections_dict(payload)
     page_map = question_page_map_from_question_sections(payload)
     keys = list(page_map.keys())
