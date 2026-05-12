@@ -14,7 +14,6 @@ from ai_study_buddy.marking.core.marking_time import to_marking_iso
 from ai_study_buddy.marking.core.partial_marking import infer_is_partial_from_raw_text
 from ai_study_buddy.marking.core.path_privacy import sanitize_marking_artifact_paths
 from ai_study_buddy.marking.core.models import MarkingArtifact
-from ai_study_buddy.marking.core.artifact_paths import derive_unit_label_from_attempt_name
 
 
 def _assert_context_contract(payload: dict) -> None:
@@ -48,14 +47,8 @@ def _assert_context_contract(payload: dict) -> None:
         raise ValueError("context contract failure: context.attempt_file_path must be non-empty string")
 
     unit_label = context.get("unit_label")
-    unit_file_path = context.get("unit_file_path")
-    if isinstance(unit_label, str) and unit_label.strip() and isinstance(unit_file_path, str) and unit_file_path.strip():
-        expected = derive_unit_label_from_attempt_name(unit_file_path)
-        if unit_label.strip() != expected:
-            raise ValueError(
-                "context contract failure: context.unit_label must match normalized unit_file_path stem "
-                f"(expected {expected!r}, got {unit_label!r})"
-            )
+    if not isinstance(unit_label, str) or not unit_label.strip():
+        raise ValueError("context contract failure: context.unit_label must be non-empty string")
 
     if mode == "embedded_answer_override":
         if context.get("answer_file_id") != context.get("template_file_id"):

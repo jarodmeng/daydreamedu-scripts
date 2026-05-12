@@ -8,7 +8,7 @@ Canonical marking pipeline for AI Study Buddy. This package defines the
 3. render markdown as a derived view
 4. support human note edits in the canonical JSON
 
-Current version: `v0.3.6`
+Current version: `v0.3.7`
 
 ## Package Scope
 
@@ -222,7 +222,7 @@ created_at = updated_at = now_marking_iso()
     - `standard_mapped_answer`
     - `embedded_answer_override`
     - `teacher_annotated`
-  - `context.unit_label` must match normalized `context.unit_file_path` stem when both are present.
+  - `context.unit_label` must be a non-empty string.
 - Backward compatibility note:
   - readers/parsers remain backward-compatible for legacy `marking_result.v1.5` artifacts,
   - new writes default to `marking_result.v1.6`.

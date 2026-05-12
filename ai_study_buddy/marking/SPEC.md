@@ -169,6 +169,7 @@ When both DB and filesystem artifacts exist for the same file and divergence det
     - `note` (null or string)
 - v1.6 context field validation:
   - `context_resolution`: required object in canonical writes
+  - `unit_label`: required non-empty string
   - required non-empty string fields:
     - `method` (must be `resolve_marking_context`)
     - `resolver_version`

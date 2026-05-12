@@ -540,17 +540,18 @@ def test_write_marking_artifact_rejects_latest_alias(tmp_path):
         write_marking_artifact(artifact, context_root=tmp_path, schema_version="latest")
 
 
-def test_write_marking_artifact_enforces_context_contract(tmp_path):
+def test_write_marking_artifact_allows_unit_label_drift_from_path(tmp_path):
     artifact = _sample_artifact()
-    bad = replace(
+    drifted = replace(
         artifact,
         context=replace(
             artifact.context,
             unit_label="17 Interactions",
         ),
     )
-    with pytest.raises(ValueError, match="context.unit_label must match normalized"):
-        write_marking_artifact(bad, context_root=tmp_path)
+    written = write_marking_artifact(drifted, context_root=tmp_path)
+    payload = json.loads(written.read_text(encoding="utf-8"))
+    assert payload["context"]["unit_label"] == "17 Interactions"
 
 
 def test_write_marking_artifact_context_contract_passes_with_matching_unit_label(tmp_path):
@@ -558,6 +559,19 @@ def test_write_marking_artifact_context_contract_passes_with_matching_unit_label
     written = write_marking_artifact(artifact, context_root=tmp_path)
     payload = json.loads(written.read_text(encoding="utf-8"))
     assert payload["schema_version"] == "marking_result.v1.6"
+
+
+def test_write_marking_artifact_rejects_blank_unit_label(tmp_path):
+    artifact = _sample_artifact()
+    bad = replace(
+        artifact,
+        context=replace(
+            artifact.context,
+            unit_label="   ",
+        ),
+    )
+    with pytest.raises(ValueError, match="context.unit_label must be non-empty string"):
+        write_marking_artifact(bad, context_root=tmp_path)
 
 
 def test_write_marking_artifact_rejects_manual_context_without_resolution_provenance(tmp_path):

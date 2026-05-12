@@ -4,6 +4,22 @@ All notable changes to `ai_study_buddy.marking` are documented in this file.
 
 Committed changes under `ai_study_buddy/marking/` should add an entry here and bump **Current version** in `README.md` (semver: **patch** for docs or small renderer tweaks, **minor** for schema or public API changes). `SPEC.md` / `TESTING.md` titles do not carry the package version.
 
+## [0.3.7] - 2026-05-12
+
+Patch: relax writer `unit_label` contract to presence-only validation and remove strict path-equivalence gate.
+
+### Changed
+
+- `marking/core/artifact_writer.py`:
+  - removed fail-closed check requiring `context.unit_label` to equal normalized `context.unit_file_path` stem.
+  - writer now requires `context.unit_label` to be a non-empty string.
+- `marking/tests/test_artifact_core.py`:
+  - replaced path-equivalence rejection test with drift-allowed write test.
+  - added rejection test for blank `unit_label`.
+- docs:
+  - `marking/README.md` contract note updated: `unit_label` is required non-empty (no strict source-equality check).
+  - `marking/SPEC.md` v1.6 context validation updated with required non-empty `unit_label`.
+
 ## [0.3.6] - 2026-05-10
 
 Patch: make `subject_context` registry-sourced and strict across resolver/v3 finalization; remove path-token heuristics and add subject-failure debug artifact.
