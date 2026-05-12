@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Model drawing — capture stems & examples</title>
+  <style>
+    :root {
+      --bg: #0f1419;
+      --panel: #1a2332;
+      --text: #e6edf3;
+      --muted: #8b9cb3;
+      --accent: #3d8bfd;
+      --danger: #f85149;
+      --stem: rgba(61, 139, 253, 0.35);
+      --example: rgba(46, 204, 113, 0.35);
+      --other: rgba(210, 153, 34, 0.35);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.45;
+    }
+    header {
+      padding: 0.75rem 1rem;
+      background: var(--panel);
+      border-bottom: 1px solid #2d3a4d;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.5rem 1rem;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 1rem;
+      font-weight: 600;
+    }
+    main {
+      display: grid;
+      grid-template-columns: 280px minmax(0, 1fr);
+      gap: 0;
+      min-height: calc(100vh - 52px);
+    }
+    @media (max-width: 900px) {
+      main { grid-template-columns: 1fr; }
+    }
+    .sidebar {
+      background: var(--panel);
+      border-right: 1px solid #2d3a4d;
+      padding: 1rem;
+      overflow: auto;
+      max-height: calc(100vh - 52px);
+    }
+    .sidebar h2 {
+      margin: 0 0 0.5rem;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+    }
+    .file-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      font-size: 0.85rem;
+    }
+    .file-list li {
+      padding: 0.35rem 0.5rem;
+      border-radius: 6px;
+      cursor: pointer;
+      word-break: break-all;
+    }
+    .file-list li:hover { background: #243044; }
+    .file-list li.active { background: #2c5282; color: #fff; }
+    .workspace {
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      min-width: 0;
+    }
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      align-items: center;
+    }
+    button, .btn {
+      background: #2d3f56;
+      color: var(--text);
+      border: 1px solid #3d516d;
+      padding: 0.45rem 0.75rem;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      cursor: pointer;
+    }
+    button:hover:not(:disabled), .btn:hover { background: #3a5270; }
+    button:disabled { opacity: 0.45; cursor: not-allowed; }
+    button.primary { background: var(--accent); border-color: #2563eb; color: #fff; }
+    button.danger { background: #5c1f1f; border-color: var(--danger); color: #ffb4b0; }
+    select, input[type="text"] {
+      background: #121a24;
+      color: var(--text);
+      border: 1px solid #3d516d;
+      padding: 0.4rem 0.5rem;
+      border-radius: 6px;
+      font-size: 0.875rem;
+    }
+    .hint {
+      font-size: 0.8rem;
+      color: var(--muted);
+      max-width: 720px;
+    }
+    .viewport-wrap {
+      flex: 1;
+      min-height: 200px;
+      min-width: 0;
+      max-width: 100%;
+      background: #080b0f;
+      border-radius: 10px;
+      border: 1px solid #2d3a4d;
+      overflow: auto;
+      position: relative;
+      touch-action: none;
+    }
+    .viewport {
+      position: relative;
+      display: block;
+      width: fit-content;
+      max-width: 100%;
+      margin: 0 auto;
+    }
+    .viewport img {
+      display: block;
+      max-width: 100%;
+      height: auto;
+      user-select: none;
+      pointer-events: none;
+    }
+    .viewport canvas#sourceCanvas {
+      display: block;
+      user-select: none;
+      pointer-events: none;
+      background: #fff;
+    }
+    .overlay {
+      position: absolute;
+      inset: 0;
+      cursor: crosshair;
+    }
+    .rect {
+      position: absolute;
+      border: 2px solid var(--accent);
+      background: var(--stem);
+      pointer-events: auto;
+      cursor: move;
+    }
+    .rect[data-kind="example"] { border-color: #2ecc71; background: var(--example); }
+    .rect[data-kind="other"] { border-color: #d29922; background: var(--other); }
+    .rect .resize {
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      right: -2px;
+      bottom: -2px;
+      background: #fff;
+      border: 1px solid #333;
+      cursor: nwse-resize;
+    }
+    .rect .tag {
+      position: absolute;
+      top: -26px;
+      left: 0;
+      font-size: 11px;
+      background: rgba(0,0,0,0.75);
+      padding: 2px 6px;
+      border-radius: 4px;
+      white-space: nowrap;
+    }
+    .regions-panel {
+      background: var(--panel);
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      font-size: 0.85rem;
+    }
+    .regions-panel table { width: 100%; border-collapse: collapse; }
+    .regions-panel th, .regions-panel td { text-align: left; padding: 0.25rem 0.5rem; }
+    .regions-panel tr:nth-child(even) { background: #1e2a3a; }
+    .banner {
+      padding: 0.6rem 1rem;
+      background: #3d2f00;
+      border-bottom: 1px solid #6b5a1a;
+      font-size: 0.85rem;
+      color: #f0d78c;
+    }
+    .banner.ok { background: #0d2e1a; border-color: #1e6b3a; color: #9ae6b4; }
+  </style>
+</head>
+<body>
+  <div id="fsBanner" class="banner" hidden></div>
+  <header>
+    <h1>Model drawing — review capture</h1>
+    <button type="button" id="btnPickFolder">Open chapter folder…</button>
+    <span id="folderLabel" class="hint" style="margin-left:auto;"></span>
+  </header>
+  <main>
+    <aside class="sidebar">
+      <h2>Chapters</h2>
+      <ul class="file-list" id="fileList"></ul>
+    </aside>
+    <section class="workspace">
+      <p class="hint">
+        Use <strong>Open chapter folder…</strong> and pick the folder that contains your chapter PDFs (e.g. <code>_c_*.pdf</code>).
+        PDFs render at readable size; use <em>Page ← / →</em> when the stem or model is not on page 1.
+        Drag to draw boxes; saves go under <code>model_drawing_captures/&lt;chapter&gt;/</code> inside that same folder (Chrome/Edge).
+      </p>
+      <div class="toolbar">
+        <label>Default label for new boxes
+          <select id="defaultKind">
+            <option value="stem">stem</option>
+            <option value="example">example</option>
+            <option value="other">other</option>
+          </select>
+        </label>
+        <span id="pageIndicator" class="hint" style="min-width:7rem;"></span>
+        <button type="button" id="btnChPrev" disabled>← Chapter</button>
+        <button type="button" id="btnChNext" disabled>Chapter →</button>
+        <button type="button" id="btnPgPrev" disabled>← Page</button>
+        <button type="button" id="btnPgNext" disabled>Page →</button>
+        <button type="button" id="btnClearRects">Clear boxes on this page</button>
+        <button type="button" class="primary" id="btnSaveChapter" disabled>Save crops (this unit)</button>
+        <button type="button" class="danger" id="btnDeletePngs" disabled>Delete source PNG/PDF in opened folder…</button>
+      </div>
+      <div class="viewport-wrap" id="viewportWrap">
+        <p class="hint" id="emptyState">Click <strong>Open chapter folder…</strong> and choose the folder with your chapter PDFs.</p>
+        <div class="viewport" id="viewport" hidden>
+          <img id="pageImg" alt="" hidden />
+          <canvas id="sourceCanvas"></canvas>
+          <div class="overlay" id="overlay"></div>
+        </div>
+      </div>
+      <div class="regions-panel">
+        <h2 style="font-size:0.75rem;margin:0 0 0.5rem;color:var(--muted);text-transform:uppercase;">Boxes (image pixels)</h2>
+        <div id="regionsTable"></div>
+      </div>
+    </section>
+  </main>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script>
+(function () {
+  const SUPPORTS_DIR = "showDirectoryPicker" in window;
+  const fsBanner = document.getElementById("fsBanner");
+  const folderLabel = document.getElementById("folderLabel");
+  const fileListEl = document.getElementById("fileList");
+  const viewport = document.getElementById("viewport");
+  const viewportWrap = document.getElementById("viewportWrap");
+  const emptyState = document.getElementById("emptyState");
+  const pageImg = document.getElementById("pageImg");
+  const sourceCanvas = document.getElementById("sourceCanvas");
+  const pageIndicator = document.getElementById("pageIndicator");
+  const overlay = document.getElementById("overlay");
+  const regionsTable = document.getElementById("regionsTable");
+  const btnPickFolder = document.getElementById("btnPickFolder");
+  const btnChPrev = document.getElementById("btnChPrev");
+  const btnChNext = document.getElementById("btnChNext");
+  const btnPgPrev = document.getElementById("btnPgPrev");
+  const btnPgNext = document.getElementById("btnPgNext");
+  const btnClearRects = document.getElementById("btnClearRects");
+  const btnSaveChapter = document.getElementById("btnSaveChapter");
+  const btnDeletePngs = document.getElementById("btnDeletePngs");
+  const defaultKind = document.getElementById("defaultKind");
+
+  /** @type {FileSystemDirectoryHandle | null} */
+  let rootDir = null;
+  /** @type {{ name: string, kind: string, url?: string, handle?: FileSystemFileHandle, file?: File, _pdfDoc?: any }[]} */
+  let pngEntries = [];
+  let currentIndex = -1;
+  let currentPageNum = 1;
+  let numPdfPages = 1;
+  /** @type {{ id: string, x: number, y: number, w: number, h: number, kind: string }[]} */
+  let rects = [];
+  /** @type {Map<string, typeof rects>} */
+  const rectsByChapter = new Map();
+  /** @type {Set<string>} */
+  const chapterStemCaptured = new Set();
+  /** @type {Map<string, {stem:number, example:number, other:number}>} */
+  const chapterSaveCounters = new Map();
+  /** @type {string | null} */
+  let lastRectsKey = null;
+  const CAPTURE_SUBDIR = "model_drawing_captures";
+
+  let dragMode = null;
+  let activeRectId = null;
+  let drawStart = null;
+  let pendingNewId = null;
+
+  if (typeof pdfjsLib !== "undefined") {
+    pdfjsLib.GlobalWorkerOptions.workerSrc =
+      "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+  }
+
+  function showFsBanner(text, ok) {
+    fsBanner.hidden = false;
+    fsBanner.textContent = text;
+    fsBanner.classList.toggle("ok", !!ok);
+  }
+
+  if (!SUPPORTS_DIR) {
+    showFsBanner(
+      "This tool needs the folder picker (Chrome or Edge). Safari does not support it for this workflow.",
+      false
+    );
+  } else if (!window.isSecureContext) {
+    showFsBanner(
+      "Use a local server (secure context), e.g. in this folder run: python3 -m http.server 8765 — then open http://localhost:8765/",
+      false
+    );
+  }
+
+  function safeBaseName(name) {
+    // Only strip actual file extensions, not chapter labels like "1.3".
+    const base = name.replace(/\.(pdf|png)$/i, "");
+    return base.replace(/[^\w\- ().]+/g, "_").trim() || "chapter";
+  }
+
+  function currentEntry() {
+    if (currentIndex < 0 || !pngEntries[currentIndex]) return null;
+    return pngEntries[currentIndex];
+  }
+
+  function currentChapterKey() {
+    const e = currentEntry();
+    return e ? safeBaseName(e.name) : "";
+  }
+
+  function chapterHasAnyRects(entryName, chapterName) {
+    const byEntryPrefix = entryName + "::";
+    const byChapterPrefix = chapterName + "::";
+    if (rects.some((r) => r && r.w > 0 && r.h > 0)) return true;
+    for (const [k, list] of rectsByChapter.entries()) {
+      if (
+        k === entryName ||
+        k.startsWith(byEntryPrefix) ||
+        k === chapterName ||
+        k.startsWith(byChapterPrefix)
+      ) {
+        if (Array.isArray(list) && list.some((r) => r && r.w > 0 && r.h > 0)) return true;
+      }
+    }
+    return false;
+  }
+
+  function chapterHasStem(entryName, chapterName) {
+    if (chapterStemCaptured.has(chapterName) || chapterStemCaptured.has(entryName)) return true;
+    if (rects.some((r) => r && r.kind === "stem")) return true;
+    const byEntryPrefix = entryName + "::";
+    const byChapterPrefix = chapterName + "::";
+    for (const [k, list] of rectsByChapter.entries()) {
+      if (
+        k === entryName ||
+        k.startsWith(byEntryPrefix) ||
+        k === chapterName ||
+        k.startsWith(byChapterPrefix)
+      ) {
+        if (Array.isArray(list) && list.some((r) => r && r.kind === "stem")) return true;
+      }
+    }
+    return false;
+  }
+
+  function updateDefaultKindForCurrentChapter() {
+    const e = currentEntry();
+    if (!e) return;
+    const ck = currentChapterKey();
+    if (!ck || !e.name) return;
+    if (chapterHasStem(e.name, ck) || chapterHasAnyRects(e.name, ck)) {
+      defaultKind.value = "example";
+    } else {
+      defaultKind.value = "stem";
+    }
+  }
+
+  function nextOutputFileName(chapterKey, kind, pageNum) {
+    if (!chapterSaveCounters.has(chapterKey)) {
+      chapterSaveCounters.set(chapterKey, { stem: 0, example: 0, other: 0 });
+    }
+    const counters = chapterSaveCounters.get(chapterKey);
+    counters[kind] = (counters[kind] || 0) + 1;
+    const n = counters[kind];
+    if (kind === "example") {
+      // Requested naming: example_<example index>_p<page number>
+      return "example_" + n + "_p" + pageNum + ".png";
+    }
+    if (kind === "stem") {
+      // Keep stem clearly identifiable; usually one per unit.
+      return n > 1 ? "stem_" + n + "_p" + pageNum + ".png" : "stem_p" + pageNum + ".png";
+    }
+    return "other_" + n + "_p" + pageNum + ".png";
+  }
+
+  function parsePageNumFromStorageKey(key) {
+    const m = String(key).match(/::p(\d+)$/);
+    return m ? Number(m[1]) : null;
+  }
+
+  function gatherChapterRectBatches(entry, chapterKey) {
+    const matching = [];
+    for (const [k, list] of rectsByChapter.entries()) {
+      if (!Array.isArray(list) || !list.length) continue;
+      const matchesEntry = k === entry.name || k.startsWith(entry.name + "::");
+      const matchesChapter = k === chapterKey || k.startsWith(chapterKey + "::");
+      if (matchesEntry || matchesChapter) {
+        matching.push([k, cloneRects(list)]);
+      }
+    }
+
+    // If both old chapter-keyed and new entry-keyed keys exist for same page, prefer entry-keyed.
+    const byPage = new Map();
+    for (const [k, list] of matching) {
+      const p = parsePageNumFromStorageKey(k);
+      const page = p == null ? 1 : p;
+      const existing = byPage.get(page);
+      const isEntryKey = k === entry.name || k.startsWith(entry.name + "::");
+      if (!existing || (isEntryKey && !existing.isEntryKey)) {
+        byPage.set(page, { key: k, page, rects: list, isEntryKey });
+      }
+    }
+    return Array.from(byPage.values()).sort((a, b) => a.page - b.page);
+  }
+
+  async function collectMediaFromDir(dirHandle, out) {
+    const skip = new Set([CAPTURE_SUBDIR, "output"]);
+    for await (const [name, handle] of dirHandle.entries()) {
+      if (handle.kind === "directory") {
+        if (skip.has(name)) continue;
+        await collectMediaFromDir(handle, out);
+      } else if (name.toLowerCase().endsWith(".pdf")) {
+        out.push({ name, handle, kind: "pdf" });
+      } else if (name.toLowerCase().endsWith(".png")) {
+        out.push({ name, handle, kind: "png" });
+      }
+    }
+  }
+
+  btnPickFolder.addEventListener("click", async () => {
+    if (!SUPPORTS_DIR) {
+      alert("Use Chrome or Edge — this tool only works with the folder picker.");
+      return;
+    }
+    try {
+      rootDir = await window.showDirectoryPicker({ mode: "readwrite" });
+      const flat = [];
+      await collectMediaFromDir(rootDir, flat);
+      flat.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
+      pngEntries = flat;
+      currentIndex = pngEntries.length ? 0 : -1;
+      currentPageNum = 1;
+      rectsByChapter.clear();
+      lastRectsKey = null;
+      folderLabel.textContent =
+        "Folder: " + rootDir.name + " — " + pngEntries.length + " file(s)";
+      renderFileList();
+      await loadCurrentView();
+      btnDeletePngs.disabled = pngEntries.length === 0;
+      showFsBanner("Read/write access granted. Crops save under " + CAPTURE_SUBDIR + "/ in this folder.", true);
+    } catch (e) {
+      if (e && e.name === "AbortError") return;
+      console.error(e);
+      alert(String(e.message || e));
+    }
+  });
+
+  function renderFileList() {
+    fileListEl.innerHTML = "";
+    pngEntries.forEach((e, i) => {
+      const li = document.createElement("li");
+      li.textContent = e.name + (e.kind === "pdf" ? "  (PDF)" : "");
+      if (i === currentIndex) li.classList.add("active");
+      li.addEventListener("click", async () => {
+        await saveRectsForCurrentKey();
+        currentIndex = i;
+        currentPageNum = 1;
+        await loadCurrentView();
+      });
+      fileListEl.appendChild(li);
+    });
+  }
+
+  function naturalSize() {
+    return { w: sourceCanvas.width, h: sourceCanvas.height };
+  }
+
+  function displayScale() {
+    const nw = sourceCanvas.width;
+    const nwDisplay = sourceCanvas.getBoundingClientRect().width;
+    if (!nw) return 1;
+    return nwDisplay / nw;
+  }
+
+  function clientToNatural(clientX, clientY) {
+    const r = sourceCanvas.getBoundingClientRect();
+    const scale = displayScale();
+    const x = (clientX - r.left) / scale;
+    const y = (clientY - r.top) / scale;
+    const { w, h } = naturalSize();
+    return {
+      x: Math.max(0, Math.min(w, x)),
+      y: Math.max(0, Math.min(h, y)),
+    };
+  }
+
+  function naturalToPercent(rect) {
+    const { w, h } = naturalSize();
+    return {
+      left: (rect.x / w) * 100 + "%",
+      top: (rect.y / h) * 100 + "%",
+      width: (rect.w / w) * 100 + "%",
+      height: (rect.h / h) * 100 + "%",
+    };
+  }
+
+  /** CSS width (px) the page should occupy: always fit the scrollport so no horizontal panning. */
+  function fitCssWidthPx() {
+    const pad = 24;
+    const w = viewportWrap.clientWidth;
+    return Math.max(80, Math.floor(w - pad));
+  }
+
+  function applyCanvasCssSize() {
+    const cw = sourceCanvas.width;
+    const ch = sourceCanvas.height;
+    if (!cw) return;
+    const cssW = fitCssWidthPx();
+    const ratio = cssW / cw;
+    sourceCanvas.style.width = cssW + "px";
+    sourceCanvas.style.height = Math.round(ch * ratio) + "px";
+    sourceCanvas.style.maxWidth = "100%";
+  }
+
+  function syncOverlaySize() {
+    overlay.style.width = sourceCanvas.offsetWidth + "px";
+    overlay.style.height = sourceCanvas.offsetHeight + "px";
+  }
+
+  function cloneRects(list) {
+    return list.map((r) => ({ ...r }));
+  }
+
+  async function saveRectsForCurrentKey() {
+    if (lastRectsKey) rectsByChapter.set(lastRectsKey, cloneRects(rects));
+  }
+
+  function storageKey(entry, page) {
+    if (!entry) return null;
+    if (entry.kind === "pdf") return entry.name + "::p" + page;
+    return entry.name;
+  }
+
+  async function getPdfDocument(entry) {
+    if (entry._pdfDoc) return entry._pdfDoc;
+    if (typeof pdfjsLib === "undefined") throw new Error("pdf.js not loaded");
+    let loadingTask;
+    if (entry.url) {
+      loadingTask = pdfjsLib.getDocument({ url: entry.url });
+    } else if (entry.handle) {
+      const file = await entry.handle.getFile();
+      loadingTask = pdfjsLib.getDocument({ data: await file.arrayBuffer() });
+    } else if (entry.file) {
+      loadingTask = pdfjsLib.getDocument({ data: await entry.file.arrayBuffer() });
+    } else {
+      throw new Error("No PDF source on entry");
+    }
+    const pdf = await loadingTask.promise;
+    entry._pdfDoc = pdf;
+    return pdf;
+  }
+
+  async function renderPdfPageToCanvas(pdf, pageNum) {
+    const page = await pdf.getPage(pageNum);
+    const pr = Math.min(window.devicePixelRatio || 1, 2);
+    const displayCssW = fitCssWidthPx();
+    const baseVp = page.getViewport({ scale: 1 });
+    const scale = (displayCssW * pr) / baseVp.width;
+    const vp = page.getViewport({ scale });
+    const ctx = sourceCanvas.getContext("2d");
+    sourceCanvas.width = Math.floor(vp.width);
+    sourceCanvas.height = Math.floor(vp.height);
+    await page.render({ canvasContext: ctx, viewport: vp }).promise;
+    applyCanvasCssSize();
+  }
+
+  async function renderPngToCanvasFromUrl(url, revokeAfter) {
+    return new Promise((resolve, reject) => {
+      pageImg.onload = () => {
+        try {
+          const ctx = sourceCanvas.getContext("2d");
+          sourceCanvas.width = pageImg.naturalWidth;
+          sourceCanvas.height = pageImg.naturalHeight;
+          ctx.drawImage(pageImg, 0, 0);
+          applyCanvasCssSize();
+          if (revokeAfter) URL.revokeObjectURL(url);
+          resolve();
+        } catch (e) {
+          if (revokeAfter) URL.revokeObjectURL(url);
+          reject(e);
+        }
+      };
+      pageImg.onerror = () => {
+        if (revokeAfter) URL.revokeObjectURL(url);
+        reject(new Error("Failed to load PNG"));
+      };
+      pageImg.src = url;
+    });
+  }
+
+  function updateNavButtons() {
+    const has = currentIndex >= 0 && pngEntries.length > 0;
+    const ent = has ? pngEntries[currentIndex] : null;
+    btnChPrev.disabled = !has || currentIndex <= 0;
+    btnChNext.disabled = !has || currentIndex >= pngEntries.length - 1;
+    const pdfMulti = !!(ent && ent.kind === "pdf" && numPdfPages > 1);
+    btnPgPrev.disabled = !pdfMulti || currentPageNum <= 1;
+    btnPgNext.disabled = !pdfMulti || currentPageNum >= numPdfPages;
+    btnSaveChapter.disabled = !has;
+  }
+
+  async function loadCurrentView() {
+    await saveRectsForCurrentKey();
+
+    if (currentIndex < 0 || !pngEntries[currentIndex]) {
+      lastRectsKey = null;
+      viewport.hidden = true;
+      emptyState.hidden = false;
+      btnChPrev.disabled = btnChNext.disabled = btnPgPrev.disabled = btnPgNext.disabled = btnSaveChapter.disabled = true;
+      pageIndicator.textContent = "";
+      regionsTable.innerHTML = "<p class=\"hint\">No image.</p>";
+      return;
+    }
+
+    const entry = pngEntries[currentIndex];
+
+    if (entry.kind === "pdf") {
+      if (typeof pdfjsLib === "undefined") {
+        alert("pdf.js did not load. Check your network or disable blockers.");
+        return;
+      }
+      const pdf = await getPdfDocument(entry);
+      numPdfPages = pdf.numPages;
+      currentPageNum = Math.max(1, Math.min(currentPageNum, numPdfPages));
+    } else {
+      numPdfPages = 1;
+      currentPageNum = 1;
+    }
+
+    lastRectsKey = storageKey(entry, currentPageNum);
+    rects = rectsByChapter.has(lastRectsKey) ? cloneRects(rectsByChapter.get(lastRectsKey)) : [];
+    updateDefaultKindForCurrentChapter();
+
+    emptyState.hidden = true;
+    viewport.hidden = false;
+
+    if (entry.kind === "pdf") {
+      const pdf = await getPdfDocument(entry);
+      await renderPdfPageToCanvas(pdf, currentPageNum);
+      pageIndicator.textContent = "Page " + currentPageNum + " / " + numPdfPages;
+    } else {
+      let url = "";
+      let revoke = false;
+      if (entry.url) {
+        url = entry.url;
+      } else if (entry.handle) {
+        const file = await entry.handle.getFile();
+        url = URL.createObjectURL(file);
+        revoke = true;
+      } else if (entry.file) {
+        url = URL.createObjectURL(entry.file);
+        revoke = true;
+      }
+      await renderPngToCanvasFromUrl(url, revoke);
+      pageIndicator.textContent = "PNG (single page)";
+    }
+
+    syncOverlaySize();
+    renderRects();
+    renderRegionsTable();
+    updateNavButtons();
+    renderFileList();
+  }
+
+  let resizePdfTimer = null;
+  window.addEventListener("resize", () => {
+    applyCanvasCssSize();
+    syncOverlaySize();
+    renderRects();
+    const ent = currentIndex >= 0 ? pngEntries[currentIndex] : null;
+    if (!ent || ent.kind !== "pdf") return;
+    if (resizePdfTimer) clearTimeout(resizePdfTimer);
+    resizePdfTimer = setTimeout(async () => {
+      try {
+        const pdf = await getPdfDocument(ent);
+        await renderPdfPageToCanvas(pdf, currentPageNum);
+        syncOverlaySize();
+        renderRects();
+      } catch (_) {}
+    }, 250);
+  });
+
+  function renderRects() {
+    overlay.querySelectorAll(".rect").forEach((n) => n.remove());
+    rects.forEach((r) => {
+      const el = document.createElement("div");
+      el.className = "rect";
+      el.dataset.id = r.id;
+      el.dataset.kind = r.kind;
+      const p = naturalToPercent(r);
+      el.style.left = p.left;
+      el.style.top = p.top;
+      el.style.width = p.width;
+      el.style.height = p.height;
+      const tag = document.createElement("span");
+      tag.className = "tag";
+      tag.textContent = r.kind;
+      el.appendChild(tag);
+      const resize = document.createElement("div");
+      resize.className = "resize";
+      el.appendChild(resize);
+      el.addEventListener("pointerdown", (ev) => {
+        ev.stopPropagation();
+        activeRectId = r.id;
+        if (ev.target.classList.contains("resize")) dragMode = "resize";
+        else dragMode = "move";
+        el.setPointerCapture(ev.pointerId);
+      });
+      el.addEventListener("pointermove", (ev) => {
+        if (dragMode !== "move" && dragMode !== "resize") return;
+        if (activeRectId !== r.id) return;
+        const idx = rects.findIndex((x) => x.id === r.id);
+        if (idx < 0) return;
+        const R = rects[idx];
+        const { w: iw, h: ih } = naturalSize();
+        if (dragMode === "move") {
+          if (!el._moveStart) {
+            el._moveStart = { cx: ev.clientX, cy: ev.clientY, rx: R.x, ry: R.y };
+          }
+          const ms = el._moveStart;
+          const scale = displayScale();
+          const dx = (ev.clientX - ms.cx) / scale;
+          const dy = (ev.clientY - ms.cy) / scale;
+          R.x = Math.max(0, Math.min(iw - R.w, ms.rx + dx));
+          R.y = Math.max(0, Math.min(ih - R.h, ms.ry + dy));
+        } else if (dragMode === "resize") {
+          const br = clientToNatural(ev.clientX, ev.clientY);
+          R.w = Math.max(8, Math.min(iw - R.x, br.x - R.x));
+          R.h = Math.max(8, Math.min(ih - R.y, br.y - R.y));
+        }
+        const p2 = naturalToPercent(R);
+        el.style.left = p2.left;
+        el.style.top = p2.top;
+        el.style.width = p2.width;
+        el.style.height = p2.height;
+        renderRegionsTable();
+      });
+      el.addEventListener("pointerup", (ev) => {
+        try {
+          el.releasePointerCapture(ev.pointerId);
+        } catch (_) {}
+        el._moveStart = null;
+        dragMode = null;
+        activeRectId = null;
+      });
+      el.addEventListener("pointercancel", () => {
+        el._moveStart = null;
+        dragMode = null;
+        activeRectId = null;
+      });
+      overlay.appendChild(el);
+    });
+  }
+
+  function renderRegionsTable() {
+    if (!rects.length) {
+      regionsTable.innerHTML = "<p class=\"hint\">No boxes yet. Drag on the page to add.</p>";
+      return;
+    }
+    let html = "<table><thead><tr><th>#</th><th>label</th><th>x</th><th>y</th><th>w</th><th>h</th><th></th></tr></thead><tbody>";
+    rects.forEach((r, i) => {
+      html += "<tr><td>" + (i + 1) + "</td><td><select data-id=\"" + r.id + "\">";
+      ["stem", "example", "other"].forEach((k) => {
+        html += "<option value=\"" + k + "\"" + (r.kind === k ? " selected" : "") + ">" + k + "</option>";
+      });
+      html += "</select></td><td>" + Math.round(r.x) + "</td><td>" + Math.round(r.y) + "</td><td>" + Math.round(r.w) + "</td><td>" + Math.round(r.h) + "</td>";
+      html += "<td><button type=\"button\" data-del=\"" + r.id + "\">Remove</button></td></tr>";
+    });
+    html += "</tbody></table>";
+    regionsTable.innerHTML = html;
+    regionsTable.querySelectorAll("select[data-id]").forEach((sel) => {
+      sel.addEventListener("change", () => {
+        const id = sel.getAttribute("data-id");
+        const rr = rects.find((x) => x.id === id);
+        if (rr) rr.kind = sel.value;
+        renderRects();
+      });
+    });
+    regionsTable.querySelectorAll("button[data-del]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const id = btn.getAttribute("data-del");
+        rects = rects.filter((x) => x.id !== id);
+        renderRects();
+        renderRegionsTable();
+      });
+    });
+  }
+
+  overlay.addEventListener("pointerdown", (ev) => {
+    if (ev.target !== overlay) return;
+    drawStart = clientToNatural(ev.clientX, ev.clientY);
+    pendingNewId = "r_" + Date.now();
+    overlay.setPointerCapture(ev.pointerId);
+  });
+
+  overlay.addEventListener("pointermove", (ev) => {
+    if (!drawStart || !pendingNewId) return;
+    const cur = clientToNatural(ev.clientX, ev.clientY);
+    const x = Math.min(drawStart.x, cur.x);
+    const y = Math.min(drawStart.y, cur.y);
+    const w = Math.abs(cur.x - drawStart.x);
+    const h = Math.abs(cur.y - drawStart.y);
+    let r = rects.find((q) => q.id === pendingNewId);
+    if (!r) {
+      const ck = currentChapterKey();
+      const e = currentEntry();
+      const firstForChapter =
+        ck &&
+        e &&
+        !chapterHasStem(e.name, ck) &&
+        !chapterHasAnyRects(e.name, ck);
+      const kind = firstForChapter ? "stem" : defaultKind.value;
+      r = { id: pendingNewId, x, y, w, h, kind };
+      rects.push(r);
+      if (firstForChapter) {
+        defaultKind.value = "example";
+      }
+    } else {
+      r.x = x;
+      r.y = y;
+      r.w = w;
+      r.h = h;
+    }
+    renderRects();
+    renderRegionsTable();
+  });
+
+  overlay.addEventListener("pointerup", (ev) => {
+    if (!drawStart) return;
+    try {
+      overlay.releasePointerCapture(ev.pointerId);
+    } catch (_) {}
+    const r = rects.find((q) => q.id === pendingNewId);
+    if (r && (r.w < 4 || r.h < 4)) {
+      rects = rects.filter((q) => q.id !== pendingNewId);
+    }
+    drawStart = null;
+    pendingNewId = null;
+    renderRects();
+    renderRegionsTable();
+  });
+
+  btnChPrev.addEventListener("click", async () => {
+    if (currentIndex <= 0) return;
+    await saveRectsForCurrentKey();
+    currentIndex--;
+    currentPageNum = 1;
+    await loadCurrentView();
+  });
+  btnChNext.addEventListener("click", async () => {
+    if (currentIndex >= pngEntries.length - 1) return;
+    await saveRectsForCurrentKey();
+    currentIndex++;
+    currentPageNum = 1;
+    await loadCurrentView();
+  });
+  btnPgPrev.addEventListener("click", async () => {
+    if (currentPageNum <= 1) return;
+    await saveRectsForCurrentKey();
+    currentPageNum--;
+    await loadCurrentView();
+  });
+  btnPgNext.addEventListener("click", async () => {
+    if (currentPageNum >= numPdfPages) return;
+    await saveRectsForCurrentKey();
+    currentPageNum++;
+    await loadCurrentView();
+  });
+
+  btnClearRects.addEventListener("click", () => {
+    rects = [];
+    renderRects();
+    renderRegionsTable();
+  });
+
+  async function cropToBlob(rect) {
+    const c = document.createElement("canvas");
+    c.width = Math.round(rect.w);
+    c.height = Math.round(rect.h);
+    const ctx = c.getContext("2d");
+    ctx.drawImage(sourceCanvas, rect.x, rect.y, rect.w, rect.h, 0, 0, rect.w, rect.h);
+    return new Promise((res) => c.toBlob(res, "image/png"));
+  }
+
+  btnSaveChapter.addEventListener("click", async () => {
+    if (currentIndex < 0) {
+      alert("No chapter loaded.");
+      return;
+    }
+    await saveRectsForCurrentKey();
+
+    const entry = pngEntries[currentIndex];
+    const base = safeBaseName(entry.name);
+    const chapterKey = base;
+    if (!rootDir) {
+      alert("Open your chapter folder first (Open chapter folder…). Saves go next to your PDFs.");
+      return;
+    }
+    const batches = gatherChapterRectBatches(entry, chapterKey);
+    const totalRects = batches.reduce((sum, b) => sum + b.rects.length, 0);
+    if (!totalRects) {
+      alert("No boxes found for this unit yet. Draw boxes on one or more pages first.");
+      return;
+    }
+    const cap = await rootDir.getDirectoryHandle(CAPTURE_SUBDIR, { create: true });
+    const sub = await cap.getDirectoryHandle(base, { create: true });
+
+    let savedCount = 0;
+    const savedPages = new Set();
+
+    for (const batch of batches) {
+      // Ensure the source canvas reflects each page before cropping its boxes.
+      if (entry.kind === "pdf") {
+        const pdf = await getPdfDocument(entry);
+        await renderPdfPageToCanvas(pdf, batch.page);
+      } else {
+        let url = "";
+        let revoke = false;
+        if (entry.url) {
+          url = entry.url;
+        } else if (entry.handle) {
+          const file = await entry.handle.getFile();
+          url = URL.createObjectURL(file);
+          revoke = true;
+        } else if (entry.file) {
+          url = URL.createObjectURL(entry.file);
+          revoke = true;
+        }
+        await renderPngToCanvasFromUrl(url, revoke);
+      }
+      syncOverlaySize();
+
+      const pageNum = entry.kind === "pdf" ? batch.page : 1;
+      for (const r of batch.rects) {
+        const blob = await cropToBlob(r);
+        if (!blob) continue;
+        let fname = "";
+        while (true) {
+          fname = nextOutputFileName(chapterKey, r.kind, pageNum);
+          try {
+            await sub.getFileHandle(fname);
+          } catch (e) {
+            if (e && e.name === "NotFoundError") break;
+            throw e;
+          }
+        }
+
+        const fh = await sub.getFileHandle(fname, { create: true });
+        const w = await fh.createWritable();
+        await w.write(blob);
+        await w.close();
+        savedCount += 1;
+        savedPages.add(batch.page);
+        if (r.kind === "stem") {
+          chapterStemCaptured.add(chapterKey);
+          chapterStemCaptured.add(entry.name);
+        }
+      }
+    }
+
+    // Restore current page view after cross-page save.
+    await loadCurrentView();
+    defaultKind.value = "example";
+    alert(
+      "Saved " +
+        savedCount +
+        " crop(s) across " +
+        savedPages.size +
+        " page(s) under " +
+        CAPTURE_SUBDIR +
+        "/" +
+        base +
+        "/"
+    );
+  });
+
+  btnDeletePngs.addEventListener("click", async () => {
+    if (!rootDir) {
+      alert("Open the folder with the folder button first (Chrome/Edge).");
+      return;
+    }
+    if (
+      !confirm(
+        "Delete EVERY .png and .pdf file under the opened folder (including subfolders), except inside " +
+          CAPTURE_SUBDIR +
+          "/ and output/? This cannot be undone. Confirm again in the next prompt."
+      )
+    ) {
+      return;
+    }
+    const second = prompt("Type OK to delete all source PNG/PDF files:");
+    if (second !== "OK") return;
+
+    async function deleteSourcesRecursive(dir) {
+      const skip = new Set([CAPTURE_SUBDIR, "output"]);
+      for await (const [name, handle] of dir.entries()) {
+        if (handle.kind === "directory") {
+          if (skip.has(name)) continue;
+          await deleteSourcesRecursive(handle);
+        } else {
+          const low = name.toLowerCase();
+          if (low.endsWith(".png") || low.endsWith(".pdf")) {
+            await dir.removeEntry(name);
+          }
+        }
+      }
+    }
+
+    try {
+      await deleteSourcesRecursive(rootDir);
+      const flat = [];
+      await collectMediaFromDir(rootDir, flat);
+      flat.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
+      pngEntries = flat;
+      rectsByChapter.clear();
+      lastRectsKey = null;
+      currentIndex = pngEntries.length ? 0 : -1;
+      currentPageNum = 1;
+      renderFileList();
+      await loadCurrentView();
+      folderLabel.textContent =
+        "Folder: " + rootDir.name + " — " + pngEntries.length + " file(s) after delete";
+      alert("Done. Crops remain under " + CAPTURE_SUBDIR + " if you saved any.");
+    } catch (e) {
+      console.error(e);
+      alert(String(e.message || e));
+    }
+  });
+
+  if (SUPPORTS_DIR && window.isSecureContext) {
+    folderLabel.textContent = "Open your chapter folder to begin.";
+  }
+})();
+
+  </script>
+</body>
+</html>

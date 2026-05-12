@@ -1,0 +1,8 @@
+# Local mirror of chapter PDFs (not used by the browser tool; ignore if present).
+chapter_pdfs/*.pdf
+
+# Legacy manifest (not used by the browser tool; ignore if present).
+chapter_manifest.json
+
+# Compiled PDF and other tool output under output/
+output/
