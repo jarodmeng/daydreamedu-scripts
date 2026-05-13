@@ -4,6 +4,12 @@ All notable changes to the pdf_file_manager utility are documented here.
 
 ---
 
+## [v0.3.18] — Integrity validator: path-derived metadata drift
+
+- `scripts/validate_pdf_registry_integrity.py` now reports **`path_inferred_metadata_drift`**: registered rows whose stored path-derived fields differ from what the current registered path implies (`subject`, `doc_type`, `student_id`, `is_template`, and invariant metadata keys such as `grade_or_scope`, `content_folder`, and `chinese_variant`).
+- The validator now reports **`raw_main_folder_mismatches`** for linked raw/main pairs whose registered paths live in different folders, catching cases where one side was moved without the other.
+- Added focused regression tests for both new checks in `tests/test_integrity_validator.py`.
+
 ## [v0.3.17] — Integrity validator: dangling `file_relations`
 
 - `scripts/validate_pdf_registry_integrity.py` now reports **`dangling_file_relations`**: rows in `file_relations` whose **`source_id` or `target_id` is missing from `pdf_files`** (orphan edges, e.g. leftover `template_for` / `completed_from` or raw/main links after endpoint rows were removed without FK CASCADE when SQLite `PRAGMA foreign_keys` was off).

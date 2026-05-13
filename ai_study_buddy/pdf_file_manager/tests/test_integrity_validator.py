@@ -5,6 +5,7 @@ import tempfile
 from pathlib import Path
 
 from ai_study_buddy.pdf_file_manager.pdf_file_manager import PdfFileManager
+from ai_study_buddy.pdf_file_manager.scripts.validate_pdf_registry_integrity import build_report
 
 from .constants import STUDENT_DISPLAY_NAME, STUDENT_FOLDER_EMAIL
 
@@ -163,3 +164,70 @@ def test_integrity_validator_reports_known_issue_types():
         assert payload["summary"]["student_scope_template_true"] == 1
         assert payload["summary"]["missing_student_id"] == 1
         assert payload["summary"]["main_raw_metadata_drift"] == 1
+
+
+def test_integrity_validator_reports_path_inferred_metadata_drift():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmpdir = Path(tmpdir)
+        db_path = tmpdir / "registry.db"
+        mgr = PdfFileManager(db_path=str(db_path))
+        mgr.add_student("winston", STUDENT_DISPLAY_NAME, STUDENT_FOLDER_EMAIL)
+
+        note_pdf = (
+            tmpdir
+            / "DaydreamEdu"
+            / "completion"
+            / "Singapore Primary Science"
+            / STUDENT_FOLDER_EMAIL
+            / "P6"
+            / "Note"
+            / "_c_science_note.pdf"
+        )
+        note_pdf.parent.mkdir(parents=True, exist_ok=True)
+        note_pdf.write_bytes(b"%PDF-1.0\n")
+        registered = mgr.register_file(note_pdf, file_type="main")
+
+        # Simulate an external move/path update where the path says Note but stored metadata stayed Exercise.
+        conn = mgr._get_connection()
+        conn.execute(
+            "UPDATE pdf_files SET doc_type = 'exercise', metadata = ? WHERE id = ?",
+            (json.dumps({"grade_or_scope": "P6", "content_folder": "Exercise"}), registered.id),
+        )
+        conn.commit()
+
+        report = build_report(mgr)
+        assert report["summary"]["path_inferred_metadata_drift"] == 1
+        issue = report["checks"]["path_inferred_metadata_drift"][0]
+        assert issue["id"] == registered.id
+        fields = {item["field"]: item for item in issue["fields"]}
+        assert fields["doc_type"]["stored_value"] == "exercise"
+        assert fields["doc_type"]["expected_value"] == "note"
+        assert fields["metadata.content_folder"]["stored_value"] == "Exercise"
+        assert fields["metadata.content_folder"]["expected_value"] == "Note"
+
+
+def test_integrity_validator_reports_raw_main_folder_mismatch():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmpdir = Path(tmpdir)
+        db_path = tmpdir / "registry.db"
+        mgr = PdfFileManager(db_path=str(db_path))
+
+        base = tmpdir / "DaydreamEdu" / "Singapore Primary Science" / "P6"
+        raw_pdf = base / "Exercise" / "_raw_science_note.pdf"
+        main_pdf = base / "Note" / "_c_science_note.pdf"
+        raw_pdf.parent.mkdir(parents=True, exist_ok=True)
+        main_pdf.parent.mkdir(parents=True, exist_ok=True)
+        raw_pdf.write_bytes(b"%PDF-1.0\n")
+        main_pdf.write_bytes(b"%PDF-1.0\n")
+
+        raw = mgr.register_file(raw_pdf, file_type="raw")
+        main = mgr.register_file(main_pdf, file_type="main")
+        mgr.link_files(raw.id, main.id, "main_version")
+
+        report = build_report(mgr)
+        assert report["summary"]["raw_main_folder_mismatches"] == 1
+        issue = report["checks"]["raw_main_folder_mismatches"][0]
+        assert issue["raw_id"] == raw.id
+        assert issue["main_id"] == main.id
+        assert issue["raw_folder"].endswith("/Exercise")
+        assert issue["main_folder"].endswith("/Note")

@@ -22,6 +22,8 @@ Health checks (for large registry operations):
 13. ``file_relations`` rows whose ``source_id`` or ``target_id`` does not exist in ``pdf_files``
     (orphan edges — e.g. leftover template/completion links after rows were removed without CASCADE
     when SQLite ``PRAGMA foreign_keys`` was off)
+14. stored path-derived fields drifted from what the registered path now implies
+15. linked raw/main pairs live in different folders
 
 Usage:
   python3 -m ai_study_buddy.pdf_file_manager.scripts.validate_pdf_registry_integrity
@@ -413,6 +415,116 @@ def collect_main_raw_metadata_drift(mgr: PdfFileManager) -> list[dict]:
     return issues
 
 
+def collect_path_inferred_metadata_drift(mgr: PdfFileManager) -> list[dict]:
+    """Rows whose stored path-derived fields differ from the current registered path."""
+    issues: list[dict] = []
+    for file in mgr.find_files():
+        try:
+            inferred = mgr._infer_from_path(Path(file.path))
+        except Exception as exc:
+            issues.append(
+                {
+                    "id": file.id,
+                    "path": file.path,
+                    "file_type": file.file_type,
+                    "issue": "path_inference_error",
+                    "error_type": type(exc).__name__,
+                    "error": str(exc),
+                    "fields": [],
+                }
+            )
+            continue
+
+        field_diffs: list[dict] = []
+        inferred_student_id = mgr._infer_student_id_from_path(file.path)
+        comparisons = {
+            "subject": (file.subject, inferred.get("subject")),
+            "doc_type": (file.doc_type, inferred.get("doc_type")),
+            "student_id": (file.student_id, inferred_student_id),
+            "is_template": (file.is_template, inferred.get("is_template")),
+        }
+        for field, (stored_value, expected_value) in comparisons.items():
+            if expected_value is None:
+                continue
+            if stored_value != expected_value:
+                field_diffs.append(
+                    {
+                        "field": field,
+                        "stored_value": stored_value,
+                        "expected_value": expected_value,
+                    }
+                )
+
+        stored_meta = file.metadata or {}
+        inferred_meta = inferred.get("metadata") or {}
+        for key in ("grade_or_scope", "content_folder", "chinese_variant"):
+            if key not in inferred_meta:
+                continue
+            expected_value = inferred_meta[key]
+            stored_value = stored_meta.get(key)
+            if stored_value == expected_value:
+                continue
+            field_diffs.append(
+                {
+                    "field": f"metadata.{key}",
+                    "stored_value": stored_value,
+                    "expected_value": expected_value,
+                }
+            )
+
+        if field_diffs:
+            issues.append(
+                {
+                    "id": file.id,
+                    "path": file.path,
+                    "file_type": file.file_type,
+                    "issue": "path_inferred_metadata_drift",
+                    "fields": field_diffs,
+                }
+            )
+    return issues
+
+
+def collect_raw_main_folder_mismatches(mgr: PdfFileManager) -> list[dict]:
+    """Linked raw/main pairs whose registered paths are not in the same folder."""
+    conn = mgr._get_connection()
+    rows = conn.execute(
+        """
+        SELECT raw.id AS raw_id, raw.path AS raw_path,
+               main.id AS main_id, main.path AS main_path
+        FROM file_relations fr
+        JOIN pdf_files raw ON raw.id = fr.source_id
+        JOIN pdf_files main ON main.id = fr.target_id
+        WHERE fr.relation_type = 'main_version'
+          AND raw.file_type = 'raw'
+          AND main.file_type = 'main'
+        ORDER BY raw.path
+        """
+    ).fetchall()
+    issues: list[dict] = []
+    seen_raw_ids: set[str] = set()
+    for row in rows:
+        raw_id = row["raw_id"]
+        if raw_id in seen_raw_ids:
+            continue
+        seen_raw_ids.add(raw_id)
+        raw_parent = Path(row["raw_path"]).resolve().parent
+        main_parent = Path(row["main_path"]).resolve().parent
+        if raw_parent == main_parent:
+            continue
+        issues.append(
+            {
+                "raw_id": row["raw_id"],
+                "raw_path": row["raw_path"],
+                "main_id": row["main_id"],
+                "main_path": row["main_path"],
+                "raw_folder": str(raw_parent),
+                "main_folder": str(main_parent),
+            }
+        )
+    return issues
+
+
 def collect_dangling_file_relations(mgr: PdfFileManager) -> list[dict]:
     """Rows in file_relations referencing a deleted pdf_files id (FK drift).
 
@@ -582,6 +694,8 @@ def build_report(mgr: PdfFileManager) -> dict:
     raw_main_relation_issues = collect_raw_main_relation_issues(mgr)
     template_invalid_doc_type = collect_template_invalid_doc_type(mgr)
     dangling_file_relations = collect_dangling_file_relations(mgr)
+    path_inferred_metadata_drift = collect_path_inferred_metadata_drift(mgr)
+    raw_main_folder_mismatches = collect_raw_main_folder_mismatches(mgr)
     return {
         "db_path": str(Path(mgr.db_path).resolve()),
         "summary": {
@@ -598,6 +712,8 @@ def build_report(mgr: PdfFileManager) -> dict:
             "raw_main_relation_issues": len(raw_main_relation_issues),
             "template_invalid_doc_type": len(template_invalid_doc_type),
             "dangling_file_relations": len(dangling_file_relations),
+            "path_inferred_metadata_drift": len(path_inferred_metadata_drift),
+            "raw_main_folder_mismatches": len(raw_main_folder_mismatches),
         },
         "checks": {
             "missing_on_disk_files": missing_on_disk_files,
@@ -613,6 +729,8 @@ def build_report(mgr: PdfFileManager) -> dict:
             "raw_main_relation_issues": raw_main_relation_issues,
             "template_invalid_doc_type": template_invalid_doc_type,
             "dangling_file_relations": dangling_file_relations,
+            "path_inferred_metadata_drift": path_inferred_metadata_drift,
+            "raw_main_folder_mismatches": raw_main_folder_mismatches,
         },
     }
 
@@ -707,6 +825,19 @@ def _print_human_report(report: dict, *, limit: int) -> None:
         )
         print(f"  source_id={item['source_id']} -> {sp}")
         print(f"  target_id={item['target_id']} -> {tp}")
+
+    print("\nPath-inferred metadata drift:")
+    for item in report["checks"]["path_inferred_metadata_drift"][:limit]:
+        if item.get("issue") == "path_inference_error":
+            print(f"- {item['path']} [{item['file_type']}] inference_error={item['error_type']}: {item['error']}")
+            continue
+        field_names = ", ".join(diff["field"] for diff in item["fields"])
+        print(f"- {item['path']} [{item['file_type']}] fields={field_names}")
+
+    print("\nRaw/main folder mismatches:")
+    for item in report["checks"]["raw_main_folder_mismatches"][:limit]:
+        print(f"- raw={item['raw_path']}")
+        print(f"  main={item['main_path']}")
 
 
 def main() -> int:
