@@ -19,6 +19,9 @@ Health checks (for large registry operations):
 10. any populated ``metadata.grade_or_scope`` must be in the allowed token set
 11. raw/main relation graph is consistent (has_raw, reciprocal edges, and valid endpoint types)
 12. template files are constrained to ``doc_type`` in ``exam``, ``exercise``, ``book``
+13. ``file_relations`` rows whose ``source_id`` or ``target_id`` does not exist in ``pdf_files``
+    (orphan edges — e.g. leftover template/completion links after rows were removed without CASCADE
+    when SQLite ``PRAGMA foreign_keys`` was off)
 
 Usage:
   python3 -m ai_study_buddy.pdf_file_manager.scripts.validate_pdf_registry_integrity
@@ -410,6 +413,43 @@ def collect_main_raw_metadata_drift(mgr: PdfFileManager) -> list[dict]:
     return issues
 
 
+def collect_dangling_file_relations(mgr: PdfFileManager) -> list[dict]:
+    """Rows in file_relations referencing a deleted pdf_files id (FK drift).
+
+    Normal deletes through PdfFileManager run with foreign_keys enabled so CASCADE
+    removes these edges; raw SQL or tools that omit PRAGMA foreign_keys=ON can leave orphans.
+    """
+    conn = mgr._get_connection()
+    rows = conn.execute(
+        """
+        SELECT r.id AS relation_id, r.relation_type, r.source_id, r.target_id,
+               s.path AS source_path, t.path AS target_path
+        FROM file_relations r
+        LEFT JOIN pdf_files s ON s.id = r.source_id
+        LEFT JOIN pdf_files t ON t.id = r.target_id
+        WHERE s.id IS NULL OR t.id IS NULL
+        ORDER BY r.relation_type, r.source_id, r.target_id
+        """
+    ).fetchall()
+    items: list[dict] = []
+    for row in rows:
+        missing_source = row["source_path"] is None
+        missing_target = row["target_path"] is None
+        items.append(
+            {
+                "relation_id": row["relation_id"],
+                "relation_type": row["relation_type"],
+                "source_id": row["source_id"],
+                "target_id": row["target_id"],
+                "source_path": row["source_path"],
+                "target_path": row["target_path"],
+                "missing_source": missing_source,
+                "missing_target": missing_target,
+            }
+        )
+    return items
+
+
 def collect_raw_main_relation_issues(mgr: PdfFileManager) -> list[dict]:
     conn = mgr._get_connection()
     rows = conn.execute(
@@ -541,6 +581,7 @@ def build_report(mgr: PdfFileManager) -> dict:
     invalid_grade_or_scope_values = collect_invalid_grade_or_scope_values(mgr)
     raw_main_relation_issues = collect_raw_main_relation_issues(mgr)
     template_invalid_doc_type = collect_template_invalid_doc_type(mgr)
+    dangling_file_relations = collect_dangling_file_relations(mgr)
     return {
         "db_path": str(Path(mgr.db_path).resolve()),
         "summary": {
@@ -556,6 +597,7 @@ def build_report(mgr: PdfFileManager) -> dict:
             "invalid_grade_or_scope_values": len(invalid_grade_or_scope_values),
             "raw_main_relation_issues": len(raw_main_relation_issues),
             "template_invalid_doc_type": len(template_invalid_doc_type),
+            "dangling_file_relations": len(dangling_file_relations),
         },
         "checks": {
             "missing_on_disk_files": missing_on_disk_files,
@@ -570,6 +612,7 @@ def build_report(mgr: PdfFileManager) -> dict:
             "invalid_grade_or_scope_values": invalid_grade_or_scope_values,
             "raw_main_relation_issues": raw_main_relation_issues,
             "template_invalid_doc_type": template_invalid_doc_type,
+            "dangling_file_relations": dangling_file_relations,
         },
     }
 
@@ -648,6 +691,22 @@ def _print_human_report(report: dict, *, limit: int) -> None:
     print("\nTemplate files with invalid doc_type (allowed: exam, exercise, book):")
     for item in report["checks"]["template_invalid_doc_type"][:limit]:
         print(f"- {item['path']} [{item['file_type']}/{item['doc_type']}] id={item['id']}")
+
+    print("\nDangling file_relations (source or target id not in pdf_files):")
+    for item in report["checks"]["dangling_file_relations"][:limit]:
+        parts = []
+        if item["missing_source"]:
+            parts.append("missing_source")
+        if item["missing_target"]:
+            parts.append("missing_target")
+        sp = item["source_path"] or "(no pdf_files row)"
+        tp = item["target_path"] or "(no pdf_files row)"
+        print(
+            f"- {item['relation_type']} relation_id={item['relation_id']} "
+            f"[{', '.join(parts)}]"
+        )
+        print(f"  source_id={item['source_id']} -> {sp}")
+        print(f"  target_id={item['target_id']} -> {tp}")
 
 
 def main() -> int:

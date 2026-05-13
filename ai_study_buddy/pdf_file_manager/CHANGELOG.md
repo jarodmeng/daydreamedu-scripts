@@ -4,6 +4,14 @@ All notable changes to the pdf_file_manager utility are documented here.
 
 ---
 
+## [v0.3.17] — Integrity validator: dangling `file_relations`
+
+- `scripts/validate_pdf_registry_integrity.py` now reports **`dangling_file_relations`**: rows in `file_relations` whose **`source_id` or `target_id` is missing from `pdf_files`** (orphan edges, e.g. leftover `template_for` / `completed_from` or raw/main links after endpoint rows were removed without FK CASCADE when SQLite `PRAGMA foreign_keys` was off).
+- Summary JSON and human-readable output include the new check; non-zero exit when any such row exists (same contract as other checks).
+- **Operational hygiene:** remove orphans with  
+  `DELETE FROM file_relations WHERE source_id NOT IN (SELECT id FROM pdf_files) OR target_id NOT IN (SELECT id FROM pdf_files);`  
+  (after backup); prefer registry deletes through `PdfFileManager` with foreign keys enabled so CASCADE applies.
+
 ## [v0.3.16] — GoodNotes template resolver: `template/` branch + `completion/` paths
 
 - `PdfFileManager.resolve_goodnotes_template_path(...)` now searches **`DaydreamEdu/template/<subject>/…`** before the legacy layout (no top-level branch), so mirrored GoodNotes files still resolve after template/completion-branch migration.
