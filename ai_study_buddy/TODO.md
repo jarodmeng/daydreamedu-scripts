@@ -24,6 +24,8 @@ _No open items._
     - Mention what a "final sweep" means (e.g. check for completeness/accuracy/consistency, get ready for implementation).
     - If the implementation of the proposal completes a bullet (or multiple bullets) in the TODO.md file, add an implementation task in the last phase of the implementation plan to check those bullet(s).
 - [ ] **P1-3** · 2026-05-06 12:32 SGT: Audit **error type enums** across the marking module (schemas, graders, ingest/learning DB) for drift, undocumented values, and consistent naming—align or document canon so downstream consumers do not silently misclassify errors.
+- [ ] **P1-4** · 2026-05-13 10:34 SGT: Establish a **DaydreamEdu template filename policy** (and migration path) to replace or avoid characters **GoodNotes silently normalizes or drops**—e.g. `&` rewritten as `-`—so `DAYDREAMEDU_ROOT` / `…/DaydreamEdu/template/…` basenames stay aligned with GoodNotes `c_` / `_c_` exports and **`pdf_file_manager.resolve_goodnotes_template_path`** / `link_goodnotes_templates_for_root` do not miss on exact `_c_{stem}.pdf` matches.
+- [ ] **P1-5** · 2026-05-13 10:35 SGT: Add an **opt-in (or default-on) auto-link step** after GoodNotes completion registration—e.g. when `PdfFileManager.scan_for_new_files(roots=[…])` lands new **`c_`/`_c_` mains** under `GOODNOTES_ROOT`, run **`link_goodnotes_template_for_file`** per file (non-aborting) or a thin wrapper so **`link_goodnotes_templates_for_root`** is not a mandatory second pass; document behavior on unresolved templates, dry-run hooks, and interplay with **P1-4** exact-stem limits.
 
 ## P2 — require attention when there's free time
 
