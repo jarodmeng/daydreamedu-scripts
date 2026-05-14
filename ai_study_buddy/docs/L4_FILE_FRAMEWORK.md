@@ -110,6 +110,24 @@ These 4 categories are MECE (mutually exclusive and collectively exhaustive): ea
 - **`/api/pdf`** is served only when the resolved file sits in a leaf folder keyed in that snapshot; restart the server to refresh after large on-disk moves.
 - **Run:** `.cursor/commands/start-root-pdf-browser.md` or `python3 -m ai_study_buddy.root_pdf_browser.spawn_background` / `serve` — see README.
 
+### Completion template link gap report (registry)
+
+Use this when you want a **quantitative gap list** for **completion mains** that still have **no** linked template in `pdf_file_manager` (no `file_relations` row with `relation_type='completed_from'` from the completion’s `id`).
+
+- **Definitions:** A **completion main** is a registered `pdf_files` row with `file_type='main'` and `is_template=false`. **Template linked** means a `completed_from` edge exists (see `PdfFileManager.link_to_template` / `get_template`). Linking is **not** automatic on registration unless you implement a workflow for it (see backlog **P1-5** in `ai_study_buddy/TODO.md`).
+- **Default filter:** `doc_type` **not** in `activity`, `note`, so the table focuses on **exam**, **exercise**, and **book** completions (aligned with template `doc_type` expectations in this doc). Pass `--include-activity-note` to include all completion types.
+- **Root column:** Each row’s `root` is derived from the stored path: `d_root` when the path contains `/DaydreamEdu/`, `g_root` when it contains `/GoodNotes/`, otherwise `(unknown)`.
+- **Agent / operator command:** `.cursor/commands/completion-template-link-gap-report.md` — instructs the agent to run the script and summarize output.
+
+How to run:
+
+- `python3 -m ai_study_buddy.pdf_file_manager.scripts.completion_template_link_gap_report`
+- `python3 -m ai_study_buddy.pdf_file_manager.scripts.completion_template_link_gap_report --include-activity-note`
+- `python3 -m ai_study_buddy.pdf_file_manager.scripts.completion_template_link_gap_report --db /path/to/pdf_registry.db`
+- `python3 -m ai_study_buddy.pdf_file_manager.scripts.completion_template_link_gap_report --json`
+
+Exit code is **`0`** when there are **no** gap rows under the chosen filters, and **`1`** when at least one completion is still missing a template link (**`2`** if the DB file is missing). Human-readable mode prints a short summary plus a grouped table; JSON mode emits `summary`, `filters`, and a `gaps` array.
+
 ### Registry integrity audit script
 
 The `ai_study_buddy/pdf_file_manager/scripts/validate_pdf_registry_integrity.py` script is a reproducible integrity audit for the registry and on-disk state. It checks common drift and consistency issues such as missing on-disk files for registered paths, student/general scope template flag mismatches, missing `student_id` in student scope, raw/main metadata drift, raw/main relation consistency, invalid enum-like metadata values (`subject`, `metadata.grade_or_scope`, legacy `metadata.chinese_variant=foundation`), and invalid template `doc_type` values.
