@@ -11,7 +11,8 @@
 
 ## P0 — require immediate attention
 
-_No open items._
+- [ ] **P0-1** · 2026-05-19 14:00 SGT: **Review Workspace attempt deep links (patch release)** — add URL support to open a specific marked attempt from query params (e.g. `?attempt_id=` on app load, aligned with `GET /api/student/attempts/{attempt_id}`); document in `review_workspace` README/SPEC/CHANGELOG. **Then** patch **`student_file_browser`** so the card **Review Workspace** action links to that URL (registry `file_id` / attempt id) instead of the app root only. Depends on shipped v0.1.0 browser + v0.1.3+ review workspace; see `ai_study_buddy/docs/L4_STUDENT_FILE_MANAGEMENT.md` Open Questions §1.
+- [ ] **P0-2** · 2026-05-19 14:00 SGT: **`root_id` filter** in **Student File Browser** (and `files` `FilterCriteria` / `filter_main_pdf_cards` if needed) — filter bar + URL param `root_id` (`daydreamedu` \| `goodnotes` \| `all`). **Risk without it:** two mains can match every other facet but differ only by sync root, so the grid can show ambiguous duplicates. See L4 Student File Management Open Questions §2.
 
 ## P1 — require attention within 7 days
 
@@ -26,6 +27,7 @@ _No open items._
 - [ ] **P1-3** · 2026-05-06 12:32 SGT: Audit **error type enums** across the marking module (schemas, graders, ingest/learning DB) for drift, undocumented values, and consistent naming—align or document canon so downstream consumers do not silently misclassify errors.
 - [ ] **P1-4** · 2026-05-13 10:34 SGT: Establish a **DaydreamEdu template filename policy** (and migration path) to replace or avoid characters **GoodNotes silently normalizes or drops**—e.g. `&` rewritten as `-`—so `DAYDREAMEDU_ROOT` / `…/DaydreamEdu/template/…` basenames stay aligned with GoodNotes `c_` / `_c_` exports and **`pdf_file_manager.resolve_goodnotes_template_path`** / `link_goodnotes_templates_for_root` do not miss on exact `_c_{stem}.pdf` matches.
 - [ ] **P1-5** · 2026-05-13 10:35 SGT: Add an **opt-in (or default-on) auto-link step** after GoodNotes completion registration—e.g. when `PdfFileManager.scan_for_new_files(roots=[…])` lands new **`c_`/`_c_` mains** under `GOODNOTES_ROOT`, run **`link_goodnotes_template_for_file`** per file (non-aborting) or a thin wrapper so **`link_goodnotes_templates_for_root`** is not a mandatory second pass; document behavior on unresolved templates, dry-run hooks, and interplay with **P1-4** exact-stem limits.
+- [ ] **P1-6** · 2026-05-19 14:00 SGT: **Move path inference into `files.path_facets`** — migrate implementation out of `PdfFileManager._infer_from_path` into `ai_study_buddy.files.infer_path_facets` (Phase B of v0.3.0); make `pdf_file_manager` a thin delegate; port/extend `pdf_file_manager/tests/test_inference.py` parity into `files/tests/test_path_facets.py`. See L4 Student File Management Open Questions §4.
 
 ## P2 — require attention when there's free time
 
@@ -33,6 +35,7 @@ _No open items._
 - [ ] **P2-2** · 2026-05-06 12:08 SGT: Implement `pdf_file_manager/docs/proposals/11-hardening-agent-facing-api-and-skill-for-pdffile-shape.md` (agent-facing PdfFile shape hardening)—proposal drafted, implementation still pending.
 - [ ] **P2-3** · 2026-05-06 12:48 SGT: Close the parity gap between **surgical edits** to a `marking_result` JSON file (e.g. one `question_results[]` row or a few fields) and **learning DB sync**: today, `learning_db.ingest.import_context_json` re-import drives a full artifact upsert and replaces all `marking_question_results` (and related) rows for that artifact—there is no supported path for **targeted partial overwrite** keyed by `artifact_path` / `result_id` / changed fields without re-processing the entire JSON payload through the importer.
 - [ ] **P2-4** · 2026-05-06 21:46 SGT: Reduce filename dependence in `marking/core/context_resolver.py` by improving `_infer_unit_label` fallback behavior (currently `derive_unit_label_from_attempt_name(file.name)`), preferring stricter metadata-first resolution where feasible.
+- [ ] **P2-5** · 2026-05-19 14:30 SGT: **`student_file_browser` HTTP tests (`tests/test_serve.py`)** — add a thin test hook on `serve.py` (e.g. injectable `roots` / `index_rows` / `enriched_cache` or `create_app(...)`) so tests do not require operator sync roots; then integration tests for `/api/health`, `/api/config`, `/api/inventory` (query → JSON `items` / `meta`), and `/api/pdf` path-guard failures. Complements existing `test_filters.py` + `test_path_guard.py` + manual smoke. See L4 Student File Management Open Questions §5.
 
 ## Completed
 

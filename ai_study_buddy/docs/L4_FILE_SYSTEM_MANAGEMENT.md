@@ -1,8 +1,8 @@
 # AI Study Buddy — File System Management
 
-> Status: **Implemented** — [`ai_study_buddy/files/`](../files/) **v0.2.0** (canonical API: [README](../files/README.md), [SPEC](../files/SPEC.md), [CHANGELOG](../files/CHANGELOG.md)).
+> Status: **Implemented** — [`ai_study_buddy/files/`](../files/) **v0.3.0+** (current **v0.3.1**; canonical API: [README](../files/README.md), [SPEC](../files/SPEC.md), [CHANGELOG](../files/CHANGELOG.md)).
 >
-> Related docs: [ARCHITECTURE](./L1_ARCHITECTURE.md), [DATA_STRATEGY](./L3_DATA_STRATEGY.md), [FILE_FRAMEWORK](./L4_FILE_FRAMEWORK.md), [MARKING_RESULT_ARTIFACT](./L4_MARKING_RESULT_ARTIFACT.md), `ai_study_buddy/pdf_file_manager/README.md`.
+> Related docs: [ARCHITECTURE](./L1_ARCHITECTURE.md), [DATA_STRATEGY](./L3_DATA_STRATEGY.md), [FILE_FRAMEWORK](./L4_FILE_FRAMEWORK.md), [STUDENT_FILE_MANAGEMENT](./L4_STUDENT_FILE_MANAGEMENT.md), [MARKING_RESULT_ARTIFACT](./L4_MARKING_RESULT_ARTIFACT.md), `ai_study_buddy/pdf_file_manager/README.md`.
 
 ---
 
@@ -40,6 +40,12 @@ Previously, root resolution and leaf-folder rules lived in `pdf_file_manager` or
 - Local root config under `ai_study_buddy/local_*_root*.txt` (moved from `pdf_file_manager/`)
 - Registry path correlation helpers in `pdf_registry_paths.py` (imports `PdfFileManager`; used by leaf-registry reports)
 - Full call-site migration: no `resolve_*_root` imports from `pdf_file_manager`
+
+### Shipped (v0.3.0+)
+
+- **`path_facets`**, **`main_pdfs`**, **`completion_enrichment`**, **`on_disk_inventory`** — on-disk main-PDF index, path-derived filter facets, registry + marking/review workflow flags; see [L4_STUDENT_FILE_MANAGEMENT](./L4_STUDENT_FILE_MANAGEMENT.md) and [L4_FILE_FRAMEWORK](./L4_FILE_FRAMEWORK.md) utilities section.
+- **`pdf_registry_paths`** extended (registry row by path, template link helpers).
+- **v0.3.1:** lazy `marking` import in `completion_enrichment` (import-cycle fix with `marking` v0.3.8).
 
 ### Out of scope (unchanged)
 
@@ -127,6 +133,7 @@ The generic `list_leaf_folders_under_root` stays policy-agnostic; wrappers and `
 | `pdf_file_manager` scripts / skills | `resolve_*_root`, leaf lists, `pdf_registry_paths` for reports |
 | `.cursor/commands/*-leaf-registry-report.md` | Same policy as package wrappers |
 | `root_pdf_browser` | Roots + GoodNotes browse profile (`exclude_not_completed=False`) |
+| `student_file_browser` | Roots + GoodNotes **leaf-registry** profile (default `exclude_not_completed=True`; same universe as `goodnotes-leaf-registry-report`) |
 
 ---
 
@@ -168,6 +175,8 @@ Migration from `pdf_file_manager`-embedded resolvers completed in Phases 1–6 (
 
 | Version | Notes |
 |---------|--------|
+| **v0.3.1** | `completion_enrichment` lazy-import `marking.review.workflow_flags` (break `files` ↔ `marking` cycle at package load) |
+| **v0.3.0** | `path_facets`, `main_pdfs`, `completion_enrichment`, `on_disk_inventory`; extended `pdf_registry_paths` |
 | **v0.2.0** | `pdf_registry_paths` — registry correlation for leaf-registry reports |
 | **v0.1.3** | `is_goodnotes_excluded_relative_path` for tree browsers |
 | **v0.1.2** | GoodNotes `exclude_not_completed` keyword on list wrapper |

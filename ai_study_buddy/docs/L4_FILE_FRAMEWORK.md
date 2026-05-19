@@ -70,11 +70,17 @@ Use `ai_study_buddy.files` as the centralized file-utility surface for determini
   - Leaf partition/profile helpers: `partition_daydreamedu_leaf_folders(...)`, `partition_goodnotes_leaf_folders(...)`.
   - Per-leaf helpers: `leaf_folder_registry_status(...)`, `leaf_registry_statuses_for_included_leaves(...)`, `registration_buckets(...)`.
   - Atomic per-PDF helpers: `is_pdf_registered(...)`, `pdf_file_registry_status(...)`, `leaf_pdf_file_registry_statuses(...)`.
+- **On-disk main-PDF inventory (v0.3.0+):** filter-first operator views over leaf-folder mains (registered and unregistered).
+  - **`path_facets`:** `infer_path_facets`, `PathFacets` — path layout → `scope`, `subject`, `grade_or_scope`, `doc_type`, `book_group_name`, `student_email`, `parse_status` (Phase A: delegates to `PdfFileManager._infer_from_path`).
+  - **`main_pdfs`:** `build_main_pdf_index_for_roots`, `is_inventory_main_pdf` — registered paths only when `file_type='main'`; unregistered non-`_raw_` basenames; optional `exclude_activity_note_completions` (same universe as `completion_template_link_gap_report`).
+  - **`on_disk_inventory`:** `OnDiskMainPdfCard`, `FilterCriteria`, `enrich_on_disk_main_pdf`, `build_enriched_inventory`, `filter_main_pdf_cards`, `filter_meta_for_response` / `workflow_filter_options` (contextual filter dropdowns + counts).
+  - **`completion_enrichment`:** `enrich_registered_completion` → marking/review workflow flags via `marking.review.workflow_flags` (shared with Review Workspace `attempt_service` since marking v0.3.8).
+  - Design reference: [L4_FILE_SYSTEM_MANAGEMENT](./L4_FILE_SYSTEM_MANAGEMENT.md) (package status); operator UI: [L4_STUDENT_FILE_MANAGEMENT](./L4_STUDENT_FILE_MANAGEMENT.md).
 - **Determinism rule:** callers should not hand-roll path normalization, set-difference leaf partitioning, or ad hoc `find_files()`/`list_scan_roots()` membership checks outside this module.
 
-This module is now the default place to implement reusable “on-disk leaf ↔ registry” behavior so tools (for example command docs and later `root_pdf_browser` enhancements) can share the same semantics.
+This module is the default place for reusable “on-disk leaf ↔ registry” and **main-PDF inventory** behavior shared by leaf-registry commands, **`root_pdf_browser`**, and **`student_file_browser`**.
 
-API contract and versioned details: [`ai_study_buddy/files/SPEC.md`](../files/SPEC.md).
+API contract and versioned details: [`ai_study_buddy/files/SPEC.md`](../files/SPEC.md), [`CHANGELOG.md`](../files/CHANGELOG.md) (current **v0.3.1**).
 
 ### Unregistered on-disk files
 
@@ -109,6 +115,17 @@ These 4 categories are MECE (mutually exclusive and collectively exhaustive): ea
 - **Navigation:** a **leaf-prefix tree** computed at startup from the same PDF-leaf-folder definitions as **`ai_study_buddy.files`**: prefixes of **`list_daydreamedu_leaf_folders_under_root(daydreamedu_root)`** on DaydreamEdu and **`list_goodnotes_leaf_folders_under_root(goodnotes_root, exclude_not_completed=False)`** on GoodNotes. Directories that never ancestor a leaf folder (no direct **`*.pdf`** in that subtree per the **`files`** rules) are hidden—avoids stray top-level clutter (for example accidental **`db/`** dirs) whilst still traversing **`Not completed`** WIP subtrees where they contain PDF leaf folders.
 - **`/api/pdf`** is served only when the resolved file sits in a leaf folder keyed in that snapshot; restart the server to refresh after large on-disk moves.
 - **Run:** `.cursor/commands/start-root-pdf-browser.md` or `python3 -m ai_study_buddy.root_pdf_browser.spawn_background` / `serve` — see README.
+- **Deep links (v0.1.6+):** `http://127.0.0.1:8770/?id=<root_id>&rel=<posix/path/to/file.pdf>` — tree expands on load (best effort); URL stays in sync when navigating. Used by **Student File Browser** **View PDF**.
+
+### Student File Browser (`student_file_browser`)
+
+[`ai_study_buddy/student_file_browser/README.md`](../student_file_browser/README.md) — **localhost** filter-first **card inventory** for on-disk **main** PDFs under both roots (port **8771**). All index and enrichment logic lives in **`ai_study_buddy.files` v0.3.0+**; the browser is a thin HTTP + static UI.
+
+- **Index:** `build_main_pdf_index_for_roots` at startup (GoodNotes leaves use **leaf-registry** profile: `exclude_not_completed=True`, unlike `root_pdf_browser` browse). Excludes completion `activity` / `note` mains by default.
+- **Filters:** scope, student (`students.id`), subject, grade, type, book, plus contextual registration / template / marking / review flags (`Filter` applies; `Reset` clears defaults).
+- **Actions:** **View PDF** → `root_pdf_browser` deep link; **Copy path**; **Review Workspace** (:5178) when marked (app root; per-attempt deep link post-MVP).
+- **Run:** `.cursor/commands/start-student-file-browser.md` or `python3 -m ai_study_buddy.student_file_browser.spawn_background` / `serve`.
+- **Design reference:** [L4_STUDENT_FILE_MANAGEMENT](./L4_STUDENT_FILE_MANAGEMENT.md).
 
 ### Completion template link gap report (registry)
 

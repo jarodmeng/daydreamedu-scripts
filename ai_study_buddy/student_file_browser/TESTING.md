@@ -22,3 +22,12 @@ python3 -m pytest ai_study_buddy/student_file_browser/tests -q
 3. Open `http://127.0.0.1:8771/`
 4. Filter `is_registered=false` when unregistered files exist.
 5. Open a card **View PDF**; **Copy path**; link to Review Workspace for a marked completion.
+6. **Scope = template:** student filter disabled; DaydreamEdu template cards visible.
+
+## Smoke verification (May 2026)
+
+Manual smoke **passed** with DaydreamEdu and GoodNotes roots, registry DB, and context root configured. Verified: **Filter** with `is_registered=false` surfaces unregistered mains; **Scope = template** disables the student control and lists DaydreamEdu templates; **View PDF** opens Root PDF Browser (:8770) on the correct file via `?id=` + `rel=` (v0.1.6+); **Copy path** works; marked completions open Review Workspace (:5178) at app root (attempt picked in that UI).
+
+Re-run the manual steps above after large filesystem/registry changes or before a release if inventory behaviour changed.
+
+HTTP integration tests (`tests/test_serve.py`) are tracked as [TODO.md](../TODO.md) **P2-5** (serve test hook required first).
