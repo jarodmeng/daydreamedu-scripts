@@ -1,12 +1,26 @@
 # AI Study Buddy — Review Workspace
 
-> Status: **Proposal (`v0.2`) with active implementation tracking**.
+> Status: **Implemented (`v0.3` spec) — shipped app `review_workspace` v0.1.3 (May 2026), single-student alpha rollout in progress**.
 >
-> Scope lock note (April 23, 2026): current delivery phase is **single-student alpha** focused on Student Picker, My Work index, and Review Workspace core loop. Non-core expansions remain deferred until this slice is stable.
+> Scope lock (April 23, 2026, unchanged): delivery phase is **single-student alpha** — Student Picker, My Work index, and Review Workspace core loop. Non-core expansions remain deferred until alpha exit criteria are met.
+>
+> **Shipped package:** [`ai_study_buddy/review_workspace/`](../review_workspace/) (`README.md`, `SPEC.md`, `CHANGELOG.md`, `TESTING.md`). Backend domain: [`ai_study_buddy/marking/review/`](../marking/review/).
 >
 > Related docs: [USER_EXPERIENCE](./L3_USER_EXPERIENCE.md), [MARKING_RESULT_ARTIFACT](./L4_MARKING_RESULT_ARTIFACT.md), [INGESTION_PIPELINE](./L4_INGESTION_PIPELINE.md), [ROADMAP](./L1_ROADMAP.md)
 
+### Implementation snapshot (May 2026)
+
+| Area | Status |
+|------|--------|
+| Backend read model (`marking/review/*`) | Shipped (v0.1.0 → consolidated v0.1.2) |
+| Review-state persistence (`student_review_state.v1`) | Shipped |
+| Human grading amendments (`marking_amendment.v1`) | Shipped (v0.1.1; save-diff fix v0.1.3) — canonical `marking_result` JSON stays read-only |
+| Frontend (picker, My Work, 4-panel workspace) | Shipped in `review_workspace/frontend/` (monolithic `App.tsx` for now) |
+| Automated tests | Partial — amendment/API tests in `marking/tests/test_review_workspace_*.py`; manual smoke per `review_workspace/TESTING.md` |
+| Alpha exit (3 students + pilot `question_page_map` acceptance) | **Not recorded** — see Phase 5 checklist below |
+
 ---
+
 
 ## Why This Proposal Exists
 
@@ -80,6 +94,7 @@ This aligns better with the broader AI Study Buddy vision:
    - optional `marking_asset`
    - `context.question_page_map` for active-question page tuning
 7. A thin backend API that hides file-system details from the frontend.
+8. **Human grading amendments** (teacher/parent overlay) persisted separately from canonical marking JSON — resolved at read time as `marking_result_resolved` (shipped v0.1.1).
 
 ### Out of Scope
 
@@ -87,7 +102,7 @@ This aligns better with the broader AI Study Buddy vision:
 2. Quest board as the primary home screen.
 3. Parent dashboard and admin ingestion/review tooling.
 4. Full question-object extraction with bounding boxes and per-question image crops.
-5. Editing marking results from the student UI.
+5. **In-place mutation** of canonical `marking_result` artifacts from the student UI (amendments use a companion overlay instead; shipped).
 6. Automated re-marking or workflow orchestration for marking jobs.
 7. Proper production auth; MVP may still use local student selection.
 
@@ -629,11 +644,13 @@ Grounded MVP rule:
 Response should merge:
 
 1. attempt metadata from registry
-2. selected latest marking result
+2. selected latest marking result (plus amendment overlay when present)
 3. student review state
 4. viewer URLs resolved by backend
 
-Suggested response shape:
+**Shipped additions (v0.1.1+):** `marking_result_base`, `marking_result_resolved`, `amendment_state`; `marking_result` aliases resolved payload. Evidence viewer uses `viewer.attempt_images` / `viewer.answer_images` from marking-asset bundles when present (see [`review_workspace/SPEC.md`](../review_workspace/SPEC.md)).
+
+Suggested response shape (illustrative; field names may differ slightly from shipped DTOs):
 
 ```json
 {
@@ -731,9 +748,27 @@ Disallowed writes:
 
 - any mutation to canonical `marking_result` artifacts (`v1.x`; current writer default `v1.4`)
 
+#### `PUT /api/student/attempts/{attempt_id}/amendments` (shipped v0.1.1)
+
+Purpose:
+
+- create or update `marking_amendment.v1` human grading overrides without touching canonical marking JSON
+
+Persisted under:
+
+- `context/marking_amendments/<student>/<subject_context>/<artifact_basename>.json`
+
+Attempt detail exposes:
+
+- `marking_result_base` — immutable AI artifact projection
+- `marking_result_resolved` — base + amendment overlay
+- `marking_result` — backward-compatible alias to resolved payload
+
+Contract details: [`review_workspace/SPEC.md`](../review_workspace/SPEC.md) §3.6 and [`review_workspace/DATA_MODEL.md`](../review_workspace/DATA_MODEL.md).
+
 ### Target Code Map (MVP)
 
-This section pins where implementation code should live so work does not drift across unrelated folders.
+This section pins where implementation code lives (shipped as of `review_workspace` v0.1.3).
 
 #### Keep existing package responsibilities
 
@@ -745,48 +780,36 @@ This section pins where implementation code should live so work does not drift a
 
 The Review Workspace should consume these APIs; it should not reimplement them.
 
-#### Add a new app-domain module (not a standalone package)
+#### App-domain module (shipped)
 
-Create:
+- `ai_study_buddy/marking/review/` — review-workspace orchestration (consolidated from legacy `student_review/` in v0.1.2)
 
-- `ai_study_buddy/marking/review/`
+Module split (as shipped):
 
-Recommended module split:
-
-1. `ai_study_buddy/marking/review/models.py`
-   - API-facing DTOs (`AttemptListItem`, `AttemptDetail`, `ReviewState`, `QuestionReviewCard`, viewer payload types).
-2. `ai_study_buddy/marking/review/repository.py`
-   - filesystem read/write for `context/student_review_states/**`.
-3. `ai_study_buddy/marking/review/attempt_service.py`
-   - builds "My Work" list from completion registry + latest marking artifact.
-4. `ai_study_buddy/marking/review/detail_service.py`
-   - builds Review Workspace detail payload (attempt context + active-question review data + viewer metadata).
-5. `ai_study_buddy/marking/review/note_service.py`
-   - handles scoped note updates and validation (`question`, `attempt`, `student_subject`; author role checks).
-6. `ai_study_buddy/marking/review/api_routes.py`
-   - route handlers for:
+1. `models.py` — API-facing DTOs and serializers
+2. `repository.py` — filesystem read/write for `context/student_review_states/**` and `context/marking_amendments/**`
+3. `attempt_service.py` — My Work list from `PdfFileManager` + latest artifact via `find_marking_artifacts_for_attempt(...)[0]`
+4. `detail_service.py` — detail payload, viewer URLs, `question_page_map` → `attempt_page_start` enrichment
+5. `note_service.py` — `student_review_state.v1` validation and writes
+6. `amendment_service.py` — `marking_amendment.v1` validation, merge, resolved marking projection
+7. `payload_reader.py` — marking payload read (filesystem with optional learning-DB reads)
+8. `api_routes.py` — route handlers:
    - `GET /api/students`
    - `GET /api/student/attempts`
    - `GET /api/student/attempts/{attempt_id}`
    - `PUT /api/student/attempts/{attempt_id}/review-state`
+   - `PUT /api/student/attempts/{attempt_id}/amendments`
 
-This keeps domain logic near data contracts while allowing route handlers to stay thin.
+Thin app shell: `ai_study_buddy/review_workspace/backend/app.py` (static mount + router include).
 
-#### Frontend feature placement
+#### Frontend placement (shipped)
 
-Place workspace UI under a feature folder in the app frontend codebase (the exact app path depends on where Review Workspace is hosted):
+Standalone Vite app (not yet split into feature folders):
 
-- `src/features/review-workspace/`
-- `src/features/my-work/`
-- `src/services/studentReviewApi.ts`
+- `ai_study_buddy/review_workspace/frontend/src/App.tsx` — Student Picker, My Work, 4-panel Review Workspace (top / left evidence / right review / bottom actions)
+- `ai_study_buddy/review_workspace/frontend/src/styles.css`
 
-Recommended component split for the 4-panel workspace:
-
-1. `ReviewWorkspacePage.tsx`
-2. `TopHeaderPanel.tsx`
-3. `EvidencePanel.tsx`
-4. `ReviewPanel.tsx`
-5. `StatusBarPanel.tsx`
+Future refactor may extract the originally suggested `ReviewWorkspacePage.tsx`, `EvidencePanel.tsx`, etc., without changing API contracts.
 
 #### File ownership summary
 
@@ -884,14 +907,26 @@ They remain:
 
 ### Review-note persistence
 
-This MVP introduces a new companion store:
+Companion store (shipped):
 
-- `student_review_state.v1`
+- `student_review_state.v1` under `context/student_review_states/**`
 
 Migration rule:
 
 - none required
 - absent files mean "no reflection yet"
+
+### Human grading amendments (shipped v0.1.1)
+
+Companion store:
+
+- `marking_amendment.v1` under `context/marking_amendments/**`
+
+Migration rule:
+
+- none required
+- absent files mean "no human overrides yet"
+- canonical `marking_result` JSON is never rewritten by the Review Workspace app
 
 ### Future question-object upgrade
 
@@ -939,7 +974,8 @@ Risk:
 Mitigation:
 
 - store workspace review notes in separate `student_review_state.v1`
-- keep canonical `marking_result` artifacts read-only from this UI
+- store human grading corrections in separate `marking_amendment.v1`
+- keep canonical `marking_result` artifacts read-only from this UI (amendments merge at read time only)
 
 ### 4) Schema variability across subjects
 
@@ -979,38 +1015,47 @@ Mitigation:
 
 ## Detailed TODO Checklist (Implementation Monitoring)
 
+> Last synced with shipped code: **review_workspace v0.1.3** (2026-05-08). Route-level contracts: [`review_workspace/SPEC.md`](../review_workspace/SPEC.md).
+
 ### Phase 1 — Backend read model
 
-- [ ] Create `ai_study_buddy/marking/review/` module skeleton with `models.py`, `repository.py`, `attempt_service.py`, `detail_service.py`, `note_service.py`, and `api_routes.py`.
-- [ ] Implement student-scoped attempt listing in `attempt_service.py` backed by `PdfFileManager` completion rows.
-- [ ] Reuse `find_marking_artifacts_for_attempt(...)` to resolve latest marking artifact per attempt.
-- [ ] Define deterministic "latest artifact" selection rule and cover it with tests.
-- [ ] Expose backend serializers in `models.py` that map canonical `marking_result` (`v1.x`, with `v1.4` default) into review-workspace response shapes.
-- [ ] Expose server-resolved document/viewer URLs from `detail_service.py` without leaking raw local paths.
-- [ ] Implement active-question page resolver in `detail_service.py` that uses `context.question_page_map` when present.
+- [x] Create `ai_study_buddy/marking/review/` module skeleton with `models.py`, `repository.py`, `attempt_service.py`, `detail_service.py`, `note_service.py`, and `api_routes.py` (plus `amendment_service.py`, `payload_reader.py`).
+- [x] Implement student-scoped attempt listing in `attempt_service.py` backed by `PdfFileManager` completion rows.
+- [x] Reuse `find_marking_artifacts_for_attempt(...)` to resolve latest marking artifact per attempt.
+- [x] Define deterministic "latest artifact" selection rule and cover it with tests (`refs[0]` after `created_at` desc, then path asc — see `marking/core/artifact_lookup.py` and `marking/tests/test_artifact_lookup.py`).
+- [x] Expose backend serializers in `models.py` that map canonical `marking_result` (`v1.x`) into review-workspace response shapes (including base/resolved split when amendments exist).
+- [x] Expose server-resolved document/viewer URLs from `detail_service.py` without leaking raw local paths (static URLs under `/review-workspace-static/...`).
+- [x] Implement active-question page resolver in `detail_service.py` that uses `context.question_page_map` when present.
 
 ### Phase 2 — Student review-state persistence
 
-- [ ] Define and document `student_review_state.v1`.
-- [ ] Implement read/write helpers for `context/student_review_states/**` in `repository.py`.
-- [ ] Create review-state files lazily on first write.
-- [ ] Ensure note updates in `note_service.py` never mutate canonical `marking_result` artifacts (`v1.x`).
-- [ ] Add validation for allowed `review_status` values, note scopes, note author roles, and per-question note mapping by `result_id`.
+- [x] Define and document `student_review_state.v1` ([`review_workspace/DATA_MODEL.md`](../review_workspace/DATA_MODEL.md)).
+- [x] Implement read/write helpers for `context/student_review_states/**` in `repository.py`.
+- [x] Create review-state files lazily on first write.
+- [x] Ensure note updates in `note_service.py` never mutate canonical `marking_result` artifacts (`v1.x`).
+- [x] Add validation for allowed `review_status` values, note scopes, note author roles, and per-question note mapping by `result_id`.
+
+### Phase 2b — Human grading amendments (added after initial proposal; shipped v0.1.1)
+
+- [x] Define and document `marking_amendment.v1` ([`review_workspace/SPEC.md`](../review_workspace/SPEC.md) §5).
+- [x] Implement read/write/merge in `amendment_service.py` + `repository.py` under `context/marking_amendments/**`.
+- [x] Expose `PUT /api/student/attempts/{attempt_id}/amendments` and base/resolved fields on attempt detail.
+- [x] Frontend inline amendment editing with save/reload (v0.1.1; save-diff against resolved state v0.1.3).
 
 ### Phase 3 — Frontend MVP
 
-- [ ] Build student picker with local persistence of active `student_id`.
-- [ ] Build `My Work` list with filters for subject, collection kind, marking status, and review status.
-- [ ] Build `Review Workspace` 4-panel layout.
-- [ ] Implement top-panel question navigation with active-question highlighting and previous/next controls.
-- [ ] Implement left-panel evidence viewer with `Attempt` / `Answer` toggle.
-- [ ] Wire active-question page jump to `context.question_page_map` with fallback when missing.
-- [ ] Render attempt header, score summary, partial-marking banner, and active-question review cards.
-- [ ] Add question-level note editing in the middle-right review panel.
-- [ ] Add attempt-level note entry via the top panel.
-- [ ] Add student-subject-level note entry via the bottom panel.
-- [ ] Add visible save state and quick actions such as `Mark reviewed` and `Next unreviewed` in the bottom panel.
-- [ ] Add clear empty/error/loading states for missing marking results, missing answer source, and sparse diagnosis data.
+- [x] Build student picker with local persistence of active `student_id` (`localStorage` key `review_workspace.student_id`).
+- [x] Build `My Work` list with filters for subject, collection kind, marking status, and review status.
+- [x] Build `Review Workspace` 4-panel layout.
+- [x] Implement top-panel question navigation with active-question highlighting and previous/next controls.
+- [x] Implement left-panel evidence viewer with `Attempt` / `Answer` toggle.
+- [x] Wire active-question page jump to `context.question_page_map` with fallback when missing.
+- [x] Render attempt header, score summary, partial-marking banner, and active-question review cards.
+- [x] Add question-level note editing in the middle-right review panel.
+- [x] Add attempt-level note entry via the top panel (notes scope toggle).
+- [x] Add student-subject-level note entry via the bottom panel.
+- [x] Add visible save state and quick actions in the bottom/top panels (`Review completed`, `Next incorrect`; **`Next unreviewed` not implemented** — use question nav + review filters instead).
+- [x] Add clear empty/error/loading states for missing marking results, missing answer source, and sparse diagnosis data (basic states; polish as needed during alpha).
 
 ### Phase 4 — Verification and safeguards
 
@@ -1019,12 +1064,13 @@ Mitigation:
 - [ ] Add tests for partial-marking artifacts (`context.is_partial=true`).
 - [ ] Add tests for multiple attempts in one `template_attempt_group_id`.
 - [ ] Add tests that review-state persistence survives reload and reappears in detail responses.
+- [x] Amendment overlay tests (`marking/tests/test_review_workspace_amendments.py`, `test_review_workspace_preflight.py`).
 
 ### Phase 5 — Rollout and documentation
 
-- [ ] Update the implementation docs to reflect the shipped route contracts and response shapes.
-- [ ] Update any UI/architecture docs that still describe the first student surface as a report inbox.
-- [ ] Keep markdown report generation intact during rollout as a fallback debugging surface.
+- [x] Update the implementation docs to reflect the shipped route contracts and response shapes (`review_workspace/SPEC.md`, `DATA_MODEL.md`, `CHANGELOG.md`).
+- [ ] Update any UI/architecture docs that still describe the first student surface as a report inbox (e.g. sweep `L3_USER_EXPERIENCE.md` if needed).
+- [x] Keep markdown report generation intact during rollout as a fallback debugging surface (unchanged in marking pipeline).
 - [ ] Verify the shipped MVP on at least one real attempt each for Winston, Emma, and Abigail.
 - [ ] Run alpha test using `PP Math PSLE Part D P6 Topical Practice Percentage__20260421_194508.json` and record page-jump correctness against `question_page_map`.
 - [ ] Record which real attempts were used for acceptance testing and note any evidence-viewer gaps.
@@ -1033,10 +1079,14 @@ Mitigation:
 
 ## Decision
 
-Build the first student-facing MVP as a **Review Workspace** over registered attempts and canonical marking artifacts, with `v1.4` question-page mapping as the primary enabler for active-question page tuning.
+Build the first student-facing MVP as a **Review Workspace** over registered attempts and canonical marking artifacts, with `v1.4` `question_page_map` as the primary enabler for active-question page tuning.
 
-Keep the canonical marking artifact read-only in the student UI.
+**Shipped (v0.1.0–v0.1.3):** registry-backed Student Picker and My Work, 4-panel Review Workspace, `student_review_state.v1` notes, and `marking_amendment.v1` human grading overlays — all without mutating canonical `marking_result` JSON.
 
-Persist question-level, attempt-level, and student-subject-level review notes in a separate `student_review_state.v1` companion store with explicit author roles.
+Keep the canonical marking artifact read-only in the student UI; human corrections use the amendment companion store and `marking_result_resolved` at read time.
 
-Ship with attempt-level/answer-level document viewing and `question_page_map`-driven page tuning first, then add deeper question-level visual anchoring (for example bbox/crops) later without changing the core workspace model.
+Persist question-level, attempt-level, and student-subject-level review notes in `student_review_state.v1` with explicit author roles.
+
+**Remaining before alpha exit:** Phase 4 boundary/partial/multi-attempt tests, Phase 5 multi-student acceptance runbook, and optional `Next unreviewed` navigation if still desired after alpha feedback.
+
+Ship with attempt-level/answer-level document viewing and `question_page_map`-driven page tuning first; add deeper question-level visual anchoring (bbox/crops) later without changing the core workspace model.
