@@ -1,10 +1,10 @@
 # Student File Browser
 
-**Version: v0.1.1**
+**Version: v0.1.2**
 
 Filter-first **operator** inventory for on-disk **main** PDFs under DaydreamEdu and GoodNotes. Uses [`ai_study_buddy.files`](../files/) **v0.3.0+** (v0.3.1 recommended) for path facets, registry correlation, and marking/review health flags (`marking` v0.3.8+ shared workflow loader). GoodNotes leaf folders match [goodnotes-leaf-registry-report](../../.cursor/commands/goodnotes-leaf-registry-report.md) (registration-ready set; WIP `Not completed` subtrees are out of scope). Completion **activity** and **note** files are excluded from the index (same as [`completion_template_link_gap_report`](../pdf_file_manager/scripts/completion_template_link_gap_report.py)); templates are still listed.
 
-Default URL: `http://127.0.0.1:8771/`
+Default URL: `http://localhost:8771/`
 
 ## Quick start
 
@@ -39,7 +39,6 @@ python3 -m ai_study_buddy.student_file_browser.spawn_background
 - [SPEC.md](./SPEC.md)
 - [CHANGELOG.md](./CHANGELOG.md)
 - [TESTING.md](./TESTING.md)
-- [docs/proposal/](./docs/proposal/) — design proposals (e.g. [1-root-id-filter.md](./docs/proposal/1-root-id-filter.md) for [TODO P0-1](../TODO.md); [review_workspace attempt deep links](../review_workspace/docs/proposal/2-attempt-deep-links.md) shipped in v0.1.1)
 
 ## Rollback
 

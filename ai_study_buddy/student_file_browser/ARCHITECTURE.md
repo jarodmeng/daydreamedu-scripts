@@ -3,7 +3,7 @@
 ## Layers
 
 1. **Static UI** (`static/`) — filter bar, card grid, URL sync.
-2. **HTTP server** (`serve.py`) — `ThreadingHTTPServer` on `127.0.0.1`, default port 8771.
+2. **HTTP server** (`serve.py`) — `ThreadingHTTPServer` on `localhost`, default port 8771.
 3. **`ai_study_buddy.files` v0.3.0+** — all index and enrichment logic (marking/review flags via `marking.review.workflow_flags`).
 
 ## Startup

@@ -1,9 +1,14 @@
 # Changelog — `student_file_browser`
 
+## [v0.1.2] — Sibling app links use localhost (2026-05-19)
+
+- **Review Workspace** and **View PDF** deep links normalize `127.0.0.1` / `::1` to **`localhost`** so handoff matches Review Workspace and Root PDF Browser (Vite on `localhost:5178`, etc.).
+- Server bind and startup URL use **`http://localhost:8771/`** instead of `127.0.0.1`.
+
 ## [v0.1.1] — Review Workspace attempt deep links (2026-05-19)
 
-- Card **Review Workspace** links use the same hostname as the file browser (`window.location.hostname`, port **5178**) with `?attempt_id=<registry_file_id>&student_id=<student_id>` when marked and registered (requires `review_workspace` v0.1.4+).
-- **View PDF** uses the same hostname pattern for Root PDF Browser (port **8770**).
+- Card **Review Workspace** links open port **5178** with `?attempt_id=<registry_file_id>&student_id=<student_id>` when marked and registered (requires `review_workspace` v0.1.4+).
+- **View PDF** deep links into Root PDF Browser (port **8770**).
 - Falls back to app root with console warning if `registry_file_id` is missing.
 
 ## [v0.1.0] — Initial release

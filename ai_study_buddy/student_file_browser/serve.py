@@ -319,8 +319,8 @@ def main() -> int:
     StudentFileBrowserHandler.enriched_cache = None
     StudentFileBrowserHandler.context_root = _default_context_root()
 
-    server = ThreadingHTTPServer(("127.0.0.1", args.port), StudentFileBrowserHandler)
-    url = f"http://127.0.0.1:{args.port}/"
+    server = ThreadingHTTPServer(("localhost", args.port), StudentFileBrowserHandler)
+    url = f"http://localhost:{args.port}/"
     print(f"Student File Browser at {url}", flush=True)
     print(f"Index: {len(index_rows)} main PDFs", flush=True)
     if not args.no_browser:

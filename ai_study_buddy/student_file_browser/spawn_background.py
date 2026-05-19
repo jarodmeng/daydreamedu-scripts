@@ -46,7 +46,7 @@ def main() -> int:
                 pass
 
     print(f"Student File Browser started (PID {proc.pid}).")
-    print(f"URL: http://127.0.0.1:{port}/")
+    print(f"URL: http://localhost:{port}/")
     print(f"Log: {log_path.resolve()}")
     print(f"Stop: kill {proc.pid}")
     return 0

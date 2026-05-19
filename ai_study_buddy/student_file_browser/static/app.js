@@ -3,8 +3,15 @@
   const REVIEW_WORKSPACE_PORT = 5178;
   const ROOT_BROWSER_PORT = 8770;
 
+  /** Review Workspace / Root PDF Browser run on localhost; avoid 127.0.0.1 origin split. */
+  function siblingAppHostname() {
+    const h = window.location.hostname;
+    if (h === "127.0.0.1" || h === "::1") return "localhost";
+    return h;
+  }
+
   function siblingAppBaseUrl(port) {
-    return `http://${window.location.hostname}:${port}/`;
+    return `http://${siblingAppHostname()}:${port}/`;
   }
 
   let config = null;
