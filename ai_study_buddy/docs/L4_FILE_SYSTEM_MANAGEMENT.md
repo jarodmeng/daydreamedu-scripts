@@ -1,226 +1,183 @@
 # AI Study Buddy — File System Management
 
-> Status: **Proposal (v1)** — introduce a shared `ai_study_buddy.files` package for root resolution and leaf-folder traversal.
+> Status: **Implemented** — [`ai_study_buddy/files/`](../files/) **v0.2.0** (canonical API: [README](../files/README.md), [SPEC](../files/SPEC.md), [CHANGELOG](../files/CHANGELOG.md)).
 >
-> Related docs: [ARCHITECTURE](./L1_ARCHITECTURE.md), [DATA_STRATEGY](./L3_DATA_STRATEGY.md), [MARKING_RESULT_ARTIFACT](./L4_MARKING_RESULT_ARTIFACT.md), `ai_study_buddy/pdf_file_manager/README.md`.
+> Related docs: [ARCHITECTURE](./L1_ARCHITECTURE.md), [DATA_STRATEGY](./L3_DATA_STRATEGY.md), [FILE_FRAMEWORK](./L4_FILE_FRAMEWORK.md), [MARKING_RESULT_ARTIFACT](./L4_MARKING_RESULT_ARTIFACT.md), `ai_study_buddy/pdf_file_manager/README.md`.
 
 ---
 
-## Why This Proposal Exists
+## Summary
+
+`ai_study_buddy.files` is the shared filesystem utility package for:
+
+- Resolving **DaydreamEdu** and **GoodNotes** sync roots (`roots.py`)
+- Listing **leaf folders** (directories with direct files matching chosen suffixes) under policy profiles (`leaf_folders.py`)
+- Optionally correlating on-disk leaves with **`pdf_registry.db`** via **`PdfFileManager`** (`pdf_registry_paths.py`)
+
+`pdf_file_manager` owns registry semantics (scan, register, link, metadata). It **imports** `ai_study_buddy.files` for roots and leaf traversal; the dependency does not flow the other way for the core modules.
+
+---
+
+## Background
 
 Multiple workflows need deterministic filesystem traversal under local synced roots:
 
 - DaydreamEdu root (`DAYDREAMEDU_ROOT` or local config)
-- GoodNotes root (`GOODNOTES_ROOT` or local config/sibling discovery)
+- GoodNotes root (`GOODNOTES_ROOT` or local config / sibling discovery)
 
-Today, root-resolution and leaf-folder definitions are centered in `pdf_file_manager`, and command prompts replicate traversal logic in prose. This creates duplication and makes non-registry consumers depend on registry-adjacent code for basic path utilities.
-
-This proposal creates a small, registry-agnostic filesystem utility layer under `ai_study_buddy.files`.
+Previously, root resolution and leaf-folder rules lived in `pdf_file_manager` or were duplicated in Cursor command prose. Extracting a registry-agnostic layer reduced coupling and gave non-registry tools (e.g. `root_pdf_browser`) a single import surface.
 
 ---
 
 ## Scope
 
-### In scope
+### Shipped (v0.1.x–v0.2.0)
 
-- Root resolution helpers for DaydreamEdu and GoodNotes.
-- Generic leaf-folder traversal by direct file extensions.
-- Policy-based exclusions via one absolute-path list of leaf folders.
-- Full call-site migration from `pdf_file_manager` root resolvers to `ai_study_buddy.files`.
+- Root resolution: `resolve_daydreamedu_root()`, `resolve_goodnotes_root()`
+- Generic leaf traversal: `list_leaf_folders_under_root(...)`
+- Profile wrappers: `list_daydreamedu_leaf_folders_under_root(...)`, `list_goodnotes_leaf_folders_under_root(...)` (with `exclude_not_completed` on GoodNotes)
+- GoodNotes tree gate for browsers: `is_goodnotes_excluded_relative_path(...)`
+- Local root config under `ai_study_buddy/local_*_root*.txt` (moved from `pdf_file_manager/`)
+- Registry path correlation helpers in `pdf_registry_paths.py` (imports `PdfFileManager`; used by leaf-registry reports)
+- Full call-site migration: no `resolve_*_root` imports from `pdf_file_manager`
 
-### Out of scope
+### Out of scope (unchanged)
 
-- Registry lookups (`PdfFileManager`, scan roots, registered paths).
-- File metadata classification.
-- Any mutation workflow (move/compress/register/link).
+- Registry mutations (move, compress, register, link)
+- File metadata classification (`file_type`, naming conventions beyond path sets)
+- Non-PDF ingestion pipelines
 
 ---
 
-## Package Layout
+## Package layout
 
 ```text
-ai_study_buddy/files/
-  __init__.py
-  roots.py
-  leaf_folders.py
-  README.md
-  CHANGELOG.md
-  SPEC.md
-  TESTING.md
-  tests/
-    __init__.py
-    conftest.py
-    test_roots.py
-    test_leaf_folders.py
-    fixtures/
+ai_study_buddy/
+  local_daydreamedu_root.txt          # gitignored; see *.example.txt
+  local_goodnotes_root.txt
+  files/
+    __init__.py                       # public re-exports
+    roots.py
+    leaf_folders.py
+    pdf_registry_paths.py             # optional; imports PdfFileManager
+    README.md
+    SPEC.md
+    CHANGELOG.md
+    TESTING.md
+    tests/
+      test_roots.py
+      test_leaf_folders.py
+      test_pdf_registry_paths.py
+      fixtures/
 ```
 
 ### `roots.py`
 
-Owns root discovery for local synced folders:
-
 - `resolve_daydreamedu_root() -> Path | None`
 - `resolve_goodnotes_root() -> Path | None`
 
-Resolution order remains consistent with current behavior:
+Resolution order:
 
-1. environment variable (`DAYDREAMEDU_ROOT` / `GOODNOTES_ROOT`)
-2. package-local config file (`local_*_root.txt`)
-3. GoodNotes sibling discovery from DaydreamEdu parent (`.../GoodNotes`) for GoodNotes only
+1. Environment variable (`DAYDREAMEDU_ROOT` / `GOODNOTES_ROOT`)
+2. Gitignored file `ai_study_buddy/local_*_root.txt`
+3. GoodNotes only: sibling `DaydreamEdu.parent / "GoodNotes"` when DaydreamEdu root is known
 
 ### `leaf_folders.py`
 
-Owns generic traversal:
+- `list_leaf_folders_under_root(root, *, include_suffixes, excluded_leaf_folders=...) -> list[Path]`
+- `list_daydreamedu_leaf_folders_under_root(root) -> list[Path]`
+- `list_goodnotes_leaf_folders_under_root(root, *, exclude_not_completed=True) -> list[Path]`
+- `is_goodnotes_excluded_relative_path(rel, *, exclude_not_completed=True) -> bool`
 
-- `list_leaf_folders_under_root(root: Path, *, include_suffixes: set[str], excluded_leaf_folders: set[Path] = set()) -> list[Path]`
+**Leaf folder:** a directory with at least one **direct** file whose suffix is in `include_suffixes` (case-insensitive). Returns **sorted absolute** paths.
 
-Where:
+### `pdf_registry_paths.py` (v0.2.0)
 
-- **Leaf folder** means: a directory containing at least one direct file with suffix in `include_suffixes` (case-insensitive).
-- `excluded_leaf_folders` contains absolute folder paths; if a discovered leaf path is in this set, exclude it.
-- Parent-folder filtering is represented explicitly by listing excluded leaf folders as absolute paths under the root.
-
-Optional convenience wrappers can encode current defaults:
-
-- `list_daydreamedu_leaf_folders_under_root(...)`
-- `list_goodnotes_leaf_folders_under_root(...)`
+Centralizes “filesystem leaf vs registry row” logic for DaydreamEdu / GoodNotes leaf-registry Cursor commands. Examples: `RegistryPathIndex.from_pdf_file_manager()`, `leaf_folder_registry_status`, `partition_*_leaf_folders`, `registration_buckets`. See [SPEC](../files/SPEC.md) and [L4_FILE_FRAMEWORK](./L4_FILE_FRAMEWORK.md).
 
 ---
 
-## Policy Profiles (Current Command Parity)
+## Policy profiles (command parity)
 
-These are not hardcoded into the generic function, but represented as policy defaults:
+Profile defaults match `.cursor/commands/*-leaf-registry-report.md` and [L4_FILE_FRAMEWORK](./L4_FILE_FRAMEWORK.md):
 
-- **GoodNotes report defaults**
-  - include suffixes: `{".pdf"}`
-  - excluded leaf folders (absolute): all leaf folders under root that are either:
-    - equal to root (`"."`), or
-    - under any path containing a segment matching `^x[A-Z].*$` (lowercase `x`, second character uppercase), or
-    - under any path containing a segment `Not completed` (case-insensitive), **unless** callers use **`list_goodnotes_leaf_folders_under_root(..., exclude_not_completed=False)`** (e.g. browse WIP PDFs — not for registration-gap reports)
+| Profile | Suffixes | Exclusions |
+|---------|----------|------------|
+| **DaydreamEdu** | `{".pdf"}` | Root-as-leaf (`.` only when direct PDFs exist under sync root) |
+| **GoodNotes (reports)** | `{".pdf"}` | Root-as-leaf; segment `^x[A-Z].*$`; segment `Not completed` (case-insensitive) when `exclude_not_completed=True` (default) |
+| **GoodNotes (browse)** | `{".pdf"}` | Same except `exclude_not_completed=False` — includes WIP `Not completed` subtrees (`root_pdf_browser`) |
 
-- **DaydreamEdu report defaults**
-  - include suffixes: `{".pdf"}`
-  - excluded leaf folders (absolute): leaf folders equal to root (`"."`) only when the sync root qualifies as a leaf (direct PDFs under `DAYDREAMEDU_ROOT`) — parity with `.cursor/commands/daydreamedu-leaf-registry-report.md` and [`L4_FILE_FRAMEWORK.md`](./L4_FILE_FRAMEWORK.md).
-
-This preserves deterministic behavior while keeping API generic for future `.md`, `.png`, etc.
+The generic `list_leaf_folders_under_root` stays policy-agnostic; wrappers and `is_goodnotes_excluded_relative_path` encode the profiles above.
 
 ---
 
-## API Design Principles
+## Design principles
 
-1. **Registry-agnostic by construction**  
-   `ai_study_buddy.files` must not import `PdfFileManager`.
-
-2. **Deterministic traversal**  
-   Return sorted absolute paths for stability in tests and reports.
-
-3. **Explicit policy**  
-   Avoid hidden behavior per root type in the generic function; pass exclusions explicitly or use named wrappers.
-
-4. **Composable**  
-   Registry-aware reports should compose as:
-   - list qualifying leaf folders (`ai_study_buddy.files`)
-   - compare to registry/scan roots (`pdf_file_manager`)
+1. **Core modules are registry-agnostic** — `roots.py` and `leaf_folders.py` do not import `PdfFileManager`.
+2. **Registry correlation is explicit** — `pdf_registry_paths.py` may import `pdf_file_manager`; callers that only need paths use `roots` / `leaf_folders`.
+3. **Deterministic traversal** — sorted absolute paths for stable tests and reports.
+4. **Composable reports** — list leaves (`ai_study_buddy.files`) then compare to registry / scan roots (`pdf_registry_paths` + `PdfFileManager`).
 
 ---
 
-## Migration Plan
+## Consumers
 
-1. **Create new package**
-   - add `ai_study_buddy/files/roots.py` and `leaf_folders.py`
-   - export symbols from `ai_study_buddy/files/__init__.py`
-   - move local root config files from `ai_study_buddy/pdf_file_manager/` to `ai_study_buddy/`:
-     - `local_daydreamedu_root.txt`
-     - `local_daydreamedu_root.example.txt`
-     - `local_goodnotes_root.txt`
-     - `local_goodnotes_root.example.txt`
-
-2. **Full call-site migration (no compatibility shim)**
-   - migrate all resolver imports to `ai_study_buddy.files.roots`
-   - remove resolver definitions/exports from `pdf_file_manager`
-   - fail migration if any resolver imports from `pdf_file_manager` remain
-
-3. **Move command/script consumers**
-   - update leaf-registry report commands/scripts to call `ai_study_buddy.files` traversal
-   - keep registry comparison logic where it belongs (`pdf_file_manager`)
-
-4. **Add tests**
-   - root resolution tests (env var, local file, sibling discovery)
-   - leaf traversal tests for:
-     - extension filtering
-    - excluded leaf folders (absolute paths)
-     - deterministic ordering
-
-5. **Verification and finalize**
-   - run repository-wide import audit to confirm zero remaining resolver imports from `pdf_file_manager`.
+| Consumer | Uses |
+|----------|------|
+| `pdf_file_manager` scripts / skills | `resolve_*_root`, leaf lists, `pdf_registry_paths` for reports |
+| `.cursor/commands/*-leaf-registry-report.md` | Same policy as package wrappers |
+| `root_pdf_browser` | Roots + GoodNotes browse profile (`exclude_not_completed=False`) |
 
 ---
 
-## Detailed TODO Checklist (Implementation Monitoring)
+## Implementation record
+
+Migration from `pdf_file_manager`-embedded resolvers completed in Phases 1–6 (all checklist items done). Highlights:
+
+- Live smoke (read-only): `list_daydreamedu_leaf_folders_under_root(resolve_daydreamedu_root())` → 91 leaves; `list_goodnotes_leaf_folders_under_root(resolve_goodnotes_root())` → 25 leaves (counts are machine/data-dependent).
+- Import audit: zero `resolve_daydreamedu_root` / `resolve_goodnotes_root` imports from `pdf_file_manager`.
+- Tests: `pytest ai_study_buddy/files/tests/` (see [TESTING](../files/TESTING.md)).
+
+<details>
+<summary>Phase checklist (collapsed)</summary>
 
 ### Phase 1 — Package scaffolding
-- [x] Create `ai_study_buddy/files/__init__.py` with stable public exports.
-- [x] Create `ai_study_buddy/files/roots.py` with `resolve_daydreamedu_root()` and `resolve_goodnotes_root()`.
-- [x] Create `ai_study_buddy/files/leaf_folders.py` with `list_leaf_folders_under_root(...)`.
-- [x] Move these four local root config files from `ai_study_buddy/pdf_file_manager/` to `ai_study_buddy/` using `mv`:
-  - [x] `local_daydreamedu_root.txt`
-  - [x] `local_daydreamedu_root.example.txt`
-  - [x] `local_goodnotes_root.txt`
-  - [x] `local_goodnotes_root.example.txt`
+- [x] `__init__.py`, `roots.py`, `leaf_folders.py`
+- [x] Moved `local_*_root*.txt` from `pdf_file_manager/` to `ai_study_buddy/`
 
 ### Phase 2 — Core implementation
-- [x] Implement root resolution parity with current behavior: env var -> local file -> (GoodNotes only) sibling discovery.
-- [x] Update root resolver local-file lookup paths to the new `ai_study_buddy/local_*_root*.txt` locations.
-- [x] Implement case-insensitive suffix filtering for direct files in `list_leaf_folders_under_root`.
-- [x] Implement deterministic ordering of returned absolute leaf-folder paths.
-- [x] Implement `excluded_leaf_folders` matching as exact absolute-path exclusions.
-- [x] Add convenience wrappers for DaydreamEdu/GoodNotes policy defaults.
+- [x] Root resolution parity; suffix filtering; deterministic ordering; profile wrappers
 
-### Phase 3 — Profile helpers for command parity
-- [x] Implement helper to compute GoodNotes excluded leaf folders as absolute paths (root, any path containing segment matching `^x[A-Z].*$`, any path containing `Not completed` segment).
-- [x] Implement helper to compute DaydreamEdu excluded leaf folders as absolute paths (root-as-leaf only).
-- [x] Validate helper output against current cursor-command definitions on representative sample trees.
+### Phase 3 — Profile helpers
+- [x] GoodNotes / DaydreamEdu exclusion helpers; validated against command definitions
 
-### Phase 4 — Compatibility and migration
-- [x] Migrate all resolver imports to `ai_study_buddy.files.roots` (no compatibility re-export).
-- [x] Update `pdf_file_manager` docs to reference `ai_study_buddy.files` as canonical owner.
-- [x] Update leaf-registry report command implementations to call new traversal utilities.
-- [x] Identify and migrate internal imports that should move from `pdf_file_manager` to `ai_study_buddy.files`.
-- [x] Remove resolver exports/definitions from `pdf_file_manager` once import audit is clean.
+### Phase 4 — Migration
+- [x] All resolver imports → `ai_study_buddy.files`; removed from `pdf_file_manager`
 
 ### Phase 5 — Testing
-- [x] Add unit tests for root resolution (env var, local file, sibling discovery, missing root).
-- [x] Add unit tests for leaf detection with mixed extension cases (`.PDF`, `.pdf`, etc.).
-- [x] Add unit tests for `excluded_leaf_folders` absolute-path filtering.
-- [x] Add parity tests for GoodNotes and DaydreamEdu policy helper behavior.
-- [x] Add regression tests ensuring deterministic return order.
+- [x] Unit + parity tests for roots, leaves, policies
 
-### Phase 6 — Verification and rollout
-- [x] Run targeted test suite for `ai_study_buddy.files` and `pdf_file_manager` integration.
-- [x] Run end-to-end dry run of both leaf-registry reports and compare output with pre-refactor baseline.
-  - **Done (filesystem leg):** On real configured roots, `list_daydreamedu_leaf_folders_under_root(resolve_daydreamedu_root())` returned **91** leaf folders; `list_goodnotes_leaf_folders_under_root(resolve_goodnotes_root())` returned **25** leaf folders. Read-only traversal; no registry mutations. No saved pre-refactor baseline artifact was available; parity is covered by unit tests plus this live smoke.
-- [x] Document any expected diffs and confirm they are intentional.
-  - **N/A for smoke:** No diff vs frozen baseline file. Intentional scope: package split and config path move only; leaf counts are data-dependent.
-- [x] Run repository-wide `rg` check to verify zero imports of `resolve_daydreamedu_root`/`resolve_goodnotes_root` from `pdf_file_manager`.
-- [x] Add rollback note: if regressions are found, restore resolver imports in callers from a single migration commit rollback.
-  - **Rollback:** Revert the migration commit (or restore `ai_study_buddy/files/` removal and re-add resolver exports in `pdf_file_manager` if you must hotfix without git revert). Prefer `git revert <merge_sha>` so history stays clear.
+### Phase 6 — Verification
+- [x] Targeted pytest; live smoke; `rg` import audit; rollback note (revert migration commit)
+
+</details>
 
 ---
 
-## Risks and Mitigations
+## Version history (package)
 
-- **Risk: behavior drift during extraction**
-  - Mitigation: parity tests that validate GoodNotes/DaydreamEdu profiles against current command definitions.
+| Version | Notes |
+|---------|--------|
+| **v0.2.0** | `pdf_registry_paths` — registry correlation for leaf-registry reports |
+| **v0.1.3** | `is_goodnotes_excluded_relative_path` for tree browsers |
+| **v0.1.2** | GoodNotes `exclude_not_completed` keyword on list wrapper |
+| **v0.1.1** | Leaf profile parity with L4 framework + registry-report commands |
+| **v0.1.0** | Initial package; migration complete |
 
-- **Risk: unclear ownership across packages**
-  - Mitigation: enforce one-way dependency (`pdf_file_manager` -> `ai_study_buddy.files`, never reverse).
-
-- **Risk: over-generalization too early**
-  - Mitigation: keep v1 API minimal (roots + leaf listing only), add new primitives only when a second caller needs them.
+Full detail: [CHANGELOG](../files/CHANGELOG.md).
 
 ---
 
-## Decision
+## Decision (accepted)
 
-Adopt `ai_study_buddy.files` as the shared filesystem utility package for root resolution and leaf-folder traversal. Keep `pdf_file_manager` focused on registry semantics and compose filesystem traversal from the new package.
-
+`ai_study_buddy.files` is the canonical owner of root resolution and leaf-folder traversal. `pdf_file_manager` focuses on registry semantics and composes filesystem traversal from this package. Optional registry correlation lives in `pdf_registry_paths.py`, not in the core modules.
