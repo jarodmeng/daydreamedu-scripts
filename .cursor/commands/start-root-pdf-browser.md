@@ -24,6 +24,17 @@ Start the **Root PDF browser** local server (browse `DAYDREAMEDU_ROOT` / `GOODNO
 
 3. **Tell the user:** read the printed **URL**, **PID**, and **log path**. The server process still **opens the default browser** by default (same as `serve`). Use forwarded **`--no-browser`** to skip.
 
+### Deep links (v0.1.6)
+
+Open a specific PDF in the two-pane UI:
+
+`http://127.0.0.1:8770/?id=<root_id>&rel=<posix/path/from/root/to/file.pdf>`
+
+- `id` — `daydreamedu` or `goodnotes` (from `/api/config`).
+- `rel` — path under that sync root with `/` separators.
+
+Used by **Student File Browser** **View PDF** links. The app expands the tree on load (best effort) and keeps `id` / `rel` in the URL when navigating.
+
 ### Attached mode (optional)
 
 If the user explicitly wants one terminal with **Ctrl+C** stopping the server (blocking `serve_forever`), run instead:
