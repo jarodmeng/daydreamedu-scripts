@@ -128,6 +128,80 @@ How to run:
 
 Exit code is **`0`** when there are **no** gap rows under the chosen filters, and **`1`** when at least one completion is still missing a template link (**`2`** if the DB file is missing). Human-readable mode prints a short summary plus a grouped table; JSON mode emits `summary`, `filters`, and a `gaps` array.
 
+### Back-generate templates from D_ROOT completions (`reprocess-wa-exam-template`)
+
+Use this when a **student-scoped completion** under **`DAYDREAMEDU_ROOT`** (school-returned weighted assessment or exam, usually scanned with handwriting) should yield a **general-scoped template** plus a **`completed_from`** registry link. This is the standard remediation for gap-report rows where the completion exists on disk and in the registry but no template has been created yet.
+
+- **Skill (operator workflow):** [`.cursor/skills/reprocess-wa-exam-template/SKILL.md`](../../.cursor/skills/reprocess-wa-exam-template/SKILL.md) — follow it end-to-end; registry moves/scans/links go through [`pdf-file-manager`](../../.cursor/skills/pdf-file-manager/SKILL.md) / `PdfFileManager`, not ad hoc SQL.
+- **When it applies:** Scanned completions are registered (or about to be) as `is_template=false` mains, often as `_raw_` + `_c_` pairs; the cleaned “empty” paper should live under `DAYDREAMEDU_ROOT/template/<subject>/<grade>/<doc_type>/` and be registered with `is_template=true`.
+- **Canonical source path (per list row):** `DAYDREAMEDU_ROOT/completion/<subject>/<student_email>/<grade>/<doc_type>/<file>.pdf` with `<grade>` in `P1`–`P6` or `PSLE`. Paths outside this layout are rejected (fail-fast).
+- **Canonical template destination (per row):** `DAYDREAMEDU_ROOT/template/<subject>/<grade>/<doc_type>/<canonical_basename>.pdf` where `canonical_basename` strips at most one leading `_raw_` from the working name.
+
+**Inputs the operator must supply**
+
+1. A **list txt** of absolute PDF paths (one per line; `#` comments allowed), in merge/split order.
+2. Confirmation of the **external-cleaning handoff** (default merged/cleaned artifacts at repo root unless overridden).
+3. If the batch spans **more than one** `(subject, grade, doc_type)` template branch, an explicit **`<doc label>`** (or full path override) for Phase A merged / Phase B cleaned files—there is no safe default across mixed branches.
+
+List lines may name `_c_` completion mains; Phase A merges the sibling `_raw_` PDFs in list order instead. Multi-leaf batches still produce **one** merged PDF for external cleanup, then Phase B splits once and routes each segment to **that row’s** template folder and links against **that row’s** `student_dir`.
+
+**Phases (summary)**
+
+| Phase | Purpose |
+|-------|---------|
+| **A** | Fail-fast validation → move completions into canonical `completion/...` paths if needed (registry-aware `move_file` when registered) → merge `_raw_` sources → stop with `<doc label> - merged.pdf` for **external** cleanup → expect `<doc label> - cleaned.pdf` back at `DAYDREAMEDU_ROOT`. |
+| **B** | Split cleaned PDF using per-row page counts from each `student_dir` (prefer `_c_<name>.pdf` over plain `<name>.pdf`) → place segments under per-row `template/...` → `scan_for_new_files` on all affected template and student dirs → set template/completion flags → `link_to_template(..., inherit_metadata=True)` per row → verify links and paths → trash merged/cleaned temporaries. |
+
+**Relation to other utilities**
+
+- Run **`completion_template_link_gap_report`** (above) to enumerate completions still missing a template link; use this skill for **exam / weighted assessment** (and similar) batches that need a cleaned template derived from scans, not for book units misfiled under `template/.../Book/` (see **Re-scope misfiled book completions** below).
+- After Phase B, each completion main should resolve a template via `PdfFileManager.get_template` / `completed_from`; re-run the gap report or **`validate_pdf_registry_integrity`** to confirm.
+
+### Re-scope misfiled book completions (`reprocess-student-completion-from-general`)
+
+Use this when **book unit PDFs were scanned and registered under the general template branch** but are actually a **student’s completions**. The workflow **moves** the existing registered raw/main pair into `completion/...`, **detaches** template-only book ownership (group membership, `book_answer_mapping`), **back-generates** cleaned template units under the original `template/.../Book/<book name>/` folder, then **restores** mappings and **`completed_from`** links.
+
+- **Skill (operator workflow):** [`.cursor/skills/reprocess-student-completion-from-general/SKILL.md`](../../.cursor/skills/reprocess-student-completion-from-general/SKILL.md) — two-phase with a **hard checkpoint** between phases; registry path changes use `PdfFileManager.move_file(...)` for listed rows (not shell `mv` alone).
+- **When it applies:** List entries are `_c_` mains (with linked/sibling `_raw_`) or legacy `_raw_` rows under one book folder; all lines must be the **same** `.../Book/<book name>/` tree. Mixed books or paths that already include a student-email segment are rejected.
+- **Contrast with `reprocess-wa-exam-template`:** That skill starts from **correct** `completion/...` exam/WA paths and creates templates. This skill starts from **incorrect** `template/.../Book/...` paths, reclassifies them as completions, then recreates templates in place.
+
+**Canonical paths**
+
+| Role | Path |
+|------|------|
+| **Source (list rows)** | `DAYDREAMEDU_ROOT/template/<subject>/<grade>/Book/<book name>/<file>.pdf` |
+| **Student destination (Phase A)** | `DAYDREAMEDU_ROOT/completion/<subject>/<student_email>/<grade>/Book/<book name>/<same basename>.pdf` |
+| **Template restore (Phase B)** | Split segments return to the **original** `template/.../Book/<book name>/` folder |
+
+`<grade>` is `P1`–`P6` or `PSLE`. Folder segment is **`student.email`** from `PdfFileManager.get_student(student_id)`, not the bare `student_id`. Technical prefixes (`_c_`, `_raw_`) are preserved on move. Unit matching across phases uses `normalize_pdf_display_name(...)` as the canonical **unit key**.
+
+**Inputs the operator must supply**
+
+1. **List txt** — absolute paths, one per line, `#` comments allowed; single book folder only.
+2. **`student_id`** — must resolve via `get_student`; destination uses `student.email`.
+3. **External-cleaning confirmation** for Phase A handoff and, before Phase B, the **cleaned PDF path** (default `<book name> - cleaned.pdf` at `DAYDREAMEDU_ROOT`).
+4. Phase B uses the **same txt list** as Phase A; load the Phase A snapshot (`<book name> - reprocess-snapshot.json` by default) for mapping payloads and row order.
+
+**Phases (summary)**
+
+| Phase | Purpose |
+|-------|---------|
+| **A** | Preflight (registered raw/main pairs, unique unit keys, collision checks, snapshot book groups / `book_answer_mapping` / links) → `move_file` main + raw into student mirror → verify `is_template=false` and `student_id` → remove book group + delete saved unit mappings (payload kept in snapshot) → merge **raw** sources to `<book name> - merged.pdf` → **stop** for external cleanup. |
+| **Checkpoint** | Do not start Phase B until the cleaned PDF exists and is confirmed. |
+| **B** | Split cleaned PDF by moved completion main page counts → place units in original template book folder → `scan_for_new_files` (dry run, then apply) on template + student book dirs → `ensure_book_group_from_path` → `set_book_answer_mapping` from snapshot onto **new** template mains → `link_to_template` per unit → four-checkpoint validation + **`validate_pdf_registry_integrity`** → trash merged/cleaned/snapshot artifacts. |
+
+**Registry specifics worth remembering**
+
+- Phase A **preserves** raw/main relation ids while changing paths and scope; relations are id-based, not path-based.
+- Template-only state removed from moved mains must be **re-applied** in Phase B: book **group** membership and per-unit **answer-page mappings** come from the snapshot, not from the moved completion rows.
+- Existing `get_template` / `get_completions` on listed mains requires explicit user approval before relink or dependent-link migration.
+- One txt file = one book; page-count mismatch after cleaning is a hard stop (no guessed split boundaries).
+
+**Relation to other utilities**
+
+- Not for exam/WA scans already under `completion/...` — use **`reprocess-wa-exam-template`** (above).
+- After Phase B, run **`completion_template_link_gap_report`** and **`validate_pdf_registry_integrity`** to confirm links, groups, and mappings.
+
 ### Registry integrity audit script
 
 The `ai_study_buddy/pdf_file_manager/scripts/validate_pdf_registry_integrity.py` script is a reproducible integrity audit for the registry and on-disk state. It checks common drift and consistency issues such as missing on-disk files for registered paths, student/general scope template flag mismatches, missing `student_id` in student scope, raw/main metadata drift, raw/main relation consistency, invalid enum-like metadata values (`subject`, `metadata.grade_or_scope`, legacy `metadata.chinese_variant=foundation`), and invalid template `doc_type` values.
