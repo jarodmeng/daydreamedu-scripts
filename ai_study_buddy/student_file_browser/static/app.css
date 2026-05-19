@@ -1,0 +1,210 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: system-ui, -apple-system, sans-serif;
+  margin: 0;
+  padding: 1rem 1.5rem 2rem;
+  background: #f4f5f7;
+  color: #1a1a1a;
+}
+
+header h1 {
+  margin: 0 0 0.25rem;
+  font-size: 1.5rem;
+}
+
+.subtitle {
+  margin: 0 0 1rem;
+  color: #555;
+  font-size: 0.9rem;
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1rem;
+  align-items: flex-end;
+  padding: 1rem;
+  background: #fff;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  margin-bottom: 1rem;
+}
+
+.filters label {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.75rem;
+  color: #444;
+  gap: 0.25rem;
+}
+
+.filters select,
+.filters input {
+  min-width: 8rem;
+  padding: 0.35rem 0.5rem;
+  font-size: 0.9rem;
+}
+
+.filters label.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.filters .apply-filters {
+  padding: 0.45rem 1.1rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid #2c5282;
+  border-radius: 6px;
+  background: #2b6cb0;
+  color: #fff;
+}
+
+.filters .apply-filters:hover:not(:disabled) {
+  background: #2c5282;
+}
+
+.filters .apply-filters:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
+
+.filter-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: flex-end;
+}
+
+.filters .reset-filters {
+  padding: 0.45rem 1.1rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid #adb5bd;
+  border-radius: 6px;
+  background: #fff;
+  color: #333;
+}
+
+.filters .reset-filters:hover:not(:disabled) {
+  background: #f1f3f5;
+  border-color: #868e96;
+}
+
+.filters .reset-filters:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
+
+.meta {
+  font-size: 0.85rem;
+  color: #555;
+  margin-bottom: 0.75rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+}
+
+.card {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.card .icon {
+  width: 48px;
+  height: 48px;
+  background: #e8eaed;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  color: #888;
+}
+
+.card h3 {
+  margin: 0;
+  font-size: 0.95rem;
+  word-break: break-word;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.chip {
+  font-size: 0.7rem;
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+  background: #eef1f6;
+}
+
+.chip.ok,
+.chip.status-ok {
+  background: #d4edda;
+  color: #155724;
+}
+
+.chip.warn,
+.chip.status-warn {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.chip.status-info {
+  background: #d1ecf1;
+  color: #0c5460;
+}
+
+.chip.status-neutral {
+  background: #e2e3e5;
+  color: #383d41;
+}
+
+.status-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.status-chips .chip {
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+}
+
+.card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: auto;
+}
+
+.card-actions button,
+.card-actions a {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+}
+
+.empty {
+  color: #666;
+  padding: 2rem;
+  text-align: center;
+}

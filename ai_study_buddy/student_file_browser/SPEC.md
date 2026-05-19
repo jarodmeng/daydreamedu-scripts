@@ -1,0 +1,43 @@
+# Specification — Student File Browser
+
+## HTTP routes
+
+| Path | Method | Description |
+|------|--------|-------------|
+| `/` | GET | Static UI |
+| `/api/health` | GET | `{ status, index_count, files_version }` |
+| `/api/config` | GET | Roots, students, filter options; accepts same query params as inventory for contextual `show_is_registered_filter` |
+| `/api/inventory` | GET | Filtered cards; query params below |
+| `/api/pdf` | GET, HEAD | `id` + `rel` under root; leaf-folder guard |
+
+## Inventory query parameters
+
+| Param | Values | Default |
+|-------|--------|---------|
+| `scope` | `completion`, `template` | `completion` |
+| `student` | registry `students.id` (e.g. `winston`) or empty | empty |
+| `subject` | `chinese`, `english`, `math`, `science`, `all` | `all` |
+| `grade` | `P1`…`P6`, `PSLE`, `all` | `all` |
+| `doc_type` | `exam`, `book`, `exercise`, `all` | `all` |
+| `book` | book group name (path segment after `Book/`) | empty (= all books) |
+| `is_registered` | `true`, `false` | omitted |
+| `has_template` | `true`, `false` | omitted |
+| `has_marking` | `true`, `false` | omitted |
+| `review_status` | `not_started`, `in_progress`, `completed` | omitted |
+
+## Inventory item fields
+
+See `OnDiskMainPdfCard.to_dict()` in `ai_study_buddy.files.on_disk_inventory`.
+
+## UI behaviour
+
+- Filter controls do not refresh results on change; click **Filter** to run `/api/inventory` and update the URL. Each apply refreshes dropdown options from the contextual slice (`subjects`, `grades`, `doc_types`, `student_ids`, `book_names`, workflow visibility) in response `meta`. **Reset** restores defaults and reloads.
+- Card **View PDF** opens Root PDF Browser with `?id=` + `rel=` deep link (not inline `/api/pdf`).
+- Changing **Scope** or **Type** updates dependent controls (student disabled, book name dropdown when Type = Book) without loading inventory. Book options come from `book_names` in `/api/config` and `/api/inventory` meta (contextual to other filters).
+- **Registered** when the slice mixes registered and unregistered. **Template** / **Marking** / **Review** when the slice has ≥2 registered completions or more than one distinct value for that dimension; workflow filters apply to registered completions only.
+- In-flight inventory requests are dropped when a newer **Filter** click supersedes them.
+
+## Environment
+
+- `PDF_REGISTRY_PATH` — registry SQLite (optional)
+- `AI_STUDY_BUDDY_CONTEXT_ROOT` — marking/review context (default `ai_study_buddy/context`)
