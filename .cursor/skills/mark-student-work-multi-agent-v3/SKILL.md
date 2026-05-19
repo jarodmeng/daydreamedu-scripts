@@ -27,10 +27,18 @@ Use these workflow APIs from `ai_study_buddy.marking.workflows.mark_student_work
 
 ## Phase A contract (must pass before any phase execution)
 
+0. Capture one canonical run timestamp at orchestration start (single source of truth).
+   - Generate once using the runtime clock at invocation time (do not hardcode placeholders like `00:00:00`).
+   - Reuse this same value for:
+     - `resolve_or_create_bundle_for_v3_run(..., run_marked_at=...)`
+     - any artifact path derivation for this run
+     - final artifact timestamps (`created_at`, `updated_at`, review metadata timestamps).
+   - Do not regenerate a second timestamp later in the run unless you are intentionally starting a new run.
 1. Normalize user input into `V3InputRequest` from one of:
    - `attempt_file_id_or_path` (`file_id`)
    - `attempt_file_id_or_path` (full path)
    - `student_name + file_name`
+   - for `student_name + file_name`, treat the provided `file_name` as a candidate exact `normal_name` value first (no punctuation/casing rewrites before exact lookup).
 2. Resolve attempt file through `resolve_attempt_input_to_pdf_file(...)`.
    - This enforces registration-first behavior for unregistered path input.
 3. Resolve canonical marking context through `resolve_v3_marking_context(...)`.
@@ -41,6 +49,16 @@ Use these workflow APIs from `ai_study_buddy.marking.workflows.mark_student_work
    - before creating a new bundle, call `resolve_or_create_bundle_for_v3_run(...)` so existing in-progress bundles are resumed automatically.
    - after successful finalize, call `cleanup_stale_partials_for_v3_run(...)` (or `collect_stale_partial_bundle_paths(...)` + `move_bundle_to_trash(...)`) to remove stale partial bundles.
    - update run progress with `write_run_state(...)` at major boundaries (`phase_ab_done`, `phase2_done`, `phase3_done`, `finalized`).
+
+### Phase A filename resolution policy (efficiency + correctness)
+
+When user intent is "mark this completion file" and the invocation provides a human-readable file title:
+
+1. Use exact `normal_name` equality against the provided title first.
+2. Scope by student identity in the same query (`student_id` or resolved student record).
+3. If multiple exact matches exist (for example both `_raw_` and `_c_` with the same `normal_name`), prefer `_c_` as the attempt input for marking runs.
+4. Only if exact `normal_name` match returns zero rows, fall back to broader matching (`contains` / fuzzy / path search).
+5. Persist which branch was used (`exact_normal_name`, `exact_with_student_scope`, or fallback branch) in the context-resolution debug provenance artifact.
 
 ## Phase B contract (must pass before Phase C+)
 
