@@ -16,6 +16,7 @@ Primary automated coverage lives in:
 - `ai_study_buddy/marking/tests/test_marking_time.py`
 - `ai_study_buddy/marking/tests/test_migration.py`
 - `ai_study_buddy/marking/tests/test_review_workspace_amendments.py`
+- `ai_study_buddy/marking/tests/test_workflow_flags.py` (`v0.3.8`)
 
 These tests cover:
 
@@ -44,6 +45,7 @@ These tests cover:
   - duplicate-ID hard-fail behavior
   - DB/FS lookup and divergence behavior under READ flags
   - `question_page_map` compatibility with `marking_result.v1.6`
+- completion workflow flags shared loader (`v0.3.8`): `load_completion_marking_context`, `completion_workflow_flags`, amendment/review/artifact presence
 - v3 workflow helper/runtime contracts (`v0.3.3`):
   - Phase A input normalization + registration-first resolution
   - Phase B mode precedence/ambiguity and redo-practice golden reference resolution
@@ -79,6 +81,9 @@ python3 -m pytest ai_study_buddy/marking/tests/test_migration.py -q
 
 # Review-domain amendment tests only
 python3 -m pytest ai_study_buddy/marking/tests/test_review_workspace_amendments.py -q
+
+# Completion workflow flags (v0.3.8)
+python3 -m pytest ai_study_buddy/marking/tests/test_workflow_flags.py -q
 
 # file_question_info consumer/read tests (v0.3.2)
 python3 -m pytest ai_study_buddy/marking/tests/test_file_question_info.py -q

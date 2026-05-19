@@ -4,6 +4,10 @@ All notable changes to the **`ai_study_buddy.files`** package are documented her
 
 ---
 
+## [v0.3.1] — Lazy marking import in completion enrichment
+
+- **`completion_enrichment`:** lazy-import `completion_workflow_flags` inside `enrich_registered_completion` to avoid `files` ↔ `marking` circular import when the `files` package is loaded during marking startup.
+
 ## [v0.3.0] — On-disk main-PDF inventory and enrichment
 
 - **`path_facets`:** `PathFacets`, `infer_path_facets()` (Phase A: delegates to `PdfFileManager._infer_from_path`; catches `InvalidDocTypeError`).

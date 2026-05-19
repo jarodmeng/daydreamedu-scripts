@@ -4,6 +4,21 @@ All notable changes to `ai_study_buddy.marking` are documented in this file.
 
 Committed changes under `ai_study_buddy/marking/` should add an entry here and bump **Current version** in `README.md` (semver: **patch** for docs or small renderer tweaks, **minor** for schema or public API changes). `SPEC.md` / `TESTING.md` titles do not carry the package version.
 
+## [0.3.8] - 2026-05-19
+
+Patch: consolidate completion workflow flags for Review Workspace and Student File Browser.
+
+### Fixed
+
+- `files.completion_enrichment`: lazy-import `completion_workflow_flags` so importing `ai_study_buddy.files` (e.g. via `marking.core.artifact_lookup` → `files.roots`) does not circular-import `marking`.
+
+### Changed
+
+- `marking/review/workflow_flags.py`: `load_completion_marking_context` (single load); `completion_workflow_flags`; `_CompletionWorkflowFlags` is module-private.
+- `marking/review/attempt_service.py`: `_attempt_summary` uses `load_completion_marking_context` (no duplicated artifact/review/amendment logic).
+- `files.completion_enrichment` calls `completion_workflow_flags` only; public shape remains `RegisteredCompletionEnrichment`.
+- `marking/tests/test_workflow_flags.py`: unit tests for shared loader.
+
 ## [0.3.7] - 2026-05-12
 
 Patch: relax writer `unit_label` contract to presence-only validation and remove strict path-equivalence gate.

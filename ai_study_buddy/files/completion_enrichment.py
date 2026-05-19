@@ -6,7 +6,6 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from ai_study_buddy.marking.review.repository import StudentReviewRepository
-from ai_study_buddy.marking.review.workflow_flags import completion_workflow_flags
 from ai_study_buddy.pdf_file_manager.pdf_file_manager import PdfFile, PdfFileManager
 
 
@@ -24,6 +23,9 @@ def enrich_registered_completion(
     pfm: PdfFileManager,
     review_repo: StudentReviewRepository,
 ) -> RegisteredCompletionEnrichment:
+    # Lazy import avoids ``files`` ↔ ``marking`` cycle when ``marking`` loads via ``files.roots``.
+    from ai_study_buddy.marking.review.workflow_flags import completion_workflow_flags
+
     flags = completion_workflow_flags(
         completion,
         context_root=context_root,
