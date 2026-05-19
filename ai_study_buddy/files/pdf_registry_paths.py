@@ -47,19 +47,53 @@ class RegistryPathIndex:
     scan_root_resolved_paths: frozenset[str]
     pdf_files_row_count: int
     scan_roots_row_count: int
+    file_by_resolved_path: dict[str, object]
 
     @classmethod
     def from_pdf_file_manager(cls, pfm: PdfFileManager) -> RegistryPathIndex:
         files = pfm.find_files()
         roots = pfm.list_scan_roots()
-        registered = frozenset(resolved_path_from_registry_row(f) for f in files)
+        file_by: dict[str, object] = {}
+        for f in files:
+            key = resolved_path_from_registry_row(f)
+            if key in file_by:
+                # Last wins; duplicate paths should not occur in a healthy registry.
+                pass
+            file_by[key] = f
+        registered = frozenset(file_by.keys())
         scan_roots = frozenset(resolved_path_from_registry_row(r) for r in roots)
         return cls(
             registered_resolved_paths=registered,
             scan_root_resolved_paths=scan_roots,
             pdf_files_row_count=len(files),
             scan_roots_row_count=len(roots),
+            file_by_resolved_path=file_by,
         )
+
+
+def registry_file_for_path(
+    pdf_path: Path | str,
+    index: RegistryPathIndex,
+) -> object | None:
+    """Return the registry row object for *pdf_path*, or ``None`` if unregistered."""
+    key = str(Path(pdf_path).expanduser().resolve())
+    return index.file_by_resolved_path.get(key)
+
+
+def registry_file_type_for_path(
+    pdf_path: Path | str,
+    index: RegistryPathIndex,
+) -> str | None:
+    """Return ``file_type`` for a registered path, or ``None`` when unregistered."""
+    row = registry_file_for_path(pdf_path, index)
+    if row is None:
+        return None
+    return getattr(row, "file_type", None)
+
+
+def has_template_link(pfm: PdfFileManager, completion_file_id: str) -> bool:
+    """True when a ``completed_from`` template is linked to this completion."""
+    return pfm.get_template(completion_file_id) is not None
 
 
 @dataclass(frozen=True)

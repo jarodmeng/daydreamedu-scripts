@@ -82,11 +82,13 @@ def test_pdf_file_registry_status_and_is_pdf_registered(tmp_path: Path) -> None:
     reg_pdf.write_bytes(b"%PDF")
     txt = leaf / "note.txt"
     txt.write_text("x", encoding="utf-8")
+    reg_key = str(reg_pdf.resolve())
     idx = RegistryPathIndex(
-        registered_resolved_paths=frozenset({str(reg_pdf.resolve())}),
+        registered_resolved_paths=frozenset({reg_key}),
         scan_root_resolved_paths=frozenset({str(leaf.resolve())}),
         pdf_files_row_count=1,
         scan_roots_row_count=1,
+        file_by_resolved_path={reg_key: SimpleNamespace(path=str(reg_pdf))},
     )
     s_pdf = pdf_file_registry_status(reg_pdf, idx)
     assert s_pdf == PdfFileRegistryStatus(
@@ -111,11 +113,13 @@ def test_leaf_pdf_file_registry_statuses(tmp_path: Path) -> None:
     p2 = leaf / "b.PDF"
     p1.write_bytes(b"%PDF")
     p2.write_bytes(b"%PDF")
+    reg_key = str(p2.resolve())
     idx = RegistryPathIndex(
-        registered_resolved_paths=frozenset({str(p2.resolve())}),
+        registered_resolved_paths=frozenset({reg_key}),
         scan_root_resolved_paths=frozenset(),
         pdf_files_row_count=1,
         scan_roots_row_count=0,
+        file_by_resolved_path={reg_key: SimpleNamespace(path=str(p2))},
     )
     rows = leaf_pdf_file_registry_statuses(leaf, idx)
     assert [r.basename for r in rows] == ["a.pdf", "b.PDF"]
@@ -131,11 +135,13 @@ def test_leaf_folder_registry_status(tmp_path: Path) -> None:
     reg_pdf.write_bytes(b"%PDF")
     unreg_pdf.write_bytes(b"%PDF")
 
+    reg_key = str(reg_pdf.resolve())
     idx = RegistryPathIndex(
-        registered_resolved_paths=frozenset({str(reg_pdf.resolve())}),
+        registered_resolved_paths=frozenset({reg_key}),
         scan_root_resolved_paths=frozenset({str(leaf.resolve())}),
         pdf_files_row_count=1,
         scan_roots_row_count=1,
+        file_by_resolved_path={reg_key: SimpleNamespace(path=str(reg_pdf))},
     )
 
     st = leaf_folder_registry_status(leaf, root, idx)
@@ -195,6 +201,7 @@ def test_suspicious_all_leaves_marked_non_scan_root() -> None:
         scan_root_resolved_paths=frozenset({"/scan"}),
         pdf_files_row_count=0,
         scan_roots_row_count=1,
+        file_by_resolved_path={},
     )
     st = LeafFolderRegistryStatus(
         leaf_dir=Path("/leaf"),
@@ -206,7 +213,7 @@ def test_suspicious_all_leaves_marked_non_scan_root() -> None:
     )
     assert suspicious_all_leaves_marked_non_scan_root(idx, [st]) is True
     assert suspicious_all_leaves_marked_non_scan_root(
-        RegistryPathIndex(frozenset(), frozenset(), 0, 0),
+        RegistryPathIndex(frozenset(), frozenset(), 0, 0, {}),
         [st],
     ) is False
 
@@ -224,11 +231,13 @@ def test_leaf_registry_statuses_for_included_leaves(tmp_path: Path) -> None:
     leaf.mkdir(parents=True)
     p = leaf / "f.pdf"
     p.write_bytes(b"%PDF")
+    reg_key = str(p.resolve())
     idx = RegistryPathIndex(
-        registered_resolved_paths=frozenset({str(p.resolve())}),
+        registered_resolved_paths=frozenset({reg_key}),
         scan_root_resolved_paths=frozenset(),
         pdf_files_row_count=1,
         scan_roots_row_count=0,
+        file_by_resolved_path={reg_key: SimpleNamespace(path=str(p))},
     )
     rows = leaf_registry_statuses_for_included_leaves([leaf], root, idx)
     assert len(rows) == 1

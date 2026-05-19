@@ -4,6 +4,17 @@ All notable changes to the **`ai_study_buddy.files`** package are documented her
 
 ---
 
+## [v0.3.0] — On-disk main-PDF inventory and enrichment
+
+- **`path_facets`:** `PathFacets`, `infer_path_facets()` (Phase A: delegates to `PdfFileManager._infer_from_path`; catches `InvalidDocTypeError`).
+- **`main_pdfs`:** `is_main_pdf_basename`, `is_inventory_main_pdf`, `list_main_pdfs_in_leaf_folder`, `build_main_pdf_index_for_roots` (explicit `None` skips a root; omit arg to auto-resolve). With `registry_index`, registered paths are mains only when `file_type='main'` (aligned with gap report); unregistered paths still use the non-`_raw_` basename heuristic.
+- **`pdf_registry_paths`:** `RegistryPathIndex.file_by_resolved_path`, `registry_file_for_path`, `registry_file_type_for_path`, `has_template_link`.
+- **`completion_enrichment`:** `enrich_registered_completion` via `marking.review.workflow_flags.completion_workflow_flags` (`RegisteredCompletionEnrichment` only; no exported marking flag type in `files`).
+- **Boundary cleanup:** `attempt_service` shares `load_completion_marking_context` with inventory enrichment; `_CompletionWorkflowFlags` stays private to `marking.review.workflow_flags`.
+- **`on_disk_inventory`:** `OnDiskMainPdfCard` (includes `student_id` from registry/path), `FilterCriteria`, `enrich_on_disk_main_pdf`, `filter_main_pdf_cards`, `inventory_meta`, `build_enriched_inventory`; `filter_meta_for_response` / `filter_dropdown_options` / `workflow_filter_options` expose contextual facet lists, per-option file counts (`*_counts`), and workflow filters (shown only when the slice has >1 distinct value).
+- Tests: `test_path_facets`, `test_main_pdfs`, `test_on_disk_inventory`.
+- Consumer: `ai_study_buddy.student_file_browser` v0.1.0.
+
 ## [v0.2.0] — Centralized PDF registry path correlation (`pdf_registry_paths`)
 
 - New module **`pdf_registry_paths`**: **`resolved_path_from_registry_row`**, **`RegistryPathIndex.from_pdf_file_manager`**, **`direct_pdf_paths_in_leaf_folder`**, **`PdfFileRegistryStatus`**, **`is_pdf_registered`**, **`pdf_file_registry_status`**, **`leaf_pdf_file_registry_statuses`**, **`leaf_folder_registry_status`**, **`partition_daydreamedu_leaf_folders`**, **`partition_goodnotes_leaf_folders`**, **`leaf_registry_statuses_for_included_leaves`**, **`registration_buckets`** / **`ScanRootRegistrationBuckets`**, **`suspicious_all_leaves_marked_non_scan_root`** — aligns with DaydreamEdu / GoodNotes leaf-registry Cursor commands (resolved `str` path sets; no ad hoc SQL).

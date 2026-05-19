@@ -2,7 +2,7 @@
 
 This document is the **contract** for the public Python API of `ai_study_buddy.files`. It is registry-agnostic: no SQLite, no `PdfFileManager`, no scan-root configuration.
 
-**Version:** align with [README.md](./README.md) (package `v0.2.0` baseline).
+**Version:** align with [README.md](./README.md) (package **v0.3.0**).
 
 Core leaf listing and root resolution are **registry-agnostic**. Optional correlation with `pdf_file_manager` / `pdf_registry.db` lives in **`pdf_registry_paths.py`** (see §3).
 
@@ -154,3 +154,39 @@ from ai_study_buddy.files import (
 ```
 
 Submodules may be imported directly (`ai_study_buddy.files.roots`, `ai_study_buddy.files.leaf_folders`, `ai_study_buddy.files.pdf_registry_paths`) for tests or narrow dependencies.
+
+---
+
+## 6. On-disk inventory (v0.3.0)
+
+### 6.1 `path_facets.infer_path_facets(path, *, root_id) -> PathFacets`
+
+Registry-agnostic. Catches `InvalidDocTypeError`; returns `parse_status="invalid"` with `unknown` facets.
+
+### 6.2 `main_pdfs.build_main_pdf_index_for_roots`
+
+- Omit `daydreamedu_root` / `goodnotes_root` to auto-resolve from env/local config.
+- Pass explicit `None` to skip a root.
+- **`registry_index`:** when provided, a path is a main PDF if it is registered with `file_type='main'`; unregistered paths use `is_main_pdf_basename` (non-`_raw_` name). Without an index, only the basename rule applies.
+- GoodNotes: uses `list_goodnotes_leaf_folders_under_root` with default **`exclude_not_completed=True`** (leaf-registry report universe; used by `student_file_browser`).
+- **`exclude_activity_note_completions=True`:** omit completion rows with `doc_type` in `activity`, `note` (`include_in_completion_operator_universe`; templates always kept). Used by `student_file_browser`.
+
+### 6.3 `RegistryPathIndex.file_by_resolved_path`
+
+Map built in `from_pdf_file_manager`. Use `registry_file_for_path` and `has_template_link`.
+
+### 6.4 `completion_enrichment`
+
+- `enrich_registered_completion` calls `marking.review.workflow_flags.completion_workflow_flags` only.
+- Public type: `RegisteredCompletionEnrichment` (not marking’s internal `_CompletionWorkflowFlags`).
+
+### 6.5 `on_disk_inventory`
+
+- `enrich_on_disk_main_pdf` — sets `student_id` on completion rows via `resolve_card_student_id`; unregistered completions get falsy workflow flags.
+- `filter_main_pdf_cards(cards, FilterCriteria, pfm=...)` — `FilterCriteria.student` is registry `students.id` (email accepted for legacy callers).
+- `filter_meta_for_response` — merged dict for UI: facet lists + `*_counts`, plus workflow option keys from `workflow_filter_options`.
+- `filter_dropdown_options` — `scopes`, `subjects`, `grades`, `doc_types`, `student_ids`, `book_names` (each omits its own criterion from the slice).
+- `workflow_filter_options` — contextual `is_registered_options`, `has_template_options`, `has_marking_options`, `review_status_options` and matching `show_*_filter` flags (true only when >1 distinct value in slice).
+- `inventory_meta` — index totals; `show_is_registered_filter` when slice mixes registered/unregistered.
+- `should_show_is_registered_filter` — true when ≥1 unregistered main remains after applying criteria **except** `is_registered`.
+- `distinct_book_group_names` — sorted book group names for `doc_type=book` after other filters (except `book`).

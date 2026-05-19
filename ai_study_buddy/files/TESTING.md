@@ -9,8 +9,10 @@ Tests live next to this package under **`ai_study_buddy/files/tests/`**. They us
 From the **repository root**:
 
 ```bash
-python3 -m pytest ai_study_buddy/files/tests
+python3 -m pytest ai_study_buddy/files/tests -q
 ```
+
+**Last recorded run (v0.3.0):** 2026-05-19 — `52 passed` (repo root, `python3 -m pytest ai_study_buddy/files/tests -q`).
 
 To run together with `pdf_file_manager` config tests (students / scan roots only):
 
@@ -26,6 +28,10 @@ python3 -m pytest ai_study_buddy/files/tests ai_study_buddy/pdf_file_manager/tes
 |------|---------|
 | `tests/test_roots.py` | `resolve_daydreamedu_root` / `resolve_goodnotes_root` (env, file, sibling, missing) |
 | `tests/test_leaf_folders.py` | Leaf listing and profile wrappers |
+| `tests/test_pdf_registry_paths.py` | Registry path index, leaf registration rollups (v0.2+) |
+| `tests/test_path_facets.py` | `infer_path_facets` (v0.3) |
+| `tests/test_main_pdfs.py` | Main-PDF enumeration under leaf folders (v0.3) |
+| `tests/test_on_disk_inventory.py` | `enrich_on_disk_main_pdf`, `filter_main_pdf_cards` (v0.3) |
 | `tests/conftest.py` | Pytest fixtures that copy fixture trees into `tmp_path` |
 | `tests/fixtures/` | Small on-disk trees (see `tests/fixtures/README.md`) |
 

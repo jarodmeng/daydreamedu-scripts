@@ -1,6 +1,6 @@
 # ai_study_buddy.files
 
-**Version: v0.2.0**
+**Version: v0.3.0**
 
 Small helpers for local synced study material: resolve DaydreamEdu and GoodNotes roots from environment or gitignored config files, and list **leaf folders** (directories with direct files matching chosen suffixes) with optional profile-specific exclusions.
 
@@ -14,7 +14,11 @@ The core modules (`roots`, `leaf_folders`) are **registry-agnostic**. For correl
 |--------|------|
 | [`roots.py`](./roots.py) | `resolve_daydreamedu_root()`, `resolve_goodnotes_root()` |
 | [`leaf_folders.py`](./leaf_folders.py) | `list_leaf_folders_under_root()`, profile wrappers for DaydreamEdu / GoodNotes |
-| [`pdf_registry_paths.py`](./pdf_registry_paths.py) | `RegistryPathIndex.from_pdf_file_manager()`, leaf vs registry / scan-root helpers (optional; imports `PdfFileManager`) |
+| [`path_facets.py`](./path_facets.py) | `infer_path_facets()` — path layout → filter dimensions (registry-agnostic) |
+| [`main_pdfs.py`](./main_pdfs.py) | `build_main_pdf_index_for_roots()`, main-PDF enumeration under leaf folders |
+| [`pdf_registry_paths.py`](./pdf_registry_paths.py) | `RegistryPathIndex`, registration helpers, `registry_file_for_path`, `has_template_link` |
+| [`completion_enrichment.py`](./completion_enrichment.py) | Marking / amendment / review flags for registered completions |
+| [`on_disk_inventory.py`](./on_disk_inventory.py) | `enrich_on_disk_main_pdf`, `filter_main_pdf_cards`, `filter_meta_for_response`, `FilterCriteria` |
 
 Public re-exports: [`__init__.py`](./__init__.py).
 
