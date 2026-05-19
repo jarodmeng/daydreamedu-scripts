@@ -52,8 +52,8 @@ Actionable plans for building specific components. Each L4 doc drills into one d
 | [QUESTION_INDEX_SCHEMA](./L4_QUESTION_INDEX_SCHEMA.md) | Proposal (v2): `unit_question_index` — per-template question layout and semantics (vision-LLM pass), bridge between registered template PDFs and enriched `question_objects` / embeddings |
 | [FILE_SYSTEM_MANAGEMENT](./L4_FILE_SYSTEM_MANAGEMENT.md) | **Implemented** — `ai_study_buddy.files` v0.3.0+: roots, leaf-folder profiles, `pdf_registry_paths`, and v0.3.0 on-disk main-PDF inventory (`path_facets`, `on_disk_inventory`, …) |
 | [MARKING_RESULT_ARTIFACT](./L4_MARKING_RESULT_ARTIFACT.md) | `marking_result.v1.6` (implemented): file-canonical JSON marking artifact, human-editable review fields, markdown learning reports derived from JSON, GoodNotes-oriented workflow |
-| [STUDENT_MVP_EXPERIENCE](./L4_STUDENT_MVP_EXPERIENCE.md) | Spec (v0.3): **Review Workspace** shipped in `review_workspace` v0.1.3 (single-student alpha) — attempt index, canonical marking detail, evidence viewing, `student_review_state.v1` notes, and `marking_amendment.v1` human overrides |
-| [STUDENT_FILE_MANAGEMENT](./L4_STUDENT_FILE_MANAGEMENT.md) | **Implemented** — `files` v0.3.0+, `marking` v0.3.8 workflow flags, **Student File Browser** v0.1.0 (8771), `root_pdf_browser` v0.1.6 deep links; operator filter-first inventory |
+| [STUDENT_MVP_EXPERIENCE](./L4_STUDENT_MVP_EXPERIENCE.md) | Spec (v0.3): **Review Workspace** shipped in `review_workspace` v0.1.4 (single-student alpha) — attempt index, deep links, canonical marking detail, evidence viewing, `student_review_state.v1` notes, and `marking_amendment.v1` human overrides |
+| [STUDENT_FILE_MANAGEMENT](./L4_STUDENT_FILE_MANAGEMENT.md) | **Implemented** — `files` v0.3.0+, `marking` v0.3.8 workflow flags, **Student File Browser** v0.1.1 (8771), `root_pdf_browser` v0.1.6 + Review Workspace v0.1.4 deep links; operator filter-first inventory |
 | [LOCAL_LEARNING_DB](./L4_LOCAL_LEARNING_DB.md) | Proposal: create `study_buddy.db` as a local Postgres-shaped SQLite data layer for marking facts, amendments, review state, backup, and future migration |
 
 ## Sources and attribution

@@ -11,8 +11,7 @@
 
 ## P0 — require immediate attention
 
-- [ ] **P0-1** · 2026-05-19 14:00 SGT: **Review Workspace attempt deep links (patch release)** — add URL support to open a specific marked attempt from query params (e.g. `?attempt_id=` on app load, aligned with `GET /api/student/attempts/{attempt_id}`); document in `review_workspace` README/SPEC/CHANGELOG. **Then** patch **`student_file_browser`** so the card **Review Workspace** action links to that URL (registry `file_id` / attempt id) instead of the app root only. Depends on shipped v0.1.0 browser + v0.1.3+ review workspace; see `ai_study_buddy/docs/L4_STUDENT_FILE_MANAGEMENT.md` Open Questions §1.
-- [ ] **P0-2** · 2026-05-19 14:00 SGT: **`root_id` filter** in **Student File Browser** (and `files` `FilterCriteria` / `filter_main_pdf_cards` if needed) — filter bar + URL param `root_id` (`daydreamedu` \| `goodnotes` \| `all`). **Risk without it:** two mains can match every other facet but differ only by sync root, so the grid can show ambiguous duplicates. See L4 Student File Management Open Questions §2.
+- [ ] **P0-1** · 2026-05-19 14:00 SGT: **`root_id` filter** in **Student File Browser** (and `files` `FilterCriteria` / `filter_main_pdf_cards` if needed) — filter bar + URL param `root_id` (`daydreamedu` \| `goodnotes` \| `all`). **Risk without it:** two mains can match every other facet but differ only by sync root, so the grid can show ambiguous duplicates. See L4 Student File Management Open Questions §2; proposal [student_file_browser/docs/proposal/1-root-id-filter.md](student_file_browser/docs/proposal/1-root-id-filter.md).
 
 ## P1 — require attention within 7 days
 
@@ -42,6 +41,7 @@
 ### P0
 
 - [x] **P0-1** · 2026-05-06 09:18 SGT: Add backup tooling for `ai_study_buddy/db/study_buddy.db` mirroring the `pdf_registry.db` pipeline (e.g. `pdf_file_manager/scripts/backup_pdf_registry.py`-style copy, tiering, optional wake/runbook hooks).
+- [x] **P0-2** · 2026-05-19 14:00 SGT: **Review Workspace attempt deep links (patch release)** — `review_workspace` v0.1.4 URL bootstrap (`?attempt_id=` + `student_id=`); `student_file_browser` v0.1.1 card action; see [proposal](review_workspace/docs/proposal/2-attempt-deep-links.md).
 
 ### P1
 

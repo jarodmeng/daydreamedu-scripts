@@ -279,6 +279,34 @@ Frontend expects:
   - attempt
   - student_subject
 
+### 6.1 URL deep-link bootstrap
+
+Query parameters (frontend-only; no backend route change):
+
+| Param | Required | Meaning |
+|-------|----------|---------|
+| `attempt_id` | for deep open | Registry `pdf_files.id`; same as API `{attempt_id}` |
+| `student_id` | no | Registry `students.id`; pre-selects student when valid |
+
+Boot behavior on initial load:
+
+1. If `attempt_id` absent → existing picker / **My Work** flow (localStorage last student).
+2. If `attempt_id` present → `GET /api/student/attempts/{attempt_id}`:
+   - `marking_status === "marked"` → open workspace screen with resolved attempt payload.
+   - `marking_status === "not_marked"` → error message + **My Work** for attempt's student; strip `attempt_id` from URL.
+   - `404` / fetch error → error message + **My Work** or picker; strip `attempt_id` from URL.
+3. When `student_id` is present and matches a known student, apply before attempt fetch (also updates localStorage).
+
+In-app URL sync (`history.replaceState`, not `pushState`):
+
+- Open attempt from **My Work** → set `attempt_id` (+ `student_id`).
+- Back from workspace → remove `attempt_id`; keep `student_id`.
+- Change student / picker → remove `attempt_id`; set or keep `student_id`.
+
+Example:
+
+`http://127.0.0.1:5178/?attempt_id=d88d78e1-0844-44c4-be4e-230651166612&student_id=winston`
+
 ## 7) Explicit Non-Goals
 
 - no auth token validation

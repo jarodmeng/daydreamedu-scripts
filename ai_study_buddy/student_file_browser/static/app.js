@@ -1,7 +1,11 @@
 (function () {
   const STORAGE_KEY = "student_file_browser.lastStudent";
-  const REVIEW_URL = "http://127.0.0.1:5178/";
-  const ROOT_BROWSER_URL = "http://127.0.0.1:8770/";
+  const REVIEW_WORKSPACE_PORT = 5178;
+  const ROOT_BROWSER_PORT = 8770;
+
+  function siblingAppBaseUrl(port) {
+    return `http://${window.location.hostname}:${port}/`;
+  }
 
   let config = null;
   let rootsById = {};
@@ -480,7 +484,7 @@
           id: item.root_id,
           rel: rel,
         });
-        view.href = `${ROOT_BROWSER_URL}?${q.toString()}`;
+        view.href = `${siblingAppBaseUrl(ROOT_BROWSER_PORT)}?${q.toString()}`;
         view.target = "_blank";
         view.textContent = "View PDF";
         actions.appendChild(view);
@@ -494,7 +498,16 @@
       actions.appendChild(copyBtn);
       if (item.has_marking) {
         const rw = document.createElement("a");
-        rw.href = REVIEW_URL;
+        if (item.registry_file_id) {
+          const q = new URLSearchParams({ attempt_id: item.registry_file_id });
+          if (item.student_id) {
+            q.set("student_id", item.student_id);
+          }
+          rw.href = `${siblingAppBaseUrl(REVIEW_WORKSPACE_PORT)}?${q.toString()}`;
+        } else {
+          console.warn("Review Workspace link missing registry_file_id for marked card", item);
+          rw.href = siblingAppBaseUrl(REVIEW_WORKSPACE_PORT);
+        }
         rw.target = "_blank";
         rw.textContent = "Review Workspace";
         actions.appendChild(rw);

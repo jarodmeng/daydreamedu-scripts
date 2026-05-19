@@ -1,12 +1,12 @@
 # AI Study Buddy — Student File Browser (Operator Console)
 
-> Status: **Implemented** (May 2026) — [`ai_study_buddy.files`](../files/) **v0.3.0+** (v0.3.1: lazy `marking` import in `completion_enrichment`), [`marking`](../marking/) **v0.3.8** (`review.workflow_flags`), [`student_file_browser`](../student_file_browser/) **v0.1.0** (port **8771**), [`root_pdf_browser`](../root_pdf_browser/) **v0.1.6** (`?id=` + `rel=` deep links for **View PDF**).
+> Status: **Implemented** (May 2026) — [`ai_study_buddy.files`](../files/) **v0.3.0+** (v0.3.1: lazy `marking` import in `completion_enrichment`), [`marking`](../marking/) **v0.3.8** (`review.workflow_flags`), [`student_file_browser`](../student_file_browser/) **v0.1.1** (port **8771**), [`root_pdf_browser`](../root_pdf_browser/) **v0.1.6** (`?id=` + `rel=`), [`review_workspace`](../review_workspace/) **v0.1.4** (`?attempt_id=` + `student_id=` from card links).
 >
 > Canonical package docs: [student_file_browser/README.md](../student_file_browser/README.md), [SPEC.md](../student_file_browser/SPEC.md), [CHANGELOG.md](../student_file_browser/CHANGELOG.md).
 >
 > Related L4: [FILE_FRAMEWORK](./L4_FILE_FRAMEWORK.md), [FILE_SYSTEM_MANAGEMENT](./L4_FILE_SYSTEM_MANAGEMENT.md), [STUDENT_MVP_EXPERIENCE](./L4_STUDENT_MVP_EXPERIENCE.md), [MARKING_RESULT_ARTIFACT](./L4_MARKING_RESULT_ARTIFACT.md).
 >
-> Sibling front-ends: [`root_pdf_browser`](../root_pdf_browser/README.md) (**8770**), [`review_workspace`](../review_workspace/README.md) (**5178**). Cursor: [start-student-file-browser.md](../../.cursor/commands/start-student-file-browser.md), [start-root-pdf-browser.md](../../.cursor/commands/start-root-pdf-browser.md). Post-MVP backlog: [TODO.md](../TODO.md) **P0-1**, **P0-2**, **P1-6**, **P2-5**.
+> Sibling front-ends: [`root_pdf_browser`](../root_pdf_browser/README.md) (**8770**), [`review_workspace`](../review_workspace/README.md) (**5178**). Cursor: [start-student-file-browser.md](../../.cursor/commands/start-student-file-browser.md), [start-root-pdf-browser.md](../../.cursor/commands/start-root-pdf-browser.md). Post-MVP backlog: [TODO.md](../TODO.md) **P0-1**, **P1-6**, **P2-5**.
 
 ---
 
@@ -75,7 +75,7 @@ Today:
 11. **Card actions (v0.1):**
     - **View PDF** — new tab to **Root PDF Browser** with `?id=` + `rel=` deep link (`root_pdf_browser` v0.1.6+). POSIX `rel` derived from absolute path (backslashes normalized on Windows).
     - **Copy path** — absolute filesystem path to clipboard.
-    - **Review Workspace** — when `has_marking=true`; opens `http://127.0.0.1:5178/` (app root only; attempt deep-link remains post-MVP).
+    - **Review Workspace** — when `has_marking=true`; opens Review Workspace on the same hostname as the operator session (port **5178**) with `?attempt_id=<registry_file_id>&student_id=<student_id>` (v0.1.1+ browser + v0.1.4+ review workspace).
     - **`GET /api/pdf`** — implemented with same leaf-folder + path guard as `root_pdf_browser` (parity / direct fetch); **not** used by the card **View PDF** button in v0.1.
 12. **Operator-only:** loopback bind, no auth (same trust model as other local dev tools).
 13. **Tests:** `files` tests (facets, index, enrichment) plus `student_file_browser` tests (filter/query mapping, API path guard) — browser does not own business-rule tests.
@@ -453,7 +453,7 @@ No migration of existing data or registry schema.
 1. **`ai_study_buddy.files` v0.3.0+** is the canonical place for on-disk main-PDF inventory and enrichment (`path_facets`, `main_pdfs`, `pdf_registry_paths`, `completion_enrichment`, `on_disk_inventory`). Inference remains Phase A delegate to `PdfFileManager._infer_from_path`.
 2. **`marking.review.workflow_flags` (v0.3.8)** is the single completion workflow loader for `attempt_service` and `files.completion_enrichment`.
 3. **`student_file_browser` v0.1.0** on port **8771** is a thin UI over `files` only — contextual filters, **Filter** / **Reset**, card grid with workflow badges.
-4. **View PDF** deep-links to **`root_pdf_browser` v0.1.6** (`?id=` + `rel=`); **Review Workspace** link is app-root only when marked.
+4. **View PDF** deep-links to **`root_pdf_browser` v0.1.6** (`?id=` + `rel=`); **Review Workspace** deep-links via `?attempt_id=` + `student_id=` (v0.1.1 / v0.1.4).
 5. Documentation suite shipped under `student_file_browser/` (README, ARCHITECTURE, SPEC, CHANGELOG, TESTING) plus Cursor `start-student-file-browser.md`.
 
 **Git commits (main, May 2026):** `feat(files): v0.3.0 …`, `refactor(marking): v0.3.8 …`, `feat(root_pdf_browser): v0.1.6 …`, `feat(student_file_browser): v0.1.0 …`.
@@ -464,15 +464,15 @@ No migration of existing data or registry schema.
 
 | # | Topic | Decision |
 |---|--------|----------|
-| 1 | **Review Workspace attempt deep link** from a card | **Tracked:** [TODO.md](../TODO.md) **P0-1** — patch `review_workspace` first, then `student_file_browser`. **View PDF** → `root_pdf_browser` `?id=` + `rel=` is **done** (v0.1.6). |
-| 2 | **`root_id` filter** (DaydreamEdu vs GoodNotes) in filter bar + URL | **Tracked:** [TODO.md](../TODO.md) **P0-2** — avoids ambiguous cards when all other facets match across roots. |
+| 1 | **Review Workspace attempt deep link** from a card | **Done** (May 2026): `review_workspace` v0.1.4 + `student_file_browser` v0.1.1 — [proposal](../review_workspace/docs/proposal/2-attempt-deep-links.md). |
+| 2 | **`root_id` filter** (DaydreamEdu vs GoodNotes) in filter bar + URL | **Tracked:** [TODO.md](../TODO.md) **P0-1** — proposal [1-root-id-filter.md](../student_file_browser/docs/proposal/1-root-id-filter.md). |
 | 3 | **`include_activity_note`** in index / UI | **No action** for now — index continues to exclude `activity` / `note` completions (`exclude_activity_note_completions=True`). |
 | 4 | **Move `_infer_from_path` into `files.path_facets`** | **Tracked:** [TODO.md](../TODO.md) **P1-6**. |
 | 5 | **`test_serve.py`** (HTTP tests for `/api/inventory`, etc.) | **Tracked:** [TODO.md](../TODO.md) **P2-5** (P2 — after P0 serve changes; needs test hook first). |
 
 ### Note on `test_serve.py` (item 5)
 
-**Priority:** **P2** — improves regression safety; does not block operator workflows (unit tests + manual smoke already passed at v0.1.0). Prefer landing the **serve test hook** alongside **P0-2** (`root_id` filter) if `serve.py` is already being refactored.
+**Priority:** **P2** — improves regression safety; does not block operator workflows (unit tests + manual smoke already passed at v0.1.0). Prefer landing the **serve test hook** alongside **P0-1** (`root_id` filter) if `serve.py` is already being refactored.
 
 **Scope:** integration-style tests that spin up `StudentFileBrowserHandler` on an ephemeral port (or call `do_GET` via a request stub) and assert HTTP status + JSON for `/api/health`, `/api/config`, and `/api/inventory` (query → `FilterCriteria` → filtered `items` / `meta`), plus `/api/pdf` path-guard rejections (traversal, non-leaf parent).
 

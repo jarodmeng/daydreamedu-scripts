@@ -160,7 +160,7 @@ Decision note (updated): separate `.cursor/agents/*.md` files were required in p
 
 ### 4.4 Phase 2: Amendment UI (Parallel Track)
 
-This phase has been split into its own proposal. Please see [9-marking-amendment-ui.md](../../../review_workspace/docs/proposal/9-marking-amendment-ui.md) for details on the human-in-the-loop review workspace.
+This phase has been split into its own proposal. Please see [1-marking-amendment-ui.md](../../../review_workspace/docs/proposal/1-marking-amendment-ui.md) for details on the human-in-the-loop review workspace.
 
 ## 5. Advantages of this Architecture
 

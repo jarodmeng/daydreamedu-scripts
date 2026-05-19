@@ -3,7 +3,7 @@
 This folder contains the backend/frontend app for Review Workspace, including
 student review-state notes and human grading amendment overlays.
 
-Current version: `v0.1.3`
+Current version: `v0.1.4`
 
 Current phase: `single-student alpha` (scope locked on April 23, 2026).
 
@@ -44,3 +44,14 @@ npm run dev
 ```
 
 Vite dev server runs on `http://localhost:5178` and proxies `/api` + `/review-workspace-static` to backend `:8010`.
+
+### Deep linking
+
+Open a specific marked attempt directly (also used by **Student File Browser** card links):
+
+`http://127.0.0.1:5178/?attempt_id=<registry_uuid>&student_id=<students.id>`
+
+- `attempt_id` — required for deep open; equals `pdf_files.id` / Review Workspace list `attempt_id`.
+- `student_id` — optional but recommended when known; pre-selects the student before attempt load.
+
+On load the app fetches `GET /api/student/attempts/{attempt_id}` and opens the workspace when `marking_status === "marked"`. In-app navigation syncs the URL via `history.replaceState`.

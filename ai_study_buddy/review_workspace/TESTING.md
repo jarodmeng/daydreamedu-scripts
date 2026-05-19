@@ -161,6 +161,18 @@ Open `http://localhost:5178` and verify:
 7. double-clicking a Review field opens an amendment editor
 8. `Save amendment` persists a changed value and reload keeps the resolved value
 
+### Deep-link smoke
+
+1. capture `attempt_id` from `GET /api/student/attempts?student_id=<id>` (marked row)
+2. open `http://localhost:5178/?attempt_id=<attempt_id>&student_id=<id>` in a fresh tab (or clear localStorage first)
+3. verify workspace opens on that attempt without using **My Work**
+4. click back to **My Work** — URL should drop `attempt_id` but keep `student_id`
+5. open attempt from **My Work** — URL should gain `attempt_id` again
+6. open with unknown `attempt_id` — error on **My Work**, no crash
+7. from **Student File Browser**, card **Review Workspace** opens the same attempt (requires browser v0.1.1+)
+
+**Smoke verification (2026-05-19):** operator path **Student File Browser → Review Workspace** passed (same hostname for both apps, e.g. `localhost`).
+
 ## 4) Regression Checklist (before merge)
 
 1. `npm run build` passes in `frontend/`

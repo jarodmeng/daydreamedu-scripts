@@ -33,6 +33,8 @@ See `OnDiskMainPdfCard.to_dict()` in `ai_study_buddy.files.on_disk_inventory`.
 
 - Filter controls do not refresh results on change; click **Filter** to run `/api/inventory` and update the URL. Each apply refreshes dropdown options from the contextual slice (`subjects`, `grades`, `doc_types`, `student_ids`, `book_names`, workflow visibility) in response `meta`. **Reset** restores defaults and reloads.
 - Card **View PDF** opens Root PDF Browser with `?id=` + `rel=` deep link (not inline `/api/pdf`).
+- Card **Review Workspace** (when `has_marking=true` and registered) opens Review Workspace on the same hostname as this app (port **5178**) with `?attempt_id=<registry_file_id>` and `student_id=<student_id>` when available.
+- Card **View PDF** uses the same hostname pattern for Root PDF Browser (port **8770**).
 - Changing **Scope** or **Type** updates dependent controls (student disabled, book name dropdown when Type = Book) without loading inventory. Book options come from `book_names` in `/api/config` and `/api/inventory` meta (contextual to other filters).
 - **Registered** when the slice mixes registered and unregistered. **Template** / **Marking** / **Review** when the slice has ≥2 registered completions or more than one distinct value for that dimension; workflow filters apply to registered completions only.
 - In-flight inventory requests are dropped when a newer **Filter** click supersedes them.

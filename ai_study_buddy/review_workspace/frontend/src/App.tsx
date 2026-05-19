@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
 
+import { parseDeepLinkParams, replaceReviewWorkspaceUrl } from "./deepLink";
+
 type StudentRow = {
   student_id: string;
   display_name: string;
@@ -175,6 +177,31 @@ async function fetchJson<T>(url: string): Promise<T> {
     throw new Error(`Request failed: ${res.status}`);
   }
   return res.json() as Promise<T>;
+}
+
+async function fetchAttemptDetail(attemptId: string): Promise<AttemptDetail> {
+  const res = await fetch(`/api/student/attempts/${encodeURIComponent(attemptId)}`);
+  if (res.status === 404) {
+    throw new Error("Attempt not found");
+  }
+  if (!res.ok) {
+    throw new Error(`Request failed: ${res.status}`);
+  }
+  return res.json() as Promise<AttemptDetail>;
+}
+
+function resolveInitialStudentId(
+  students: StudentRow[],
+  deepLinkStudentId: string | null,
+  storedStudentId: string,
+): string {
+  if (deepLinkStudentId && students.some((s) => s.student_id === deepLinkStudentId)) {
+    return deepLinkStudentId;
+  }
+  if (storedStudentId && students.some((s) => s.student_id === storedStudentId)) {
+    return storedStudentId;
+  }
+  return students[0]?.student_id ?? "";
 }
 
 function formatPct(value: number | null | undefined): string {
@@ -1279,6 +1306,7 @@ export default function App() {
   const [attempts, setAttempts] = useState<AttemptListItem[]>([]);
   const [detail, setDetail] = useState<AttemptDetail | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [deepLinkError, setDeepLinkError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
   const [subjectFilter, setSubjectFilter] = useState<string>("all");
@@ -1287,27 +1315,81 @@ export default function App() {
   const [reviewFilter, setReviewFilter] = useState<"all" | "not_started" | "in_progress" | "completed">("all");
 
   useEffect(() => {
-    async function loadStudents() {
+    let cancelled = false;
+
+    async function bootstrap() {
       try {
         setLoading(true);
+        const deepLink = parseDeepLinkParams(window.location.search);
         const payload = await fetchJson<{ students: StudentRow[] }>("/api/students");
-        setStudents(payload.students);
+        if (cancelled) {
+          return;
+        }
 
+        setStudents(payload.students);
         const stored = localStorage.getItem(STORAGE_KEY_STUDENT) ?? "";
-        const chosen = payload.students.find((s) => s.student_id === stored)
-          ? stored
-          : (payload.students[0]?.student_id ?? "");
-        setSelectedStudentId(chosen);
+        const chosen = resolveInitialStudentId(payload.students, deepLink.studentId, stored);
         if (chosen) {
+          setSelectedStudentId(chosen);
+          localStorage.setItem(STORAGE_KEY_STUDENT, chosen);
+        }
+
+        if (deepLink.attemptId) {
+          try {
+            const attemptDetail = await fetchAttemptDetail(deepLink.attemptId);
+            if (cancelled) {
+              return;
+            }
+
+            const attemptStudentId = attemptDetail.attempt.student_id;
+            setSelectedStudentId(attemptStudentId);
+            localStorage.setItem(STORAGE_KEY_STUDENT, attemptStudentId);
+
+            if (attemptDetail.marking_status !== "marked") {
+              setDeepLinkError("Attempt is not marked yet");
+              setScreen("my_work");
+              replaceReviewWorkspaceUrl({ studentId: attemptStudentId });
+              return;
+            }
+
+            setDetail(attemptDetail);
+            setScreen("workspace");
+            replaceReviewWorkspaceUrl({
+              attemptId: deepLink.attemptId,
+              studentId: attemptStudentId,
+            });
+            return;
+          } catch (e) {
+            if (cancelled) {
+              return;
+            }
+            setDeepLinkError(e instanceof Error ? e.message : "Attempt not found");
+            replaceReviewWorkspaceUrl({ studentId: chosen || undefined });
+            setScreen(chosen ? "my_work" : "picker");
+            return;
+          }
+        }
+
+        if (chosen) {
+          replaceReviewWorkspaceUrl({ studentId: chosen });
           setScreen("my_work");
         }
       } catch (e) {
-        setError(e instanceof Error ? e.message : "Unknown error");
+        if (!cancelled) {
+          setError(e instanceof Error ? e.message : "Unknown error");
+        }
       } finally {
-        setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
     }
-    loadStudents();
+
+    void bootstrap();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   useEffect(() => {
@@ -1353,9 +1435,14 @@ export default function App() {
   async function openAttempt(attemptId: string) {
     try {
       setLoading(true);
-      const payload = await fetchJson<AttemptDetail>(`/api/student/attempts/${encodeURIComponent(attemptId)}`);
+      setDeepLinkError(null);
+      const payload = await fetchAttemptDetail(attemptId);
       setDetail(payload);
       setScreen("workspace");
+      replaceReviewWorkspaceUrl({
+        attemptId,
+        studentId: payload.attempt.student_id,
+      });
     } catch (e) {
       setError(e instanceof Error ? e.message : "Unknown error");
     } finally {
@@ -1393,6 +1480,7 @@ export default function App() {
               disabled={!selectedStudentId}
               onClick={() => {
                 localStorage.setItem(STORAGE_KEY_STUDENT, selectedStudentId);
+                replaceReviewWorkspaceUrl({ studentId: selectedStudentId });
                 setScreen("my_work");
               }}
             >
@@ -1409,7 +1497,9 @@ export default function App() {
       <WorkspaceView
         detail={detail}
         onBack={() => {
+          setDetail(null);
           setScreen("my_work");
+          replaceReviewWorkspaceUrl({ studentId: detail.attempt.student_id });
         }}
       />
     );
@@ -1425,6 +1515,7 @@ export default function App() {
           <span>Student: {students.find((s) => s.student_id === selectedStudentId)?.display_name ?? selectedStudentId}</span>
           <button
             onClick={() => {
+              replaceReviewWorkspaceUrl({ studentId: selectedStudentId || undefined });
               setScreen("picker");
             }}
           >
@@ -1464,6 +1555,14 @@ export default function App() {
 
       <section className="middle-grid" style={{ gridTemplateColumns: "1fr" }}>
         <section className="right-panel" style={{ display: "block", overflow: "auto", padding: "10px" }}>
+          {deepLinkError ? (
+            <p style={{ color: "crimson" }}>
+              {deepLinkError}{" "}
+              <button type="button" onClick={() => setDeepLinkError(null)}>
+                Dismiss
+              </button>
+            </p>
+          ) : null}
           {loading ? <p>Loading attempts...</p> : null}
           {!loading && filteredAttempts.length === 0 ? <p>No attempts found for current filters.</p> : null}
           {filteredAttempts.map((item) => (

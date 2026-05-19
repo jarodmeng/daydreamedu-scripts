@@ -4,6 +4,21 @@ All notable changes to `ai_study_buddy/review_workspace` are documented here.
 
 ---
 
+## [v0.1.4] — Attempt deep links (2026-05-19)
+
+Implemented:
+
+- frontend URL bootstrap for marked attempts via `?attempt_id=` (+ optional `student_id=`).
+- on load, fetches `GET /api/student/attempts/{attempt_id}` and opens workspace when marked; graceful errors for not found / not marked.
+- in-app navigation syncs query params via `history.replaceState`.
+- pure URL helpers in `frontend/src/deepLink.ts` with Vitest coverage.
+- fixed React Strict Mode dev double-mount leaving the app stuck on **Loading...** during bootstrap.
+
+Scope lock:
+
+- phase remains `single-student alpha`.
+- unmarked attempts are not openable via deep link (error + **My Work**).
+
 ## [v0.1.3] — Amendment save-diff hotfix (2026-05-08)
 
 Implemented:

@@ -123,7 +123,7 @@ These 4 categories are MECE (mutually exclusive and collectively exhaustive): ea
 
 - **Index:** `build_main_pdf_index_for_roots` at startup (GoodNotes leaves use **leaf-registry** profile: `exclude_not_completed=True`, unlike `root_pdf_browser` browse). Excludes completion `activity` / `note` mains by default.
 - **Filters:** scope, student (`students.id`), subject, grade, type, book, plus contextual registration / template / marking / review flags (`Filter` applies; `Reset` clears defaults).
-- **Actions:** **View PDF** → `root_pdf_browser` deep link; **Copy path**; **Review Workspace** (:5178) when marked (app root; per-attempt deep link post-MVP).
+- **Actions:** **View PDF** → `root_pdf_browser` deep link; **Copy path**; **Review Workspace** (`?attempt_id=` + `student_id=`) when marked.
 - **Run:** `.cursor/commands/start-student-file-browser.md` or `python3 -m ai_study_buddy.student_file_browser.spawn_background` / `serve`.
 - **Design reference:** [L4_STUDENT_FILE_MANAGEMENT](./L4_STUDENT_FILE_MANAGEMENT.md).
 
