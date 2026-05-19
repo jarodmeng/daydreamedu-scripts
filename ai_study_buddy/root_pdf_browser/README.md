@@ -2,7 +2,7 @@
 
 Local **two-pane** browser for PDFs under your configured **DaydreamEdu** and **GoodNotes** filesystem roots (dev / ops tooling). Runs a tiny HTTP server on loopback only; paths are constrained so requests cannot escape a chosen root.
 
-**Current version:** `v0.1.5` — see [CHANGELOG.md](./CHANGELOG.md).
+**Current version:** `v0.1.6` — see [CHANGELOG.md](./CHANGELOG.md).
 
 ## Requirements
 
@@ -45,6 +45,17 @@ Forwarded flags apply to `serve`, e.g. `--port 8771 --no-browser`. Launcher-only
 | `/api/pdf` | GET, HEAD | Query `id`, `rel` — PDF bytes or headers only |
 
 All file access goes through `safe_resolve_under_root`; dotfiles are skipped in listings.
+
+### Deep linking
+
+Open a specific PDF in the two-pane UI with query parameters (also used by **Student File Browser** card links):
+
+`http://127.0.0.1:8770/?id=<root_id>&rel=<posix/path/from/root/to/file.pdf>`
+
+- `id` — `daydreamedu` or `goodnotes` (same as `/api/config` roots).
+- `rel` — path relative to that sync root, using `/` separators (e.g. `completion/Singapore Primary English/winston@x.com/P6/Book/foo.pdf`).
+
+On load, the app expands folders along `rel` (best effort), opens the PDF in the viewer, and keeps the URL in sync when you pick other files from the tree.
 
 **Raw-file filter (UI-only):** by default the sidebar hides PDFs whose basename starts with **`_raw_`** (the registry's raw-archive convention). A leaf folder containing other PDFs gets a small "(N _raw_ files hidden)" hint; an otherwise-empty leaf collapses to that same hint instead of "(empty)". Toggle **Show `_raw_` files** at the top of the sidebar to reveal them; the choice is persisted in `localStorage` (`root_pdf_browser.showRaw`). The server still serves these files when requested directly via `/api/pdf` — the filter is purely client-side.
 

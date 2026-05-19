@@ -4,6 +4,13 @@ All notable changes to **root_pdf_browser** are documented here.
 
 ---
 
+## [v0.1.6] — Deep links (`?id=` + `?rel=`)
+
+- **URL deep linking:** `/?id=<root_id>&rel=<path/to/file.pdf>` expands the tree (best effort) and opens the PDF in the viewer on load.
+- **Tree expansion:** waits for each folder’s `/api/list` fetch before opening the next segment; scrolls the matching PDF row into view in the sidebar.
+- **Fix:** deep-link expansion no longer double-loads folder contents (duplicate PDF rows in the tree).
+- **Shareable state:** choosing a PDF updates the browser URL (`history.replaceState`) with the same `id` / `rel` query pair.
+
 ## [v0.1.5] — Clarify unregistered-file indicator
 
 - **Badge semantics:** unregistered files now use **`⚠️`** (registered stays **`📄`**) so non-registered status is explicit at a glance.

@@ -426,10 +426,179 @@
     window.setTimeout(tick, 250);
   }
 
+  function syncOpenPdfUrl(rootId, rel) {
+    try {
+      const u = new URL(window.location.href);
+      u.searchParams.set("id", rootId);
+      u.searchParams.set("rel", rel);
+      history.replaceState(null, "", u.pathname + "?" + u.searchParams.toString());
+    } catch (e) {
+      /* ignore */
+    }
+  }
+
+  function parseDeepLinkFromUrl() {
+    try {
+      const p = new URLSearchParams(window.location.search);
+      const id = p.get("id");
+      const rel = p.get("rel");
+      if (!id || rel == null || rel === "") {
+        return null;
+      }
+      return { id: id, rel: rel };
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function rootBlockEl(rootId) {
+    return document.querySelector(
+      '.root-block[data-root-id="' + CSS.escape(rootId) + '"]'
+    );
+  }
+
+  function waitUntil(deadlineMs, predicate) {
+    const deadline = Date.now() + (deadlineMs || 30000);
+    return new Promise(function (resolve) {
+      (function tick() {
+        if (predicate()) {
+          resolve(true);
+          return;
+        }
+        if (Date.now() > deadline) {
+          resolve(false);
+          return;
+        }
+        setTimeout(tick, 40);
+      })();
+    });
+  }
+
+  function folderDetailsEl(rootId, folderRel) {
+    const block = rootBlockEl(rootId);
+    if (!block) {
+      return null;
+    }
+    if (folderRel === "") {
+      return block.querySelector("[data-tree-host]");
+    }
+    return block.querySelector('[data-folder-rel="' + CSS.escape(folderRel) + '"]');
+  }
+
+  function startFolderLoad(details, rootId) {
+    if (!details || details.dataset.treeLoaded === "1" || details.dataset.treeLoading === "1") {
+      return;
+    }
+    const childRel = details.getAttribute("data-folder-rel") || "";
+    const childHost =
+      details.getAttribute("data-tree-host") === "1"
+        ? details
+        : details.querySelector(".tree-folder-children");
+    if (!childHost) {
+      return;
+    }
+    details.dataset.treeLoading = "1";
+    renderFolder(rootId, childRel, childHost, 0);
+  }
+
+  function ensureFolderExpanded(rootId, folderRel) {
+    if (folderRel === "") {
+      const host = folderDetailsEl(rootId, "");
+      if (!host) {
+        return waitUntil(30000, function () {
+          return folderDetailsEl(rootId, "") !== null;
+        }).then(function () {
+          const h = folderDetailsEl(rootId, "");
+          return h
+            ? waitUntil(30000, function () {
+                return h.dataset.treeLoaded === "1";
+              })
+            : false;
+        });
+      }
+      return waitUntil(30000, function () {
+        return host.dataset.treeLoaded === "1";
+      });
+    }
+
+    return waitUntil(30000, function () {
+      return folderDetailsEl(rootId, folderRel) !== null;
+    }).then(function (found) {
+      if (!found) {
+        return false;
+      }
+      const details = folderDetailsEl(rootId, folderRel);
+      if (!details) {
+        return false;
+      }
+      if (!details.open) {
+        details.open = true;
+      } else if (details.dataset.treeLoaded !== "1") {
+        startFolderLoad(details, rootId);
+      }
+      return waitUntil(30000, function () {
+        return details.dataset.treeLoaded === "1";
+      });
+    });
+  }
+
+  function scrollPdfRowIntoView(rootId, rel) {
+    const row = document.querySelector(
+      '.pdf-row[data-root-id="' +
+        CSS.escape(rootId) +
+        '"][data-rel="' +
+        CSS.escape(rel) +
+        '"]'
+    );
+    if (!row) {
+      return;
+    }
+    row.scrollIntoView({ block: "nearest", inline: "nearest" });
+    const details = row.closest("details");
+    if (details && !details.open) {
+      details.open = true;
+    }
+  }
+
+  function applyDeepLink() {
+    const link = parseDeepLinkFromUrl();
+    if (!link || !rootsById[link.id]) {
+      return Promise.resolve();
+    }
+    const parts = String(link.rel).split("/").filter(function (p) {
+      return p && p !== ".";
+    });
+    if (!parts.length) {
+      return Promise.resolve();
+    }
+    const dirs = parts.slice(0, -1);
+    const block = rootBlockEl(link.id);
+    if (block) {
+      block.scrollIntoView({ block: "nearest", inline: "nearest" });
+    }
+    let chain = ensureFolderExpanded(link.id, "");
+    let accum = "";
+    dirs.forEach(function (name) {
+      accum = joinRel(accum, name);
+      const folderRel = accum;
+      chain = chain.then(function () {
+        return ensureFolderExpanded(link.id, folderRel);
+      });
+    });
+    return chain.then(function () {
+      openPdf(link.id, link.rel);
+      window.setTimeout(function () {
+        scrollPdfRowIntoView(link.id, link.rel);
+        syncCurrentViewHighlight();
+      }, 80);
+    });
+  }
+
   function openPdf(rootId, rel) {
     currentViewRootId = rootId;
     currentViewRel = rel;
     syncCurrentViewHighlight();
+    syncOpenPdfUrl(rootId, rel);
 
     const empty = document.getElementById("empty");
     const frame = document.getElementById("pdf-frame");
@@ -455,6 +624,7 @@
   }
 
   function renderFolder(rootId, rel, container, depth) {
+    container.replaceChildren();
     const ul = document.createElement("ul");
     ul.className = "tree";
     container.appendChild(ul);
@@ -488,18 +658,20 @@
         dirs.forEach(function (name) {
           const li = document.createElement("li");
           const details = document.createElement("details");
+          const childRel = joinRel(rel, name);
+          details.setAttribute("data-folder-rel", childRel);
           const summary = document.createElement("summary");
           summary.textContent = name;
           appendScanRootBadge(summary, dirScanRoots[name] === true);
           details.appendChild(summary);
           const childHost = document.createElement("div");
+          childHost.className = "tree-folder-children";
           details.appendChild(childHost);
-          let loaded = false;
           details.addEventListener("toggle", function () {
-            if (!details.open || loaded) return;
-            loaded = true;
-            const childRel = joinRel(rel, name);
-            renderFolder(rootId, childRel, childHost, depth + 1);
+            if (!details.open) {
+              return;
+            }
+            startFolderLoad(details, rootId);
           });
           li.appendChild(details);
           ul.appendChild(li);
@@ -559,16 +731,33 @@
             rawCount + " _raw_ file" + (rawCount === 1 ? "" : "s") + " hidden";
           ul.appendChild(li);
         }
+        const parentDetails = container && container.parentElement;
+        if (parentDetails && parentDetails.tagName === "DETAILS") {
+          parentDetails.dataset.treeLoaded = "1";
+          delete parentDetails.dataset.treeLoading;
+        }
+        if (container && container.getAttribute("data-tree-host") === "1") {
+          container.dataset.treeLoaded = "1";
+          delete container.dataset.treeLoading;
+        }
         syncCurrentViewHighlight();
       })
       .catch(function (err) {
         placeholder.textContent = "Failed to load: " + (err && err.message ? err.message : String(err));
+        const parentDetails = container && container.parentElement;
+        if (parentDetails && parentDetails.tagName === "DETAILS") {
+          delete parentDetails.dataset.treeLoading;
+        }
+        if (container && container.getAttribute("data-tree-host") === "1") {
+          delete container.dataset.treeLoading;
+        }
       });
   }
 
   function renderRootBlock(root) {
     const block = document.createElement("div");
     block.className = "root-block";
+    block.setAttribute("data-root-id", root.id);
     const h2 = document.createElement("h2");
     h2.textContent = root.label;
     block.appendChild(h2);
@@ -577,6 +766,8 @@
     pathEl.textContent = root.path;
     block.appendChild(pathEl);
     const treeHost = document.createElement("div");
+    treeHost.className = "tree-folder-children";
+    treeHost.setAttribute("data-tree-host", "1");
     block.appendChild(treeHost);
     renderFolder(root.id, "", treeHost, 0);
     return block;
@@ -718,6 +909,9 @@
           return { id: r.id, label: r.label, path: r.path };
         });
         renderAllRoots();
+        applyDeepLink().catch(function () {
+          /* tree expansion best-effort */
+        });
       })
       .catch(function (err) {
         document.getElementById("roots-loading").textContent =
