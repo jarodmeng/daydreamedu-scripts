@@ -89,7 +89,7 @@ When the parent provides a PDF file, you must treat page rendering as part of th
 
 ## Mandatory terminal validation gate
 
-Before reporting success, the detector must run this command and require exit code 0:
+Before reporting success, complete the **`start_page` cross-check** (above), then run validation and require exit code 0:
 
 ```bash
 python -m ai_study_buddy.marking.file_question_info.validate <run_folder>/question_sections.json
@@ -225,6 +225,29 @@ Each section must carry a **`question_info`** array — one element per printed 
 
 - **Required** 1-based page index (within the inspected PDF) where this question's printed stimulus first appears.
 - Because all pages are rendered before producing the output, this is always determinable.
+
+#### PDF page index vs printed footer (critical)
+
+**`start_page` is always the PDF’s 1-based page index**, not the small page number printed in the booklet footer or margin.
+
+| Source | Use for `start_page`? |
+|--------|----------------------|
+| **`rendered_pages/page_NNN.png`** filename (`NNN` = 001…035) | **Yes** — canonical when the full PDF is rendered in order |
+| Footer / margin digit on the scanned page (e.g. “7”, “8”) | **No** — often lags the PDF index by one or more when covers or blank pages precede numbered content |
+| Previous row’s `start_page` | **No** — only reuse when **both** question stems visibly appear on the **same** `page_NNN.png` |
+
+**Common failure mode:** Q15–Q16 sit on the page whose footer says **“8”** but the correct `start_page` is **9** because that image is `page_009.png`. Writing `8` copies the footer, not the PDF index.
+
+#### Mandatory `start_page` cross-check (before `validate`)
+
+After filling `question_info`, audit **every** row against rendered PNGs:
+
+1. Find the question stem (e.g. **“15.”**) on `rendered_pages/page_NNN.png`.
+2. Set `start_page` to **`NNN`** (integer; leading zeros in the filename are not part of the JSON value).
+3. **Full-page rule:** if only one top-level question (e.g. Q14) appears on `page_008.png`, the next top-level question (Q15) **must** have `start_page` ≥ **9** — do not leave it at 8.
+4. **Same-page pairs:** two top-level 2-mark MCQs may share a page (e.g. Q12 & Q13). After a full-page question, do not copy its `start_page` to the next item without opening the next `page_NNN.png`.
+
+`python -m ai_study_buddy.marking.file_question_info.validate` enforces structural page invariants (each `start_page` within `questions_page_range`, non-decreasing order, section min/max alignment). It does **not** replace the visual audit above on image-only PDFs.
 
 ### `end_page`
 

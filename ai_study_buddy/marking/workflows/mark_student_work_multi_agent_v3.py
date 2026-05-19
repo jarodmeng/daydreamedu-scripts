@@ -1183,16 +1183,28 @@ def prepare_finalize_rows(
     english_required: bool,
 ) -> V3FinalizePrepResult:
     marks = build_authoritative_marks_by_question(question_sections_payload)
+    authority_page_map = question_page_map_from_question_sections(question_sections_payload)
     merged: MergeResult = merge_phase2_phase3_rows(
         phase2_rows,
         phase3_rows,
         authoritative_marks=marks,
     )
-    language_violations = find_language_violations(merged.merged_rows, english_required=english_required)
-    human_note_violations = find_human_note_policy_violations(merged.merged_rows)
+    enriched_rows: list[dict[str, Any]] = []
+    for row in merged.merged_rows:
+        qid_raw = row.get("result_id") or row.get("question_id")
+        qid = qid_raw.strip() if isinstance(qid_raw, str) and qid_raw.strip() else None
+        updated = dict(row)
+        if qid and not (isinstance(updated.get("attempt_page_start"), int) and updated.get("attempt_page_start") >= 1):
+            mapped = authority_page_map.get(qid)
+            aps = mapped.get("attempt_page_start") if isinstance(mapped, Mapping) else None
+            if isinstance(aps, int) and aps >= 1:
+                updated["attempt_page_start"] = aps
+        enriched_rows.append(updated)
+    language_violations = find_language_violations(enriched_rows, english_required=english_required)
+    human_note_violations = find_human_note_policy_violations(enriched_rows)
     phase3_targets = select_phase3_question_ids(phase2_rows)
     return V3FinalizePrepResult(
-        merged_rows=merged.merged_rows,
+        merged_rows=tuple(enriched_rows),
         phase3_question_ids=phase3_targets,
         language_violations=language_violations,
         human_note_violations=human_note_violations,

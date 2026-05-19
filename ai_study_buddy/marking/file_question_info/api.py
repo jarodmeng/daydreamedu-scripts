@@ -28,6 +28,7 @@ from ai_study_buddy.marking.file_question_info.errors import (
 _ALLOWED_GRADES = ("P1", "P2", "P3", "P4", "P5", "P6", "PSLE")
 _SUPPORTED_IMAGE_EXTENSIONS = (".png", ".jpg", ".jpeg", ".webp")
 _SCHEMAS_DIR = Path(__file__).resolve().parents[2] / "schemas"
+_SCHEMAS_WITH_STRICT_START_PAGE_GUARDS = frozenset({"math-v1.2", "science-v1.2"})
 _SCHEMA_PATHS_BY_VERSION: dict[str, Path] = {
     "chinese-v1.4": _SCHEMAS_DIR / "chinese_paper2_questions_section.v1.4.schema.json",
     "high-chinese-v1.2": _SCHEMAS_DIR / "higher_chinese_paper2_questions_section.v1.2.schema.json",
@@ -263,6 +264,87 @@ def render_file_question_info_pages_for_pdf(
         doc.close()
 
 
+def _validate_question_info_start_page_invariants(
+    payload: dict[str, Any],
+    *,
+    schema_version: str | None,
+) -> None:
+    """Structural checks on question_info.start_page (image-only PDFs still need visual audit)."""
+    sections = payload.get("sections")
+    if not isinstance(sections, list):
+        return
+
+    strict_layout = schema_version in _SCHEMAS_WITH_STRICT_START_PAGE_GUARDS
+
+    for section_index, section in enumerate(sections):
+        if not isinstance(section, dict):
+            continue
+        qpr = section.get("questions_page_range")
+        qinfo = section.get("question_info")
+        if not isinstance(qpr, dict) or not isinstance(qinfo, list) or not qinfo:
+            continue
+
+        range_start = qpr.get("start_page")
+        range_end = qpr.get("end_page")
+        if not isinstance(range_start, int) or not isinstance(range_end, int):
+            continue
+
+        starts: list[int] = []
+        prev_start: int | None = None
+
+        for question_ordinal, item in enumerate(qinfo):
+            if not isinstance(item, dict):
+                continue
+            sp = item.get("start_page")
+            qid = item.get("question_index")
+            if not isinstance(sp, int):
+                raise QuestionSectionsValidationError(
+                    f"section[{section_index}].question_info[{question_ordinal}].start_page must be int"
+                )
+            if not isinstance(qid, str) or not qid.strip():
+                continue
+
+            if sp < range_start or sp > range_end:
+                qtype = section.get("question_type")
+                raise QuestionSectionsValidationError(
+                    f"section[{section_index}].question_info[{question_ordinal}].start_page={sp} "
+                    f"outside questions_page_range [{range_start}, {range_end}] "
+                    f"(question_index={qid!r}, question_type={qtype!r})"
+                )
+            if prev_start is not None and sp < prev_start:
+                raise QuestionSectionsValidationError(
+                    f"section[{section_index}].question_info start_page values must be non-decreasing in "
+                    f"reading order; {qid!r} has {sp} after page {prev_start}"
+                )
+
+            starts.append(sp)
+            prev_start = sp
+
+        if not starts:
+            continue
+
+        expected_min = min(starts)
+        if (
+            strict_layout
+            and range_start != expected_min
+            and "stem_page_range" not in section
+        ):
+            qtype = section.get("question_type")
+            raise QuestionSectionsValidationError(
+                "questions_page_range.start_page must equal min(question_info.start_page); "
+                f"got {range_start!r}, expected {expected_min} "
+                f"(section_index={section_index}, question_type={qtype!r})"
+            )
+
+        if max(starts) > range_end:
+            qtype = section.get("question_type")
+            raise QuestionSectionsValidationError(
+                "max(question_info.start_page) must be <= questions_page_range.end_page; "
+                f"got max={max(starts)!r}, end_page={range_end!r} "
+                f"(section_index={section_index}, question_type={qtype!r})"
+            )
+
+
 def load_question_sections_json(path: Path) -> dict[str, Any]:
     with path.open("r", encoding="utf-8") as handle:
         loaded = json.load(handle)
@@ -276,7 +358,8 @@ def validate_question_sections_dict(payload: dict[str, Any]) -> None:
         raise QuestionSectionsValidationError("question_sections payload must be an object")
 
     schema_version = payload.get("schema_version")
-    schema_path = _schema_path_for_version(schema_version if isinstance(schema_version, str) else None)
+    schema_version_str = schema_version if isinstance(schema_version, str) else None
+    schema_path = _schema_path_for_version(schema_version_str)
     schema = _load_schema(schema_path)
 
     normalized_payload = _normalize_for_json_schema(payload)
@@ -333,6 +416,8 @@ def validate_question_sections_dict(payload: dict[str, Any]) -> None:
                     f"stem_page_range; got {actual!r}, expected {expected} "
                     f"(section_index={section_index}, question_type={qtype!r})"
                 )
+
+    _validate_question_info_start_page_invariants(payload, schema_version=schema_version_str)
 
 
 def iter_sections_ordered(payload: Mapping[str, object]) -> tuple[SectionRow, ...]:

@@ -360,6 +360,29 @@ def test_prepare_finalize_rows_applies_qc():
     assert result.merged_rows[0]["max_marks"] == 2.0
 
 
+def test_prepare_finalize_rows_backfills_attempt_page_start_from_authority():
+    payload = _question_sections_payload()
+    phase2 = [
+        {
+            "question_id": "Q1",
+            "outcome": "correct",
+            "earned_marks": 2,
+            "student_answer": "A",
+            "correct_answer": "A",
+            "diagnosis": {"reasoning": "ok"},
+            "human_note": None,
+            "confidence": {"grading": "high"},
+        }
+    ]
+    result = prepare_finalize_rows(
+        question_sections_payload=payload,
+        phase2_rows=phase2,
+        phase3_rows=[],
+        english_required=True,
+    )
+    assert result.merged_rows[0]["attempt_page_start"] == 1
+
+
 def test_resolve_attempt_input_registers_path_when_missing():
     with tempfile.TemporaryDirectory() as tmpdir:
         base = Path(tmpdir)

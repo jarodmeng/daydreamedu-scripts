@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import json
 import subprocess
 import sys
@@ -307,6 +308,86 @@ def test_science_v1_2_question_index_hyphen_inside_parens_rejected():
         "start_page": 1,
     }
     with pytest.raises(QuestionSectionsValidationError, match="question_index"):
+        validate_question_sections_dict(payload)
+
+
+def _page_range(start: int, end: int) -> dict:
+    return {
+        "start_page": start,
+        "end_page": end,
+        "start_mid_page": False,
+        "end_mid_page": False,
+    }
+
+
+def test_math_multi_page_question_info_start_pages_accepted():
+    payload = _minimal_math_v1_1_payload()
+    payload["sections"][0]["questions_page_range"] = _page_range(2, 5)
+    payload["sections"][0]["question_info"] = [
+        {"question_index": "Q1", "question_mark": 1, "start_page": 2},
+        {"question_index": "Q2", "question_mark": 1, "start_page": 3},
+        {"question_index": "Q3", "question_mark": 1, "start_page": 5},
+    ]
+    validate_question_sections_dict(payload)
+
+
+@pytest.mark.parametrize("builder", [_minimal_math_v1_1_payload, _minimal_science_v1_1_payload])
+def test_start_page_outside_questions_page_range_rejected(builder):
+    payload = builder()
+    payload["sections"][0]["questions_page_range"] = _page_range(1, 3)
+    payload["sections"][0]["question_info"] = [
+        {"question_index": "Q1", "question_mark": 1, "start_page": 4},
+    ]
+    with pytest.raises(QuestionSectionsValidationError, match="outside questions_page_range"):
+        validate_question_sections_dict(payload)
+
+
+@pytest.mark.parametrize("builder", [_minimal_math_v1_1_payload, _minimal_science_v1_1_payload])
+def test_start_page_must_be_non_decreasing_in_reading_order(builder):
+    payload = builder()
+    payload["sections"][0]["questions_page_range"] = _page_range(1, 5)
+    payload["sections"][0]["question_info"] = [
+        {"question_index": "Q1", "question_mark": 1, "start_page": 3},
+        {"question_index": "Q2", "question_mark": 1, "start_page": 2},
+    ]
+    with pytest.raises(QuestionSectionsValidationError, match="non-decreasing"):
+        validate_question_sections_dict(payload)
+
+
+@pytest.mark.parametrize("builder", [_minimal_math_v1_1_payload, _minimal_science_v1_1_payload])
+def test_strict_layout_questions_page_range_start_must_match_min_question_start(builder):
+    payload = builder()
+    payload["sections"][0]["questions_page_range"] = _page_range(1, 5)
+    payload["sections"][0]["question_info"] = [
+        {"question_index": "Q1", "question_mark": 1, "start_page": 2},
+    ]
+    with pytest.raises(
+        QuestionSectionsValidationError,
+        match="questions_page_range.start_page must equal min\\(question_info.start_page\\)",
+    ):
+        validate_question_sections_dict(payload)
+
+
+def test_english_without_stem_allows_questions_page_range_start_before_first_question():
+    payload = copy.deepcopy(_find_payload_for_schema_version("english-v1.3"))
+    section = next(s for s in payload["sections"] if "stem_page_range" not in s)
+    section["questions_page_range"] = _page_range(1, 10)
+    section["question_info"] = [
+        {"question_index": "Q1", "question_mark": 1, "start_page": 2},
+        {"question_index": "Q2", "question_mark": 1, "start_page": 3},
+    ]
+    validate_question_sections_dict(payload)
+
+
+def test_english_with_stem_requires_questions_page_range_start_to_match_min_question_start():
+    payload = copy.deepcopy(_find_payload_for_schema_version("english-v1.3"))
+    section = next(s for s in payload["sections"] if "stem_page_range" in s)
+    min_start = min(item["start_page"] for item in section["question_info"])
+    section["questions_page_range"]["start_page"] = min_start + 1
+    with pytest.raises(
+        QuestionSectionsValidationError,
+        match="questions_page_range.start_page must equal min\\(question_info.start_page\\)",
+    ):
         validate_question_sections_dict(payload)
 
 

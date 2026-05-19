@@ -4,6 +4,20 @@ All notable changes to `ai_study_buddy.marking` are documented in this file.
 
 Committed changes under `ai_study_buddy/marking/` should add an entry here and bump **Current version** in `README.md` (semver: **patch** for docs or small renderer tweaks, **minor** for schema or public API changes). `SPEC.md` / `TESTING.md` titles do not carry the package version.
 
+## [0.3.9] - 2026-05-19
+
+Patch: strengthen `question_sections` `start_page` validation and backfill `attempt_page_start` in v3 finalize.
+
+### Added
+
+- `marking/file_question_info/api.py`: structural `question_info.start_page` invariants (within `questions_page_range`, non-decreasing order; math-v1.2 / science-v1.2 require range start to match earliest question page).
+- `marking/tests/test_file_question_info.py`: unit tests for the new start-page checks.
+- `marking/tests/test_v3_workflow_helpers.py`: test that `prepare_finalize_rows` backfills `attempt_page_start` from authority.
+
+### Changed
+
+- `marking/workflows/mark_student_work_multi_agent_v3.py`: `prepare_finalize_rows` fills missing `attempt_page_start` from `question_page_map_from_question_sections` before QC.
+
 ## [0.3.8] - 2026-05-19
 
 Patch: consolidate completion workflow flags for Review Workspace and Student File Browser.
