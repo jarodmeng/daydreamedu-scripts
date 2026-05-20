@@ -2,7 +2,7 @@
 
 > Status: **Implemented** — file-canonical JSON-first workflow is active (`marking_result.v1.6` writer; normal runtime validation expects `v1.6`, with legacy migration/read support described in `ai_study_buddy/marking/SPEC.md`), with markdown as derived output.
 >
-> Related docs: [QUESTION_INDEX_SCHEMA](./L4_QUESTION_INDEX_SCHEMA.md), [INGESTION_PIPELINE](./L4_INGESTION_PIPELINE.md), [DATA_STRATEGY](./L3_DATA_STRATEGY.md)
+> Related docs: [COMPLETION_MARKING_FRAMEWORK](./L4_COMPLETION_MARKING_FRAMEWORK.md), [FILE_FRAMEWORK](./L4_FILE_FRAMEWORK.md), [QUESTION_INDEX_SCHEMA](./L4_QUESTION_INDEX_SCHEMA.md), [INGESTION_PIPELINE](./L4_INGESTION_PIPELINE.md), [DATA_STRATEGY](./L3_DATA_STRATEGY.md)
 
 Current implementation references:
 

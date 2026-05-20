@@ -4,7 +4,7 @@
 >
 > Canonical package docs: [student_file_browser/README.md](../student_file_browser/README.md), [SPEC.md](../student_file_browser/SPEC.md), [CHANGELOG.md](../student_file_browser/CHANGELOG.md).
 >
-> Related L4: [FILE_FRAMEWORK](./L4_FILE_FRAMEWORK.md), [FILE_SYSTEM_MANAGEMENT](./L4_FILE_SYSTEM_MANAGEMENT.md), [STUDENT_MVP_EXPERIENCE](./L4_STUDENT_MVP_EXPERIENCE.md), [MARKING_RESULT_ARTIFACT](./L4_MARKING_RESULT_ARTIFACT.md).
+> Related L4: [FILE_FRAMEWORK](./L4_FILE_FRAMEWORK.md), [COMPLETION_MARKING_FRAMEWORK](./L4_COMPLETION_MARKING_FRAMEWORK.md), [FILE_SYSTEM_MANAGEMENT](./L4_FILE_SYSTEM_MANAGEMENT.md), [STUDENT_MVP_EXPERIENCE](./L4_STUDENT_MVP_EXPERIENCE.md), [MARKING_RESULT_ARTIFACT](./L4_MARKING_RESULT_ARTIFACT.md).
 >
 > Sibling front-ends: [`root_pdf_browser`](../root_pdf_browser/README.md) (**8770**), [`review_workspace`](../review_workspace/README.md) (**5178**). Cursor: [start-student-file-browser.md](../../.cursor/commands/start-student-file-browser.md), [start-root-pdf-browser.md](../../.cursor/commands/start-root-pdf-browser.md). Post-MVP backlog: [TODO.md](../TODO.md) **P0-1**, **P1-6**, **P2-5**.
 

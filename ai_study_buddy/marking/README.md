@@ -31,6 +31,8 @@ Current version: `v0.3.9`
 
 ## Multiple attempts per template (`v0.2.3+`)
 
+Normative completion ↔ marking identity (one run per `file_id`, `attempt_sequence` intent): [L4_COMPLETION_MARKING_FRAMEWORK](../docs/L4_COMPLETION_MARKING_FRAMEWORK.md).
+
 Canonical artifacts now support multiple attempts for the same student/template pair via context fields:
 
 - `template_attempt_group_id` (deterministic group id)

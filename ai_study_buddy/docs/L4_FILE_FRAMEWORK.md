@@ -3,6 +3,8 @@
 
 There are some conceptual foundations of what those files are. Having a clear framwork can help better design the tools and workflows, and better utilize those files.
 
+For how **completion PDFs** map to **marking runs**, `attempt_file_id`, and `attempt_sequence`, see [L4_COMPLETION_MARKING_FRAMEWORK](./L4_COMPLETION_MARKING_FRAMEWORK.md).
+
 ## Assumptions
 1. In this document, "file" always refers to a PDF file.
 2. "On-disk file" means a PDF that exists physically under a root folder (e.g. DAYDREAMEDU_ROOT or GOODNOTES_ROOT), regardless of whether it is registered.
@@ -126,6 +128,7 @@ These 4 categories are MECE (mutually exclusive and collectively exhaustive): ea
 - **Actions:** **View PDF** → `root_pdf_browser` deep link; **Copy path**; **Review Workspace** (`?attempt_id=` + `student_id=`) when marked.
 - **Run:** `.cursor/commands/start-student-file-browser.md` or `python3 -m ai_study_buddy.student_file_browser.spawn_background` / `serve`.
 - **Design reference:** [L4_STUDENT_FILE_MANAGEMENT](./L4_STUDENT_FILE_MANAGEMENT.md).
+- **Completion vs marking identity:** [L4_COMPLETION_MARKING_FRAMEWORK](./L4_COMPLETION_MARKING_FRAMEWORK.md). Post-MVP **`root_id` filter:** [student_file_browser proposal](../student_file_browser/docs/proposal/1-root-id-filter.md).
 
 ### Completion template link gap report (registry)
 
