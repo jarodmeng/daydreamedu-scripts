@@ -176,57 +176,47 @@ def _apply_attempt_metadata(*, payload: dict, context_root: str | Path) -> dict:
         context.setdefault("attempt_label", None)
         return payload
 
-    group_id = f"{student_slug}::{template_file_id}"
+    group_id = _resolve_template_attempt_group_id(
+        context=context,
+        student_slug=student_slug,
+        template_file_id=template_file_id,
+    )
     context["template_attempt_group_id"] = group_id
     context.setdefault("attempt_label", None)
     if context.get("attempt_sequence") is None:
-        context["attempt_sequence"] = _next_attempt_sequence(
-            context_root=Path(context_root),
-            student_slug=student_slug,
-            group_id=group_id,
-            template_file_id=template_file_id,
-        )
+        context["attempt_sequence"] = _resolve_attempt_sequence(context=context)
     return payload
 
 
-def _next_attempt_sequence(
+def _resolve_template_attempt_group_id(
     *,
-    context_root: Path,
+    context: dict,
     student_slug: str,
-    group_id: str,
     template_file_id: str,
-) -> int:
-    student_results_root = context_root / "marking_results" / student_slug
-    if not student_results_root.exists():
-        return 1
+) -> str:
+    student_id = context.get("student_id")
+    if isinstance(student_id, str) and student_id.strip():
+        from ai_study_buddy.pdf_file_manager.pdf_file_manager import PdfFileManager
 
-    sequences: list[int] = []
-    legacy_count = 0
-    for json_path in student_results_root.rglob("*.json"):
-        try:
-            raw = json.loads(json_path.read_text(encoding="utf-8"))
-        except Exception:
-            continue
-        context = raw.get("context")
-        if not isinstance(context, dict):
-            continue
-        existing_group = context.get("template_attempt_group_id")
-        if isinstance(existing_group, str) and existing_group == group_id:
-            seq = context.get("attempt_sequence")
-            if isinstance(seq, int) and seq >= 1:
-                sequences.append(seq)
-                continue
-        existing_template_id = context.get("template_file_id")
-        if isinstance(existing_template_id, str) and existing_template_id == template_file_id:
-            seq = context.get("attempt_sequence")
-            if isinstance(seq, int) and seq >= 1:
-                sequences.append(seq)
-            else:
-                # Legacy v1 artifacts without attempt metadata still count as attempts.
-                legacy_count += 1
-    if sequences:
-        return max(max(sequences), legacy_count) + 1
-    return legacy_count + 1 if legacy_count else 1
+        reg_id = PdfFileManager().completion_series_id(student_id.strip(), template_file_id.strip())
+        if reg_id:
+            return reg_id
+    return f"{student_slug}::{template_file_id}"
+
+
+def _resolve_attempt_sequence(*, context: dict) -> int | None:
+    """Sequence from registry completion series; degraded ``1`` when completion not registered."""
+    template_file_id = context.get("template_file_id")
+    if not isinstance(template_file_id, str) or not template_file_id.strip():
+        return None
+    attempt_file_id = context.get("attempt_file_id")
+    if isinstance(attempt_file_id, str) and attempt_file_id.strip():
+        from ai_study_buddy.pdf_file_manager.pdf_file_manager import PdfFileManager
+
+        seq = PdfFileManager().next_attempt_sequence_for_completion(attempt_file_id.strip())
+        if seq is not None:
+            return seq
+    return 1
 
 
 def _apply_marking_asset_path(

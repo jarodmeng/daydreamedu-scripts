@@ -4,6 +4,11 @@ All notable changes to the **`ai_study_buddy.files`** package are documented her
 
 ---
 
+## [v0.3.3] — Completion series fields on inventory cards
+
+- **`OnDiskMainPdfCard`:** `template_file_id`, `completion_series_id`, `attempt_sequence`, `attempt_count` (from `PdfFileManager.get_completion_series_member` when template-linked).
+- Depends on `pdf_file_manager` completion series API ([proposal 15](../../pdf_file_manager/docs/proposals/15-completion-series-derived.md) Phases 1–3).
+
 ## [v0.3.2] — `FilterCriteria.root_id` for Student File Browser
 
 - **`FilterCriteria`:** `root_id` (`all` | `daydreamedu` | `goodnotes`); applied in `filter_main_pdf_cards`.

@@ -1,6 +1,6 @@
 # ai_study_buddy.files
 
-**Version: v0.3.2**
+**Version: v0.3.3**
 
 Small helpers for local synced study material: resolve DaydreamEdu and GoodNotes roots from environment or gitignored config files, and list **leaf folders** (directories with direct files matching chosen suffixes) with optional profile-specific exclusions.
 

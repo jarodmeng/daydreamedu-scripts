@@ -147,6 +147,10 @@ class OnDiskMainPdfCard:
     registry_file_id: str | None = None
     normal_name: str | None = None
     has_template: bool | None = None
+    template_file_id: str | None = None
+    completion_series_id: str | None = None
+    attempt_sequence: int | None = None
+    attempt_count: int | None = None
     has_marking: bool | None = None
     has_marking_amendment: bool | None = None
     review_status: str | None = None
@@ -493,6 +497,16 @@ def enrich_on_disk_main_pdf(
         return card
 
     card.has_template = has_template_link(pfm, pdf_file.id)
+    if card.has_template:
+        template = pfm.get_template(pdf_file.id)
+        if template is not None:
+            card.template_file_id = template.id
+        member_info = pfm.get_completion_series_member(pdf_file.id)
+        if member_info is not None:
+            series, member = member_info
+            card.completion_series_id = series.series_id
+            card.attempt_sequence = member.attempt_sequence
+            card.attempt_count = series.attempt_count
     workflow = enrich_registered_completion(
         pdf_file,
         context_root=context_root,

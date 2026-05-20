@@ -2,7 +2,7 @@
 
 from pathlib import Path
 from types import SimpleNamespace
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 from ai_study_buddy.files.main_pdfs import OnDiskMainPdfRow
 from ai_study_buddy.files.on_disk_inventory import (
@@ -306,6 +306,115 @@ def test_workflow_filter_option_counts() -> None:
     opts = workflow_filter_options(cards, FilterCriteria(scope="completion"))
     assert opts.is_registered_counts == {"": 2, "true": 1, "false": 1}
     assert opts.has_template_counts == {"": 2, "true": 1}
+
+
+def test_enrich_on_disk_main_pdf_populates_completion_series_fields() -> None:
+    from unittest.mock import MagicMock
+
+    from ai_study_buddy.files.main_pdfs import OnDiskMainPdfRow
+    from ai_study_buddy.files.on_disk_inventory import enrich_on_disk_main_pdf
+    from ai_study_buddy.files.path_facets import PathFacets
+    from ai_study_buddy.pdf_file_manager.completion_series import (
+        CompletionSeries,
+        CompletionSeriesMember,
+    )
+    from ai_study_buddy.pdf_file_manager.pdf_file_manager import PdfFile
+
+    path = Path("/tmp/daydream/completion/english/winston@example.com/P6/Exercise/_c_x.pdf")
+    facets = PathFacets(
+        root_id="daydreamedu",
+        scope="completion",
+        subject="english",
+        grade_or_scope="P6",
+        doc_type="exercise",
+        book_group_name=None,
+        student_email="winston@example.com",
+        parse_status="ok",
+    )
+    row = OnDiskMainPdfRow(absolute_path=path, basename="_c_x.pdf", root_id="daydreamedu", facets=facets)
+    pdf_file = PdfFile(
+        id="completion-1",
+        name="_c_x.pdf",
+        path=str(path),
+        file_type="main",
+        doc_type="exercise",
+        student_id="winston",
+        subject="english",
+        is_template=False,
+        size_bytes=10,
+        page_count=1,
+        has_raw=False,
+        metadata=None,
+        added_at="2026-01-01T00:00:00Z",
+        updated_at="2026-01-01T00:00:00Z",
+        notes=None,
+    )
+    template = PdfFile(
+        id="template-1",
+        name="_c_x.pdf",
+        path="/tmp/template/_c_x.pdf",
+        file_type="main",
+        doc_type="exercise",
+        student_id=None,
+        subject="english",
+        is_template=True,
+        size_bytes=10,
+        page_count=1,
+        has_raw=False,
+        metadata=None,
+        added_at="2026-01-01T00:00:00Z",
+        updated_at="2026-01-01T00:00:00Z",
+        notes=None,
+    )
+    series = CompletionSeries(
+        series_id="winston::template-1",
+        student_id="winston",
+        template_file_id="template-1",
+        members=(
+            CompletionSeriesMember(
+                file_id="completion-1",
+                path=str(path),
+                added_at="2026-01-01T00:00:00Z",
+                attempt_sequence=2,
+            ),
+        ),
+    )
+    member = series.members[0]
+
+    index = MagicMock()
+    index.file_by_resolved_path = {path.resolve().as_posix(): pdf_file}
+
+    pfm = MagicMock()
+    pfm.get_template.return_value = template
+    pfm.get_completion_series_member.return_value = (series, member)
+
+    review_repo = MagicMock()
+    with patch(
+        "ai_study_buddy.files.on_disk_inventory.is_pdf_registered",
+        return_value=True,
+    ), patch(
+        "ai_study_buddy.files.on_disk_inventory.has_template_link",
+        return_value=True,
+    ), patch(
+        "ai_study_buddy.files.on_disk_inventory.enrich_registered_completion",
+    ) as enrich_mock:
+        enrich_mock.return_value = MagicMock(
+            has_marking=True,
+            has_marking_amendment=False,
+            review_status="not_started",
+        )
+        card = enrich_on_disk_main_pdf(
+            row,
+            index=index,
+            pfm=pfm,
+            review_repo=review_repo,
+            context_root=Path("/ctx"),
+        )
+
+    assert card.template_file_id == "template-1"
+    assert card.completion_series_id == "winston::template-1"
+    assert card.attempt_sequence == 2
+    assert card.attempt_count == 1
 
 
 def test_distinct_book_group_names() -> None:

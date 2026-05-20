@@ -1850,6 +1850,70 @@ class PdfFileManager:
         return out
 
     # -----------------------------------------------------------------------
+    # Completion series (derived from template_for / completed_from)
+    # -----------------------------------------------------------------------
+
+    def completion_series_id(self, student_id: str, template_file_id: str) -> str | None:
+        from ai_study_buddy.pdf_file_manager.completion_series import series_id_for
+
+        template = self.get_file(template_file_id)
+        if template is None or not template.is_template:
+            return None
+        student = self.get_student(student_id)
+        name = student.name if student else None
+        sid = student.id if student else student_id
+        return series_id_for(sid, name, template_file_id)
+
+    def get_completion_series(self, student_id: str, template_file_id: str):
+        from ai_study_buddy.pdf_file_manager.completion_series import build_completion_series
+
+        template = self.get_file(template_file_id)
+        if template is None or not template.is_template:
+            return None
+        student = self.get_student(student_id)
+        student_name = student.name if student else None
+        sid = student.id if student else student_id
+        return build_completion_series(
+            student_id=sid,
+            student_name=student_name,
+            template_file_id=template_file_id,
+            completions=self.get_completions(template_file_id),
+        )
+
+    def get_completion_series_for_file(self, file_id: str):
+        completion = self.get_file(file_id)
+        if completion is None or not completion.student_id:
+            return None
+        template = self.get_template(file_id)
+        if template is None:
+            return None
+        return self.get_completion_series(completion.student_id, template.id)
+
+    def get_completion_series_member(self, file_id: str):
+        series = self.get_completion_series_for_file(file_id)
+        if series is None:
+            return None
+        for member in series.members:
+            if member.file_id == file_id:
+                return series, member
+        return None
+
+    def next_attempt_sequence_for_completion(self, file_id: str) -> int | None:
+        completion = self.get_file(file_id)
+        if completion is None or not completion.student_id:
+            return None
+        template = self.get_template(file_id)
+        if template is None:
+            return None
+        series = self.get_completion_series(completion.student_id, template.id)
+        if series is None:
+            return 1
+        for member in series.members:
+            if member.file_id == file_id:
+                return member.attempt_sequence
+        return series.attempt_count + 1
+
+    # -----------------------------------------------------------------------
     # GoodNotes helper: resolve DaydreamEdu template/source path for a
     # GoodNotes main file according to the naming rules in
     # docs/proposals/05-goodnotes-exam-registration.md §4.

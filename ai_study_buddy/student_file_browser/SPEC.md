@@ -39,6 +39,7 @@ See `OnDiskMainPdfCard.to_dict()` in `ai_study_buddy.files.on_disk_inventory`.
 - Changing **Scope** or **Type** updates dependent controls (student disabled, book name dropdown when Type = Book) without loading inventory. Book options come from `book_names` in `/api/config` and `/api/inventory` meta (contextual to other filters).
 - **Registered** when the slice mixes registered and unregistered. **Template** / **Marking** / **Review** when the slice has ≥2 registered completions or more than one distinct value for that dimension; workflow filters apply to registered completions only.
 - In-flight inventory requests are dropped when a newer **Filter** click supersedes them.
+- When `attempt_count > 1` and `attempt_sequence` is set, show **`Attempt {attempt_sequence} of {attempt_count}`** beside the card title (registry-derived; requires `files` v0.3.3+).
 
 ## Environment
 

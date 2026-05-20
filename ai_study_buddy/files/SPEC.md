@@ -2,7 +2,7 @@
 
 This document is the **contract** for the public Python API of `ai_study_buddy.files`. It is registry-agnostic: no SQLite, no `PdfFileManager`, no scan-root configuration.
 
-**Version:** align with [README.md](./README.md) (package **v0.3.0**).
+**Version:** align with [README.md](./README.md) (package **v0.3.3**).
 
 Core leaf listing and root resolution are **registry-agnostic**. Optional correlation with `pdf_file_manager` / `pdf_registry.db` lives in **`pdf_registry_paths.py`** (see §3).
 
@@ -190,3 +190,16 @@ Map built in `from_pdf_file_manager`. Use `registry_file_for_path` and `has_temp
 - `inventory_meta` — index totals; `show_is_registered_filter` when slice mixes registered/unregistered.
 - `should_show_is_registered_filter` — true when ≥1 unregistered main remains after applying criteria **except** `is_registered`.
 - `distinct_book_group_names` — sorted book group names for `doc_type=book` after other filters (except `book`).
+
+### 6.6 `OnDiskMainPdfCard` completion series fields (v0.3.3)
+
+Populated in `enrich_on_disk_main_pdf` via `PdfFileManager.get_completion_series_member` when the card is a **registered completion** with a template link (`has_template=true`). All are optional / nullable on the card and in `to_dict()` inventory JSON.
+
+| Field | Type | Meaning |
+|-------|------|---------|
+| `template_file_id` | `str \| None` | Registry id of the linked template |
+| `completion_series_id` | `str \| None` | `"<student_slug>::<template_file_id>"` — same formula as marking `template_attempt_group_id` |
+| `attempt_sequence` | `int \| None` | 1-based ordinal of this completion within the series |
+| `attempt_count` | `int \| None` | Total distinct completion `file_id`s in the series for this student + template |
+
+**Ordering** matches `pdf_file_manager` completion series: `pdf_files.added_at` ascending, then resolved path. **Re-mark** does not change sequence. **No template link** → all four fields remain `null`. See [proposal 15](../pdf_file_manager/docs/proposals/15-completion-series-derived.md) and [L4_COMPLETION_MARKING_FRAMEWORK § Completion series](../docs/L4_COMPLETION_MARKING_FRAMEWORK.md#completion-series-registry-derived).

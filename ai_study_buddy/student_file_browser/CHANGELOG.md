@@ -1,5 +1,10 @@
 # Changelog — `student_file_browser`
 
+## [v0.1.4] — Completion series chip (2026-05-20)
+
+- Status chip **`Attempt {n} of {m}`** beside the card title when `attempt_count > 1` and `attempt_sequence` is set (from `ai_study_buddy.files` v0.3.3 inventory enrichment).
+- Requires `files` v0.3.3+; `/api/health` reports `files_version` **0.3.3**.
+
 ## [v0.1.3] — Root filter (2026-05-20)
 
 - **Root** filter bar control and URL param `root_id=all|daydreamedu|goodnotes` (requires `ai_study_buddy.files` v0.3.2).

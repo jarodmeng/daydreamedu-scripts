@@ -3,7 +3,7 @@
 
 There are some conceptual foundations of what those files are. Having a clear framwork can help better design the tools and workflows, and better utilize those files.
 
-For how **completion PDFs** map to **marking runs**, `attempt_file_id`, and `attempt_sequence`, see [L4_COMPLETION_MARKING_FRAMEWORK](./L4_COMPLETION_MARKING_FRAMEWORK.md).
+For how **completion PDFs** map to **marking runs**, `attempt_file_id`, **`attempt_sequence`**, and **registry-derived completion series** (`completion_series_id`, distinct `file_id` ordering), see [L4_COMPLETION_MARKING_FRAMEWORK](./L4_COMPLETION_MARKING_FRAMEWORK.md).
 
 ## Assumptions
 1. In this document, "file" always refers to a PDF file.
@@ -47,6 +47,7 @@ Notes:
 In general, I divide registered files into the following hierarchical structure according to attributes. All of those attributes are stored in the pdf_file_manager registry.
 1. The top-level attribute of a registered file is template vs. completion. A template registered file is basically "empty" (i.e. they haven't been worked on). Examples are cleaned school exams or exercises (we usually use the "reprocess-wa-exam-template" skill to general them from a scanned completion file). A completion registered file has been worked on (usually this means the questions in the file are answered).
    - A completion registered file is student-scoped (i.e. it must have student_id attribute set because it must belong to a particular student). A template registered file is general-scoped (i.e. it's not attached to a particular student although it might be sourced/cleaned from a student's completion file, usually by using the "reprocess-wa-exam-template" skill).
+   - Multiple completion **`file_id`s** may link to the same template via `completed_from`. Their **attempt order** (`attempt_sequence`, `attempt_count`) is a registry-derived **completion series** per `(student_id, template_file_id)` — same group id as marking `template_attempt_group_id`. See [L4_COMPLETION_MARKING_FRAMEWORK § Completion series](./L4_COMPLETION_MARKING_FRAMEWORK.md#completion-series-registry-derived).
 2. The following second-level attributes apply to both template and completion registered files.
    - "subject" refers to the 4 primary school subjects: chinese, english, math, and science. This attribute appears in a registered file's path as a folder name.
    - "grade" refers to the primary school grade. It can be single-grade (i.e. P1 to P6) or across-grade (i.e. PSLE). This attribute also appears in a registered file's path as a folder name.
@@ -75,14 +76,14 @@ Use `ai_study_buddy.files` as the centralized file-utility surface for determini
 - **On-disk main-PDF inventory (v0.3.0+):** filter-first operator views over leaf-folder mains (registered and unregistered).
   - **`path_facets`:** `infer_path_facets`, `PathFacets` — path layout → `scope`, `subject`, `grade_or_scope`, `doc_type`, `book_group_name`, `student_email`, `parse_status` (Phase A: delegates to `PdfFileManager._infer_from_path`).
   - **`main_pdfs`:** `build_main_pdf_index_for_roots`, `is_inventory_main_pdf` — registered paths only when `file_type='main'`; unregistered non-`_raw_` basenames; optional `exclude_activity_note_completions` (same universe as `completion_template_link_gap_report`).
-  - **`on_disk_inventory`:** `OnDiskMainPdfCard`, `FilterCriteria`, `enrich_on_disk_main_pdf`, `build_enriched_inventory`, `filter_main_pdf_cards`, `filter_meta_for_response` / `workflow_filter_options` (contextual filter dropdowns + counts).
+  - **`on_disk_inventory`:** `OnDiskMainPdfCard`, `FilterCriteria`, `enrich_on_disk_main_pdf`, `build_enriched_inventory`, `filter_main_pdf_cards`, `filter_meta_for_response` / `workflow_filter_options` (contextual filter dropdowns + counts). Registered template-linked completions also carry **`template_file_id`**, **`completion_series_id`**, **`attempt_sequence`**, **`attempt_count`** (v0.3.3+; registry series via `PdfFileManager.get_completion_series_member`).
   - **`completion_enrichment`:** `enrich_registered_completion` → marking/review workflow flags via `marking.review.workflow_flags` (shared with Review Workspace `attempt_service` since marking v0.3.8).
   - Design reference: [L4_FILE_SYSTEM_MANAGEMENT](./L4_FILE_SYSTEM_MANAGEMENT.md) (package status); operator UI: [L4_STUDENT_FILE_MANAGEMENT](./L4_STUDENT_FILE_MANAGEMENT.md).
 - **Determinism rule:** callers should not hand-roll path normalization, set-difference leaf partitioning, or ad hoc `find_files()`/`list_scan_roots()` membership checks outside this module.
 
 This module is the default place for reusable “on-disk leaf ↔ registry” and **main-PDF inventory** behavior shared by leaf-registry commands, **`root_pdf_browser`**, and **`student_file_browser`**.
 
-API contract and versioned details: [`ai_study_buddy/files/SPEC.md`](../files/SPEC.md), [`CHANGELOG.md`](../files/CHANGELOG.md) (current **v0.3.1**).
+API contract and versioned details: [`ai_study_buddy/files/SPEC.md`](../files/SPEC.md), [`CHANGELOG.md`](../files/CHANGELOG.md) (current **v0.3.3**).
 
 ### Unregistered on-disk files
 
@@ -126,6 +127,7 @@ These 4 categories are MECE (mutually exclusive and collectively exhaustive): ea
 - **Index:** `build_main_pdf_index_for_roots` at startup (GoodNotes leaves use **leaf-registry** profile: `exclude_not_completed=True`, unlike `root_pdf_browser` browse). Excludes completion `activity` / `note` mains by default.
 - **Filters:** scope, student (`students.id`), subject, grade, type, book, plus contextual registration / template / marking / review flags (`Filter` applies; `Reset` clears defaults).
 - **Actions:** **View PDF** → `root_pdf_browser` deep link; **Copy path**; **Review Workspace** (`?attempt_id=` + `student_id=`) when marked.
+- **Multi-attempt UX (v0.1.4+):** when a registered completion shares a template with other completions for the same student, cards show **`Attempt {n} of {m}`** beside the title (`attempt_count > 1`; fields from `files` v0.3.3 inventory enrichment).
 - **Run:** `.cursor/commands/start-student-file-browser.md` or `python3 -m ai_study_buddy.student_file_browser.spawn_background` / `serve`.
 - **Design reference:** [L4_STUDENT_FILE_MANAGEMENT](./L4_STUDENT_FILE_MANAGEMENT.md).
 - **Completion vs marking identity:** [L4_COMPLETION_MARKING_FRAMEWORK](./L4_COMPLETION_MARKING_FRAMEWORK.md). Post-MVP **`root_id` filter:** [student_file_browser proposal](../student_file_browser/docs/proposal/1-root-id-filter.md).

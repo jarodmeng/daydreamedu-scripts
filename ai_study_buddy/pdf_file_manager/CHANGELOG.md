@@ -4,6 +4,12 @@ All notable changes to the pdf_file_manager utility are documented here.
 
 ---
 
+## [v0.3.19] — Registry-derived completion series
+
+- New module `completion_series.py`: `CompletionSeries`, `CompletionSeriesMember`, `build_completion_series`, `series_id_for`, `slugify_student`.
+- `PdfFileManager`: `get_completion_series`, `get_completion_series_for_file`, `get_completion_series_member`, `completion_series_id`, `next_attempt_sequence_for_completion`.
+- Series order: `pdf_files.added_at` ascending, then resolved `path` (per [proposal 15](docs/proposals/15-completion-series-derived.md)).
+
 ## [v0.3.18] — Integrity validator: path-derived metadata drift
 
 - `scripts/validate_pdf_registry_integrity.py` now reports **`path_inferred_metadata_drift`**: registered rows whose stored path-derived fields differ from what the current registered path implies (`subject`, `doc_type`, `student_id`, `is_template`, and invariant metadata keys such as `grade_or_scope`, `content_folder`, and `chinese_variant`).

@@ -83,6 +83,8 @@ No other fields are changed or removed.
 
 ## 5) Write-Time Rules (normative)
 
+> **Update (May 2026):** `attempt_sequence` and `template_attempt_group_id` are now sourced from **`PdfFileManager` completion series** (`next_attempt_sequence_for_completion`, `completion_series_id`) — distinct completion **`file_id`s** ordered by registry `pdf_files.added_at`, not by prior marking JSON count. Re-mark on the same `file_id` is idempotent. See [registry-derived completion series](../../../pdf_file_manager/docs/proposals/15-completion-series-derived.md) and [L4 completion framework](../../../docs/L4_COMPLETION_MARKING_FRAMEWORK.md#completion-series-registry-derived). Historical rules below describe the original v1.1 JSON-scan writer; use **`backfill_attempt_sequence_from_registry`** to align legacy artifacts.
+
 When writing a new `v1.1` artifact:
 
 1. Determine `student_slug` using existing slug logic (`artifact_paths.slugify_student` rules).
@@ -358,7 +360,9 @@ Implemented artifacts:
 - `core/artifact_schema.py` defaults to `marking_result.v1.1` and validates both `v1` and `v1.1`.
 - `core/artifact_writer.py` now auto-populates attempt metadata and emits `schema_version = marking_result.v1.1`.
 - `workflows/report_renderer.py` renders `Attempt #<n>` in `## Result` when sequence exists.
-- `workflows/backfill_attempt_metadata_v1_1.py` adds dry-run/apply backfill for existing artifacts.
+- `workflows/backfill_attempt_metadata_v1_1.py` adds dry-run/apply backfill for existing artifacts (legacy JSON grouping).
+- `workflows/backfill_attempt_sequence_from_registry.py` (May 2026) rewrites `attempt_sequence` / `template_attempt_group_id` from registry completion series — preferred for production repair.
+- Registry source of truth: [pdf_file_manager proposal 15](../../../pdf_file_manager/docs/proposals/15-completion-series-derived.md).
 - `README.md`, `TESTING.md`, and `CHANGELOG.md` updated for `v0.2.3`.
 
 Validation evidence:

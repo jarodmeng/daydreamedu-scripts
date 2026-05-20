@@ -112,6 +112,20 @@ If this file is a completion (has a `completed_from` relation), return its templ
 
 Return all completed files that were filled from this template (all targets of `template_for` from this file).
 
+#### Completion series (v0.3.19+)
+
+Registry-derived projection for repeated completions of the same template by one student. Types in [`completion_series.py`](./completion_series.py): `CompletionSeries`, `CompletionSeriesMember`. Proposal: [15-completion-series-derived.md](./docs/proposals/15-completion-series-derived.md).
+
+| Method | Returns | Notes |
+|--------|---------|-------|
+| `get_completion_series(student_id, template_file_id)` | `CompletionSeries \| None` | Ordered members; `None` if template missing or zero members for student |
+| `get_completion_series_for_file(file_id)` | `CompletionSeries \| None` | Resolve template via `get_template`, then series |
+| `get_completion_series_member(file_id)` | `tuple[CompletionSeries, CompletionSeriesMember] \| None` | Series + this file’s slot |
+| `completion_series_id(student_id, template_file_id)` | `str \| None` | `"<student_slug>::<template_file_id>"` without member scan |
+| `next_attempt_sequence_for_completion(file_id)` | `int \| None` | Existing member → same sequence (re-mark idempotent); else next slot |
+
+**Sort keys:** `pdf_files.added_at` ascending, then resolved `path`. **Series id** equals marking `template_attempt_group_id`.
+
 #### `open_file(file_id_or_path)`
 
 Open the PDF in macOS Preview (`open <path>`). Raises `FileNotFoundError` if no longer on disk.
@@ -446,6 +460,7 @@ For all returned data class shapes (`PdfFile`, `FileGroup`, `FileGroupMember`, a
 | `delete_file` | ✅ Implemented |
 | Raw ↔ main relations (`link_files`, `unlink_files`) | ✅ Implemented |
 | Template relations (`link_to_template`, `unlink_template`, `get_template`, `get_completions`) | ✅ Implemented |
+| Completion series (`get_completion_series*`, `completion_series_id`, `next_attempt_sequence_for_completion`) | ✅ Implemented (v0.3.19) |
 | File group operations | ✅ Implemented |
 | `suggest_groups` | ✅ Implemented |
 | `operation_log` writes on all C/U/D operations | ✅ Implemented |

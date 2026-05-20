@@ -450,6 +450,26 @@
     container.appendChild(c);
   }
 
+  function attemptSeriesLabel(item) {
+    const attemptCount = item.attempt_count;
+    const attemptSequence = item.attempt_sequence;
+    if (
+      typeof attemptCount === "number" &&
+      attemptCount > 1 &&
+      typeof attemptSequence === "number" &&
+      attemptSequence >= 1
+    ) {
+      return `Attempt ${attemptSequence} of ${attemptCount}`;
+    }
+    return null;
+  }
+
+  function appendAttemptSeriesChip(container, item) {
+    const label = attemptSeriesLabel(item);
+    if (!label) return;
+    appendStatusChip(container, label, "info");
+  }
+
   function appendWorkflowStatusChips(container, item) {
     appendStatusChip(
       container,
@@ -505,8 +525,12 @@
       const icon = document.createElement("div");
       icon.className = "icon";
       icon.textContent = "PDF";
+      const titleRow = document.createElement("div");
+      titleRow.className = "card-title-row";
       const h3 = document.createElement("h3");
       h3.textContent = item.normal_name || item.basename;
+      titleRow.appendChild(h3);
+      appendAttemptSeriesChip(titleRow, item);
       const chips = document.createElement("div");
       chips.className = "chips";
       ["subject", "grade_or_scope", "doc_type", "root_id"].forEach((k) => {
@@ -558,7 +582,7 @@
         actions.appendChild(rw);
       }
       card.appendChild(icon);
-      card.appendChild(h3);
+      card.appendChild(titleRow);
       card.appendChild(chips);
       card.appendChild(statusChips);
       card.appendChild(actions);

@@ -627,7 +627,7 @@ def test_write_marking_artifact_rejects_embedded_override_mode_incoherence_in_wr
         write_marking_artifact(bad, context_root=tmp_path)
 
 
-def test_write_marking_artifact_increments_attempt_sequence_for_same_template(tmp_path):
+def test_write_marking_artifact_idempotent_sequence_for_same_attempt_file_remark(tmp_path):
     first = _sample_artifact()
     second = replace(
         _sample_artifact(),
@@ -640,11 +640,75 @@ def test_write_marking_artifact_increments_attempt_sequence_for_same_template(tm
     first_payload = json.loads(first_path.read_text(encoding="utf-8"))
     second_payload = json.loads(second_path.read_text(encoding="utf-8"))
     assert first_payload["context"]["attempt_sequence"] == 1
-    assert second_payload["context"]["attempt_sequence"] == 2
+    assert second_payload["context"]["attempt_sequence"] == 1
     assert (
         second_payload["context"]["template_attempt_group_id"]
         == first_payload["context"]["template_attempt_group_id"]
     )
+
+
+def test_write_marking_artifact_attempt_sequence_from_registry(tmp_path):
+    import tempfile
+    from pathlib import Path
+
+    from ai_study_buddy.pdf_file_manager.pdf_file_manager import PdfFileManager
+
+    with tempfile.TemporaryDirectory() as registry_tmp:
+        registry_tmp = Path(registry_tmp)
+        db_path = registry_tmp / "registry.db"
+        mgr = PdfFileManager(db_path=str(db_path))
+        mgr.add_student("winston", "Winston", "winston@example.com")
+        tpl_path = registry_tmp / "template" / "_c_unit.pdf"
+        tpl_path.parent.mkdir(parents=True)
+        tpl_path.write_bytes(b"%PDF-1.0\n")
+        tpl = mgr.register_file(tpl_path, doc_type="exercise", subject="english", is_template=True)
+        c1_path = registry_tmp / "c1.pdf"
+        c2_path = registry_tmp / "c2.pdf"
+        c1_path.write_bytes(b"%PDF-1.0\n")
+        c2_path.write_bytes(b"%PDF-1.0\n")
+        c1 = mgr.register_file(
+            c1_path,
+            file_type="main",
+            doc_type="exercise",
+            subject="english",
+            is_template=False,
+            student_id="winston",
+        )
+        c2 = mgr.register_file(
+            c2_path,
+            file_type="main",
+            doc_type="exercise",
+            subject="english",
+            is_template=False,
+            student_id="winston",
+        )
+        mgr.link_to_template(c1.id, tpl.id)
+        mgr.link_to_template(c2.id, tpl.id)
+
+        base = _sample_artifact()
+        first = replace(
+            base,
+            context=replace(base.context, attempt_file_id=c1.id, template_file_id=tpl.id),
+        )
+        second = replace(
+            base,
+            context=replace(
+                base.context,
+                attempt_file_id=c2.id,
+                template_file_id=tpl.id,
+            ),
+            created_at="2026-04-15T18:31:25+08:00",
+            updated_at="2026-04-15T18:31:25+08:00",
+        )
+
+        with patch("ai_study_buddy.pdf_file_manager.pdf_file_manager.PdfFileManager") as pfm_cls:
+            pfm_cls.return_value = mgr
+            write_marking_artifact(first, context_root=tmp_path)
+            second_path = write_marking_artifact(second, context_root=tmp_path)
+
+        second_payload = json.loads(second_path.read_text(encoding="utf-8"))
+        assert second_payload["context"]["attempt_sequence"] == 2
+        assert second_payload["context"]["template_attempt_group_id"] == f"winston::{tpl.id}"
 
 
 def test_write_marking_artifact_infers_is_partial_from_scope_text(tmp_path):

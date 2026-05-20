@@ -8,7 +8,7 @@ Canonical marking pipeline for AI Study Buddy. This package defines the
 3. render markdown as a derived view
 4. support human note edits in the canonical JSON
 
-Current version: `v0.3.9`
+Current version: `v0.3.10`
 
 ## Package Scope
 
@@ -42,7 +42,8 @@ Canonical artifacts now support multiple attempts for the same student/template 
 Writer behavior:
 
 - `write_marking_artifact(...)` emits `schema_version = marking_result.v1.6`.
-- When `template_file_id` is present, the writer auto-populates group/sequence metadata.
+- When `template_file_id` is present, the writer sets `template_attempt_group_id` and `attempt_sequence` from **`PdfFileManager` completion series** (`completion_series_id`, `next_attempt_sequence_for_completion`) — not from a scan of prior marking JSONs. Re-mark on the same completion `file_id` keeps the same sequence.
+- **Backfill (registry):** `python3 -m ai_study_buddy.marking.workflows.backfill_attempt_sequence_from_registry --dry-run`
 - Learning report rendering shows `Attempt #<n>` when `attempt_sequence` is present.
 
 Example `context` snippet:

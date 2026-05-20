@@ -11,7 +11,7 @@
 
 ## P0 — require immediate attention
 
-_No open items._
+- [ ] **P0-1** · 2026-05-20 13:15 SGT: **Marking writer guard — one active result per completion `file_id`** — design and implement policy so a second marking run for the same completion PDF cannot leave two competing “active” results (see [L4_COMPLETION_MARKING_FRAMEWORK.md](docs/L4_COMPLETION_MARKING_FRAMEWORK.md) follow-up #2). **Constraint:** the superseded run may already have **amendments** and **review notes** keyed to its artifact stem — we cannot assume “prune the old JSON” is always safe. **Out of scope for** [completion-series proposal](pdf_file_manager/docs/proposals/15-completion-series-derived.md) (tracked here instead). Needs a small proposal or spec slice: replace vs supersede vs block-at-write, and how Review Workspace / learning DB honor the canonical run.
 
 ## P1 — require attention within 7 days
 

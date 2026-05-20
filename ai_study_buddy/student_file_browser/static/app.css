@@ -135,10 +135,25 @@ header h1 {
   color: #888;
 }
 
+.card-title-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.35rem;
+}
+
 .card h3 {
   margin: 0;
   font-size: 0.95rem;
   word-break: break-word;
+}
+
+.card-title-row .chip {
+  flex-shrink: 0;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
 }
 
 .chips {

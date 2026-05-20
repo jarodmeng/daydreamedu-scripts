@@ -96,7 +96,7 @@ When a student attempts the same template multiple times, canonical JSON context
 Writer contract:
 
 - `write_marking_artifact(...)` emits `schema_version = marking_result.v1.6`.
-- When `template_file_id` exists, writer auto-populates `template_attempt_group_id` and `attempt_sequence`.
+- When `template_file_id` exists, writer auto-populates `template_attempt_group_id` and `attempt_sequence` from **`PdfFileManager` completion series** (`next_attempt_sequence_for_completion` / `completion_series_id`) — distinct completion `file_id`s only; re-mark on the same `file_id` is idempotent. If the completion is not in the registry, **degraded mode** sets `attempt_sequence = 1` (no JSON scan).
 - If `template_file_id` is missing, writer sets:
   - `template_attempt_group_id = null`
   - `attempt_sequence = null`
@@ -233,8 +233,8 @@ When both DB and filesystem artifacts exist for the same file and divergence det
 - Context lookup backfills (`*_file_id`, book group, unit label) are best
   effort and non-blocking.
 - Attempt metadata backfill workflow:
-  - `python3 -m ai_study_buddy.marking.workflows.backfill_attempt_metadata_v1_1 --dry-run`
-  - groups by `(student_slug, template_file_id)` and assigns contiguous `attempt_sequence` by `(created_at, json path)`
+  - `python3 -m ai_study_buddy.marking.workflows.backfill_attempt_metadata_v1_1 --dry-run` (legacy JSON grouping)
+  - `python3 -m ai_study_buddy.marking.workflows.backfill_attempt_sequence_from_registry --dry-run` (preferred: `attempt_sequence` from registry `pdf_files.added_at` order)
 
 ### 5.1) Schema evolution checklist
 

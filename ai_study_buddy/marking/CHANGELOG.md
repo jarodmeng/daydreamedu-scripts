@@ -4,6 +4,18 @@ All notable changes to `ai_study_buddy.marking` are documented in this file.
 
 Committed changes under `ai_study_buddy/marking/` should add an entry here and bump **Current version** in `README.md` (semver: **patch** for docs or small renderer tweaks, **minor** for schema or public API changes). `SPEC.md` / `TESTING.md` titles do not carry the package version.
 
+## [0.3.10] - 2026-05-20
+
+Patch: registry-sourced `attempt_sequence` and group id in marking writer.
+
+### Added
+
+- `marking/workflows/backfill_attempt_sequence_from_registry.py` — dry-run/apply backfill of `context.attempt_sequence` and `context.template_attempt_group_id` from `PdfFileManager` completion series (`pdf_files.added_at` order).
+
+### Changed
+
+- `marking/core/artifact_writer.py`: `_resolve_attempt_sequence` uses `PdfFileManager.next_attempt_sequence_for_completion` (distinct completion `file_id`s; re-mark idempotent). Degraded mode: `attempt_sequence = 1` when completion not in registry but `template_file_id` set.
+
 ## [0.3.9] - 2026-05-19
 
 Patch: strengthen `question_sections` `start_page` validation and backfill `attempt_page_start` in v3 finalize.

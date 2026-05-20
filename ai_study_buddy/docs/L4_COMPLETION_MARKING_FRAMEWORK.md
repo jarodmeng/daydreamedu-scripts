@@ -60,6 +60,7 @@ flowchart TB
 | **Normal / display name** | `normal_name` / basename (often from template) | What does the operator see in folder listings? |
 | **Sync root** | Path under `DAYDREAMEDU_ROOT` vs `GOODNOTES_ROOT` → `root_id` in inventory | Which tree is this card from? |
 | **Template unit** | `template_file_id` + `template_attempt_group_id` | Which worksheet/book unit is this attempt for? |
+| **Completion series** | Registry-derived `(student_id, template_file_id)` projection | Which completion files belong to the same template for this student, and in what order? |
 | **Marking run** | `context/marking_results/.../<stem>__<timestamp>.json` | What grades/diagnosis were produced for **one** completion? |
 | **Attempt order (product)** | `context.attempt_sequence` (1-based, per group) | Which completion file is 1st, 2nd, … on that template for this student? |
 
@@ -92,7 +93,65 @@ Within one **`template_attempt_group_id`** (typically `"<student_slug>::<templat
 
 **Not intended:** incrementing sequence when the **same** `file_id` is marked again (re-mark). That conflates “grading pass” with “new completion PDF.”
 
-**Implementation note (May 2026):** `write_marking_artifact` → `_next_attempt_sequence` in [`artifact_writer.py`](../marking/core/artifact_writer.py) currently counts **prior marking JSONs** for the template group, so a re-mark on one PDF can bump sequence incorrectly. **Follow-up:** assign sequence from **distinct `attempt_file_id`s** in the group (chronological), not from artifact file count.
+**Source of truth (May 2026):** `PdfFileManager` completion series (`get_completion_series*`, `next_attempt_sequence_for_completion`) orders **distinct completion `file_id`s** linked to the same template for one student. `write_marking_artifact` sets `template_attempt_group_id` and `attempt_sequence` from that projection — not from a scan of prior marking JSON files. See [Completion series (registry-derived)](#completion-series-registry-derived) and [proposal 15](../pdf_file_manager/docs/proposals/15-completion-series-derived.md).
+
+---
+
+## Completion series (registry-derived)
+
+When a student completes the same template more than once, each completion is a separate registry **`file_id`**. The **completion series** is a deterministic projection of those files — **no new SQLite tables**.
+
+### Series identity
+
+| Field | Value |
+|-------|--------|
+| **Group key** | `(student_id, template_file_id)` via `completed_from` |
+| **`completion_series_id` / `template_attempt_group_id`** | `"<student_slug>::<template_file_id>"` |
+| **`student_slug`** | Same rules as `marking.core.artifact_paths.slugify_student` (from `students.id` + name, e.g. `emma`, `winston`) |
+
+### Member ordering
+
+Members are sorted by:
+
+1. `pdf_files.added_at` ascending (registry discovery order)
+2. Resolved `path` ascending (tie-break)
+
+**Sequence:** member at index `i` → `attempt_sequence = i + 1`. One member → `attempt_count = 1`.
+
+### Registry API (`pdf_file_manager` v0.3.19+)
+
+| Method | Purpose |
+|--------|---------|
+| `get_completion_series(student_id, template_file_id)` | Full ordered series |
+| `get_completion_series_for_file(file_id)` | Series for a completion’s template |
+| `get_completion_series_member(file_id)` | Series + this file’s member row |
+| `completion_series_id(student_id, template_file_id)` | Group id string only |
+| `next_attempt_sequence_for_completion(file_id)` | Writer slot: existing member → same sequence (re-mark idempotent); new member → `attempt_count + 1` |
+
+Implementation: [`completion_series.py`](../pdf_file_manager/completion_series.py).
+
+### Re-mark rule
+
+If `file_id` is **already** in the series, `next_attempt_sequence_for_completion` returns that member’s `attempt_sequence`. Re-marking the same PDF does **not** increment sequence.
+
+### Pre-marking visibility
+
+Inventory enrichment (`files` v0.3.3+) exposes `attempt_sequence`, `attempt_count`, `completion_series_id`, and `template_file_id` on registered completion cards **before** any marking run exists. Student File Browser shows **`Attempt {n} of {m}`** beside the title when `attempt_count > 1`.
+
+### When series fields are null
+
+| Condition | Result |
+|-----------|--------|
+| No `completed_from` / template link | All series fields `null` |
+| Template missing or not a template | Series `None` |
+| Activity / note completions (no template link) | Series fields `null` |
+| Completion not in registry at mark time | Writer **degraded mode**: `attempt_sequence = 1` when `template_file_id` set (no JSON scan) |
+
+### Historical repair
+
+- Legacy writer incremented sequence from **marking JSON count** (bug for re-marks).
+- Preferred backfill: `python3 -m ai_study_buddy.marking.workflows.backfill_attempt_sequence_from_registry` (dry-run first).
+- Legacy JSON-grouping backfill (`backfill_attempt_metadata_v1_1`) remains for older migrations only.
 
 ---
 
@@ -102,11 +161,12 @@ Within one **`template_attempt_group_id`** (typically `"<student_slug>::<templat
 
 - Completions are **student-scoped** rows; templates are **general-scoped**.
 - `completed_from` links a completion main to its template.
+- **Completion series** (ordered distinct completion `file_id`s per student + template) is derived via `get_completion_series*` — see [Completion series (registry-derived)](#completion-series-registry-derived).
 - Lookup for marking and Review Workspace uses **`file_id`** (or resolved path → file).
 
 ### Marking artifacts (`ai_study_buddy/marking`)
 
-- Writer: [`write_marking_artifact`](../marking/core/artifact_writer.py) — sets `template_attempt_group_id`, `attempt_sequence`, `marking_asset` path.
+- Writer: [`write_marking_artifact`](../marking/core/artifact_writer.py) — sets `template_attempt_group_id`, `attempt_sequence`, `marking_asset` path from registry completion series when `template_file_id` is known.
 - Lookup: [`find_marking_artifacts_for_attempt`](../marking/core/artifact_lookup.py) — matches rows where `attempt_file_id` (or legacy path) equals the completion’s `file_id`; returns refs sorted by `created_at` desc.
 - Canonical schema: `marking_result.v1.6` — see [L4_MARKING_RESULT_ARTIFACT](./L4_MARKING_RESULT_ARTIFACT.md).
 
@@ -118,6 +178,8 @@ Within one **`template_attempt_group_id`** (typically `"<student_slug>::<templat
 ### Student File Browser
 
 - Cards expose **`file_id`**, **`root_id`**, workflow flags (`has_marking`, `review_status`, …).
+- Registered template-linked completions expose **`attempt_sequence`**, **`attempt_count`**, **`completion_series_id`**, **`template_file_id`** (inventory enrichment; `files` v0.3.3+).
+- When `attempt_count > 1`, show **`Attempt {sequence} of {count}`** beside the card title (`student_file_browser` v0.1.4+).
 - Same basename under DD and GN may be **two cards** (different `file_id`s or cross-root mirrors); see [L4_FILE_FRAMEWORK](./L4_FILE_FRAMEWORK.md) and [root_id filter proposal](../student_file_browser/docs/proposal/1-root-id-filter.md).
 - **`root_id` filter** helps triage by tree; it does not replace completion identity.
 
@@ -151,9 +213,9 @@ Within one **`template_attempt_group_id`** (typically `"<student_slug>::<templat
 
 ## Open follow-ups
 
-1. **Writer:** `attempt_sequence` from distinct `attempt_file_id`s in `template_attempt_group_id`, not marking-artifact count.
-2. **Writer guard:** reject or replace second active marking run for the same `attempt_file_id` at write time.
-3. **Browser:** surface `attempt_sequence` / attempt count on cards where multiple completions share a template (optional UX).
+1. ~~**Writer:** `attempt_sequence` from distinct completion `file_id`s in `template_attempt_group_id`, not marking-artifact count.~~ **Resolved** (May 2026): registry completion series — [proposal 15](../pdf_file_manager/docs/proposals/15-completion-series-derived.md).
+2. **Writer guard:** reject or replace second active marking run for the same `attempt_file_id` at write time — [TODO.md](../TODO.md) **P0-1**.
+3. ~~**Browser:** surface `attempt_sequence` / attempt count on cards where multiple completions share a template.~~ **Resolved** (May 2026): `student_file_browser` v0.1.4 chip beside title.
 4. **Cross-root policy:** canonical “one card per completion” vs twin mirrors — registry policy, not marking (see [root_id filter proposal](../student_file_browser/docs/proposal/1-root-id-filter.md) out of scope).
 
 ---
@@ -161,6 +223,7 @@ Within one **`template_attempt_group_id`** (typically `"<student_slug>::<templat
 ## References
 
 - [L4_FILE_FRAMEWORK](./L4_FILE_FRAMEWORK.md) — on-disk layout, registered file attributes, `root_id`, Student File Browser
+- [pdf_file_manager proposal: registry-derived completion series](../pdf_file_manager/docs/proposals/15-completion-series-derived.md) — series API, marking writer, inventory enrichment, browser chip
 - [L4_MARKING_RESULT_ARTIFACT](./L4_MARKING_RESULT_ARTIFACT.md) — `marking_result` JSON shape, paths, `attempt_basename`
 - [L4_STUDENT_FILE_MANAGEMENT](./L4_STUDENT_FILE_MANAGEMENT.md) — operator browser filters and workflow flags
 - [marking proposal: multiple attempts per template](../marking/docs/proposal/3-multiple_attempts_per_template_v1_1.md) — schema fields `template_attempt_group_id`, `attempt_sequence`, `attempt_label`
