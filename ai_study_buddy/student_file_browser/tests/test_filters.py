@@ -6,8 +6,19 @@ from ai_study_buddy.student_file_browser.filters import filter_criteria_from_que
 def test_filter_criteria_from_query_defaults() -> None:
     c = filter_criteria_from_query({})
     assert c.scope == "completion"
+    assert c.root_id == "all"
     assert c.subject == "all"
     assert c.is_registered is None
+
+
+def test_filter_criteria_from_query_root_id() -> None:
+    c = filter_criteria_from_query({"root_id": ["goodnotes"]})
+    assert c.root_id == "goodnotes"
+
+
+def test_filter_criteria_from_query_invalid_root_id() -> None:
+    c = filter_criteria_from_query({"root_id": ["invalid"]})
+    assert c.root_id == "all"
 
 
 def test_filter_criteria_from_query_is_registered() -> None:

@@ -183,9 +183,9 @@ Map built in `from_pdf_file_manager`. Use `registry_file_for_path` and `has_temp
 ### 6.5 `on_disk_inventory`
 
 - `enrich_on_disk_main_pdf` — sets `student_id` on completion rows via `resolve_card_student_id`; unregistered completions get falsy workflow flags.
-- `filter_main_pdf_cards(cards, FilterCriteria, pfm=...)` — `FilterCriteria.student` is registry `students.id` (email accepted for legacy callers).
+- `filter_main_pdf_cards(cards, FilterCriteria, pfm=...)` — `FilterCriteria.student` is registry `students.id` (email accepted for legacy callers); `FilterCriteria.root_id` is `all` | `daydreamedu` | `goodnotes`.
 - `filter_meta_for_response` — merged dict for UI: facet lists + `*_counts`, plus workflow option keys from `workflow_filter_options`.
-- `filter_dropdown_options` — `scopes`, `subjects`, `grades`, `doc_types`, `student_ids`, `book_names` (each omits its own criterion from the slice).
+- `filter_dropdown_options` — `scopes`, `root_ids`, `subjects`, `grades`, `doc_types`, `student_ids`, `book_names` (each omits its own criterion from the slice).
 - `workflow_filter_options` — contextual `is_registered_options`, `has_template_options`, `has_marking_options`, `review_status_options` and matching `show_*_filter` flags (true only when >1 distinct value in slice).
 - `inventory_meta` — index totals; `show_is_registered_filter` when slice mixes registered/unregistered.
 - `should_show_is_registered_filter` — true when ≥1 unregistered main remains after applying criteria **except** `is_registered`.

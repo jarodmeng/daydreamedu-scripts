@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from ai_study_buddy.files.on_disk_inventory import FilterCriteria
 
+_VALID_ROOT_IDS = frozenset({"all", "daydreamedu", "goodnotes"})
+
 
 def filter_criteria_from_query(params: dict[str, list[str]]) -> FilterCriteria:
     def _one(key: str, default: str = "") -> str:
@@ -14,8 +16,11 @@ def filter_criteria_from_query(params: dict[str, list[str]]) -> FilterCriteria:
     has_tpl = _one("has_template")
     has_mk = _one("has_marking")
     review = _one("review_status")
+    root_raw = (_one("root_id", "all") or "all").strip().lower()
+    root_id = root_raw if root_raw in _VALID_ROOT_IDS else "all"
     return FilterCriteria(
         scope=_one("scope", "completion") or "completion",
+        root_id=root_id,
         student=_one("student"),
         subject=_one("subject", "all") or "all",
         grade=_one("grade", "all") or "all",

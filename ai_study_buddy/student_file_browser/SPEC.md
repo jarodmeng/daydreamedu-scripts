@@ -15,6 +15,7 @@
 | Param | Values | Default |
 |-------|--------|---------|
 | `scope` | `completion`, `template` | `completion` |
+| `root_id` | `all`, `daydreamedu`, `goodnotes` | `all` (omitted from URL when default) |
 | `student` | registry `students.id` (e.g. `winston`) or empty | empty |
 | `subject` | `chinese`, `english`, `math`, `science`, `all` | `all` |
 | `grade` | `P1`…`P6`, `PSLE`, `all` | `all` |
@@ -31,7 +32,7 @@ See `OnDiskMainPdfCard.to_dict()` in `ai_study_buddy.files.on_disk_inventory`.
 
 ## UI behaviour
 
-- Filter controls do not refresh results on change; click **Filter** to run `/api/inventory` and update the URL. Each apply refreshes dropdown options from the contextual slice (`subjects`, `grades`, `doc_types`, `student_ids`, `book_names`, workflow visibility) in response `meta`. **Reset** restores defaults and reloads.
+- Filter controls do not refresh results on change; click **Filter** to run `/api/inventory` and update the URL. Each apply refreshes dropdown options from the contextual slice (`root_ids`, `subjects`, `grades`, `doc_types`, `student_ids`, `book_names`, workflow visibility) in response `meta`. **Reset** restores defaults and reloads.
 - Card **View PDF** opens Root PDF Browser with `?id=` + `rel=` deep link (not inline `/api/pdf`).
 - Card **Review Workspace** (when `has_marking=true` and registered) opens Review Workspace at **`http://localhost:5178/`** (port **5178**) with `?attempt_id=<registry_file_id>` and `student_id=<student_id>` when available. Links normalize `127.0.0.1` / `::1` to `localhost` so the handoff matches how Review Workspace is served.
 - Card **View PDF** uses the same **`localhost`** normalization for Root PDF Browser (port **8770**).

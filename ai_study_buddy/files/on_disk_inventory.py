@@ -22,6 +22,7 @@ from ai_study_buddy.pdf_file_manager.pdf_file_manager import PdfFile, PdfFileMan
 @dataclass(frozen=True)
 class FilterCriteria:
     scope: str = "completion"
+    root_id: str = "all"
     student: str = ""
     subject: str = "all"
     grade: str = "all"
@@ -298,6 +299,8 @@ class FilterDropdownOptions:
     student_counts: dict[str, int]
     book_names: tuple[str, ...]
     book_counts: dict[str, int]
+    root_ids: tuple[str, ...]
+    root_counts: dict[str, int]
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -313,6 +316,8 @@ class FilterDropdownOptions:
             "student_counts": dict(self.student_counts),
             "book_names": list(self.book_names),
             "book_counts": dict(self.book_counts),
+            "root_ids": list(self.root_ids),
+            "root_counts": dict(self.root_counts),
         }
 
 
@@ -334,6 +339,9 @@ def filter_dropdown_options(
 
     sub_scopes = subset(scope="all")
     scopes = {c.scope for c in sub_scopes if c.scope}
+
+    sub_roots = subset(root_id="all")
+    root_ids_set = {c.root_id for c in sub_roots if c.root_id}
 
     sub_subjects = subset(subject="all")
     subjects = {
@@ -366,6 +374,7 @@ def filter_dropdown_options(
     doc_type_values = _sorted_facet_values(doc_types)
     student_values = _sorted_facet_values(student_ids)
     book_values = tuple(book_names_list)
+    root_values = _sorted_facet_values(root_ids_set)
 
     return FilterDropdownOptions(
         scopes=scope_values,
@@ -406,6 +415,12 @@ def filter_dropdown_options(
             book_values,
             lambda c, v: (c.book_group_name or "") == v,
             all_key="",
+        ),
+        root_ids=root_values,
+        root_counts=_count_all_and_values(
+            sub_roots,
+            root_values,
+            lambda c, v: c.root_id == v,
         ),
     )
 
@@ -517,6 +532,8 @@ def filter_main_pdf_cards(
     out: list[OnDiskMainPdfCard] = []
     for card in cards:
         if criteria.scope not in ("", "all") and card.scope != criteria.scope:
+            continue
+        if criteria.root_id not in ("", "all") and card.root_id != criteria.root_id:
             continue
         if criteria.subject != "all" and card.subject != criteria.subject:
             continue

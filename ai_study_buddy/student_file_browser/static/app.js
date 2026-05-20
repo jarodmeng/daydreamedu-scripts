@@ -18,9 +18,15 @@
   let rootsById = {};
   let loadGeneration = 0;
 
+  function defaultRootId() {
+    return "all";
+  }
+
   function qsFromState(state) {
     const p = new URLSearchParams();
     if (state.scope && state.scope !== "completion") p.set("scope", state.scope);
+    const defaultRoot = defaultRootId();
+    if (state.root_id && state.root_id !== defaultRoot) p.set("root_id", state.root_id);
     if (state.student) p.set("student", state.student);
     if (state.subject && state.subject !== "all") p.set("subject", state.subject);
     if (state.grade && state.grade !== "all") p.set("grade", state.grade);
@@ -42,6 +48,7 @@
   function defaultFilterState() {
     return {
       scope: "completion",
+      root_id: defaultRootId(),
       student: "",
       subject: "all",
       grade: "all",
@@ -58,6 +65,7 @@
     const p = new URLSearchParams(location.search);
     return {
       scope: p.get("scope") || "completion",
+      root_id: p.get("root_id") || "",
       student: p.get("student") || localStorage.getItem(STORAGE_KEY) || "",
       subject: p.get("subject") || "all",
       grade: p.get("grade") || "all",
@@ -80,6 +88,13 @@
   function scopeLabel(value) {
     if (value === "completion") return "Completion";
     if (value === "template") return "Template";
+    return value;
+  }
+
+  function rootLabel(value) {
+    if (value === "daydreamedu") return "DaydreamEdu";
+    if (value === "goodnotes") return "GoodNotes";
+    if (value === "all") return "All roots";
     return value;
   }
 
@@ -167,6 +182,26 @@
         })),
         state.scope
       );
+    }
+
+    const configuredRoots = config.roots || [];
+    if (configuredRoots.length > 0) {
+      const rootCounts = config.root_counts || {};
+      const rootOptionIds =
+        (config.root_ids && config.root_ids.length
+          ? config.root_ids
+          : configuredRoots.map((r) => r.id)) || [];
+      const rootOptions = [
+        { value: "all", label: labelWithCount("All roots", "all", rootCounts) },
+      ];
+      rootOptionIds.forEach((rid) => {
+        rootOptions.push({
+          value: rid,
+          label: labelWithCount(rootLabel(rid), rid, rootCounts),
+        });
+      });
+      const effectiveRoot = state.root_id || defaultRootId();
+      addSelect("root_id", "Root", rootOptions, effectiveRoot);
     }
 
     const studentLab = document.createElement("label");
@@ -340,6 +375,8 @@
 
   function readStateFromDom() {
     const scope = document.getElementById("scope")?.value || "completion";
+    const root_id =
+      document.getElementById("root_id")?.value || defaultRootId();
     const student = document.getElementById("student")?.value || "";
     const subject = document.getElementById("subject")?.value || "all";
     const grade = document.getElementById("grade")?.value || "all";
@@ -351,6 +388,7 @@
     const review_status = document.getElementById("review_status")?.value || "";
     return {
       scope,
+      root_id,
       student,
       subject,
       grade,
@@ -541,6 +579,8 @@
     if (meta.student_counts) config.student_counts = meta.student_counts;
     if (Array.isArray(meta.book_names)) config.book_names = meta.book_names;
     if (meta.book_counts) config.book_counts = meta.book_counts;
+    if (Array.isArray(meta.root_ids)) config.root_ids = meta.root_ids;
+    if (meta.root_counts) config.root_counts = meta.root_counts;
     config.show_is_registered_filter = meta.show_is_registered_filter;
     config.is_registered_options = meta.is_registered_options || [];
     config.is_registered_counts = meta.is_registered_counts || {};
@@ -637,6 +677,11 @@
       next.book = "";
       changed = true;
     }
+    const allowedRoots = ["all"].concat(config.root_ids || []);
+    if (!next.root_id || !allowedRoots.includes(next.root_id)) {
+      next.root_id = defaultRootId();
+      changed = true;
+    }
     if (changed) syncUrl(next);
     return next;
   }
@@ -692,11 +737,16 @@
   }
 
   async function init() {
-    const state = stateFromUrl();
+    let state = stateFromUrl();
     document.getElementById("meta").textContent = "Loading…";
     const cfgRes = await fetch(`/api/config?${qsFromState(state)}`);
     config = await cfgRes.json();
     applyFilterOptionsFromMeta(config);
+    if (!new URLSearchParams(location.search).has("root_id")) {
+      state = { ...state, root_id: defaultRootId() };
+    } else if (!state.root_id) {
+      state = { ...state, root_id: defaultRootId() };
+    }
     config.scopes = config.scopes || ["completion", "template"];
     config.scope_counts = config.scope_counts || {};
     config.subjects = config.subjects || [];
@@ -717,9 +767,12 @@
     config.has_marking_options = config.has_marking_options || [];
     config.has_marking_counts = config.has_marking_counts || {};
     config.review_status_counts = config.review_status_counts || {};
+    config.root_ids = config.root_ids || [];
+    config.root_counts = config.root_counts || {};
     (config.roots || []).forEach((r) => {
       rootsById[r.id] = r.path;
     });
+    state = coerceStateToFilterOptions(state);
     buildFilters(state);
     await loadInventory(state);
   }

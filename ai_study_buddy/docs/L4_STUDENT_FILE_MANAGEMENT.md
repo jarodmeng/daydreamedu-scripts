@@ -228,6 +228,7 @@ Path segments are the **source of truth** for filters on both registered and unr
 | Param | Values | Default |
 |-------|--------|---------|
 | `scope` | `completion` \| `template` | `completion` |
+| `root_id` | `all` \| `daydreamedu` \| `goodnotes` | `all` (omitted from URL when default) |
 | `student` | registry `students.id` (e.g. `winston`) | last from `localStorage`, else empty (= all students) |
 | `subject` | `chinese` \| `english` \| `math` \| `science` \| `all` | `all` |
 | `grade` | `P1`…`P6`, `PSLE`, `all` | `all` |
@@ -465,7 +466,7 @@ No migration of existing data or registry schema.
 | # | Topic | Decision |
 |---|--------|----------|
 | 1 | **Review Workspace attempt deep link** from a card | **Done** (May 2026): `review_workspace` v0.1.4 + `student_file_browser` v0.1.1 — [proposal](../review_workspace/docs/proposal/2-attempt-deep-links.md). |
-| 2 | **`root_id` filter** (DaydreamEdu vs GoodNotes) in filter bar + URL | **Tracked:** [TODO.md](../TODO.md) **P0-1** — proposal [1-root-id-filter.md](../student_file_browser/docs/proposal/1-root-id-filter.md). |
+| 2 | **`root_id` filter** (DaydreamEdu vs GoodNotes) in filter bar + URL | **Shipped** in `student_file_browser` v0.1.3 + `files` v0.3.2 — [1-root-id-filter.md](../student_file_browser/docs/proposal/1-root-id-filter.md). |
 | 3 | **`include_activity_note`** in index / UI | **No action** for now — index continues to exclude `activity` / `note` completions (`exclude_activity_note_completions=True`). |
 | 4 | **Move `_infer_from_path` into `files.path_facets`** | **Tracked:** [TODO.md](../TODO.md) **P1-6**. |
 | 5 | **`test_serve.py`** (HTTP tests for `/api/inventory`, etc.) | **Tracked:** [TODO.md](../TODO.md) **P2-5** (P2 — after P0 serve changes; needs test hook first). |

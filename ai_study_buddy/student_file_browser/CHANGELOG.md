@@ -1,5 +1,11 @@
 # Changelog — `student_file_browser`
 
+## [v0.1.3] — Root filter (2026-05-20)
+
+- **Root** filter bar control and URL param `root_id=all|daydreamedu|goodnotes` (requires `ai_study_buddy.files` v0.3.2).
+- Default **All roots** (`root_id=all`; omitted from URL).
+- Contextual `root_ids` / `root_counts` in `/api/config` and `/api/inventory` meta.
+
 ## [v0.1.2] — Sibling app links use localhost (2026-05-19)
 
 - **Review Workspace** and **View PDF** deep links normalize `127.0.0.1` / `::1` to **`localhost`** so handoff matches Review Workspace and Root PDF Browser (Vite on `localhost:5178`, etc.).

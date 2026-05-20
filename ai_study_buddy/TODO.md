@@ -11,7 +11,7 @@
 
 ## P0 — require immediate attention
 
-- [ ] **P0-1** · 2026-05-19 14:00 SGT: **`root_id` filter** in **Student File Browser** (and `files` `FilterCriteria` / `filter_main_pdf_cards` if needed) — filter bar + URL param `root_id` (`daydreamedu` \| `goodnotes` \| `all`). **Risk without it:** two mains can match every other facet but differ only by sync root, so the grid can show ambiguous duplicates. See L4 Student File Management Open Questions §2; proposal [student_file_browser/docs/proposal/1-root-id-filter.md](student_file_browser/docs/proposal/1-root-id-filter.md).
+_No open items._
 
 ## P1 — require attention within 7 days
 
@@ -42,6 +42,7 @@
 
 - [x] **P0-1** · 2026-05-06 09:18 SGT: Add backup tooling for `ai_study_buddy/db/study_buddy.db` mirroring the `pdf_registry.db` pipeline (e.g. `pdf_file_manager/scripts/backup_pdf_registry.py`-style copy, tiering, optional wake/runbook hooks).
 - [x] **P0-2** · 2026-05-19 14:00 SGT: **Review Workspace attempt deep links (patch release)** — `review_workspace` v0.1.4 URL bootstrap (`?attempt_id=` + `student_id=`); `student_file_browser` v0.1.1 card action; see [proposal](review_workspace/docs/proposal/2-attempt-deep-links.md).
+- [x] **P0-3** · 2026-05-20 12:00 SGT: **`root_id` filter** in **Student File Browser** — `files` v0.3.2 `FilterCriteria.root_id` + contextual meta; `student_file_browser` v0.1.3 filter bar + URL param (`all` \| `daydreamedu` \| `goodnotes`, default **All roots**); operator-verified. Proposal [student_file_browser/docs/proposal/1-root-id-filter.md](student_file_browser/docs/proposal/1-root-id-filter.md).
 
 ### P1
 

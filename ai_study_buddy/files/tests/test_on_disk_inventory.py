@@ -55,6 +55,39 @@ def test_enrich_unregistered_completion(tmp_path: Path) -> None:
     assert card.review_status is None
 
 
+def _card(*, root_id: str, subject: str = "math") -> OnDiskMainPdfCard:
+    return OnDiskMainPdfCard(
+        absolute_path=f"/fake/{root_id}/file.pdf",
+        basename="file.pdf",
+        root_id=root_id,
+        scope="completion",
+        subject=subject,
+        grade_or_scope="P4",
+        doc_type="exam",
+        book_group_name=None,
+        student_email=None,
+        parse_status="ok",
+        is_registered=False,
+    )
+
+
+def test_filter_main_pdf_cards_root_id() -> None:
+    cards = [_card(root_id="daydreamedu"), _card(root_id="goodnotes")]
+    dd_only = filter_main_pdf_cards(cards, FilterCriteria(root_id="daydreamedu"))
+    assert len(dd_only) == 1
+    assert dd_only[0].root_id == "daydreamedu"
+    all_roots = filter_main_pdf_cards(cards, FilterCriteria(root_id="all"))
+    assert len(all_roots) == 2
+
+
+def test_filter_dropdown_options_root_ids() -> None:
+    cards = [_card(root_id="daydreamedu"), _card(root_id="goodnotes")]
+    opts = filter_dropdown_options(cards, FilterCriteria(root_id="all"))
+    assert set(opts.root_ids) == {"daydreamedu", "goodnotes"}
+    assert opts.root_counts.get("all") == 2
+    assert opts.root_counts.get("daydreamedu") == 1
+
+
 def test_filter_main_pdf_cards_scope_and_subject(tmp_path: Path) -> None:
     p1 = tmp_path / "a.pdf"
     p2 = tmp_path / "b.pdf"

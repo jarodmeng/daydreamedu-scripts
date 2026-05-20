@@ -4,6 +4,12 @@ All notable changes to the **`ai_study_buddy.files`** package are documented her
 
 ---
 
+## [v0.3.2] — `FilterCriteria.root_id` for Student File Browser
+
+- **`FilterCriteria`:** `root_id` (`all` | `daydreamedu` | `goodnotes`); applied in `filter_main_pdf_cards`.
+- **`FilterDropdownOptions`:** `root_ids` / `root_counts` for contextual Root filter meta.
+- Consumer: `ai_study_buddy.student_file_browser` v0.1.3.
+
 ## [v0.3.1] — Lazy marking import in completion enrichment
 
 - **`completion_enrichment`:** lazy-import `completion_workflow_flags` inside `enrich_registered_completion` to avoid `files` ↔ `marking` circular import when the `files` package is loaded during marking startup.
