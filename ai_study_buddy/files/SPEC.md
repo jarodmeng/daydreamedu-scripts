@@ -2,7 +2,7 @@
 
 This document is the **contract** for the public Python API of `ai_study_buddy.files`. It is registry-agnostic: no SQLite, no `PdfFileManager`, no scan-root configuration.
 
-**Version:** align with [README.md](./README.md) (package **v0.3.3**).
+**Version:** align with [README.md](./README.md) (package **v0.3.4**).
 
 Core leaf listing and root resolution are **registry-agnostic**. Optional correlation with `pdf_file_manager` / `pdf_registry.db` lives in **`pdf_registry_paths.py`** (see §3).
 
@@ -184,6 +184,8 @@ Map built in `from_pdf_file_manager`. Use `registry_file_for_path` and `has_temp
 
 - `enrich_on_disk_main_pdf` — sets `student_id` on completion rows via `resolve_card_student_id`; unregistered completions get falsy workflow flags.
 - `filter_main_pdf_cards(cards, FilterCriteria, pfm=...)` — `FilterCriteria.student` is registry `students.id` (email accepted for legacy callers); `FilterCriteria.root_id` is `all` | `daydreamedu` | `goodnotes`.
+- `sort_main_pdf_cards(cards, sort=...)` — `name` (display name A–Z) or `recent` (registry `added_at` descending; unregistered last). `FilterCriteria.sort` defaults to `recent`.
+- `OnDiskMainPdfCard.registry_added_at` — `PdfFile.added_at` when registered.
 - `filter_meta_for_response` — merged dict for UI: facet lists + `*_counts`, plus workflow option keys from `workflow_filter_options`.
 - `filter_dropdown_options` — `scopes`, `root_ids`, `subjects`, `grades`, `doc_types`, `student_ids`, `book_names` (each omits its own criterion from the slice).
 - `workflow_filter_options` — contextual `is_registered_options`, `has_template_options`, `has_marking_options`, `review_status_options` and matching `show_*_filter` flags (true only when >1 distinct value in slice).

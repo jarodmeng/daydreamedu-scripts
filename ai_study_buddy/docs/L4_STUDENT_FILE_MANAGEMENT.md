@@ -238,6 +238,7 @@ Path segments are the **source of truth** for filters on both registered and unr
 | `has_template` | `true` \| `false` \| omitted | omitted |
 | `has_marking` | `true` \| `false` \| omitted | omitted |
 | `review_status` | `not_started` \| `in_progress` \| `completed` \| omitted | omitted |
+| `sort` | `name` \| `recent` | `recent` (omitted from URL when default) |
 
 **MVP UI note:** `activity` / `note` completions are **excluded from the index** (`exclude_activity_note_completions=True`), not merely hidden in the filter UI.
 

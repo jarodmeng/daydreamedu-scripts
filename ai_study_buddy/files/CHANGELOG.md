@@ -4,6 +4,13 @@ All notable changes to the **`ai_study_buddy.files`** package are documented her
 
 ---
 
+## [v0.3.4] — Card sort order for Student File Browser
+
+- **`FilterCriteria.sort`:** `name` | `recent` (default `recent`).
+- **`sort_main_pdf_cards`:** server-side ordering after `filter_main_pdf_cards`.
+- **`OnDiskMainPdfCard.registry_added_at`:** copied from `PdfFile.added_at` when registered (all registered mains, including templates).
+- Consumer: `student_file_browser` v0.1.5.
+
 ## [v0.3.3] — Completion series fields on inventory cards
 
 - **`OnDiskMainPdfCard`:** `template_file_id`, `completion_series_id`, `attempt_sequence`, `attempt_count` (from `PdfFileManager.get_completion_series_member` when template-linked).

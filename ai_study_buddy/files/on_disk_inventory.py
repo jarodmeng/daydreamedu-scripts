@@ -32,7 +32,10 @@ class FilterCriteria:
     has_template: str | None = None
     has_marking: str | None = None
     review_status: str | None = None
+    sort: str = "recent"
 
+
+_VALID_SORT_KEYS = frozenset({"name", "recent"})
 
 _REVIEW_STATUS_ORDER = ("not_started", "in_progress", "completed")
 
@@ -154,6 +157,7 @@ class OnDiskMainPdfCard:
     has_marking: bool | None = None
     has_marking_amendment: bool | None = None
     review_status: str | None = None
+    registry_added_at: str | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return {f.name: getattr(self, f.name) for f in fields(self)}
@@ -488,6 +492,7 @@ def enrich_on_disk_main_pdf(
     pdf_file: PdfFile = reg_row  # type: ignore[assignment]
     card.registry_file_id = pdf_file.id
     card.normal_name = pdf_file.normal_name
+    card.registry_added_at = pdf_file.added_at
 
     if pdf_file.is_template:
         card.has_template = None
@@ -582,6 +587,29 @@ def filter_main_pdf_cards(
                 continue
         out.append(card)
     return out
+
+
+def _display_name_key(card: OnDiskMainPdfCard) -> str:
+    return (card.normal_name or card.basename).casefold()
+
+
+def _path_key(card: OnDiskMainPdfCard) -> str:
+    return card.absolute_path.casefold()
+
+
+def sort_main_pdf_cards(
+    cards: list[OnDiskMainPdfCard],
+    sort: str = "recent",
+) -> list[OnDiskMainPdfCard]:
+    key = sort if sort in _VALID_SORT_KEYS else "recent"
+    if key == "name":
+        return sorted(cards, key=lambda c: (_display_name_key(c), _path_key(c)))
+    registered = [c for c in cards if c.registry_added_at]
+    unregistered = [c for c in cards if not c.registry_added_at]
+    registered.sort(key=_path_key)
+    registered.sort(key=lambda c: c.registry_added_at or "", reverse=True)
+    unregistered.sort(key=_path_key)
+    return registered + unregistered
 
 
 def build_enriched_inventory(

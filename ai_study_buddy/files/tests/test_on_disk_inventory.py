@@ -15,6 +15,7 @@ from ai_study_buddy.files.on_disk_inventory import (
     distinct_book_group_names,
     workflow_filter_options,
     filter_dropdown_options,
+    sort_main_pdf_cards,
 )
 from ai_study_buddy.files.path_facets import infer_path_facets
 from ai_study_buddy.files.pdf_registry_paths import RegistryPathIndex
@@ -415,6 +416,61 @@ def test_enrich_on_disk_main_pdf_populates_completion_series_fields() -> None:
     assert card.completion_series_id == "winston::template-1"
     assert card.attempt_sequence == 2
     assert card.attempt_count == 1
+    assert card.registry_added_at == "2026-01-01T00:00:00Z"
+
+
+def test_sort_main_pdf_cards_name() -> None:
+    cards = [
+        _card(normal_name="Beta", absolute_path="/z/b.pdf", basename="b.pdf"),
+        _card(normal_name="Alpha", absolute_path="/z/a.pdf", basename="a.pdf"),
+    ]
+    ordered = sort_main_pdf_cards(cards, "name")
+    assert [c.normal_name for c in ordered] == ["Alpha", "Beta"]
+
+
+def test_sort_main_pdf_cards_name_tie_path() -> None:
+    cards = [
+        _card(normal_name="Same", absolute_path="/z/b.pdf", basename="b.pdf"),
+        _card(normal_name="Same", absolute_path="/z/a.pdf", basename="a.pdf"),
+    ]
+    ordered = sort_main_pdf_cards(cards, "name")
+    assert [c.absolute_path for c in ordered] == ["/z/a.pdf", "/z/b.pdf"]
+
+
+def test_sort_main_pdf_cards_recent() -> None:
+    cards = [
+        _card(
+            registry_added_at="2026-01-01T00:00:00Z",
+            absolute_path="/old.pdf",
+            basename="old.pdf",
+        ),
+        _card(
+            registry_added_at="2026-06-01T00:00:00Z",
+            absolute_path="/new.pdf",
+            basename="new.pdf",
+        ),
+    ]
+    ordered = sort_main_pdf_cards(cards, "recent")
+    assert [c.basename for c in ordered] == ["new.pdf", "old.pdf"]
+
+
+def test_sort_main_pdf_cards_recent_unregistered_tail() -> None:
+    cards = [
+        _card(registry_added_at=None, absolute_path="/z/unreg.pdf", basename="unreg.pdf"),
+        _card(registry_added_at="2026-03-01T00:00:00Z", absolute_path="/z/reg.pdf", basename="reg.pdf"),
+    ]
+    ordered = sort_main_pdf_cards(cards, "recent")
+    assert ordered[0].basename == "reg.pdf"
+    assert ordered[1].basename == "unreg.pdf"
+
+
+def test_sort_main_pdf_cards_invalid_coerces_recent() -> None:
+    cards = [
+        _card(registry_added_at="2026-01-01T00:00:00Z", absolute_path="/a.pdf", basename="a.pdf"),
+        _card(registry_added_at="2026-06-01T00:00:00Z", absolute_path="/b.pdf", basename="b.pdf"),
+    ]
+    ordered = sort_main_pdf_cards(cards, "bogus")
+    assert ordered[0].basename == "b.pdf"
 
 
 def test_distinct_book_group_names() -> None:

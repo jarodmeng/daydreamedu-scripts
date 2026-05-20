@@ -1,5 +1,12 @@
 # Changelog — `student_file_browser`
 
+## [v0.1.5] — Card sort order (2026-05-20)
+
+- **Sort** filter bar control and URL param `sort=recent|name` (default **Recent first**; omitted from URL when default).
+- Requires `ai_study_buddy.files` v0.3.4 (`sort_main_pdf_cards`, `registry_added_at` on inventory items).
+- Registered cards show registry **added** date under the title (subtle grey line; full ISO on hover).
+- **Sort** dropdown reapplies inventory immediately on change (no separate **Filter** click required for sort only).
+
 ## [v0.1.4] — Completion series chip (2026-05-20)
 
 - Status chip **`Attempt {n} of {m}`** beside the card title when `attempt_count > 1` and `attempt_sequence` is set (from `ai_study_buddy.files` v0.3.3 inventory enrichment).

@@ -22,6 +22,7 @@ from ai_study_buddy.files import (
     build_enriched_inventory,
     build_main_pdf_index_for_roots,
     filter_main_pdf_cards,
+    sort_main_pdf_cards,
     inventory_meta,
     list_daydreamedu_leaf_folders_under_root,
     list_goodnotes_leaf_folders_under_root,
@@ -36,7 +37,7 @@ from ai_study_buddy.pdf_file_manager import PdfFileManager
 from ai_study_buddy.student_file_browser.filters import filter_criteria_from_query
 from ai_study_buddy.student_file_browser.path_guard import safe_resolve_under_root
 
-FILES_VERSION = "0.3.3"
+FILES_VERSION = "0.3.4"
 ROOT_IDS = ("daydreamedu", "goodnotes")
 STATIC_DIR = Path(__file__).resolve().parent / "static"
 DEFAULT_CONTEXT_ROOT = Path(__file__).resolve().parent.parent / "context"
@@ -197,6 +198,7 @@ class StudentFileBrowserHandler(BaseHTTPRequestHandler):
             cards = self._get_enriched_cards()
             pfm = PdfFileManager()
             filtered = filter_main_pdf_cards(cards, criteria, pfm=pfm)
+            filtered = sort_main_pdf_cards(filtered, criteria.sort)
             filter_meta = filter_meta_for_response(cards, criteria, pfm=pfm)
             meta = inventory_meta(
                 cards,

@@ -14,7 +14,7 @@
 
 ## Request flow
 
-- **`GET /api/inventory`:** Load enriched cards once (cached on handler), apply `filter_main_pdf_cards` with `FilterCriteria` from query string.
+- **`GET /api/inventory`:** Load enriched cards once (cached on handler), apply `filter_main_pdf_cards` then `sort_main_pdf_cards` with `FilterCriteria` from query string.
 - **`GET /api/config`:** Roots, students, filter enums; `show_is_registered_filter` is contextual (same query params as inventory — hidden when no unregistered mains match the other filters).
 
 ## Non-goals

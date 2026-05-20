@@ -42,6 +42,7 @@
       p.set("has_marking", state.has_marking);
     }
     if (state.review_status) p.set("review_status", state.review_status);
+    if (state.sort && state.sort !== "recent") p.set("sort", state.sort);
     return p.toString();
   }
 
@@ -58,6 +59,7 @@
       has_template: "",
       has_marking: "",
       review_status: "",
+      sort: "recent",
     };
   }
 
@@ -75,6 +77,7 @@
       has_template: p.get("has_template") || "",
       has_marking: p.get("has_marking") || "",
       review_status: p.get("review_status") || "",
+      sort: p.get("sort") || "recent",
     };
   }
 
@@ -148,7 +151,8 @@
     el.innerHTML = "";
     const templateMode = state.scope === "template";
 
-    function addSelect(id, label, options, value) {
+    function addSelect(id, label, options, value, parent) {
+      const host = parent || el;
       const lab = document.createElement("label");
       lab.htmlFor = id;
       const title = document.createElement("span");
@@ -165,9 +169,12 @@
       if (id === "scope" || id === "doc_type") {
         sel.addEventListener("change", onDraftLayoutChange);
       }
+      if (id === "sort") {
+        sel.addEventListener("change", onApplyFilters);
+      }
       lab.appendChild(title);
       lab.appendChild(sel);
-      el.appendChild(lab);
+      host.appendChild(lab);
     }
 
     const scopes = config.scopes || [];
@@ -358,6 +365,16 @@
     resetBtn.addEventListener("click", onResetFilters);
     actions.appendChild(applyBtn);
     actions.appendChild(resetBtn);
+    addSelect(
+      "sort",
+      "Sort",
+      [
+        { value: "recent", label: "Recent first" },
+        { value: "name", label: "Name (A–Z)" },
+      ],
+      state.sort || "recent",
+      actions
+    );
     el.appendChild(actions);
   }
 
@@ -386,6 +403,7 @@
     const has_template = document.getElementById("has_template")?.value || "";
     const has_marking = document.getElementById("has_marking")?.value || "";
     const review_status = document.getElementById("review_status")?.value || "";
+    const sort = document.getElementById("sort")?.value || "recent";
     return {
       scope,
       root_id,
@@ -398,6 +416,7 @@
       has_template,
       has_marking,
       review_status,
+      sort,
     };
   }
 
@@ -448,6 +467,17 @@
     c.className = "chip status-" + variant;
     c.textContent = text;
     container.appendChild(c);
+  }
+
+  function formatRegistryAddedAt(iso) {
+    if (!iso) return null;
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return null;
+    return d.toLocaleDateString(undefined, {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
   }
 
   function attemptSeriesLabel(item) {
@@ -531,6 +561,14 @@
       h3.textContent = item.normal_name || item.basename;
       titleRow.appendChild(h3);
       appendAttemptSeriesChip(titleRow, item);
+      let registryDateEl = null;
+      const addedLabel = formatRegistryAddedAt(item.registry_added_at);
+      if (addedLabel) {
+        registryDateEl = document.createElement("p");
+        registryDateEl.className = "card-registry-date";
+        registryDateEl.textContent = addedLabel;
+        registryDateEl.title = item.registry_added_at;
+      }
       const chips = document.createElement("div");
       chips.className = "chips";
       ["subject", "grade_or_scope", "doc_type", "root_id"].forEach((k) => {
@@ -583,6 +621,7 @@
       }
       card.appendChild(icon);
       card.appendChild(titleRow);
+      if (registryDateEl) card.appendChild(registryDateEl);
       card.appendChild(chips);
       card.appendChild(statusChips);
       card.appendChild(actions);

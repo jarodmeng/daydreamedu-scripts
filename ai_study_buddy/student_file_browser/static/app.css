@@ -148,6 +148,14 @@ header h1 {
   word-break: break-word;
 }
 
+.card-registry-date {
+  margin: 0;
+  font-size: 0.7rem;
+  line-height: 1.25;
+  color: #8a8f98;
+  font-weight: 400;
+}
+
 .card-title-row .chip {
   flex-shrink: 0;
   font-size: 0.7rem;

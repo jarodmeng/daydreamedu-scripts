@@ -5,6 +5,7 @@ from __future__ import annotations
 from ai_study_buddy.files.on_disk_inventory import FilterCriteria
 
 _VALID_ROOT_IDS = frozenset({"all", "daydreamedu", "goodnotes"})
+_VALID_SORT_KEYS = frozenset({"name", "recent"})
 
 
 def filter_criteria_from_query(params: dict[str, list[str]]) -> FilterCriteria:
@@ -18,6 +19,8 @@ def filter_criteria_from_query(params: dict[str, list[str]]) -> FilterCriteria:
     review = _one("review_status")
     root_raw = (_one("root_id", "all") or "all").strip().lower()
     root_id = root_raw if root_raw in _VALID_ROOT_IDS else "all"
+    sort_raw = (_one("sort", "recent") or "recent").strip().lower()
+    sort = sort_raw if sort_raw in _VALID_SORT_KEYS else "recent"
     return FilterCriteria(
         scope=_one("scope", "completion") or "completion",
         root_id=root_id,
@@ -30,4 +33,5 @@ def filter_criteria_from_query(params: dict[str, list[str]]) -> FilterCriteria:
         has_template=has_tpl if has_tpl in ("true", "false") else None,
         has_marking=has_mk if has_mk in ("true", "false") else None,
         review_status=review if review else None,
+        sort=sort,
     )
