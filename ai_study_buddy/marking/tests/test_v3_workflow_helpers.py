@@ -7,6 +7,7 @@ import json
 
 import pytest
 
+from ai_study_buddy.marking.assets.paths import marking_asset_rel_path_from_artifact_path
 from ai_study_buddy.marking.workflows.mark_student_work_multi_agent_v3 import (
     aggregate_phase2_section_rows,
     build_phase2_retry_targets,
@@ -864,6 +865,67 @@ def test_phase_e_runtime_and_finalize(monkeypatch, tmp_path):
     )
     assert out.artifact_path.is_file()
     assert out.debug_trace_path.is_file()
+    payload = json.loads(out.artifact_path.read_text(encoding="utf-8"))
+    assert payload["context"]["marking_asset"].endswith("/bundle")
+    assert out.artifact_path.name == "bundle.json"
+    assert payload["context"]["marking_asset"] == marking_asset_rel_path_from_artifact_path(
+        artifact_json_path=out.artifact_path,
+        context_root=tmp_path / "context",
+    )
+
+
+def test_phase_e_finalize_binds_marking_asset_to_resumed_bundle_not_run_timestamp(tmp_path):
+    """Prep may resume an older bundle while run_at is newer; finalize must not drift paths."""
+    context_root = tmp_path / "context"
+    bundle_root = (
+        context_root
+        / "marking_assets"
+        / "winston"
+        / "singapore_primary_english"
+        / "P6 English Comprehension Cloze Term 1__20260521_133656"
+    )
+    attempt_dir = bundle_root / "attempt"
+    attempt_dir.mkdir(parents=True)
+    (attempt_dir / "page-01.png").write_bytes(b"png")
+    _, context = _build_context_with_mapping(context_root)
+    context = replace(
+        context,
+        student_id="winston",
+        subject_context="singapore_primary_english",
+        attempt_file_path=str(
+            context_root.parent / "completion" / "P6 English Comprehension Cloze Term 1.pdf"
+        ),
+    )
+    merged_rows = [
+        {
+            "question_id": "Q55 (2020)",
+            "result_id": "Q55 (2020)",
+            "outcome": "wrong",
+            "earned_marks": 0,
+            "max_marks": 1,
+            "student_answer": "evidence",
+            "correct_answer": "concern",
+            "diagnosis": {"reasoning": "gap", "mistake_type": "vocabulary_gap", "confidence": "high"},
+            "attempt_page_start": 1,
+        }
+    ]
+    out = finalize_phase_e_artifact(
+        context=context,
+        merged_rows=merged_rows,
+        mode="teacher_annotated",
+        bundle_root=bundle_root,
+        context_root=context_root,
+        deep_dive_count=0,
+        phase2_subagents=1,
+        run_start_iso="2026-05-21T13:39:00+08:00",
+    )
+    payload = json.loads(out.artifact_path.read_text(encoding="utf-8"))
+    assert payload["context"]["marking_asset"] == (
+        "marking_assets/winston/singapore_primary_english/"
+        "P6 English Comprehension Cloze Term 1__20260521_133656"
+    )
+    assert out.artifact_path.name == "P6 English Comprehension Cloze Term 1__20260521_133656.json"
+    assert (context_root / payload["context"]["marking_asset"] / "attempt" / "page-01.png").is_file()
 
 
 def test_phase_e_finalize_raises_without_subject_context_and_writes_debug_artifact(tmp_path):

@@ -266,9 +266,15 @@ def _build_report_path(
     context_root: Path,
     student_slug: str,
 ) -> Path:
-    relative_parent = json_path.parent.relative_to(context_root / "marking_results" / student_slug)
+    """Map a marking-result JSON path to its paired learning report path.
+
+    Supports subject-scope subfolders (e.g. ``marking_results/winston/singapore_primary_math/``).
+    """
+    results_student_root = (context_root / "marking_results" / student_slug).resolve(strict=False)
+    json_resolved = Path(json_path).resolve(strict=False)
+    relative_parent = json_resolved.parent.relative_to(results_student_root)
     return (
-        context_root
+        context_root.resolve(strict=False)
         / "learning_reports"
         / student_slug
         / relative_parent

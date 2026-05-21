@@ -4,6 +4,21 @@ All notable changes to `ai_study_buddy.marking` are documented in this file.
 
 Committed changes under `ai_study_buddy/marking/` should add an entry here and bump **Current version** in `README.md` (semver: **patch** for docs or small renderer tweaks, **minor** for schema or public API changes). `SPEC.md` / `TESTING.md` titles do not carry the package version.
 
+## [0.3.12] - 2026-05-21
+
+Patch: v3 finalize bundle/artifact path alignment and subject-scoped learning-report pairing.
+
+### Fixed
+
+- `marking/workflows/mark_student_work_multi_agent_v3.py`: `finalize_phase_e_artifact` derives the marking-result path and `context.marking_asset` from the actual `bundle_root` (fixes drift when prep resumes an older bundle).
+- `marking/core/artifact_lookup.py`: `_build_report_path` supports `marking_results/<student>/<subject_context>/…` layouts.
+
+### Added
+
+- `marking/tests/test_v3_workflow_helpers.py`: regression test for resumed-bundle finalize path binding.
+- `marking/tests/test_artifact_lookup.py`: `_build_report_path` test for subject-scope subfolders.
+- `marking/README.md`: batch marking runbook pointer (`utility_scripts/batch_mark_student_work/`).
+
 ## [0.3.11] - 2026-05-21
 
 Patch: `english-v1.4` question-section schema (parenthesised `question_index` aligned with math/science).

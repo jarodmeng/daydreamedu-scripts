@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable, Mapping, Sequence
@@ -13,6 +13,7 @@ from ai_study_buddy.marking import (
     validate_marking_artifact_dict,
     write_marking_artifact,
 )
+from ai_study_buddy.marking.assets.paths import marking_asset_rel_path_from_artifact_path
 from ai_study_buddy.marking.core.artifact_paths import slugify_student
 from ai_study_buddy.marking.core.artifact_schema import compute_percentage
 from ai_study_buddy.marking.core.models import (
@@ -1146,9 +1147,33 @@ def finalize_phase_e_artifact(
         }
         failure_path.write_text(json.dumps(failure_payload, indent=2, ensure_ascii=True) + "\n", encoding="utf-8")
         raise
-    payload = artifact.to_dict()
-    validate_marking_artifact_dict(payload)
-    artifact_path = write_marking_artifact(artifact, context_root=context_root)
+    bundle_root = bundle_root.resolve()
+    context_root = Path(context_root).resolve()
+    subject_context = _resolve_subject_context_from_runtime_context(context)
+    artifact_path = _derive_artifact_path_for_bundle(
+        context_root=context_root,
+        bundle_root=bundle_root,
+        student_id=getattr(context, "student_id", None),
+        student_name=getattr(context, "student_name", None),
+        subject_context=subject_context,
+    )
+    marking_asset_rel = marking_asset_rel_path_from_artifact_path(
+        artifact_json_path=artifact_path,
+        context_root=context_root,
+    )
+    if marking_asset_rel is None:
+        raise V3WorkflowError(
+            f"Unable to derive marking_asset path for bundle {bundle_root.name!r} under {context_root}"
+        )
+    artifact = replace(
+        artifact,
+        context=replace(artifact.context, marking_asset=marking_asset_rel),
+    )
+    artifact_path = write_marking_artifact(
+        artifact,
+        context_root=context_root,
+        output_path=artifact_path,
+    )
 
     debug_dir = bundle_root / "debug"
     debug_dir.mkdir(parents=True, exist_ok=True)

@@ -7,6 +7,7 @@ import tempfile
 import pytest
 
 from ai_study_buddy.marking import find_marking_artifacts_for_attempt
+from ai_study_buddy.marking.core.artifact_lookup import _build_report_path
 from ai_study_buddy.pdf_file_manager.pdf_file_manager import PdfFileManager
 
 
@@ -30,6 +31,35 @@ def _payload(*, attempt_file_id: str | None, attempt_file_path: str, created_at:
         "created_at": created_at,
         "context": context,
     }
+
+
+def test_build_report_path_subject_scope_subfolder() -> None:
+    with tempfile.TemporaryDirectory() as tmpdir:
+        context_root = Path(tmpdir) / "context"
+        student_slug = "winston"
+        json_path = (
+            context_root
+            / "marking_results"
+            / student_slug
+            / "singapore_primary_math"
+            / "P6 Angles in Geometrical Figures Worksheet__20260521_103413.json"
+        )
+        json_path.parent.mkdir(parents=True, exist_ok=True)
+        json_path.write_text("{}", encoding="utf-8")
+
+        report_path = _build_report_path(
+            json_path=json_path,
+            context_root=context_root,
+            student_slug=student_slug,
+        )
+        expected = (
+            context_root
+            / "learning_reports"
+            / student_slug
+            / "singapore_primary_math"
+            / "P6 Angles in Geometrical Figures Worksheet__20260521_103413 - Marking Report.md"
+        )
+        assert report_path.resolve() == expected.resolve()
 
 
 def test_lookup_student_scoped_sorted_and_condition_filtered(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -120,7 +150,7 @@ def test_lookup_student_scoped_sorted_and_condition_filtered(monkeypatch: pytest
             context_root=context_root,
         )
         assert [r.marking_result_json for r in refs] == [newest_a, newest_b, early]
-        assert refs[0].learning_report_md == report_for_a
+        assert refs[0].learning_report_md.resolve() == report_for_a.resolve()
         assert refs[1].learning_report_md.name == "run_b - Marking Report.md"
 
         refs_with_report = find_marking_artifacts_for_attempt(
