@@ -4,18 +4,19 @@ All notable changes to `ai_study_buddy.marking` are documented in this file.
 
 Committed changes under `ai_study_buddy/marking/` should add an entry here and bump **Current version** in `README.md` (semver: **patch** for docs or small renderer tweaks, **minor** for schema or public API changes). `SPEC.md` / `TESTING.md` titles do not carry the package version.
 
-## [Unreleased]
+## [0.3.11] - 2026-05-21
+
+Patch: `english-v1.4` question-section schema (parenthesised `question_index` aligned with math/science).
 
 ### Added
 
-- `schemas/english_paper2_questions_section.v1.4.schema.json` — `english-v1.4` with parenthesised `question_index` grammar aligned to math-v1.2 / science-v1.2 (`Q20(a)`, `Q51(2020)`).
+- `schemas/english_paper2_questions_section.v1.4.schema.json` — `english-v1.4` (`Q20(a)`, `Q51(2020)`, …); `english-v1.3` unchanged for bare `Q` + digits.
 - `marking/file_question_info/api.py`: validator map entry for `english-v1.4`.
-- `marking/tests/test_file_question_info.py`: english-v1.4 `question_index` acceptance/rejection tests.
+- `marking/tests/test_file_question_info.py`: english-v1.4 `question_index` acceptance/rejection tests; corpus parametrize includes `english-v1.4`.
 
 ### Changed
 
 - `.cursor/agents/english-paper-2-question-section-detector.md`: agent **v1.4**; new detections emit `english-v1.4`.
-- Five `file_question_info` English snapshots with parenthesised indices bumped from `english-v1.3` to `english-v1.4` (P6 Term 1 exercises + P4 WA1).
 
 ## [0.3.10] - 2026-05-20
 
