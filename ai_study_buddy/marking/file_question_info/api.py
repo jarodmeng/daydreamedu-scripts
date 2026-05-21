@@ -33,6 +33,7 @@ _SCHEMA_PATHS_BY_VERSION: dict[str, Path] = {
     "chinese-v1.4": _SCHEMAS_DIR / "chinese_paper2_questions_section.v1.4.schema.json",
     "high-chinese-v1.2": _SCHEMAS_DIR / "higher_chinese_paper2_questions_section.v1.2.schema.json",
     "english-v1.3": _SCHEMAS_DIR / "english_paper2_questions_section.v1.3.schema.json",
+    "english-v1.4": _SCHEMAS_DIR / "english_paper2_questions_section.v1.4.schema.json",
     "math-v1.0": _SCHEMAS_DIR / "math_questions_section.v1.0.schema.json",
     "math-v1.2": _SCHEMAS_DIR / "math_questions_section.v1.2.schema.json",
     "science-v1.0": _SCHEMAS_DIR / "science_questions_section.v1.0.schema.json",

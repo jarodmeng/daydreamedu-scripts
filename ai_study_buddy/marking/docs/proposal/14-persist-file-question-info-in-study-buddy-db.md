@@ -21,6 +21,7 @@ Validation support currently includes:
 
 - `chinese-v1.4`
 - `high-chinese-v1.2`
+- `english-v1.4` (latest)
 - `english-v1.3`
 - `math-v1.2`
 - `science-v1.2`

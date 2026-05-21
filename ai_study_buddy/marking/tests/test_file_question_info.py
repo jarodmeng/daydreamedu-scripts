@@ -281,7 +281,7 @@ def _minimal_science_v1_1_payload() -> dict:
 
 @pytest.mark.parametrize(
     "schema_version",
-    ["chinese-v1.4", "high-chinese-v1.2", "english-v1.3", "math-v1.2", "science-v1.2"],
+    ["chinese-v1.4", "high-chinese-v1.2", "english-v1.3", "english-v1.4", "math-v1.2", "science-v1.2"],
 )
 def test_validate_question_sections_dict_accepts_real_corpus_examples(schema_version):
     payload = _find_payload_for_schema_version(schema_version)
@@ -309,6 +309,27 @@ def test_science_v1_2_question_index_hyphen_inside_parens_rejected():
     }
     with pytest.raises(QuestionSectionsValidationError, match="question_index"):
         validate_question_sections_dict(payload)
+
+
+def test_english_v1_4_question_index_suffix_form_rejected():
+    payload = copy.deepcopy(_find_payload_for_schema_version("english-v1.4"))
+    payload["sections"][0]["question_info"][0] = {
+        "question_index": "Q20a",
+        "question_mark": 1,
+        "start_page": 1,
+    }
+    with pytest.raises(QuestionSectionsValidationError, match="question_index"):
+        validate_question_sections_dict(payload)
+
+
+def test_english_v1_4_question_index_paren_forms_accepted():
+    payload = copy.deepcopy(_find_payload_for_schema_version("english-v1.4"))
+    info = payload["sections"][0]["question_info"]
+    last_page = max(item["start_page"] for item in info)
+    info.append({"question_index": "Q99(a)", "question_mark": 1, "start_page": last_page})
+    info.append({"question_index": "Q99(b)", "question_mark": 1, "start_page": last_page})
+    info.append({"question_index": "Q51(2020)", "question_mark": 1, "start_page": last_page})
+    validate_question_sections_dict(payload)
 
 
 def _page_range(start: int, end: int) -> dict:

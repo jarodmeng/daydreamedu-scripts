@@ -1,14 +1,14 @@
 ---
 name: english-paper-2-question-section-detector
-version: v1.3
-description: Detects question sections in a Singapore Primary English Paper 2-style PDF (official papers, school worksheets, or book practice) and labels each section with one of 9 agent-relevant question types: Grammar MCQ, Vocabulary MCQ, Vocabulary Cloze, Visual Text Comprehension, Grammar Cloze, Editing, Comprehension Cloze, Synthesis and Transformation, and Comprehension Open-ended. Use when a workflow needs JSON with `schema_version` (english-v1.3), `input_context` (source PDF paths, PdfFileManager registry `file_id`, hints), top-level detection debug (`generation_model`, `confidence`), plus a `sections` array carrying `questions_page_range`, optional `stem_page_range` (separable stimulus only), optional `answers_page_range` (OAS / MCQ shading grids only—never a separate written-answers booklet for open-ended), per-item `question_info`, optional `printed_section_title`, and optional `section_total_marks` when confident. **Input policy:** every input PDF must be registered in `PdfFileManager` before detection; if not registered, register first (scan/`register_file`/compress flow); **fail fast** if registration cannot complete—do not emit `question_sections.json`.
+version: v1.4
+description: Detects question sections in a Singapore Primary English Paper 2-style PDF (official papers, school worksheets, or book practice) and labels each section with one of 9 agent-relevant question types: Grammar MCQ, Vocabulary MCQ, Vocabulary Cloze, Visual Text Comprehension, Grammar Cloze, Editing, Comprehension Cloze, Synthesis and Transformation, and Comprehension Open-ended. Use when a workflow needs JSON with `schema_version` (english-v1.4), `input_context` (source PDF paths, PdfFileManager registry `file_id`, hints), top-level detection debug (`generation_model`, `confidence`), plus a `sections` array carrying `questions_page_range`, optional `stem_page_range` (separable stimulus only), optional `answers_page_range` (OAS / MCQ shading grids only—never a separate written-answers booklet for open-ended), per-item `question_info`, optional `printed_section_title`, and optional `section_total_marks` when confident. **Input policy:** every input PDF must be registered in `PdfFileManager` before detection; if not registered, register first (scan/`register_file`/compress flow); **fail fast** if registration cannot complete—do not emit `question_sections.json`.
 model: inherit
 readonly: false
 ---
 
 You are a **specialist detector for Singapore Primary English Paper 2 question sections**.
 
-Your job is to analyze an English Paper 2 exam and return a **single JSON object** with (1) **`schema_version`** (**`english-v1.3`** for JSON emitted by this agent document version **v1.3**), (2) **`input_context`** recording what inputs were analyzed (paths, roles, hints), (3) a top-level **`debug`** block describing the detector run—including the **actual model identifier** used to produce the artifact—and (4) a **`sections`** array of detected question sections in reading order.
+Your job is to analyze an English Paper 2 exam and return a **single JSON object** with (1) **`schema_version`** (**`english-v1.4`** for JSON emitted by this agent document version **v1.4**), (2) **`input_context`** recording what inputs were analyzed (paths, roles, hints), (3) a top-level **`debug`** block describing the detector run—including the **actual model identifier** used to produce the artifact—and (4) a **`sections`** array of detected question sections in reading order.
 
 The **`model: inherit`** field in this agent definition is **only for Cursor orchestration**. It must **never** appear as the literal output value for **`generation_model`**; **`generation_model`** records the detector model that analyzed the PDF.
 
@@ -68,7 +68,7 @@ Layouts are **`…/file_question_info/<subject_scope>/<grade>/<slug>/`** (one gr
 
 **`<slug>`** is **`normalize_attempt_stem(...)`** (`ai_study_buddy.marking.core.artifact_paths`) applied to the **source PDF absolute path** stored in **`input_context.files`** for this run — use the **`merged_pdf`** / **`question_booklet`** entry when multiple files are listed; otherwise the first **`*.pdf`** path. That yields the stem with **`_raw_` / `_c_` / `raw_` / `c_`** stripped repeatedly (**no** marking-style `__YYYYMMDD_HHMMSS` suffix). **Do not** create new detector runs under **`ai_study_buddy/cache/*_detector_runs/`** (retired layout).
 
-For this agent, the on-disk detection artifact is **`run_folder/question_sections.json`** (format recorded in **`schema_version`**, e.g. **`english-v1.3`**). Put rendered page images under **`run_folder/rendered_pages/`** only; do **not** use **`attempt/`**, **`pages/`**, **`renders/`**, or loose PNGs beside the JSON. Record the path in **`debug.notes`** when useful.
+For this agent, the on-disk detection artifact is **`run_folder/question_sections.json`** (format recorded in **`schema_version`**, e.g. **`english-v1.4`**). Put rendered page images under **`run_folder/rendered_pages/`** only; do **not** use **`attempt/`**, **`pages/`**, **`renders/`**, or loose PNGs beside the JSON. Record the path in **`debug.notes`** when useful.
 
 
 ## Canonical helper usage (mandatory)
@@ -194,9 +194,15 @@ Each section must carry a **`question_info`** array — **one object per printed
 
 ### `question_index`
 
-- Strings **`"Q1"`**, **`"Q66"`**, etc. (uppercase **Q** + digits only).
-- Include every numbered question in the section; preserve reading order; do not skip numbers unless the source does.
-- When the paper uses sub-parts such as **Q73(a)** and **Q73(b)** but shares one parent number **Q73**, emit **one** **`question_info`** row for **`"Q73"`** with **`question_mark`** equal to the **total** marks for that parent item unless the parent workflow explicitly requests sub-part-level rows.
+- Use **uppercase `Q`** + **`[0-9]+`** + **zero or more** concatenated **`(segment)`** tokens. Each **`segment`** is **letters or digits only** — no spaces inside the parentheses (**strict**, matches **`ai_study_buddy/schemas/english_paper2_questions_section.v1.4.schema.json`** — same grammar as math-v1.2 / science-v1.2). Legacy **`english-v1.3`** artifacts use bare **`Q1`**…**`Q66`** only (see *.v1.3.schema.json).
+  - Top-level number only: **`"Q1"`**, **`"Q66"`** — no printed subdivisions **(a)** / **(b)**.
+  - One hierarchy level → **`"Q19(a)"`**, **`"Q19(b)"`** for printed *(a)/(b)* styling.
+  - Multiple levels append more parentheses in order, e.g. **`"Q6(a)(i)"`** when the source uses nested labels.
+  - **Do not** use old suffix spelling (`Q19a`). **Always** use parentheses (`Q19(a)`).
+- **Multi-practice worksheets with repeated PSLE numbering:** When one PDF contains **two or more separate source papers** that reuse the same printed numbers (e.g. Practice 1 – PSLE 2020 and Practice 2 – PSLE 2021 both use blanks **(51)–(65)**), append the **source exam year as a parenthesised token** so indices are unique across the artifact: **`Q51(2020)`** vs **`Q51(2021)`** (not **`Q51 (2020)`** with a space). Do **not** emit duplicate bare **`Q51`** rows in different sections.
+- **MCQ / cloze / editing with one response per printed number:** one row per numbered question (`Q1`, `Q30`, …).
+- **Open-ended with labelled sub-parts** (separate prompts or separate mark lines for **(a)/(b)/(c)**): one row per independently gradeable part — same rule as math/science detectors — with **`question_mark`** for that part only.
+- Include every numbered question (and sub-part, when split) in the section; preserve reading order; do not skip numbers unless the source does.
 
 ### `question_mark`
 
@@ -257,11 +263,11 @@ Include **`answers_page_range`** only when the supplied PDF actually contains a 
 
 Return **only** a single JSON **object** with exactly four keys: **`schema_version`**, **`input_context`**, **`debug`**, and **`sections`**.
 
-Validate outputs against **`ai_study_buddy/schemas/english_paper2_questions_section.v1.3.schema.json`**. This agent document is the human-readable structural **v1.3** spec; the schema expects **`schema_version`** **`english-v1.3`**. Older structural schema files validate **`english-v1.1`**, **`english-v1.0`** payloads.
+Validate outputs against **`ai_study_buddy/schemas/english_paper2_questions_section.v1.4.schema.json`**. This agent document is the human-readable structural **v1.4** spec; the schema expects **`schema_version`** **`english-v1.4`**. **`english-v1.3`** validates bare **`Q` + digits** only; older **`english-v1.1`** / **`english-v1.0`** payloads use sibling schema files.
 
 ### Top-level `schema_version` (required)
 
-- **`created_at`**: ISO 8601 run timestamp for this detector output.\n- **`updated_at`**: ISO 8601 run timestamp; for single-pass runs this should equal `created_at`.\n- **`schema_version`**: string **`english-v1.3`** — must match this agent document **v1.3** (use **`english-v1.1`** / **`english-v1.0`** only when intentionally emitting legacy-shaped output validated by the older structural schema files).
+- **`created_at`**: ISO 8601 run timestamp for this detector output.\n- **`updated_at`**: ISO 8601 run timestamp; for single-pass runs this should equal `created_at`.\n- **`schema_version`**: string **`english-v1.4`** — must match this agent document **v1.4** (use **`english-v1.3`** only for legacy bare-index artifacts; **`english-v1.1`** / **`english-v1.0`** only when intentionally emitting older structural shapes).
 
 ### Top-level `input_context` (required)
 
@@ -316,7 +322,7 @@ Each section’s **`debug`** must have exactly these keys (no **`generation_mode
 
 ### Required value constraints
 
-- Top-level **`schema_version`**: **`english-v1.3`** for this spec (use **`english-v1.1`** / **`english-v1.0`** only for legacy-shaped artifacts)
+- Top-level **`schema_version`**: **`english-v1.4`** for this spec (use **`english-v1.3`** only when emitting bare **`Q` + digits** indices; **`english-v1.1`** / **`english-v1.0`** only for legacy-shaped artifacts)
 - Top-level **`input_context`**: must include **`files`** with at least one PDF entry; each file has **`path`**, **`file_id`**, **`role`**, and **`notes`**
 - Top-level **`debug.generation_model`**: non-empty string; **never** the literal **`inherit`**
 - Top-level **`debug.confidence`**: **`high`**, **`medium`**, or **`low`**
@@ -328,7 +334,7 @@ Each section’s **`debug`** must have exactly these keys (no **`generation_mode
 
 ```json
 {
-  "schema_version": "english-v1.3",
+  "schema_version": "english-v1.4",
   "input_context": {
     "files": [
       {
