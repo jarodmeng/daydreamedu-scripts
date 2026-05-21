@@ -1,5 +1,10 @@
 # Changelog — `student_file_browser`
 
+## [v0.1.6] — Marking score on marked cards (2026-05-21)
+
+- Marked completion cards show **`X/Y (Z%)`** between the title and registry date (resolved summary from `files` v0.3.5).
+- Requires `ai_study_buddy.files` v0.3.5; `/api/health` `files_version` is **0.3.5**.
+
 ## [v0.1.5] — Card sort order (2026-05-20)
 
 - **Sort** filter bar control and URL param `sort=recent|name` (default **Recent first**; omitted from URL when default).

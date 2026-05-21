@@ -157,6 +157,9 @@ class OnDiskMainPdfCard:
     has_marking: bool | None = None
     has_marking_amendment: bool | None = None
     review_status: str | None = None
+    marking_earned_marks: float | int | None = None
+    marking_total_marks: float | int | None = None
+    marking_percentage: float | None = None
     registry_added_at: str | None = None
 
     def to_dict(self) -> dict[str, Any]:
@@ -521,6 +524,9 @@ def enrich_on_disk_main_pdf(
     card.has_marking = workflow.has_marking
     card.has_marking_amendment = workflow.has_marking_amendment
     card.review_status = workflow.review_status
+    card.marking_earned_marks = workflow.marking_earned_marks
+    card.marking_total_marks = workflow.marking_total_marks
+    card.marking_percentage = workflow.marking_percentage
     return card
 
 

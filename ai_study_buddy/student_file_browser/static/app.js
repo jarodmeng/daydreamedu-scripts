@@ -480,6 +480,29 @@
     });
   }
 
+  function formatMarkValue(value) {
+    if (typeof value === "number" && Number.isFinite(value)) {
+      return String(value);
+    }
+    return null;
+  }
+
+  function formatMarkingScore(item) {
+    if (!item.has_marking) return null;
+    const earned = formatMarkValue(item.marking_earned_marks);
+    const total = formatMarkValue(item.marking_total_marks);
+    if (earned === null || total === null) return null;
+    let pct = item.marking_percentage;
+    if (typeof pct !== "number" || Number.isNaN(pct)) {
+      const e = Number(item.marking_earned_marks);
+      const t = Number(item.marking_total_marks);
+      pct = t > 0 ? Math.round((e / t) * 100) : 0;
+    } else {
+      pct = Math.round(pct);
+    }
+    return `${earned}/${total} (${pct}%)`;
+  }
+
   function attemptSeriesLabel(item) {
     const attemptCount = item.attempt_count;
     const attemptSequence = item.attempt_sequence;
@@ -561,6 +584,13 @@
       h3.textContent = item.normal_name || item.basename;
       titleRow.appendChild(h3);
       appendAttemptSeriesChip(titleRow, item);
+      let markingScoreEl = null;
+      const scoreLabel = formatMarkingScore(item);
+      if (scoreLabel) {
+        markingScoreEl = document.createElement("p");
+        markingScoreEl.className = "card-marking-score";
+        markingScoreEl.textContent = scoreLabel;
+      }
       let registryDateEl = null;
       const addedLabel = formatRegistryAddedAt(item.registry_added_at);
       if (addedLabel) {
@@ -621,6 +651,7 @@
       }
       card.appendChild(icon);
       card.appendChild(titleRow);
+      if (markingScoreEl) card.appendChild(markingScoreEl);
       if (registryDateEl) card.appendChild(registryDateEl);
       card.appendChild(chips);
       card.appendChild(statusChips);

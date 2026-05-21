@@ -1,8 +1,8 @@
 # Student File Browser
 
-**Version: v0.1.5**
+**Version: v0.1.6**
 
-Filter-first **operator** inventory for on-disk **main** PDFs under DaydreamEdu and GoodNotes. Uses [`ai_study_buddy.files`](../files/) **v0.3.4+** for path facets, registry correlation, card sort (`recent` / `name`), completion-series fields on cards, and marking/review health flags (`marking` v0.3.8+ shared workflow loader). GoodNotes leaf folders match [goodnotes-leaf-registry-report](../../.cursor/commands/goodnotes-leaf-registry-report.md) (registration-ready set; WIP `Not completed` subtrees are out of scope). Completion **activity** and **note** files are excluded from the index (same as [`completion_template_link_gap_report`](../pdf_file_manager/scripts/completion_template_link_gap_report.py)); templates are still listed.
+Filter-first **operator** inventory for on-disk **main** PDFs under DaydreamEdu and GoodNotes. Uses [`ai_study_buddy.files`](../files/) **v0.3.5+** for path facets, registry correlation, card sort (`recent` / `name`), completion-series fields on cards, marking score on marked cards, and marking/review health flags (`marking` v0.3.8+ shared workflow loader). GoodNotes leaf folders match [goodnotes-leaf-registry-report](../../.cursor/commands/goodnotes-leaf-registry-report.md) (registration-ready set; WIP `Not completed` subtrees are out of scope). Completion **activity** and **note** files are excluded from the index (same as [`completion_template_link_gap_report`](../pdf_file_manager/scripts/completion_template_link_gap_report.py)); templates are still listed.
 
 Default URL: `http://localhost:8771/`
 

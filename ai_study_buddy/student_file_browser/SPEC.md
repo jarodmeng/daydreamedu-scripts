@@ -41,6 +41,7 @@ See `OnDiskMainPdfCard.to_dict()` in `ai_study_buddy.files.on_disk_inventory`.
 - **Registered** when the slice mixes registered and unregistered. **Template** / **Marking** / **Review** when the slice has ≥2 registered completions or more than one distinct value for that dimension; workflow filters apply to registered completions only.
 - In-flight inventory requests are dropped when a newer **Filter** click supersedes them.
 - When `attempt_count > 1` and `attempt_sequence` is set, show **`Attempt {attempt_sequence} of {attempt_count}`** beside the card title (registry-derived; requires `files` v0.3.3+).
+- When `has_marking` and score fields are present, show **`X/Y (Z%)`** between title and registry date (`.card-marking-score`; requires `files` v0.3.5+).
 - When `registry_added_at` is set, show a locale-formatted date under the title (`.card-registry-date`; full ISO in `title` tooltip; requires `files` v0.3.4+).
 - **Sort** control lives in the filter actions row after **Reset**; changing it reloads inventory immediately.
 

@@ -4,6 +4,12 @@ All notable changes to the **`ai_study_buddy.files`** package are documented her
 
 ---
 
+## [v0.3.5] — Marking score on inventory cards
+
+- **`RegisteredCompletionEnrichment`:** `marking_earned_marks`, `marking_total_marks`, `marking_percentage` from resolved marking summary (via `load_completion_marking_context`).
+- **`OnDiskMainPdfCard`:** same three fields when `has_marking` is true.
+- Consumer: `student_file_browser` v0.1.6.
+
 ## [v0.3.4] — Card sort order for Student File Browser
 
 - **`FilterCriteria.sort`:** `name` | `recent` (default `recent`).

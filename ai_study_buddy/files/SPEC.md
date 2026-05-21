@@ -2,7 +2,7 @@
 
 This document is the **contract** for the public Python API of `ai_study_buddy.files`. It is registry-agnostic: no SQLite, no `PdfFileManager`, no scan-root configuration.
 
-**Version:** align with [README.md](./README.md) (package **v0.3.4**).
+**Version:** align with [README.md](./README.md) (package **v0.3.5**).
 
 Core leaf listing and root resolution are **registry-agnostic**. Optional correlation with `pdf_file_manager` / `pdf_registry.db` lives in **`pdf_registry_paths.py`** (see §3).
 
@@ -177,8 +177,8 @@ Map built in `from_pdf_file_manager`. Use `registry_file_for_path` and `has_temp
 
 ### 6.4 `completion_enrichment`
 
-- `enrich_registered_completion` calls `marking.review.workflow_flags.completion_workflow_flags` only.
-- Public type: `RegisteredCompletionEnrichment` (not marking’s internal `_CompletionWorkflowFlags`).
+- `enrich_registered_completion` calls `marking.review.workflow_flags.load_completion_marking_context` (lazy import).
+- Public type: `RegisteredCompletionEnrichment` — workflow flags plus optional `marking_earned_marks`, `marking_total_marks`, `marking_percentage` from resolved summary when marked.
 
 ### 6.5 `on_disk_inventory`
 
