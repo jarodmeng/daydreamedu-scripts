@@ -29,6 +29,8 @@ See [math_exam_format.md](./math_exam_format.md) for the full exam structure.
 
 **`[n]` bracket rule:** The presence or absence of a printed `[n]` bracket beside each answer line is the most reliable visual signal to distinguish SAQ from LAQ when the question number alone is not visible. SAQ blocks state marks once in the section instruction only; LAQ blocks print the mark value on every question and sub-part.
 
+**Unassigned marks (non-MCQ):** If a free-response item has no per-line mark assignment (no `[n]`, `[1m]`, `[2m]`, etc. beside the answer line) and no clear LAQ-style bracketed block, treat it as **SAQ** rather than LAQ. Worksheets and topical papers often omit marks entirely; SAQ is the safer default.
+
 ### Canonical type vs printed section label
 
 School papers do not always use the labels MCQ / SAQ / LAQ. The printed section heading or instruction line is the authoritative source. Structured outputs should use the three canonical values above as `question_type`; auxiliary fields can carry the printed section number range and mark totals.

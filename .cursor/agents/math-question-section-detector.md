@@ -172,6 +172,15 @@ The presence or absence of a printed mark bracket **`[n]`** beside each answer l
 
 When the section instruction is missing or ambiguous, use the bracket signal as the tie-breaker.
 
+## Default type when per-question marks are not assigned (non-MCQ)
+
+For free-response items that are **not** MCQ (no four-option block / OAS shading pattern):
+
+- **LAQ** requires **assigned marks printed per answer line or sub-part** — typically **`[n]`** brackets (e.g. `[3]`, `[2]`) or the same meaning in variants such as **`[1m]`**, **`[2m]`**, **`[2 m]`** beside each `Ans:` line.
+- If a numbered question has **no** such per-line mark assignment **and** is not in a block whose section instruction clearly defines LAQ-style bracketed marking, **default `question_type` to `SAQ`** — do **not** guess `LAQ` from layout alone.
+
+School worksheets, topical exercises, and some WA blocks often omit bracket notation entirely while still being short written answers with plain `Ans:` lines. **`SAQ` is the safer assumption** in that case. You may still infer **`question_mark`** using the SAQ defaults (2 per single-part numbered question; 1 per labeled sub-part) when the paper does not print marks; record that inference briefly in the section **`debug.notes`** when helpful.
+
 ## Type-specific detection guidance
 
 Use the golden ontology file for examples, and apply these rules:
