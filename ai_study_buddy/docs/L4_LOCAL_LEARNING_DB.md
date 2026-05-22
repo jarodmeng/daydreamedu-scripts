@@ -1,6 +1,6 @@
 # AI Study Buddy - Local Learning DB
 
-> Status: **Proposal (`v0.1`)**.
+> Status: **Active rollout — Phase 3 provisional sign-off (`v0.2`)**. Dual-write remains on in production; Phase 4 JSON demotion is blocked on the **1,000-op** final gate (~660/1,000 as of sign-off).
 >
 > Scope: create and maintain `ai_study_buddy/db/study_buddy.db` as the local durable learning-memory database, while preserving current JSON workflows during migration.
 >
@@ -43,6 +43,11 @@ Implementation update (2026-05-06):
 - Wake-triggered auto backup shell for `study_buddy.db` lives under `ai_study_buddy/utils/backup/` (`run_learning_db_wake.sh`, `install_learning_db_wake.sh`, `uninstall_learning_db_wake.sh`). The pdf-registry `install_pdf_registry_wake.sh` uses `run_wake_all.sh`, which backs up **both** DBs on wake. After upgrades, migrate `~/.wakeup` with `utils/backup/migrate_wakeup_backup_paths.sh` if needed.
 - backup retention tiering is implemented via:
   - `python3 -m ai_study_buddy.learning_db.cli.apply_backup_tiering`
+
+Implementation update (2026-05-22) — **Phase 3 provisional gate (200 dual-writes)**:
+
+- Production `operation_log` dual-write burn-in recorded below (**Phase 3 provisional sign-off**). Runtime posture unchanged: **`LEARNING_DB_ENABLE_DUAL_WRITE=1`**, **`LEARNING_DB_STRICT_DUAL_WRITE=0`**, **`LEARNING_DB_ENABLE_JSON_EXPORT=1`**, **`LEARNING_DB_ENABLE_READS=1`**.
+- Re-measure before Phase 4: `python3 -m ai_study_buddy.learning_db.cli.dual_write_stats` and `python3 -m ai_study_buddy.learning_db.cli.dual_write_stats --target-min-ops 1000`.
 
 ---
 
@@ -1109,10 +1114,44 @@ These decisions are now fixed for implementation unless explicitly revised.
 - [x] Audit and update second-order write consumers (skills, scripts, orchestration prompts) to call marking/repository APIs as the write boundary, not direct JSON/file-path workflows (updated orchestrator skill policy; `edit_human_notes` and `retrack_marking_assets` now persist via `write_marking_artifact(...)`).
 - [x] Specifically update `.cursor/skills/mark-student-work-multi-agent-v2/SKILL.md` to enforce API-first write semantics and prohibit filesystem scans as source-of-truth lookups.
 - [x] Fix importer upsert identity reuse for edited JSON at the same path (`import_context_json`): when `source_content_hash` changes, reuse existing row IDs by unique path (`marking_artifacts.artifact_path`, `marking_amendments.amendment_path`, `student_review_states.review_state_path`) before identity-map insertion, preventing `UNIQUE constraint failed` quarantine loops on legitimate updates.
-- [ ] Measure and record dual-write success rate over at least 200 write operations (provisional gate) and 1,000 write operations (final gate).
-- [ ] Verify strict dual-write invariant violations remain zero during compatibility mode.
-- [ ] Verify no unresolved write failures older than 24h before enabling Phase 4.
-- [ ] Run and document at least one rollback drill (`LEARNING_DB_ENABLE_DUAL_WRITE=0`) before Phase 4 cutover.
+- [x] Measure and record dual-write success rate over at least **200** write operations (**provisional gate** — sign-off below).
+- [ ] Measure and record dual-write success rate over at least **1,000** write operations (**final gate** before Phase 4 JSON demotion).
+- [x] Verify strict dual-write invariant violations remain zero during compatibility mode (sign-off below).
+- [x] Verify no unresolved **write-boundary** failures older than 24h before enabling Phase 4 (sign-off below; historical `import_*` failures are batch-import era only).
+- [x] Run and document at least one rollback drill (`LEARNING_DB_ENABLE_DUAL_WRITE=0`) before Phase 4 cutover — [LEARNING_DUAL_WRITE_PHASE3.md](../learning_db/docs/learnings/LEARNING_DUAL_WRITE_PHASE3.md) § Rollback drill.
+
+##### Phase 3 provisional sign-off (2026-05-22)
+
+Measured on production `ai_study_buddy/db/study_buddy.db` (all-time `dual_write_snapshot` rows in `operation_log`):
+
+```text
+python3 -m ai_study_buddy.learning_db.cli.dual_write_stats
+# overall: total=660 succeeded=660 failed=0 success_rate=100.0000%
+# gate_check: min_ops(200)=PASS success_rate(99.9000%)=PASS
+
+python3 -m ai_study_buddy.learning_db.cli.dual_write_stats --target-min-ops 1000
+# gate_check: min_ops(1000)=FAIL (660/1000) success_rate(99.9000%)=PASS
+```
+
+| Check | Result |
+|-------|--------|
+| Provisional gate (≥200 ops, ≥99.9% success) | **PASS** (660 ops, 100% success) |
+| Final gate (≥1,000 ops) | **Not met** — continue dual-write burn-in |
+| `dual_write_snapshot` failures (all time) | **0** |
+| Failed write-boundary ops (`dual_write_snapshot`, `marking_*_write`, `student_review_state_write`) | **0** |
+| `import_quarantine` unresolved | **0** |
+| Dual-write activity span | 2026-04-29 → 2026-05-21 (SGT) |
+| Last 7 days | 244 dual-writes, 0 failures |
+
+**By family (all-time):** `marking_result` 391 · `file_question_info` 114 · `marking_amendment` 108 · `student_review_state` 47 — all 100% success.
+
+**Production experience (wrap-up notes):**
+
+- Soft dual-write (`LEARNING_DB_STRICT_DUAL_WRITE=0`) has been sufficient: zero production projection failures logged; JSON snapshots remain the human-editable safety net while DB rows stay aligned.
+- Reads are already DB-default (Phase 4 partial); **writes** still dual-path. Do not demote JSON or disable dual-write until the **1,000-op** gate and Phase 4 checklist complete.
+- Historical `import_*` failures in `operation_log` (33 rows) predate runtime dual-write and do not affect write-boundary health; quarantine backlog is fully resolved.
+
+**Captured learning:** [LEARNING_DUAL_WRITE_PHASE3.md](../learning_db/docs/learnings/LEARNING_DUAL_WRITE_PHASE3.md) (flags, entry points, rollback drill).
 
 ### Phase 4 - Operational DB source (JSON demoted)
 

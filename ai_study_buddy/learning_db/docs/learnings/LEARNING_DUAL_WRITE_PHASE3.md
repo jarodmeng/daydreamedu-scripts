@@ -36,3 +36,47 @@ Proposal index: [L4_LOCAL_LEARNING_DB.md](../../../docs/L4_LOCAL_LEARNING_DB.md)
 4. Only then exercise **`LEARNING_DB_ENABLE_JSON_EXPORT=0`** for DB-only previews (dual-write mandatory).
 
 See also parity learning: [LEARNING_READER_PARITY.md](./LEARNING_READER_PARITY.md).
+
+## Rollback drill (`LEARNING_DB_ENABLE_DUAL_WRITE=0`)
+
+Documented **2026-05-22** for L4 Phase 3 sign-off. Production keeps dual-write **on** by default; run this drill on a **copy** before Phase 4 cutover, or briefly in a controlled local session when validating rollback posture.
+
+### Goal
+
+Confirm that disabling DB projection restores **JSON-only** write behaviour without data loss: marking/review APIs still persist under `context/**`; no new `dual_write_snapshot` rows are required for operators to continue work.
+
+### Steps (disposable copy recommended)
+
+1. Copy `ai_study_buddy/context/` and `ai_study_buddy/db/study_buddy.db` to a scratch directory.
+2. Point env at the copy (or export overrides for one shell session):
+
+   ```bash
+   export LEARNING_DB_ENABLE_DUAL_WRITE=0
+   export LEARNING_DB_ENABLE_JSON_EXPORT=1   # default — JSON remains authoritative on disk
+   export STUDY_BUDDY_DB_PATH=/path/to/copy/study_buddy.db   # if using a copy
+   ```
+
+3. Perform one representative write per family through normal APIs (not raw file edits):
+   - `write_marking_artifact(...)` → `context/marking_results/...`
+   - `StudentReviewRepository.save_review_state(...)` / `save_amendment(...)`
+4. Verify JSON files exist and are readable; confirm **no** new `dual_write_snapshot` rows for those paths (optional):
+
+   ```bash
+   python3 -m ai_study_buddy.learning_db.cli.dual_write_stats --db-path /path/to/copy/study_buddy.db
+   ```
+
+5. Re-enable projection before returning to normal work:
+
+   ```bash
+   export LEARNING_DB_ENABLE_DUAL_WRITE=1
+   ```
+
+### Expected outcome
+
+- Writes succeed with JSON on disk; DB projection is skipped when `LEARNING_DB_ENABLE_DUAL_WRITE=0` (see `maybe_dual_write_snapshot` / `maybe_dual_write_from_canonical` early return).
+- Automated coverage: `learning_db/tests/test_dual_write_snapshots.py` (`test_dual_write_disabled_is_no_op`) and rollback posture noted in [L4_LOCAL_LEARNING_DB.md](../../../docs/L4_LOCAL_LEARNING_DB.md) Phase 3 checklist.
+
+### Production posture after sign-off
+
+- **Do not** leave `LEARNING_DB_ENABLE_DUAL_WRITE=0` in routine marking/review sessions while Phase 3 compatibility mode is active.
+- Re-run `python3 -m ai_study_buddy.learning_db.cli.dual_write_stats --target-min-ops 1000` periodically until the final gate passes, then proceed to Phase 4 JSON demotion per L4.

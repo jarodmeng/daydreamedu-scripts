@@ -2,6 +2,13 @@
 
 All notable changes to `ai_study_buddy.learning_db` are documented in this file.
 
+## [0.1.6] - 2026-05-22
+
+### Changed
+
+- [L4_LOCAL_LEARNING_DB.md](../docs/L4_LOCAL_LEARNING_DB.md): Phase 3 **provisional sign-off** — 660 dual-writes, 0 failures; rollback drill documented in [LEARNING_DUAL_WRITE_PHASE3.md](docs/learnings/LEARNING_DUAL_WRITE_PHASE3.md).
+- `README.md`: document `dual_write_stats` CLI in Quick Commands.
+
 ## [0.1.5] - 2026-05-07
 
 ### Changed

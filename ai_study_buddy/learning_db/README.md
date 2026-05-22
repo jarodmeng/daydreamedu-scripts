@@ -2,7 +2,7 @@
 
 SQLite projection layer for AI Study Buddy canonical JSON artifacts under `ai_study_buddy/context/`.
 
-Current version: `0.1.5`
+Current version: `0.1.6`
 
 ## Scope
 
@@ -67,6 +67,10 @@ python3 -m ai_study_buddy.learning_db.cli.backup_study_buddy_db --timestamp
 
 # retention tiering (use --dry-run first)
 python3 -m ai_study_buddy.learning_db.cli.apply_backup_tiering --dry-run
+
+# dual-write burn-in stats (Phase 3 gates; default min 200 ops)
+python3 -m ai_study_buddy.learning_db.cli.dual_write_stats
+python3 -m ai_study_buddy.learning_db.cli.dual_write_stats --target-min-ops 1000
 
 # install wake-triggered auto-backup fixture (learning-only; combined install is install_pdf_registry_wake.sh)
 bash ai_study_buddy/utils/backup/install_learning_db_wake.sh
