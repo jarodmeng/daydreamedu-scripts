@@ -14,9 +14,11 @@ This document specifies the **operations** (Python API), **operation types** (fo
 
 ### C — Create / Register
 
-#### `scan_for_new_files(roots=None, min_savings_pct=10, dry_run=False) -> list[ScanResult]`
+#### `scan_for_new_files(roots=None, min_savings_pct=10, dry_run=False, auto_link_goodnotes=True, auto_fix_template=True, inherit_metadata=True) -> list[ScanResult]`
 
 Walk configured scan roots (or override list), find direct-child `*.pdf` files in each root, compare against the registry, and process any that are new. `scan_for_new_files(...)` does **not** recurse into nested subfolders; callers that want nested folders processed must pass those folders explicitly as roots. If `dry_run=True`, no disk or database changes are made; the return value describes what would have been done for each would-be-processed file. In dry-run mode, each `ScanResult.file` is still populated with **inferred** fields (`doc_type`, `subject`, `is_template`, `metadata`, and `file_type` where applicable) so previews match a real run rather than placeholder `unknown` / empty metadata.
+
+**GoodNotes auto-link (v0.3.20+):** When `auto_link_goodnotes=True` (default), after each **new** GoodNotes `c_` / `_c_` main is registered (direct register or post-`compress_and_register` main), the manager attempts `link_goodnotes_template_for_file` in a **non-aborting** way. The outcome is on `ScanResult.template_link` (`GoodNotesTemplateLinkOutcome | None`; `None` when auto-link is off, the path is not under `GoodNotes/`, or inferred `is_template=True`). In `dry_run=True`, `template_link` previews the link without registering or mutating relations. Link failures (unregistered template, stem mismatch, already linked to a different template) do not abort the scan. Does not auto-register missing DaydreamEdu templates; exact `_c_{stem}` resolution still applies (filename policy / P1-3).
 
 When `roots` is a non-empty override list, each resolved absolute path is looked up against configured `scan_roots` rows so that a matching registered root’s `student_id` is used for files under that path—the same as when scanning all configured roots without an override.
 
@@ -450,7 +452,7 @@ For all returned data class shapes (`PdfFile`, `FileGroup`, `FileGroupMember`, a
 | `PdfFileManager` class | ✅ Implemented |
 | Student management (`add_student`, `get_student`, `list_students`) | ✅ Implemented |
 | Scan root management (with `student_id`) | ✅ Implemented |
-| `scan_for_new_files` (auto-compress + archive) | ✅ Implemented |
+| `scan_for_new_files` (auto-compress + archive; GoodNotes auto-link v0.3.20+) | ✅ Implemented |
 | `register_file` | ✅ Implemented |
 | `compress_and_register` (compress → rename → archive) | ✅ Implemented |
 | `find_files` / `get_file` / `get_file_by_path` | ✅ Implemented |

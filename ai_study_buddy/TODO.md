@@ -24,8 +24,7 @@
     - If the implementation of the proposal completes a bullet (or multiple bullets) in the TODO.md file, add an implementation task in the last phase of the implementation plan to check those bullet(s).
 - [ ] **P1-2** · 2026-05-06 12:32 SGT: Audit **error type enums** across the marking module (schemas, graders, ingest/learning DB) for drift, undocumented values, and consistent naming—align or document canon so downstream consumers do not silently misclassify errors.
 - [ ] **P1-3** · 2026-05-13 10:34 SGT: Establish a **DaydreamEdu template filename policy** (and migration path) to replace or avoid characters **GoodNotes silently normalizes or drops**—e.g. `&` rewritten as `-`—so `DAYDREAMEDU_ROOT` / `…/DaydreamEdu/template/…` basenames stay aligned with GoodNotes `c_` / `_c_` exports and **`pdf_file_manager.resolve_goodnotes_template_path`** / `link_goodnotes_templates_for_root` do not miss on exact `_c_{stem}.pdf` matches.
-- [ ] **P1-4** · 2026-05-13 10:35 SGT: Add an **opt-in (or default-on) auto-link step** after GoodNotes completion registration—e.g. when `PdfFileManager.scan_for_new_files(roots=[…])` lands new **`c_`/`_c_` mains** under `GOODNOTES_ROOT`, run **`link_goodnotes_template_for_file`** per file (non-aborting) or a thin wrapper so **`link_goodnotes_templates_for_root`** is not a mandatory second pass; document behavior on unresolved templates, dry-run hooks, and interplay with **P1-3** exact-stem limits.
-- [ ] **P1-5** · 2026-05-19 14:00 SGT: **Move path inference into `files.path_facets`** — migrate implementation out of `PdfFileManager._infer_from_path` into `ai_study_buddy.files.infer_path_facets` (Phase B of v0.3.0); make `pdf_file_manager` a thin delegate; port/extend `pdf_file_manager/tests/test_inference.py` parity into `files/tests/test_path_facets.py`. See L4 Student File Management Open Questions §4.
+- [ ] **P1-4** · 2026-05-19 14:00 SGT: **Move path inference into `files.path_facets`** — migrate implementation out of `PdfFileManager._infer_from_path` into `ai_study_buddy.files.infer_path_facets` (Phase B of v0.3.0); make `pdf_file_manager` a thin delegate; port/extend `pdf_file_manager/tests/test_inference.py` parity into `files/tests/test_path_facets.py`. See L4 Student File Management Open Questions §4.
 
 ## P2 — require attention when there's free time
 
@@ -46,6 +45,7 @@
 ### P1
 
 - [x] **P1-1** · 2026-05-06 11:21 SGT: Create `ai_study_buddy/learning_db/SPEC.md` to define scope, architecture, contracts, and operational expectations for the learning DB module.
+- [x] **P1-4** · 2026-05-13 10:35 SGT: Add an **opt-in (or default-on) auto-link step** after GoodNotes completion registration—e.g. when `PdfFileManager.scan_for_new_files(roots=[…])` lands new **`c_`/`_c_` mains** under `GOODNOTES_ROOT`, run **`link_goodnotes_template_for_file`** per file (non-aborting) or a thin wrapper so **`link_goodnotes_templates_for_root`** is not a mandatory second pass; document behavior on unresolved templates, dry-run hooks, and interplay with **P1-3** exact-stem limits. Shipped in `pdf_file_manager` **v0.3.20** (`auto_link_goodnotes=True`, `ScanResult.template_link`).
 - [x] **P1-2** · 2026-05-22 08:40 SGT: Wrap up `ai_study_buddy/docs/L4_LOCAL_LEARNING_DB.md` after the 200-op dual-write provisional gate passed — Phase 3 provisional sign-off recorded (660 ops, 0 failures); final 1,000-op gate and Phase 4 JSON demotion remain open.
 
 ### P2

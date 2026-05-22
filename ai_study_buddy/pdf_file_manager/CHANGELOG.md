@@ -4,6 +4,13 @@ All notable changes to the pdf_file_manager utility are documented here.
 
 ---
 
+## [v0.3.20] — GoodNotes auto-link after scan
+
+- `scan_for_new_files(..., auto_link_goodnotes=True)` (default on) attempts `link_goodnotes_template_for_file` per **newly registered** GoodNotes `c_` / `_c_` main after registration (and after GoodNotes `compress_and_register` when applicable). Failures are **non-aborting**; outcome is on `ScanResult.template_link`.
+- `dry_run=True` previews link via `ScanResult.template_link` without registering or linking.
+- Helpers: `_preview_goodnotes_template_link`, `_try_link_goodnotes_template_for_file`, `_auto_link_goodnotes_after_scan`.
+- Does not auto-register missing DaydreamEdu templates; exact stem match still required (see P1-3 filename policy). Pass `auto_link_goodnotes=False` to skip.
+
 ## [v0.3.19] — Registry-derived completion series
 
 - New module `completion_series.py`: `CompletionSeries`, `CompletionSeriesMember`, `build_completion_series`, `series_id_for`, `slugify_student`.

@@ -145,6 +145,7 @@ class ScanResult:
     file: PdfFile
     raw_archive: PdfFile | None
     compressed: bool
+    template_link: GoodNotesTemplateLinkOutcome | None = None  # v0.3.20+ GoodNotes auto-link preview/outcome
 ```
 
 `PdfFile.normal_name` is derived from `name` using canonical normalization in `pdf_file_manager`:

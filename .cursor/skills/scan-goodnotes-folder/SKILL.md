@@ -23,7 +23,7 @@ Important scan behavior:
 
 - `scan_for_new_files(...)` scans only direct `*.pdf` children of the supplied folder.
 - GoodNotes paths are handled in a preserve-input way; originals stay in place.
-- Scan/register must happen before GoodNotes template-linking.
+- By default (`auto_link_goodnotes=True`, v0.3.20+), scan also attempts GoodNotes→DaydreamEdu template linking for each **new** `c_` / `_c_` main; check `ScanResult.template_link` per file. Failures are non-aborting (scan still completes).
 
 ## Workflow
 
@@ -50,6 +50,7 @@ Report:
 - how many files would be registered
 - the filenames
 - the inferred metadata that matters for the user request
+- per-file `template_link` preview when `auto_link_goodnotes=True` (would link / missing template / stem mismatch)
 
 For `.../Book/<book name>/...` paths, expect `doc_type='book'`. For student-email paths, expect the student-specific `student_id` and usually `is_template=False`.
 
@@ -65,27 +66,29 @@ After the scan, summarize:
 - whether they were `main` files
 - inferred `doc_type`, `student_id`, `subject`, `is_template`
 - any important `metadata` fields such as `grade_or_scope` and `unit`
+- per-file `ScanResult.template_link` (linked / already linked / failure message)
 
 For GoodNotes `c_` / `_c_` files, it is normal for them to register as `main` without creating raw archives.
 
-### 4. Link mirrored DaydreamEdu templates
+### 4. Review / supplement template links
 
-After registration, link the GoodNotes mains to their mirrored DaydreamEdu templates.
+Scan with default `auto_link_goodnotes=True` already attempts linking per new main. Review `template_link` on each `ScanResult`.
+
+If some files still need linking (auto-link off, stem mismatch, or unregistered DaydreamEdu template):
 
 - One file: `PdfFileManager().link_goodnotes_template_for_file(main_path, auto_fix_template=True, inherit_metadata=True)`
-- One folder: `PdfFileManager().link_goodnotes_templates_for_root(root, dry_run=False, auto_fix_template=True, inherit_metadata=True)`
+- Whole folder (including already-registered mains): `PdfFileManager().link_goodnotes_templates_for_root(root, dry_run=False, auto_fix_template=True, inherit_metadata=True)`
 
-Preferred order:
+For a folder-only pass without re-scanning:
 
-1. First run the root-level linker in dry-run mode (`dry_run=True`) and review which files would link vs fail.
-2. If the dry run looks good for all intended files, run the real root-level linker for the folder.
-3. If the real root-level run fails because some unrelated files in that folder have no matching DaydreamEdu template, do not stop there.
-4. Resolve which files are failing.
-5. Link the matching subset individually so the newly scanned files still get connected.
+1. Run `link_goodnotes_templates_for_root(root, dry_run=True)` and review outcomes.
+2. Run the real linker; if unrelated files in the folder fail, link the matching subset individually.
 
 Useful helper:
 
 - Python: `PdfFileManager().resolve_goodnotes_template_path(main_path)`
+
+To disable auto-link during scan: `scan_for_new_files(..., auto_link_goodnotes=False)`.
 
 ## Response Checklist
 
@@ -94,13 +97,12 @@ When finishing, tell the user:
 - whether the folder was already a scan root or had to be added
 - what the dry run would register
 - what the real scan actually registered
-- what the template-link dry run predicted (for example: would link / already linked / missing template)
-- whether template links were created
-- any files in the folder that still do not have a resolvable DaydreamEdu template
+- what each `template_link` reported (linked / would link / already linked / missing or unregistered template)
+- any files that still do not have a resolvable or registered DaydreamEdu template (including stem mismatches per P1-3)
 
 ## Guardrails
 
 - Use the exact folder the user named; do not widen to all scan roots unless explicitly requested.
-- Do not run scan and template-linking in parallel.
+- Do not run scan and a separate root-level template-link pass in parallel on the same folder.
 - Do not treat a failed root-level template-link pass as proof that none of the files can be linked.
 - Keep the explanation path-exact. Distinguish “registered at this exact GoodNotes path” from “same-name file exists elsewhere.”

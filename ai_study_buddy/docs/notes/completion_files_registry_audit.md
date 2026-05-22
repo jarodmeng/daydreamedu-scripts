@@ -51,15 +51,15 @@ Files:
 
 ---
 
-## GoodNotes: `scan_for_new_files()` does not create template links
+## GoodNotes: `scan_for_new_files()` and template links (historical + v0.3.20)
 
-**Learning (2026-04-19):** `PdfFileManager.scan_for_new_files()` registers (and may compress) PDFs under the given scan roots and, for book trees, calls `ensure_book_group_from_path` — but it **never** calls `link_goodnotes_template_for_file()` or `link_goodnotes_templates_for_root()`. So a GoodNotes main can sit in the registry with **no** `template_for` / `completed_from` row even when the mirrored **`_c_…` file already exists and is registered** under `DAYDREAMEDU_ROOT`.
+**Learning (2026-04-19):** `PdfFileManager.scan_for_new_files()` registers (and may compress) PDFs under the given scan roots and, for book trees, calls `ensure_book_group_from_path` — but it **never** called `link_goodnotes_template_for_file()` or `link_goodnotes_templates_for_root()`. So a GoodNotes main could sit in the registry with **no** `template_for` / `completed_from` row even when the mirrored **`_c_…` file already exists and is registered** under `DAYDREAMEDU_ROOT`. **Update (pdf_file_manager v0.3.20):** scan now auto-links by default (`auto_link_goodnotes=True`); see `ScanResult.template_link`. A separate root-level linker pass is only needed for already-registered files or when auto-link is disabled.
 
 **Evidence — eight files in the audit set (not one):** Among **234** completions (with `(reviewed)` excluded, and **before** rule **7** excluded Science Revision Guide book trees), **eight** GoodNotes mains had **`get_template()` = `None`** while **`resolve_goodnotes_template_path()`** pointed at an existing, registered DaydreamEdu template. For **all eight**, `operation_log` showed **`register`** and **`update_metadata`** only; the **seven book** paths also had **`group_add` / `group_remove`** from book-group sync — and **none** had **`link_template`**. Subjects/paths: one Emma **P4/Exam** science WA PDF; three Winston **PSLE/Book** Power Pack Math; three Emma **PSLE/Book** Science PSLE Revision Guide; one Abigail **P1/Book** Visible Thinking. Same root cause as a single-file example: scan/book workflow ran; the **post-scan GoodNotes linker never did**. (Three of those eight were under **Science PSLE Revision Guide**; they no longer appear in the **213**-row audit population.)
 
 **Registry fix (2026-04-19):** Ran `link_goodnotes_template_for_file(<path>, auto_fix_template=True, inherit_metadata=True)` for each of the eight. All returned `linked=True` (mirrored templates already had `is_template=True`; no auto-fix needed).
 
-**Implication:** Missing general-scope template links on GoodNotes completions are often an **omitted post-scan step**, not a failed resolution. After scanning or registering GoodNotes folders, run the linker explicitly (see `.cursor/skills/scan-goodnotes-folder/SKILL.md`): `link_goodnotes_template_for_file(main_path)` or `link_goodnotes_templates_for_root(goodnotes_root, dry_run=False, …)`.
+**Implication:** Missing general-scope template links on GoodNotes completions were often an **omitted post-scan step**, not a failed resolution (pre-v0.3.20). **Since v0.3.20**, default scan auto-links new mains; review `ScanResult.template_link` and use `link_goodnotes_templates_for_root` or per-file linking only for backfill, `auto_link_goodnotes=False`, or unresolved stems (see `.cursor/skills/scan-goodnotes-folder/SKILL.md`).
 
 ---
 

@@ -91,10 +91,21 @@ class CompressResult:
     raw_archive_id: str | None  # Set if we created a _raw_ file
 
 @dataclass
+class GoodNotesTemplateLinkOutcome:
+    main_path: str
+    template_path: str | None
+    linked: bool
+    already_linked: bool
+    auto_fixed_template: bool
+    dry_run: bool
+    message: str | None
+
+@dataclass
 class ScanResult:
     file: PdfFile
     raw_archive: PdfFile | None
     compressed: bool
+    template_link: GoodNotesTemplateLinkOutcome | None = None
 
 @dataclass
 class OperationRecord:
@@ -163,17 +174,6 @@ class CoverageReport:
     scan_roots: set[str]
     leaf_not_in_roots: set[str]
     roots_without_leaf_pdfs: set[str]
-
-
-@dataclass
-class GoodNotesTemplateLinkOutcome:
-    main_path: str
-    template_path: str | None
-    linked: bool
-    already_linked: bool
-    auto_fixed_template: bool
-    dry_run: bool
-    message: str | None
 
 
 def _looks_like_compressed_main_name(name: str) -> bool:
@@ -1101,6 +1101,121 @@ class PdfFileManager:
         )
 
     # ---------------------------------------------------------------------------
+    # GoodNotes template auto-link (scan helper)
+    # ---------------------------------------------------------------------------
+
+    def _preview_goodnotes_template_link(
+        self,
+        main_path: Path,
+        *,
+        auto_fix_template: bool = True,
+    ) -> GoodNotesTemplateLinkOutcome:
+        main_path = main_path.resolve()
+        try:
+            resolved_template_path = self.resolve_goodnotes_template_path(main_path)
+        except ValueError as exc:
+            return GoodNotesTemplateLinkOutcome(
+                main_path=str(main_path),
+                template_path=None,
+                linked=False,
+                already_linked=False,
+                auto_fixed_template=False,
+                dry_run=True,
+                message=str(exc),
+            )
+
+        template_file = self.get_file_by_path(resolved_template_path)
+        auto_fix_needed = template_file is not None and not template_file.is_template
+        completed_file = self.get_file_by_path(main_path)
+        existing_template = self.get_template(completed_file.id) if completed_file else None
+        message = None
+        already_linked = False
+        if existing_template is not None:
+            if Path(existing_template.path).resolve() == resolved_template_path:
+                already_linked = True
+                message = "Already linked to the resolved template"
+            else:
+                message = "Already linked to a different template"
+        elif template_file is None:
+            if resolved_template_path.exists():
+                message = "Resolved template exists on disk but is not registered"
+            else:
+                message = "Resolved template path not found on disk or in registry"
+        elif template_file.file_type != "main":
+            message = "Resolved template is registered but is not a main file"
+        elif auto_fix_needed and not auto_fix_template:
+            message = "Resolved template is registered but is_template=False"
+        elif auto_fix_needed:
+            message = "Would auto-fix resolved template is_template and link"
+        else:
+            message = "Would link resolved template"
+
+        return GoodNotesTemplateLinkOutcome(
+            main_path=str(main_path),
+            template_path=str(resolved_template_path),
+            linked=False,
+            already_linked=already_linked,
+            auto_fixed_template=False,
+            dry_run=True,
+            message=message,
+        )
+
+    def _try_link_goodnotes_template_for_file(
+        self,
+        main_path: str | Path,
+        *,
+        auto_fix_template: bool = True,
+        inherit_metadata: bool = True,
+    ) -> GoodNotesTemplateLinkOutcome:
+        resolved_path = Path(main_path).resolve()
+        try:
+            return self.link_goodnotes_template_for_file(
+                main_path,
+                auto_fix_template=auto_fix_template,
+                inherit_metadata=inherit_metadata,
+            )
+        except (NotFoundError, ValueError) as exc:
+            template_path: str | None = None
+            try:
+                template_path = str(self.resolve_goodnotes_template_path(resolved_path))
+            except ValueError:
+                pass
+            return GoodNotesTemplateLinkOutcome(
+                main_path=str(resolved_path),
+                template_path=template_path,
+                linked=False,
+                already_linked=False,
+                auto_fixed_template=False,
+                dry_run=False,
+                message=str(exc),
+            )
+
+    def _auto_link_goodnotes_after_scan(
+        self,
+        pdf_path: Path,
+        *,
+        dry_run: bool,
+        auto_link_goodnotes: bool,
+        auto_fix_template: bool = True,
+        inherit_metadata: bool = True,
+    ) -> GoodNotesTemplateLinkOutcome | None:
+        if not auto_link_goodnotes or "GoodNotes" not in pdf_path.parts:
+            return None
+        inferred = self._infer_from_path(pdf_path)
+        if inferred.get("is_template"):
+            return None
+        if dry_run:
+            return self._preview_goodnotes_template_link(
+                pdf_path,
+                auto_fix_template=auto_fix_template,
+            )
+        return self._try_link_goodnotes_template_for_file(
+            pdf_path,
+            auto_fix_template=auto_fix_template,
+            inherit_metadata=inherit_metadata,
+        )
+
+    # ---------------------------------------------------------------------------
     # scan_for_new_files
     # ---------------------------------------------------------------------------
 
@@ -1109,6 +1224,9 @@ class PdfFileManager:
         roots: list[str | Path] | None = None,
         min_savings_pct: float = 10,
         dry_run: bool = False,
+        auto_link_goodnotes: bool = True,
+        auto_fix_template: bool = True,
+        inherit_metadata: bool = True,
         on_file_start: Callable[[Path], None] | None = None,
     ) -> list[ScanResult]:
         def _build_dry_run_preview(file_type: str, pdf_path: Path, inferred: dict, inferred_student_id: str | None) -> PdfFile:
@@ -1248,10 +1366,18 @@ class PdfFileManager:
                     continue
                 if _looks_like_compressed_main_name(name):
                     if dry_run:
+                        template_link = self._auto_link_goodnotes_after_scan(
+                            pdf_path,
+                            dry_run=True,
+                            auto_link_goodnotes=auto_link_goodnotes,
+                            auto_fix_template=auto_fix_template,
+                            inherit_metadata=inherit_metadata,
+                        )
                         results.append(ScanResult(
                             file=_build_dry_run_preview("main", pdf_path, inferred, inferred_student_id),
                             raw_archive=None,
                             compressed=False,
+                            template_link=template_link,
                         ))
                         continue
                     reg = self.register_file(pdf_path)
@@ -1269,7 +1395,19 @@ class PdfFileManager:
                             self.update_metadata(reg.id, **kwargs)
                     main_file = self.get_file(reg.id)
                     if main_file:
-                        results.append(ScanResult(file=main_file, raw_archive=None, compressed=False))
+                        template_link = self._auto_link_goodnotes_after_scan(
+                            pdf_path,
+                            dry_run=False,
+                            auto_link_goodnotes=auto_link_goodnotes,
+                            auto_fix_template=auto_fix_template,
+                            inherit_metadata=inherit_metadata,
+                        )
+                        results.append(ScanResult(
+                            file=main_file,
+                            raw_archive=None,
+                            compressed=False,
+                            template_link=template_link,
+                        ))
                     continue
                 if dry_run:
                     results.append(ScanResult(
@@ -1305,7 +1443,21 @@ class PdfFileManager:
                 main_file = self.get_file(result.main_file_id)
                 raw_file = self.get_file(result.raw_archive_id) if result.raw_archive_id else None
                 if main_file:
-                    results.append(ScanResult(file=main_file, raw_archive=raw_file, compressed=result.compressed))
+                    template_link = None
+                    if is_goodnotes:
+                        template_link = self._auto_link_goodnotes_after_scan(
+                            Path(main_file.path),
+                            dry_run=False,
+                            auto_link_goodnotes=auto_link_goodnotes,
+                            auto_fix_template=auto_fix_template,
+                            inherit_metadata=inherit_metadata,
+                        )
+                    results.append(ScanResult(
+                        file=main_file,
+                        raw_archive=raw_file,
+                        compressed=result.compressed,
+                        template_link=template_link,
+                    ))
         if not dry_run:
             for book_folder in sorted(book_folders_to_sync):
                 self.ensure_book_group_from_path(book_folder)

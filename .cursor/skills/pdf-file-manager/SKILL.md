@@ -81,6 +81,7 @@ Be explicit: **exact-path registration** vs **same-name match elsewhere** in the
 - **Student assignment:** configured **`scan_root.student_id`** wins; else infer from a path segment matching **`students.email`** ([ARCHITECTURE.md](../../../ai_study_buddy/pdf_file_manager/ARCHITECTURE.md)).
 - **Book folders:** Under `.../Book/<book name>/...`, scan sets `doc_type='book'`, infers **`metadata.unit`** where possible, and syncs a **`group_type='book'`** group labelled with the book name ([SPEC.md](../../../ai_study_buddy/pdf_file_manager/SPEC.md)).
 - **GoodNotes:** Paths under a **`GoodNotes/`** segment use **`preserve_input=True`** for scan-driven compress and for **`compress_and_register`**—originals stay put; **`_c_`** mains are created alongside and linked raw↔main ([README.md](../../../ai_study_buddy/pdf_file_manager/README.md)).
+- **GoodNotes auto-link (v0.3.20+):** **`scan_for_new_files(..., auto_link_goodnotes=True)`** (default) attempts DaydreamEdu template linking per **new** `c_` / `_c_` main; check **`ScanResult.template_link`**. Failures are non-aborting. Pass **`auto_link_goodnotes=False`** to skip; use **`link_goodnotes_templates_for_root`** for already-registered files in a folder.
 
 ## Metadata and `update_metadata`
 
@@ -94,7 +95,7 @@ Be explicit: **exact-path registration** vs **same-name match elsewhere** in the
 - **Template ↔ completion:** `link_to_template` / `unlink_template`.
 - **GoodNotes → DaydreamEdu:** **`resolve_goodnotes_template_path`** resolves a GoodNotes main path to the mirrored **`_c_`** template path. **`link_goodnotes_template_for_file`** and **`link_goodnotes_templates_for_root`** resolve and link; they **do not auto-register** templates that exist only on disk ([README.md](../../../ai_study_buddy/pdf_file_manager/README.md)).
 
-**Sequencing:** Do **not** run **scan/register** and **`link_goodnotes_templates_for_root`** in parallel—the linker only sees files **already committed** to the registry. Order: **scan/register → link templates → verify**.
+**Sequencing:** Do **not** run **scan/register** and a separate **`link_goodnotes_templates_for_root`** pass **in parallel** on the same folder. Default scan already auto-links new GoodNotes mains; run the root linker only to backfill or when **`auto_link_goodnotes=False`**. Review **`template_link`** on each **`ScanResult`** before a supplemental link pass.
 
 ## Book answer-page mappings
 

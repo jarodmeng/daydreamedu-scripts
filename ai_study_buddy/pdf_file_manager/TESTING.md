@@ -103,8 +103,12 @@ These tests give confidence that Phase 2 (Config & file lifecycle) is complete. 
 | **2.14** | **scan with no roots raises** | New manager, no roots added. `scan_for_new_files()` (no override) raises `ConfigError` (or equivalent) pointing to config add-root. Proves: guard rail. |
 | **2.15** | **scan ignores nested subfolders** | Add one PDF directly inside the scan root and another in a nested child folder. `scan_for_new_files(...)` should process only the direct child PDF. Proves: scan roots are non-recursive and nested folders must be passed explicitly. |
 | **2.16** | **scan dry_run preview matches inference** | GoodNotes-style path with book inference; `scan_for_new_files(roots=[root], dry_run=True)`. Assert returned `PdfFile` has inferred `doc_type`, `subject`, `metadata`, and `student_id` (from configured scan root or email segment). Proves: dry-run previews are not stub rows. |
+| **2.17** | **GoodNotes scan auto-links registered template** | GoodNotes `_c_` main + registered DaydreamEdu `_c_` template; `scan_for_new_files(dry_run=False)`. Assert `ScanResult.template_link.linked` and `get_template` on completion. (v0.3.20+) |
+| **2.18** | **GoodNotes scan dry_run previews template_link** | Same layout; `dry_run=True`. Assert `template_link.dry_run` and no registry row for completion. |
+| **2.19** | **GoodNotes scan auto-link failure is non-aborting** | Template on disk but not registered; scan completes; `template_link.message` explains failure. |
+| **2.20** | **`auto_link_goodnotes=False` skips link** | Registered template present; scan with flag off; `template_link` is `None`. |
 
-**Passing all 16** (2.1–2.16) means: students and scan roots are configurable, `register_file` and its guards work, `compress_and_register` does register-then-compress (using the real `compress_pdf`), and `scan_for_new_files` respects dry_run, requires roots, and only processes direct PDF children of each root. Phase 2 is then safe to call done.
+**Passing all 20** (2.1–2.20) means: students and scan roots are configurable, `register_file` and its guards work, `compress_and_register` does register-then-compress (using the real `compress_pdf`), and `scan_for_new_files` respects dry_run, requires roots, only processes direct PDF children of each root, and (v0.3.20+) GoodNotes auto-link / `template_link` behaviour. Phase 2 is then safe to call done.
 
 ---
 

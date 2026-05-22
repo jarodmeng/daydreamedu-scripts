@@ -136,7 +136,7 @@ These 4 categories are MECE (mutually exclusive and collectively exhaustive): ea
 
 Use this when you want a **quantitative gap list** for **completion mains** that still have **no** linked template in `pdf_file_manager` (no `file_relations` row with `relation_type='completed_from'` from the completion’s `id`).
 
-- **Definitions:** A **completion main** is a registered `pdf_files` row with `file_type='main'` and `is_template=false`. **Template linked** means a `completed_from` edge exists (see `PdfFileManager.link_to_template` / `get_template`). Linking is **not** automatic on registration unless you implement a workflow for it (see backlog **P1-5** in `ai_study_buddy/TODO.md`).
+- **Definitions:** A **completion main** is a registered `pdf_files` row with `file_type='main'` and `is_template=false`. **Template linked** means a `completed_from` edge exists (see `PdfFileManager.link_to_template` / `get_template`). GoodNotes **`scan_for_new_files`** auto-links new completions by default (`pdf_file_manager` v0.3.20; `ScanResult.template_link`); other paths may still need explicit linking. Path inference migration: open backlog **P1-4** in `ai_study_buddy/TODO.md`.
 - **Default filter:** `doc_type` **not** in `activity`, `note`, so the table focuses on **exam**, **exercise**, and **book** completions (aligned with template `doc_type` expectations in this doc). Pass `--include-activity-note` to include all completion types.
 - **Root column:** Each row’s `root` is derived from the stored path: `d_root` when the path contains `/DaydreamEdu/`, `g_root` when it contains `/GoodNotes/`, otherwise `(unknown)`.
 - **Agent / operator command:** `.cursor/commands/completion-template-link-gap-report.md` — instructs the agent to run the script and summarize output.

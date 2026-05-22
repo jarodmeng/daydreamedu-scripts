@@ -311,6 +311,167 @@ def test_scan_with_no_roots_raises():
         Path(tmp).unlink(missing_ok=True)
 
 
+def test_scan_goodnotes_auto_links_registered_template():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        base = Path(tmpdir)
+        db_path = base / "registry.db"
+        mgr = PdfFileManager(db_path=str(db_path))
+
+        goodnotes_main = (
+            base
+            / "GoodNotes"
+            / "Singapore Primary Chinese"
+            / STUDENT_FOLDER_EMAIL
+            / "P6"
+            / "Exam"
+            / "_c_p6.chinese.wa1.1 (attempt).pdf"
+        )
+        template_path = (
+            base
+            / "DaydreamEdu"
+            / "Singapore Primary Chinese"
+            / "P6"
+            / "Exam"
+            / "_c_p6.chinese.wa1.1.pdf"
+        )
+        goodnotes_main.parent.mkdir(parents=True, exist_ok=True)
+        template_path.parent.mkdir(parents=True, exist_ok=True)
+        goodnotes_main.write_bytes(b"pdf")
+        template_path.write_bytes(b"pdf")
+
+        mgr.register_file(template_path, file_type="main", doc_type="exam", subject="chinese", is_template=True)
+
+        results = mgr.scan_for_new_files(roots=[goodnotes_main.parent], dry_run=False)
+
+        assert len(results) == 1
+        assert results[0].template_link is not None
+        assert results[0].template_link.linked is True
+        completed = mgr.get_file_by_path(goodnotes_main)
+        assert completed is not None
+        linked_template = mgr.get_template(completed.id)
+        assert linked_template is not None
+        assert linked_template.path == str(template_path.resolve())
+
+
+def test_scan_goodnotes_auto_link_dry_run_previews_without_registering():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        base = Path(tmpdir)
+        db_path = base / "registry.db"
+        mgr = PdfFileManager(db_path=str(db_path))
+
+        goodnotes_main = (
+            base
+            / "GoodNotes"
+            / "Singapore Primary English"
+            / STUDENT_FOLDER_EMAIL
+            / "P6"
+            / "Exam"
+            / "_c_P6 English Term 1 Weighted Review (reviewed).pdf"
+        )
+        template_path = (
+            base
+            / "DaydreamEdu"
+            / "Singapore Primary English"
+            / "P6"
+            / "Exam"
+            / "_c_P6 English Term 1 Weighted Review.pdf"
+        )
+        goodnotes_main.parent.mkdir(parents=True, exist_ok=True)
+        template_path.parent.mkdir(parents=True, exist_ok=True)
+        goodnotes_main.write_bytes(b"pdf")
+        template_path.write_bytes(b"pdf")
+        mgr.register_file(template_path, file_type="main", doc_type="exam", subject="english", is_template=True)
+
+        results = mgr.scan_for_new_files(roots=[goodnotes_main.parent], dry_run=True)
+
+        assert len(results) == 1
+        link = results[0].template_link
+        assert link is not None
+        assert link.dry_run is True
+        assert link.linked is False
+        assert link.message == "Would link resolved template"
+        assert mgr.get_file_by_path(goodnotes_main) is None
+
+
+def test_scan_goodnotes_auto_link_failure_does_not_abort_scan():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        base = Path(tmpdir)
+        db_path = base / "registry.db"
+        mgr = PdfFileManager(db_path=str(db_path))
+
+        goodnotes_main = (
+            base
+            / "GoodNotes"
+            / "Singapore Primary Math"
+            / STUDENT_FOLDER_EMAIL
+            / "P6"
+            / "Exam"
+            / "_c_p6.math.wa1.1 (attempt).pdf"
+        )
+        template_path = (
+            base
+            / "DaydreamEdu"
+            / "Singapore Primary Math"
+            / "P6"
+            / "Exam"
+            / "_c_p6.math.wa1.1.pdf"
+        )
+        goodnotes_main.parent.mkdir(parents=True, exist_ok=True)
+        template_path.parent.mkdir(parents=True, exist_ok=True)
+        goodnotes_main.write_bytes(b"pdf")
+        template_path.write_bytes(b"pdf")
+
+        results = mgr.scan_for_new_files(roots=[goodnotes_main.parent], dry_run=False)
+
+        assert len(results) == 1
+        assert results[0].file.path == str(goodnotes_main.resolve())
+        link = results[0].template_link
+        assert link is not None
+        assert link.linked is False
+        assert "not registered" in (link.message or "").lower()
+        assert mgr.get_template(results[0].file.id) is None
+
+
+def test_scan_goodnotes_auto_link_can_be_disabled():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        base = Path(tmpdir)
+        db_path = base / "registry.db"
+        mgr = PdfFileManager(db_path=str(db_path))
+
+        goodnotes_main = (
+            base
+            / "GoodNotes"
+            / "Singapore Primary Science"
+            / STUDENT_FOLDER_EMAIL
+            / "P6"
+            / "Exam"
+            / "_c_P6 Science Weighted Review 1 (reviewed).pdf"
+        )
+        template_path = (
+            base
+            / "DaydreamEdu"
+            / "Singapore Primary Science"
+            / "P6"
+            / "Exam"
+            / "_c_P6 Science Weighted Review 1.pdf"
+        )
+        goodnotes_main.parent.mkdir(parents=True, exist_ok=True)
+        template_path.parent.mkdir(parents=True, exist_ok=True)
+        goodnotes_main.write_bytes(b"pdf")
+        template_path.write_bytes(b"pdf")
+        mgr.register_file(template_path, file_type="main", doc_type="exam", subject="science", is_template=True)
+
+        results = mgr.scan_for_new_files(
+            roots=[goodnotes_main.parent],
+            dry_run=False,
+            auto_link_goodnotes=False,
+        )
+
+        assert len(results) == 1
+        assert results[0].template_link is None
+        assert mgr.get_template(results[0].file.id) is None
+
+
 def test_scan_dry_run_raises_for_in_scope_unknown_content_folder():
     with tempfile.TemporaryDirectory() as tmpdir:
         tmpdir = Path(tmpdir)
