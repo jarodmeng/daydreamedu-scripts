@@ -4,6 +4,20 @@ All notable changes to `ai_study_buddy.marking` are documented in this file.
 
 Committed changes under `ai_study_buddy/marking/` should add an entry here and bump **Current version** in `README.md` (semver: **patch** for docs or small renderer tweaks, **minor** for schema or public API changes). `SPEC.md` / `TESTING.md` titles do not carry the package version.
 
+## [0.3.13] - 2026-05-25
+
+Patch: `chinese-v1.5` question-section schema (parenthesised `question_index` aligned with math/science/english).
+
+### Added
+
+- `schemas/chinese_paper2_questions_section.v1.5.schema.json` — `chinese-v1.5` (`Q10(ii)`, `Q20(a)`, …); `chinese-v1.4` unchanged for bare `Q` + digits.
+- `marking/file_question_info/api.py`: validator map entry for `chinese-v1.5`; `chinese-v1.5` included in strict `question_info.start_page` layout guards (with math-v1.2 / science-v1.2).
+- `marking/tests/test_file_question_info.py`: chinese-v1.5 `question_index` acceptance/rejection tests; corpus parametrize includes `chinese-v1.5`; golden page-map row for `chinese-v1.5`.
+
+### Changed
+
+- `.cursor/agents/chinese-paper-2-question-section-detector.md`: agent **v1.6**; new detections emit `chinese-v1.5` with parenthesised `question_index` rules aligned to math/science/english.
+
 ## [0.3.12] - 2026-05-21
 
 Patch: v3 finalize bundle/artifact path alignment and subject-scoped learning-report pairing.

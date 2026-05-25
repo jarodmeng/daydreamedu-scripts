@@ -28,9 +28,10 @@ from ai_study_buddy.marking.file_question_info.errors import (
 _ALLOWED_GRADES = ("P1", "P2", "P3", "P4", "P5", "P6", "PSLE")
 _SUPPORTED_IMAGE_EXTENSIONS = (".png", ".jpg", ".jpeg", ".webp")
 _SCHEMAS_DIR = Path(__file__).resolve().parents[2] / "schemas"
-_SCHEMAS_WITH_STRICT_START_PAGE_GUARDS = frozenset({"math-v1.2", "science-v1.2"})
+_SCHEMAS_WITH_STRICT_START_PAGE_GUARDS = frozenset({"math-v1.2", "science-v1.2", "chinese-v1.5"})
 _SCHEMA_PATHS_BY_VERSION: dict[str, Path] = {
     "chinese-v1.4": _SCHEMAS_DIR / "chinese_paper2_questions_section.v1.4.schema.json",
+    "chinese-v1.5": _SCHEMAS_DIR / "chinese_paper2_questions_section.v1.5.schema.json",
     "high-chinese-v1.2": _SCHEMAS_DIR / "higher_chinese_paper2_questions_section.v1.2.schema.json",
     "english-v1.3": _SCHEMAS_DIR / "english_paper2_questions_section.v1.3.schema.json",
     "english-v1.4": _SCHEMAS_DIR / "english_paper2_questions_section.v1.4.schema.json",

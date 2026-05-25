@@ -281,7 +281,7 @@ def _minimal_science_v1_1_payload() -> dict:
 
 @pytest.mark.parametrize(
     "schema_version",
-    ["chinese-v1.4", "high-chinese-v1.2", "english-v1.3", "english-v1.4", "math-v1.2", "science-v1.2"],
+    ["chinese-v1.4", "chinese-v1.5", "high-chinese-v1.2", "english-v1.3", "english-v1.4", "math-v1.2", "science-v1.2"],
 )
 def test_validate_question_sections_dict_accepts_real_corpus_examples(schema_version):
     payload = _find_payload_for_schema_version(schema_version)
@@ -318,6 +318,24 @@ def test_english_v1_4_question_index_suffix_form_rejected():
         "question_mark": 1,
         "start_page": 1,
     }
+    with pytest.raises(QuestionSectionsValidationError, match="question_index"):
+        validate_question_sections_dict(payload)
+
+
+def test_chinese_v1_5_question_index_paren_forms_accepted():
+    payload = copy.deepcopy(_find_payload_for_schema_version("chinese-v1.5"))
+    info = payload["sections"][1]["question_info"]
+    assert any(item["question_index"] == "Q10(ii)" for item in info)
+    last_page = max(item["start_page"] for item in info)
+    info.append({"question_index": "Q99(a)", "question_mark": 1, "start_page": last_page})
+    validate_question_sections_dict(payload)
+
+
+def test_chinese_v1_4_rejects_paren_question_index():
+    payload = copy.deepcopy(_find_payload_for_schema_version("chinese-v1.4"))
+    payload["sections"][0]["question_info"].append(
+        {"question_index": "Q10(ii)", "question_mark": 1, "start_page": 1}
+    )
     with pytest.raises(QuestionSectionsValidationError, match="question_index"):
         validate_question_sections_dict(payload)
 
@@ -657,6 +675,15 @@ def test_get_latest_question_sections_invalid_payload_raises_typed_error(
                 ("Q1", 2),
                 ("Q2", 2),
                 ("Q3", 2),
+            ),
+        ),
+        (
+            "chinese-v1.5",
+            26,
+            (
+                ("Q1", 1),
+                ("Q2", 1),
+                ("Q3", 1),
             ),
         ),
         (

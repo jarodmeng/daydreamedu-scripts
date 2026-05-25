@@ -8,7 +8,7 @@ Canonical marking pipeline for AI Study Buddy. This package defines the
 3. render markdown as a derived view
 4. support human note edits in the canonical JSON
 
-Current version: `v0.3.12`
+Current version: `v0.3.13`
 
 ## Package Scope
 
@@ -319,7 +319,7 @@ refs_with_report = find_marking_artifacts_for_attempt(
 
 ## Batch marking (many completions in one folder)
 
-For resumable folder-scale runs (preflight queue, pilot gate, detector + v3 per file), see the runbook and scripts under `utility_scripts/batch_mark_student_work/README.md`. Use `policies.py` presets and per-queue JSON under `queues/`; paste policy text from `work_queue_status.py --next` into detector/grader prompts.
+For resumable folder-scale runs (preflight queue, pilot gate, detector + v3 per file), see `.cursor/skills/batch-mark-student-work/SKILL.md` and `utility_scripts/batch_mark_student_work/README.md`. Grading uses agent `mark-student-work-v3-batch-orchestrator` (reads `.cursor/skills/mark-student-work-multi-agent-v3/SKILL.md`, spawns section graders).
 
 ## Documentation Index
 
