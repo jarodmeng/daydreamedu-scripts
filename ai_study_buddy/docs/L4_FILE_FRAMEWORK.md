@@ -42,6 +42,70 @@ Notes:
 - **Structural x-prefix** segments (`^x[A-Z].*$`) are treated as **out of coverage** for both reports and local browse unless a tool explicitly changes that behavior.
 - `<optional book name>` appears only when `type` is `book`.
 
+## Goodnotes files
+
+Goodnotes has its own local document model in addition to the Auto Backup PDFs stored under `GOODNOTES_ROOT`.
+
+The key distinction:
+- A **Goodnotes document** is the notebook inside the Goodnotes app. It has a Goodnotes document id, app-level folder membership, timestamps, pages, attachments, and optional share state.
+- A **Goodnotes Auto Backup PDF** is an on-disk PDF copy under `GOODNOTES_ROOT` / `g_root`. It is the file `pdf_file_manager` scans and registers. It is not the primary Goodnotes document record.
+
+Local Goodnotes metadata on macOS is stored in the app container, currently observed at:
+
+- `~/Library/Containers/com.goodnotesapp.x/Data/Library/Databases/projection.sqlite`
+- `~/Library/Containers/com.goodnotesapp.x/Data/Library/Databases/fts.sqlite`
+
+Important tables:
+
+| Concern | Table / field |
+|---------|---------------|
+| Document identity and app timestamps | `projection.sqlite.documents` (`id`, `name`, `created_at`, `updated_at`, `deleted`) |
+| Search/index metadata timestamp | `fts.sqlite.document_meta` (`document_id`, `name`, `last_modified`, `is_deleted`) |
+| Goodnotes folder tree | `projection.sqlite.folders`, `projection.sqlite.folder_to_folder_items` |
+| Page-level timestamps | `projection.sqlite.pages` (`created_at`, `updated_at`, `notes_updated_at`) |
+| Imported PDF asset | `projection.sqlite.attachments` joined through `templates` / `pages` |
+| Share/bootstrap metadata | `projection.sqlite.document_share` |
+
+Timestamp semantics observed from local data:
+
+| Timestamp | Source | Meaning |
+|-----------|--------|---------|
+| `created_at` | `documents.created_at` | Best candidate for when the Goodnotes notebook was created/imported from a PDF. |
+| `updated_at` | `documents.updated_at` | Goodnotes app-level document update timestamp. This matches the date shown in Goodnotes list views. |
+| `last_modified` | `fts.document_meta.last_modified` | Search/index metadata timestamp. It may differ from `updated_at` and can be useful as another modification signal. |
+| `item_created_at`, `item_updated_at` | `folder_to_folder_items` | Denormalized folder-list copies of document created/updated timestamps. |
+| `pages.created_at`, `pages.updated_at`, `pages.notes_updated_at` | `pages` | Page-level creation/update/annotation timing; useful for forensic questions, not usually for registry identity. |
+
+Goodnotes document ids are stable-looking unique identifiers in `documents.id`. Other tables reuse the same id as `document_id` or `item_id`. For example, folder membership links a document through `folder_to_folder_items.item_id`, and search metadata links through `fts.document_meta.document_id`.
+
+The Goodnotes folder path is reconstructed recursively from `folder_to_folder_items`:
+
+1. Start from the document row in `documents`.
+2. Find its active `folder_to_folder_items` row where `item_id = documents.id`.
+3. Follow `parent_folder_id` upward through more `folder_to_folder_items` rows whose `item_id` is that parent folder id.
+4. Resolve folder names through `folders.name`.
+
+Goodnotes stores imported PDFs as internal attachment assets. The `attachments.path` value is an internal key, not the original Finder path. The physical attachment file can exist under:
+
+```text
+~/Library/Containers/com.goodnotesapp.x/Data/Library/Attachments/<attachments.path>
+```
+
+For PDF-imported notebooks this file may itself be a PDF. It is Goodnotes' copied/imported asset, not necessarily the original source file path before import.
+
+Auto Backup filename matching:
+
+- Registered `g_root` files come from Goodnotes Auto Backup PDFs under `GOODNOTES_ROOT`.
+- Goodnotes may silently strip one leading underscore from Auto Backup filenames, so a Goodnotes document named `_c_foo` can appear on disk as `c_foo.pdf`.
+- Therefore, when matching a registered `g_root` PDF to a Goodnotes document, compare the PDF stem to both:
+  - the exact Goodnotes document name
+  - the same stem with one leading `_` added
+- Apart from this leading-underscore behavior, registered GoodNotes backup filenames should generally match their source Goodnotes document names. Exceptions usually indicate a Goodnotes-side rename, a registry/on-disk stale row, or a compressed `_c_` main derived from a Goodnotes document that did not itself have the `_c_` prefix.
+
+Current observed completeness snapshot for the six in-scope top-level Goodnotes folders (`Singapore Primary Chinese`, `Singapore Primary English`, `Singapore Primary Math`, `Singapore Primary Science`, `xCoding`, `xNotes`): all recursively contained active Goodnotes documents had `created_at`, `updated_at`, and `last_modified` timestamps.
+
+Implemented API: `PdfFileManager.get_goodnotes_document_timestamps_for_file(file_id)` and `get_goodnotes_document_timestamps_for_path(path)` return a structured `GoodnotesDocumentMatch` for registered `GOODNOTES_ROOT` mains, including match status, Goodnotes document id/name, Goodnotes app-folder path, and the three timestamps above. See `pdf_file_manager` [SPEC](../pdf_file_manager/SPEC.md#goodnotes-document-timestamps-v0321) and [proposal 16](../pdf_file_manager/docs/proposals/16-goodnotes-document-timestamps.md).
+
 ## Registered file structure
 
 In general, I divide registered files into the following hierarchical structure according to attributes. All of those attributes are stored in the pdf_file_manager registry.

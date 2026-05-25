@@ -82,6 +82,7 @@ Be explicit: **exact-path registration** vs **same-name match elsewhere** in the
 - **Book folders:** Under `.../Book/<book name>/...`, scan sets `doc_type='book'`, infers **`metadata.unit`** where possible, and syncs a **`group_type='book'`** group labelled with the book name ([SPEC.md](../../../ai_study_buddy/pdf_file_manager/SPEC.md)).
 - **GoodNotes:** Paths under a **`GoodNotes/`** segment use **`preserve_input=True`** for scan-driven compress and for **`compress_and_register`**—originals stay put; **`_c_`** mains are created alongside and linked raw↔main ([README.md](../../../ai_study_buddy/pdf_file_manager/README.md)).
 - **GoodNotes auto-link (v0.3.20+):** **`scan_for_new_files(..., auto_link_goodnotes=True)`** (default) attempts DaydreamEdu template linking per **new** `c_` / `_c_` main; check **`ScanResult.template_link`**. Failures are non-aborting. Pass **`auto_link_goodnotes=False`** to skip; use **`link_goodnotes_templates_for_root`** for already-registered files in a folder.
+- **Goodnotes document timestamps (v0.3.21+):** For a registered `GOODNOTES_ROOT` **main** file, use **`get_goodnotes_document_timestamps_for_file(file_id)`** or **`get_goodnotes_document_timestamps_for_path(path)`** to read the source Goodnotes notebook `created_at`, `updated_at`, `last_modified`, and app-folder path from local Goodnotes metadata. Do not query Goodnotes SQLite directly in normal workflows; inspect `GoodnotesDocumentMatch.status`.
 
 ## Metadata and `update_metadata`
 
