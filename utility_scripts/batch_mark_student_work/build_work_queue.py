@@ -46,9 +46,9 @@ def main() -> int:
     )
     parser.add_argument(
         "--policy",
-        choices=("book", "exercise", "english_exercise"),
+        choices=("book", "exercise", "english_exercise", "science_exercise", "chinese_exercise"),
         default="book",
-        help="Marking policy preset (book | exercise | english_exercise)",
+        help="Marking policy preset (book | exercise | english_exercise | science_exercise | chinese_exercise)",
     )
     parser.add_argument(
         "--marking-mode",

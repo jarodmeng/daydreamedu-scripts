@@ -77,6 +77,8 @@ The backend can still read real Supabase tables even when the frontend doesn't h
 
 For AI Study Buddy PDF registry and file-management tasks, use the skill at `.cursor/skills/pdf-file-manager/SKILL.md`.
 
+For end-to-end marking of one completion or a folder batch (detector → prep → v3 grade → finalize), use `.cursor/skills/batch-mark-student-work/SKILL.md` with scripts in `utility_scripts/batch_mark_student_work/`. Grading: one Task to agent `mark-student-work-v3-batch-orchestrator` (prompt via `batch_item_grade_context.py`); that agent follows `.cursor/skills/mark-student-work-multi-agent-v3/SKILL.md`.
+
 Prefer the `ai_study_buddy/pdf_file_manager` utility through the `PdfFileManager` Python API. Do not query the registry SQLite database directly for normal lookup or mutation work.
 
 **Student work misfiled under general-scope `_raw_` book paths** (list txt → move into student folder → registry cleanup → merge → external clean → split back → re-scan → template links): use `.cursor/skills/reprocess-student-completion-from-general/SKILL.md`.

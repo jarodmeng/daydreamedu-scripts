@@ -282,11 +282,16 @@ def test_resolve_or_create_bundle_for_v3_run_resumes_existing_partial():
         assert selected.artifact_json_path.name == "P4 Science WA1__20260507_202347.json"
 
 
-def test_cleanup_stale_partials_for_v3_run_moves_only_stale_nonfinalized():
+def test_cleanup_stale_partials_for_v3_run_trashes_superseded_including_finalized():
     with tempfile.TemporaryDirectory() as tmpdir:
         root = Path(tmpdir)
         subject = "singapore_primary_science"
-        base = root / "marking_assets" / "emma" / subject
+        student_slug = "emma"
+        base = root / "marking_assets" / student_slug / subject
+        results_base = root / "marking_results" / student_slug / subject
+        reports_base = root / "learning_reports" / student_slug / subject
+        results_base.mkdir(parents=True, exist_ok=True)
+        reports_base.mkdir(parents=True, exist_ok=True)
 
         keep = base / "P4 Science WA1__20260507_202635"
         keep.mkdir(parents=True, exist_ok=True)
@@ -300,20 +305,26 @@ def test_cleanup_stale_partials_for_v3_run_moves_only_stale_nonfinalized():
         finalized.mkdir(parents=True, exist_ok=True)
         (finalized / "debug").mkdir(parents=True, exist_ok=True)
         (finalized / "debug" / "phasee_finalization_trace.json").write_text("{}", encoding="utf-8")
+        (results_base / "P4 Science WA1__20260507_202347.json").write_text("{}", encoding="utf-8")
+        (results_base / "P4 Science WA1__20260507_202800.json").write_text("{}", encoding="utf-8")
+        (reports_base / "P4 Science WA1__20260507_202347 - Marking Report.md").write_text("#", encoding="utf-8")
+        (reports_base / "P4 Science WA1__20260507_202800 - Marking Report.md").write_text("#", encoding="utf-8")
 
         trash_root = root / ".trash"
 
-        def _fake_move_bundle_to_trash(*, bundle_root: Path) -> Path:
-            src = Path(bundle_root).resolve()
+        def _fake_move_path_to_trash(*, path: Path) -> Path:
+            src = Path(path).resolve()
             trash_root.mkdir(parents=True, exist_ok=True)
             dest = trash_root / src.name
+            if dest.exists():
+                dest = trash_root / f"{src.name}__dup"
             src.rename(dest)
             return dest
 
         import ai_study_buddy.marking.workflows.mark_student_work_multi_agent_v3 as mod
 
-        original_move = mod.move_bundle_to_trash
-        mod.move_bundle_to_trash = _fake_move_bundle_to_trash
+        original_move = mod.move_path_to_trash
+        mod.move_path_to_trash = _fake_move_path_to_trash
         try:
             moved = cleanup_stale_partials_for_v3_run(
                 context_root=root,
@@ -324,12 +335,54 @@ def test_cleanup_stale_partials_for_v3_run_moves_only_stale_nonfinalized():
                 keep_bundle_root=keep,
             )
         finally:
-            mod.move_bundle_to_trash = original_move
-        assert len(moved) == 1
-        assert moved[0].name.startswith("P4 Science WA1__20260507_202347")
+            mod.move_path_to_trash = original_move
+        assert len(moved) >= 2
         assert keep.exists()
-        assert finalized.exists()
         assert not stale.exists()
+        assert not finalized.exists()
+        assert not (results_base / "P4 Science WA1__20260507_202347.json").exists()
+        assert not (results_base / "P4 Science WA1__20260507_202800.json").exists()
+
+
+def test_resolve_or_create_bundle_for_v3_run_trashes_prior_runs_before_new_bundle():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        root = Path(tmpdir)
+        subject = "singapore_primary_science"
+        base = root / "marking_assets" / "emma" / subject
+        prior = base / "P4 Science WA1__20260507_202635"
+        prior.mkdir(parents=True, exist_ok=True)
+        (prior / "debug").mkdir(parents=True, exist_ok=True)
+        (prior / "debug" / "phasee_finalization_trace.json").write_text("{}", encoding="utf-8")
+        write_run_state(bundle_root=prior, state="finalized")
+
+        trash_root = root / ".trash"
+
+        def _fake_move_path_to_trash(*, path: Path) -> Path:
+            src = Path(path).resolve()
+            trash_root.mkdir(parents=True, exist_ok=True)
+            dest = trash_root / src.name
+            src.rename(dest)
+            return dest
+
+        import ai_study_buddy.marking.workflows.mark_student_work_multi_agent_v3 as mod
+
+        original_move = mod.move_path_to_trash
+        mod.move_path_to_trash = _fake_move_path_to_trash
+        try:
+            selected = resolve_or_create_bundle_for_v3_run(
+                context_root=root,
+                attempt_file_path="/tmp/_c_P4 Science WA1.pdf",
+                student_id="emma",
+                student_name=None,
+                subject_context=subject,
+                run_marked_at="2026-05-07T20:30:00+08:00",
+                allow_resume=True,
+            )
+        finally:
+            mod.move_path_to_trash = original_move
+        assert selected.resumed_existing is False
+        assert not prior.exists()
+        assert selected.bundle_root.name == "P4 Science WA1__20260507_203000"
 
 
 def test_prepare_finalize_rows_applies_qc():

@@ -4,7 +4,9 @@ Generic batch workflow to mark many completion PDFs in a folder through the same
 
 1. **Preflight** — registry lookup, skip already-marked, build a queue JSON under `queues/`
 2. **Pilot** — one (or two) completions end-to-end before scaling
-3. **Batch** — remaining items via detector → v3 marking → canonical artifacts
+3. **Batch** — remaining items via detector → `mark-student-work-v3-batch-orchestrator` Task → validate → `batch_item_finalize.py`
+
+**Agent rule:** Phase A/B = `batch_item_prep.py`; Phase E = `batch_item_finalize.py`. **Grading = one Task** to `mark-student-work-v3-batch-orchestrator` (prompt from `batch_item_grade_context.py`). That agent reads `.cursor/skills/mark-student-work-multi-agent-v3/SKILL.md` and spawns section graders. Parent must **not** call `marking-phase2-fast-pass-grader-v3` directly.
 
 Old `_*.py` script names delegate to the public modules below.
 
@@ -40,7 +42,7 @@ Related skills/agents:
 
 Policy prompt text is stored in the queue JSON (`marking_policy`) and printed by `work_queue_status.py --next`.
 
-**Book (Model Drawing):** SAQ-only, 2 marks single-part / 1 mark per (a)/(b) sub-part — see `BOOK_MARKING_POLICY_PROMPT` in `policies.py`.
+**Book:** answer-key mapped (`book_answer_mapping`); standard math types from layout — see `BOOK_MARKING_POLICY_PROMPT` in `policies.py`.
 
 ---
 
@@ -57,6 +59,9 @@ BATCH=utility_scripts/batch_mark_student_work
 | `work_queue_status.py` | Summary; `--ord N` or `--next` for prompt context |
 | `mark_done.py` | Manual status update (`--status done\|failed`) |
 | `batch_item_prep.py` | Phase A/B: bundle, renders, `debug/batch_item_meta.json` |
+| `batch_item_grade_context.py` | Emit single orchestrator Task spec (`--json`) for Step 3 |
+| `batch_item_validate_phase2.py` | Gate: phase2 row count vs `sections[]` before finalize |
+| `batch_item_persist_grade_debug.py` | Copy phase2 + section/routing traces into `bundle/debug/` |
 | `batch_item_finalize.py` | Phase E: phase2 JSON → artifact + report + queue update |
 
 Legacy `_*.py` names still work (thin shims).
@@ -114,13 +119,30 @@ print(Counter(i['status'] for i in q['items']))
 for each pending ord:
   1. <detector from queue>  (if needs_detection) — on TEMPLATE, not completion
   2. batch_item_prep.py --ord N --queue ...
-  3. marking-phase2-fast-pass-grader-v3  → /tmp/phase2_ordN.json
-  4. batch_item_finalize.py --ord N --phase2-json ... --meta-json ...
+  3. batch_item_grade_context.py --json → Task mark-student-work-v3-batch-orchestrator
+  4. batch_item_validate_phase2.py → batch_item_persist_grade_debug.py
+  5. batch_item_finalize.py --ord N --phase2-json ... --meta-json ...
 ```
 
 ```bash
 python3 $BATCH/batch_item_prep.py --ord N --queue $BATCH/queues/<name>.json \
   > /tmp/batch_meta_N.json
+
+python3 $BATCH/batch_item_grade_context.py --ord N --queue $BATCH/queues/<name>.json \
+  --meta-json /tmp/batch_meta_N.json --output-phase2 /tmp/phase2_ordN.json --json \
+  > /tmp/batch_grade_task_N.json
+
+# Task: subagent_type + prompt from /tmp/batch_grade_task_N.json
+
+python3 $BATCH/batch_item_validate_phase2.py \
+  --meta-json /tmp/batch_meta_N.json --phase2-json /tmp/phase2_ordN.json \
+  > /tmp/phase2_validate_N.json
+
+python3 $BATCH/batch_item_persist_grade_debug.py \
+  --meta-json /tmp/batch_meta_N.json \
+  --phase2-json /tmp/phase2_ordN.json \
+  --grade-spec-json /tmp/batch_grade_task_N.json \
+  --validate-summary-json /tmp/phase2_validate_N.json
 
 python3 $BATCH/batch_item_finalize.py --ord N \
   --phase2-json /tmp/phase2_ordN.json \
@@ -171,6 +193,7 @@ Statuses: `pending`, `done`, `failed`, `skipped`, `blocked`.
 |----------|----------|
 | Question sections | `ai_study_buddy/context/file_question_info/<subject_context>/<slug>/question_sections.json` |
 | Marking bundle | `ai_study_buddy/context/marking_assets/<student>/.../<stem>__<timestamp>/` |
+| Bundle debug traces | `.../<bundle>/debug/` — prep, orchestrator, phase2_fast_pass, routing (see batch skill table) |
 | Marking result | `ai_study_buddy/context/marking_results/<student>/.../<stem>__<timestamp>.json` |
 | Learning report | `ai_study_buddy/context/learning_reports/<student>/.../` |
 | Queue state | `utility_scripts/batch_mark_student_work/queues/<name>.json` |

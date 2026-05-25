@@ -4,6 +4,19 @@ All notable changes to `ai_study_buddy.marking` are documented in this file.
 
 Committed changes under `ai_study_buddy/marking/` should add an entry here and bump **Current version** in `README.md` (semver: **patch** for docs or small renderer tweaks, **minor** for schema or public API changes). `SPEC.md` / `TESTING.md` titles do not carry the package version.
 
+## [0.3.14] - 2026-05-25
+
+Patch: v3 batch re-mark hygiene and superseded-run cleanup.
+
+### Changed
+
+- `marking/workflows/mark_student_work_multi_agent_v3.py`: on a new v3 run, trash prior bundles for the same completion (including finalized siblings) plus companion `marking_results` JSON and learning reports; `cleanup_stale_partials_for_v3_run` uses shared `move_path_to_trash` / `trash_marking_run_for_bundle` helpers.
+- `marking/tests/test_v3_workflow_helpers.py`: regression tests for superseded-bundle and artifact trash behavior.
+
+### Added
+
+- Batch marking orchestration (outside `marking/` but depends on this workflow): `utility_scripts/batch_mark_student_work/` grade/validate/persist scripts, `.cursor/skills/batch-mark-student-work/SKILL.md`, `.cursor/agents/mark-student-work-v3-batch-orchestrator.md`; `AGENTS.md` and `mark-student-work-multi-agent-v3` skill document one-orchestrator Task per queue item.
+
 ## [0.3.13] - 2026-05-25
 
 Patch: `chinese-v1.5` question-section schema (parenthesised `question_index` aligned with math/science/english).

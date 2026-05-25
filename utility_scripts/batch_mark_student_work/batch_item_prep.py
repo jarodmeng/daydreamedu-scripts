@@ -20,6 +20,7 @@ from ai_study_buddy.marking.workflows.mark_student_work_multi_agent_v3 import (
     V3InputRequest,
     build_context_resolution_debug_record,
     build_phase2_section_inputs,
+    plan_phase2_batches,
     resolve_attempt_input_to_pdf_file,
     resolve_or_create_bundle_for_v3_run,
     resolve_question_sections_authority,
@@ -27,7 +28,9 @@ from ai_study_buddy.marking.workflows.mark_student_work_multi_agent_v3 import (
     write_context_resolution_debug_artifact,
     write_run_state,
 )
+from ai_study_buddy.marking.workflows.v3_helpers import build_authoritative_marks_by_question
 from ai_study_buddy.pdf_file_manager.pdf_file_manager import PdfFileManager
+from batch_debug import write_v3_batch_prep_trace
 from queue_common import DEFAULT_WORK_QUEUE_PATH, load_work_queue
 
 
@@ -75,7 +78,8 @@ def main() -> int:
         print("ERROR: no template", file=sys.stderr)
         return 1
     authority = resolve_question_sections_authority(template_file=template)
-    sections = build_phase2_section_inputs(authority)
+    section_inputs = build_phase2_section_inputs(authority)
+    phase2_batches = plan_phase2_batches(section_inputs)
 
     render_attempt_pdf_to_bundle(attempt.path, bundle.bundle_root)
     bap = item.get("book_answer_pages") or {}
@@ -105,16 +109,32 @@ def main() -> int:
                 "question_ids": list(s.question_ids),
                 "page_numbers": list(s.page_numbers),
             }
-            for s in sections
+            for s in section_inputs
+        ],
+        "phase2_batches": [
+            [
+                {
+                    "section_index": s.section_index,
+                    "section_label": s.section_label,
+                    "question_ids": list(s.question_ids),
+                    "page_numbers": list(s.page_numbers),
+                }
+                for s in batch
+            ]
+            for batch in phase2_batches
         ],
         "needs_detection": item.get("needs_detection", False),
         "detector": payload.get("detector"),
         "subject": payload.get("subject"),
         "policy": payload.get("policy"),
+        "authoritative_marks_by_question": build_authoritative_marks_by_question(
+            authority.payload
+        ),
     }
     meta_path = bundle.bundle_root / "debug" / "batch_item_meta.json"
     meta_path.parent.mkdir(parents=True, exist_ok=True)
     meta_path.write_text(json.dumps(out, indent=2, ensure_ascii=True) + "\n", encoding="utf-8")
+    write_v3_batch_prep_trace(bundle_root=bundle.bundle_root, meta=out)
     print(json.dumps(out, indent=2, ensure_ascii=True))
     return 0
 

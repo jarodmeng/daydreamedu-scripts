@@ -26,6 +26,7 @@ from ai_study_buddy.marking.workflows.mark_student_work_multi_agent_v3 import (
 )
 from ai_study_buddy.marking.workflows.report_renderer import render_learning_report_from_json
 from ai_study_buddy.pdf_file_manager.pdf_file_manager import PdfFileManager
+from batch_debug import write_debug_json
 from policies import english_finalize_required
 from queue_common import DEFAULT_WORK_QUEUE_PATH, load_work_queue, normalize_phase2_rows, save_work_queue
 
@@ -62,6 +63,18 @@ def main() -> int:
         phase2_rows=phase2_rows,
         phase3_rows=[],
         english_required=english_finalize_required(payload_queue),
+    )
+    write_debug_json(
+        bundle_root,
+        "phasee_finalize_prep.json",
+        {
+            "phase3_row_count": 0,
+            "phase3_skipped": True,
+            "would_escalate_question_ids": list(prep.phase3_question_ids),
+            "language_violations": list(prep.language_violations),
+            "human_note_violations": list(prep.human_note_violations),
+            "merged_row_count": len(prep.merged_rows),
+        },
     )
     result = finalize_phase_e_artifact(
         context=ctx,

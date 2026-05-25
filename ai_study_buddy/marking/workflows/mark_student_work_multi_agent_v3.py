@@ -356,8 +356,33 @@ def collect_stale_partial_bundle_paths(
     return tuple(out)
 
 
-def move_bundle_to_trash(*, bundle_root: Path) -> Path:
-    src = Path(bundle_root).resolve()
+def collect_superseded_bundle_paths(
+    *,
+    context_root: Path,
+    attempt_file_path: str | Path,
+    student_id: str | None,
+    student_name: str | None,
+    subject_context: str,
+    keep_bundle_root: Path,
+) -> tuple[Path, ...]:
+    """All sibling bundle dirs for the same completion, except the run being kept."""
+    keep = keep_bundle_root.resolve()
+    candidates = list_attempt_bundle_candidates(
+        context_root=context_root,
+        attempt_file_path=attempt_file_path,
+        student_id=student_id,
+        student_name=student_name,
+        subject_context=subject_context,
+    )
+    return tuple(
+        c.bundle_root.resolve()
+        for c in candidates
+        if c.bundle_root.resolve() != keep
+    )
+
+
+def move_path_to_trash(*, path: Path) -> Path:
+    src = Path(path).resolve()
     if not src.exists():
         return src
     trash_root = Path.home() / ".Trash"
@@ -368,6 +393,90 @@ def move_bundle_to_trash(*, bundle_root: Path) -> Path:
         dest = trash_root / f"{src.name}__{suffix}"
     src.rename(dest)
     return dest
+
+
+def move_bundle_to_trash(*, bundle_root: Path) -> Path:
+    return move_path_to_trash(path=bundle_root)
+
+
+def _companion_artifact_paths_for_bundle(
+    *,
+    context_root: Path,
+    bundle_root: Path,
+    student_id: str | None,
+    student_name: str | None,
+    subject_context: str,
+) -> tuple[Path, Path]:
+    artifact_json_path = _derive_artifact_path_for_bundle(
+        context_root=context_root,
+        bundle_root=bundle_root,
+        student_id=student_id,
+        student_name=student_name,
+        subject_context=subject_context,
+    )
+    results_root = (context_root / "marking_results").resolve()
+    relative_parent = artifact_json_path.parent.relative_to(results_root)
+    learning_report_path = (
+        context_root
+        / "learning_reports"
+        / relative_parent
+        / f"{artifact_json_path.stem} - Marking Report.md"
+    ).resolve()
+    return artifact_json_path, learning_report_path
+
+
+def trash_marking_run_for_bundle(
+    *,
+    context_root: Path,
+    bundle_root: Path,
+    student_id: str | None,
+    student_name: str | None,
+    subject_context: str,
+) -> tuple[Path, ...]:
+    """Move one run's report, bundle dir, and marking JSON to Trash. Returns paths moved."""
+    root = Path(context_root).resolve()
+    bundle = Path(bundle_root).resolve()
+    artifact_json_path, learning_report_path = _companion_artifact_paths_for_bundle(
+        context_root=root,
+        bundle_root=bundle,
+        student_id=student_id,
+        student_name=student_name,
+        subject_context=subject_context,
+    )
+    moved: list[Path] = []
+    for target in (learning_report_path, bundle, artifact_json_path):
+        if target.exists():
+            moved.append(move_path_to_trash(path=target))
+    return tuple(moved)
+
+
+def trash_all_marking_runs_for_attempt(
+    *,
+    context_root: Path,
+    attempt_file_path: str | Path,
+    student_id: str | None,
+    student_name: str | None,
+    subject_context: str,
+) -> tuple[Path, ...]:
+    """Remove every prior bundle/artifact for this completion before starting a fresh run."""
+    moved: list[Path] = []
+    for candidate in list_attempt_bundle_candidates(
+        context_root=context_root,
+        attempt_file_path=attempt_file_path,
+        student_id=student_id,
+        student_name=student_name,
+        subject_context=subject_context,
+    ):
+        moved.extend(
+            trash_marking_run_for_bundle(
+                context_root=context_root,
+                bundle_root=candidate.bundle_root,
+                student_id=student_id,
+                student_name=student_name,
+                subject_context=subject_context,
+            )
+        )
+    return tuple(moved)
 
 
 def _derive_artifact_path_for_bundle(
@@ -431,6 +540,14 @@ def resolve_or_create_bundle_for_v3_run(
                 resumed_existing=resumed,
             )
 
+    trash_all_marking_runs_for_attempt(
+        context_root=root,
+        attempt_file_path=attempt_file_path,
+        student_id=student_id,
+        student_name=student_name,
+        subject_context=subject_context,
+    )
+
     artifact_json_path, marking_asset_rel, bundle_root = build_marking_run_paths(
         attempt_file_path=attempt_file_path,
         student_id=student_id,
@@ -458,17 +575,28 @@ def cleanup_stale_partials_for_v3_run(
     subject_context: str,
     keep_bundle_root: Path,
 ) -> tuple[Path, ...]:
-    stale = collect_stale_partial_bundle_paths(
+    """Trash every other marking run (bundle + JSON + report) for this completion.
+
+    Includes finalized sibling runs so re-marking cannot leave duplicate bundles.
+    """
+    moved: list[Path] = []
+    for bundle_root in collect_superseded_bundle_paths(
         context_root=Path(context_root).resolve(),
         attempt_file_path=attempt_file_path,
         student_id=student_id,
         student_name=student_name,
         subject_context=subject_context,
         keep_bundle_root=keep_bundle_root,
-    )
-    moved: list[Path] = []
-    for candidate in stale:
-        moved.append(move_bundle_to_trash(bundle_root=candidate))
+    ):
+        moved.extend(
+            trash_marking_run_for_bundle(
+                context_root=context_root,
+                bundle_root=bundle_root,
+                student_id=student_id,
+                student_name=student_name,
+                subject_context=subject_context,
+            )
+        )
     return tuple(moved)
 
 

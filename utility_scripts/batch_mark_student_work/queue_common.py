@@ -100,7 +100,22 @@ def detector_for_payload(payload: dict[str, Any]) -> str:
     subject = (payload.get("subject") or "").lower()
     if subject == "english":
         return "english-paper-2-question-section-detector"
+    if subject == "science":
+        return "science-question-section-detector"
+    if subject == "chinese":
+        return "chinese-paper-2-question-section-detector"
     return "math-question-section-detector"
+
+
+def detector_for_template(manager: PdfFileManager, template_file_id: str) -> str:
+    """Pick Chinese vs Higher Chinese detector from template metadata."""
+    pf = manager.get_file(template_file_id)
+    if pf is None:
+        return "chinese-paper-2-question-section-detector"
+    meta = pf.metadata or {}
+    if meta.get("chinese_variant") == "higher":
+        return "higher-chinese-paper-2-question-section-detector"
+    return "chinese-paper-2-question-section-detector"
 
 
 def marking_artifacts_for_completion(manager: PdfFileManager, completion_file_id: str) -> list:
