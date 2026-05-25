@@ -3,10 +3,9 @@
   "source_folder": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary Math/winston.ry.meng@gmail.com/P6/Book/Model Drawing Made Easy and Inspiring for P5 and P6",
   "student_email": "winston.ry.meng@gmail.com",
   "marking_policy": {
-    "question_type": "SAQ",
-    "single_part_marks": 2,
-    "sub_part_marks": 1,
-    "notes": "All sections SAQ; (a)/(b) parts are 1 mark each; otherwise 2 marks per numbered question. Do not classify MCQ or LAQ for Model Drawing book practice worksheets."
+    "policy_kind": "book",
+    "detector": "math-question-section-detector",
+    "notes": "Book unit worksheets with book_answer_mapping. Use standard math types (MCQ, SAQ, LAQ) from layout; grade from mapped answer-key pages."
   },
   "items": [
     {
