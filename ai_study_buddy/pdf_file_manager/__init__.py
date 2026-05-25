@@ -26,6 +26,7 @@ from .pdf_file_manager import (
     Student,
     SuggestedGroup,
 )
+from .goodnotes_metadata import GoodnotesDocumentMatch, GoodnotesDocumentTimestamps
 
 __all__ = [
     "AlreadyRegisteredError",
@@ -37,6 +38,8 @@ __all__ = [
     "FileGroupMember",
     "FileRelation",
     "GoodNotesTemplateLinkOutcome",
+    "GoodnotesDocumentMatch",
+    "GoodnotesDocumentTimestamps",
     "InvalidMetadataError",
     "NotFoundError",
     "OperationRecord",

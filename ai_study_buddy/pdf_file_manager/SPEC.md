@@ -128,6 +128,42 @@ Registry-derived projection for repeated completions of the same template by one
 
 **Sort keys:** `pdf_files.added_at` ascending, then resolved `path`. **Series id** equals marking `template_attempt_group_id`.
 
+#### Goodnotes document timestamps (v0.3.21+)
+
+Read-only lookup for local Goodnotes document metadata corresponding to a registered `GOODNOTES_ROOT` main file. Types in [`goodnotes_metadata.py`](./goodnotes_metadata.py): `GoodnotesDocumentMatch`, `GoodnotesDocumentTimestamps`. Proposal: [16-goodnotes-document-timestamps.md](./docs/proposals/16-goodnotes-document-timestamps.md).
+
+| Method | Returns | Notes |
+|--------|---------|-------|
+| `get_goodnotes_document_timestamps_for_file(file_id, include_deleted=False)` | `GoodnotesDocumentMatch` | Resolve registered file by UUID, then look up the source Goodnotes document. |
+| `get_goodnotes_document_timestamps_for_path(path, include_deleted=False)` | `GoodnotesDocumentMatch` | Resolve registered file by exact path first. |
+
+The lookup reads Goodnotes local DBs only:
+
+- `GOODNOTES_PROJECTION_DB` override or `~/Library/Containers/com.goodnotesapp.x/Data/Library/Databases/projection.sqlite`
+- `GOODNOTES_FTS_DB` override or `~/Library/Containers/com.goodnotesapp.x/Data/Library/Databases/fts.sqlite`
+
+Supported match statuses:
+
+| Status | Meaning |
+|--------|---------|
+| `matched_exact` | PDF stem equals Goodnotes document name |
+| `matched_leading_underscore_restored` | PDF stem plus one leading `_` equals Goodnotes document name |
+| `matched_raw_source` | Linked/derived raw-source stem equals Goodnotes document name |
+| `matched_raw_source_leading_underscore_restored` | Raw-source stem plus one leading `_` equals Goodnotes document name |
+| `not_goodnotes_root` | Registered row is not under configured/discovered GoodNotes root |
+| `not_main_file` | Registered row is not `file_type='main'` |
+| `metadata_unavailable` | Goodnotes DBs are missing/inaccessible or schema query failed |
+| `not_found` | No active Goodnotes document matched deterministic candidates |
+| `ambiguous` | More than one active Goodnotes document matched candidates |
+
+Returned timestamps are UTC ISO strings where available:
+
+- `timestamps.created_at` from `documents.created_at`
+- `timestamps.updated_at` from `documents.updated_at`
+- `timestamps.last_modified` from `fts.document_meta.last_modified`
+
+`GoodnotesDocumentMatch.goodnotes_folder_path` is the Goodnotes app-folder path reconstructed from `folder_to_folder_items` / `folders`; it is not a filesystem path. The API does not fuzzy-match names and does not write to Goodnotes databases.
+
 #### `open_file(file_id_or_path)`
 
 Open the PDF in macOS Preview (`open <path>`). Raises `FileNotFoundError` if no longer on disk.

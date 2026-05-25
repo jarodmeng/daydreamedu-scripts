@@ -14,6 +14,8 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 
+from .goodnotes_metadata import GoodnotesDocumentMatch, get_goodnotes_document_match
+
 logger = logging.getLogger(__name__)
 
 # Ensure we can import compress_pdf from ai_study_buddy/utils/compress_pdf
@@ -746,6 +748,52 @@ class PdfFileManager:
         sql += " ORDER BY added_at"
         rows = conn.execute(sql, params).fetchall()
         return [self._row_to_pdf_file(row) for row in rows]
+
+    def _raw_source_stems_for_file(self, file_id: str) -> tuple[str, ...]:
+        raw_stems: list[str] = []
+        for related_file, _relation_type in self.get_related_files(file_id):
+            if related_file.file_type == "raw":
+                stem = Path(related_file.path).stem
+                if stem not in raw_stems:
+                    raw_stems.append(stem)
+        return tuple(raw_stems)
+
+    def get_goodnotes_document_timestamps_for_file(
+        self,
+        file_id: str,
+        *,
+        include_deleted: bool = False,
+    ) -> GoodnotesDocumentMatch:
+        """Return Goodnotes document timestamps/folder metadata for a registered g_root main.
+
+        The lookup is read-only against Goodnotes' local macOS metadata DBs and returns a
+        structured status rather than guessing for unsupported or unmatched files.
+        """
+        pdf_file = self.get_file(file_id)
+        if pdf_file is None:
+            raise NotFoundError(f"File not found: {file_id}")
+        return get_goodnotes_document_match(
+            file_id=pdf_file.id,
+            registered_path=pdf_file.path,
+            file_type=pdf_file.file_type,
+            raw_source_stems=self._raw_source_stems_for_file(pdf_file.id),
+            include_deleted=include_deleted,
+        )
+
+    def get_goodnotes_document_timestamps_for_path(
+        self,
+        path: str | Path,
+        *,
+        include_deleted: bool = False,
+    ) -> GoodnotesDocumentMatch:
+        """Return Goodnotes document timestamps/folder metadata for a registered g_root path."""
+        pdf_file = self.get_file_by_path(path)
+        if pdf_file is None:
+            raise NotFoundError(f"File not found: {path}")
+        return self.get_goodnotes_document_timestamps_for_file(
+            pdf_file.id,
+            include_deleted=include_deleted,
+        )
 
     # ---------------------------------------------------------------------------
     # register_file

@@ -4,6 +4,14 @@ All notable changes to the pdf_file_manager utility are documented here.
 
 ---
 
+## [v0.3.21] — Goodnotes document timestamp lookup
+
+- Added `goodnotes_metadata.py` with `GoodnotesDocumentMatch` and `GoodnotesDocumentTimestamps`.
+- `PdfFileManager.get_goodnotes_document_timestamps_for_file(file_id)` and `get_goodnotes_document_timestamps_for_path(path)` now return read-only Goodnotes metadata for registered `GOODNOTES_ROOT` mains when local Goodnotes DBs are available.
+- Returned metadata includes match status, candidate names, Goodnotes document id/name, Goodnotes app-folder path, and UTC `created_at`, `updated_at`, and `last_modified` timestamps.
+- Matching supports exact backup stem, one leading underscore restored (`c_foo.pdf` -> `_c_foo`), and deterministic raw-source fallback for compressed `_c_` mains.
+- Normal no-match / unsupported cases return structured statuses (`not_goodnotes_root`, `not_main_file`, `metadata_unavailable`, `not_found`, `ambiguous`) instead of ad hoc SQL or fuzzy guessing.
+
 ## [v0.3.20] — GoodNotes auto-link after scan
 
 - `scan_for_new_files(..., auto_link_goodnotes=True)` (default on) attempts `link_goodnotes_template_for_file` per **newly registered** GoodNotes `c_` / `_c_` main after registration (and after GoodNotes `compress_and_register` when applicable). Failures are **non-aborting**; outcome is on `ScanResult.template_link`.

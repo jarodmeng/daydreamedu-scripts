@@ -146,6 +146,30 @@ class ScanResult:
     raw_archive: PdfFile | None
     compressed: bool
     template_link: GoodNotesTemplateLinkOutcome | None = None  # v0.3.20+ GoodNotes auto-link preview/outcome
+
+@dataclass
+class GoodnotesDocumentTimestamps:
+    created_at: str | None       # UTC ISO string from Goodnotes documents.created_at
+    updated_at: str | None       # UTC ISO string from Goodnotes documents.updated_at
+    last_modified: str | None    # UTC ISO string from fts.document_meta.last_modified
+    created_at_raw: float | None
+    updated_at_raw: float | None
+    last_modified_raw: str | None
+
+@dataclass
+class GoodnotesDocumentMatch:
+    status: str                  # matched_exact | matched_leading_underscore_restored | ...
+    file_id: str
+    registered_path: str
+    backup_stem: str
+    candidate_names: tuple[str, ...]
+    matched_candidate_name: str | None
+    goodnotes_document_id: str | None
+    goodnotes_document_name: str | None
+    goodnotes_folder_path: str | None
+    goodnotes_folder_ids: tuple[str, ...]
+    timestamps: GoodnotesDocumentTimestamps | None
+    message: str | None = None
 ```
 
 `PdfFile.normal_name` is derived from `name` using canonical normalization in `pdf_file_manager`:
@@ -154,3 +178,5 @@ class ScanResult:
 - extension removal via `Path(...).stem`
 
 This value is computed at runtime and is **not** stored as a DB column.
+
+`GoodnotesDocumentMatch` / `GoodnotesDocumentTimestamps` are read-only projections from local Goodnotes metadata for registered `GOODNOTES_ROOT` mains. Status semantics are specified in [SPEC.md § Goodnotes document timestamps](./SPEC.md#goodnotes-document-timestamps-v0321).
