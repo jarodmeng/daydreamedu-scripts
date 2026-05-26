@@ -56,6 +56,7 @@ Actionable plans for building specific components. Each L4 doc drills into one d
 | [FILE_FRAMEWORK](./L4_FILE_FRAMEWORK.md) | On-disk PDF layout, registry attributes (template vs completion, roots, normal name), `ai_study_buddy.files` utilities |
 | [STUDENT_MVP_EXPERIENCE](./L4_STUDENT_MVP_EXPERIENCE.md) | Spec (v0.3): **Review Workspace** shipped in `review_workspace` v0.1.4 (single-student alpha) — attempt index, deep links, canonical marking detail, evidence viewing, `student_review_state.v1` notes, and `marking_amendment.v1` human overrides |
 | [STUDENT_FILE_MANAGEMENT](./L4_STUDENT_FILE_MANAGEMENT.md) | **Implemented** — `files` v0.3.0+, `marking` v0.3.8 workflow flags, **Student File Browser** v0.1.1 (8771), `root_pdf_browser` v0.1.6 + Review Workspace v0.1.4 deep links; operator filter-first inventory |
+| [BROWSER_APP_CONSOLIDATION](./L4_BROWSER_APP_CONSOLIDATION.md) | **In progress** — `buddy_console` now exists as the preferred unified operator app, combining inventory, PDF browsing, and review while legacy standalone apps remain available for rollback |
 | [LOCAL_LEARNING_DB](./L4_LOCAL_LEARNING_DB.md) | Proposal: create `study_buddy.db` as a local Postgres-shaped SQLite data layer for marking facts, amendments, review state, backup, and future migration |
 
 ## Sources and attribution

@@ -14,10 +14,12 @@ Current version: `v0.1.0`
 ## Primary Submodules
 
 - [`marking/`](./marking): canonical marking artifacts, lookup, validation, workflows, and review-domain backend services (`marking/review`).
+- [`buddy_console/`](./buddy_console): preferred unified local operator app for inventory, PDF browsing, and review.
 - [`review_workspace/`](./review_workspace): student-facing app surface (backend adapter + frontend UI).
 - [`pdf_file_manager/`](./pdf_file_manager): registry-backed PDF metadata and relationship management.
 - [`files/`](./files): registry-agnostic filesystem helpers.
-- [`root_pdf_browser/`](./root_pdf_browser): local two-pane DaydreamEdu / GoodNotes PDF viewer over configured roots.
+- [`root_pdf_browser/`](./root_pdf_browser): legacy standalone local two-pane DaydreamEdu / GoodNotes PDF viewer over configured roots.
+- [`student_file_browser/`](./student_file_browser): legacy standalone operator inventory browser.
 - [`split_book_answer_by_unit_using_ai/`](./split_book_answer_by_unit_using_ai): answer-book segmentation workflows.
 
 ## Utilities

@@ -2,6 +2,9 @@
 
 Operator filter-first inventory on port **8771**.
 
+Use this when you specifically want the legacy standalone inventory browser. For
+the preferred unified workflow, start `buddy_console` instead.
+
 ## Foreground
 
 ```bash

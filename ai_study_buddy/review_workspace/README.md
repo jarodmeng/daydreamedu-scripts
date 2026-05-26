@@ -3,6 +3,10 @@
 This folder contains the backend/frontend app for Review Workspace, including
 student review-state notes and human grading amendment overlays.
 
+> Legacy standalone review app. `buddy_console` is now the preferred unified
+> operator app, but this package remains available for rollback and reference
+> use while review functionality is still seeded from it.
+
 Current version: `v0.1.4`
 
 Current phase: `single-student alpha` (scope locked on April 23, 2026).

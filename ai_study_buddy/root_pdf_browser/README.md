@@ -2,6 +2,9 @@
 
 Local **two-pane** browser for PDFs under your configured **DaydreamEdu** and **GoodNotes** filesystem roots (dev / ops tooling). Runs a tiny HTTP server on loopback only; paths are constrained so requests cannot escape a chosen root.
 
+> Legacy standalone PDF browser. `buddy_console` is now the preferred unified
+> operator app, but this tool remains available for rollback and reference use.
+
 **Current version:** `v0.1.6` — see [CHANGELOG.md](./CHANGELOG.md).
 
 ## Requirements

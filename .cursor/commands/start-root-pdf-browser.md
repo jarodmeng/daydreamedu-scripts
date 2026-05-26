@@ -2,6 +2,9 @@
 
 Start the **Root PDF browser** local server (browse `DAYDREAMEDU_ROOT` / `GOODNOTES_ROOT` and view PDFs).
 
+Use this when you specifically want the legacy standalone PDF browser. For the
+preferred unified workflow, start `buddy_console` instead.
+
 ## What to do
 
 1. **Working directory:** repository root (`daydreamedu-scripts` workspace folder).
