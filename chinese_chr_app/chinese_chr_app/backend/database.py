@@ -956,10 +956,20 @@ def get_pinyin_recall_category_daily_trend(
     - mastered (掌握字)
 
     Counts reflect band membership at end-of-day. Derived at runtime from
-    pinyin_recall_item_answered.score_after. Use unit_id when present, and fall
-    back to character for legacy pre-Phase-3 rows.
+    pinyin_recall_item_answered.score_after.
+
+    Important: this trend is intended to match the Profile table counts, which
+    are based on *enabled* recall reading-units (unit_id). Therefore we:
+    - restrict to enabled unit_id values
+    - ignore legacy rows missing unit_id (pre-Phase-3), since mapping those rows
+      to modern reading-units is ambiguous and would otherwise inflate counts
+      relative to the Profile table.
     """
     if days <= 0:
+        return []
+
+    enabled_unit_ids = sorted(_get_enabled_recall_unit_ids())
+    if not enabled_unit_ids:
         return []
 
     conn = _get_connection()
@@ -967,12 +977,14 @@ def get_pinyin_recall_category_daily_trend(
         with conn.cursor() as cur:
             cur.execute(
                 """
-                SELECT COALESCE(unit_id, character) AS entity_id, score_after, created_at
+                SELECT unit_id AS entity_id, score_after, created_at
                 FROM pinyin_recall_item_answered
                 WHERE user_id = %s
+                  AND unit_id IS NOT NULL
+                  AND unit_id = ANY(%s)
                 ORDER BY created_at ASC
                 """,
-                (user_id.strip(),),
+                (user_id.strip(), enabled_unit_ids),
             )
             rows = cur.fetchall()
 

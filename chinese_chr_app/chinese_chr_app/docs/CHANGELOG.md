@@ -6,6 +6,10 @@ Release history and version notes. Newest releases are at the top.
 
 ---
 
+## [v0.3.5]
+
+- **Profile 掌握度 trend consistency:** Align `掌握度每日趋势` with the table counts by filtering the daily-trend computation to enabled recall reading-units (and ignoring legacy rows without `unit_id`), so `掌握项` / other bands don’t include disabled units.
+
 ## [v0.3.4]
 
 - **Profile multi-period practice summaries (#37):** Add a `阶段汇总` subsection inside `每日练习统计` on the 我的 page with rolling `最近7天`, `最近1个月`, `最近1季度`, and `累计` summary rows.
