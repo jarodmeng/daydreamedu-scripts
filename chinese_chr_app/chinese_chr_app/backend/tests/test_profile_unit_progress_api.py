@@ -139,8 +139,9 @@ def test_profile_progress_returns_unit_level_denominator(monkeypatch):
                 },
             }
         ],
-        get_pinyin_recall_category_daily_trend=lambda user_id, days=60: [],
-        get_pinyin_recall_category_counts=lambda user_id: {
+        _get_enabled_recall_unit_ids=lambda: {"u1", "u2"},
+        get_pinyin_recall_category_daily_trend=lambda user_id, days=60, **kwargs: [],
+        get_pinyin_recall_category_counts=lambda user_id, **kwargs: {
             "total_units": 904,
             "learned": 200,
             "learning": 50,
@@ -244,7 +245,15 @@ def test_sync_category_trend_replaces_today_with_live_counts(monkeypatch):
             "mastered": 3537,
         }
     ]
-    synced = database_module._sync_category_trend_with_live_counts("user-1", list(replayed))
+    live = {
+        "learning_hard": 1,
+        "learning_normal": 22,
+        "learned_normal": 249,
+        "learned_mastered": 3537,
+    }
+    synced = database_module._sync_category_trend_with_live_counts(
+        "user-1", list(replayed), live_counts=live
+    )
 
     assert synced[-1]["date"] == today.isoformat()
     assert synced[-1]["hard"] == 1
@@ -268,9 +277,16 @@ def test_sync_category_trend_appends_today_when_replay_ends_yesterday(monkeypatc
         },
     )
 
+    live = {
+        "learning_hard": 1,
+        "learning_normal": 22,
+        "learned_normal": 249,
+        "learned_mastered": 3537,
+    }
     synced = database_module._sync_category_trend_with_live_counts(
         "user-1",
         [{"date": "2026-05-25", "hard": 2, "learning_normal": 22, "learned_normal": 250, "mastered": 3537}],
+        live_counts=live,
     )
 
     assert len(synced) == 2

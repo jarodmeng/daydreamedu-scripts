@@ -1145,8 +1145,17 @@ def get_profile_progress():
         viewed_recent = db.get_character_views_recent_for_user(user.user_id, limit=50)
         daily_stats = db.get_pinyin_recall_daily_stats(user.user_id, days=30)
         practice_summary = db.get_pinyin_recall_practice_summary(user.user_id)
-        category_trend = db.get_pinyin_recall_category_daily_trend(user.user_id, days=60)
-        category_counts = db.get_pinyin_recall_category_counts(user.user_id)
+        enabled_unit_ids = sorted(db._get_enabled_recall_unit_ids())
+        category_counts = db.get_pinyin_recall_category_counts(
+            user.user_id,
+            enabled_unit_ids=enabled_unit_ids,
+        )
+        category_trend = db.get_pinyin_recall_category_daily_trend(
+            user.user_id,
+            days=60,
+            live_counts=category_counts,
+            enabled_unit_ids=enabled_unit_ids,
+        )
         learned_count = category_counts["learned"]
         learning_count = category_counts["learning"]
         not_tested_count = category_counts["not_tested"]

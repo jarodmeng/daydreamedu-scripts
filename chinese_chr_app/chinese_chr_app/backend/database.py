@@ -8,6 +8,7 @@ Uses Psycopg 3 (psycopg[binary]>=3.1) for Python 3.13+ compatibility.
 import json
 import os
 from datetime import date, datetime, timedelta, timezone
+from functools import lru_cache
 from typing import Any, Dict, List, Optional, Tuple
 
 from english_translations import (
@@ -572,13 +573,18 @@ PROFILE_PROFICIENCY_MIN_SCORE = 10
 PROFILE_HWXNET_TOTAL = 3664
 
 
-def _get_enabled_recall_unit_ids() -> set[str]:
-    """
-    Return the current enabled pinyin-recall unit IDs derived from live character tables.
+def _disabled_recall_unit_ids_fingerprint() -> tuple[str, ...]:
+    """Cache key for enabled-unit pool; changes when globally disabled units change."""
+    return tuple(sorted(get_globally_disabled_pinyin_recall_overrides().keys()))
 
-    Phase 4 progress/reporting uses reading-unit denominator semantics rather than raw
-    character count. This is derived fresh on each call because runtime-disabled units
-    can change without a process restart.
+
+@lru_cache(maxsize=8)
+def _get_enabled_recall_unit_ids_cached(disabled_fingerprint: tuple[str, ...]) -> frozenset[str]:
+    """
+    Build the enabled reading-unit pool once per disabled-unit fingerprint.
+
+    Profile progress calls this several times per request; caching avoids reloading
+    full HWXNet/Feng tables from Postgres on every sub-query.
     """
     hwxnet_lookup = get_hwxnet_lookup()
     feng_lookup = {
@@ -592,11 +598,27 @@ def _get_enabled_recall_unit_ids() -> set[str]:
         recall_overrides=get_globally_disabled_pinyin_recall_overrides(),
         enabled_only=True,
     )
-    return {
+    return frozenset(
         (unit.get("unit_id") or "").strip()
         for unit in pool
         if (unit.get("unit_id") or "").strip()
-    }
+    )
+
+
+def clear_enabled_recall_unit_ids_cache() -> None:
+    """Clear cached enabled-unit pool (tests or after global disable changes)."""
+    _get_enabled_recall_unit_ids_cached.cache_clear()
+
+
+def _get_enabled_recall_unit_ids() -> set[str]:
+    """
+    Return the current enabled pinyin-recall unit IDs derived from live character tables.
+
+    Phase 4 progress/reporting uses reading-unit denominator semantics rather than raw
+    character count. Cached by globally-disabled unit fingerprint; call
+    clear_enabled_recall_unit_ids_cache() after mutating disabled units in-process.
+    """
+    return set(_get_enabled_recall_unit_ids_cached(_disabled_recall_unit_ids_fingerprint()))
 
 
 def get_pinyin_recall_enabled_unit_total() -> int:
@@ -751,6 +773,7 @@ def disable_pinyin_recall_unit_globally(
         raise
     finally:
         conn.close()
+    clear_enabled_recall_unit_ids_cache()
 
 
 def get_character_views_count_for_user(user_id: str) -> int:
@@ -971,6 +994,8 @@ def _profile_trend_today_utc_date() -> date:
 def _sync_category_trend_with_live_counts(
     user_id: str,
     output: List[Dict[str, Any]],
+    *,
+    live_counts: Optional[Dict[str, int]] = None,
 ) -> List[Dict[str, Any]]:
     """
     Ensure the chart's latest UTC day matches the Profile table (unit_bank).
@@ -979,10 +1004,8 @@ def _sync_category_trend_with_live_counts(
     replaced/extended with live sub-band counts so tooltip totals align with the summary.
     """
     today_utc = _profile_trend_today_utc_date()
-    live_point = _category_trend_point_from_counts(
-        get_pinyin_recall_category_counts(user_id),
-        today_utc,
-    )
+    counts = live_counts if live_counts is not None else get_pinyin_recall_category_counts(user_id)
+    live_point = _category_trend_point_from_counts(counts, today_utc)
     if not output:
         return [live_point]
     last_date = output[-1].get("date") or ""
@@ -996,6 +1019,9 @@ def _sync_category_trend_with_live_counts(
 def get_pinyin_recall_category_daily_trend(
     user_id: str,
     days: int = 60,
+    *,
+    live_counts: Optional[Dict[str, int]] = None,
+    enabled_unit_ids: Optional[List[str]] = None,
 ) -> List[Dict[str, Any]]:
     """
     Return daily counts of recall units in the four profile bands for a user:
@@ -1018,31 +1044,40 @@ def get_pinyin_recall_category_daily_trend(
     if days <= 0:
         return []
 
-    enabled_unit_ids = sorted(_get_enabled_recall_unit_ids())
-    if not enabled_unit_ids:
+    unit_ids = sorted(enabled_unit_ids) if enabled_unit_ids is not None else sorted(_get_enabled_recall_unit_ids())
+    if not unit_ids:
         return []
 
     conn = _get_connection()
     try:
         with conn.cursor() as cur:
+            # One row per unit per UTC day (last answer that day) — same end-of-day semantics,
+            # far fewer rows than replaying every answer event.
             cur.execute(
                 """
-                SELECT
-                    unit_id AS entity_id,
-                    score_after,
-                    (created_at AT TIME ZONE 'UTC')::date AS ev_day
-                FROM pinyin_recall_item_answered
-                WHERE user_id = %s
-                  AND unit_id IS NOT NULL
-                  AND unit_id = ANY(%s)
-                ORDER BY created_at ASC
+                SELECT entity_id, score_after, ev_day
+                FROM (
+                    SELECT DISTINCT ON (unit_id, (created_at AT TIME ZONE 'UTC')::date)
+                        unit_id AS entity_id,
+                        score_after,
+                        (created_at AT TIME ZONE 'UTC')::date AS ev_day,
+                        created_at
+                    FROM pinyin_recall_item_answered
+                    WHERE user_id = %s
+                      AND unit_id IS NOT NULL
+                      AND unit_id = ANY(%s)
+                    ORDER BY unit_id, (created_at AT TIME ZONE 'UTC')::date, created_at DESC
+                ) last_per_unit_day
+                ORDER BY ev_day ASC, created_at ASC
                 """,
-                (user_id.strip(), enabled_unit_ids),
+                (user_id.strip(), unit_ids),
             )
             rows = cur.fetchall()
 
         # No activity for this user.
         if not rows:
+            if live_counts is not None:
+                return [_category_trend_point_from_counts(live_counts, _profile_trend_today_utc_date())]
             return []
 
         # Track current band per recall unit and global band counts.
@@ -1119,7 +1154,7 @@ def get_pinyin_recall_category_daily_trend(
                 }
             )
 
-        output = _sync_category_trend_with_live_counts(user_id, output)
+        output = _sync_category_trend_with_live_counts(user_id, output, live_counts=live_counts)
         if days > 0 and len(output) > days:
             output = output[-days:]
         return output
@@ -1151,15 +1186,19 @@ PROFILE_LEARNING_HARD_MAX_SCORE = -20   # 难字: score <= -20
 PROFILE_LEARNED_MASTERED_MIN_SCORE = 20  # 掌握字: score >= 20
 
 
-def get_pinyin_recall_category_counts(user_id: str) -> Dict[str, int]:
+def get_pinyin_recall_category_counts(
+    user_id: str,
+    *,
+    enabled_unit_ids: Optional[List[str]] = None,
+) -> Dict[str, int]:
     """
     Return counts for 未学项 / 在学项 / 已学项 and sub-categories.
     learned = score >= 10, learning = score < 10, not_tested = enabled_units - (learned + learning).
     Sub: learning_hard (score <= -20), learning_normal (-20 < score < 10),
          learned_mastered (score >= 20), learned_normal (10 <= score < 20).
     """
-    enabled_unit_ids = sorted(_get_enabled_recall_unit_ids())
-    if not enabled_unit_ids:
+    unit_ids = sorted(enabled_unit_ids) if enabled_unit_ids is not None else sorted(_get_enabled_recall_unit_ids())
+    if not unit_ids:
         return {
             "total_units": 0,
             "learned": 0,
@@ -1197,13 +1236,13 @@ def get_pinyin_recall_category_counts(user_id: str) -> Dict[str, int]:
                     PROFILE_PROFICIENCY_MIN_SCORE,
                     PROFILE_LEARNED_MASTERED_MIN_SCORE,
                     user_id.strip(),
-                    enabled_unit_ids,
+                    unit_ids,
                 ),
             )
             row = cur.fetchone()
         learned = int(row.get("learned") or 0)
         learning = int(row.get("learning") or 0)
-        total_units = get_pinyin_recall_enabled_unit_total()
+        total_units = len(unit_ids)
         not_tested = max(0, total_units - learned - learning)
         return {
             "total_units": total_units,
