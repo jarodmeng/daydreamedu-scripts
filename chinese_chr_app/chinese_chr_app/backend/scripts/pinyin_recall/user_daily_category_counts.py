@@ -63,15 +63,21 @@ def score_to_band(
     """
     Map a pinyin-recall score to one of the four bands used in the profile:
 
+    Profile banding matches the app's unit-bank thresholds:
+
     - 难字: score <= learning_hard_max (typically -20)
-    - 普通在学字: learning_hard_max < score <= 0
-    - 普通已学字: 0 < score < learned_mastered_min (typically 20)
+    - 普通在学字: learning_hard_max < score < PROFILE_PROFICIENCY_MIN_SCORE (typically 10)
+    - 普通已学字: PROFILE_PROFICIENCY_MIN_SCORE <= score < learned_mastered_min (typically 20)
     - 掌握字: score >= learned_mastered_min
     """
-    if score <= learning_hard_max:
-        return "难字"
-    if score <= 0:
-        return "普通在学字"
+    try:
+        import database as db  # type: ignore[import-not-found]
+        learned_min = int(getattr(db, "PROFILE_PROFICIENCY_MIN_SCORE", 10))
+    except Exception:
+        learned_min = 10
+
+    if score < learned_min:
+        return "难字" if score <= learning_hard_max else "普通在学字"
     if score < learned_mastered_min:
         return "普通已学字"
     return "掌握字"

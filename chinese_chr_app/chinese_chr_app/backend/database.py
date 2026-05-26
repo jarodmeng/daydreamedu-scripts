@@ -1018,10 +1018,21 @@ def get_pinyin_recall_category_daily_trend(
 
             prev_band = per_entity_band.get(entity_id)
             score_val = int(score_after)
-            if score_val <= PROFILE_LEARNING_HARD_MAX_SCORE:
-                new_band = "难字"
-            elif score_val <= 0:
-                new_band = "普通在学字"
+
+            # Keep banding consistent with Profile table counts:
+            # - 未学项: missing from unit bank (not represented here)
+            # - 在学项: score < PROFILE_PROFICIENCY_MIN_SCORE (default 10)
+            # - 已学项: score >= PROFILE_PROFICIENCY_MIN_SCORE
+            # Sub-bands:
+            # - 难字: score <= PROFILE_LEARNING_HARD_MAX_SCORE (default -20)
+            # - 普通在学字: PROFILE_LEARNING_HARD_MAX_SCORE < score < PROFILE_PROFICIENCY_MIN_SCORE
+            # - 普通已学字: PROFILE_PROFICIENCY_MIN_SCORE <= score < PROFILE_LEARNED_MASTERED_MIN_SCORE (default 20)
+            # - 掌握字: score >= PROFILE_LEARNED_MASTERED_MIN_SCORE
+            if score_val < PROFILE_PROFICIENCY_MIN_SCORE:
+                if score_val <= PROFILE_LEARNING_HARD_MAX_SCORE:
+                    new_band = "难字"
+                else:
+                    new_band = "普通在学字"
             elif score_val < PROFILE_LEARNED_MASTERED_MIN_SCORE:
                 new_band = "普通已学字"
             else:
