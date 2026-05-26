@@ -210,3 +210,70 @@ def test_profile_category_returns_unit_entries(monkeypatch):
     assert payload["category"] == "learned_normal"
     assert payload["units"] == fake_units
     assert payload["characters"] == fake_units
+
+
+def test_profile_sub_band_for_score_matches_table_thresholds():
+    assert database_module._profile_sub_band_for_score(-25) == "难字"
+    assert database_module._profile_sub_band_for_score(0) == "普通在学字"
+    assert database_module._profile_sub_band_for_score(9) == "普通在学字"
+    assert database_module._profile_sub_band_for_score(10) == "普通已学字"
+    assert database_module._profile_sub_band_for_score(19) == "普通已学字"
+    assert database_module._profile_sub_band_for_score(20) == "掌握字"
+
+
+def test_sync_category_trend_replaces_today_with_live_counts(monkeypatch):
+    today = date(2026, 5, 26)
+    monkeypatch.setattr(database_module, "_profile_trend_today_utc_date", lambda: today)
+    monkeypatch.setattr(
+        database_module,
+        "get_pinyin_recall_category_counts",
+        lambda user_id: {
+            "learning_hard": 1,
+            "learning_normal": 22,
+            "learned_normal": 249,
+            "learned_mastered": 3537,
+        },
+    )
+
+    replayed = [
+        {
+            "date": "2026-05-26",
+            "hard": 2,
+            "learning_normal": 22,
+            "learned_normal": 250,
+            "mastered": 3537,
+        }
+    ]
+    synced = database_module._sync_category_trend_with_live_counts("user-1", list(replayed))
+
+    assert synced[-1]["date"] == today.isoformat()
+    assert synced[-1]["hard"] == 1
+    assert synced[-1]["learned_normal"] == 249
+
+
+def test_sync_category_trend_appends_today_when_replay_ends_yesterday(monkeypatch):
+    monkeypatch.setattr(
+        database_module,
+        "_profile_trend_today_utc_date",
+        lambda: date(2026, 5, 26),
+    )
+    monkeypatch.setattr(
+        database_module,
+        "get_pinyin_recall_category_counts",
+        lambda user_id: {
+            "learning_hard": 1,
+            "learning_normal": 22,
+            "learned_normal": 249,
+            "learned_mastered": 3537,
+        },
+    )
+
+    synced = database_module._sync_category_trend_with_live_counts(
+        "user-1",
+        [{"date": "2026-05-25", "hard": 2, "learning_normal": 22, "learned_normal": 250, "mastered": 3537}],
+    )
+
+    assert len(synced) == 2
+    assert synced[-1]["date"] == "2026-05-26"
+    assert synced[-1]["learned_normal"] == 249
+    assert synced[-1]["hard"] == 1

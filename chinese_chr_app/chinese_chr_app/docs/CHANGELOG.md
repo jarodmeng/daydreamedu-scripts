@@ -6,6 +6,10 @@ Release history and version notes. Newest releases are at the top.
 
 ---
 
+## [v0.3.7]
+
+- **Profile 掌握度 trend vs table (latest day):** After replaying answer history, replace or append the chart’s latest UTC day with live sub-band counts from `pinyin_recall_unit_bank`, so `掌握项` / `普通已学项` / `普通在学项` / `难项` match the summary table on the rightmost point. Bucket replay days in UTC (same as daily practice stats).
+
 ## [v0.3.6]
 
 - **Profile 掌握度 trend thresholds:** Use the same score cutoffs as the table for daily-trend banding (`在学项` &lt; 10, `普通已学项` 10–19, `掌握项` ≥ 20, `难项` ≤ -20), so `普通已学项` / `普通在学项` / `难项` match the summary counts on the latest chart day.

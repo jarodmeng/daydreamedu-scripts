@@ -943,6 +943,56 @@ def get_pinyin_recall_practice_summary(user_id: str) -> List[Dict[str, Any]]:
         conn.close()
 
 
+def _profile_sub_band_for_score(score: int) -> str:
+    """Map a unit-bank score to one of the four profile sub-bands (chart/table)."""
+    if score < PROFILE_PROFICIENCY_MIN_SCORE:
+        return "难字" if score <= PROFILE_LEARNING_HARD_MAX_SCORE else "普通在学字"
+    if score < PROFILE_LEARNED_MASTERED_MIN_SCORE:
+        return "普通已学字"
+    return "掌握字"
+
+
+def _category_trend_point_from_counts(counts: Dict[str, int], day: date) -> Dict[str, Any]:
+    """Build one category_trend row from get_pinyin_recall_category_counts() sub-bands."""
+    return {
+        "date": day.isoformat(),
+        "hard": int(counts.get("learning_hard") or 0),
+        "learning_normal": int(counts.get("learning_normal") or 0),
+        "learned_normal": int(counts.get("learned_normal") or 0),
+        "mastered": int(counts.get("learned_mastered") or 0),
+    }
+
+
+def _profile_trend_today_utc_date() -> date:
+    """UTC calendar date for the live category-trend point (test hook)."""
+    return datetime.now(timezone.utc).date()
+
+
+def _sync_category_trend_with_live_counts(
+    user_id: str,
+    output: List[Dict[str, Any]],
+) -> List[Dict[str, Any]]:
+    """
+    Ensure the chart's latest UTC day matches the Profile table (unit_bank).
+
+    Historical points stay event-replayed; today (or the last row when it is today) is
+    replaced/extended with live sub-band counts so tooltip totals align with the summary.
+    """
+    today_utc = _profile_trend_today_utc_date()
+    live_point = _category_trend_point_from_counts(
+        get_pinyin_recall_category_counts(user_id),
+        today_utc,
+    )
+    if not output:
+        return [live_point]
+    last_date = output[-1].get("date") or ""
+    if last_date == live_point["date"]:
+        output[-1] = live_point
+    elif last_date < live_point["date"]:
+        output.append(live_point)
+    return output
+
+
 def get_pinyin_recall_category_daily_trend(
     user_id: str,
     days: int = 60,
@@ -977,7 +1027,10 @@ def get_pinyin_recall_category_daily_trend(
         with conn.cursor() as cur:
             cur.execute(
                 """
-                SELECT unit_id AS entity_id, score_after, created_at
+                SELECT
+                    unit_id AS entity_id,
+                    score_after,
+                    (created_at AT TIME ZONE 'UTC')::date AS ev_day
                 FROM pinyin_recall_item_answered
                 WHERE user_id = %s
                   AND unit_id IS NOT NULL
@@ -1004,11 +1057,12 @@ def get_pinyin_recall_category_daily_trend(
         for r in rows:
             entity_id = (r.get("entity_id") or "").strip()
             score_after = r.get("score_after")
-            created_at = r.get("created_at")
-            if not entity_id or score_after is None or created_at is None:
+            ev_day = r.get("ev_day")
+            if not entity_id or score_after is None or ev_day is None:
                 continue
 
-            ev_day = created_at.date()
+            if not isinstance(ev_day, date):
+                ev_day = ev_day.date() if hasattr(ev_day, "date") else ev_day
             if current_day is None:
                 current_day = ev_day
             elif ev_day != current_day:
@@ -1017,26 +1071,7 @@ def get_pinyin_recall_category_daily_trend(
                 current_day = ev_day
 
             prev_band = per_entity_band.get(entity_id)
-            score_val = int(score_after)
-
-            # Keep banding consistent with Profile table counts:
-            # - 未学项: missing from unit bank (not represented here)
-            # - 在学项: score < PROFILE_PROFICIENCY_MIN_SCORE (default 10)
-            # - 已学项: score >= PROFILE_PROFICIENCY_MIN_SCORE
-            # Sub-bands:
-            # - 难字: score <= PROFILE_LEARNING_HARD_MAX_SCORE (default -20)
-            # - 普通在学字: PROFILE_LEARNING_HARD_MAX_SCORE < score < PROFILE_PROFICIENCY_MIN_SCORE
-            # - 普通已学字: PROFILE_PROFICIENCY_MIN_SCORE <= score < PROFILE_LEARNED_MASTERED_MIN_SCORE (default 20)
-            # - 掌握字: score >= PROFILE_LEARNED_MASTERED_MIN_SCORE
-            if score_val < PROFILE_PROFICIENCY_MIN_SCORE:
-                if score_val <= PROFILE_LEARNING_HARD_MAX_SCORE:
-                    new_band = "难字"
-                else:
-                    new_band = "普通在学字"
-            elif score_val < PROFILE_LEARNED_MASTERED_MIN_SCORE:
-                new_band = "普通已学字"
-            else:
-                new_band = "掌握字"
+            new_band = _profile_sub_band_for_score(int(score_after))
 
             if prev_band == new_band:
                 continue
@@ -1084,6 +1119,9 @@ def get_pinyin_recall_category_daily_trend(
                 }
             )
 
+        output = _sync_category_trend_with_live_counts(user_id, output)
+        if days > 0 and len(output) > days:
+            output = output[-days:]
         return output
     finally:
         conn.close()
