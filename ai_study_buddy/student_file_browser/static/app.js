@@ -369,7 +369,7 @@
       "sort",
       "Sort",
       [
-        { value: "recent", label: "Recent first" },
+        { value: "recent", label: "Completed (recent)" },
         { value: "name", label: "Name (A–Z)" },
       ],
       state.sort || "recent",
@@ -469,6 +469,17 @@
     container.appendChild(c);
   }
 
+  function formatCalendarDate(isoDate) {
+    if (!isoDate) return null;
+    const d = new Date(`${isoDate}T12:00:00`);
+    if (Number.isNaN(d.getTime())) return null;
+    return d.toLocaleDateString(undefined, {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  }
+
   function formatRegistryAddedAt(iso) {
     if (!iso) return null;
     const d = new Date(iso);
@@ -478,6 +489,15 @@
       month: "short",
       day: "numeric",
     });
+  }
+
+  function completionDateTooltip(item) {
+    if (!item.completion_date) return "";
+    const parts = [item.completion_date];
+    if (item.completion_date_source) {
+      parts.push(`source: ${item.completion_date_source}`);
+    }
+    return parts.join(" · ");
   }
 
   function formatMarkValue(value) {
@@ -591,12 +611,20 @@
         markingScoreEl.className = "card-marking-score";
         markingScoreEl.textContent = scoreLabel;
       }
+      let completionDateEl = null;
+      const completionLabel = formatCalendarDate(item.completion_date);
+      if (completionLabel) {
+        completionDateEl = document.createElement("p");
+        completionDateEl.className = "card-completion-date";
+        completionDateEl.textContent = `Completed ${completionLabel}`;
+        completionDateEl.title = completionDateTooltip(item);
+      }
       let registryDateEl = null;
       const addedLabel = formatRegistryAddedAt(item.registry_added_at);
       if (addedLabel) {
         registryDateEl = document.createElement("p");
         registryDateEl.className = "card-registry-date";
-        registryDateEl.textContent = addedLabel;
+        registryDateEl.textContent = `Registered ${addedLabel}`;
         registryDateEl.title = item.registry_added_at;
       }
       const chips = document.createElement("div");
@@ -652,6 +680,7 @@
       card.appendChild(icon);
       card.appendChild(titleRow);
       if (markingScoreEl) card.appendChild(markingScoreEl);
+      if (completionDateEl) card.appendChild(completionDateEl);
       if (registryDateEl) card.appendChild(registryDateEl);
       card.appendChild(chips);
       card.appendChild(statusChips);

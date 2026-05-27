@@ -157,6 +157,14 @@ header h1 {
   letter-spacing: 0.01em;
 }
 
+.card-completion-date {
+  margin: 0;
+  font-size: 0.75rem;
+  line-height: 1.25;
+  color: #4a5568;
+  font-weight: 500;
+}
+
 .card-registry-date {
   margin: 0;
   font-size: 0.7rem;

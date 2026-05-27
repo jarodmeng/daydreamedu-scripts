@@ -33,7 +33,7 @@ See `OnDiskMainPdfCard.to_dict()` in `ai_study_buddy.files.on_disk_inventory`.
 
 ## UI behaviour
 
-- Filter controls do not refresh results on change; click **Filter** to run `/api/inventory` and update the URL. **Sort** applies immediately on change (also via **Filter**); server orders by `recent` (registry `added_at` newest first) or `name` (display name A–Z). Each apply refreshes dropdown options from the contextual slice (`root_ids`, `subjects`, `grades`, `doc_types`, `student_ids`, `book_names`, workflow visibility) in response `meta`. **Reset** restores defaults and reloads.
+- Filter controls do not refresh results on change; click **Filter** to run `/api/inventory` and update the URL. **Sort** applies immediately on change (also via **Filter**); server orders by `recent` (**completion_date** newest first; undated registered by path; unregistered last) or `name` (display name A–Z). Each apply refreshes dropdown options from the contextual slice (`root_ids`, `subjects`, `grades`, `doc_types`, `student_ids`, `book_names`, workflow visibility) in response `meta`. **Reset** restores defaults and reloads.
 - Card **View PDF** opens Root PDF Browser with `?id=` + `rel=` deep link (not inline `/api/pdf`).
 - Card **Review Workspace** (when `has_marking=true` and registered) opens Review Workspace at **`http://localhost:5178/`** (port **5178**) with `?attempt_id=<registry_file_id>` and `student_id=<student_id>` when available. Links normalize `127.0.0.1` / `::1` to `localhost` so the handoff matches how Review Workspace is served.
 - Card **View PDF** uses the same **`localhost`** normalization for Root PDF Browser (port **8770**).
@@ -42,7 +42,9 @@ See `OnDiskMainPdfCard.to_dict()` in `ai_study_buddy.files.on_disk_inventory`.
 - In-flight inventory requests are dropped when a newer **Filter** click supersedes them.
 - When `attempt_count > 1` and `attempt_sequence` is set, show **`Attempt {attempt_sequence} of {attempt_count}`** beside the card title (registry-derived; requires `files` v0.3.3+).
 - When `has_marking` and score fields are present, show **`X/Y (Z%)`** between title and registry date (`.card-marking-score`; requires `files` v0.3.5+).
-- When `registry_added_at` is set, show a locale-formatted date under the title (`.card-registry-date`; full ISO in `title` tooltip; requires `files` v0.3.4+).
+- When `completion_date` is set, show **Completed {date}** (`.card-completion-date`; tooltip: date + `completion_date_source`; requires `files` v0.3.6+).
+- When `registry_added_at` is set, show **Registered {date}** (`.card-registry-date`; full ISO in `title` tooltip; requires `files` v0.3.4+). Registration time is separate from completion date ([proposal 17](../pdf_file_manager/docs/proposals/17-completion-date.md) §5.4).
+- Sort label **Completed (recent)** for `sort=recent` (requires `files` v0.3.6+).
 - **Sort** control lives in the filter actions row after **Reset**; changing it reloads inventory immediately.
 
 ## Environment

@@ -1,5 +1,11 @@
 # Changelog — `student_file_browser`
 
+## [v0.1.7] — Completion date on cards (2026-05-27)
+
+- Cards show **Completed** date when `completion_date` is set; **Registered** date remains separate (`registry_added_at`).
+- Sort label **Completed (recent)**; requires `files` v0.3.6 (`completion_date` sort per proposal 17 §5.4).
+- `/api/health` `files_version` is **0.3.6**.
+
 ## [v0.1.6] — Marking score on marked cards (2026-05-21)
 
 - Marked completion cards show **`X/Y (Z%)`** between the title and registry date (resolved summary from `files` v0.3.5).

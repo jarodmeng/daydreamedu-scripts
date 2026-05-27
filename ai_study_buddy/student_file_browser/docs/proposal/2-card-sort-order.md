@@ -1,6 +1,6 @@
 # Proposal: Student File Browser — Card sort order
 
-**Status:** Implemented (`files` v0.3.4, `student_file_browser` v0.1.5)  
+**Status:** Implemented (`files` v0.3.6, `student_file_browser` v0.1.7) — **`recent` sort updated** for completion dates (2026-05-27)  
 **Tracked by:** Shipped (no separate [TODO.md](../../../TODO.md) item)  
 **Depends on:** `student_file_browser` **v0.1.4+**, `ai_study_buddy.files` **v0.3.3+**  
 **Related:** [L4_STUDENT_FILE_MANAGEMENT.md](../../../docs/L4_STUDENT_FILE_MANAGEMENT.md); [1-root-id-filter.md](./1-root-id-filter.md)
@@ -56,18 +56,19 @@ The **Attempt {n} of {m}** chip (v0.1.4) labels series membership but does not c
 
 Exactly **two** user-facing modes. Tie-breakers are **fixed per mode** (not user-configurable).
 
-### 4.1 `recent` — Registry recency (default)
+### 4.1 `recent` — Completed (recent) (default)
 
 | | |
 |--|--|
-| **Primary key** | `registry_added_at` descending (newest registered first) |
+| **Primary key** | `completion_date` descending (`YYYY-MM-DD` from `file_completion_dates`) |
 | **Tie-breaker** | `absolute_path` casefold, ascending |
-| **Unregistered** | No `registry_added_at` → trailing block, path ascending within block |
-| **Use when** | Default browse; intake / “what did we register lately?” |
+| **Undated registered** | No `completion_date` → middle block, path ascending (not sorted by `registry_added_at`) |
+| **Unregistered** | No `registry_added_at` → trailing block, path ascending |
+| **Use when** | Default browse; “what did the student finish most recently?” |
 
-**Enrichment:** after `pdf_file: PdfFile = reg_row` in `enrich_on_disk_main_pdf`, set `card.registry_added_at = pdf_file.added_at` for **every** registered row (completions **and** templates), before any early `return`.
+**Enrichment:** `card.completion_date` / `completion_date_source` from `PdfFileManager.get_completion_date` when registered; `card.registry_added_at = pdf_file.added_at` still set for **Registered** display only.
 
-**Timestamp format:** registry stores UTC ISO `YYYY-MM-DDTHH:MM:SSZ` ([`pdf_file_manager`](../../../pdf_file_manager/pdf_file_manager.py)). String compare is safe for ordering; no extra parse required in v1.
+**Normative spec:** [proposal 17 §5.4](../../../pdf_file_manager/docs/proposals/17-completion-date.md#54-consumers-when-no-row-exists). Shipped in `files` **v0.3.6** (replaces v0.3.4 `added_at` proxy for `recent` sort).
 
 ---
 
