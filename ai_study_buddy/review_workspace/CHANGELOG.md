@@ -4,6 +4,12 @@ All notable changes to `ai_study_buddy/review_workspace` are documented here.
 
 ---
 
+## [v0.1.5] — Vite bind to 127.0.0.1 (2026-05-27)
+
+Implemented:
+
+- Vite dev and preview servers bind to `127.0.0.1` so documented deep links match the served host.
+
 ## [v0.1.4] — Attempt deep links (2026-05-19)
 
 Implemented:
