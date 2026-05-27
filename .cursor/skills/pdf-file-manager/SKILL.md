@@ -64,6 +64,15 @@ When you need a human-facing filename stem or slug:
 
 This keeps naming behavior consistent across marking, file-question-info, and split-book workflows.
 
+## Completion dates (proposal 17)
+
+- **Read:** `get_completion_date(file_id)`, `get_completion_dates_for_files(file_ids)`.
+- **Write:** `set_completion_date(..., source='manual')` for operator fixes; `clear_completion_date(file_id)`.
+- **Infer:** `infer_completion_date_for_file` / `infer_completion_dates` run the full §4 matrix (page-1 cache → Goodnotes → `filename_term` → `drive_modified`). Canonical CLI: `python3 -m ai_study_buddy.pdf_file_manager.scripts.infer_completion_dates` (`--dry-run`, `--force`, `--force-manual`). Legacy `scripts/apply_completion_date_*.py` remain for reproducible backfill runs.
+- **Never** use `pdf_files.added_at` as `completion_date`. Inventory shows `registry_added_at` separately ([`files` v0.3.6+](../../../ai_study_buddy/files/README.md)).
+- **Term table:** [`completion_date/data/school_term_calendar.json`](../../../ai_study_buddy/pdf_file_manager/completion_date/data/school_term_calendar.json) — maintenance [`completion_date/data/README.md`](../../../ai_study_buddy/pdf_file_manager/completion_date/data/README.md).
+- Design: [proposal 17](../../../ai_study_buddy/pdf_file_manager/docs/proposals/17-completion-date.md).
+
 ## Lookup workflow
 
 - **By UUID:** `get_file(file_id)`.

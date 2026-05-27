@@ -140,14 +140,14 @@ Use `ai_study_buddy.files` as the centralized file-utility surface for determini
 - **On-disk main-PDF inventory (v0.3.0+):** filter-first operator views over leaf-folder mains (registered and unregistered).
   - **`path_facets`:** `infer_path_facets`, `PathFacets` — path layout → `scope`, `subject`, `grade_or_scope`, `doc_type`, `book_group_name`, `student_email`, `parse_status` (Phase A: delegates to `PdfFileManager._infer_from_path`).
   - **`main_pdfs`:** `build_main_pdf_index_for_roots`, `is_inventory_main_pdf` — registered paths only when `file_type='main'`; unregistered non-`_raw_` basenames; optional `exclude_activity_note_completions` (same universe as `completion_template_link_gap_report`).
-  - **`on_disk_inventory`:** `OnDiskMainPdfCard`, `FilterCriteria`, `enrich_on_disk_main_pdf`, `build_enriched_inventory`, `filter_main_pdf_cards`, `filter_meta_for_response` / `workflow_filter_options` (contextual filter dropdowns + counts). Registered template-linked completions also carry **`template_file_id`**, **`completion_series_id`**, **`attempt_sequence`**, **`attempt_count`** (v0.3.3+; registry series via `PdfFileManager.get_completion_series_member`).
+  - **`on_disk_inventory`:** `OnDiskMainPdfCard`, `FilterCriteria`, `enrich_on_disk_main_pdf`, `build_enriched_inventory`, `filter_main_pdf_cards`, `filter_meta_for_response` / `workflow_filter_options` (contextual filter dropdowns + counts). Registered completions carry **`completion_date`** / **`completion_date_source`** (v0.3.6+; [`file_completion_dates`](../pdf_file_manager/DATA_MODEL.md#completion-dates-file_completion_dates), [proposal 17](../pdf_file_manager/docs/proposals/17-completion-date.md)) and **`registry_added_at`** (registration time — not a completion-date fallback). **`sort_main_pdf_cards` `recent`** orders by `completion_date` desc. Registered template-linked completions also carry **`template_file_id`**, **`completion_series_id`**, **`attempt_sequence`**, **`attempt_count`** (v0.3.3+; series order still uses `added_at` until aligned with proposal 17 future work).
   - **`completion_enrichment`:** `enrich_registered_completion` → marking/review workflow flags via `marking.review.workflow_flags` (shared with Review Workspace `attempt_service` since marking v0.3.8).
   - Design reference: [L4_FILE_SYSTEM_MANAGEMENT](./L4_FILE_SYSTEM_MANAGEMENT.md) (package status); operator UI: [L4_STUDENT_FILE_MANAGEMENT](./L4_STUDENT_FILE_MANAGEMENT.md).
 - **Determinism rule:** callers should not hand-roll path normalization, set-difference leaf partitioning, or ad hoc `find_files()`/`list_scan_roots()` membership checks outside this module.
 
 This module is the default place for reusable “on-disk leaf ↔ registry” and **main-PDF inventory** behavior shared by leaf-registry commands, **`root_pdf_browser`**, and **`student_file_browser`**.
 
-API contract and versioned details: [`ai_study_buddy/files/SPEC.md`](../files/SPEC.md), [`CHANGELOG.md`](../files/CHANGELOG.md) (current **v0.3.3**).
+API contract and versioned details: [`ai_study_buddy/files/SPEC.md`](../files/SPEC.md), [`CHANGELOG.md`](../files/CHANGELOG.md) (current **v0.3.6**). Completion-date registry API: [`pdf_file_manager`](../pdf_file_manager/README.md#completion-dates-v0322).
 
 ### Unregistered on-disk files
 
