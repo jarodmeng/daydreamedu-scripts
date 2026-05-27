@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { buildPdfHref, buildReviewHref } from "./inventoryLinks";
 
 type StudentOption = {
@@ -71,6 +71,8 @@ type InventoryItem = {
   marking_total_marks: number | null;
   marking_percentage: number | null;
   registry_added_at: string | null;
+  completion_date: string | null;
+  completion_date_source: string | null;
 };
 
 type InventoryResponse = {
@@ -176,11 +178,27 @@ function formatScore(item: InventoryItem): string | null {
     : `${item.marking_earned_marks}/${item.marking_total_marks} (${pct}%)`;
 }
 
+function formatCalendarDate(isoDate: string | null): string | null {
+  if (!isoDate) return null;
+  const d = new Date(`${isoDate}T12:00:00`);
+  if (Number.isNaN(d.getTime())) return null;
+  return d.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
+}
+
 function formatRegistryAddedAt(iso: string | null): string | null {
   if (!iso) return null;
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return null;
   return d.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
+}
+
+function completionDateTooltip(item: InventoryItem): string | undefined {
+  if (!item.completion_date) return undefined;
+  const parts = [item.completion_date];
+  if (item.completion_date_source) {
+    parts.push(`source: ${item.completion_date_source}`);
+  }
+  return parts.join(" · ");
 }
 
 function attemptSeriesLabel(item: InventoryItem): string | null {
@@ -255,7 +273,9 @@ export default function InventoryApp() {
   const [config, setConfig] = useState<InventoryConfig | null>(null);
   const [inventory, setInventory] = useState<InventoryResponse | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadingHint, setLoadingHint] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const inventoryReadyRef = useRef(false);
 
   useEffect(() => {
     syncUrl(appliedState);
@@ -263,20 +283,39 @@ export default function InventoryApp() {
     async function load(): Promise<void> {
       setLoading(true);
       setError(null);
+      setLoadingHint(null);
       try {
+        const healthRes = await fetch("/api/inventory/health");
+        if (!cancelled && healthRes.ok) {
+          const health = (await healthRes.json()) as { index_count?: number };
+          const count = health.index_count;
+          setLoadingHint(
+            typeof count === "number"
+              ? `Building inventory for ${count} indexed PDFs… first load can take 1–2 minutes.`
+              : "Building inventory… first load can take 1–2 minutes.",
+          );
+        }
+
         const qs = toQueryString(appliedState);
         const suffix = qs ? `?${qs}` : "";
-        const [configRes, inventoryRes] = await Promise.all([
-          fetch(`/api/config${suffix}`),
-          fetch(`/api/inventory${suffix}`),
-        ]);
-        if (!configRes.ok || !inventoryRes.ok) {
-          throw new Error(`Inventory request failed (${configRes.status}/${inventoryRes.status})`);
+        const configRes = await fetch(`/api/config${suffix}`);
+        if (!configRes.ok) {
+          throw new Error(`Inventory request failed (config ${configRes.status})`);
         }
-        const [nextConfig, nextInventory] = await Promise.all([configRes.json(), inventoryRes.json()]);
+        const nextConfig = (await configRes.json()) as InventoryConfig;
+        if (cancelled) {
+          return;
+        }
+        setConfig(nextConfig);
+
+        const inventoryRes = await fetch(`/api/inventory${suffix}`);
+        if (!inventoryRes.ok) {
+          throw new Error(`Inventory request failed (inventory ${inventoryRes.status})`);
+        }
+        const nextInventory = (await inventoryRes.json()) as InventoryResponse;
         if (!cancelled) {
-          setConfig(nextConfig as InventoryConfig);
-          setInventory(nextInventory as InventoryResponse);
+          setInventory(nextInventory);
+          inventoryReadyRef.current = true;
         }
       } catch (err) {
         if (!cancelled) {
@@ -285,6 +324,7 @@ export default function InventoryApp() {
       } finally {
         if (!cancelled) {
           setLoading(false);
+          setLoadingHint(null);
         }
       }
     }
@@ -295,6 +335,9 @@ export default function InventoryApp() {
   }, [appliedState]);
 
   useEffect(() => {
+    if (!inventoryReadyRef.current) {
+      return;
+    }
     let cancelled = false;
     async function loadDraftConfig(): Promise<void> {
       try {
@@ -356,7 +399,7 @@ export default function InventoryApp() {
       <header className="legacy-header">
         <div>
           <h1>Student File Browser</h1>
-          <p className="subtitle">Operator inventory — port 8771</p>
+          <p className="subtitle">Buddy Console inventory</p>
         </div>
       </header>
 
@@ -534,7 +577,7 @@ export default function InventoryApp() {
           <label>
             <span>Sort</span>
             <select value={draftState.sort} onChange={(e) => updateDraft("sort", e.target.value)}>
-              <option value="recent">Recent first</option>
+              <option value="recent">Completed (recent)</option>
               <option value="name">Name (A-Z)</option>
             </select>
           </label>
@@ -542,7 +585,9 @@ export default function InventoryApp() {
       </section>
 
       <section className="meta">
-        {loading ? <span>Loading inventory...</span> : null}
+        {loading ? (
+          <span>{loadingHint ?? "Loading inventory…"}</span>
+        ) : null}
         {error ? <span className="inventory-error">{error}</span> : null}
         {!loading && inventory ? (
           <span>
@@ -558,6 +603,7 @@ export default function InventoryApp() {
           const reviewHref = buildReviewHref(item);
           const pdfHref = buildPdfHref(item, rootsById);
           const score = formatScore(item);
+          const completionLabel = formatCalendarDate(item.completion_date);
           const addedLabel = formatRegistryAddedAt(item.registry_added_at);
           const attemptLabel = attemptSeriesLabel(item);
           return (
@@ -568,9 +614,14 @@ export default function InventoryApp() {
                 {attemptLabel ? <span className="chip status-info">{attemptLabel}</span> : null}
               </div>
               {score ? <p className="card-marking-score">{score}</p> : null}
+              {completionLabel ? (
+                <p className="card-completion-date" title={completionDateTooltip(item)}>
+                  Completed {completionLabel}
+                </p>
+              ) : null}
               {addedLabel ? (
                 <p className="card-registry-date" title={item.registry_added_at || undefined}>
-                  {addedLabel}
+                  Registered {addedLabel}
                 </p>
               ) : null}
               <div className="chips">

@@ -43,8 +43,18 @@ Important `meta` fields:
 
 Important `items[]` characteristics:
 
-1. each item is derived from the enriched main-PDF inventory
+1. each item is derived from the enriched main-PDF inventory (`OnDiskMainPdfCard.to_dict()` from `ai_study_buddy.files`)
 2. card content is used to drive inventory filters, PDF links, and review links
+
+Completion vs registration (requires `files` v0.3.6+, `files_version` **0.3.6** on `/api/config`):
+
+| Field | UI | Meaning |
+|-------|-----|---------|
+| `completion_date` | **Completed {date}** | Student work date (`file_completion_dates`); `null` when unknown |
+| `completion_date_source` | tooltip | e.g. `handwritten_page1`, `manual`, `goodnotes_last_modified` |
+| `registry_added_at` | **Registered {date}** | `pdf_files.added_at` — scan/registry time only |
+
+Sort `recent` → **Completed (recent)** (`completion_date` desc, not `registry_added_at`). See [proposal 17 §5.4](../pdf_file_manager/docs/proposals/17-completion-date.md#54-consumers-when-no-row-exists).
 
 ## PDF Browser Models
 

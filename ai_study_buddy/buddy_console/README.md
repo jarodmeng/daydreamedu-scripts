@@ -1,5 +1,7 @@
 # Buddy Console
 
+**Version: v0.1.1**
+
 `buddy_console` is the new unified browser app for AI Study Buddy.
 
 It is intended to replace the operator workflow currently spread across:
@@ -30,6 +32,8 @@ Primary routes in the frontend:
 - `/` and `/inventory` -> inventory hub
 - `/pdf` -> root-style PDF browser
 - `/review` -> review surface
+
+Inventory cards show **Completed** (`completion_date`) and **Registered** (`registry_added_at`) separately when `files` v0.3.6+ is in use ([proposal 17](../pdf_file_manager/docs/proposals/17-completion-date.md) Phase 4).
 
 ## Docs
 

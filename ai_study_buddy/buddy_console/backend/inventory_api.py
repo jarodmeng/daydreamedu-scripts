@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 from collections import defaultdict
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import os
 from pathlib import Path
+import threading
 from typing import Any
 from urllib.parse import quote
 
@@ -30,7 +31,7 @@ from ai_study_buddy.student_file_browser.path_guard import safe_resolve_under_ro
 
 router = APIRouter()
 
-FILES_VERSION = "0.3.5"
+FILES_VERSION = "0.3.6"
 DEFAULT_CONTEXT_ROOT = Path(__file__).resolve().parents[2] / "context"
 INDEX_WARN_THRESHOLD = 2000
 
@@ -43,6 +44,7 @@ class InventoryRuntime:
     index_rows: list[OnDiskMainPdfRow]
     context_root: Path
     enriched_cache: list[Any] | None = None
+    _enrich_lock: threading.Lock = field(default_factory=threading.Lock, repr=False, compare=False)
 
 
 def _default_context_root() -> Path:
@@ -202,17 +204,38 @@ def _get_runtime(request: Request) -> InventoryRuntime:
 def _get_enriched_cards(runtime: InventoryRuntime) -> list[Any]:
     if runtime.enriched_cache is not None:
         return runtime.enriched_cache
-    pfm = PdfFileManager()
-    index = RegistryPathIndex.from_pdf_file_manager(pfm)
-    review_repo = StudentReviewRepository(context_root=runtime.context_root)
-    runtime.enriched_cache = build_enriched_inventory(
-        runtime.index_rows,
-        index=index,
-        pfm=pfm,
-        review_repo=review_repo,
-        context_root=runtime.context_root,
-    )
-    return runtime.enriched_cache
+    with runtime._enrich_lock:
+        if runtime.enriched_cache is not None:
+            return runtime.enriched_cache
+        pfm = PdfFileManager()
+        index = RegistryPathIndex.from_pdf_file_manager(pfm)
+        review_repo = StudentReviewRepository(context_root=runtime.context_root)
+        runtime.enriched_cache = build_enriched_inventory(
+            runtime.index_rows,
+            index=index,
+            pfm=pfm,
+            review_repo=review_repo,
+            context_root=runtime.context_root,
+        )
+        return runtime.enriched_cache
+
+
+def warm_enriched_cache(app: Any) -> None:
+    """Build inventory enrichment once in a background thread (first load is slow)."""
+    runtime = getattr(app.state, "inventory_runtime", None)
+    if runtime is None:
+        runtime = _build_runtime()
+        if runtime is None:
+            return
+        app.state.inventory_runtime = runtime
+
+    def _run() -> None:
+        try:
+            _get_enriched_cards(runtime)
+        except Exception:
+            pass
+
+    threading.Thread(target=_run, name="buddy-console-inventory-warm", daemon=True).start()
 
 
 @router.get("/api/inventory/health")

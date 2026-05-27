@@ -85,11 +85,13 @@ Inventory list response.
 
 Response includes:
 
-1. `items`
+1. `items` — enriched cards (`completion_date`, `completion_date_source`, `registry_added_at`, …); see [DATA_MODEL.md](./DATA_MODEL.md#inventory-models)
 2. `meta.total_in_index`
 3. `meta.total_after_filter`
 4. `meta.index_size_warning`
 5. inventory filter visibility metadata
+
+Inventory uses `files` **v0.3.6** (`files_version` on config/health). Sort `recent` = **Completed (recent)** ([proposal 17 §5.4](../pdf_file_manager/docs/proposals/17-completion-date.md#54-consumers-when-no-row-exists)).
 
 ### `GET /api/pdf-browser/config`
 
