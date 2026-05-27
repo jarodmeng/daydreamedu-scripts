@@ -2,7 +2,7 @@
 
 This document is the **contract** for the public Python API of `ai_study_buddy.files`. It is registry-agnostic: no SQLite, no `PdfFileManager`, no scan-root configuration.
 
-**Version:** align with [README.md](./README.md) (package **v0.3.5**).
+**Version:** align with [README.md](./README.md) (package **v0.3.6**).
 
 Core leaf listing and root resolution are **registry-agnostic**. Optional correlation with `pdf_file_manager` / `pdf_registry.db` lives in **`pdf_registry_paths.py`** (see §3).
 
@@ -184,8 +184,9 @@ Map built in `from_pdf_file_manager`. Use `registry_file_for_path` and `has_temp
 
 - `enrich_on_disk_main_pdf` — sets `student_id` on completion rows via `resolve_card_student_id`; unregistered completions get falsy workflow flags.
 - `filter_main_pdf_cards(cards, FilterCriteria, pfm=...)` — `FilterCriteria.student` is registry `students.id` (email accepted for legacy callers); `FilterCriteria.root_id` is `all` | `daydreamedu` | `goodnotes`.
-- `sort_main_pdf_cards(cards, sort=...)` — `name` (display name A–Z) or `recent` (registry `added_at` descending; unregistered last). `FilterCriteria.sort` defaults to `recent`.
-- `OnDiskMainPdfCard.registry_added_at` — `PdfFile.added_at` when registered.
+- `sort_main_pdf_cards(cards, sort=...)` — `name` (display name A–Z) or `recent` (**completion date** descending; registered undated by path; unregistered last). Does **not** sort by `registry_added_at`. `FilterCriteria.sort` defaults to `recent`. See [proposal 17 §5.4](../pdf_file_manager/docs/proposals/17-completion-date.md#54-consumers-when-no-row-exists).
+- `OnDiskMainPdfCard.registry_added_at` — `PdfFile.added_at` when registered (shown as **Registered** in UIs).
+- `OnDiskMainPdfCard.completion_date` / `completion_date_source` — from `PdfFileManager.get_completion_date` when registered (v0.3.6+; nullable). Shown as **Completed** in UIs; **not** derived from `added_at`.
 - `filter_meta_for_response` — merged dict for UI: facet lists + `*_counts`, plus workflow option keys from `workflow_filter_options`.
 - `filter_dropdown_options` — `scopes`, `root_ids`, `subjects`, `grades`, `doc_types`, `student_ids`, `book_names` (each omits its own criterion from the slice).
 - `workflow_filter_options` — contextual `is_registered_options`, `has_template_options`, `has_marking_options`, `review_status_options` and matching `show_*_filter` flags (true only when >1 distinct value in slice).
@@ -193,7 +194,18 @@ Map built in `from_pdf_file_manager`. Use `registry_file_for_path` and `has_temp
 - `should_show_is_registered_filter` — true when ≥1 unregistered main remains after applying criteria **except** `is_registered`.
 - `distinct_book_group_names` — sorted book group names for `doc_type=book` after other filters (except `book`).
 
-### 6.6 `OnDiskMainPdfCard` completion series fields (v0.3.3)
+### 6.6 `OnDiskMainPdfCard` completion date fields (v0.3.6)
+
+Populated in `enrich_on_disk_main_pdf` via `PdfFileManager.get_completion_date(file_id)` for registered rows.
+
+| Field | Type | Meaning |
+|-------|------|---------|
+| `completion_date` | `str \| None` | `YYYY-MM-DD` SGT calendar day when no row → `null` |
+| `completion_date_source` | `str \| None` | `handwritten_page1`, `filename_term`, `goodnotes_last_modified`, `drive_modified`, `manual`, … |
+
+Registry: [`file_completion_dates`](../pdf_file_manager/DATA_MODEL.md#completion-dates-file_completion_dates). Design: [proposal 17](../pdf_file_manager/docs/proposals/17-completion-date.md).
+
+### 6.7 `OnDiskMainPdfCard` completion series fields (v0.3.3)
 
 Populated in `enrich_on_disk_main_pdf` via `PdfFileManager.get_completion_series_member` when the card is a **registered completion** with a template link (`has_template=true`). All are optional / nullable on the card and in `to_dict()` inventory JSON.
 

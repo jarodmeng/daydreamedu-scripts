@@ -388,6 +388,7 @@ def test_enrich_on_disk_main_pdf_populates_completion_series_fields() -> None:
     pfm = MagicMock()
     pfm.get_template.return_value = template
     pfm.get_completion_series_member.return_value = (series, member)
+    pfm.get_completion_date.return_value = None
 
     review_repo = MagicMock()
     with patch(
@@ -417,6 +418,83 @@ def test_enrich_on_disk_main_pdf_populates_completion_series_fields() -> None:
     assert card.attempt_sequence == 2
     assert card.attempt_count == 1
     assert card.registry_added_at == "2026-01-01T00:00:00Z"
+    pfm.get_completion_date.assert_called_once_with("completion-1")
+
+
+def test_enrich_on_disk_main_pdf_completion_date() -> None:
+    from ai_study_buddy.files.path_facets import PathFacets
+    from ai_study_buddy.pdf_file_manager.completion_date.core import CompletionDateRecord
+    from ai_study_buddy.pdf_file_manager.pdf_file_manager import PdfFile
+
+    path = Path("/tmp/winston/_c_y.pdf")
+    facets = PathFacets(
+        root_id="daydreamedu",
+        scope="completion",
+        subject="math",
+        grade_or_scope="P4",
+        doc_type="exam",
+        book_group_name=None,
+        student_email="winston@example.com",
+        parse_status="ok",
+    )
+    row = OnDiskMainPdfRow(absolute_path=path, basename="_c_y.pdf", root_id="daydreamedu", facets=facets)
+    pdf_file = PdfFile(
+        id="completion-2",
+        name="_c_y.pdf",
+        path=str(path),
+        file_type="main",
+        doc_type="exam",
+        student_id="winston",
+        subject="math",
+        is_template=False,
+        size_bytes=10,
+        page_count=1,
+        has_raw=False,
+        metadata=None,
+        added_at="2026-01-01T00:00:00Z",
+        updated_at="2026-01-01T00:00:00Z",
+        notes=None,
+    )
+    index = MagicMock()
+    index.file_by_resolved_path = {path.resolve().as_posix(): pdf_file}
+    pfm = MagicMock()
+    pfm.get_completion_date.return_value = CompletionDateRecord(
+        file_id="completion-2",
+        completion_date="2025-06-15",
+        source="handwritten_page1",
+        confidence="high",
+        inference_model="test-model",
+        source_detail=None,
+        inferred_at="2026-01-01T00:00:00Z",
+        updated_at="2026-01-01T00:00:00Z",
+    )
+    pfm.get_template.return_value = None
+    pfm.get_completion_series_member.return_value = None
+    review_repo = MagicMock()
+    with patch(
+        "ai_study_buddy.files.on_disk_inventory.is_pdf_registered",
+        return_value=True,
+    ), patch(
+        "ai_study_buddy.files.on_disk_inventory.has_template_link",
+        return_value=False,
+    ), patch(
+        "ai_study_buddy.files.on_disk_inventory.enrich_registered_completion",
+    ) as enrich_mock:
+        enrich_mock.return_value = MagicMock(
+            has_marking=False,
+            has_marking_amendment=False,
+            review_status=None,
+        )
+        card = enrich_on_disk_main_pdf(
+            row,
+            index=index,
+            pfm=pfm,
+            review_repo=review_repo,
+            context_root=Path("/ctx"),
+        )
+    assert card.completion_date == "2025-06-15"
+    assert card.completion_date_source == "handwritten_page1"
+    assert card.registry_added_at == "2026-01-01T00:00:00Z"
 
 
 def test_sort_main_pdf_cards_name() -> None:
@@ -440,12 +518,14 @@ def test_sort_main_pdf_cards_name_tie_path() -> None:
 def test_sort_main_pdf_cards_recent() -> None:
     cards = [
         _card(
-            registry_added_at="2026-01-01T00:00:00Z",
+            completion_date="2026-01-01",
+            registry_added_at="2026-06-01T00:00:00Z",
             absolute_path="/old.pdf",
             basename="old.pdf",
         ),
         _card(
-            registry_added_at="2026-06-01T00:00:00Z",
+            completion_date="2026-06-01",
+            registry_added_at="2026-01-01T00:00:00Z",
             absolute_path="/new.pdf",
             basename="new.pdf",
         ),
@@ -454,10 +534,34 @@ def test_sort_main_pdf_cards_recent() -> None:
     assert [c.basename for c in ordered] == ["new.pdf", "old.pdf"]
 
 
+def test_sort_main_pdf_cards_recent_undated_not_by_added_at() -> None:
+    cards = [
+        _card(
+            completion_date=None,
+            registry_added_at="2026-06-01T00:00:00Z",
+            absolute_path="/z/b.pdf",
+            basename="b.pdf",
+        ),
+        _card(
+            completion_date=None,
+            registry_added_at="2026-01-01T00:00:00Z",
+            absolute_path="/z/a.pdf",
+            basename="a.pdf",
+        ),
+    ]
+    ordered = sort_main_pdf_cards(cards, "recent")
+    assert [c.basename for c in ordered] == ["a.pdf", "b.pdf"]
+
+
 def test_sort_main_pdf_cards_recent_unregistered_tail() -> None:
     cards = [
         _card(registry_added_at=None, absolute_path="/z/unreg.pdf", basename="unreg.pdf"),
-        _card(registry_added_at="2026-03-01T00:00:00Z", absolute_path="/z/reg.pdf", basename="reg.pdf"),
+        _card(
+            completion_date="2026-03-01",
+            registry_added_at="2026-01-01T00:00:00Z",
+            absolute_path="/z/reg.pdf",
+            basename="reg.pdf",
+        ),
     ]
     ordered = sort_main_pdf_cards(cards, "recent")
     assert ordered[0].basename == "reg.pdf"
@@ -466,8 +570,16 @@ def test_sort_main_pdf_cards_recent_unregistered_tail() -> None:
 
 def test_sort_main_pdf_cards_invalid_coerces_recent() -> None:
     cards = [
-        _card(registry_added_at="2026-01-01T00:00:00Z", absolute_path="/a.pdf", basename="a.pdf"),
-        _card(registry_added_at="2026-06-01T00:00:00Z", absolute_path="/b.pdf", basename="b.pdf"),
+        _card(
+            completion_date="2026-01-01",
+            absolute_path="/a.pdf",
+            basename="a.pdf",
+        ),
+        _card(
+            completion_date="2026-06-01",
+            absolute_path="/b.pdf",
+            basename="b.pdf",
+        ),
     ]
     ordered = sort_main_pdf_cards(cards, "bogus")
     assert ordered[0].basename == "b.pdf"

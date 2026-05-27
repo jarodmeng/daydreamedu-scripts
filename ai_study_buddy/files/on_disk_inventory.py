@@ -161,6 +161,8 @@ class OnDiskMainPdfCard:
     marking_total_marks: float | int | None = None
     marking_percentage: float | None = None
     registry_added_at: str | None = None
+    completion_date: str | None = None
+    completion_date_source: str | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return {f.name: getattr(self, f.name) for f in fields(self)}
@@ -496,6 +498,10 @@ def enrich_on_disk_main_pdf(
     card.registry_file_id = pdf_file.id
     card.normal_name = pdf_file.normal_name
     card.registry_added_at = pdf_file.added_at
+    completion = pfm.get_completion_date(pdf_file.id)
+    if completion is not None:
+        card.completion_date = completion.completion_date
+        card.completion_date_source = completion.source
 
     if pdf_file.is_template:
         card.has_template = None
@@ -610,12 +616,14 @@ def sort_main_pdf_cards(
     key = sort if sort in _VALID_SORT_KEYS else "recent"
     if key == "name":
         return sorted(cards, key=lambda c: (_display_name_key(c), _path_key(c)))
-    registered = [c for c in cards if c.registry_added_at]
+    dated = [c for c in cards if c.completion_date]
+    undated = [c for c in cards if not c.completion_date and c.registry_added_at]
     unregistered = [c for c in cards if not c.registry_added_at]
-    registered.sort(key=_path_key)
-    registered.sort(key=lambda c: c.registry_added_at or "", reverse=True)
+    dated.sort(key=_path_key)
+    dated.sort(key=lambda c: c.completion_date or "", reverse=True)
+    undated.sort(key=_path_key)
     unregistered.sort(key=_path_key)
-    return registered + unregistered
+    return dated + undated + unregistered
 
 
 def build_enriched_inventory(

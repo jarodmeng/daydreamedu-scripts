@@ -4,6 +4,12 @@ All notable changes to the **`ai_study_buddy.files`** package are documented her
 
 ---
 
+## [v0.3.6] — Completion date on inventory cards
+
+- **`OnDiskMainPdfCard`:** nullable `completion_date`, `completion_date_source` from `PdfFileManager.get_completion_date` when registered.
+- **`sort_main_pdf_cards` (`recent`):** dated completions first (`completion_date` descending), then registered undated (path ascending), then unregistered tail — no `registry_added_at` proxy ([proposal 17](../../pdf_file_manager/docs/proposals/17-completion-date.md) §5.4).
+- Consumers: `student_file_browser` v0.1.7, `buddy_console` inventory `files_version` **0.3.6**.
+
 ## [v0.3.5] — Marking score on inventory cards
 
 - **`RegisteredCompletionEnrichment`:** `marking_earned_marks`, `marking_total_marks`, `marking_percentage` from resolved marking summary (via `load_completion_marking_context`).
