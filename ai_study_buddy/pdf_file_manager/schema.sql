@@ -82,6 +82,32 @@ CREATE INDEX IF NOT EXISTS idx_book_answer_mappings_answer_file_id
 CREATE INDEX IF NOT EXISTS idx_book_answer_mappings_source
     ON book_answer_mappings(source);
 
+-- Per-completion calendar date (proposal 17); keyed by registered main file_id
+CREATE TABLE IF NOT EXISTS file_completion_dates (
+    file_id          TEXT PRIMARY KEY
+                     REFERENCES pdf_files(id) ON DELETE CASCADE,
+    completion_date  TEXT NOT NULL
+                     CHECK (completion_date GLOB '????-??-??'),
+    source           TEXT NOT NULL
+                     CHECK (source IN (
+                         'handwritten_page1',
+                         'filename_term',
+                         'drive_modified',
+                         'goodnotes_last_modified',
+                         'goodnotes_updated_at',
+                         'manual'
+                     )),
+    confidence       TEXT
+                     CHECK (confidence IS NULL OR confidence IN ('high', 'medium', 'low')),
+    inference_model  TEXT,
+    source_detail    TEXT,
+    inferred_at      TEXT NOT NULL,
+    updated_at       TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_file_completion_dates_completion_date
+    ON file_completion_dates (completion_date);
+
 -- Append-only audit log (no FK so entries survive deletes)
 CREATE TABLE IF NOT EXISTS operation_log (
     id           TEXT PRIMARY KEY,

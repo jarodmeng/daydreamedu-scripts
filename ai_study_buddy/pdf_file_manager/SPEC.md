@@ -126,7 +126,34 @@ Registry-derived projection for repeated completions of the same template by one
 | `completion_series_id(student_id, template_file_id)` | `str \| None` | `"<student_slug>::<template_file_id>"` without member scan |
 | `next_attempt_sequence_for_completion(file_id)` | `int \| None` | Existing member → same sequence (re-mark idempotent); else next slot |
 
-**Sort keys:** `pdf_files.added_at` ascending, then resolved `path`. **Series id** equals marking `template_attempt_group_id`.
+**Sort keys:** `pdf_files.added_at` ascending, then resolved `path`. **Series id** equals marking `template_attempt_group_id`. *(Inventory “Completed (recent)” sort uses `completion_date`, not series `added_at` — see [files SPEC](../files/SPEC.md) §6.5.)*
+
+#### Completion dates (v0.3.22+)
+
+Optional **student work date** per completion main in `file_completion_dates`. Types in [`completion_date/`](./completion_date/). Design: [proposal 17](./docs/proposals/17-completion-date.md). **No read-time fallback** from `pdf_files.added_at`.
+
+| Method | Returns | Notes |
+|--------|---------|-------|
+| `get_completion_date(file_id)` | `CompletionDateRecord \| None` | `None` when no row |
+| `get_completion_dates_for_files(file_ids)` | `dict[str, CompletionDateRecord]` | Batch read |
+| `set_completion_date(file_id, completion_date, *, source='manual', confidence=None, inference_model=None, source_detail=None)` | `CompletionDateRecord` | Operator override; `manual` skips confidence/model requirements |
+| `clear_completion_date(file_id)` | `None` | Removes row; logs operation |
+| `infer_completion_date_for_file(file_id, *, force=False, force_manual=False, methods=..., work_dir=...)` | `CompletionDateRecord \| None` | Unified §4 matrix: cached page-1 JSON (`handwritten_page1`), GoodNotes timestamps (`goodnotes_*`), filename-term heuristics (`filename_term`), and drive mtime (`drive_modified`) in priority order. Respects `force` / `force_manual` and never overwrites `source='manual'` unless `force_manual=True`. |
+| `infer_completion_dates(*, file_ids=None, student_id=None, root=None, doc_types=None, dry_run=False, force=False, force_manual=False, methods=..., work_dir=...)` | `InferCompletionDatesReport` | Batch inference over a selected cohort (explicit `file_ids` or filters); delegates per-file work to `infer_completion_date_for_file`. `dry_run=True` walks the cohort without writing rows. Canonical CLI: `scripts/infer_completion_dates.py`. |
+
+**Inference sources (§4 matrix):**
+
+| `source` | Mechanism |
+|----------|-----------|
+| `handwritten_page1` | Page-1/2 PNG + Cursor agent; apply via `scripts/apply_completion_date_page1_results.py` |
+| `filename_term` | WA/EoY/Term keywords + [`school_term_calendar.json`](./completion_date/data/school_term_calendar.json); `scripts/apply_completion_date_filename_term.py` |
+| `goodnotes_last_modified` | Goodnotes DB `last_modified` (then `updated_at`); g_root; `scripts/apply_completion_date_goodnotes.py` |
+| `drive_modified` | PDF `st_mtime` → SGT; d_root books; `scripts/apply_completion_date_drive_modified.py` |
+| `manual` | `set_completion_date`; not overwritten without `--force-manual` |
+
+**Apply guards:** `check_completion_date_school_year` (path `Pn` + student); `adjust_page1_completion_year_for_path_context` (exam header vintage vs path school year). Audit: `scripts/verify_completion_date_school_years.py`.
+
+**Worked examples:** [P5 English Practice 1](./docs/proposals/17-completion-date.md#worked-example-primary-5-english-practice-1-d_root-exercise), [P5 Math EoY](./docs/proposals/17-completion-date.md#worked-example-p5-math-eoy-practice-set-1-exam-vintage-year).
 
 #### Goodnotes document timestamps (v0.3.21+)
 
@@ -499,6 +526,8 @@ For all returned data class shapes (`PdfFile`, `FileGroup`, `FileGroupMember`, a
 | Raw ↔ main relations (`link_files`, `unlink_files`) | ✅ Implemented |
 | Template relations (`link_to_template`, `unlink_template`, `get_template`, `get_completions`) | ✅ Implemented |
 | Completion series (`get_completion_series*`, `completion_series_id`, `next_attempt_sequence_for_completion`) | ✅ Implemented (v0.3.19) |
+| Goodnotes document timestamps (`get_goodnotes_document_timestamps_for_file`, `get_goodnotes_document_timestamps_for_path`) | ✅ Implemented (v0.3.21) |
+| Completion dates (`get_completion_date`, `set_completion_date`, `clear_completion_date`; unified `infer_completion_date*`; `scripts/infer_completion_dates.py`) | ✅ Implemented (v0.3.22–v0.3.31) |
 | File group operations | ✅ Implemented |
 | `suggest_groups` | ✅ Implemented |
 | `operation_log` writes on all C/U/D operations | ✅ Implemented |

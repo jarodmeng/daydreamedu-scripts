@@ -4,6 +4,90 @@ All notable changes to the pdf_file_manager utility are documented here.
 
 ---
 
+## [v0.3.31] — Unified completion-date inference API + CLI (proposal 17 Phase 3 integration)
+
+- **`PdfFileManager.infer_completion_date_for_file`** — orchestrates the full §4 matrix in priority order: `handwritten_page1` (cached agent JSON), GoodNotes timestamps (`goodnotes_*`), `filename_term`, `drive_modified`. Respects `force` / `force_manual`.
+- **`PdfFileManager.infer_completion_dates`** — batch cohort inference with `file_ids`, `student_id`, `root`, `doc_types`, `dry_run`, and report counters via `merge_infer_completion_dates_report`.
+- **CLI:** [`scripts/infer_completion_dates.py`](./scripts/infer_completion_dates.py) — canonical operator entrypoint (`--dry-run`, `--force`, `--force-manual`, cohort filters).
+- Tests: batch dry-run / force flags, CLI smoke (`test_infer_completion_dates_cli.py`).
+
+## [v0.3.30] — `completion_date/` package, apply guards, Phase 5 docs (proposal 17)
+
+Closes the **in-repo** proposal 17 work started in v0.3.22: code lives under [`completion_date/`](./completion_date/), operator docs are current, and page-1 apply has extra guards. **Backfill** (page-1 agent batches, GoodNotes, filename term, drive mtime) and **inventory UI** (v0.3.6 `files`) are documented in proposal 17 and sibling package changelogs—not re-listed here.
+
+### Package layout
+
+- Inference logic moved into **`completion_date/`**: `core.py` (types, normalization, school-year helpers), `page1.py` (render, manifest, apply agent JSON), `filename_term.py`, `drive_modified.py`, `goodnotes.py`, `data/school_term_calendar.json`.
+- **`completion_date/__init__.py`** re-exports public helpers; **`pdf_file_manager`** top-level exports `CompletionDateRecord`, `InferCompletionDatesReport`.
+
+### Apply pipeline
+
+- **`adjust_page1_completion_year_for_path_context`** — before persist, rewrite `expected_school_year - 1` → `expected_school_year` when the agent used a header exam vintage year but the `Date:` line had month/day only; sets `source_detail.year_adjustment`. Tests in `tests/test_completion_date_school_year.py`.
+- Page-1 manifest **`completion-date-page1-v3`**: per-row `path_primary_level`, `expected_school_year` for agent context (v1/v2 manifests still load).
+
+### Documentation (Phase 5)
+
+- [README.md](./README.md), [SPEC.md](./SPEC.md) (§ Completion dates), [DATA_MODEL.md](./DATA_MODEL.md), [completion_date/data/README.md](./completion_date/data/README.md).
+- [docs/proposals/17-completion-date.md](./docs/proposals/17-completion-date.md) — Phase 5 complete; EoY vintage worked example.
+- Cross-links: L4, `files` / browser packages, `.cursor/skills/pdf-file-manager/SKILL.md`, page-1 inspector agent year rules.
+
+**Superseded (v0.3.31):** unified `infer_completion_dates` CLI and `infer_completion_date*` over the full §4 matrix; legacy `apply_completion_date_*.py` scripts remain for reproducibility.
+
+## [v0.3.29] — Goodnotes last_modified for g_root completions (proposal 17 §5.3)
+
+- `completion_date/goodnotes.py`: `last_modified` first, `updated_at` fallback; browser cohort helper (131 GoodNotes completions).
+- Script `apply_completion_date_goodnotes` (`--dry-run`, `--force`).
+
+## [v0.3.28] — Drive mtime for d_root book completions (proposal 17 §4.3)
+
+- `completion_date/drive_modified.py`: infer `completion_date` from synced PDF `st_mtime` (SGT).
+- `source=drive_modified`; script `apply_completion_date_drive_modified`.
+- Schema migration: add `drive_modified` to `file_completion_dates.source` CHECK.
+
+## [v0.3.27] — Filename term completion dates (proposal 17 §5.2)
+
+- `data/school_term_calendar.json` (MOE term end dates 2021–2026).
+- `completion_date/filename_term.py`: term keyword groups, completion = term end − 14 days.
+- Script `apply_completion_date_filename_term` (`--undated-only`, `--dry-run`).
+
+## [v0.3.26] — School-year sanity check for completion dates (proposal 17)
+
+- `completion_date/core.py`: P1 anchors (Winston 2021, Emma 2023, Abigail 2025), `check_completion_date_school_year` from path `Pn` + student.
+- `apply_page1_inspection_result` rejects dates outside `[expected_school_year ± 1]`.
+- Script `verify_completion_date_school_years.py` audits registry and batch results (`--fix` nulls mismatches).
+
+## [v0.3.25] — Page-2 fallback for handwritten_page1 (proposal 17)
+
+- `prepare_completion_date_page1_batch` renders `page-02.png` when the PDF has ≥2 pages; manifest schema `completion-date-page1-v2` adds optional `page2_image_path`.
+- `merge_page_inspection_payloads`: page-1-first flow; `no_date_on_pages_1_or_2` when both pages lack a date.
+- Agent `completion-date-page1-inspector`: inspect page 1, then page 2 when provided.
+- Proposal 17 doc: worked example `P6 Comprehension Open-Ended Practice 3 (PSLE 2022)` (cover page 1, `Date:` on page 2).
+
+## [v0.3.24] — Completion date inference_model + provenance
+
+- `file_completion_dates.inference_model` column (migration on existing DBs).
+- `CompletionDateRecord.inference_model`; `set_completion_date(..., inference_model=...)`.
+- Automated sources require `confidence`; `handwritten_page1` also requires `inference_model` (actual model slug, not `inherit`).
+- Page-1 agent JSON and apply path persist both fields; operation log includes `inference_model`.
+
+## [v0.3.23] — Completion date page-1 batch plumbing (proposal 17, Phase 2 prep)
+
+- Added `completion_date/page1.py`: page-1 PNG render (PyMuPDF), d_root cohort + manifest, parse/apply agent JSON, cached `infer_*` helpers (no vision API).
+- Scripts: `prepare_completion_date_page1_batch`, `apply_completion_date_page1_results`.
+- Agent workflow: render/manifest → Cursor `completion-date-page1-inspector` (`model: inherit`) → apply results.
+- `PdfFileManager.infer_completion_date_for_file` / `infer_completion_dates` apply cached `work_dir/results/<file_id>.json` when present.
+- Work dir default: `pdf_file_manager/.completion_date_page1/` (gitignored).
+
+## [v0.3.22] — Completion date storage (proposal 17, Phase 1)
+
+> **Proposal 17** spans **v0.3.22–v0.3.30**: separate calendar **`completion_date`** per completion main (not `pdf_files.added_at`), multiple inference sources, batch scripts, then inventory consumers in `files` v0.3.6.
+
+- Added `file_completion_dates` table (`completion_date`, `source`, `confidence`, `source_detail`, `inferred_at`, `updated_at`) with FK cascade on `pdf_files` delete.
+- Added `completion_date/core.py` (`CompletionDateRecord`, `InferCompletionDatesReport`, normalization helpers; later split into `completion_date/` package in v0.3.30).
+- `PdfFileManager`: `get_completion_date`, `get_completion_dates_for_files`, `set_completion_date`, `clear_completion_date`; inference stubs return no rows until Phases 2–3.
+- Operation log: `set_completion_date`, `clear_completion_date`.
+- v1 write policy: registered student completion mains only (`file_type='main'`, `is_template=False`, `student_id` required).
+
 ## [v0.3.21] — Goodnotes document timestamp lookup
 
 - Added `goodnotes_metadata.py` with `GoodnotesDocumentMatch` and `GoodnotesDocumentTimestamps`.
@@ -399,10 +483,11 @@ First working version: SQLite registry, manager, operation log, config and file 
 
 ### Testing
 
-- **Phase 1:** 6 tests (schema, custom/default DB path, operation log write).
-- **Phase 2:** 14 tests (students, roots, register_file, compress_and_register, scan dry_run and full); uses DaydreamEdu fixture (copy to temp dir); real `compress_pdf`.
+- **Phase 1:** 7 tests (schema incl. `file_completion_dates`, custom/default DB path, operation log write).
+- **Phase 2:** 20 tests (students, roots, register_file, compress_and_register, scan dry_run and full, GoodNotes auto-link); uses DaydreamEdu fixture (copy to temp dir); real `compress_pdf`.
 - **Phase 3:** 22 tests (get_file, find_files filters, update_metadata merge/validation, rename/move, delete with/without cascade, open_file); open_file subprocess mocked in test to avoid blocking dialog.
 - **Phase 4:** 17 tests (get_related_files, link/unlink files, link_to_template/get_template/get_completions/unlink, validation, file group CRUD, suggest_groups, open_file_group).
 - **Phase 5:** 8 tests (get_operation_log no filters + ordering, filters by file_id/operation/group_id/log_id/since; CLI --help and --db log --help).
+- **Completion dates (proposal 17):** 8 modules under `tests/test_completion_date*.py` — CRUD, page-1 apply, school-year guards, filename term, Goodnotes, drive mtime, provenance — plus batch/CLI tests (`test_completion_dates.py`, `test_infer_completion_dates_cli.py`). See [TESTING.md](./TESTING.md#completion-dates-proposal-17).
 
 All tests use a temporary DB and (where needed) temp dirs and the shared fixture; no real drive or production registry.

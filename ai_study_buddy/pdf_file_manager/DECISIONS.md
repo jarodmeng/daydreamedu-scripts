@@ -4,6 +4,31 @@ Decisions that shaped the design of this utility. Each entry records what was de
 
 ---
 
+## D-015 — Separate `file_completion_dates` table (not `pdf_files.metadata` or `added_at` proxy)
+
+**Date:** 2026-05-26  
+**Status:** Decided  
+**Affects:** `schema.sql`, `completion_date/`, `pdf_file_manager.py`, `files/on_disk_inventory.py`, browser packages, [proposal 17](./docs/proposals/17-completion-date.md)
+
+### Context
+
+Inventory and browsers previously surfaced `pdf_files.added_at` as the card date and **Recent first** sort key. That answers when a PDF was registered, not when the student completed the work. Multiple inference methods (page-1 agent, filename term keywords, Goodnotes timestamps, drive mtime) need provenance and optional re-inference without mutating core registry rows.
+
+### Decision
+
+1. **Add `file_completion_dates`** — one optional row per completion main (`file_id` PK, FK cascade). Columns: `completion_date` (`YYYY-MM-DD`, SGT day), `source`, `confidence`, `inference_model`, `source_detail`, audit timestamps.
+2. **Fail closed** — when inference fails, **no row**; do **not** substitute `added_at` at read time as `completion_date`.
+3. **Inference package** under `completion_date/` with operator apply scripts; inventory joins the table for display/sort (`files` v0.3.6+).
+4. **Manual override** via `set_completion_date(..., source='manual')`; not overwritten without `--force-manual`.
+
+### Consequences
+
+- Student File Browser and Buddy Console show **Completed** vs **Registered** separately; **Completed (recent)** sorts by `completion_date` desc.
+- **v0.3.31:** unified `infer_completion_date*` and [`scripts/infer_completion_dates.py`](./scripts/infer_completion_dates.py) over the full §4 priority chain; legacy apply scripts kept for backfill reproducibility.
+- Completion **series** ordering still uses `added_at` — aligning with `completion_date` is [future work](./docs/proposals/17-completion-date.md#future-work).
+
+---
+
 ## D-014 — Keep explicit relation cleanup and enable SQLite FK enforcement on manager connections
 
 **Date:** 2026-04-22

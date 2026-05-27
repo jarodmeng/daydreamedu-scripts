@@ -14,6 +14,28 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 
+from .completion_date.core import (
+    COMPLETION_DATE_SOURCES,
+    CompletionDateRecord,
+    InferCompletionDatesReport,
+    merge_infer_completion_dates_report,
+    normalize_completion_date,
+    normalize_completion_date_confidence,
+    normalize_completion_date_source,
+    normalize_inference_model,
+    validate_inferred_completion_date_provenance,
+)
+from .completion_date.page1 import (
+    default_page1_work_dir,
+    infer_completion_date_for_file_cached_page1,
+    infer_completion_dates_cached_page1,
+    inventory_root_from_path,
+)
+from .completion_date.filename_term import (
+    FILENAME_TERM_CONFIDENCE,
+    FILENAME_TERM_SOURCE,
+    infer_completion_date_from_filename_term,
+)
 from .goodnotes_metadata import GoodnotesDocumentMatch, get_goodnotes_document_match
 
 logger = logging.getLogger(__name__)
@@ -328,6 +350,112 @@ class PdfFileManager:
         if "'book'" not in group_sql:
             self._rebuild_file_groups_table()
 
+        completion_table = conn.execute(
+            "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'file_completion_dates'"
+        ).fetchone()
+        if completion_table is None:
+            self._ensure_file_completion_dates_table()
+        else:
+            self._migrate_file_completion_dates_if_needed()
+
+    def _migrate_file_completion_dates_if_needed(self) -> None:
+        conn = self._conn
+        assert conn is not None
+        cols = {
+            row[1]
+            for row in conn.execute("PRAGMA table_info(file_completion_dates)").fetchall()
+        }
+        if "inference_model" not in cols:
+            conn.execute(
+                "ALTER TABLE file_completion_dates ADD COLUMN inference_model TEXT"
+            )
+            conn.commit()
+        sql_row = conn.execute(
+            "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'file_completion_dates'"
+        ).fetchone()
+        table_sql = (sql_row[0] or "") if sql_row else ""
+        if table_sql and "drive_modified" not in table_sql:
+            self._rebuild_file_completion_dates_table()
+
+    def _file_completion_dates_create_sql(self) -> str:
+        return """
+            CREATE TABLE file_completion_dates (
+                file_id          TEXT PRIMARY KEY
+                                 REFERENCES pdf_files(id) ON DELETE CASCADE,
+                completion_date  TEXT NOT NULL
+                                 CHECK (completion_date GLOB '????-??-??'),
+                source           TEXT NOT NULL
+                                 CHECK (source IN (
+                                     'handwritten_page1',
+                                     'filename_term',
+                                     'drive_modified',
+                                     'goodnotes_last_modified',
+                                     'goodnotes_updated_at',
+                                     'manual'
+                                 )),
+                confidence       TEXT
+                                 CHECK (confidence IS NULL OR confidence IN ('high', 'medium', 'low')),
+                inference_model  TEXT,
+                source_detail    TEXT,
+                inferred_at      TEXT NOT NULL,
+                updated_at       TEXT NOT NULL
+            );
+            CREATE INDEX IF NOT EXISTS idx_file_completion_dates_completion_date
+                ON file_completion_dates (completion_date);
+        """
+
+    def _rebuild_file_completion_dates_table(self) -> None:
+        conn = self._conn
+        assert conn is not None
+        conn.execute("PRAGMA foreign_keys = OFF")
+        conn.executescript(
+            """
+            BEGIN;
+            CREATE TABLE file_completion_dates_new (
+                file_id          TEXT PRIMARY KEY
+                                 REFERENCES pdf_files(id) ON DELETE CASCADE,
+                completion_date  TEXT NOT NULL
+                                 CHECK (completion_date GLOB '????-??-??'),
+                source           TEXT NOT NULL
+                                 CHECK (source IN (
+                                     'handwritten_page1',
+                                     'filename_term',
+                                     'drive_modified',
+                                     'goodnotes_last_modified',
+                                     'goodnotes_updated_at',
+                                     'manual'
+                                 )),
+                confidence       TEXT
+                                 CHECK (confidence IS NULL OR confidence IN ('high', 'medium', 'low')),
+                inference_model  TEXT,
+                source_detail    TEXT,
+                inferred_at      TEXT NOT NULL,
+                updated_at       TEXT NOT NULL
+            );
+            INSERT INTO file_completion_dates_new (
+                file_id, completion_date, source, confidence, inference_model,
+                source_detail, inferred_at, updated_at
+            )
+            SELECT
+                file_id, completion_date, source, confidence, inference_model,
+                source_detail, inferred_at, updated_at
+            FROM file_completion_dates;
+            DROP TABLE file_completion_dates;
+            ALTER TABLE file_completion_dates_new RENAME TO file_completion_dates;
+            CREATE INDEX idx_file_completion_dates_completion_date
+                ON file_completion_dates (completion_date);
+            COMMIT;
+            """
+        )
+        conn.execute("PRAGMA foreign_keys = ON")
+        conn.commit()
+
+    def _ensure_file_completion_dates_table(self) -> None:
+        conn = self._conn
+        assert conn is not None
+        conn.executescript(self._file_completion_dates_create_sql())
+        conn.commit()
+
     def _rebuild_pdf_files_table(self):
         conn = self._conn
         assert conn is not None
@@ -478,6 +606,34 @@ class PdfFileManager:
             updated_at=row["updated_at"],
             notes=row["notes"],
         )
+
+    def _row_to_completion_date_record(self, row: sqlite3.Row) -> CompletionDateRecord:
+        detail = row["source_detail"]
+        if isinstance(detail, str):
+            detail = json.loads(detail) if detail else None
+        inference_model = row["inference_model"] if "inference_model" in row.keys() else None
+        return CompletionDateRecord(
+            file_id=row["file_id"],
+            completion_date=row["completion_date"],
+            source=row["source"],
+            confidence=row["confidence"],
+            inference_model=inference_model,
+            source_detail=detail,
+            inferred_at=row["inferred_at"],
+            updated_at=row["updated_at"],
+        )
+
+    def _validate_completion_date_target(self, file_id: str) -> PdfFile:
+        pdf = self.get_file(file_id)
+        if pdf.file_type != "main":
+            raise ValueError("completion_date applies only to file_type='main'")
+        if pdf.is_template:
+            raise ValueError(
+                "completion_date applies only to student completions (is_template=False)"
+            )
+        if not pdf.student_id:
+            raise ValueError("completion_date requires a registered student_id (v1)")
+        return pdf
 
     def _row_to_book_answer_mapping(self, row: sqlite3.Row) -> BookAnswerMapping:
         unit_file = self.get_file(row["unit_file_id"])
@@ -2777,6 +2933,408 @@ class PdfFileManager:
             group_id=sorted(book_group_ids)[0] if book_group_ids else None,
             before_state=json.dumps(before_payload),
         )
+
+    # ---------------------------------------------------------------------------
+    # Completion dates (proposal 17)
+    # ---------------------------------------------------------------------------
+
+    def get_completion_date(self, file_id: str) -> CompletionDateRecord | None:
+        conn = self._get_connection()
+        row = conn.execute(
+            "SELECT * FROM file_completion_dates WHERE file_id = ?",
+            (file_id,),
+        ).fetchone()
+        if row is None:
+            return None
+        return self._row_to_completion_date_record(row)
+
+    def get_completion_dates_for_files(
+        self, file_ids: list[str]
+    ) -> dict[str, CompletionDateRecord]:
+        if not file_ids:
+            return {}
+        conn = self._get_connection()
+        placeholders = ",".join("?" for _ in file_ids)
+        rows = conn.execute(
+            f"SELECT * FROM file_completion_dates WHERE file_id IN ({placeholders})",
+            file_ids,
+        ).fetchall()
+        return {
+            row["file_id"]: self._row_to_completion_date_record(row) for row in rows
+        }
+
+    def set_completion_date(
+        self,
+        file_id: str,
+        completion_date: str,
+        *,
+        source: str = "manual",
+        confidence: str | None = None,
+        inference_model: str | None = None,
+        source_detail: dict | None = None,
+    ) -> CompletionDateRecord:
+        completion_date = normalize_completion_date(completion_date)
+        source = normalize_completion_date_source(source)
+        confidence = normalize_completion_date_confidence(confidence)
+        inference_model = normalize_inference_model(inference_model)
+        validate_inferred_completion_date_provenance(
+            source=source,
+            confidence=confidence,
+            inference_model=inference_model,
+        )
+        self._validate_completion_date_target(file_id)
+        detail_json = json.dumps(source_detail) if source_detail is not None else None
+        conn = self._get_connection()
+        existing = conn.execute(
+            "SELECT * FROM file_completion_dates WHERE file_id = ?",
+            (file_id,),
+        ).fetchone()
+        now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+        after_payload = {
+            "file_id": file_id,
+            "completion_date": completion_date,
+            "source": source,
+            "confidence": confidence,
+            "inference_model": inference_model,
+            "source_detail": source_detail,
+            "inferred_at": now,
+            "updated_at": now,
+        }
+        if existing is None:
+            conn.execute(
+                """
+                INSERT INTO file_completion_dates (
+                    file_id, completion_date, source, confidence, inference_model,
+                    source_detail, inferred_at, updated_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    file_id,
+                    completion_date,
+                    source,
+                    confidence,
+                    inference_model,
+                    detail_json,
+                    now,
+                    now,
+                ),
+            )
+            conn.commit()
+            self._log_operation(
+                "set_completion_date",
+                file_id=file_id,
+                after_state=json.dumps(after_payload),
+            )
+        else:
+            before_payload = {
+                "file_id": existing["file_id"],
+                "completion_date": existing["completion_date"],
+                "source": existing["source"],
+                "confidence": existing["confidence"],
+                "inference_model": existing["inference_model"]
+                if "inference_model" in existing.keys()
+                else None,
+                "source_detail": json.loads(existing["source_detail"])
+                if existing["source_detail"]
+                else None,
+                "inferred_at": existing["inferred_at"],
+                "updated_at": existing["updated_at"],
+            }
+            after_payload["inferred_at"] = existing["inferred_at"]
+            conn.execute(
+                """
+                UPDATE file_completion_dates
+                SET completion_date = ?, source = ?, confidence = ?, inference_model = ?,
+                    source_detail = ?, updated_at = ?
+                WHERE file_id = ?
+                """,
+                (
+                    completion_date,
+                    source,
+                    confidence,
+                    inference_model,
+                    detail_json,
+                    now,
+                    file_id,
+                ),
+            )
+            conn.commit()
+            after_payload["updated_at"] = now
+            self._log_operation(
+                "set_completion_date",
+                file_id=file_id,
+                before_state=json.dumps(before_payload),
+                after_state=json.dumps(after_payload),
+            )
+        row = conn.execute(
+            "SELECT * FROM file_completion_dates WHERE file_id = ?",
+            (file_id,),
+        ).fetchone()
+        assert row is not None
+        return self._row_to_completion_date_record(row)
+
+    def clear_completion_date(self, file_id: str) -> None:
+        conn = self._get_connection()
+        row = conn.execute(
+            "SELECT * FROM file_completion_dates WHERE file_id = ?",
+            (file_id,),
+        ).fetchone()
+        if row is None:
+            return
+        before_payload = {
+            "file_id": row["file_id"],
+            "completion_date": row["completion_date"],
+            "source": row["source"],
+            "confidence": row["confidence"],
+            "inference_model": row["inference_model"]
+            if "inference_model" in row.keys()
+            else None,
+            "source_detail": json.loads(row["source_detail"])
+            if row["source_detail"]
+            else None,
+            "inferred_at": row["inferred_at"],
+            "updated_at": row["updated_at"],
+        }
+        conn.execute(
+            "DELETE FROM file_completion_dates WHERE file_id = ?",
+            (file_id,),
+        )
+        conn.commit()
+        self._log_operation(
+            "clear_completion_date",
+            file_id=file_id,
+            before_state=json.dumps(before_payload),
+        )
+
+    def infer_completion_date_for_file(
+        self,
+        file_id: str,
+        *,
+        force: bool = False,
+        force_manual: bool = False,
+        methods: frozenset[str] | None = None,
+        work_dir: str | Path | None = None,
+    ) -> CompletionDateRecord | None:
+        """Infer and persist completion_date over the full proposal 17 matrix.
+
+        Priority order when enabled in ``methods``:
+        1. ``handwritten_page1``  – cached page-1/2 agent JSON in work_dir
+        2. ``goodnotes_*``        – GoodNotes timestamps for g_root cohort
+        3. ``filename_term``      – WA/Term/EoY filename heuristics for d_root exam/exercise
+        4. ``drive_modified``     – filesystem mtime for d_root book
+
+        Existing rows:
+        - When no row exists, any successful method may write one.
+        - When a non-manual row exists, ``force=True`` allows overwrite; otherwise keep.
+        - When ``source='manual'``, never overwrite unless ``force_manual=True``.
+        """
+        active = methods if methods is not None else COMPLETION_DATE_SOURCES
+        # Only keep known sources so typos do not silently no-op.
+        active = frozenset(s for s in active if s in COMPLETION_DATE_SOURCES)
+        if not active:
+            return self.get_completion_date(file_id)
+
+        existing = self.get_completion_date(file_id)
+        if existing is not None:
+            if existing.source == "manual" and not force_manual:
+                return existing
+            if existing.source != "manual" and not force:
+                return existing
+
+        pdf = self.get_file(file_id)
+        if pdf is None:
+            raise NotFoundError(f"file not found for completion-date inference: {file_id}")
+
+        path = Path(pdf.path)
+        inventory_root = inventory_root_from_path(str(path))
+
+        # 1. Page-1/2 handwritten / printed date (cached agent JSON).
+        if "handwritten_page1" in active:
+            wd = Path(work_dir) if work_dir is not None else default_page1_work_dir()
+            result = infer_completion_date_for_file_cached_page1(
+                self,
+                file_id,
+                wd,
+                force=force,
+                force_manual=force_manual,
+            )
+            if result is not None:
+                return result
+
+        # 2. GoodNotes timestamps (g_root cohort only).
+        if inventory_root == "g_root" and (
+            "goodnotes_last_modified" in active or "goodnotes_updated_at" in active
+        ):
+            from .completion_date.goodnotes import infer_completion_date_from_goodnotes_match
+
+            match = get_goodnotes_document_match(self, file_id)
+            if isinstance(match, GoodnotesDocumentMatch):
+                inf = infer_completion_date_from_goodnotes_match(match)
+                if inf is not None and inf.source in active:
+                    return self.set_completion_date(
+                        file_id,
+                        inf.completion_date,
+                        source=inf.source,
+                        confidence=inf.confidence,
+                        inference_model=None,
+                        source_detail=inf.source_detail,
+                    )
+
+        # 3. Filename / title heuristics (d_root exam/exercise).
+        if inventory_root == "d_root" and "filename_term" in active:
+            title = pdf.normal_name or Path(pdf.name).stem
+            inf = infer_completion_date_from_filename_term(
+                title,
+                student_id=pdf.student_id,
+                path=pdf.path,
+                name=pdf.name,
+            )
+            if inf is not None:
+                return self.set_completion_date(
+                    file_id,
+                    inf.completion_date,
+                    source=FILENAME_TERM_SOURCE,
+                    confidence=FILENAME_TERM_CONFIDENCE,
+                    inference_model=None,
+                    source_detail=inf.source_detail,
+                )
+
+        # 4. Drive mtime (d_root books only).
+        if "drive_modified" in active:
+            from .completion_date.drive_modified import (
+                DRIVE_MODIFIED_CONFIDENCE,
+                DRIVE_MODIFIED_SOURCE,
+                infer_completion_date_from_drive_modified,
+            )
+
+            drive_inf = infer_completion_date_from_drive_modified(
+                pdf.path,
+                doc_type=pdf.doc_type,
+                inventory_root=inventory_root,
+            )
+            if drive_inf is not None:
+                return self.set_completion_date(
+                    file_id,
+                    drive_inf.completion_date,
+                    source=DRIVE_MODIFIED_SOURCE,
+                    confidence=DRIVE_MODIFIED_CONFIDENCE,
+                    inference_model=None,
+                    source_detail=drive_inf.source_detail,
+                )
+
+        # No method produced a date; leave registry unchanged.
+        return None
+
+    def infer_completion_dates(
+        self,
+        *,
+        file_ids: list[str] | None = None,
+        student_id: str | None = None,
+        root: str | None = None,
+        doc_types: list[str] | None = None,
+        methods: frozenset[str] | None = None,
+        work_dir: str | Path | None = None,
+        dry_run: bool = False,
+        force: bool = False,
+        force_manual: bool = False,
+    ) -> InferCompletionDatesReport:
+        """Batch completion-date inference over a selected cohort.
+
+        Cohort selection:
+        - When ``file_ids`` is provided, operate on that explicit list.
+        - Otherwise, select main, non-template files via filters on ``student_id``,
+          ``root`` (d_root / g_root / None), and ``doc_types``.
+
+        Delegates per-file work to ``infer_completion_date_for_file`` and accumulates
+        counts in an ``InferCompletionDatesReport``. When ``dry_run=True``, this still
+        walks the cohort but does **not** write any rows.
+        """
+        report = InferCompletionDatesReport()
+        active = methods if methods is not None else COMPLETION_DATE_SOURCES
+        active = frozenset(s for s in active if s in COMPLETION_DATE_SOURCES)
+
+        candidates: list[PdfFile] = []
+        if file_ids:
+            for fid in file_ids:
+                pdf = self.get_file(fid)
+                if pdf is None:
+                    continue
+                if pdf.file_type != "main" or pdf.is_template:
+                    continue
+                candidates.append(pdf)
+        else:
+            query_kwargs: dict[str, object] = {
+                "file_type": "main",
+                "is_template": False,
+            }
+            if student_id is not None:
+                query_kwargs["student_id"] = student_id
+            if doc_types is not None:
+                query_kwargs["doc_type"] = doc_types
+            results = self.find_files(**query_kwargs)
+            for pdf in results:
+                inv_root = inventory_root_from_path(pdf.path)
+                if root is not None and inv_root != root:
+                    continue
+                candidates.append(pdf)
+
+        if not candidates or not active:
+            return report
+
+        for pdf in candidates:
+            report = merge_infer_completion_dates_report(
+                report, processed=report.processed + 1
+            )
+            existing = self.get_completion_date(pdf.id)
+            if existing is not None:
+                if existing.source == "manual" and not force_manual:
+                    report = merge_infer_completion_dates_report(
+                        report, skipped_manual=report.skipped_manual + 1
+                    )
+                    continue
+                if existing.source != "manual" and not force:
+                    report = merge_infer_completion_dates_report(
+                        report, skipped_existing=report.skipped_existing + 1
+                    )
+                    continue
+
+            if dry_run:
+                if existing is None:
+                    report = merge_infer_completion_dates_report(
+                        report, still_undated=report.still_undated + 1
+                    )
+                continue
+
+            try:
+                result = self.infer_completion_date_for_file(
+                    pdf.id,
+                    force=force,
+                    force_manual=force_manual,
+                    methods=active,
+                    work_dir=work_dir,
+                )
+            except Exception:
+                logger.exception("completion-date inference failed for %s", pdf.id)
+                report = merge_infer_completion_dates_report(
+                    report, failed=report.failed + 1
+                )
+                continue
+
+            if result is None:
+                if self.get_completion_date(pdf.id) is None:
+                    report = merge_infer_completion_dates_report(
+                        report, still_undated=report.still_undated + 1
+                    )
+                else:
+                    report = merge_infer_completion_dates_report(
+                        report, written=report.written + 1
+                    )
+            else:
+                report = merge_infer_completion_dates_report(
+                    report, written=report.written + 1
+                )
+
+        return report
 
     def import_book_answer_mappings_from_json(
         self,

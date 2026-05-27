@@ -34,6 +34,7 @@ Tests are defined at the **utility level**: one test suite for the pdf_file_mana
 | **3. Read / update / delete** | `get_file`, `find_files` (each filter); `update_metadata` (merge behaviour, validation); `rename_file` / `move_file` (disk + DB); `delete_file` (with/without `keep_related`); `open_file` (path exists vs missing). |
 | **4. Relations & groups** | `link_files` / `unlink_files`, `get_related_files`; `link_to_template` / `unlink_template` (including validation), `get_template` / `get_completions`; file group CRUD, book answer mappings, and `suggest_groups` (with fixture data). |
 | **5. Audit** | `get_operation_log` (filters, `log_id`) and operation-log integrity checks across representative manager workflows. |
+| **Completion dates (proposal 17)** | `get_completion_date` / `set_completion_date` / `clear_completion_date`; school-year guards; page-1 apply; filename term, Goodnotes, drive mtime resolvers; provenance columns. See [§ Completion dates](#completion-dates-proposal-17). |
 
 Prefer adding tests in the same phase as the feature (or immediately after) so each phase is verifiable before moving on.
 
@@ -45,10 +46,11 @@ These tests give confidence that Phase 1 (Foundation) is complete. All use a **t
 
 | # | Test | What it proves |
 |---|------|----------------|
-| **1** | **Schema exists after init** | Create `PdfFileManager(db_path=<temp path>)`. Query SQLite: `SELECT name FROM sqlite_master WHERE type='table' ORDER BY name`. Assert the list equals `['book_answer_mappings', 'file_group_members', 'file_groups', 'file_relations', 'operation_log', 'pdf_files', 'scan_roots', 'students']` (or equivalent for your schema). Proves: DB file is created and all core tables exist. |
+| **1** | **Schema exists after init** | Create `PdfFileManager(db_path=<temp path>)`. Query SQLite: `SELECT name FROM sqlite_master WHERE type='table' ORDER BY name`. Assert the list equals `['book_answer_mappings', 'file_completion_dates', 'file_group_members', 'file_groups', 'file_relations', 'operation_log', 'pdf_files', 'scan_roots', 'students']` (or equivalent for your schema). Proves: DB file is created and all core tables exist. |
 | **2** | **Schema shape (operation_log)** | Using the same DB, `PRAGMA table_info(operation_log)`. Assert columns include `id`, `operation`, `file_id`, `group_id`, `performed_at`, `performed_by`, `before_state`, `after_state`, `notes`. Proves: operation log table is fit for use. |
 | **3** | **Schema shape (pdf_files)** | `PRAGMA table_info(pdf_files)`. Assert columns include `id`, `path`, `file_type`, `doc_type`, `student_id`, `subject`, `is_template`, `metadata`, `has_raw`, etc. Proves: core file table matches spec. |
 | **3b** | **Schema shape (book_answer_mappings)** | `PRAGMA table_info(book_answer_mappings)`. Assert columns include `unit_file_id`, `answer_file_id`, `answer_page_start`, `answer_page_end`, `starts_mid_page`, `ends_mid_page`, `source`, `notes`, `created_at`, `updated_at`. Proves: the dedicated mapping relation exists and matches spec. |
+| **3c** | **Schema shape (file_completion_dates)** | `PRAGMA table_info(file_completion_dates)`. Assert columns include `file_id`, `completion_date`, `source`, `confidence`, `inference_model`, `source_detail`, `inferred_at`, `updated_at`. Proves: completion-date table matches [proposal 17](./docs/proposals/17-completion-date.md). |
 | **4** | **Custom DB path** | Create `PdfFileManager(db_path=<path_to_new_file>)`. Assert the file exists at that path and contains the tables (e.g. same as test 1). Proves: manager uses the given path and creates schema. |
 | **5** | **Default DB path** | Create `PdfFileManager()` (no args). Assert a DB is created at the default location (e.g. from env or repo-relative `ai_study_buddy/db/pdf_registry.db`). Proves: default config works. |
 | **6** | **Operation log write** | Call the code path that writes to `operation_log` (e.g. an internal `_log_operation(operation='test', ...)` or the same helper that future C/U/D will use). Then run `SELECT operation, file_id, performed_at FROM operation_log`. Assert one row with the expected `operation`. Proves: every future C/U/D can record history. |
@@ -258,6 +260,25 @@ These tests give confidence that Phase 5 (Audit) is complete. Use a **temporary*
 | **5.6** | **get_operation_log since filter** | Perform two operations; note time in between or use a past `since`. Assert entries after `since` are included (or all if since is old). Proves: since filter. |
 
 **Passing all Phase 5 tests** (5.1–5.6) means: `get_operation_log` supports all filters and log_id, and audit behavior is verified through manager-level workflows. Phase 5 is then safe to call done.
+
+---
+
+## Completion dates (proposal 17)
+
+Tests live under `tests/test_completion_date*.py` and `tests/test_completion_dates.py`. They cover schema shape, CRUD on `file_completion_dates`, page-1 render/apply (no vision API imports), school-year guards and year adjustment, filename-term calendar lookup, Goodnotes timestamp mapping, drive mtime, and provenance columns.
+
+| Module | What it proves |
+|--------|----------------|
+| `test_schema.py` (`test_schema_shape_file_completion_dates`) | Table columns on fresh DB |
+| `test_completion_dates.py` | `get` / `set` / `clear`; operation log; FK cascade on file delete |
+| `test_completion_date_page1.py` | PNG render, manifest load, apply agent JSON → row; null → no row |
+| `test_completion_date_school_year.py` | `check_completion_date_school_year`; `adjust_page1_completion_year_for_path_context` |
+| `test_completion_date_filename_term.py` | WA/Term/EoY keywords → calendar date; generic title → no row |
+| `test_completion_date_goodnotes.py` | Matched Goodnotes doc → row; `not_found` / `ambiguous` → no row; `last_modified` preferred |
+| `test_completion_date_drive_modified.py` | d_root book `st_mtime` → SGT date row |
+| `test_completion_date_provenance.py` | `inference_model`, `source_detail`, confidence rules |
+
+**Out of scope for automated tests:** Cursor agent visual inspection (manual / agent spec smoke per proposal 17).
 
 ---
 

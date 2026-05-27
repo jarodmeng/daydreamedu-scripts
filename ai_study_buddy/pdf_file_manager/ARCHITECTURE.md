@@ -175,6 +175,22 @@ CREATE TABLE book_answer_mappings (
     CHECK(answer_page_start <= answer_page_end)
 );
 
+-- Per-completion calendar date (proposal 17); keyed by registered main file_id
+CREATE TABLE file_completion_dates (
+    file_id          TEXT PRIMARY KEY
+                     REFERENCES pdf_files(id) ON DELETE CASCADE,
+    completion_date  TEXT NOT NULL,             -- YYYY-MM-DD, SGT calendar day
+    source           TEXT NOT NULL,             -- handwritten_page1 | filename_term | drive_modified | goodnotes_* | manual
+    confidence       TEXT,                      -- high | medium | low; NULL for manual
+    inference_model  TEXT,                      -- model slug for handwritten_page1
+    source_detail    TEXT,                      -- JSON evidence / disambiguation
+    inferred_at      TEXT NOT NULL,
+    updated_at       TEXT NOT NULL
+);
+
+CREATE INDEX idx_file_completion_dates_completion_date
+    ON file_completion_dates (completion_date);
+
 -- Append-only audit log: every state-mutating operation (C/U/D). Never deleted.
 -- file_id and group_id are plain TEXT with no FK constraints so entries survive
 -- after the referenced rows are deleted.
@@ -230,6 +246,16 @@ This relation is intentionally separate from:
 - `file_relations`, which express simpler pairwise links such as raw↔main and template↔completion
 
 History is represented in `operation_log`, not in versioned rows inside `book_answer_mappings`.
+
+### Completion dates
+
+`file_completion_dates` stores an optional **student work date** per registered completion main — distinct from `pdf_files.added_at` (first registry registration time).
+
+- One row per `file_id` (`PRIMARY KEY` on `pdf_files.id`, `ON DELETE CASCADE`).
+- `completion_date` is a calendar day (`YYYY-MM-DD`) in **Asia/Singapore** semantics.
+- `source` records how the date was inferred (`handwritten_page1`, `filename_term`, `goodnotes_last_modified`, `drive_modified`, `manual`, …) or an explicit operator override.
+- **No row** when inference fails; inventory UIs must not substitute `added_at` as `completion_date`.
+- Inference modules live under [`completion_date/`](./completion_date/); read/write via `PdfFileManager.get_completion_date` / `set_completion_date` / `clear_completion_date`. Design: [proposal 17](./docs/proposals/17-completion-date.md).
 
 **Raw/main invariant metadata:** A linked raw/main pair represents one logical document in two file forms. The following fields are treated as document-level and should normally match across the pair:
 
@@ -404,6 +430,18 @@ The pipeline queries the file manager to determine:
 - `get_file_group_membership(file_id)` → find the exam group, set `exam_id` on all resulting `documents` rows
 
 Only `main` files are ingested. The pipeline never processes `raw` archives.
+
+---
+
+## Integration with Goodnotes metadata
+
+Registered mains under `GOODNOTES_ROOT` can be matched to local Goodnotes macOS metadata DB rows via `get_goodnotes_document_timestamps_for_file` / `get_goodnotes_document_timestamps_for_path` ([`goodnotes_metadata.py`](./goodnotes_metadata.py)). This is read-only lookup for timestamps and document identity — not registry mutation. Used by completion-date inference (`goodnotes_last_modified`) and operator diagnostics. Design: [proposal 16](./docs/proposals/16-goodnotes-document-timestamps.md).
+
+---
+
+## Integration with completion dates
+
+Completion-date inference is **separate from scan/register**: operators use [`scripts/infer_completion_dates.py`](./scripts/infer_completion_dates.py) (full §4 matrix), legacy `scripts/apply_completion_date_*.py` for reproducible backfill, or `set_completion_date(..., source='manual')`. The [`files`](../files/) inventory package joins `file_completion_dates` when building `OnDiskMainPdfCard` (`completion_date`, `completion_date_source`); Student File Browser and Buddy Console show **Completed** vs **Registered** separately and sort **Completed (recent)** by `completion_date` desc. Design: [proposal 17](./docs/proposals/17-completion-date.md).
 
 ---
 

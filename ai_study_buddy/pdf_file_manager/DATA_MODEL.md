@@ -180,3 +180,36 @@ class GoodnotesDocumentMatch:
 This value is computed at runtime and is **not** stored as a DB column.
 
 `GoodnotesDocumentMatch` / `GoodnotesDocumentTimestamps` are read-only projections from local Goodnotes metadata for registered `GOODNOTES_ROOT` mains. Status semantics are specified in [SPEC.md § Goodnotes document timestamps](./SPEC.md#goodnotes-document-timestamps-v0321).
+
+## Completion dates (`file_completion_dates`)
+
+One optional row per registered **completion main** (`file_type='main'`, student-scoped completion path, not a template). Stores **when the student did the work** (SGT calendar day), not when the file was scanned into the registry.
+
+| Column | Type | Meaning |
+|--------|------|---------|
+| `file_id` | PK, FK → `pdf_files.id` | Completion main |
+| `completion_date` | `TEXT` `YYYY-MM-DD` | Calendar date in **Asia/Singapore** |
+| `source` | `TEXT` | Inference method or `manual` |
+| `confidence` | `TEXT` nullable | `high` / `medium` / `low`; required for non-manual sources |
+| `inference_model` | `TEXT` nullable | Model slug for `handwritten_page1`; `null` for `manual` |
+| `source_detail` | `JSON` nullable | Evidence, `page_index`, disambiguation, `year_adjustment`, term calendar ids, … |
+| `inferred_at`, `updated_at` | UTC ISO | Audit timestamps |
+
+**Not stored here:** `pdf_files.added_at` remains registration time only. Inventory UIs show both via `registry_added_at` and `completion_date` ([proposal 17](./docs/proposals/17-completion-date.md) §5.4).
+
+```python
+@dataclass(frozen=True)
+class CompletionDateRecord:
+    file_id: str
+    completion_date: str          # YYYY-MM-DD
+    source: str
+    confidence: str | None
+    inference_model: str | None
+    source_detail: dict | None
+    inferred_at: str
+    updated_at: str
+```
+
+**P1 anchors** (school year from path `Pn`): `winston` → 2021, `emma` → 2023, `abigail` → 2025 in `completion_date/core.py` (`expected_school_year = p1_year + (n - 1)`).
+
+**Term table:** [`completion_date/data/school_term_calendar.json`](./completion_date/data/school_term_calendar.json) — see [`completion_date/data/README.md`](./completion_date/data/README.md).

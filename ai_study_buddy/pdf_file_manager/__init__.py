@@ -6,6 +6,7 @@ or:
     from ai_study_buddy.pdf_file_manager import PdfFileManager
 """
 
+from .completion_date.core import CompletionDateRecord, InferCompletionDatesReport
 from .pdf_file_manager import (
     AlreadyRegisteredError,
     BookAnswerMapping,
@@ -31,6 +32,7 @@ from .goodnotes_metadata import GoodnotesDocumentMatch, GoodnotesDocumentTimesta
 __all__ = [
     "AlreadyRegisteredError",
     "BookAnswerMapping",
+    "CompletionDateRecord",
     "CompressResult",
     "ConfigError",
     "CoverageReport",
@@ -40,6 +42,7 @@ __all__ = [
     "GoodNotesTemplateLinkOutcome",
     "GoodnotesDocumentMatch",
     "GoodnotesDocumentTimestamps",
+    "InferCompletionDatesReport",
     "InvalidMetadataError",
     "NotFoundError",
     "OperationRecord",

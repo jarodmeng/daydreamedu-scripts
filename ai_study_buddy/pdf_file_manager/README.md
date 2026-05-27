@@ -1,8 +1,8 @@
 # pdf_file_manager
 
-**Version: v0.3.21**
+**Version: v0.3.31**
 
-A local utility that keeps a SQLite registry of PDF files in the study archive. It tracks exams, exercises, books, activities, notes, and templates (with optional completed variants), keeps on-disk paths and database records in sync, and supports first-class book unit → answer-page mappings inside `group_type='book'` collections. You can scan one or more folders for new PDFs, optionally compress and archive originals, classify documents by type and metadata, group multi-file documents (e.g. exam booklets or book folders), link completions to templates, and query or import validated book-answer coverage. Every state-mutating operation is recorded in an append-only operation log.
+A local utility that keeps a SQLite registry of PDF files in the study archive. It tracks exams, exercises, books, activities, notes, and templates (with optional completed variants), keeps on-disk paths and database records in sync, and supports first-class book unit → answer-page mappings inside `group_type='book'` collections. Optional **completion dates** record when student work was done (separate from registry registration time). You can scan one or more folders for new PDFs, optionally compress and archive originals, classify documents by type and metadata, group multi-file documents (e.g. exam booklets or book folders), link completions to templates, and query or import validated book-answer coverage. Every state-mutating operation is recorded in an append-only operation log.
 
 **Typical workflow:** Add scan roots (e.g. Google Drive folders) and students → run **scan** on the exact folder you want to ingest → **classify** with `doc_type`, `subject`, and metadata → use **suggest-groups** for exams, or let scan infer/group `.../Book/<book name>/...` folders as books, then link templates as needed. For books, grouped members are canonical general-scope templates; student mirror files are represented via template links, not duplicate group members. Only main files are ingested by the pipeline; raw archives are kept for traceability.
 
@@ -62,6 +62,20 @@ The full implemented surface lives in [`pdf_file_manager.py`](./pdf_file_manager
 **Completion series (v0.3.19+):** derived ordering of distinct completion `file_id`s per `(student_id, template_file_id)` — no new SQLite tables. Module [`completion_series.py`](./completion_series.py); methods `get_completion_series`, `get_completion_series_for_file`, `get_completion_series_member`, `completion_series_id`, `next_attempt_sequence_for_completion`. Group id `"<student_slug>::<template_file_id>"` matches marking `template_attempt_group_id`. Order: `pdf_files.added_at` ASC, then resolved path. Used by marking writer, `files` inventory enrichment, and Student File Browser attempt chip. Design: [proposal 15](./docs/proposals/15-completion-series-derived.md), [L4 completion framework](../docs/L4_COMPLETION_MARKING_FRAMEWORK.md#completion-series-registry-derived).
 
 **Goodnotes document timestamps (v0.3.21+):** read-only lookup from the local macOS Goodnotes metadata DBs for registered `GOODNOTES_ROOT` mains. Methods `get_goodnotes_document_timestamps_for_file(file_id)` and `get_goodnotes_document_timestamps_for_path(path)` return `GoodnotesDocumentMatch`, including match status, Goodnotes document id/name, Goodnotes app-folder path, and `created_at` / `updated_at` / `last_modified` timestamps. Matching supports exact backup stem, one leading underscore restored (`c_foo.pdf` -> `_c_foo`), and deterministic raw-source fallback for compressed `_c_` mains. Design: [proposal 16](./docs/proposals/16-goodnotes-document-timestamps.md), [L4 Goodnotes files](../docs/L4_FILE_FRAMEWORK.md#goodnotes-files).
+
+**Completion dates (v0.3.22+):** optional per-file **when the student finished the work**, in table `file_completion_dates` — separate from `pdf_files.added_at` (registry scan time). Read/write via `get_completion_date`, `set_completion_date`, `clear_completion_date`; unified inference via `infer_completion_date_for_file` / `infer_completion_dates` and the `scripts/infer_completion_dates.py` CLI. Inference package: [`completion_date/`](./completion_date/) ([proposal 17](./docs/proposals/17-completion-date.md)).
+
+| Concept | Field / API | Notes |
+|---------|-------------|--------|
+| Student work date | `completion_date` (`YYYY-MM-DD`, SGT calendar day) | Nullable when unknown |
+| How it was set | `source` | `handwritten_page1`, `filename_term`, `goodnotes_last_modified`, `drive_modified`, `manual`, … |
+| Registry scan time | `PdfFile.added_at` | **Not** a substitute for `completion_date` |
+
+**Worked example (page-1):** [Primary 5 English Practice 1](./docs/proposals/17-completion-date.md#worked-example-primary-5-english-practice-1-d_root-exercise) — `Date:` line vs registration time.
+
+**Term calendar file:** [`completion_date/data/school_term_calendar.json`](./completion_date/data/school_term_calendar.json) — maintenance: [`completion_date/data/README.md`](./completion_date/data/README.md).
+
+**Inventory consumers:** [`files` v0.3.6+](../files/README.md) exposes `completion_date` on `OnDiskMainPdfCard`; [Student File Browser](../student_file_browser/README.md) and [Buddy Console](../buddy_console/README.md) show **Completed** vs **Registered** separately.
 
 ### Import and invocation
 
