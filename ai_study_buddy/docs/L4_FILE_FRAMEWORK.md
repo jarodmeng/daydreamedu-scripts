@@ -137,8 +137,9 @@ Suite checks:
 3. Completion-template link gap check (default excludes `activity`/`note`)
 4. Registry integrity audit (`validate_pdf_registry_integrity`)
 5. Marking context DB drift (`study_buddy.db` vs `context/` for marking artifact/result and marking-asset paths)
+6. Marking cardinality integrity (template/completion uniqueness constraints)
 
-Overall pass requires all five checks to pass.
+Overall pass requires all six checks to pass.
 
 ### Unregistered on-disk files (leaf folders vs registry)
 
@@ -240,6 +241,37 @@ Useful command variants:
 Related Cursor command:
 
 - `.cursor/commands/marking-context-db-drift-report.md`
+
+### Marking cardinality integrity report (template/completion uniqueness)
+
+Use this check to enforce the two uniqueness/cardinality contracts:
+
+1. each template file has at most one `file_question_info` folder/run and corresponding DB entry;
+2. each completion file has at most one run per marking family (`marking_results`, `marking_assets`, `learning_reports`, `marking_amendments`, `student_review_states`) and corresponding DB entries.
+
+Script:
+
+- `python3 -m ai_study_buddy.learning_db.cli.marking_cardinality_integrity_report`
+
+Useful command variants:
+
+- human-readable:
+  - `python3 -m ai_study_buddy.learning_db.cli.marking_cardinality_integrity_report --registry-db-path ai_study_buddy/db/pdf_registry.db --study-db-path ai_study_buddy/db/study_buddy.db --context-root ai_study_buddy/context`
+- machine-readable:
+  - `python3 -m ai_study_buddy.learning_db.cli.marking_cardinality_integrity_report --registry-db-path ai_study_buddy/db/pdf_registry.db --study-db-path ai_study_buddy/db/study_buddy.db --context-root ai_study_buddy/context --json`
+- preflight fail mode:
+  - `python3 -m ai_study_buddy.learning_db.cli.marking_cardinality_integrity_report --registry-db-path ai_study_buddy/db/pdf_registry.db --study-db-path ai_study_buddy/db/study_buddy.db --context-root ai_study_buddy/context --fail-on-any`
+
+Pass criteria:
+
+- `template_file_question_info_db_cardinality = 0`
+- `template_file_question_info_disk_cardinality = 0`
+- `completion_marking_family_db_cardinality = 0`
+- `completion_marking_family_disk_cardinality = 0`
+
+Related Cursor command:
+
+- `.cursor/commands/marking-cardinality-integrity-report.md`
 
 ## File utilities
 

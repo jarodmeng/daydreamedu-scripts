@@ -4,6 +4,18 @@ All notable changes to the pdf_file_manager utility are documented here.
 
 ---
 
+## [v0.3.34] — Integrity suite: marking cardinality check
+
+- `scripts/file_framework_integrity_suite.py` now includes a sixth check:
+  - `marking_cardinality_integrity` (template/completion uniqueness constraints).
+- New suite-integrated pass criteria:
+  - template `file_question_info` DB/disk cardinality checks must be zero
+  - completion marking-family DB/disk cardinality checks must be zero
+- Added operator command docs for this integrity check path:
+  - `.cursor/commands/marking-cardinality-integrity-report.md`
+  - updated `.cursor/commands/file-framework-integrity-suite.md` for six-check contract.
+- Updated L4 framework docs to include the new cardinality integrity check in the integrity section and overall suite contract.
+
 ## [v0.3.33] — Rename guardrail for context + learning DB path remap
 
 - Added `scripts/rename_file_with_context_guardrail.py`:

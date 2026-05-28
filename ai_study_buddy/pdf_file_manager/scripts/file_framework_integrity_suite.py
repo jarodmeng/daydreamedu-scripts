@@ -7,6 +7,7 @@ Checks included:
 3. Completion-template link gaps (default excludes activity/note)
 4. Registry integrity audit
 5. Marking context DB drift (on-disk vs study_buddy.db)
+6. Marking cardinality integrity (template/completion uniqueness)
 
 Exit codes:
 - 0: all checks pass
@@ -33,6 +34,9 @@ from ai_study_buddy.files.pdf_registry_paths import (
 from ai_study_buddy.files.roots import resolve_daydreamedu_root, resolve_goodnotes_root
 from ai_study_buddy.learning_db.cli.context_db_drift_report import (
     build_report as build_context_db_drift_report,
+)
+from ai_study_buddy.learning_db.cli.marking_cardinality_integrity_report import (
+    build_report as build_marking_cardinality_report,
 )
 from ai_study_buddy.pdf_file_manager import PdfFileManager
 from ai_study_buddy.pdf_file_manager.scripts.completion_template_link_gap_report import (
@@ -144,6 +148,28 @@ def build_suite_report(*, db_path: Path, include_activity_note: bool) -> dict[st
         context_db_drift_pass = False
         context_db_drift_reason = f"drift_report_error:{type(exc).__name__}"
 
+    try:
+        marking_cardinality = build_marking_cardinality_report(
+            pdf_registry_db=db_path.resolve(),
+            study_buddy_db=(db_path.parent / "study_buddy.db").resolve(),
+            context_root=Path("ai_study_buddy/context").resolve(),
+            sample_limit=10,
+        )
+        marking_cardinality_pass = marking_cardinality["total_issues"] == 0
+        marking_cardinality_reason = (
+            "ok" if marking_cardinality_pass else "template_or_completion_cardinality_violations_present"
+        )
+    except Exception as exc:
+        marking_cardinality = {
+            "pdf_registry_db": str(db_path.resolve()),
+            "study_buddy_db": str((db_path.parent / "study_buddy.db").resolve()),
+            "context_root": str(Path("ai_study_buddy/context").resolve()),
+            "counts": {},
+            "samples": {},
+        }
+        marking_cardinality_pass = False
+        marking_cardinality_reason = f"cardinality_report_error:{type(exc).__name__}"
+
     checks = {
         "daydreamedu_leaf_registry": daydreamedu_leaf,
         "goodnotes_leaf_registry": goodnotes_leaf,
@@ -177,6 +203,15 @@ def build_suite_report(*, db_path: Path, include_activity_note: bool) -> dict[st
                 ),
             },
         },
+        "marking_cardinality_integrity": {
+            "status": "pass" if marking_cardinality_pass else "fail",
+            "reason": marking_cardinality_reason,
+            "pdf_registry_db": marking_cardinality["pdf_registry_db"],
+            "study_buddy_db": marking_cardinality["study_buddy_db"],
+            "context_root": marking_cardinality["context_root"],
+            "counts": marking_cardinality["counts"],
+            "samples": marking_cardinality["samples"],
+        },
     }
 
     overall_pass = all(c["status"] == "pass" for c in checks.values())
@@ -198,6 +233,7 @@ def _print_human(report: dict[str, Any]) -> None:
         "completion_template_link_gap",
         "registry_integrity_audit",
         "marking_context_db_drift",
+        "marking_cardinality_integrity",
     ):
         check = report["checks"][key]
         print(f"- {key}: {check['status'].upper()} ({check['reason']})")
@@ -231,6 +267,15 @@ def _print_human(report: dict[str, Any]) -> None:
                 "  "
                 f"marking_artifacts_missing_artifact_path={counts.get('marking_artifacts_missing_artifact_path', 0)}, "
                 f"marking_artifacts_missing_marking_asset={counts.get('marking_artifacts_missing_marking_asset', 0)}"
+            )
+        if key == "marking_cardinality_integrity":
+            counts = check["counts"]
+            print(
+                "  "
+                f"template_file_question_info_db_cardinality={counts.get('template_file_question_info_db_cardinality', 0)}, "
+                f"template_file_question_info_disk_cardinality={counts.get('template_file_question_info_disk_cardinality', 0)}, "
+                f"completion_marking_family_db_cardinality={counts.get('completion_marking_family_db_cardinality', 0)}, "
+                f"completion_marking_family_disk_cardinality={counts.get('completion_marking_family_disk_cardinality', 0)}"
             )
         print()
 

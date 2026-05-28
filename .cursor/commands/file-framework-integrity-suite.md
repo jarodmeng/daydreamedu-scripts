@@ -11,6 +11,7 @@ This suite reports one **overall PASS/FAIL** by running:
 3. Completion-template link gap check (default excludes `activity`/`note`)
 4. Registry integrity audit
 5. Marking context DB drift (`marking_results`/`marking_assets` path coupling)
+6. Marking cardinality integrity (template/completion uniqueness)
 
 ## Rules
 
@@ -59,4 +60,9 @@ python3 -m ai_study_buddy.pdf_file_manager.scripts.file_framework_integrity_suit
 - Marking context DB drift check passes when:
   - `marking_artifacts_missing_artifact_path = 0`
   - `marking_artifacts_missing_marking_asset = 0`
-- Overall suite passes only when all five checks pass.
+- Marking cardinality integrity check passes when:
+  - `template_file_question_info_db_cardinality = 0`
+  - `template_file_question_info_disk_cardinality = 0`
+  - `completion_marking_family_db_cardinality = 0`
+  - `completion_marking_family_disk_cardinality = 0`
+- Overall suite passes only when all six checks pass.
