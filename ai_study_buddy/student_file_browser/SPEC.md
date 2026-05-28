@@ -5,7 +5,7 @@
 | Path | Method | Description |
 |------|--------|-------------|
 | `/` | GET | Static UI |
-| `/api/health` | GET | `{ status, index_count, files_version }` |
+| `/api/health` | GET | `{ status, index_count, files_version }` (`files_version` = `ai_study_buddy.files.__version__`) |
 | `/api/config` | GET | Roots, students, filter options; accepts same query params as inventory for contextual `show_is_registered_filter` |
 | `/api/inventory` | GET | Filtered cards; query params below |
 | `/api/pdf` | GET, HEAD | `id` + `rel` under root; leaf-folder guard |

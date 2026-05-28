@@ -2,6 +2,12 @@
 
 All notable changes to `ai_study_buddy/buddy_console` are documented here.
 
+## [v0.1.4] - Runtime files version from package (2026-05-28)
+
+### Changed
+
+1. Inventory `files_version` on `/api/inventory/health` is `ai_study_buddy.files.__version__` (no local duplicate constant).
+
 ## [v0.1.3] - Unified recency sort (2026-05-28)
 
 ### Changed

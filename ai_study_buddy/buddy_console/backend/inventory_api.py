@@ -11,6 +11,7 @@ from urllib.parse import quote
 from fastapi import APIRouter, HTTPException, Request, Response
 
 from ai_study_buddy.files import (
+    __version__ as FILES_VERSION,
     build_enriched_inventory,
     build_main_pdf_index_for_roots,
     filter_main_pdf_cards,
@@ -31,7 +32,6 @@ from ai_study_buddy.student_file_browser.path_guard import safe_resolve_under_ro
 
 router = APIRouter()
 
-FILES_VERSION = "0.3.7"
 DEFAULT_CONTEXT_ROOT = Path(__file__).resolve().parents[2] / "context"
 INDEX_WARN_THRESHOLD = 2000
 

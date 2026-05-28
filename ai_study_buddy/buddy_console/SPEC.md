@@ -91,7 +91,7 @@ Response includes:
 4. `meta.index_size_warning`
 5. inventory filter visibility metadata
 
-Inventory uses `files` **v0.3.7** (`files_version` on config/health). Sort `recent` = **Completed (recent)** with unified recency ordering (`completion_date` first, fallback to `registry_added_at`, newest first across both; unregistered remain last) ([proposal 17 §5.4](../pdf_file_manager/docs/proposals/17-completion-date.md#54-consumers-when-no-row-exists)).
+Inventory uses `files` **v0.3.8+**; `files_version` on inventory health is `ai_study_buddy.files.__version__` at runtime. Sort `recent` = **Completed (recent)** with unified recency ordering (`completion_date` first, fallback to `registry_added_at`, newest first across both; unregistered remain last) ([proposal 17 §5.4](../pdf_file_manager/docs/proposals/17-completion-date.md#54-consumers-when-no-row-exists)).
 
 ### `GET /api/pdf-browser/config`
 

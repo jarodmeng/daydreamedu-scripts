@@ -4,6 +4,11 @@ All notable changes to the **`ai_study_buddy.files`** package are documented her
 
 ---
 
+## [v0.3.8] — Package `__version__`
+
+- **`__version__`:** single runtime version string on `ai_study_buddy.files` (importable; listed in `__all__`).
+- Consumers: `student_file_browser` v0.1.9, `buddy_console` v0.1.4 — inventory health/config `files_version` reads `files.__version__` directly (no duplicated `FILES_VERSION` constant).
+
 ## [v0.3.7] — Unified recency sort fallback
 
 - **`sort_main_pdf_cards` (`recent`):** single recency key per card — `completion_date` when set, else `registry_added_at`; newest first across both (interleaved). Unregistered (no recency key) remain last.

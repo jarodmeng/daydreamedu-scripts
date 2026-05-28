@@ -5,6 +5,7 @@ from types import SimpleNamespace
 
 from fastapi.testclient import TestClient
 
+from ai_study_buddy import files
 from ai_study_buddy.buddy_console.backend.app import app
 from ai_study_buddy.buddy_console.backend.inventory_api import InventoryRuntime
 from ai_study_buddy.files.on_disk_inventory import OnDiskMainPdfCard
@@ -50,6 +51,14 @@ def _runtime(tmp_path: Path) -> InventoryRuntime:
         context_root=tmp_path,
         enriched_cache=[_card(leaf / "registered.pdf")],
     )
+
+
+def test_inventory_health_reports_files_package_version(tmp_path: Path) -> None:
+    app.state.inventory_runtime = _runtime(tmp_path)
+    client = TestClient(app)
+    health = client.get("/api/inventory/health")
+    assert health.status_code == 200
+    assert health.json()["files_version"] == files.__version__
 
 
 def test_inventory_config_and_list(monkeypatch, tmp_path: Path) -> None:

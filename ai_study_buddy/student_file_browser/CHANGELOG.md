@@ -1,5 +1,9 @@
 # Changelog — `student_file_browser`
 
+## [v0.1.9] — Runtime files version from package (2026-05-28)
+
+- `/api/health` `files_version` is `ai_study_buddy.files.__version__` (requires `files` v0.3.8+).
+
 ## [v0.1.8] — Unified recency sort (2026-05-28)
 
 - **Completed (recent)** uses `files` v0.3.7 unified recency ordering (`completion_date` with `registry_added_at` fallback, interleaved; unregistered last).

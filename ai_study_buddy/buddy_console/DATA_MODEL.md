@@ -46,7 +46,7 @@ Important `items[]` characteristics:
 1. each item is derived from the enriched main-PDF inventory (`OnDiskMainPdfCard.to_dict()` from `ai_study_buddy.files`)
 2. card content is used to drive inventory filters, PDF links, and review links
 
-Completion vs registration (requires `files` v0.3.6+, `files_version` **0.3.7** on `/api/config` for current sort behavior):
+Completion vs registration (requires `files` v0.3.6+; `files_version` on inventory health is `files.__version__`):
 
 | Field | UI | Meaning |
 |-------|-----|---------|

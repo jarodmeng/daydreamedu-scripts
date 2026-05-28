@@ -2,7 +2,7 @@
 
 This document is the **contract** for the public Python API of `ai_study_buddy.files`. It is registry-agnostic: no SQLite, no `PdfFileManager`, no scan-root configuration.
 
-**Version:** align with [README.md](./README.md) (package **v0.3.7**).
+**Version:** align with [README.md](./README.md) (package **v0.3.8**; runtime: `ai_study_buddy.files.__version__`).
 
 Core leaf listing and root resolution are **registry-agnostic**. Optional correlation with `pdf_file_manager` / `pdf_registry.db` lives in **`pdf_registry_paths.py`** (see §3).
 

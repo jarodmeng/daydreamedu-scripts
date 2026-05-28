@@ -1,5 +1,7 @@
 """Shared filesystem utilities for AI Study Buddy."""
 
+__version__ = "0.3.8"
+
 from .leaf_folders import (
     is_goodnotes_excluded_relative_path,
     list_daydreamedu_leaf_folders_under_root,
@@ -56,6 +58,7 @@ from .pdf_registry_paths import (
 from .roots import resolve_daydreamedu_root, resolve_goodnotes_root
 
 __all__ = [
+    "__version__",
     "resolve_daydreamedu_root",
     "resolve_goodnotes_root",
     "list_leaf_folders_under_root",
