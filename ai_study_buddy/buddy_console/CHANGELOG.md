@@ -2,6 +2,15 @@
 
 All notable changes to `ai_study_buddy/buddy_console` are documented here.
 
+## [v0.1.5] - Manual completion date on inventory cards (2026-05-28)
+
+### Added
+
+1. `PATCH /api/inventory/items/{registry_file_id}/completion-date` — set/overwrite **Completed** via `PdfFileManager.set_completion_date` (`source=manual`, `source_detail.set_via=buddy_console`, audit `previous_*` on overwrite).
+2. Inventory card date editor (registered completions only): date input + **Save**; confirm when replacing a non-manual inferred date; refetch inventory after success.
+
+See [proposal 1-manual-completion-date-ui.md](./docs/proposal/1-manual-completion-date-ui.md).
+
 ## [v0.1.4] - Runtime files version from package (2026-05-28)
 
 ### Changed

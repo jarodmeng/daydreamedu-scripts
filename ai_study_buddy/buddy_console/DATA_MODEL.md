@@ -54,6 +54,8 @@ Completion vs registration (requires `files` v0.3.6+; `files_version` on invento
 | `completion_date_source` | tooltip | e.g. `handwritten_page1`, `manual`, `goodnotes_last_modified` |
 | `registry_added_at` | **Registered {date}** | `pdf_files.added_at` — scan/registry time only |
 
+**Manual edit (Buddy Console v0.1.5+):** On registered completion cards (`scope=completion`, `registry_file_id` set), operators can PATCH a new `completion_date`. Writes use `source=manual` and `source_detail.set_via=buddy_console`; overwrites of inferred dates require browser confirmation. Audit: `operation_log` (`set_completion_date`) plus `previous_*` keys in `source_detail`. See [proposal 1-manual-completion-date-ui.md](./docs/proposal/1-manual-completion-date-ui.md).
+
 Sort `recent` → **Completed (recent)** with unified recency ordering: primary `completion_date`, fallback `registry_added_at`, newest first across both (interleaved); unregistered remain last. See [proposal 17 §5.4](../pdf_file_manager/docs/proposals/17-completion-date.md#54-consumers-when-no-row-exists).
 
 ## PDF Browser Models

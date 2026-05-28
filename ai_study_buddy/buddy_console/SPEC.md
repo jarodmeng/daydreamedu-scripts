@@ -93,6 +93,34 @@ Response includes:
 
 Inventory uses `files` **v0.3.8+**; `files_version` on inventory health is `ai_study_buddy.files.__version__` at runtime. Sort `recent` = **Completed (recent)** with unified recency ordering (`completion_date` first, fallback to `registry_added_at`, newest first across both; unregistered remain last) ([proposal 17 §5.4](../pdf_file_manager/docs/proposals/17-completion-date.md#54-consumers-when-no-row-exists)).
 
+### `PATCH /api/inventory/items/{registry_file_id}/completion-date`
+
+Set or overwrite the completion calendar date for a registered **completion main** (`pdf_files.id`).
+
+Request body:
+
+```json
+{ "completion_date": "2026-03-15" }
+```
+
+Response **200**:
+
+```json
+{
+  "registry_file_id": "<uuid>",
+  "completion_date": "2026-03-15",
+  "completion_date_source": "manual"
+}
+```
+
+Behavior:
+
+1. Persists via `PdfFileManager.set_completion_date(..., source="manual")` with `source_detail.set_via = "buddy_console"` and previous row fields on overwrite.
+2. Clears `InventoryRuntime.enriched_cache` so the next inventory list rebuilds from registry.
+3. Returns **404** when `registry_file_id` is unknown; **400** for ineligible targets (template, raw, missing `student_id`) or invalid date.
+
+The inventory UI refetches `GET /api/inventory` after success (slim PATCH body is not merged into cards alone). See [proposal 1-manual-completion-date-ui.md](./docs/proposal/1-manual-completion-date-ui.md).
+
 ### `GET /api/pdf-browser/config`
 
 Returns available PDF roots.

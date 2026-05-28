@@ -9,6 +9,7 @@ from typing import Any
 from urllib.parse import quote
 
 from fastapi import APIRouter, HTTPException, Request, Response
+from pydantic import BaseModel, Field
 
 from ai_study_buddy.files import (
     __version__ as FILES_VERSION,
@@ -27,6 +28,7 @@ from ai_study_buddy.files.main_pdfs import OnDiskMainPdfRow
 from ai_study_buddy.files.pdf_registry_paths import RegistryPathIndex, is_pdf_registered
 from ai_study_buddy.marking.review.repository import StudentReviewRepository
 from ai_study_buddy.pdf_file_manager import PdfFileManager
+from ai_study_buddy.pdf_file_manager.completion_date import CompletionDateRecord
 from ai_study_buddy.student_file_browser.filters import filter_criteria_from_query
 from ai_study_buddy.student_file_browser.path_guard import safe_resolve_under_root
 
@@ -201,6 +203,23 @@ def _get_runtime(request: Request) -> InventoryRuntime:
     return runtime
 
 
+class CompletionDatePatchBody(BaseModel):
+    completion_date: str = Field(min_length=1)
+
+
+def build_buddy_console_source_detail(
+    existing: CompletionDateRecord | None,
+) -> dict[str, str]:
+    detail: dict[str, str] = {"set_via": "buddy_console"}
+    if existing is None:
+        return detail
+    detail["previous_completion_date"] = existing.completion_date
+    detail["previous_source"] = existing.source
+    if existing.confidence is not None:
+        detail["previous_confidence"] = existing.confidence
+    return detail
+
+
 def _get_enriched_cards(runtime: InventoryRuntime) -> list[Any]:
     if runtime.enriched_cache is not None:
         return runtime.enriched_cache
@@ -274,6 +293,43 @@ def inventory_config(request: Request) -> dict[str, Any]:
         ],
         "students": students,
         **filter_meta,
+    }
+
+
+@router.patch("/api/inventory/items/{registry_file_id}/completion-date")
+def patch_inventory_completion_date(
+    request: Request,
+    registry_file_id: str,
+    body: CompletionDatePatchBody,
+) -> dict[str, str]:
+    runtime = _get_runtime(request)
+    try:
+        pfm = PdfFileManager()
+    except Exception as exc:
+        raise HTTPException(status_code=503, detail="Registry unavailable") from exc
+
+    if pfm.get_file(registry_file_id) is None:
+        raise HTTPException(status_code=404, detail="File not found")
+
+    existing = pfm.get_completion_date(registry_file_id)
+    source_detail = build_buddy_console_source_detail(existing)
+    try:
+        row = pfm.set_completion_date(
+            registry_file_id,
+            body.completion_date,
+            source="manual",
+            confidence=None,
+            inference_model=None,
+            source_detail=source_detail,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    runtime.enriched_cache = None
+    return {
+        "registry_file_id": registry_file_id,
+        "completion_date": row.completion_date,
+        "completion_date_source": row.source,
     }
 
 

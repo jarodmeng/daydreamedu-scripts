@@ -499,7 +499,7 @@ Apply to `normal_name` or basename (strip `_c_` / `_raw_` prefixes). Example pat
 |---------|--------|
 | **`pdf_file_manager`** | Schema, read/write API, unified `infer_completion_date*` (v0.3.31), [`scripts/infer_completion_dates.py`](../../scripts/infer_completion_dates.py), `completion_date/data/school_term_calendar.json`, legacy `apply_completion_date_*.py`, tests |
 | **`files`** | `OnDiskMainPdfCard`: nullable `completion_date`, `completion_date_source`; keep `registry_added_at`; extend `sort_main_pdf_cards` **`recent`** per §5.4 |
-| **`student_file_browser` / `buddy_console`** | Card date + tooltip; optional sort label “Completed (recent)” |
+| **`student_file_browser` / `buddy_console`** | Card date + tooltip; optional sort label “Completed (recent)”; **Buddy Console** manual edit UI — [proposal 1-manual-completion-date-ui](../../../buddy_console/docs/proposal/1-manual-completion-date-ui.md) |
 | **L4 docs** | Cross-link; clarify vs `added_at` and Goodnotes timestamps |
 
 **Sort (normative update to [card sort proposal](../../../student_file_browser/docs/proposal/2-card-sort-order.md)):**

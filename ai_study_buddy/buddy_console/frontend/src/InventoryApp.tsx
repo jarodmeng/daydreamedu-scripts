@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import CompletionDateEditor from "./CompletionDateEditor";
 import { buildPdfHref, buildReviewHref } from "./inventoryLinks";
 
 type StudentOption = {
@@ -400,6 +401,17 @@ export default function InventoryApp() {
     setAppliedState(next);
   }
 
+  const reloadInventory = useCallback(async (): Promise<void> => {
+    const qs = toQueryString(appliedState);
+    const suffix = qs ? `?${qs}` : "";
+    const inventoryRes = await fetch(`/api/inventory${suffix}`);
+    if (!inventoryRes.ok) {
+      throw new Error(`Inventory refresh failed (${inventoryRes.status})`);
+    }
+    const nextInventory = (await inventoryRes.json()) as InventoryResponse;
+    setInventory(nextInventory);
+  }, [appliedState]);
+
   return (
     <div className="inventory-shell inventory-legacy">
       <header className="legacy-header">
@@ -630,6 +642,7 @@ export default function InventoryApp() {
                   Registered {addedLabel}
                 </p>
               ) : null}
+              <CompletionDateEditor item={item} onSaved={reloadInventory} />
               <div className="chips">
                 {item.subject && item.subject !== "unknown" ? <span className="chip">{item.subject}</span> : null}
                 {item.grade_or_scope && item.grade_or_scope !== "unknown" ? (

@@ -205,6 +205,84 @@ body[data-buddy-console-view="inventory"] {
   font-weight: 400;
 }
 
+.inventory-legacy .card-completion-date-edit {
+  margin: 0.1rem 0 0.2rem;
+}
+
+.inventory-legacy .card-completion-date-toggle {
+  background: transparent;
+  border: 0;
+  color: #6b7280;
+  font-size: 0.68rem;
+  line-height: 1.2;
+  padding: 0;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+.inventory-legacy .card-completion-date-toggle:hover {
+  color: #4b5563;
+}
+
+.inventory-legacy .card-completion-date-toggle:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.inventory-legacy .card-completion-date-edit-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.3rem 0.45rem;
+  margin-top: 0.2rem;
+}
+
+.inventory-legacy .card-completion-date-edit-label {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.66rem;
+  color: #6b7280;
+}
+
+.inventory-legacy .card-completion-date-edit-label-text {
+  font-weight: 500;
+}
+
+.inventory-legacy .card-completion-date-edit-label input[type="date"] {
+  font-size: 0.68rem;
+  padding: 0.12rem 0.25rem;
+}
+
+.inventory-legacy .card-completion-date-save {
+  font-size: 0.66rem;
+  line-height: 1.2;
+  padding: 0.12rem 0.35rem;
+  color: #4b5563;
+  background: #f3f4f6;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.inventory-legacy .card-completion-date-save:hover {
+  background: #e5e7eb;
+}
+
+.inventory-legacy .card-completion-date-save:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.inventory-legacy .card-completion-date-error {
+  margin: 0;
+  flex-basis: 100%;
+  font-size: 0.7rem;
+  color: #b42318;
+}
+
 .inventory-legacy .card-title-row .chip {
   flex-shrink: 0;
   font-size: 0.7rem;

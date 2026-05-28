@@ -104,6 +104,13 @@ npm run build
 npm test -- --run
 ```
 
+Backend (completion date PATCH):
+
+```bash
+cd /path/to/daydreamedu-scripts
+python3 -m pytest ai_study_buddy/buddy_console/tests/test_completion_date_patch.py -q
+```
+
 ### Local UI Smoke
 
 Run frontend dev server while backend is running:
@@ -119,6 +126,24 @@ Open `http://localhost:5178` and verify:
 3. `View PDF` opens `/pdf` in a new tab
 4. `Review Workspace` opens `/review` in a new tab
 5. inventory tab remains open and retains filter state
+
+### Manual completion date (v0.1.5+)
+
+On a **registered completion** card (not template):
+
+1. Use **Set completed date** or **Edit completed date** (date input + **Save**).
+2. Pick a date and save — card shows **Completed** with `source: manual` in the tooltip.
+3. Under **Completed (recent)** sort, the card moves to the expected position after save (inventory refetches).
+4. On a completion that already has an inferred date (e.g. `handwritten_page1`), saving a new date shows a **confirm** dialog with old date, source, and new date.
+5. **Registered** line is unchanged after edit.
+
+Optional API check (replace `FILE_ID` with `registry_file_id` from a card):
+
+```bash
+curl -s -X PATCH "http://localhost:8010/api/inventory/items/FILE_ID/completion-date" \
+  -H "Content-Type: application/json" \
+  -d '{"completion_date":"2026-03-15"}'
+```
 
 In the PDF tab verify:
 
