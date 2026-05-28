@@ -2,7 +2,7 @@
 
 SQLite projection layer for AI Study Buddy canonical JSON artifacts under `ai_study_buddy/context/`.
 
-Current version: `0.1.6`
+Current version: `0.1.7`
 
 ## Scope
 

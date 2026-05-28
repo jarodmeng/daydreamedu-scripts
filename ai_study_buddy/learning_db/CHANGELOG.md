@@ -2,6 +2,20 @@
 
 All notable changes to `ai_study_buddy.learning_db` are documented in this file.
 
+## [0.1.7] - 2026-05-28
+
+### Added
+
+- New drift audit CLI: `python3 -m ai_study_buddy.learning_db.cli.context_db_drift_report`
+  - Reports DB↔`context/` path consistency for marking artifacts, review states, amendments, and import identity paths.
+  - Supports human-readable and `--json` output plus `--fail-on-any` for CI/preflight use.
+- New missing-asset triage CLI: `python3 -m ai_study_buddy.learning_db.cli.triage_missing_marking_assets`
+  - Classifies active missing `marking_asset` rows into `probable_rename_drift`, `likely_legacy_or_pruned_assets`, and `hard_inconsistency`.
+
+### Changed
+
+- `context_db_drift_report` now counts `marking_artifacts_missing_marking_asset` against **active rows only** (`is_deleted=0`) to avoid deleted-row noise in operational drift totals.
+
 ## [0.1.6] - 2026-05-22
 
 ### Changed
