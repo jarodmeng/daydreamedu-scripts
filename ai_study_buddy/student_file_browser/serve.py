@@ -37,7 +37,7 @@ from ai_study_buddy.pdf_file_manager import PdfFileManager
 from ai_study_buddy.student_file_browser.filters import filter_criteria_from_query
 from ai_study_buddy.student_file_browser.path_guard import safe_resolve_under_root
 
-FILES_VERSION = "0.3.6"
+FILES_VERSION = "0.3.7"
 ROOT_IDS = ("daydreamedu", "goodnotes")
 STATIC_DIR = Path(__file__).resolve().parent / "static"
 DEFAULT_CONTEXT_ROOT = Path(__file__).resolve().parent.parent / "context"

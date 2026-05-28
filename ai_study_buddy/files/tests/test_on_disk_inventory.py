@@ -534,7 +534,7 @@ def test_sort_main_pdf_cards_recent() -> None:
     assert [c.basename for c in ordered] == ["new.pdf", "old.pdf"]
 
 
-def test_sort_main_pdf_cards_recent_undated_not_by_added_at() -> None:
+def test_sort_main_pdf_cards_recent_undated_by_added_at_desc() -> None:
     cards = [
         _card(
             completion_date=None,
@@ -550,7 +550,36 @@ def test_sort_main_pdf_cards_recent_undated_not_by_added_at() -> None:
         ),
     ]
     ordered = sort_main_pdf_cards(cards, "recent")
-    assert [c.basename for c in ordered] == ["a.pdf", "b.pdf"]
+    assert [c.basename for c in ordered] == ["b.pdf", "a.pdf"]
+
+
+def test_sort_main_pdf_cards_recent_undated_interleaves_with_dated() -> None:
+    cards = [
+        _card(
+            completion_date="2026-05-10",
+            registry_added_at="2026-01-01T00:00:00Z",
+            absolute_path="/z/dated-old.pdf",
+            basename="dated-old.pdf",
+        ),
+        _card(
+            completion_date=None,
+            registry_added_at="2026-05-20T00:00:00Z",
+            absolute_path="/z/undated-mid.pdf",
+            basename="undated-mid.pdf",
+        ),
+        _card(
+            completion_date="2026-05-30",
+            registry_added_at="2026-01-01T00:00:00Z",
+            absolute_path="/z/dated-new.pdf",
+            basename="dated-new.pdf",
+        ),
+    ]
+    ordered = sort_main_pdf_cards(cards, "recent")
+    assert [c.basename for c in ordered] == [
+        "dated-new.pdf",
+        "undated-mid.pdf",
+        "dated-old.pdf",
+    ]
 
 
 def test_sort_main_pdf_cards_recent_unregistered_tail() -> None:

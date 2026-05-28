@@ -609,6 +609,14 @@ def _path_key(card: OnDiskMainPdfCard) -> str:
     return card.absolute_path.casefold()
 
 
+def _recent_sort_key(card: OnDiskMainPdfCard) -> str | None:
+    if card.completion_date:
+        return card.completion_date
+    if card.registry_added_at:
+        return card.registry_added_at
+    return None
+
+
 def sort_main_pdf_cards(
     cards: list[OnDiskMainPdfCard],
     sort: str = "recent",
@@ -616,14 +624,12 @@ def sort_main_pdf_cards(
     key = sort if sort in _VALID_SORT_KEYS else "recent"
     if key == "name":
         return sorted(cards, key=lambda c: (_display_name_key(c), _path_key(c)))
-    dated = [c for c in cards if c.completion_date]
-    undated = [c for c in cards if not c.completion_date and c.registry_added_at]
-    unregistered = [c for c in cards if not c.registry_added_at]
-    dated.sort(key=_path_key)
-    dated.sort(key=lambda c: c.completion_date or "", reverse=True)
-    undated.sort(key=_path_key)
+    sortable = [c for c in cards if _recent_sort_key(c) is not None]
+    unregistered = [c for c in cards if _recent_sort_key(c) is None]
+    sortable.sort(key=_path_key)
+    sortable.sort(key=lambda c: _recent_sort_key(c) or "", reverse=True)
     unregistered.sort(key=_path_key)
-    return dated + undated + unregistered
+    return sortable + unregistered
 
 
 def build_enriched_inventory(

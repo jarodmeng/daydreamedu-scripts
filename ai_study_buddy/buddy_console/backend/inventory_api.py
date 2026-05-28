@@ -31,7 +31,7 @@ from ai_study_buddy.student_file_browser.path_guard import safe_resolve_under_ro
 
 router = APIRouter()
 
-FILES_VERSION = "0.3.6"
+FILES_VERSION = "0.3.7"
 DEFAULT_CONTEXT_ROOT = Path(__file__).resolve().parents[2] / "context"
 INDEX_WARN_THRESHOLD = 2000
 

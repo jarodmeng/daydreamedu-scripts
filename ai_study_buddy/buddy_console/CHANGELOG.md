@@ -2,7 +2,12 @@
 
 All notable changes to `ai_study_buddy/buddy_console` are documented here.
 
-## [Unreleased]
+## [v0.1.3] - Unified recency sort (2026-05-28)
+
+### Changed
+
+1. **Completed (recent)** inventory sort uses `files` v0.3.7 unified recency ordering (`completion_date` with `registry_added_at` fallback, interleaved; unregistered last).
+2. `/api/inventory/health` and inventory config report `files_version` **0.3.7**.
 
 ## [v0.1.2] - Inventory sort apply-on-change fix (2026-05-28)
 

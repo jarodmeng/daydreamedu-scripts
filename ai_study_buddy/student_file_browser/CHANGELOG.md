@@ -1,5 +1,10 @@
 # Changelog — `student_file_browser`
 
+## [v0.1.8] — Unified recency sort (2026-05-28)
+
+- **Completed (recent)** uses `files` v0.3.7 unified recency ordering (`completion_date` with `registry_added_at` fallback, interleaved; unregistered last).
+- `/api/health` `files_version` is **0.3.7**.
+
 ## [v0.1.7] — Completion date on cards (2026-05-27)
 
 - Cards show **Completed** date when `completion_date` is set; **Registered** date remains separate (`registry_added_at`).

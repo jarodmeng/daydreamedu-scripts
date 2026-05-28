@@ -1,6 +1,6 @@
 # Buddy Console
 
-**Version: v0.1.2**
+**Version: v0.1.3**
 
 `buddy_console` is the new unified browser app for AI Study Buddy.
 
@@ -33,7 +33,7 @@ Primary routes in the frontend:
 - `/pdf` -> root-style PDF browser
 - `/review` -> review surface
 
-Inventory cards show **Completed** (`completion_date`) and **Registered** (`registry_added_at`) separately when `files` v0.3.6+ is in use ([proposal 17](../pdf_file_manager/docs/proposals/17-completion-date.md) Phase 4).
+Inventory cards show **Completed** (`completion_date`) and **Registered** (`registry_added_at`) separately when `files` v0.3.6+ is in use ([proposal 17](../pdf_file_manager/docs/proposals/17-completion-date.md) Phase 4). **Completed (recent)** sort uses unified recency fallback in `files` v0.3.7+.
 
 ## Docs
 

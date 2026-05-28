@@ -2,7 +2,7 @@
 
 This document is the **contract** for the public Python API of `ai_study_buddy.files`. It is registry-agnostic: no SQLite, no `PdfFileManager`, no scan-root configuration.
 
-**Version:** align with [README.md](./README.md) (package **v0.3.6**).
+**Version:** align with [README.md](./README.md) (package **v0.3.7**).
 
 Core leaf listing and root resolution are **registry-agnostic**. Optional correlation with `pdf_file_manager` / `pdf_registry.db` lives in **`pdf_registry_paths.py`** (see §3).
 
@@ -184,7 +184,7 @@ Map built in `from_pdf_file_manager`. Use `registry_file_for_path` and `has_temp
 
 - `enrich_on_disk_main_pdf` — sets `student_id` on completion rows via `resolve_card_student_id`; unregistered completions get falsy workflow flags.
 - `filter_main_pdf_cards(cards, FilterCriteria, pfm=...)` — `FilterCriteria.student` is registry `students.id` (email accepted for legacy callers); `FilterCriteria.root_id` is `all` | `daydreamedu` | `goodnotes`.
-- `sort_main_pdf_cards(cards, sort=...)` — `name` (display name A–Z) or `recent` (**completion date** descending; registered undated by path; unregistered last). Does **not** sort by `registry_added_at`. `FilterCriteria.sort` defaults to `recent`. See [proposal 17 §5.4](../pdf_file_manager/docs/proposals/17-completion-date.md#54-consumers-when-no-row-exists).
+- `sort_main_pdf_cards(cards, sort=...)` — `name` (display name A–Z) or `recent` (unified recency: `completion_date` when set, else `registry_added_at`, newest first across both; unregistered last). `FilterCriteria.sort` defaults to `recent`. See [proposal 17 §5.4](../pdf_file_manager/docs/proposals/17-completion-date.md#54-consumers-when-no-row-exists).
 - `OnDiskMainPdfCard.registry_added_at` — `PdfFile.added_at` when registered (shown as **Registered** in UIs).
 - `OnDiskMainPdfCard.completion_date` / `completion_date_source` — from `PdfFileManager.get_completion_date` when registered (v0.3.6+; nullable). Shown as **Completed** in UIs; **not** derived from `added_at`.
 - `filter_meta_for_response` — merged dict for UI: facet lists + `*_counts`, plus workflow option keys from `workflow_filter_options`.

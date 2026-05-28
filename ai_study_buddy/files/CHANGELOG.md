@@ -4,6 +4,11 @@ All notable changes to the **`ai_study_buddy.files`** package are documented her
 
 ---
 
+## [v0.3.7] — Unified recency sort fallback
+
+- **`sort_main_pdf_cards` (`recent`):** single recency key per card — `completion_date` when set, else `registry_added_at`; newest first across both (interleaved). Unregistered (no recency key) remain last.
+- Consumers: `student_file_browser` v0.1.8, `buddy_console` inventory `files_version` **0.3.7**.
+
 ## [v0.3.6] — Completion date on inventory cards
 
 - **`OnDiskMainPdfCard`:** nullable `completion_date`, `completion_date_source` from `PdfFileManager.get_completion_date` when registered.

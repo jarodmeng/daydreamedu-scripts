@@ -1,12 +1,12 @@
 # Student File Browser
 
-**Version: v0.1.7**
+**Version: v0.1.8**
 
 > Legacy standalone operator tool. `buddy_console` is now the preferred unified
 > app for inventory -> PDF -> review workflows, but this browser remains
 > available for rollback and reference use.
 
-Filter-first **operator** inventory for on-disk **main** PDFs under DaydreamEdu and GoodNotes. Uses [`ai_study_buddy.files`](../files/) **v0.3.6+** for path facets, registry correlation, **completion date** + **Registered** on cards, card sort (**Completed (recent)** / `name`), completion-series fields, marking score on marked cards, and marking/review health flags (`marking` v0.3.8+). See [proposal 17](../pdf_file_manager/docs/proposals/17-completion-date.md) §5.4. GoodNotes leaf folders match [goodnotes-leaf-registry-report](../../.cursor/commands/goodnotes-leaf-registry-report.md) (registration-ready set; WIP `Not completed` subtrees are out of scope). Completion **activity** and **note** files are excluded from the index (same as [`completion_template_link_gap_report`](../pdf_file_manager/scripts/completion_template_link_gap_report.py)); templates are still listed.
+Filter-first **operator** inventory for on-disk **main** PDFs under DaydreamEdu and GoodNotes. Uses [`ai_study_buddy.files`](../files/) **v0.3.7+** for path facets, registry correlation, **completion date** + **Registered** on cards, card sort (**Completed (recent)** / `name`), completion-series fields, marking score on marked cards, and marking/review health flags (`marking` v0.3.8+). See [proposal 17](../pdf_file_manager/docs/proposals/17-completion-date.md) §5.4. GoodNotes leaf folders match [goodnotes-leaf-registry-report](../../.cursor/commands/goodnotes-leaf-registry-report.md) (registration-ready set; WIP `Not completed` subtrees are out of scope). Completion **activity** and **note** files are excluded from the index (same as [`completion_template_link_gap_report`](../pdf_file_manager/scripts/completion_template_link_gap_report.py)); templates are still listed.
 
 Default URL: `http://localhost:8771/`
 
