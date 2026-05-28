@@ -2,6 +2,12 @@
 
 All notable changes to `ai_study_buddy/buddy_console` are documented here.
 
+## [v0.1.6] - Inventory review status freshness (2026-05-28)
+
+### Fixed
+
+1. Inventory API no longer serves stale review chips from a long-lived enriched-cache snapshot; review status is recomputed per request so cards reflect latest review workspace updates after refresh.
+
 ## [v0.1.5] - Manual completion date on inventory cards (2026-05-28)
 
 ### Added

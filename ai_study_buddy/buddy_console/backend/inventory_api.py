@@ -45,7 +45,11 @@ class InventoryRuntime:
     leaf_rels_by_id: dict[str, frozenset[str]]
     index_rows: list[OnDiskMainPdfRow]
     context_root: Path
+    # Backwards-compatible field for tests/fixtures; no longer used for serving.
     enriched_cache: list[Any] | None = None
+    # Keep index/roots cached, but do not cache enriched cards across requests.
+    # Review/amendment state can change outside this process (e.g. via review workspace),
+    # and stale enrichment causes inventory cards to show outdated workflow status.
     _enrich_lock: threading.Lock = field(default_factory=threading.Lock, repr=False, compare=False)
 
 
@@ -221,22 +225,20 @@ def build_buddy_console_source_detail(
 
 
 def _get_enriched_cards(runtime: InventoryRuntime) -> list[Any]:
+    # Test/runtime override hook: when explicitly provided, trust the injected cache.
     if runtime.enriched_cache is not None:
         return runtime.enriched_cache
     with runtime._enrich_lock:
-        if runtime.enriched_cache is not None:
-            return runtime.enriched_cache
         pfm = PdfFileManager()
         index = RegistryPathIndex.from_pdf_file_manager(pfm)
         review_repo = StudentReviewRepository(context_root=runtime.context_root)
-        runtime.enriched_cache = build_enriched_inventory(
+        return build_enriched_inventory(
             runtime.index_rows,
             index=index,
             pfm=pfm,
             review_repo=review_repo,
             context_root=runtime.context_root,
         )
-        return runtime.enriched_cache
 
 
 def warm_enriched_cache(app: Any) -> None:
@@ -325,7 +327,6 @@ def patch_inventory_completion_date(
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
-    runtime.enriched_cache = None
     return {
         "registry_file_id": registry_file_id,
         "completion_date": row.completion_date,
