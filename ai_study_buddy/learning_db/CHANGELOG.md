@@ -2,6 +2,15 @@
 
 All notable changes to `ai_study_buddy.learning_db` are documented in this file.
 
+## [0.1.8] - 2026-05-28
+
+### Added
+
+- New cardinality integrity CLI: `python3 -m ai_study_buddy.learning_db.cli.marking_cardinality_integrity_report`
+  - Verifies template uniqueness for `file_question_info` (DB + on-disk payload runs).
+  - Verifies completion uniqueness across marking families (`marking_results`, `marking_assets`, `learning_reports`, `marking_amendments`, `student_review_states`) in DB and on-disk context artifacts.
+  - Supports human-readable / `--json` output and `--fail-on-any` preflight mode.
+
 ## [0.1.7] - 2026-05-28
 
 ### Added
