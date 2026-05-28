@@ -10,6 +10,7 @@ This suite reports one **overall PASS/FAIL** by running:
 2. GoodNotes leaf folder vs registry check (default excludes `Not completed`)
 3. Completion-template link gap check (default excludes `activity`/`note`)
 4. Registry integrity audit
+5. Marking context DB drift (`marking_results`/`marking_assets` path coupling)
 
 ## Rules
 
@@ -55,4 +56,7 @@ python3 -m ai_study_buddy.pdf_file_manager.scripts.file_framework_integrity_suit
 - Leaf-registry checks pass only when all included leaves fall into `scan-root + all direct PDFs registered`.
 - Completion-template gap check passes when `without_template = 0`.
 - Registry integrity audit passes when all summary counters are zero.
-- Overall suite passes only when all four checks pass.
+- Marking context DB drift check passes when:
+  - `marking_artifacts_missing_artifact_path = 0`
+  - `marking_artifacts_missing_marking_asset = 0`
+- Overall suite passes only when all five checks pass.

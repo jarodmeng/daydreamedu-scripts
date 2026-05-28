@@ -136,8 +136,9 @@ Suite checks:
 2. GoodNotes leaf folder vs registry (`goodnotes-leaf-registry-report` criteria)
 3. Completion-template link gap check (default excludes `activity`/`note`)
 4. Registry integrity audit (`validate_pdf_registry_integrity`)
+5. Marking context DB drift (`study_buddy.db` vs `context/` for marking artifact/result and marking-asset paths)
 
-Overall pass requires all four checks to pass.
+Overall pass requires all five checks to pass.
 
 ### Unregistered on-disk files (leaf folders vs registry)
 
@@ -212,6 +213,33 @@ Output behavior:
 - Human-readable mode prints a summary count per check and example rows (bounded by `--limit`, default `20`).
 - JSON mode emits a machine-readable object with `summary` counts and full `checks` arrays.
 - Exit code is `0` when all checks pass, and `1` when any check reports issues.
+
+### Marking context DB drift report (`study_buddy.db` ↔ `context/`)
+
+Use this as a dedicated integrity check for path-coupled marking context fields in `learning_db`.
+It audits whether DB rows and on-disk `context/` artifacts still align.
+
+Script:
+
+- `python3 -m ai_study_buddy.learning_db.cli.context_db_drift_report`
+
+Primary pass/fail checks for this framework:
+
+- `marking_artifacts_missing_artifact_path` must be `0`
+- `marking_artifacts_missing_marking_asset` must be `0`
+
+Useful command variants:
+
+- human-readable:
+  - `python3 -m ai_study_buddy.learning_db.cli.context_db_drift_report --db-path ai_study_buddy/db/study_buddy.db --context-root ai_study_buddy/context`
+- machine-readable:
+  - `python3 -m ai_study_buddy.learning_db.cli.context_db_drift_report --db-path ai_study_buddy/db/study_buddy.db --context-root ai_study_buddy/context --json`
+- preflight fail mode:
+  - `python3 -m ai_study_buddy.learning_db.cli.context_db_drift_report --db-path ai_study_buddy/db/study_buddy.db --context-root ai_study_buddy/context --fail-on-any`
+
+Related Cursor command:
+
+- `.cursor/commands/marking-context-db-drift-report.md`
 
 ## File utilities
 

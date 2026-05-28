@@ -6,6 +6,7 @@ Checks included:
 2. GoodNotes leaf-registry health (default excludes Not completed)
 3. Completion-template link gaps (default excludes activity/note)
 4. Registry integrity audit
+5. Marking context DB drift (on-disk vs study_buddy.db)
 
 Exit codes:
 - 0: all checks pass
@@ -30,6 +31,9 @@ from ai_study_buddy.files.pdf_registry_paths import (
     suspicious_all_leaves_marked_non_scan_root,
 )
 from ai_study_buddy.files.roots import resolve_daydreamedu_root, resolve_goodnotes_root
+from ai_study_buddy.learning_db.cli.context_db_drift_report import (
+    build_report as build_context_db_drift_report,
+)
 from ai_study_buddy.pdf_file_manager import PdfFileManager
 from ai_study_buddy.pdf_file_manager.scripts.completion_template_link_gap_report import (
     build_report as build_completion_gap_report,
@@ -117,6 +121,28 @@ def build_suite_report(*, db_path: Path, include_activity_note: bool) -> dict[st
 
     registry_integrity = build_registry_integrity_report(pfm)
     registry_integrity_pass = not any(registry_integrity["summary"].values())
+    try:
+        context_db_drift = build_context_db_drift_report(
+            db_path=(db_path.parent / "study_buddy.db"),
+            context_root=Path("ai_study_buddy/context").resolve(),
+            sample_limit=10,
+        )
+        context_db_drift_pass = (
+            context_db_drift["counts"].get("marking_artifacts_missing_artifact_path", 0) == 0
+            and context_db_drift["counts"].get("marking_artifacts_missing_marking_asset", 0) == 0
+        )
+        context_db_drift_reason = (
+            "ok" if context_db_drift_pass else "marking_artifact_or_asset_path_drift_present"
+        )
+    except Exception as exc:
+        context_db_drift = {
+            "db_path": str((db_path.parent / "study_buddy.db").resolve()),
+            "context_root": str(Path("ai_study_buddy/context").resolve()),
+            "counts": {},
+            "samples": {},
+        }
+        context_db_drift_pass = False
+        context_db_drift_reason = f"drift_report_error:{type(exc).__name__}"
 
     checks = {
         "daydreamedu_leaf_registry": daydreamedu_leaf,
@@ -133,6 +159,23 @@ def build_suite_report(*, db_path: Path, include_activity_note: bool) -> dict[st
             "reason": "ok" if registry_integrity_pass else "integrity_findings_present",
             "db_path": registry_integrity["db_path"],
             "summary": registry_integrity["summary"],
+        },
+        "marking_context_db_drift": {
+            "status": "pass" if context_db_drift_pass else "fail",
+            "reason": context_db_drift_reason,
+            "db_path": context_db_drift["db_path"],
+            "context_root": context_db_drift["context_root"],
+            "counts": context_db_drift["counts"],
+            "samples": {
+                "marking_artifacts_missing_artifact_path": context_db_drift["samples"].get(
+                    "marking_artifacts_missing_artifact_path",
+                    [],
+                ),
+                "marking_artifacts_missing_marking_asset": context_db_drift["samples"].get(
+                    "marking_artifacts_missing_marking_asset",
+                    [],
+                ),
+            },
         },
     }
 
@@ -154,6 +197,7 @@ def _print_human(report: dict[str, Any]) -> None:
         "goodnotes_leaf_registry",
         "completion_template_link_gap",
         "registry_integrity_audit",
+        "marking_context_db_drift",
     ):
         check = report["checks"][key]
         print(f"- {key}: {check['status'].upper()} ({check['reason']})")
@@ -181,6 +225,13 @@ def _print_human(report: dict[str, Any]) -> None:
             else:
                 summary_str = "all checks zero"
             print(f"  {summary_str}")
+        if key == "marking_context_db_drift":
+            counts = check["counts"]
+            print(
+                "  "
+                f"marking_artifacts_missing_artifact_path={counts.get('marking_artifacts_missing_artifact_path', 0)}, "
+                f"marking_artifacts_missing_marking_asset={counts.get('marking_artifacts_missing_marking_asset', 0)}"
+            )
         print()
 
 
