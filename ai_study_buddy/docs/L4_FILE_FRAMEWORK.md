@@ -122,6 +122,97 @@ In general, I divide registered files into the following hierarchical structure 
    - "book unit" refers to a registered file's unit in the book. Similar to the "book group" attribute above, it only applies to a registered file whose second-level attribute "type" is "book".
 4. "normal_name" is the fourth-level attribute of a registered file. This refers to the registered file's base name with prefix (e.g. "_raw_", "_c_", and "c_") and file extension stripped.
 
+## Integrity checks
+
+Use these checks to validate **on-disk vs registry** consistency and **completion-template link completeness**. They are operational audits (read-only unless you explicitly run repair workflows).
+
+### Combined integrity suite (overall health)
+
+Use `.cursor/commands/file-framework-integrity-suite.md` (or run `python3 -m ai_study_buddy.pdf_file_manager.scripts.file_framework_integrity_suite`) to execute all core integrity checks together and return one overall PASS/FAIL health result for this framework.
+
+Suite checks:
+
+1. DaydreamEdu leaf folder vs registry (`daydreamedu-leaf-registry-report` criteria)
+2. GoodNotes leaf folder vs registry (`goodnotes-leaf-registry-report` criteria)
+3. Completion-template link gap check (default excludes `activity`/`note`)
+4. Registry integrity audit (`validate_pdf_registry_integrity`)
+
+Overall pass requires all four checks to pass.
+
+### Unregistered on-disk files (leaf folders vs registry)
+
+Use these command docs to audit on-disk PDFs that are not represented in the registry:
+
+- `.cursor/commands/daydreamedu-leaf-registry-report.md`
+  - Compares DaydreamEdu leaf folders (folders with direct `*.pdf` files) against `pdf_file_manager` registered paths. Under `DAYDREAMEDU_ROOT`, registered PDFs live under `template/...` or `completion/...`; leaf and scan-root paths follow that layout.
+  - Excludes the root leaf `.` from totals/tables when applicable.
+  - Reports counts for scan roots vs non-scan-roots and a 4-bucket registration breakdown (`all registered` vs `some unregistered` crossed with scan-root status).
+  - Surfaces unregistered basenames per leaf folder and can provide a full folder table on request.
+
+- `.cursor/commands/goodnotes-leaf-registry-report.md`
+  - Runs the same leaf-folder vs registry comparison for GoodNotes.
+  - Enumerates leaf folders via `partition_goodnotes_leaf_folders(root)` (default `exclude_not_completed=True`): omits `Not completed` subtrees plus root leaf `.` and `^x[A-Z].*$` segments.
+  - Produces the same summary/breakdown structure as the DaydreamEdu report, including unregistered basenames.
+
+Both commands perform exact resolved-path matching (`Path.resolve()` string equality), so moved files may appear unregistered at the new location if registry paths were not updated.
+
+Interpretation of the key output fields: `scan-root` tells you whether a leaf folder is configured as an intentional scan boundary in `PdfFileManager().list_scan_roots()`; `registered` vs `unregistered` is determined by exact resolved-path matching between each direct PDF in that leaf and `PdfFileManager().find_files()`. In practice, the 4 summary categories are:
+
+1. scan-root + all direct PDFs registered
+2. scan-root + some direct PDFs unregistered
+3. non-scan-root + all direct PDFs registered
+4. non-scan-root + some direct PDFs unregistered
+
+These 4 categories are MECE (mutually exclusive and collectively exhaustive): each included leaf folder maps to exactly one category, and all included leaf folders are covered.
+
+Pass criteria for both leaf-registry reports (`daydreamedu-leaf-registry-report` and `goodnotes-leaf-registry-report`):
+
+- Pass only when all included leaf folders are in category 1 (`scan-root + all direct PDFs registered`).
+- Equivalent numeric conditions:
+  - category 2 (`scan-root + some direct PDFs unregistered`) = `0`
+  - category 3 (`non-scan-root + all direct PDFs registered`) = `0`
+  - category 4 (`non-scan-root + some direct PDFs unregistered`) = `0`
+- If any of categories 2-4 is nonzero, the report fails.
+
+### Completion template link gap report (registry)
+
+Use this when you want a quantitative gap list for completion mains that still have no linked template in `pdf_file_manager` (no `file_relations` row with `relation_type='completed_from'` from the completion's `id`).
+
+- **Definitions:** A completion main is a registered `pdf_files` row with `file_type='main'` and `is_template=false`. Template linked means a `completed_from` edge exists (see `PdfFileManager.link_to_template` / `get_template`). GoodNotes `scan_for_new_files` auto-links new completions by default (`pdf_file_manager` v0.3.20; `ScanResult.template_link`); other paths may still need explicit linking. Path inference migration: open backlog P1-4 in `ai_study_buddy/TODO.md`.
+- **Default filter:** `doc_type` not in `activity`, `note`, so the table focuses on exam, exercise, and book completions (aligned with template `doc_type` expectations in this doc). Pass `--include-activity-note` to include all completion types.
+- **Root column:** Each row's `root` is derived from the stored path: `d_root` when the path contains `/DaydreamEdu/`, `g_root` when it contains `/GoodNotes/`, otherwise `(unknown)`.
+- **Agent / operator command:** `.cursor/commands/completion-template-link-gap-report.md` — instructs the agent to run the script and summarize output.
+
+How to run:
+
+- `python3 -m ai_study_buddy.pdf_file_manager.scripts.completion_template_link_gap_report`
+- `python3 -m ai_study_buddy.pdf_file_manager.scripts.completion_template_link_gap_report --include-activity-note`
+- `python3 -m ai_study_buddy.pdf_file_manager.scripts.completion_template_link_gap_report --db /path/to/pdf_registry.db`
+- `python3 -m ai_study_buddy.pdf_file_manager.scripts.completion_template_link_gap_report --json`
+
+Exit code is `0` when there are no gap rows under the chosen filters, and `1` when at least one completion is still missing a template link (`2` if the DB file is missing). Human-readable mode prints a short summary plus a grouped table; JSON mode emits `summary`, `filters`, and a `gaps` array.
+
+### Registry integrity audit script
+
+The `ai_study_buddy/pdf_file_manager/scripts/validate_pdf_registry_integrity.py` script is a reproducible integrity audit for the registry and on-disk state. It checks common drift and consistency issues such as missing on-disk files for registered paths, student/general scope template flag mismatches, missing `student_id` in student scope, raw/main metadata drift, raw/main relation consistency, invalid enum-like metadata values (`subject`, `metadata.grade_or_scope`, legacy `metadata.chinese_variant=foundation`), and invalid template `doc_type` values.
+
+How to run:
+
+- `python3 -m ai_study_buddy.pdf_file_manager.scripts.validate_pdf_registry_integrity`
+- `python3 -m ai_study_buddy.pdf_file_manager.scripts.validate_pdf_registry_integrity --json`
+- `python3 -m ai_study_buddy.pdf_file_manager.scripts.validate_pdf_registry_integrity --db /path/to/pdf_registry.db`
+
+Related Cursor commands:
+
+- `.cursor/commands/validate-pdf-registry-integrity.md`
+- `.cursor/commands/registry-integrity-audit-script.md`
+
+Output behavior:
+
+- Human-readable mode prints a summary count per check and example rows (bounded by `--limit`, default `20`).
+- JSON mode emits a machine-readable object with `summary` counts and full `checks` arrays.
+- Exit code is `0` when all checks pass, and `1` when any check reports issues.
+
 ## File utilities
 
 ### `files` module (`ai_study_buddy.files`)
@@ -149,32 +240,6 @@ This module is the default place for reusable “on-disk leaf ↔ registry” an
 
 API contract and versioned details: [`ai_study_buddy/files/SPEC.md`](../files/SPEC.md), [`CHANGELOG.md`](../files/CHANGELOG.md) (current **v0.3.6**). Completion-date registry API: [`pdf_file_manager`](../pdf_file_manager/README.md#completion-dates-v0322).
 
-### Unregistered on-disk files
-
-Use these command docs to audit on-disk PDFs that are not represented in the registry:
-
-- `.cursor/commands/daydreamedu-leaf-registry-report.md`
-  - Compares DaydreamEdu leaf folders (folders with direct `*.pdf` files) against `pdf_file_manager` registered paths. Under `DAYDREAMEDU_ROOT`, registered PDFs live under `template/...` or `completion/...`; leaf and scan-root paths follow that layout.
-  - Excludes the root leaf `.` from totals/tables when applicable.
-  - Reports counts for scan roots vs non-scan-roots and a 4-bucket registration breakdown (`all registered` vs `some unregistered` crossed with scan-root status).
-  - Surfaces unregistered basenames per leaf folder and can provide a full folder table on request.
-
-- `.cursor/commands/goodnotes-leaf-registry-report.md`
-  - Runs the same leaf-folder vs registry comparison for GoodNotes.
-  - Enumerates leaf folders via **`list_goodnotes_leaf_folders_under_root(root)`** (default **`exclude_not_completed=True`**): omits **`Not completed`** subtrees plus root leaf `.` and **`^x[A-Z].*$`** segments. Other callers may set **`exclude_not_completed=False`** to list WIP completions (same module); this command keeps the default.
-  - Produces the same summary/breakdown structure as the DaydreamEdu report, including unregistered basenames.
-
-Both commands perform exact resolved-path matching (`Path.resolve()` string equality), so moved files may appear unregistered at the new location if registry paths were not updated.
-
-Interpretation of the key output fields: `scan-root` tells you whether a leaf folder is configured as an intentional scan boundary in `PdfFileManager().list_scan_roots()`; `registered` vs `unregistered` is determined by exact resolved-path matching between each direct PDF in that leaf and `PdfFileManager().find_files()`. In practice, the 4 summary categories are:
-
-1. scan-root + all direct PDFs registered
-2. scan-root + some direct PDFs unregistered
-3. non-scan-root + all direct PDFs registered
-4. non-scan-root + some direct PDFs unregistered
-
-These 4 categories are MECE (mutually exclusive and collectively exhaustive): each included leaf folder maps to exactly one category, and all included leaf folders are covered.
-
 ### Local PDF browser (`root_pdf_browser`)
 
 [`ai_study_buddy/root_pdf_browser/README.md`](../root_pdf_browser/README.md) — small **localhost** HTTP + static UI to **view** PDFs under configured **`DAYDREAMEDU_ROOT`** and **`GOODNOTES_ROOT`** (resolved via `ai_study_buddy.files` roots helpers). Registry-agnostic browsing only; no registry reads.
@@ -195,24 +260,6 @@ These 4 categories are MECE (mutually exclusive and collectively exhaustive): ea
 - **Run:** `.cursor/commands/start-student-file-browser.md` or `python3 -m ai_study_buddy.student_file_browser.spawn_background` / `serve`.
 - **Design reference:** [L4_STUDENT_FILE_MANAGEMENT](./L4_STUDENT_FILE_MANAGEMENT.md).
 - **Completion vs marking identity:** [L4_COMPLETION_MARKING_FRAMEWORK](./L4_COMPLETION_MARKING_FRAMEWORK.md). Post-MVP **`root_id` filter:** [student_file_browser proposal](../student_file_browser/docs/proposal/1-root-id-filter.md).
-
-### Completion template link gap report (registry)
-
-Use this when you want a **quantitative gap list** for **completion mains** that still have **no** linked template in `pdf_file_manager` (no `file_relations` row with `relation_type='completed_from'` from the completion’s `id`).
-
-- **Definitions:** A **completion main** is a registered `pdf_files` row with `file_type='main'` and `is_template=false`. **Template linked** means a `completed_from` edge exists (see `PdfFileManager.link_to_template` / `get_template`). GoodNotes **`scan_for_new_files`** auto-links new completions by default (`pdf_file_manager` v0.3.20; `ScanResult.template_link`); other paths may still need explicit linking. Path inference migration: open backlog **P1-4** in `ai_study_buddy/TODO.md`.
-- **Default filter:** `doc_type` **not** in `activity`, `note`, so the table focuses on **exam**, **exercise**, and **book** completions (aligned with template `doc_type` expectations in this doc). Pass `--include-activity-note` to include all completion types.
-- **Root column:** Each row’s `root` is derived from the stored path: `d_root` when the path contains `/DaydreamEdu/`, `g_root` when it contains `/GoodNotes/`, otherwise `(unknown)`.
-- **Agent / operator command:** `.cursor/commands/completion-template-link-gap-report.md` — instructs the agent to run the script and summarize output.
-
-How to run:
-
-- `python3 -m ai_study_buddy.pdf_file_manager.scripts.completion_template_link_gap_report`
-- `python3 -m ai_study_buddy.pdf_file_manager.scripts.completion_template_link_gap_report --include-activity-note`
-- `python3 -m ai_study_buddy.pdf_file_manager.scripts.completion_template_link_gap_report --db /path/to/pdf_registry.db`
-- `python3 -m ai_study_buddy.pdf_file_manager.scripts.completion_template_link_gap_report --json`
-
-Exit code is **`0`** when there are **no** gap rows under the chosen filters, and **`1`** when at least one completion is still missing a template link (**`2`** if the DB file is missing). Human-readable mode prints a short summary plus a grouped table; JSON mode emits `summary`, `filters`, and a `gaps` array.
 
 ### Back-generate templates from D_ROOT completions (`reprocess-wa-exam-template`)
 
@@ -288,18 +335,3 @@ Use this when **book unit PDFs were scanned and registered under the general tem
 - Not for exam/WA scans already under `completion/...` — use **`reprocess-wa-exam-template`** (above).
 - After Phase B, run **`completion_template_link_gap_report`** and **`validate_pdf_registry_integrity`** to confirm links, groups, and mappings.
 
-### Registry integrity audit script
-
-The `ai_study_buddy/pdf_file_manager/scripts/validate_pdf_registry_integrity.py` script is a reproducible integrity audit for the registry and on-disk state. It checks common drift and consistency issues such as missing on-disk files for registered paths, student/general scope template flag mismatches, missing `student_id` in student scope, raw/main metadata drift, raw/main relation consistency, invalid enum-like metadata values (`subject`, `metadata.grade_or_scope`, legacy `metadata.chinese_variant=foundation`), and invalid template `doc_type` values.
-
-How to run:
-
-- `python3 -m ai_study_buddy.pdf_file_manager.scripts.validate_pdf_registry_integrity`
-- `python3 -m ai_study_buddy.pdf_file_manager.scripts.validate_pdf_registry_integrity --json`
-- `python3 -m ai_study_buddy.pdf_file_manager.scripts.validate_pdf_registry_integrity --db /path/to/pdf_registry.db`
-
-Output behavior:
-
-- Human-readable mode prints a summary count per check and example rows (bounded by `--limit`, default `20`).
-- JSON mode emits a machine-readable object with `summary` counts and full `checks` arrays.
-- Exit code is `0` when all checks pass, and `1` when any check reports issues.

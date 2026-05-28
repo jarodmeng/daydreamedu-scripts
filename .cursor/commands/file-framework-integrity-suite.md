@@ -1,0 +1,58 @@
+# File framework integrity suite
+
+Run one consolidated integrity health check for the L4 file framework.
+
+## Purpose
+
+This suite reports one **overall PASS/FAIL** by running:
+
+1. DaydreamEdu leaf folder vs registry check
+2. GoodNotes leaf folder vs registry check (default excludes `Not completed`)
+3. Completion-template link gap check (default excludes `activity`/`note`)
+4. Registry integrity audit
+
+## Rules
+
+- Follow `.cursor/skills/pdf-file-manager/SKILL.md`.
+- Do not edit the registry in this command; this is a read-only health check.
+- Run from repo root with module invocation.
+- Treat exit code `1` as integrity failures found (not command failure).
+
+## What to run
+
+Default:
+
+```bash
+python3 -m ai_study_buddy.pdf_file_manager.scripts.file_framework_integrity_suite
+```
+
+Include `activity` and `note` in completion-template gap check:
+
+```bash
+python3 -m ai_study_buddy.pdf_file_manager.scripts.file_framework_integrity_suite --include-activity-note
+```
+
+Machine-readable output:
+
+```bash
+python3 -m ai_study_buddy.pdf_file_manager.scripts.file_framework_integrity_suite --json
+```
+
+Custom DB:
+
+```bash
+python3 -m ai_study_buddy.pdf_file_manager.scripts.file_framework_integrity_suite --db /path/to/pdf_registry.db
+```
+
+## Exit codes
+
+- `0`: overall pass
+- `1`: one or more checks failed
+- `2`: DB file missing
+
+## Pass criteria
+
+- Leaf-registry checks pass only when all included leaves fall into `scan-root + all direct PDFs registered`.
+- Completion-template gap check passes when `without_template = 0`.
+- Registry integrity audit passes when all summary counters are zero.
+- Overall suite passes only when all four checks pass.

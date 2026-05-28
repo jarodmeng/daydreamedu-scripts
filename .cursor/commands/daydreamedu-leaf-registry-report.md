@@ -89,6 +89,15 @@ Collect (derive **only** from **`RegistryPathIndex`** and **`LeafFolderRegistryS
 
 ## Report format (for the user)
 
+Pass criteria:
+
+- The report **passes** only when **all** included leaf folders are in `scan-root + all direct PDFs registered`.
+- Equivalently, pass requires:
+  - `scan-root + some direct PDFs unregistered = 0`
+  - `non-scan-root + all direct PDFs registered = 0`
+  - `non-scan-root + some direct PDFs unregistered = 0`
+- If any of the three buckets above is nonzero, report **fails**.
+
 Default output (unless the user explicitly asks for details):
 
 1. One-line **context**: DaydreamEdu root path, registry DB path used.

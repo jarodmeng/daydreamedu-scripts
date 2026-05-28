@@ -4,6 +4,19 @@ All notable changes to the pdf_file_manager utility are documented here.
 
 ---
 
+## [v0.3.32] — File framework integrity suite
+
+- Added consolidated script [`scripts/file_framework_integrity_suite.py`](./scripts/file_framework_integrity_suite.py) to run four framework checks in one pass:
+  1. DaydreamEdu leaf-registry health
+  2. GoodNotes leaf-registry health (default excludes `Not completed`)
+  3. Completion-template link gaps (default excludes `activity` / `note`)
+  4. Registry integrity audit (`validate_pdf_registry_integrity`)
+- Added explicit overall health contract:
+  - Exit `0` when all checks pass
+  - Exit `1` when any check fails
+  - Exit `2` when registry DB path is missing
+- Leaf-registry suite pass criteria align with command/docs policy: all included leaves must fall into `scan-root + all direct PDFs registered`.
+
 ## [v0.3.31] — Unified completion-date inference API + CLI (proposal 17 Phase 3 integration)
 
 - **`PdfFileManager.infer_completion_date_for_file`** — orchestrates the full §4 matrix in priority order: `handwritten_page1` (cached agent JSON), GoodNotes timestamps (`goodnotes_*`), `filename_term`, `drive_modified`. Respects `force` / `force_manual`.
