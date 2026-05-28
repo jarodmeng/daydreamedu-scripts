@@ -4,6 +4,27 @@ All notable changes to the pdf_file_manager utility are documented here.
 
 ---
 
+## [v0.3.33] — Rename guardrail for context + learning DB path remap
+
+- Added `scripts/rename_file_with_context_guardrail.py`:
+  - single-file guarded rename workflow for registry entries
+  - dry-run/apply modes
+  - linked artifact cascade across `context/` families:
+    - `marking_results`
+    - `learning_reports`
+    - `marking_assets`
+    - `student_review_states`
+    - `marking_amendments`
+  - archive-folder exclusion (`archive`, `_archive`)
+  - fail-fast behavior with recovery manifest output
+- Added transactional learning DB remap in apply mode for path-coupled fields:
+  - `marking_artifacts.artifact_path`, `artifact_stem`, `marking_asset`
+  - `student_review_states.review_state_path`, `marking_result_path`
+  - `marking_amendments.amendment_path`, `marking_result_path`
+  - `import_identity_map.source_path` (including `::` suffix keys)
+  - `import_quarantine.source_path` best-effort remap
+- Added focused tests in `tests/test_rename_file_with_context_guardrail.py`.
+
 ## [v0.3.32] — File framework integrity suite
 
 - Added consolidated script [`scripts/file_framework_integrity_suite.py`](./scripts/file_framework_integrity_suite.py) to run four framework checks in one pass:
