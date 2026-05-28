@@ -394,6 +394,12 @@ export default function InventoryApp() {
     });
   }
 
+  function updateSortAndApply(value: string): void {
+    const next = { ...draftState, sort: value };
+    setDraftState(next);
+    setAppliedState(next);
+  }
+
   return (
     <div className="inventory-shell inventory-legacy">
       <header className="legacy-header">
@@ -576,7 +582,7 @@ export default function InventoryApp() {
           </button>
           <label>
             <span>Sort</span>
-            <select value={draftState.sort} onChange={(e) => updateDraft("sort", e.target.value)}>
+            <select value={draftState.sort} onChange={(e) => updateSortAndApply(e.target.value)}>
               <option value="recent">Completed (recent)</option>
               <option value="name">Name (A-Z)</option>
             </select>

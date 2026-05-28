@@ -4,6 +4,12 @@ All notable changes to `ai_study_buddy/buddy_console` are documented here.
 
 ## [Unreleased]
 
+## [v0.1.2] - Inventory sort apply-on-change fix (2026-05-28)
+
+### Fixed
+
+1. Inventory **Sort** now applies immediately on change (including **Name (A-Z)**), so card order refreshes without requiring a separate **Apply filters** click.
+
 ## [v0.1.1] - Inventory completion dates and load fixes (2026-05-27)
 
 ### Added
