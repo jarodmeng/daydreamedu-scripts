@@ -27,7 +27,7 @@ from ai_study_buddy.marking.workflows.mark_student_work_multi_agent_v3 import (
 from ai_study_buddy.marking.workflows.report_renderer import render_learning_report_from_json
 from ai_study_buddy.pdf_file_manager.pdf_file_manager import PdfFileManager
 from batch_debug import write_debug_json
-from policies import english_finalize_required
+from policies import english_finalize_required_for_item, marking_mode_for_item
 from queue_common import DEFAULT_WORK_QUEUE_PATH, load_work_queue, normalize_phase2_rows, save_work_queue
 
 
@@ -52,8 +52,11 @@ def main() -> int:
     req = V3InputRequest(attempt_file_id_or_path=str(completion))
     attempt = resolve_attempt_input_to_pdf_file(manager=mgr, request=req)
     payload_queue = load_work_queue(args.queue)
-    queue_mode = payload_queue.get("marking_mode")
-    mode_kwarg = "teacher_annotated" if queue_mode == "teacher_annotated" else None
+    queue_item = next((i for i in payload_queue.get("items") or [] if i.get("ord") == args.ord), None)
+    if queue_item is None:
+        print(f"ERROR: ord={args.ord} not found in queue", file=sys.stderr)
+        return 1
+    mode_kwarg = marking_mode_for_item(queue_item, payload_queue)
     ctx = resolve_v3_marking_context(manager=mgr, request=req, marking_mode=mode_kwarg)
     template = mgr.get_template(attempt.id)
     authority = resolve_question_sections_authority(template_file=template)
@@ -62,7 +65,7 @@ def main() -> int:
         question_sections_payload=dict(authority.payload),
         phase2_rows=phase2_rows,
         phase3_rows=[],
-        english_required=english_finalize_required(payload_queue),
+        english_required=english_finalize_required_for_item(queue_item, payload_queue),
     )
     write_debug_json(
         bundle_root,

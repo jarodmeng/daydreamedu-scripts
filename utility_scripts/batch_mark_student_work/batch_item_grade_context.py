@@ -16,7 +16,8 @@ for p in (_REPO_ROOT, _SCRIPT_DIR):
 
 from batch_debug import bundle_debug_paths, write_v3_batch_grade_spec
 from ai_study_buddy.marking.workflows.mark_student_work_multi_agent_v3 import write_run_state
-from queue_common import load_work_queue, policy_prompt_for_payload
+from queue_common import load_work_queue
+from policies import policy_prompt_for_item
 
 V3_SKILL_REL = ".cursor/skills/mark-student-work-multi-agent-v3/SKILL.md"
 ORCHESTRATOR_AGENT = "mark-student-work-v3-batch-orchestrator"
@@ -125,7 +126,11 @@ def main() -> int:
 
     meta = json.loads(meta_path.read_text(encoding="utf-8"))
     payload = load_work_queue(args.queue)
-    marking_policy = policy_prompt_for_payload(payload)
+    item = next((i for i in payload.get("items") or [] if i.get("ord") == args.ord), None)
+    if item is None:
+        print(f"ERROR: ord={args.ord} not found in queue", file=sys.stderr)
+        return 1
+    marking_policy = policy_prompt_for_item(item, payload)
     out_path = args.output_phase2 or Path(DEFAULT_PHASE2_OUT.format(ord=args.ord))
     bundle_root = Path(meta["bundle_root"]).resolve()
     debug_paths = bundle_debug_paths(bundle_root)

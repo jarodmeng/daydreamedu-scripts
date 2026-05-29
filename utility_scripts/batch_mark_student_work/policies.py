@@ -147,6 +147,30 @@ def policy_prompt_for_payload(payload: dict[str, Any]) -> str:
     return BOOK_MARKING_POLICY_PROMPT
 
 
+def policy_prompt_for_item(item: dict[str, Any], payload: dict[str, Any]) -> str:
+    """Per-item policy wins when queue rows set ``policy`` (mixed-subject batches)."""
+    policy_name = item.get("policy")
+    if isinstance(policy_name, str) and policy_name in POLICY_BY_NAME:
+        kind = resolve_policy(policy_name)["policy_kind"]
+        return PROMPT_BY_POLICY_KIND.get(kind, BOOK_MARKING_POLICY_PROMPT)
+    return policy_prompt_for_payload(payload)
+
+
+def marking_mode_for_item(item: dict[str, Any], payload: dict[str, Any]) -> str | None:
+    mode = item.get("marking_mode") or payload.get("marking_mode")
+    return "teacher_annotated" if mode == "teacher_annotated" else None
+
+
+def english_finalize_required_for_item(item: dict[str, Any], payload: dict[str, Any]) -> bool:
+    subject = str(item.get("subject") or payload.get("subject") or "").strip().lower()
+    if subject == "english":
+        return True
+    policy_name = item.get("policy")
+    if isinstance(policy_name, str) and policy_name in POLICY_BY_NAME:
+        return resolve_policy(policy_name)["policy_kind"] == "english_exercise"
+    return english_finalize_required(payload)
+
+
 def default_marking_mode_for_policy(policy_name: str) -> str:
     """Return queue-level marking_mode string: teacher_annotated | standard_mapped_answer."""
     if policy_name in ("exercise", "english_exercise", "science_exercise", "chinese_exercise"):

@@ -260,6 +260,14 @@ def normalize_phase2_rows(rows: list[dict]) -> list[dict]:
                 diag["reasoning"] = None
             if isinstance(diag.get("confidence"), dict):
                 diag["confidence"] = "high"
+            elif isinstance(diag.get("confidence"), (int, float)):
+                score = float(diag["confidence"])
+                if score >= 0.85:
+                    diag["confidence"] = "high"
+                elif score >= 0.6:
+                    diag["confidence"] = "medium"
+                else:
+                    diag["confidence"] = "low"
             r["diagnosis"] = diag
         if r.get("human_note") == "":
             r["human_note"] = None

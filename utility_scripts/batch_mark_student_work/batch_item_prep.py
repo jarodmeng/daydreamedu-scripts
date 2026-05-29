@@ -31,6 +31,7 @@ from ai_study_buddy.marking.workflows.mark_student_work_multi_agent_v3 import (
 from ai_study_buddy.marking.workflows.v3_helpers import build_authoritative_marks_by_question
 from ai_study_buddy.pdf_file_manager.pdf_file_manager import PdfFileManager
 from batch_debug import write_v3_batch_prep_trace
+from policies import marking_mode_for_item
 from queue_common import DEFAULT_WORK_QUEUE_PATH, load_work_queue
 
 
@@ -56,8 +57,7 @@ def main() -> int:
     mgr = PdfFileManager()
     req = V3InputRequest(attempt_file_id_or_path=str(completion))
     attempt = resolve_attempt_input_to_pdf_file(manager=mgr, request=req)
-    queue_mode = payload.get("marking_mode")
-    mode_kwarg = "teacher_annotated" if queue_mode == "teacher_annotated" else None
+    mode_kwarg = marking_mode_for_item(item, payload)
     ctx = resolve_v3_marking_context(manager=mgr, request=req, marking_mode=mode_kwarg)
     bundle = resolve_or_create_bundle_for_v3_run(
         context_root=context_root,
