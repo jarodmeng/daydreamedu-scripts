@@ -139,6 +139,8 @@ Do not invent other **`question_type`** values.
 
 When a PDF contains both Booklet A and Booklet B (a merged file), detect all five section groups above. When a PDF is Paper 1 only, detect three groups (two MCQ bands + Booklet B SAQ). When a PDF is Paper 2 only, detect two groups (SAQ Q1–5 + LAQ Q6–15).
 
+When a **single PDF merges Paper 1 and Paper 2** (`merged_pdf` role), Paper 2 restarts numbering at **Q1** while Paper 1 already uses **Q1–Q30**. Apply the **`(P1)` / `(P2)` `question_index` suffix rule** (below) so every index is globally unique across the file.
+
 ### Weighted assessment (WA) and non-PSLE papers
 
 WA papers do not follow the Paper 1 / Paper 2 split. They may have:
@@ -222,6 +224,28 @@ Each section must carry a **`question_info`** array — one element per printed 
 - For MCQ: one row per numbered question (`Q1`, `Q30`, …); never subdivided.
 - For SAQ and LAQ: one row per independently answerable labelled part (separate **`Ans:`** line and/or **`[n]`** per line for LAQ).
 - Preserve reading order.
+
+#### Merged Paper 1 + Paper 2 PDFs — `(P1)` / `(P2)` disambiguation (mandatory)
+
+When **one inspected PDF** contains **both** PSLE **Paper 1** (Booklet A + Booklet B) **and** **Paper 2**, append a **paper suffix** to **every** `question_index` so IDs are **globally unique** across the whole file. Paper 2 uses its **own printed numbering** (Q1–Q5 SAQ, Q6–Q15 LAQ) and would otherwise collide with Paper 1 (`Q1` … `Q15`).
+
+| Paper | Printed range | `question_index` pattern | Examples |
+|-------|---------------|--------------------------|----------|
+| Paper 1 Booklet A + Booklet B | Q1–Q30 (continuous across booklets) | `Q{n}(P1)`; sub-parts `Q{n}(a)(P1)` | `Q1(P1)`, `Q25(a)(P1)`, `Q30(P1)` |
+| Paper 2 SAQ + LAQ | Q1–Q15 (restarts in booklet) | `Q{n}(P2)`; sub-parts `Q{n}(a)(P2)` | `Q1(P2)`, `Q3(a)(P2)`, `Q15(b)(P2)` |
+
+**Sub-part + paper token order:** append **part tokens first**, then the paper suffix — e.g. **`Q3(a)(P2)`**, **not** `Q3(P2)(a)`. This matches existing merged-exam FQI (e.g. `P5 Math EoY`).
+
+**When to omit `(P1)` / `(P2)`:**
+
+- PDF is **Paper 1 only** or **Paper 2 only** (no cross-paper numbering collision within the file).
+- **WA / topical / single-booklet** papers with one continuous Q1…Q*n* sequence.
+
+**When suffixes are required:**
+
+- **`merged_pdf`** (or equivalent) whose **`input_context.notes`** / layout shows Paper 1 **and** Paper 2 concatenated in one file.
+
+Record brief rationale in top-level **`debug.notes`** when suffixes are applied (e.g. *merged PSLE Paper 1+2; (P1)/(P2) disambiguation*).
 
 ### `question_mark`
 

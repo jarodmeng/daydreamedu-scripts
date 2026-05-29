@@ -35,6 +35,15 @@ See [math_exam_format.md](./math_exam_format.md) for the full exam structure.
 
 School papers do not always use the labels MCQ / SAQ / LAQ. The printed section heading or instruction line is the authoritative source. Structured outputs should use the three canonical values above as `question_type`; auxiliary fields can carry the printed section number range and mark totals.
 
+### Merged Paper 1 + Paper 2 — `question_index` disambiguation
+
+When **one PDF** merges PSLE **Paper 1** and **Paper 2**, Paper 2 restarts at **Q1** while Paper 1 already uses **Q1–Q30**. FQI / detector output must make every `question_index` **globally unique**:
+
+- **Paper 1** (Booklet A + Booklet B): `Q1(P1)` … `Q30(P1)`; sub-parts → `Q25(a)(P1)`.
+- **Paper 2** (SAQ Q1–5 + LAQ Q6–15): `Q1(P2)` … `Q15(b)(P2)` using **Paper 2’s printed numbers**; sub-parts → `Q3(a)(P2)` (**part token before paper suffix**).
+
+Do **not** add `(P1)` / `(P2)` for single-paper PDFs or WA/topical worksheets where numbering does not collide within the file.
+
 ---
 
 ## MCQ
