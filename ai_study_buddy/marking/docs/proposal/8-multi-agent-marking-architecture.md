@@ -133,7 +133,8 @@ graph TD
 
 This architecture is now implemented as a dedicated orchestrator skill plus role-specific subagent files.
 
-- `[x]` Orchestrator skill implemented (active): `.cursor/skills/mark-student-work-multi-agent-v2/SKILL.md`
+- `[x]` Orchestrator skill implemented (active): `.cursor/skills/mark-student-work-multi-agent-v3/SKILL.md`
+- `[x]` v2 orchestrator skill archived (2026-05-30): `.cursor/skills_archive/mark-student-work-multi-agent-v2/SKILL.md`
 - `[x]` Initial orchestrator skill implemented then archived: `.cursor/skills_archive/mark-student-work-multi-agent/SKILL.md`
 - `[x]` Monolithic skills archived:
   - `.cursor/skills_archive/mark-goodnote-completion/SKILL.md`
@@ -141,11 +142,15 @@ This architecture is now implemented as a dedicated orchestrator skill plus role
 
 Decision note (updated): separate `.cursor/agents/*.md` files were required in practice. This allows each subagent to set `model: inherit`, so every phase follows the orchestration agent's Auto mode/model selection policy consistently.
 
-- `[x]` Subagent roles implemented with `model: inherit`:
-  - `.cursor/agents/marking-phase1-mapper.md`
-  - `.cursor/agents/marking-phase2-fast-pass-grader.md`
-  - `.cursor/agents/marking-phase3-deep-dive.md`
-  - `.cursor/agents/marking-phase4-taxonomy-tagger.md`
+- `[x]` v3 subagent roles implemented with `model: inherit`:
+  - `.cursor/agents/marking-phase2-fast-pass-grader-v3.md`
+  - `.cursor/agents/marking-phase3-deep-dive-v3.md`
+  - `.cursor/agents/mark-student-work-v3-batch-orchestrator.md`
+- `[x]` v2 subagent roles archived (2026-05-30):
+  - `.cursor/agents_archive/marking-phase1-mapper.md`
+  - `.cursor/agents_archive/marking-phase2-fast-pass-grader.md`
+  - `.cursor/agents_archive/marking-phase3-deep-dive.md`
+  - `.cursor/agents_archive/marking-phase4-taxonomy-tagger.md`
 
 ### 4.3 Multi-Agent Workflow Checklist (Implementation Plan)
 

@@ -29,11 +29,10 @@
 
 ## P2 — require attention when there's free time
 
-- [ ] **P2-1** · 2026-05-06 11:15 SGT: Defer archiving `.cursor/skills/mark-student-work-multi-agent-v2` and its v2 subagents in `.cursor/agents/` until v3 completes production burn-in; keep v2 as fallback safety net, then archive after v3 is validated across subjects/modes and no active workflows depend on v2.
-- [ ] **P2-2** · 2026-05-06 12:08 SGT: Implement `pdf_file_manager/docs/proposals/11-hardening-agent-facing-api-and-skill-for-pdffile-shape.md` (agent-facing PdfFile shape hardening)—proposal drafted, implementation still pending.
-- [ ] **P2-3** · 2026-05-22 09:15 SGT: **Optional:** add a granular PATCH-style learning-DB write path for `marking_result` (e.g. one `question_results[]` row or a few fields) keyed by `artifact_path` / `question_id`—today whole-artifact upsert via `write_marking_artifact` / `dual_write` or `import_context_json` already keeps the DB correct; the gap is ergonomics (must re-project the full JSON) and drift risk when JSON is hand-edited on disk without re-import or an API save. **Not a Phase 4 DB-first-write blocker** if production writes stay on repository APIs.
-- [ ] **P2-4** · 2026-05-06 21:46 SGT: Reduce filename dependence in `marking/core/context_resolver.py` by improving `_infer_unit_label` fallback behavior (currently `derive_unit_label_from_attempt_name(file.name)`), preferring stricter metadata-first resolution where feasible.
-- [ ] **P2-5** · 2026-05-19 14:30 SGT: **`student_file_browser` HTTP tests (`tests/test_serve.py`)** — add a thin test hook on `serve.py` (e.g. injectable `roots` / `index_rows` / `enriched_cache` or `create_app(...)`) so tests do not require operator sync roots; then integration tests for `/api/health`, `/api/config`, `/api/inventory` (query → JSON `items` / `meta`), and `/api/pdf` path-guard failures. Complements existing `test_filters.py` + `test_path_guard.py` + manual smoke. See L4 Student File Management Open Questions §5.
+- [ ] **P2-1** · 2026-05-06 12:08 SGT: Implement `pdf_file_manager/docs/proposals/11-hardening-agent-facing-api-and-skill-for-pdffile-shape.md` (agent-facing PdfFile shape hardening)—proposal drafted, implementation still pending.
+- [ ] **P2-2** · 2026-05-22 09:15 SGT: **Optional:** add a granular PATCH-style learning-DB write path for `marking_result` (e.g. one `question_results[]` row or a few fields) keyed by `artifact_path` / `question_id`—today whole-artifact upsert via `write_marking_artifact` / `dual_write` or `import_context_json` already keeps the DB correct; the gap is ergonomics (must re-project the full JSON) and drift risk when JSON is hand-edited on disk without re-import or an API save. **Not a Phase 4 DB-first-write blocker** if production writes stay on repository APIs.
+- [ ] **P2-3** · 2026-05-06 21:46 SGT: Reduce filename dependence in `marking/core/context_resolver.py` by improving `_infer_unit_label` fallback behavior (currently `derive_unit_label_from_attempt_name(file.name)`), preferring stricter metadata-first resolution where feasible.
+- [ ] **P2-4** · 2026-05-19 14:30 SGT: **`student_file_browser` HTTP tests (`tests/test_serve.py`)** — add a thin test hook on `serve.py` (e.g. injectable `roots` / `index_rows` / `enriched_cache` or `create_app(...)`) so tests do not require operator sync roots; then integration tests for `/api/health`, `/api/config`, `/api/inventory` (query → JSON `items` / `meta`), and `/api/pdf` path-guard failures. Complements existing `test_filters.py` + `test_path_guard.py` + manual smoke. See L4 Student File Management Open Questions §5.
 
 ## Completed
 
@@ -51,4 +50,4 @@
 
 ### P2
 
-_No completed items._
+- [x] **P2-1** · 2026-05-06 11:15 SGT · completed 2026-05-30 10:00 SGT: Archive `.cursor/skills/mark-student-work-multi-agent-v2` and v2 subagents after v3 production burn-in — moved skill to `.cursor/skills_archive/mark-student-work-multi-agent-v2/` and phase agents to `.cursor/agents_archive/`; active marking uses v3 only (`mark-student-work-multi-agent-v3`, `mark-student-work-v3-batch-orchestrator`, `batch-mark-student-work`).

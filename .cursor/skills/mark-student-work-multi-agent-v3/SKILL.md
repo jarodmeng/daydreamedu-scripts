@@ -80,7 +80,7 @@ When using the `Task` tool to launch grading subagents after Phase A/B:
 
 `plan_phase2_batches(...)` only caps **parallel** section Tasks (default 5); it is not a multi-section grader scope.
 
-**Model selection:** Do **not** pass a `model` argument on these `Task` calls. The subagent definitions use frontmatter `model: inherit`; omitting `model` preserves that behavior (same policy as `.cursor/skills/mark-student-work-multi-agent-v2/SKILL.md` for its phase workers).
+**Model selection:** Do **not** pass a `model` argument on these `Task` calls. The subagent definitions use frontmatter `model: inherit`; omitting `model` preserves that behavior.
 
 **Phase 2 / Phase 3 prompt reminder:** Ensure Task prompts reinforce agent rules: **`diagnosis.reasoning` is only for learner-centric mistake explanation**—not provenance or how teacher marks were read (see `.cursor/agents/marking-phase2-fast-pass-grader-v3.md` and `marking-phase3-deep-dive-v3.md`).
 
