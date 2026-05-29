@@ -1,0 +1,47 @@
+{
+  "schema_version": "remaining-fqi-id-map-v1",
+  "generated_at": "2026-05-29T18:00:00+08:00",
+  "notes": "Maps marking result_id -> FQI question_index (schema-valid Q*). Apply via harmonize with --id-map-json inverted... harmonize maps marking old -> new, so keys are marking ids and values are FQI Q ids.",
+  "ord_5": {
+    "queue_ord": 5,
+    "template_file_id": "706490cb-eeae-4f3d-85b6-070cd5603e9d",
+    "marking_result_path": "marking_results/abigail/singapore_primary_math/Visible Thinking in Mathematics Primary 1A - Ch08 Addition And Subtraction Within 20 - Addition Within 20__20260420_123934.json",
+    "id_map": {
+      "TP-Q1": "Q1",
+      "TP-Q2-4": "Q2",
+      "AM-1a": "Q3(a)",
+      "AM-1b": "Q3(b)",
+      "AM-2a": "Q4(a)",
+      "AM-2b": "Q4(b)",
+      "AM-3": "Q5",
+      "AM-4": "Q6"
+    }
+  },
+  "ord_13": {
+    "queue_ord": 13,
+    "template_file_id": "d4a88714-46ac-41c7-8880-7a17fdfec310",
+    "marking_result_path": "marking_results/abigail/singapore_primary_math/Visible Thinking in Mathematics Primary 1A - Ch08 Addition And Subtraction Within 20 - Solving Addition And Subtraction Stories__20260420_124827.json",
+    "id_map": {
+      "TP-145": "Q1",
+      "TP-146": "Q2",
+      "AM-147-Q1": "Q3",
+      "AM-148-149-Q2": "Q4",
+      "AM-150-Q3": "Q5",
+      "AM-151-Q4": "Q6",
+      "AM-152-Q5": "Q7",
+      "AM-153-Q6": "Q8",
+      "AM-154-Example": "Q9",
+      "AM-155-Q7": "Q10",
+      "AM-156-Q8": "Q11",
+      "AM-157-160-Q9": "Q12",
+      "SUM-161-Q1to5": "Q13",
+      "SUM-162-Q6": "Q14",
+      "SUM-162-Q7": "Q15",
+      "SUM-162-Q8": "Q16",
+      "SUM-163-Q9": "Q17",
+      "SUM-163-Q10": "Q18",
+      "TOB-164-Q1to2": "Q19",
+      "CH8-165-Q3-shapes": "Q20"
+    }
+  }
+}

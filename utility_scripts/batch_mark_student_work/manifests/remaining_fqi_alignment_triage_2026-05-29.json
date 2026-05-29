@@ -1,0 +1,39 @@
+{
+  "schema_version": "remaining-fqi-alignment-triage-v1",
+  "generated_at": "2026-05-29T18:15:00+08:00",
+  "compare_report": "utility_scripts/batch_mark_student_work/manifests/remaining_fqi_vs_marking_question_page_map_2026-05-29.json",
+  "id_maps": "utility_scripts/batch_mark_student_work/manifests/remaining_fqi_id_maps_2026-05-29.json",
+  "summary": {
+    "fqi_patched_and_finalized": [5, 13],
+    "marking_harmonized_to_fqi_q_ids": [5, 13],
+    "strict_exact_match_count": 13,
+    "accepted_id_drift_count": 2,
+    "remaining_position_page_mismatch_count": 1
+  },
+  "rows": [
+    {
+      "queue_ord": 1,
+      "status": "accepted_id_drift",
+      "reason": "FQI uses Q1–Q5 per section; marking uses unique A1/B1/C1. Pages align; schema forbids duplicate Q ids in marking.",
+      "action": "none"
+    },
+    {
+      "queue_ord": 4,
+      "status": "accepted_id_drift",
+      "reason": "Same multi-section English weekly pattern as ord 1.",
+      "action": "none"
+    },
+    {
+      "queue_ord": 5,
+      "status": "resolved",
+      "reason": "FQI collapsed to 8 Q-index rows; marking harmonized via ord_5 id_map (TP-*/AM-* → Q1–Q6).",
+      "action": "none"
+    },
+    {
+      "queue_ord": 13,
+      "status": "resolved",
+      "reason": "FQI collapsed to 20 Q-index rows; marking harmonized via ord_13 id_map.",
+      "action": "none"
+    }
+  ]
+}
