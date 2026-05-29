@@ -5,7 +5,10 @@ from __future__ import annotations
 from collections.abc import Callable
 from dataclasses import dataclass, fields, replace
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from ai_study_buddy.marking.core.artifact_lookup import MarkingArtifactIndex
 
 from ai_study_buddy.files.completion_enrichment import enrich_registered_completion
 from ai_study_buddy.files.main_pdfs import OnDiskMainPdfRow
@@ -458,6 +461,7 @@ def enrich_on_disk_main_pdf(
     pfm: PdfFileManager,
     review_repo: StudentReviewRepository,
     context_root: Path,
+    artifact_index: MarkingArtifactIndex | None = None,
 ) -> OnDiskMainPdfCard:
     f = row.facets
     registered = is_pdf_registered(row.absolute_path, index)
@@ -526,6 +530,7 @@ def enrich_on_disk_main_pdf(
         context_root=context_root,
         pfm=pfm,
         review_repo=review_repo,
+        artifact_index=artifact_index,
     )
     card.has_marking = workflow.has_marking
     card.has_marking_amendment = workflow.has_marking_amendment
@@ -640,6 +645,9 @@ def build_enriched_inventory(
     review_repo: StudentReviewRepository,
     context_root: Path,
 ) -> list[OnDiskMainPdfCard]:
+    from ai_study_buddy.marking.core.artifact_lookup import build_marking_artifact_index
+
+    artifact_index = build_marking_artifact_index(context_root=context_root)
     return [
         enrich_on_disk_main_pdf(
             row,
@@ -647,6 +655,7 @@ def build_enriched_inventory(
             pfm=pfm,
             review_repo=review_repo,
             context_root=context_root,
+            artifact_index=artifact_index,
         )
         for row in rows
     ]

@@ -299,21 +299,22 @@ export default function InventoryApp() {
 
         const qs = toQueryString(appliedState);
         const suffix = qs ? `?${qs}` : "";
-        const configRes = await fetch(`/api/config${suffix}`);
+        const [configRes, inventoryRes] = await Promise.all([
+          fetch(`/api/config${suffix}`),
+          fetch(`/api/inventory${suffix}`),
+        ]);
         if (!configRes.ok) {
           throw new Error(`Inventory request failed (config ${configRes.status})`);
         }
+        if (!inventoryRes.ok) {
+          throw new Error(`Inventory request failed (inventory ${inventoryRes.status})`);
+        }
         const nextConfig = (await configRes.json()) as InventoryConfig;
+        const nextInventory = (await inventoryRes.json()) as InventoryResponse;
         if (cancelled) {
           return;
         }
         setConfig(nextConfig);
-
-        const inventoryRes = await fetch(`/api/inventory${suffix}`);
-        if (!inventoryRes.ok) {
-          throw new Error(`Inventory request failed (inventory ${inventoryRes.status})`);
-        }
-        const nextInventory = (await inventoryRes.json()) as InventoryResponse;
         if (!cancelled) {
           setInventory(nextInventory);
           inventoryReadyRef.current = true;

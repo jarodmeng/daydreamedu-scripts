@@ -6,7 +6,11 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from ai_study_buddy.marking.core.artifact_lookup import MarkingArtifactRef, find_marking_artifacts_for_attempt
+from ai_study_buddy.marking.core.artifact_lookup import (
+    MarkingArtifactIndex,
+    MarkingArtifactRef,
+    find_marking_artifacts_for_attempt,
+)
 from ai_study_buddy.marking.review.amendment_service import (
     build_amendment_context,
     normalize_amendment_state,
@@ -43,12 +47,14 @@ def load_completion_marking_context(
     context_root: Path,
     manager: PdfFileManager,
     review_repo: StudentReviewRepository,
+    artifact_index: MarkingArtifactIndex | None = None,
 ) -> CompletionMarkingContext:
     """Load marking artifact, review status, amendment presence, and resolved summary (if marked)."""
     refs = find_marking_artifacts_for_attempt(
         completion.id,
         manager=manager,
         context_root=context_root,
+        artifact_index=artifact_index,
     )
     if not refs:
         return CompletionMarkingContext(
@@ -129,6 +135,7 @@ def completion_workflow_flags(
     context_root: Path,
     manager: PdfFileManager,
     review_repo: StudentReviewRepository,
+    artifact_index: MarkingArtifactIndex | None = None,
 ) -> _CompletionWorkflowFlags:
     """Marking / amendment / review_status for one registered completion main."""
     ctx = load_completion_marking_context(
@@ -136,6 +143,7 @@ def completion_workflow_flags(
         context_root=context_root,
         manager=manager,
         review_repo=review_repo,
+        artifact_index=artifact_index,
     )
     return _CompletionWorkflowFlags(
         has_marking=ctx.has_marking,

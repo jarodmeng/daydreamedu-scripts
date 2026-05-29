@@ -2,6 +2,17 @@
 
 All notable changes to `ai_study_buddy/buddy_console` are documented here.
 
+## [v0.1.7] - Inventory load performance (2026-05-29)
+
+### Fixed
+
+1. Inventory enrichment is cached again in-process; cache invalidates when marking/review JSON under `context/` changes, on manual completion-date edits, and on review/amendment API writes — so review chips stay fresh without rebuilding on every `/api/config` + `/api/inventory` request.
+2. Inventory UI loads config and list in parallel after the first enriched build (shared cache + mutex).
+
+### Changed
+
+1. Depends on `files` **v0.3.9** and `marking` **v0.3.15** for a single marking-artifact index per enrichment pass (one `marking_results` scan) instead of per-PDF `rglob` lookups.
+
 ## [v0.1.6] - Inventory review status freshness (2026-05-28)
 
 ### Fixed

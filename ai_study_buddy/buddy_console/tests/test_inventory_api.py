@@ -61,6 +61,43 @@ def test_inventory_health_reports_files_package_version(tmp_path: Path) -> None:
     assert health.json()["files_version"] == files.__version__
 
 
+def test_get_enriched_cards_reuses_cache_until_workflow_changes(
+    monkeypatch, tmp_path: Path
+) -> None:
+    runtime = _runtime(tmp_path)
+    app.state.inventory_runtime = runtime
+    build_calls = {"n": 0}
+
+    def fake_build(*_args, **_kwargs):
+        build_calls["n"] += 1
+        return [_card(tmp_path / "goodnotes" / "Math" / "emma" / "P4" / "registered.pdf")]
+
+    monkeypatch.setattr(
+        "ai_study_buddy.buddy_console.backend.inventory_api.build_enriched_inventory",
+        fake_build,
+    )
+    monkeypatch.setattr(
+        "ai_study_buddy.buddy_console.backend.inventory_api._workflow_context_stamp",
+        lambda _root: 1.0,
+    )
+
+    from ai_study_buddy.buddy_console.backend.inventory_api import _get_enriched_cards
+
+    first = _get_enriched_cards(runtime)
+    second = _get_enriched_cards(runtime)
+    assert build_calls["n"] == 1
+    assert first is second
+
+    runtime._enriched_workflow_stamp = 0.0
+    monkeypatch.setattr(
+        "ai_study_buddy.buddy_console.backend.inventory_api._workflow_context_stamp",
+        lambda _root: 2.0,
+    )
+    third = _get_enriched_cards(runtime)
+    assert build_calls["n"] == 2
+    assert third is not first
+
+
 def test_inventory_config_and_list(monkeypatch, tmp_path: Path) -> None:
     runtime = _runtime(tmp_path)
     app.state.inventory_runtime = runtime

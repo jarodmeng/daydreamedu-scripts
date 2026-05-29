@@ -4,6 +4,11 @@ All notable changes to the **`ai_study_buddy.files`** package are documented her
 
 ---
 
+## [v0.3.9] — Batch marking artifact index for inventory enrichment
+
+- **`build_enriched_inventory`:** builds one `marking.core.artifact_lookup.build_marking_artifact_index` per pass and passes it through `enrich_on_disk_main_pdf` / `enrich_registered_completion` (avoids per-PDF `marking_results` `rglob`).
+- Consumer: `buddy_console` v0.1.7 inventory load performance.
+
 ## [v0.3.8] — Package `__version__`
 
 - **`__version__`:** single runtime version string on `ai_study_buddy.files` (importable; listed in `__all__`).

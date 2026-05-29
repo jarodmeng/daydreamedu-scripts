@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections import defaultdict
 from dataclasses import dataclass
 from datetime import datetime, timezone
 import json
@@ -19,6 +20,94 @@ class MarkingArtifactRef:
 
     marking_result_json: Path
     learning_report_md: Path
+
+
+@dataclass(frozen=True)
+class MarkingArtifactIndex:
+    """Pre-built marking artifact lookup (one filesystem scan under ``marking_results/``)."""
+
+    by_completion_id: dict[str, tuple[MarkingArtifactRef, ...]]
+    by_completion_path: dict[str, tuple[MarkingArtifactRef, ...]]
+
+
+def build_marking_artifact_index(
+    *,
+    context_root: str | Path,
+    match_condition: MatchCondition = "json_only",
+) -> MarkingArtifactIndex:
+    """Index marking-result JSON files by completion id and normalized attempt path."""
+    root = Path(context_root)
+    results_root = root / "marking_results"
+    if not results_root.is_dir():
+        return MarkingArtifactIndex(by_completion_id={}, by_completion_path={})
+
+    by_id: dict[str, list[tuple[float, str, MarkingArtifactRef]]] = defaultdict(list)
+    by_path: dict[str, list[tuple[float, str, MarkingArtifactRef]]] = defaultdict(list)
+
+    for student_dir in results_root.iterdir():
+        if not student_dir.is_dir():
+            continue
+        student_slug = student_dir.name
+        for json_path in student_dir.rglob("*.json"):
+            payload = _load_json_safely(json_path)
+            if payload is None:
+                continue
+            context = payload.get("context")
+            if not isinstance(context, dict):
+                continue
+            report_path = _build_report_path(
+                json_path=json_path,
+                context_root=root,
+                student_slug=student_slug,
+            )
+            if match_condition == "json_and_report" and not report_path.exists():
+                continue
+            ref = MarkingArtifactRef(marking_result_json=json_path, learning_report_md=report_path)
+            created_epoch = _as_utc_epoch(_parse_created_at(payload.get("created_at")))
+            sort_key = json_path.as_posix()
+
+            attempt_file_id = context.get("attempt_file_id")
+            if isinstance(attempt_file_id, str) and attempt_file_id.strip():
+                by_id[attempt_file_id.strip()].append((created_epoch, sort_key, ref))
+
+            attempt_file_path = context.get("attempt_file_path")
+            if isinstance(attempt_file_path, str) and attempt_file_path.strip():
+                resolved = resolve_marking_artifact_paths(payload)
+                resolved_context = resolved.get("context")
+                if isinstance(resolved_context, dict):
+                    resolved_path = resolved_context.get("attempt_file_path")
+                    if isinstance(resolved_path, str) and resolved_path.strip():
+                        norm = _normalize_path(resolved_path)
+                        by_path[norm].append((created_epoch, sort_key, ref))
+
+    def _finalize(
+        buckets: dict[str, list[tuple[float, str, MarkingArtifactRef]]],
+    ) -> dict[str, tuple[MarkingArtifactRef, ...]]:
+        out: dict[str, tuple[MarkingArtifactRef, ...]] = {}
+        for key, entries in buckets.items():
+            entries.sort(key=lambda row: (-row[0], row[1]))
+            out[key] = tuple(ref for _, _, ref in entries)
+        return out
+
+    return MarkingArtifactIndex(
+        by_completion_id=_finalize(by_id),
+        by_completion_path=_finalize(by_path),
+    )
+
+
+def _refs_from_index(
+    index: MarkingArtifactIndex,
+    *,
+    completion_id: str,
+    completion_path: str,
+) -> list[MarkingArtifactRef]:
+    refs = index.by_completion_id.get(completion_id)
+    if refs:
+        return list(refs)
+    refs = index.by_completion_path.get(completion_path)
+    if refs:
+        return list(refs)
+    return []
 
 
 def _find_via_filesystem(
@@ -73,6 +162,7 @@ def find_marking_artifacts_for_attempt(
     match_condition: MatchCondition = "json_only",
     manager: PdfFileManager | None = None,
     context_root: str | Path = "ai_study_buddy/context",
+    artifact_index: MarkingArtifactIndex | None = None,
 ) -> list[MarkingArtifactRef]:
     """Return matched artifacts for one completion attempt.
 
@@ -91,6 +181,15 @@ def find_marking_artifacts_for_attempt(
         attempt_file_id_or_path, manager=manager
     )
     completion_path = _normalize_path(completion_file.path)
+
+    if artifact_index is not None:
+        indexed = _refs_from_index(
+            artifact_index,
+            completion_id=completion_file.id,
+            completion_path=completion_path,
+        )
+        if indexed:
+            return indexed
 
     root = Path(context_root)
 

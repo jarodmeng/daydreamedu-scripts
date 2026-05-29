@@ -5,9 +5,12 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from ai_study_buddy.marking.review.repository import StudentReviewRepository
+
+if TYPE_CHECKING:
+    from ai_study_buddy.marking.core.artifact_lookup import MarkingArtifactIndex
 from ai_study_buddy.pdf_file_manager.pdf_file_manager import PdfFile, PdfFileManager
 
 
@@ -54,6 +57,7 @@ def enrich_registered_completion(
     context_root: Path,
     pfm: PdfFileManager,
     review_repo: StudentReviewRepository,
+    artifact_index: MarkingArtifactIndex | None = None,
 ) -> RegisteredCompletionEnrichment:
     # Lazy import avoids ``files`` ↔ ``marking`` cycle when ``marking`` loads via ``files.roots``.
     from ai_study_buddy.marking.review.workflow_flags import load_completion_marking_context
@@ -63,6 +67,7 @@ def enrich_registered_completion(
         context_root=context_root,
         manager=pfm,
         review_repo=review_repo,
+        artifact_index=artifact_index,
     )
     earned, total, pct = (
         _marking_score_from_summary(ctx.resolved_summary) if ctx.has_marking else (None, None, None)

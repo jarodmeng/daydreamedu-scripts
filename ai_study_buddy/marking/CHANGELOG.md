@@ -4,6 +4,20 @@ All notable changes to `ai_study_buddy.marking` are documented in this file.
 
 Committed changes under `ai_study_buddy/marking/` should add an entry here and bump **Current version** in `README.md` (semver: **patch** for docs or small renderer tweaks, **minor** for schema or public API changes). `SPEC.md` / `TESTING.md` titles do not carry the package version.
 
+## [0.3.15] - 2026-05-29
+
+Patch: batch marking artifact index for inventory enrichment and buddy_console cache invalidation.
+
+### Added
+
+- `marking/core/artifact_lookup.py`: `MarkingArtifactIndex`, `build_marking_artifact_index` (one `marking_results` scan); optional `artifact_index` on `find_marking_artifacts_for_attempt`.
+- `marking/tests/test_artifact_index.py`: index grouping and index-backed lookup tests.
+
+### Changed
+
+- `marking/review/workflow_flags.py`: optional `artifact_index` on `load_completion_marking_context` / `completion_workflow_flags`.
+- `marking/review/api_routes.py`: invalidate `buddy_console` enriched inventory cache after review-state and amendment writes.
+
 ## [0.3.14] - 2026-05-25
 
 Patch: v3 batch re-mark hygiene and superseded-run cleanup.

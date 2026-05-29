@@ -1,6 +1,6 @@
 """Shared filesystem utilities for AI Study Buddy."""
 
-__version__ = "0.3.8"
+__version__ = "0.3.9"
 
 from .leaf_folders import (
     is_goodnotes_excluded_relative_path,

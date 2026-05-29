@@ -3,7 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, Request
 
 from ai_study_buddy.pdf_file_manager.pdf_file_manager import PdfFileManager
 from ai_study_buddy.marking.review.attempt_service import list_attempts_for_student, list_students
@@ -74,12 +74,25 @@ def attempt_detail(attempt_id: str) -> dict[str, Any]:
         raise HTTPException(status_code=404, detail="attempt not found") from None
 
 
+def _invalidate_buddy_console_inventory_cache(request: Request) -> None:
+    try:
+        from ai_study_buddy.buddy_console.backend.inventory_api import invalidate_enriched_cache
+
+        invalidate_enriched_cache(request.app)
+    except ImportError:
+        pass
+
+
 @router.put("/api/student/attempts/{attempt_id}/review-state")
-def update_review_state(attempt_id: str, body: dict[str, Any]) -> dict[str, Any]:
+def update_review_state(
+    request: Request,
+    attempt_id: str,
+    body: dict[str, Any],
+) -> dict[str, Any]:
     manager = _manager()
     repo = _repo()
     try:
-        return put_review_state(
+        result = put_review_state(
             attempt_id=attempt_id,
             body=body,
             context_root=CONTEXT_ROOT,
@@ -88,10 +101,16 @@ def update_review_state(attempt_id: str, body: dict[str, Any]) -> dict[str, Any]
         )
     except ReviewStateWriteError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from None
+    _invalidate_buddy_console_inventory_cache(request)
+    return result
 
 
 @router.put("/api/student/attempts/{attempt_id}/amendments")
-def update_amendments(attempt_id: str, body: dict[str, Any]) -> dict[str, Any]:
+def update_amendments(
+    request: Request,
+    attempt_id: str,
+    body: dict[str, Any],
+) -> dict[str, Any]:
     manager = _manager()
     repo = _repo()
     try:
@@ -119,3 +138,4 @@ def update_amendments(attempt_id: str, body: dict[str, Any]) -> dict[str, Any]:
         raise HTTPException(status_code=400, detail={"errors": exc.errors}) from None
     except AmendmentWriteError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from None
+    _invalidate_buddy_console_inventory_cache(request)
