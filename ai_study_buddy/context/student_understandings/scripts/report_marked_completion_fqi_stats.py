@@ -6,6 +6,9 @@ Traces active marking_result rows under
 template ``file_question_info`` run and aggregates question counts and counted
 ``earned_marks`` / ``max_marks`` by FQI ``question_type``.
 
+Mark totals use **resolved** question rows (base marking result + active
+``marking_amendments`` overrides), matching the review workspace.
+
 Examples::
 
   python3 report_marked_completion_fqi_stats.py --student-slug winston --subject-context singapore_primary_math
@@ -32,6 +35,11 @@ if str(_REPO_ROOT) not in sys.path:
 
 from ai_study_buddy.learning_db.core.connection import default_context_root, default_db_path
 from ai_study_buddy.marking.file_question_info.api import iter_questions_ordered
+from ai_study_buddy.marking.review.amendment_service import (
+    build_amendment_context,
+    normalize_amendment_state,
+    resolve_marking_result,
+)
 
 _PREFERRED_TYPE_ORDER = ("MCQ", "SAQ", "LAQ")
 
@@ -144,6 +152,71 @@ def _fqi_schema_included(schema_version: str, prefixes: tuple[str, ...]) -> bool
     return any(schema_version.startswith(prefix) for prefix in prefixes)
 
 
+def _parse_raw_json_object(raw_json: object) -> dict[str, Any] | None:
+    if raw_json is None:
+        return None
+    if isinstance(raw_json, dict):
+        return raw_json
+    if isinstance(raw_json, (bytes, bytearray)):
+        raw_json = raw_json.decode("utf-8", errors="replace")
+    if isinstance(raw_json, str):
+        try:
+            parsed = json.loads(raw_json)
+        except json.JSONDecodeError:
+            return None
+        return parsed if isinstance(parsed, dict) else None
+    return None
+
+
+def _load_resolved_question_results(
+    conn: sqlite3.Connection,
+    *,
+    artifact_id: str,
+    artifact_path: str,
+) -> tuple[list[dict[str, Any]], bool]:
+    """Return question_results with active marking_amendments applied (review-workspace semantics)."""
+
+    row = conn.execute(
+        "SELECT raw_json FROM marking_artifacts WHERE artifact_id = ? AND is_deleted = 0",
+        (artifact_id,),
+    ).fetchone()
+    base = _parse_raw_json_object(row["raw_json"] if row else None)
+    if base is None:
+        return [], False
+
+    amend_row = conn.execute(
+        """
+        SELECT raw_json
+        FROM marking_amendments
+        WHERE artifact_id = ? AND is_deleted = 0
+        LIMIT 1
+        """,
+        (artifact_id,),
+    ).fetchone()
+    amendment_raw = _parse_raw_json_object(amend_row["raw_json"] if amend_row else None)
+    has_amendment = amendment_raw is not None
+
+    base_context = base.get("context") if isinstance(base.get("context"), dict) else {}
+    attempt_id = base_context.get("attempt_file_id")
+    context = build_amendment_context(
+        base_payload=base,
+        attempt_id=str(attempt_id or ""),
+        marking_result_path=artifact_path,
+        fallback_student_id=base_context.get("student_id")
+        if isinstance(base_context.get("student_id"), str)
+        else None,
+    )
+    amendment_state = normalize_amendment_state(amendment_raw, context=context)
+    try:
+        resolved = resolve_marking_result(base_payload=base, amendment_state=amendment_state)
+    except Exception:
+        rows = base.get("question_results") if isinstance(base.get("question_results"), list) else []
+        return [row for row in rows if isinstance(row, dict)], has_amendment
+
+    rows = resolved.get("question_results") if isinstance(resolved.get("question_results"), list) else []
+    return [row for row in rows if isinstance(row, dict)], has_amendment
+
+
 def _fetch_markings(
     conn: sqlite3.Connection,
     *,
@@ -204,6 +277,7 @@ def build_marked_completion_fqi_stats(
         missing_template: list[str] = []
         unknown_result_ids: list[dict[str, str]] = []
         excluded_completions: list[dict[str, str]] = []
+        marking_amendments_applied_count = 0
 
         for row in markings:
             artifact_path = str(row["artifact_path"])
@@ -261,18 +335,19 @@ def build_marked_completion_fqi_stats(
                 fqi_by_type[qtype] += 1
                 file_fqi_counts[qtype] += 1
 
-            marking_rows = conn.execute(
-                """
-                SELECT result_id, max_marks, earned_marks, scoring_status
-                FROM marking_question_results
-                WHERE artifact_id = ?
-                """,
-                (artifact_id,),
-            ).fetchall()
+            marking_rows, has_amendment = _load_resolved_question_results(
+                conn,
+                artifact_id=artifact_id,
+                artifact_path=artifact_path,
+            )
+            if has_amendment:
+                marking_amendments_applied_count += 1
             marking_count = len(marking_rows)
             types_in_file: set[str] = set()
             for mrow in marking_rows:
-                result_id = str(mrow["result_id"])
+                result_id = str(mrow.get("result_id") or "")
+                if not result_id:
+                    continue
                 qtype = qid_to_type.get(result_id, "UNKNOWN")
                 if qtype == "UNKNOWN":
                     unknown_result_ids.append(
@@ -280,14 +355,14 @@ def build_marked_completion_fqi_stats(
                     )
                 marking_by_type[qtype] += 1
                 types_in_file.add(qtype)
-                if str(mrow["scoring_status"] or "") != "counted":
+                if str(mrow.get("scoring_status") or "") != "counted":
                     excluded_disqualified_count += 1
                     continue
                 _accumulate_marks(
                     marks_by_type,
                     qtype,
-                    max_marks=mrow["max_marks"],
-                    earned_marks=mrow["earned_marks"],
+                    max_marks=mrow.get("max_marks"),
+                    earned_marks=mrow.get("earned_marks"),
                 )
 
             files_by_type_mix[tuple(sorted(types_in_file))] += 1
@@ -370,6 +445,7 @@ def build_marked_completion_fqi_stats(
                 },
             },
             "excluded_disqualified_question_count": excluded_disqualified_count,
+            "marking_amendments_applied_count": marking_amendments_applied_count,
             "marking_marks_by_type": _marks_buckets_to_report(
                 marks_by_type,
                 question_types=marks_report_types,
@@ -423,6 +499,7 @@ def render_markdown(report: dict[str, Any]) -> str:
         f"- Missing template file id: {report['missing_template_file_id_count']}",
         f"- Missing FQI: {report['missing_fqi_count']}",
         f"- Excluded/disqualified question rows (not in marks totals): {report.get('excluded_disqualified_question_count', 0)}",
+        f"- Marking results with amendments applied to marks: **{report.get('marking_amendments_applied_count', 0)}**",
         f"- FQI schema versions: `{json.dumps(report['fqi_schema_versions'], ensure_ascii=False)}`",
         "",
         "## FQI question totals",
@@ -478,8 +555,9 @@ def render_markdown(report: dict[str, Any]) -> str:
                 "",
                 "## Marks by question type",
                 "",
-                "Sums `earned_marks` and `max_marks` from marking rows with `scoring_status=counted`, "
-                "mapped to FQI `question_type`.",
+                "Sums resolved `earned_marks` and `max_marks` (base marking result + active "
+                "`marking_amendments`) for rows with `scoring_status=counted`, mapped to FQI "
+                "`question_type`.",
                 "",
                 "| Type | Questions | Earned | Max | % |",
                 "|------|----------:|-------:|----:|--:|",
@@ -585,8 +663,10 @@ def _print_human(report: dict[str, Any]) -> None:
             print(f"  {qtype}: {marking['by_type'][qtype]}")
     print(f"  total: {marking['total']}")
     marks = report.get("marking_marks_by_type") or {}
+    if report.get("marking_amendments_applied_count"):
+        print(f"marking_amendments_applied_count: {report['marking_amendments_applied_count']}")
     if marks.get("by_type"):
-        print("\nMarks by question type (counted rows):")
+        print("\nMarks by question type (counted rows, amendment-resolved):")
         for qtype, row in marks["by_type"].items():
             print(
                 f"  {qtype}: {row['earned_marks']}/{row['max_marks']} marks "
