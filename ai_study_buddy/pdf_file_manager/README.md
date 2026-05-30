@@ -1,8 +1,8 @@
 # pdf_file_manager
 
-**Version: v0.3.34**
+**Version: v0.3.35**
 
-A local utility that keeps a SQLite registry of PDF files in the study archive. It tracks exams, exercises, books, activities, notes, and templates (with optional completed variants), keeps on-disk paths and database records in sync, and supports first-class book unit → answer-page mappings inside `group_type='book'` collections. Optional **completion dates** record when student work was done (separate from registry registration time). You can scan one or more folders for new PDFs, optionally compress and archive originals, classify documents by type and metadata, group multi-file documents (e.g. exam booklets or book folders), link completions to templates, and query or import validated book-answer coverage. Every state-mutating operation is recorded in an append-only operation log.
+A local utility that keeps a SQLite registry of PDF files in the study archive. It tracks exams, exercises, books, activities, compositions, notes, and templates (with optional completed variants), keeps on-disk paths and database records in sync, and supports first-class book unit → answer-page mappings inside `group_type='book'` collections. Optional **completion dates** record when student work was done (separate from registry registration time). You can scan one or more folders for new PDFs, optionally compress and archive originals, classify documents by type and metadata, group multi-file documents (e.g. exam booklets or book folders), link completions to templates, and query or import validated book-answer coverage. Every state-mutating operation is recorded in an append-only operation log.
 
 **Typical workflow:** Add scan roots (e.g. Google Drive folders) and students → run **scan** on the exact folder you want to ingest → **classify** with `doc_type`, `subject`, and metadata → use **suggest-groups** for exams, or let scan infer/group `.../Book/<book name>/...` folders as books, then link templates as needed. For books, grouped members are canonical general-scope templates; student mirror files are represented via template links, not duplicate group members. Only main files are ingested by the pipeline; raw archives are kept for traceability.
 
@@ -22,7 +22,7 @@ A local utility that keeps a SQLite registry of PDF files in the study archive. 
 
 ## Type dimensions
 
-Every file has two independent attributes: **file_type** (main vs raw vs unknown — which file is the primary one for ingestion) and **doc_type** (`exam`, `exercise`, `book`, `activity`, `note` — what kind of content). The former drives processing and naming; the latter drives metadata shape and how the ingestion pipeline routes the file.
+Every file has two independent attributes: **file_type** (main vs raw vs unknown — which file is the primary one for ingestion) and **doc_type** (`exam`, `exercise`, `book`, `activity`, `composition`, `note` — what kind of content). The former drives processing and naming; the latter drives metadata shape and how the ingestion pipeline routes the file.
 `metadata.unit` is enforced as a **book-only** metadata key (`doc_type='book'`).
 
 For a quick reference on file-level metadata vs group-level fields (including `metadata.unit`, `label`, `group_type`, and legacy `role`), see [`DATA_MODEL.md`](./DATA_MODEL.md).

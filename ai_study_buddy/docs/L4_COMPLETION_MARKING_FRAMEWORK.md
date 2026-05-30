@@ -145,6 +145,7 @@ Inventory enrichment (`files` v0.3.3+) exposes `attempt_sequence`, `attempt_coun
 | No `completed_from` / template link | All series fields `null` |
 | Template missing or not a template | Series `None` |
 | Activity / note completions (no template link) | Series fields `null` |
+| Composition completions (no template link) | Series fields `null`; valid operator-universe completions without `completed_from` |
 | Completion not in registry at mark time | Writer **degraded mode**: `attempt_sequence = 1` when `template_file_id` set (no JSON scan) |
 
 ### Historical repair

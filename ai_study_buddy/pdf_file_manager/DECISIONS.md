@@ -4,6 +4,32 @@ Decisions that shaped the design of this utility. Each entry records what was de
 
 ---
 
+## D-016 — `composition` doc_type and `Composition/` L3 folder
+
+**Date:** 2026-05-30  
+**Status:** Decided  
+**Affects:** `pdf_file_manager.py`, `schema.sql`, `composition_filenames.py`, migration scripts, `ARCHITECTURE.md`, [proposal 18](./docs/proposals/18-composition-doc-type.md)
+
+### Context
+
+Composition (作文), English Paper 1 (continuous + situational writing), and related writing practice were stored under d_root `.../Activity/` with `doc_type=activity`. That conflated generic topic activities with student writing samples. 38 logical items (76 registry rows) needed a dedicated L3 folder and enum.
+
+### Decision
+
+1. **Sixth canonical `doc_type`** — Add `composition` to `_ALLOWED_DOC_TYPES` and the `pdf_files.doc_type` CHECK. L3 folder `Composition` maps to `doc_type=composition` and `metadata.content_folder=Composition` via `_infer_from_path` (folder segment only; no filename fallback at runtime).
+2. **Operator universe** — Composition completions **remain included** in default operator/report filters. Do **not** add `composition` to `COMPLETION_UNIVERSE_EXCLUDED_DOC_TYPES` (still only `activity`, `note`).
+3. **No template requirement** — Composition completions are valid without a `completed_from` template link; template integrity checks for `exam`/`exercise`/`book` are unchanged.
+4. **g_root book situational writing** — Power Pack situational-writing units under `Book/` stay `doc_type=book`; no disk moves.
+5. **One-shot migration** — Basename heuristics in `composition_filenames.py` select Activity-folder candidates; `_migrate_activity_compositions_to_composition.py` moves files via `PdfFileManager.move_file` and updates scan roots. Executed 2026-05-30: 76 rows migrated, 8 Composition scan roots ensured.
+
+### Consequences
+
+- Canonical enum: `exam`, `exercise`, `book`, `activity`, `composition`, `note`.
+- Buddy Console and completion-template gap reports treat composition like exam/exercise/book (not hidden like activity/note).
+- Future marking and completion-date workflows can target writing samples without overloading `activity`.
+
+---
+
 ## D-015 — Separate `file_completion_dates` table (not `pdf_files.metadata` or `added_at` proxy)
 
 **Date:** 2026-05-26  

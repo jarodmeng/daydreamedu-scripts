@@ -4,6 +4,17 @@ All notable changes to the pdf_file_manager utility are documented here.
 
 ---
 
+## [v0.3.35] — `composition` doc_type and Activity → Composition migration
+
+- Added sixth canonical **`doc_type`**: `composition`, mapped from L3 folder **`Composition`** (`metadata.content_folder=Composition`) in `_infer_from_path`.
+- Schema CHECK and auto-rebuild on open when `'composition'` is missing from the constraint ([`scripts/migrate_add_composition_doc_type.py`](./scripts/migrate_add_composition_doc_type.py)).
+- Shared basename heuristics for one-shot migration selection: [`composition_filenames.py`](./composition_filenames.py).
+- One-shot d_root migration: [`scripts/_migrate_activity_compositions_to_composition.py`](./scripts/_migrate_activity_compositions_to_composition.py) — 38 logical items (76 registry rows) moved from `Activity/` to sibling `Composition/` (executed 2026-05-30).
+- **Operator universe:** composition completions stay included in default reports (unlike `activity` / `note`); no template link required for composition completions.
+- **Out of scope:** g_root Power Pack situational-writing book units remain `doc_type=book` under `Book/`.
+- **Fix:** `infer_completion_dates` batch cohort — `--doc-type` filter no longer passes a list to `find_files` (regression fix).
+- Docs: `DATA_MODEL.md`, `SPEC.md`, `README.md`, `ARCHITECTURE.md`, `DECISIONS.md` (D-016), L4 framework docs, [proposal 18](./docs/proposals/18-composition-doc-type.md).
+
 ## [v0.3.34] — Integrity suite: marking cardinality check
 
 - `scripts/file_framework_integrity_suite.py` now includes a sixth check:

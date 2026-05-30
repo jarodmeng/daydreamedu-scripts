@@ -37,7 +37,7 @@ If none of the above apply, `resolve_goodnotes_root()` returns `None`.
 |-------|----------------|----------|
 | **L1** | Subject | May be short (`Chinese`, `Math`) or longer (`Singapore Primary English`, `Singapore Primary Math`). Inference matches the subject word (e.g. "English" → `english`). |
 | **L2** | Student (email-named) or general scope | Student: `<student email>` (then has Px/PSLE inside). General: any non-email segment — `P3`, `P4`, `P5`, `P6`, `PSLE` — **files under general scope are templates** (`is_template=True`). |
-| **L3** | Content type | `Exam`, `Exercise`, `Book`, `Activity`, `Note` |
+| **L3** | Content type | `Exam`, `Exercise`, `Book`, `Activity`, `Composition`, `Note` |
 
 So a full path might be: `DaydreamEdu/Singapore Primary Math/<student email>/P6/Exam/...` or `DaydreamEdu/Singapore Primary Science/P6/Exercise/...`. Student-specific folders are named by the student's email; the file manager can map that path segment to `student_id` via the `students.email` column when present. **Shallow paths:** Some files (e.g. answer keys) sit directly under L1 with no L2/L3; for those, only subject (and optionally filename-based `source_book`) can be inferred; `content_folder`, `grade_or_scope`, and `is_template` are left unset or for human classification.
 
@@ -49,6 +49,7 @@ So a full path might be: `DaydreamEdu/Singapore Primary Math/<student email>/P6/
 | **Exercise** | Day-to-day exercises. | `exercise` | Yes. |
 | **Book** | Whole-book or book-organized PDFs managed at the book level. | `book` | Not necessarily by questions. |
 | **Activity** | Topic-related study activities; often accompany a textbook or topic. | `activity` | Not necessarily by questions. |
+| **Composition** | Student writing work: essays, situational/continuous writing, exam Paper 1 writing sections. | `composition` | Writing samples; not necessarily question-based. |
 | **Note** | Study notes; various formats. | `note` | Not necessarily by questions. |
 
 **Book-derived content and special prefixes:** Some content comes from named books; filenames may use a prefix to indicate source:
@@ -60,7 +61,7 @@ So a full path might be: `DaydreamEdu/Singapore Primary Math/<student email>/P6/
 
 Content from these books may be split across multiple folders by "nature of the portions". **Answers** files (answer keys) do not roll up to a single folder — they apply to a book or set of exercises. How to treat them is discussed in **Answers files** below.
 
-**Folder-based inference (optional):** When registering or scanning under this root, the file manager can infer: **subject** from L1 folder name — match a known subject word (e.g. `Chinese`, `Math`, `Science`, `English`), including when L1 is longer (e.g. `Singapore Primary English` → `english`); **student_id** when a path segment matches a registered `students.email` value (otherwise the path is treated as general scope); **is_template** — `True` when the file is under a general-scope L2 folder (any non-email L2, e.g. `P3`, `P4`, `P5`, `P6`, `PSLE`), `False` when under a student (email-named) folder; **metadata.grade_or_scope** from L2 when not student-specific; **metadata.content_folder** from L3 (`Exam`, `Exercise`, `Book`, `Activity`, `Note`); **metadata.source_book** from filename prefix when recognised (e.g. `PP`, `PP `, `EPO`, `EPO_`); **metadata.unit** for files under `.../Book/<book name>/...`, inferred from filename after removing technical prefixes like `_c_` / `_raw_` and trimming a redundant shared label where possible. For **files directly under L1** (no L2/L3, e.g. answer keys in `Subject/Answers.pdf`), only subject and optionally `source_book` from the filename are inferred; `is_template`, `content_folder`, and `grade_or_scope` are not set by path. Inference is best-effort; any inferred value can be overridden by a human. **Precedence:** When a scan root has `student_id` set, that value is used for all files discovered under that root and overrides path-based student inference. **Implementation:** `_infer_from_path(path)` implements subject/doc_type/is_template/metadata inference, and the manager separately resolves `student_id` from registered student emails found in the path when an explicit scan-root `student_id` is not provided.
+**Folder-based inference (optional):** When registering or scanning under this root, the file manager can infer: **subject** from L1 folder name — match a known subject word (e.g. `Chinese`, `Math`, `Science`, `English`), including when L1 is longer (e.g. `Singapore Primary English` → `english`); **student_id** when a path segment matches a registered `students.email` value (otherwise the path is treated as general scope); **is_template** — `True` when the file is under a general-scope L2 folder (any non-email L2, e.g. `P3`, `P4`, `P5`, `P6`, `PSLE`), `False` when under a student (email-named) folder; **metadata.grade_or_scope** from L2 when not student-specific; **metadata.content_folder** from L3 (`Exam`, `Exercise`, `Book`, `Activity`, `Composition`, `Note`); **metadata.source_book** from filename prefix when recognised (e.g. `PP`, `PP `, `EPO`, `EPO_`); **metadata.unit** for files under `.../Book/<book name>/...`, inferred from filename after removing technical prefixes like `_c_` / `_raw_` and trimming a redundant shared label where possible. For **files directly under L1** (no L2/L3, e.g. answer keys in `Subject/Answers.pdf`), only subject and optionally `source_book` from the filename are inferred; `is_template`, `content_folder`, and `grade_or_scope` are not set by path. Inference is best-effort; any inferred value can be overridden by a human. **Precedence:** When a scan root has `student_id` set, that value is used for all files discovered under that root and overrides path-based student inference. **Implementation:** `_infer_from_path(path)` implements subject/doc_type/is_template/metadata inference, and the manager separately resolves `student_id` from registered student emails found in the path when an explicit scan-root `student_id` is not provided.
 
 **Human-supplied metadata:** Not all metadata can be derived from folder structure, file name, or file content. Fields such as `school`, `exam_date`, `paper_type`, `chinese_variant`, `topic`, and free-form `notes` typically require a **human reviewer** to provide or confirm them. The file manager supports this via API classification updates (`update_metadata(...)`) after scan/register so files have accurate `doc_type`, `subject`, and metadata values. Template linking and `suggest_groups()` are most useful once classification (and, for exams, `exam_date`) has been filled in.
 
@@ -113,7 +114,7 @@ CREATE TABLE pdf_files (
     file_type      TEXT NOT NULL DEFAULT 'unknown'
                    CHECK(file_type IN ('main', 'raw', 'unknown')),
     doc_type       TEXT NOT NULL DEFAULT 'exam'
-                   CHECK(doc_type IN ('exam', 'exercise', 'book', 'activity', 'note')),
+                   CHECK(doc_type IN ('exam', 'exercise', 'book', 'activity', 'composition', 'note')),
     student_id     TEXT REFERENCES students(id),
     subject        TEXT
                    CHECK(subject IN ('english', 'math', 'science', 'chinese')),
@@ -296,13 +297,14 @@ In both modes, invariant document metadata is intended to remain aligned between
 | `exercise` | Standalone practice worksheet/exercise — teacher-issued, tuition center, printed online | Scanner app | Exercise |
 | `book` | Whole-book or book-organized PDFs managed at the book level | Scanner app or download | Book |
 | `activity` | Topic-related study activities; accompany a textbook or topic; not necessarily question-based | Scanner app | Activity |
+| `composition` | Student writing samples — essays, situational/continuous writing, Paper 1 writing sections | Scanner app | Composition |
 | `note` | Teacher notes, revision summaries, reference sheets | Scanner app or download | Note |
 
 ---
 
 ## Templates (`is_template`)
 
-A **template** is a blank or master version of a document — no student content yet. It can be any `doc_type` (exam, exercise, book, activity, note). Templates typically have `student_id=NULL`. When a student completes the document (e.g. in GoodNotes), the resulting PDF is a **completion** of that template: `is_template=False`, `student_id` set, and linked via `template_for` / `completed_from` relations.
+A **template** is a blank or master version of a document — no student content yet. It can be any `doc_type` (exam, exercise, book, activity, composition, note). Templates typically have `student_id=NULL`. When a student completes the document (e.g. in GoodNotes), the resulting PDF is a **completion** of that template: `is_template=False`, `student_id` set, and linked via `template_for` / `completed_from` relations.
 
 **Why a boolean, not a `doc_type` value:** "Template" describes *role* (blank vs. filled), not *content type*. An exam template and an exam completion are both `doc_type='exam'`; one has `is_template=True`, the other `is_template=False`.
 
@@ -367,6 +369,17 @@ The `metadata` column stores a JSON object. `student_id` and `subject` are first
 ```
 
 Topic and source are optional; use when the activity accompanies a specific topic or book.
+
+### `composition`
+
+```json
+{
+  "topic": "continuous writing",
+  "grade_or_scope": "P6"
+}
+```
+
+Topic and grade are optional path-derived or human-supplied fields. Composition completions are typically **student-scoped** writing samples and do **not** require a template link (unlike exam/exercise/book operator workflows). g_root Power Pack situational-writing book units under `Book/` remain `doc_type='book'` — see [proposal 18](./docs/proposals/18-composition-doc-type.md).
 
 ### `note`
 

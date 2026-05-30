@@ -19,7 +19,7 @@ Use this mental model when classifying files and building groups:
 
 These are common keys used in `PdfFile.metadata`:
 
-- `content_folder` (path-derived): `Exam`, `Exercise`, `Book`, `Activity`, `Note`
+- `content_folder` (path-derived): `Exam`, `Exercise`, `Book`, `Activity`, `Composition`, `Note`
 - `grade_or_scope` (path-derived): `P1`, `P2`, `P3`, `P4`, `P5`, `P6`, `PSLE`
 - `unit` (book-only): per-file unit label for `doc_type='book'` files
 - `chinese_variant` (Chinese exam files): `standard` (**Standard** 华文 / non-HC) or `higher` (高华) — not the same as SEAB “Foundation Chinese Language”. The legacy spelling `foundation` is **invalid** and must not appear in stored JSON (`InvalidMetadataError` on load/persist).
@@ -68,7 +68,7 @@ class PdfFile:
     normal_name: str         # computed (not persisted): normalized display stem
     path: str
     file_type: str           # 'main' | 'raw' | 'unknown'
-    doc_type: str            # 'exam' | 'exercise' | 'book' | 'activity' | 'note'
+    doc_type: str            # 'exam' | 'exercise' | 'book' | 'activity' | 'composition' | 'note'
     student_id: str | None
     subject: str | None      # 'english' | 'math' | 'science' | 'chinese'
     is_template: bool        # True = blank/master; False = completion or non-template

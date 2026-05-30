@@ -20,7 +20,7 @@ The goal for Phase 1 is not full automation. It's: **get the current multi-stude
 - PDFs live in **Google Drive** (canonical store).
 - Most PDFs are **scanned** (image-only, zero extractable text). Some may be digital.
 - Mix of scored papers (with teacher marks) and blank/practice papers.
-- **Folder structure is now partially standardized** in the registry workflow (subject -> student/scope -> content folder such as `Exam`/`Exercise`/`Book`/`Activity`/`Note`), and path-based inference is already used for `subject`, `doc_type`, `is_template`, and selected metadata fields.
+- **Folder structure is now partially standardized** in the registry workflow (subject -> student/scope -> content folder such as `Exam`/`Exercise`/`Book`/`Activity`/`Composition`/`Note`), and path-based inference is already used for `subject`, `doc_type`, `is_template`, and selected metadata fields.
 - **Classification is still hybrid:** path inference covers a useful baseline, but ingestion-critical fields (for example `exam_date`, `school`, and some paper metadata) still require human review/confirmation in many cases.
 
 ---

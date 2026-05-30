@@ -42,11 +42,11 @@ Student assignment precedence during scan:
 
 **Already registered files** (matched by absolute path) are skipped.
 
-Each newly processed file produces `register` and (where applicable) `compress` + `link` entries in `operation_log`. `doc_type` must be one of the canonical values (`exam`, `exercise`, `book`, `activity`, `note`); classify afterwards with `update_metadata` if path inference is insufficient.
+Each newly processed file produces `register` and (where applicable) `compress` + `link` entries in `operation_log`. `doc_type` must be one of the canonical values (`exam`, `exercise`, `book`, `activity`, `composition`, `note`); classify afterwards with `update_metadata` if path inference is insufficient.
 
 #### `register_file(path, file_type=None, doc_type='exam', student_id=None, subject=None, is_template=False, metadata=None, notes=None) -> PdfFile`
 
-Manually register a single file without compression. Infers `file_type` from filename unless overridden: `_raw_` → `raw`, `_c_` → `main`, else `unknown`. `doc_type` must be one of the canonical values (`exam`, `exercise`, `book`, `activity`, `note`) or the call raises `InvalidDocTypeError`. `metadata.unit` is enforced as book-only: a non-empty `metadata.unit` with `doc_type != 'book'` raises `InvalidMetadataError`. If `student_id` is not provided, the manager attempts to infer it from a registered `students.email` path segment. Raises `FileNotFoundError` if path absent. Raises `AlreadyRegisteredError` if already registered. Writes a `register` log entry.
+Manually register a single file without compression. Infers `file_type` from filename unless overridden: `_raw_` → `raw`, `_c_` → `main`, else `unknown`. `doc_type` must be one of the canonical values (`exam`, `exercise`, `book`, `activity`, `composition`, `note`) or the call raises `InvalidDocTypeError`. `metadata.unit` is enforced as book-only: a non-empty `metadata.unit` with `doc_type != 'book'` raises `InvalidMetadataError`. If `student_id` is not provided, the manager attempts to infer it from a registered `students.email` path segment. Raises `FileNotFoundError` if path absent. Raises `AlreadyRegisteredError` if already registered. Writes a `register` log entry.
 
 #### `compress_and_register(file_id_or_path, force=False, min_savings_pct=10, preserve_input=False, **compress_kwargs) -> CompressResult`
 
