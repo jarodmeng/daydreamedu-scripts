@@ -87,7 +87,7 @@ def migrate(doc_types_only: bool = False, dry_run: bool = False) -> int:
                 file_type      TEXT NOT NULL DEFAULT 'unknown'
                                CHECK(file_type IN ('main', 'raw', 'unknown')),
                 doc_type       TEXT NOT NULL
-                               CHECK(doc_type IN ('exam', 'exercise', 'book', 'activity', 'note')),
+                               CHECK(doc_type IN ('exam', 'exercise', 'book', 'activity', 'composition', 'note')),
                 student_id     TEXT REFERENCES students(id),
                 subject        TEXT
                                CHECK(subject IN ('english', 'math', 'science', 'chinese')),

@@ -56,6 +56,27 @@ def test_infer_from_path_math_activity():
     assert meta.get("grade_or_scope") == "PSLE"
 
 
+def test_infer_from_path_english_composition():
+    """Path with English and Composition infers subject=english, doc_type=composition."""
+    path = Path(
+        "/fake/DaydreamEdu/completion/Singapore Primary English/"
+        "winston@mail.com/P5/Composition/_c_Composition 1b.pdf"
+    )
+    out = PdfFileManager._infer_from_path(path)
+    assert out.get("subject") == "english"
+    assert out.get("doc_type") == "composition"
+    assert out.get("is_template") is False
+    meta = out.get("metadata") or {}
+    assert meta.get("content_folder") == "Composition"
+    assert meta.get("grade_or_scope") == "P5"
+
+
+def test_infer_from_path_raises_when_subject_and_grade_present_but_no_content_folder():
+    path = Path("/fake/DaydreamEdu/Singapore Primary Science/P6/SomeOtherFolder/file.pdf")
+    with pytest.raises(InvalidDocTypeError, match="Composition"):
+        PdfFileManager._infer_from_path(path)
+
+
 def test_infer_from_path_chinese_note():
     """Path with Chinese and Note infers subject=chinese, doc_type=note.
     No email, has P4 → general scope → is_template=True."""
@@ -100,12 +121,6 @@ def test_infer_from_path_no_matching_segments_returns_empty():
     assert "subject" not in out or out.get("subject") is None
     assert "doc_type" not in out or out.get("doc_type") is None
     assert "is_template" not in out
-
-
-def test_infer_from_path_raises_when_subject_and_grade_present_but_no_content_folder():
-    path = Path("/fake/DaydreamEdu/Singapore Primary Science/P6/SomeOtherFolder/file.pdf")
-    with pytest.raises(InvalidDocTypeError):
-        PdfFileManager._infer_from_path(path)
 
 
 def test_infer_from_path_is_template_true_when_general_scope():

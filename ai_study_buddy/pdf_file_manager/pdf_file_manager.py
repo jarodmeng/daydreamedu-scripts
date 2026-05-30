@@ -302,7 +302,7 @@ def _schema_sql() -> str:
 class PdfFileManager:
     _ALLOWED_SUBJECTS = ("english", "math", "science", "chinese")
     # Canonical doc_type values; keep in sync with DATA_MODEL.md / SPEC.md / README.md.
-    _ALLOWED_DOC_TYPES = ("exam", "exercise", "book", "activity", "note")
+    _ALLOWED_DOC_TYPES = ("exam", "exercise", "book", "activity", "composition", "note")
     _ALLOWED_GROUP_TYPES = ("exam", "book", "book_exercise", "collection")
     _GRADE_SCOPE_SEGMENTS = ("P1", "P2", "P3", "P4", "P5", "P6", "PSLE")
 
@@ -340,7 +340,7 @@ class PdfFileManager:
         ).fetchone()
         pdf_sql = (pdf_sql_row["sql"] or "") if pdf_sql_row else ""
         # Trigger rebuild when new enum values are missing (historical migration checks).
-        if "'exercise'" not in pdf_sql:
+        if "'exercise'" not in pdf_sql or "'composition'" not in pdf_sql:
             self._rebuild_pdf_files_table()
 
         group_sql_row = conn.execute(
@@ -470,7 +470,7 @@ class PdfFileManager:
                 file_type      TEXT NOT NULL DEFAULT 'unknown'
                                CHECK(file_type IN ('main', 'raw', 'unknown')),
                 doc_type       TEXT NOT NULL
-                               CHECK(doc_type IN ('exam', 'exercise', 'book', 'activity', 'note')),
+                               CHECK(doc_type IN ('exam', 'exercise', 'book', 'activity', 'composition', 'note')),
                 student_id     TEXT REFERENCES students(id),
                 subject        TEXT
                                CHECK(subject IN ('english', 'math', 'science', 'chinese')),
@@ -1265,6 +1265,10 @@ class PdfFileManager:
                 out["doc_type"] = "activity"
                 out.setdefault("metadata", {})["content_folder"] = "Activity"
                 break
+            if p == "Composition":
+                out["doc_type"] = "composition"
+                out.setdefault("metadata", {})["content_folder"] = "Composition"
+                break
             if p == "Note":
                 out["doc_type"] = "note"
                 out.setdefault("metadata", {})["content_folder"] = "Note"
@@ -1274,7 +1278,7 @@ class PdfFileManager:
         # but we couldn't resolve a content-folder segment, fail fast.
         if has_grade_scope and out.get("subject") and "doc_type" not in out:
             raise InvalidDocTypeError(
-                "Could not infer doc_type from path (missing one of: Exam/Exercise/Book/Activity/Note): "
+                "Could not infer doc_type from path (missing one of: Exam/Exercise/Book/Activity/Composition/Note): "
                 f"{str(resolved)}"
             )
         for p in parts:
