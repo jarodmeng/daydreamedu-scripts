@@ -662,6 +662,7 @@ DB migration implication:
 - Keep JSON snapshot export enabled during the migration.
 - Do not remove path-based APIs until these maintenance workflows have DB-aware replacements or explicit JSON-export inputs.
 - Validation should compare DB-backed behavior against these current filesystem consumers before flipping defaults.
+- Phase 4 JSON demotion has **explicit tooling/consumer breakage risk** — see [Phase 4 tooling and consumer impact](#phase-4-tooling-and-consumer-impact-explicit-risk) below.
 
 ### Repository Changes
 
@@ -922,6 +923,54 @@ Acceptance criteria:
 - maintenance workflows requiring JSON either consume export outputs or use DB-aware replacements
 - operation log is sufficient to trace all production write operations
 - second-order consumer docs/instructions no longer describe JSON files as primary runtime state (only debug/export artifacts)
+- consumer audit completed and every non-test caller classified (see [Phase 4 tooling and consumer impact](#phase-4-tooling-and-consumer-impact-explicit-risk))
+
+#### Phase 4 tooling and consumer impact (explicit risk)
+
+Phase 3 dual-write proved DB projection is reliable. Phase 4 changes **authority**, not just storage layout: when `LEARNING_DB_ENABLE_JSON_EXPORT=0`, normal writes stop emitting files under `context/marking_results/**`, `context/marking_amendments/**`, and `context/student_review_states/**`. Many callers still assume those paths exist or scan them directly. **This is a real cutover risk** — failures are often **silent** (empty lookup, stale on-disk JSON ignored by DB reads, or “file not found” in a maintenance script) rather than loud import errors.
+
+**Why this is easy to underestimate**
+
+- Product-facing code largely migrated in Phases 2–3 (`find_marking_artifacts_for_attempt(...)`, `StudentReviewRepository`, Review Workspace services).
+- A long tail of **maintenance workflows**, **inventory helpers**, **validation CLIs**, **agent skills**, and **operator habits** still treat context JSON as canonical or discoverable on disk.
+- Both `study_buddy.db` and context JSON families are gitignored locally; after JSON demotion, **DB backup becomes the only durable copy** unless export is run on demand.
+
+**Impact categories (audit every caller before cutover)**
+
+| Category | Typical pattern today | Phase 4 failure mode if unaddressed |
+|----------|----------------------|-------------------------------------|
+| **Product reads (mostly migrated)** | DB-first via repository APIs; optional filesystem fallback | Fallback off + DB miss → “no marking” even if stale JSON exists on disk |
+| **Batch index / inventory** | Full-tree scan, e.g. `build_marking_artifact_index(...)`, `files.on_disk_inventory` enrichment | `has_marking` / inventory counts drift; new runs invisible until DB query replaces scan |
+| **Maintenance / backfill workflows** | `rglob("*.json")` under `marking_results/` then rewrite in place | Script sees shrinking/stale corpus; may no-op or operate on wrong subset |
+| **Validation / learning-db CLIs** | Compare DB rows to on-disk JSON (`field_coverage`, drift reports, prune helpers) | Reports assume JSON exists; false “DB-only orphan” or missed drift |
+| **Derived artifacts** | `report_renderer`, `remove_run_artifacts`, rename/archive guardrails keyed to JSON paths | Missing JSON path breaks report generation or cleanup unless resolved via DB + export |
+| **Second-order writers (Phase 3)** | Skills/scripts required to use `write_marking_artifact` / `save_*` APIs | Mostly safe on write; **read** paths in prompts/docs that cite `context/.../*.json` break after export off |
+| **Human operator workflow** | Browse/edit JSON in `context/` between Review Workspace sessions | Hand-edited JSON invisible to DB reads; creates “ghost” state until re-import or export/sync |
+
+**Representative codebase touchpoints (non-exhaustive; re-grep before cutover)**
+
+- Index scan: `ai_study_buddy.marking.core.artifact_lookup.build_marking_artifact_index` (used by `ai_study_buddy.files.on_disk_inventory`).
+- Maintenance scans: `ai_study_buddy.marking.workflows.retrack_marking_assets`, `backfill_is_partial_v1_3`, `backfill_attempt_metadata_v1_1`, `_migrate_feedback_to_human_note`, other `marking/workflows/*` backfills.
+- Path-keyed cleanup/rename: `ai_study_buddy.marking.core.artifact_cleanup`, `pdf_file_manager/scripts/rename_file_with_context_guardrail.py`.
+- Learning DB tooling: `learning_db/cli/field_coverage.py`, `learning_db/cli/_prune_db_only_marking_artifacts.py`, `learning_db/cli/context_db_drift_report.py`.
+- Console/inventory: `buddy_console/backend/inventory_api.py` (iterates context subfolders).
+- Agent/skill docs: any instruction to “read the marking JSON at `context/marking_results/...`” after a fresh mark.
+
+**Required mitigations (Phase 4 gate — not optional polish)**
+
+1. **Consumer audit** — inventory every caller that reads, writes, scans, or existence-checks the three JSON families; tag each as **DB-native**, **export-input** (run export first), or **blocked until replaced**.
+2. **On-demand export command** — dedicated `export_json_snapshot` (or equivalent) for supported families so maintenance can regenerate inputs without re-enabling per-write JSON export.
+3. **DB-aware replacements** — inventory/index paths (`has_marking`, batch indexes) query `study_buddy.db` (or repository APIs), not `rglob`.
+4. **Docs and skills** — state explicitly that context JSON is **debug/export only** after cutover; product and agent flows must use repository APIs.
+5. **Cutover order** — do **not** set `LEARNING_DB_ENABLE_JSON_EXPORT=0` until (1)–(4) are done for all **non-test** production and operator paths; keep export on through the audit even if reads are already DB-default.
+6. **Rollback posture** — after export-off, “flip back to JSON-first” requires **export or restore**, not only `LEARNING_DB_ENABLE_DUAL_WRITE=0` (see locked decision #8 and rollback strategy below).
+
+**Silent drift scenarios to test explicitly**
+
+- New marking run with export off → Review Workspace shows result (DB) but `context/marking_results/...` absent → operator or skill opens wrong path.
+- Hand-edited JSON on disk → DB read path ignores edit → “my fix disappeared.”
+- Maintenance backfill run without prior export → script processes old JSON only; DB rows unchanged.
+- Filesystem read fallback disabled + incomplete import → product shows unmarked completion despite JSON file on disk from pre-cutover era.
 
 ### Phase 5 - Backup/retention hardening and cutover sign-off
 
@@ -953,7 +1002,10 @@ The eventual Postgres migration should be a direct ETL:
 | DB and JSON drift during dual-write phase | Use strict dual-write semantics during compatibility phase, store content hashes, and log every write in `operation_log` |
 | Premature schema overdesign | Start with current artifact families only; keep future mastery/events out until needed |
 | SQLite-specific behavior blocks Postgres migration | Use portable SQL, text IDs, explicit migrations, repository layer |
-| Existing tools rely on JSON paths | Preserve JSON snapshots and source paths during rollout |
+| Existing tools rely on JSON paths | Preserve JSON snapshots and source paths during Phases 1–3; complete [consumer audit](#phase-4-tooling-and-consumer-impact-explicit-risk) before Phase 4 export-off |
+| Phase 4 JSON demotion breaks unscanned callers | Consumer audit + on-demand export + DB-native inventory/index replacements; do not disable `LEARNING_DB_ENABLE_JSON_EXPORT` until audit passes |
+| Silent drift (stale JSON on disk vs DB authority) | Turn off filesystem read fallback at cutover; document hand-edit JSON as unsupported; use export/re-import for intentional JSON workflows |
+| Loss of durable copy when export off | `study_buddy.db` backup + Phase 5 restore drill required before treating Phase 4 complete; JSON no longer acts as implicit second copy |
 | Corrupt import from malformed JSON | Validate schemas before import; quarantine invalid files in validation report |
 | Assets mistaken for durable memory | Store only `marking_asset`; keep page renders/crops regenerable |
 | Attempt sequence changes under DB writes | Compare DB-derived sequence with current filesystem-derived sequence before flipping writer behavior |
@@ -966,6 +1018,7 @@ Rollback strategy:
 3. Gate dual-write behind `LEARNING_DB_ENABLE_DUAL_WRITE` (with strict mode via `LEARNING_DB_STRICT_DUAL_WRITE`).
 4. Keep filesystem fallback available via `LEARNING_DB_READ_FALLBACK_FILESYSTEM` until cutover sign-off.
 5. If DB behavior is wrong, disable DB reads/writes and continue with existing JSON flow.
+6. **After Phase 4 export-off:** rollback to JSON-first requires regenerating context JSON from DB (export command) or restoring a backup from the dual-write era — flag flips alone are insufficient if JSON files were not emitted.
 
 ---
 
@@ -1180,11 +1233,13 @@ Next action is Phase 4 checklist execution (JSON demotion tasks), not additional
 ### Phase 4 - Operational DB source (JSON demoted)
 
 - [x] Switch default runtime reads to DB (`LEARNING_DB_ENABLE_READS=1`) after parity sign-off.
-- [ ] Keep JSON as debug/export artifact; remove runtime dependence on filesystem scans for normal product flows.
-- [ ] Ensure maintenance workflows that still need JSON consume regenerated exports.
+- [ ] Complete [consumer audit](#phase-4-tooling-and-consumer-impact-explicit-risk): inventory every caller that reads/scans/existence-checks `marking_results/`, `marking_amendments/`, or `student_review_states/`; classify as DB-native, export-input, or blocked-until-replaced (exclude test-only fixtures unless they document intended Phase 4 posture).
+- [ ] Keep JSON as debug/export artifact; remove runtime dependence on filesystem scans for normal product flows (including batch indexes such as `build_marking_artifact_index` / on-disk inventory enrichment).
+- [ ] Ensure maintenance workflows that still need JSON consume regenerated exports (or ship DB-aware replacements per audit).
 - [ ] Add explicit on-demand JSON export path/command for supported artifact families.
 - [ ] Add minimal ad-hoc query helpers (CLI/SQL snippets) for `operation_log` inspection; no dashboard required in initial rollout.
-- [ ] Update second-order consumer documentation to describe JSON as debug/export outputs only (not authoritative runtime state).
+- [ ] Update second-order consumer documentation (skills, READMEs, operator runbooks) to describe JSON as debug/export outputs only (not authoritative runtime state).
+- [ ] Run explicit [silent drift scenarios](#phase-4-tooling-and-consumer-impact-explicit-risk) (export-off write, hand-edited JSON, backfill without export) before setting `LEARNING_DB_ENABLE_JSON_EXPORT=0` in production.
 
 ### Phase 5 - Backup/retention hardening and cutover
 
