@@ -47,6 +47,17 @@ def test_infer_completion_dates_cli_dry_run(tmp_path: Path) -> None:
         )
         assert proc.returncode == 0
         assert "completion_date inference report" in proc.stdout
+
+        # --doc-type must not crash (regression: list passed to find_files).
+        cmd_doc_type = cmd + ["--doc-type", "exercise"]
+        proc2 = subprocess.run(
+            cmd_doc_type,
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        assert proc2.returncode == 0, proc2.stderr
+        assert "completion_date inference report" in proc2.stdout
     finally:
         db_path.unlink(missing_ok=True)
 

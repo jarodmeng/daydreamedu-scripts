@@ -205,5 +205,30 @@ def test_infer_completion_dates_dry_run_and_force_flags():
             mgr.set_completion_date(record.id, "2025-01-01")
             report2 = mgr.infer_completion_dates(root="d_root")
             assert report2.skipped_manual >= 1
+
+            # doc_types filter selects matching rows only.
+            comp_dir = p.parent.parent / "Composition"
+            comp_dir.mkdir(exist_ok=True)
+            comp_path = comp_dir / "_c_comp.pdf"
+            comp_path.write_bytes(b"%PDF-1.0\n")
+            comp = mgr.register_file(
+                comp_path,
+                file_type="main",
+                doc_type="composition",
+                student_id="winston",
+                is_template=False,
+            )
+            report3 = mgr.infer_completion_dates(
+                root="d_root",
+                doc_types=["composition"],
+                dry_run=True,
+            )
+            assert report3.processed == 1
+            report4 = mgr.infer_completion_dates(
+                root="d_root",
+                doc_types=["exercise"],
+                dry_run=True,
+            )
+            assert report4.processed == 1
     finally:
         Path(db_path).unlink(missing_ok=True)

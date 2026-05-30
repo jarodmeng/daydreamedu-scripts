@@ -3273,14 +3273,26 @@ class PdfFileManager:
             }
             if student_id is not None:
                 query_kwargs["student_id"] = student_id
-            if doc_types is not None:
-                query_kwargs["doc_type"] = doc_types
-            results = self.find_files(**query_kwargs)
-            for pdf in results:
-                inv_root = inventory_root_from_path(pdf.path)
-                if root is not None and inv_root != root:
-                    continue
-                candidates.append(pdf)
+
+            doc_type_filters: list[str | None]
+            if doc_types is None:
+                doc_type_filters = [None]
+            else:
+                doc_type_filters = list(doc_types)
+
+            seen_ids: set[str] = set()
+            for dt in doc_type_filters:
+                kwargs = dict(query_kwargs)
+                if dt is not None:
+                    kwargs["doc_type"] = dt
+                for pdf in self.find_files(**kwargs):
+                    if pdf.id in seen_ids:
+                        continue
+                    seen_ids.add(pdf.id)
+                    inv_root = inventory_root_from_path(pdf.path)
+                    if root is not None and inv_root != root:
+                        continue
+                    candidates.append(pdf)
 
         if not candidates or not active:
             return report
