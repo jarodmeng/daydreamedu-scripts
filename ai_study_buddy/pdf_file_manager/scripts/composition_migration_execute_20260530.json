@@ -1,0 +1,259 @@
+{
+  "d_root": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu",
+  "g_root": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/GoodNotes",
+  "mode": "execute",
+  "stats": {
+    "file_candidates": 76,
+    "skipped_g_root": 140,
+    "scan_root_activity_kept": 7,
+    "scan_root_remove_candidates": 1,
+    "scan_root_ensure_candidates": 8
+  },
+  "logical_items": 38,
+  "file_moves_preview": [
+    {
+      "file_id": "69f692e3-28ae-42f4-bb70-6ab6e09ab573",
+      "file_type": "main",
+      "doc_type_before": "activity",
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary English/winston.ry.meng@gmail.com/P5/Activity/_c_P5 English EoY Practice (Paper 1).pdf",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary English/winston.ry.meng@gmail.com/P5/Composition/_c_P5 English EoY Practice (Paper 1).pdf",
+      "source_activity_dir": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary English/winston.ry.meng@gmail.com/P5/Activity",
+      "target_composition_dir": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary English/winston.ry.meng@gmail.com/P5/Composition"
+    },
+    {
+      "file_id": "79ba4426-d2ae-4840-b422-8b257ac2b28a",
+      "file_type": "raw",
+      "doc_type_before": "activity",
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary English/winston.ry.meng@gmail.com/P5/Activity/_raw_P5 English EoY Practice (Paper 1).pdf",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary English/winston.ry.meng@gmail.com/P5/Composition/_raw_P5 English EoY Practice (Paper 1).pdf",
+      "source_activity_dir": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary English/winston.ry.meng@gmail.com/P5/Activity",
+      "target_composition_dir": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary English/winston.ry.meng@gmail.com/P5/Composition"
+    },
+    {
+      "file_id": "0902de2f-567b-4ef6-8bbd-7b4c1666fbb9",
+      "file_type": "main",
+      "doc_type_before": "activity",
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary English/winston.ry.meng@gmail.com/P5/Activity/_c_P5 English EoY (Paper 1).pdf",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary English/winston.ry.meng@gmail.com/P5/Composition/_c_P5 English EoY (Paper 1).pdf",
+      "source_activity_dir": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary English/winston.ry.meng@gmail.com/P5/Activity",
+      "target_composition_dir": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary English/winston.ry.meng@gmail.com/P5/Composition"
+    },
+    {
+      "file_id": "e169471e-04ed-446c-9247-18537f7e21bf",
+      "file_type": "raw",
+      "doc_type_before": "activity",
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary English/winston.ry.meng@gmail.com/P5/Activity/_raw_P5 English EoY (Paper 1).pdf",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary English/winston.ry.meng@gmail.com/P5/Composition/_raw_P5 English EoY (Paper 1).pdf",
+      "source_activity_dir": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary English/winston.ry.meng@gmail.com/P5/Activity",
+      "target_composition_dir": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary English/winston.ry.meng@gmail.com/P5/Composition"
+    },
+    {
+      "file_id": "a2f7350a-0415-4f2f-88ff-91d8344568f2",
+      "file_type": "main",
+      "doc_type_before": "activity",
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary English/winston.ry.meng@gmail.com/P5/Activity/_c_Composition Stellar Unit 4 The Promise.pdf",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary English/winston.ry.meng@gmail.com/P5/Composition/_c_Composition Stellar Unit 4 The Promise.pdf",
+      "source_activity_dir": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary English/winston.ry.meng@gmail.com/P5/Activity",
+      "target_composition_dir": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary English/winston.ry.meng@gmail.com/P5/Composition"
+    },
+    {
+      "file_id": "b72db082-1a68-4491-98bd-c8425f74e445",
+      "file_type": "raw",
+      "doc_type_before": "activity",
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary English/winston.ry.meng@gmail.com/P5/Activity/_raw_Composition Stellar Unit 4 The Promise.pdf",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary English/winston.ry.meng@gmail.com/P5/Composition/_raw_Composition Stellar Unit 4 The Promise.pdf",
+      "source_activity_dir": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary English/winston.ry.meng@gmail.com/P5/Activity",
+      "target_composition_dir": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary English/winston.ry.meng@gmail.com/P5/Composition"
+    },
+    {
+      "file_id": "9887702d-b949-4e1b-aceb-a178d72e7cd9",
+      "file_type": "main",
+      "doc_type_before": "activity",
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary English/winston.ry.meng@gmail.com/P5/Activity/_c_Composition 1 A Change For The Better.pdf",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary English/winston.ry.meng@gmail.com/P5/Composition/_c_Composition 1 A Change For The Better.pdf",
+      "source_activity_dir": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary English/winston.ry.meng@gmail.com/P5/Activity",
+      "target_composition_dir": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary English/winston.ry.meng@gmail.com/P5/Composition"
+    },
+    {
+      "file_id": "502839fc-9a3b-4f39-adfd-5393cdd2410a",
+      "file_type": "raw",
+      "doc_type_before": "activity",
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary English/winston.ry.meng@gmail.com/P5/Activity/_raw_Composition 1 A Change For The Better.pdf",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary English/winston.ry.meng@gmail.com/P5/Composition/_raw_Composition 1 A Change For The Better.pdf",
+      "source_activity_dir": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary English/winston.ry.meng@gmail.com/P5/Activity",
+      "target_composition_dir": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary English/winston.ry.meng@gmail.com/P5/Composition"
+    },
+    {
+      "file_id": "510c3f6e-e3cf-434d-8fff-85bd493a2072",
+      "file_type": "main",
+      "doc_type_before": "activity",
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary English/winston.ry.meng@gmail.com/P5/Activity/_c_A Pleasant Surprise Composition.pdf",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary English/winston.ry.meng@gmail.com/P5/Composition/_c_A Pleasant Surprise Composition.pdf",
+      "source_activity_dir": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary English/winston.ry.meng@gmail.com/P5/Activity",
+      "target_composition_dir": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary English/winston.ry.meng@gmail.com/P5/Composition"
+    },
+    {
+      "file_id": "145c7bdb-c21c-4d44-9ef2-412763acd9f8",
+      "file_type": "raw",
+      "doc_type_before": "activity",
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary English/winston.ry.meng@gmail.com/P5/Activity/_raw_A Pleasant Surprise Composition.pdf",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary English/winston.ry.meng@gmail.com/P5/Composition/_raw_A Pleasant Surprise Composition.pdf",
+      "source_activity_dir": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary English/winston.ry.meng@gmail.com/P5/Activity",
+      "target_composition_dir": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary English/winston.ry.meng@gmail.com/P5/Composition"
+    },
+    {
+      "file_id": "ff0b6cd1-40b2-4bcb-ab35-bed6e54dfd01",
+      "file_type": "main",
+      "doc_type_before": "activity",
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary English/winston.ry.meng@gmail.com/P5/Activity/_c_Composition 1b.pdf",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary English/winston.ry.meng@gmail.com/P5/Composition/_c_Composition 1b.pdf",
+      "source_activity_dir": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary English/winston.ry.meng@gmail.com/P5/Activity",
+      "target_composition_dir": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary English/winston.ry.meng@gmail.com/P5/Composition"
+    },
+    {
+      "file_id": "9dc29469-cc39-4cff-8a1d-95defcd66e21",
+      "file_type": "raw",
+      "doc_type_before": "activity",
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary English/winston.ry.meng@gmail.com/P5/Activity/_raw_Composition 1b.pdf",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary English/winston.ry.meng@gmail.com/P5/Composition/_raw_Composition 1b.pdf",
+      "source_activity_dir": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary English/winston.ry.meng@gmail.com/P5/Activity",
+      "target_composition_dir": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary English/winston.ry.meng@gmail.com/P5/Composition"
+    },
+    {
+      "file_id": "2dc2d789-c6ea-4e01-a8f9-c732bcd49cca",
+      "file_type": "main",
+      "doc_type_before": "activity",
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary English/winston.ry.meng@gmail.com/P5/Activity/_c_Situational Writing Exercise 2.pdf",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary English/winston.ry.meng@gmail.com/P5/Composition/_c_Situational Writing Exercise 2.pdf",
+      "source_activity_dir": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary English/winston.ry.meng@gmail.com/P5/Activity",
+      "target_composition_dir": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary English/winston.ry.meng@gmail.com/P5/Composition"
+    },
+    {
+      "file_id": "b72b6d95-1017-4591-be2c-ad49c811a924",
+      "file_type": "raw",
+      "doc_type_before": "activity",
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary English/winston.ry.meng@gmail.com/P5/Activity/_raw_Situational Writing Exercise 2.pdf",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary English/winston.ry.meng@gmail.com/P5/Composition/_raw_Situational Writing Exercise 2.pdf",
+      "source_activity_dir": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary English/winston.ry.meng@gmail.com/P5/Activity",
+      "target_composition_dir": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary English/winston.ry.meng@gmail.com/P5/Composition"
+    },
+    {
+      "file_id": "56a36947-fd60-4bda-8869-14f65f5c74f6",
+      "file_type": "main",
+      "doc_type_before": "activity",
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary English/winston.ry.meng@gmail.com/P5/Activity/_c_Composition 2b.pdf",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary English/winston.ry.meng@gmail.com/P5/Composition/_c_Composition 2b.pdf",
+      "source_activity_dir": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary English/winston.ry.meng@gmail.com/P5/Activity",
+      "target_composition_dir": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary English/winston.ry.meng@gmail.com/P5/Composition"
+    },
+    {
+      "file_id": "8842cde0-3ecf-4741-9b78-e27c58512738",
+      "file_type": "raw",
+      "doc_type_before": "activity",
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary English/winston.ry.meng@gmail.com/P5/Activity/_raw_Composition 2b.pdf",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary English/winston.ry.meng@gmail.com/P5/Composition/_raw_Composition 2b.pdf",
+      "source_activity_dir": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary English/winston.ry.meng@gmail.com/P5/Activity",
+      "target_composition_dir": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary English/winston.ry.meng@gmail.com/P5/Composition"
+    },
+    {
+      "file_id": "7693de27-3f79-4647-8aa5-aa073e296c93",
+      "file_type": "main",
+      "doc_type_before": "activity",
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary English/winston.ry.meng@gmail.com/P5/Activity/_c_Situational Writing Exercises Term 2 2025.pdf",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary English/winston.ry.meng@gmail.com/P5/Composition/_c_Situational Writing Exercises Term 2 2025.pdf",
+      "source_activity_dir": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary English/winston.ry.meng@gmail.com/P5/Activity",
+      "target_composition_dir": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary English/winston.ry.meng@gmail.com/P5/Composition"
+    },
+    {
+      "file_id": "08cba147-0a97-47f7-af8d-4f0590395d35",
+      "file_type": "raw",
+      "doc_type_before": "activity",
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary English/winston.ry.meng@gmail.com/P5/Activity/_raw_Situational Writing Exercises Term 2 2025.pdf",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary English/winston.ry.meng@gmail.com/P5/Composition/_raw_Situational Writing Exercises Term 2 2025.pdf",
+      "source_activity_dir": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary English/winston.ry.meng@gmail.com/P5/Activity",
+      "target_composition_dir": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary English/winston.ry.meng@gmail.com/P5/Composition"
+    },
+    {
+      "file_id": "899534b6-493f-4d6e-9fc8-460c7e0fd6aa",
+      "file_type": "main",
+      "doc_type_before": "activity",
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary English/winston.ry.meng@gmail.com/P5/Activity/_c_Situational Writing Exercised Term 3 2025.pdf",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary English/winston.ry.meng@gmail.com/P5/Composition/_c_Situational Writing Exercised Term 3 2025.pdf",
+      "source_activity_dir": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary English/winston.ry.meng@gmail.com/P5/Activity",
+      "target_composition_dir": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary English/winston.ry.meng@gmail.com/P5/Composition"
+    },
+    {
+      "file_id": "b5148c8b-e9da-4623-8a5c-553197a32d90",
+      "file_type": "raw",
+      "doc_type_before": "activity",
+      "old_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary English/winston.ry.meng@gmail.com/P5/Activity/_raw_Situational Writing Exercised Term 3 2025.pdf",
+      "new_path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary English/winston.ry.meng@gmail.com/P5/Composition/_raw_Situational Writing Exercised Term 3 2025.pdf",
+      "source_activity_dir": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary English/winston.ry.meng@gmail.com/P5/Activity",
+      "target_composition_dir": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary English/winston.ry.meng@gmail.com/P5/Composition"
+    }
+  ],
+  "scan_root_actions_preview": [
+    {
+      "action": "remove_scan_root",
+      "path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary Chinese/winston.ry.meng@gmail.com/P3/Activity",
+      "reason": "activity_leaf_will_empty"
+    },
+    {
+      "action": "ensure_scan_root",
+      "path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary Chinese/emma.rs.meng@gmail.com/P4/Composition",
+      "student_id": "emma",
+      "reason": "composition_leaf_receives_files"
+    },
+    {
+      "action": "ensure_scan_root",
+      "path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary Chinese/winston.ry.meng@gmail.com/P3/Composition",
+      "student_id": "winston",
+      "reason": "composition_leaf_receives_files"
+    },
+    {
+      "action": "ensure_scan_root",
+      "path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary Chinese/winston.ry.meng@gmail.com/P4/Composition",
+      "student_id": "winston",
+      "reason": "composition_leaf_receives_files"
+    },
+    {
+      "action": "ensure_scan_root",
+      "path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary Chinese/winston.ry.meng@gmail.com/P5/Composition",
+      "student_id": "winston",
+      "reason": "composition_leaf_receives_files"
+    },
+    {
+      "action": "ensure_scan_root",
+      "path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary English/winston.ry.meng@gmail.com/P4/Composition",
+      "student_id": "winston",
+      "reason": "composition_leaf_receives_files"
+    },
+    {
+      "action": "ensure_scan_root",
+      "path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary English/winston.ry.meng@gmail.com/P5/Composition",
+      "student_id": "winston",
+      "reason": "composition_leaf_receives_files"
+    },
+    {
+      "action": "ensure_scan_root",
+      "path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary English/winston.ry.meng@gmail.com/P6/Composition",
+      "student_id": "winston",
+      "reason": "composition_leaf_receives_files"
+    },
+    {
+      "action": "ensure_scan_root",
+      "path": "/Users/jarodm/Library/CloudStorage/GoogleDrive-genrong.meng@gmail.com/My Drive/DaydreamEdu/completion/Singapore Primary English/winston.ry.meng@gmail.com/PSLE/Composition",
+      "student_id": "winston",
+      "reason": "composition_leaf_receives_files"
+    }
+  ],
+  "collision_examples": {
+    "file_duplicate_target_paths": [],
+    "scan_root_duplicate_ensure_paths": []
+  },
+  "execute_result": {
+    "files_moved": 76,
+    "scan_roots_ensured": 8,
+    "scan_roots_removed": 1
+  }
+}
