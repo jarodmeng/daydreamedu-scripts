@@ -479,3 +479,95 @@ def test_review_workspace_reads_marking_result_payload_from_db_when_enabled(tmp_
 
     assert items[0]["score"] == {"earned_marks": 4, "total_marks": 4, "percentage": 100.0}
     assert detail["marking_result_base"]["summary"]["earned_marks"] == 4
+
+
+def test_upsert_marking_amendment_clears_soft_delete(tmp_path, monkeypatch):
+    """Re-saving an amendment must revive a soft-deleted DB row (reads filter is_deleted=0)."""
+    import json
+
+    from ai_study_buddy.learning_db.core.connection import get_connection
+    from ai_study_buddy.learning_db.ingest.import_context_json import upsert_marking_amendment
+    from ai_study_buddy.learning_db.read.read_documents import fetch_marking_amendment_raw_json
+
+    base = _base_payload()
+    artifact_rel = "marking_results/emma/singapore_primary_science/sample.json"
+    amendment_rel = "marking_amendments/emma/singapore_primary_science/sample.json"
+    artifact_path = tmp_path / artifact_rel
+    artifact_path.parent.mkdir(parents=True, exist_ok=True)
+    artifact_path.write_text(json.dumps(base), encoding="utf-8")
+
+    db_path = tmp_path / "study_buddy.db"
+    monkeypatch.setenv("STUDY_BUDDY_DB_PATH", str(db_path))
+
+    conn = get_connection(db_path)
+    migration = Path("ai_study_buddy/learning_db/migrations/001_initial_schema.sql")
+    conn.executescript(migration.read_text(encoding="utf-8"))
+    conn.execute(
+        """
+        INSERT INTO marking_artifacts(
+            artifact_id, schema_version, artifact_path, artifact_stem, source_content_hash,
+            created_at, updated_at, student_id, subject_context, attempt_file_id,
+            attempt_file_path, marking_asset, summary_total_marks, summary_earned_marks,
+            summary_percentage, summary_overall_assessment, context_json, summary_json,
+            review_meta_json, generation_json, raw_json
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """,
+        (
+            "artifact-1",
+            base["schema_version"],
+            artifact_rel,
+            "sample",
+            "hash",
+            base["created_at"],
+            base["updated_at"],
+            "emma",
+            "singapore_primary_science",
+            "attempt-1",
+            "/tmp/attempt.pdf",
+            base["context"]["marking_asset"],
+            4,
+            3,
+            75.0,
+            "ok",
+            json.dumps(base["context"]),
+            json.dumps(base["summary"]),
+            json.dumps(base["review_meta"]),
+            json.dumps(base["generation"]),
+            json.dumps(base),
+        ),
+    )
+    amendment_payload = normalize_amendment_state(
+        {
+            "question_amendments": [
+                {
+                    "result_id": "Q2",
+                    "fields": {"earned_marks": 2, "outcome": "correct"},
+                    "reviewer_reason": "Evidence supports full credit.",
+                }
+            ]
+        },
+        context=_context(base),
+    )
+    upsert_marking_amendment(conn, payload=amendment_payload, rel_path=amendment_rel, source_hash="amend-1")
+    conn.execute(
+        """
+        UPDATE marking_amendments
+        SET is_deleted = 1, deleted_at = '2026-05-30T00:00:00Z', deleted_by = 'test', delete_reason = 'obsolete'
+        WHERE amendment_path = ?
+        """,
+        (amendment_rel,),
+    )
+    conn.commit()
+    conn.close()
+
+    assert fetch_marking_amendment_raw_json(amendment_rel) is None
+
+    conn = get_connection(db_path)
+    upsert_marking_amendment(conn, payload=amendment_payload, rel_path=amendment_rel, source_hash="amend-2")
+    conn.commit()
+    conn.close()
+
+    revived = fetch_marking_amendment_raw_json(amendment_rel)
+    assert revived is not None
+    assert revived["question_amendments"][0]["fields"]["outcome"] == "correct"

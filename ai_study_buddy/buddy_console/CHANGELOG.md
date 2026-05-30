@@ -2,6 +2,17 @@
 
 All notable changes to `ai_study_buddy/buddy_console` are documented here.
 
+## [v0.1.8] - Amendment save and overlay fixes (2026-05-30)
+
+### Fixed
+
+1. Review panel: amendment save payload diffs are computed against the immutable AI base question (aligned with dirty-state detection), avoiding empty `question_amendments` payloads when the resolved row already matched the draft.
+2. Amendment overlays persist and display correctly when paired with `marking` **v0.3.16+** and `learning_db` **v0.1.9+** (API response uses freshly resolved marking; DB upsert revives soft-deleted amendment rows).
+
+### Changed
+
+1. Depends on `marking` **v0.3.16** and `learning_db` **v0.1.9** for amendment read/write consistency under DB-first reads.
+
 ## [v0.1.7] - Inventory load performance (2026-05-29)
 
 ### Fixed

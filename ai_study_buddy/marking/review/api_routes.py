@@ -6,13 +6,18 @@ from typing import Any
 from fastapi import APIRouter, HTTPException, Query, Request
 
 from ai_study_buddy.pdf_file_manager.pdf_file_manager import PdfFileManager
+from ai_study_buddy.marking.core.artifact_lookup import find_marking_artifacts_for_attempt
 from ai_study_buddy.marking.review.attempt_service import list_attempts_for_student, list_students
 from ai_study_buddy.marking.review.amendment_service import (
     AmendmentValidationError,
     AmendmentWriteError,
     put_amendments,
 )
-from ai_study_buddy.marking.review.detail_service import AttemptNotFoundError, get_attempt_detail
+from ai_study_buddy.marking.review.detail_service import (
+    AttemptNotFoundError,
+    get_attempt_detail,
+    normalize_marking_result_for_frontend,
+)
 from ai_study_buddy.marking.review.note_service import ReviewStateWriteError, put_review_state
 from ai_study_buddy.marking.review.repository import StudentReviewRepository
 
@@ -127,12 +132,21 @@ def update_amendments(
             manager=manager,
             review_repo=repo,
         )
+        refs = find_marking_artifacts_for_attempt(attempt_id, manager=manager, context_root=CONTEXT_ROOT)
+        latest_ref = refs[0] if refs else None
+        marking_result = detail.get("marking_result")
+        if latest_ref is not None and isinstance(result.get("marking_result_resolved"), dict):
+            marking_result = normalize_marking_result_for_frontend(
+                payload=result["marking_result_resolved"],
+                context_root=CONTEXT_ROOT,
+                marking_result_json=latest_ref.marking_result_json,
+            )
         return {
             **result,
-            "marking_result": detail.get("marking_result"),
+            "marking_result": marking_result,
             "marking_result_base": detail.get("marking_result_base"),
-            "marking_result_resolved": detail.get("marking_result_resolved"),
-            "amendment_state": detail.get("amendment_state"),
+            "marking_result_resolved": marking_result,
+            "amendment_state": result.get("amendment_state") or detail.get("amendment_state"),
         }
     except AmendmentValidationError as exc:
         raise HTTPException(status_code=400, detail={"errors": exc.errors}) from None

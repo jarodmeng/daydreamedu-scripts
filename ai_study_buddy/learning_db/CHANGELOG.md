@@ -2,6 +2,12 @@
 
 All notable changes to `ai_study_buddy.learning_db` are documented in this file.
 
+## [0.1.9] - 2026-05-30
+
+### Fixed
+
+- `learning_db/ingest/import_context_json.py`: `upsert_marking_amendment` `ON CONFLICT` update now sets `is_deleted = 0` and clears `deleted_at` / `deleted_by` / `delete_reason`, so re-saving or dual-writing an amendment after obsolete-amendment prune (or other soft-delete) makes DB reads visible again (`fetch_marking_amendment_raw_json` filters `is_deleted = 0`).
+
 ## [0.1.8] - 2026-05-28
 
 ### Added

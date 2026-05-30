@@ -1,6 +1,6 @@
 # Buddy Console
 
-**Version: v0.1.7**
+**Version: v0.1.8**
 
 `buddy_console` is the new unified browser app for AI Study Buddy.
 
@@ -33,7 +33,7 @@ Primary routes in the frontend:
 - `/pdf` -> root-style PDF browser
 - `/review` -> review surface
 
-Inventory cards show **Completed** (`completion_date`) and **Registered** (`registry_added_at`) separately when `files` v0.3.6+ is in use ([proposal 17](../pdf_file_manager/docs/proposals/17-completion-date.md) Phase 4). Operators can **set or edit** the completed date on registered completion cards (v0.1.5+; [proposal](./docs/proposal/1-manual-completion-date-ui.md)). **Completed (recent)** sort uses unified recency fallback in `files` v0.3.7+. Inventory health reports `files_version` from `files.__version__` (`files` v0.3.8+). Inventory enrichment is cached in-process with workflow-file invalidation (`buddy_console` v0.1.7+; requires `files` v0.3.9+ / `marking` v0.3.15+ for batch artifact index).
+Inventory cards show **Completed** (`completion_date`) and **Registered** (`registry_added_at`) separately when `files` v0.3.6+ is in use ([proposal 17](../pdf_file_manager/docs/proposals/17-completion-date.md) Phase 4). Operators can **set or edit** the completed date on registered completion cards (v0.1.5+; [proposal](./docs/proposal/1-manual-completion-date-ui.md)). **Completed (recent)** sort uses unified recency fallback in `files` v0.3.7+. Inventory health reports `files_version` from `files.__version__` (`files` v0.3.8+). Inventory enrichment is cached in-process with workflow-file invalidation (`buddy_console` v0.1.7+; requires `files` v0.3.9+ / `marking` v0.3.16+ for batch artifact index and amendment save fixes).
 
 ## Docs
 

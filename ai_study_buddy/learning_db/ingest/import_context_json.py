@@ -372,6 +372,10 @@ def upsert_marking_amendment(
             context_json = excluded.context_json,
             review_meta_json = excluded.review_meta_json,
             raw_json = excluded.raw_json,
+            is_deleted = 0,
+            deleted_at = NULL,
+            deleted_by = NULL,
+            delete_reason = NULL,
             row_version = marking_amendments.row_version + 1
         """,
         (

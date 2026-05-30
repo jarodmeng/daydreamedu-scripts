@@ -4,6 +4,13 @@ All notable changes to `ai_study_buddy/review_workspace` are documented here.
 
 ---
 
+## [v0.1.6] — Amendment save diff vs AI base (2026-05-30)
+
+Implemented:
+
+- `frontend/src/App.tsx`: `meaningfulAmendmentDraftForSave` compares draft fields to the AI base question (same baseline as dirty-state), not the resolved row, so score/outcome edits are included in the PUT payload reliably.
+- Backend amendment behavior is unchanged in this package (routes live under `marking.review`); use `marking` **v0.3.16+** and `learning_db` **v0.1.9+** for API response and DB soft-delete revival fixes.
+
 ## [v0.1.5] — Vite bind to 127.0.0.1 (2026-05-27)
 
 Implemented:

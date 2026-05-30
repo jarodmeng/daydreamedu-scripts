@@ -4,6 +4,18 @@ All notable changes to `ai_study_buddy.marking` are documented in this file.
 
 Committed changes under `ai_study_buddy/marking/` should add an entry here and bump **Current version** in `README.md` (semver: **patch** for docs or small renderer tweaks, **minor** for schema or public API changes). `SPEC.md` / `TESTING.md` titles do not carry the package version.
 
+## [0.3.16] - 2026-05-30
+
+Patch: amendment PUT returns freshly resolved marking (not stale DB reload).
+
+### Fixed
+
+- `marking/review/api_routes.py`: `PUT .../amendments` now returns `marking_result` / `marking_result_resolved` / `amendment_state` from the just-saved `put_amendments` overlay instead of overwriting them with a follow-up `get_attempt_detail` read that could miss soft-deleted or not-yet-projected DB rows.
+
+### Added
+
+- `marking/tests/test_review_workspace_amendments.py`: `test_upsert_marking_amendment_clears_soft_delete` (documents `learning_db` upsert reviving `is_deleted` amendment rows).
+
 ## [0.3.15] - 2026-05-29
 
 Patch: batch marking artifact index for inventory enrichment and buddy_console cache invalidation.

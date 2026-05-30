@@ -626,9 +626,11 @@ function WorkspaceView({ detail, onBack }: { detail: AttemptDetail; onBack: () =
   const meaningfulAmendmentDraftForSave = useMemo(
     () =>
       pickMeaningfulDraft(amendmentDraft, (field) =>
-        field === "page_map.confidence" ? activePageMap?.confidence ?? null : getQuestionFieldValue(activeQuestion, field),
+        field === "page_map.confidence"
+          ? activeBasePageMap?.confidence ?? null
+          : getQuestionFieldValue(activeBaseQuestion, field),
       ),
-    [amendmentDraft, activeQuestion, activePageMap],
+    [amendmentDraft, activeBaseQuestion, activeBasePageMap],
   );
   const amendmentDirty = useMemo(
     () => !valuesEqual(meaningfulAmendmentDraft, meaningfulPersistedAmendmentDraft),
