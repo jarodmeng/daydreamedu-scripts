@@ -8,6 +8,8 @@ completion's ``id``.
 
 By default, ``doc_type`` values ``activity`` and ``note`` are excluded so the
 report targets exam / exercise / book completions only (see L4 framework).
+``composition`` completions are always excluded: they do not require a template
+link (proposal 18).
 
 Usage::
 
@@ -38,10 +40,17 @@ def default_db_path() -> Path:
     return repo_root() / "ai_study_buddy" / "db" / "pdf_registry.db"
 
 
+# Compositions are standalone writing samples; never require completed_from.
+_ALWAYS_EXCLUDED_DOC_TYPES = ("composition",)
+_OPTIONAL_EXCLUDED_DOC_TYPES = ("activity", "note")
+
+
 def _doc_type_filter_sql(include_activity_note: bool) -> str:
-    if include_activity_note:
-        return "1"
-    return "f.doc_type NOT IN ('activity', 'note')"
+    excluded = list(_ALWAYS_EXCLUDED_DOC_TYPES)
+    if not include_activity_note:
+        excluded.extend(_OPTIONAL_EXCLUDED_DOC_TYPES)
+    quoted = ", ".join(f"'{value}'" for value in excluded)
+    return f"f.doc_type NOT IN ({quoted})"
 
 
 def build_report(db_path: Path, *, include_activity_note: bool) -> dict:
@@ -127,9 +136,9 @@ def _print_human(report: dict) -> None:
     gaps = report["gaps"]
     print(f"Registry: {report['registry_db']}")
     if filt["include_activity_note"]:
-        print("Filter: all completion doc_types (including activity, note)")
+        print("Filter: all completion doc_types except composition (no template required)")
     else:
-        print("Filter: doc_type NOT IN (activity, note)")
+        print("Filter: doc_type NOT IN (activity, note, composition)")
     print()
     print(
         f"Completion mains: {summ['completion_mains']}  "

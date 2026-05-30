@@ -14,13 +14,13 @@ Documented in `ai_study_buddy/docs/L4_FILE_FRAMEWORK.md` (template vs completion
 
 ## What to run
 
-Default (excludes `activity` and `note` doc_types — focuses on exam / exercise / book):
+Default (excludes `activity`, `note`, and `composition` — focuses on exam / exercise / book):
 
 ```bash
 python3 -m ai_study_buddy.pdf_file_manager.scripts.completion_template_link_gap_report
 ```
 
-Include activity and note completions in the counts and gap table:
+Include activity and note completions in the counts and gap table (`composition` is still excluded — no template required):
 
 ```bash
 python3 -m ai_study_buddy.pdf_file_manager.scripts.completion_template_link_gap_report --include-activity-note
@@ -43,7 +43,7 @@ python3 -m ai_study_buddy.pdf_file_manager.scripts.completion_template_link_gap_
 When responding to the user:
 
 1. State the registry DB path from the script output (or `--db` if provided).
-2. Repeat the filter line (default excludes activity/note).
+2. Repeat the filter line (default excludes activity/note/composition).
 3. Give the **summary** line: completion mains total, with template, without template, gap bucket count.
 4. If there are gap rows, paste the **table** (or the top buckets if very long) — same columns as the script: `cnt`, `root`, `doc_type`, `student`, `grade`, `subject`.
 5. Briefly interpret **root**: `d_root` means the stored path contains `/DaydreamEdu/`; `g_root` means `/GoodNotes/`. `(unknown)` means neither segment matched (unusual for in-scope Drive layouts).
