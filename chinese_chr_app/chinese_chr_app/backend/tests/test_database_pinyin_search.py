@@ -102,3 +102,43 @@ def test_get_characters_by_pinyin_search_keys_preserves_sort_order(monkeypatch):
     results = database.get_characters_by_pinyin_search_keys(["zheng4"])
 
     assert [row["character"] for row in results] == ["政", "挣", "症"]
+
+
+def test_get_characters_by_pinyin_search_keys_ignores_stale_searchable_pinyin(monkeypatch):
+    """Removed readings must not match via stale searchable_pinyin index keys."""
+    rows = [
+        {
+            "character": "食",
+            "zibiao_index": 100,
+            "index": "x1",
+            "radical": "食",
+            "strokes": 9,
+            "pinyin": ["shí"],
+            "searchable_pinyin": ["shí", "shí0", "shí5", "yì", "yì0", "yì5", "yi", "yi4"],
+        },
+        {
+            "character": "液",
+            "zibiao_index": 200,
+            "index": "x2",
+            "radical": "氵",
+            "strokes": 11,
+            "pinyin": ["yè"],
+            "searchable_pinyin": ["ye", "ye4", "yi", "yi4"],
+        },
+        {
+            "character": "衣",
+            "zibiao_index": 300,
+            "index": "x3",
+            "radical": "衣",
+            "strokes": 6,
+            "pinyin": ["yī"],
+            "searchable_pinyin": ["yi", "yi1"],
+        },
+    ]
+    monkeypatch.setattr(database, "_get_connection", lambda: _FakeConnection(rows))
+
+    yi_results = database.get_characters_by_pinyin_search_keys(
+        ["yi", "yi1", "yi2", "yi3", "yi4", "yi0", "yi5"],
+    )
+
+    assert [row["character"] for row in yi_results] == ["衣"]

@@ -268,7 +268,7 @@ Psycopg 3 (`psycopg[binary]>=3.1`). All functions return dict shapes compatible 
 | Function | Returns |
 |----------|--------|
 | `get_hwxnet_lookup()` | `Dict[str, Dict]` — key = character; value has `character`, `部首`, `拼音`, `总笔画`, `index`, `zibiao_index`, `source_url`, `基本字义解释`, `英文翻译`, `分类`, `常用词组`, `常用词组按拼音`. |
-| `get_characters_by_pinyin_search_keys(search_keys)` | `List[Dict]` — characters whose `searchable_pinyin` contains any of the keys. Dict keys: `character`, `radical`, `pinyin`, `strokes`, `zibiao_index`, `index`. Sorted by strokes ASC, then zibiao_index ASC; one entry per character. |
+| `get_characters_by_pinyin_search_keys(search_keys)` | `List[Dict]` — characters whose current `pinyin` readings normalize to any of the keys (recomputed on read; `searchable_pinyin` is not used for matching). Dict keys: `character`, `radical`, `pinyin`, `strokes`, `zibiao_index`, `index`. Sorted by strokes ASC, then zibiao_index ASC; one entry per character. |
 
 **Column mapping (DB → hwxnet dict):** `radical` → `部首`, `strokes` → `总笔画`, `pinyin` → `拼音`, `classification` → `分类`, `basic_meanings` → `基本字义解释`, `english_translations` → `英文翻译`, `common_phrases` → `常用词组`, `common_phrases_by_pinyin` → `常用词组按拼音`.
 

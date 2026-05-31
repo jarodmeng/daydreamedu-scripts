@@ -319,12 +319,12 @@ def get_hwxnet_lookup() -> Dict[str, Dict[str, Any]]:
 
 def get_characters_by_pinyin_search_keys(search_keys: List[str]) -> List[Dict[str, Any]]:
     """
-    Return characters whose searchable_pinyin contains any of the given keys.
+    Return characters whose current pinyin readings match any of the given search keys.
 
-    Some production rows were backfilled with accented/tone-less searchable_pinyin
-    values (e.g. ["zhèng", "zhèng0", "zhèng5"]) instead of normalized keys like
-    ["zheng", "zheng4"]. To keep search working while the data is repaired, we
-    recompute normalized keys from the stored pinyin column on read.
+    Keys are recomputed from the stored ``pinyin`` column on read (not from
+    ``searchable_pinyin``), so stale index rows cannot surface removed alternate
+    readings. Legacy accented searchable_pinyin in the DB is ignored here; run
+    ``add_searchable_pinyin_column.py`` to refresh the index column for other uses.
 
     Returns list of dicts with character, 部首 (radical), 拼音 (pinyin), 总笔画 (strokes), zibiao_index, index.
     Sorted by 总笔画 ASC, then zibiao_index ASC. One entry per character (deduped).
@@ -336,13 +336,11 @@ def get_characters_by_pinyin_search_keys(search_keys: List[str]) -> List[Dict[st
         with conn.cursor() as cur:
             cur.execute(
                 """
-                SELECT character, zibiao_index, index, radical, strokes, pinyin, searchable_pinyin
+                SELECT character, zibiao_index, index, radical, strokes, pinyin
                 FROM hwxnet_characters
                 """,
             )
             rows = cur.fetchall()
-        # Dedupe by character after filtering in Python so we can tolerate legacy
-        # malformed searchable_pinyin values in the DB.
         search_key_set = set(search_keys)
         seen = set()
         result = []
@@ -351,8 +349,7 @@ def get_characters_by_pinyin_search_keys(search_keys: List[str]) -> List[Dict[st
             if not ch or ch in seen:
                 continue
             normalized_keys = set(compute_searchable_pinyin_for_entry(r.get("pinyin") or []))
-            stored_keys = set(r.get("searchable_pinyin") or [])
-            if not (search_key_set & normalized_keys or search_key_set & stored_keys):
+            if not (search_key_set & normalized_keys):
                 continue
             seen.add(ch)
             result.append({

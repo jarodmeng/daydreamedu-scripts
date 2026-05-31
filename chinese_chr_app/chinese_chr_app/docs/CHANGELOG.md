@@ -6,6 +6,10 @@ Release history and version notes. Newest releases are at the top.
 
 ---
 
+## [v0.3.8]
+
+- **Pinyin search false positives:** Match only on normalized keys recomputed from `hwxnet_characters.pinyin`, not stale `searchable_pinyin` index rows, so removed alternate readings (e.g. 食 for `yi`) no longer appear when the results card shows a different primary reading.
+
 ## [v0.3.7]
 
 - **Profile 掌握度 trend vs table (latest day):** After replaying answer history, replace or append the chart’s latest UTC day with live sub-band counts from `pinyin_recall_unit_bank`, so `掌握项` / `普通已学项` / `普通在学项` / `难项` match the summary table on the rightmost point. Bucket replay days in UTC (same as daily practice stats).
