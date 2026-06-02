@@ -2,6 +2,17 @@
 
 All notable changes to `ai_study_buddy/buddy_console` are documented here.
 
+## [v0.1.10] - Question-level review deep links (2026-06-02)
+
+### Added
+
+1. Review deep links now support question-level targeting via `result_id` (canonical) with optional `question_index` (1-based fallback) in addition to existing `attempt_id`/`student_id`.
+2. Workspace selection sync writes `result_id` into URL query params as users navigate questions, so copied links reopen the same question context.
+
+### Changed
+
+1. `frontend/package.json` version aligned to `0.1.10`.
+
 ## [v0.1.9] - Template evidence viewer (2026-06-02)
 
 ### Added

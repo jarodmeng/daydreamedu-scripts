@@ -1,6 +1,6 @@
 # Buddy Console
 
-**Version: v0.1.9**
+**Version: v0.1.10**
 
 `buddy_console` is the new unified browser app for AI Study Buddy.
 
@@ -71,6 +71,18 @@ Open review in a fresh tab:
 
 ```text
 http://127.0.0.1:5178/review?attempt_id=<registry_uuid>&student_id=<students.id>
+```
+
+Open a specific question in a marked attempt:
+
+```text
+http://127.0.0.1:5178/review?attempt_id=<registry_uuid>&student_id=<students.id>&result_id=<question_result_id>
+```
+
+Or with 1-based question position fallback:
+
+```text
+http://127.0.0.1:5178/review?attempt_id=<registry_uuid>&student_id=<students.id>&question_index=<1-based-index>
 ```
 
 Open a specific PDF in a fresh tab:

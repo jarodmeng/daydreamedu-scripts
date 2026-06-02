@@ -204,6 +204,29 @@ async function fetchAttemptDetail(attemptId: string): Promise<AttemptDetail> {
   return res.json() as Promise<AttemptDetail>;
 }
 
+function resolveDeepLinkQuestionId(
+  questions: QuestionRow[],
+  resultId: string | null,
+  questionIndex: number | null,
+): string | null {
+  if (resultId) {
+    const normalized = resultId.trim().toLowerCase();
+    const matched = questions.find((row) => (row.result_id ?? "").trim().toLowerCase() === normalized);
+    if (matched) {
+      return matched.result_id;
+    }
+  }
+  if (questionIndex && questionIndex >= 1 && questionIndex <= questions.length) {
+    return questions[questionIndex - 1]?.result_id ?? null;
+  }
+  return null;
+}
+
+function resolveRequestedQuestionIdFromCurrentUrl(questions: QuestionRow[]): string | null {
+  const deepLink = parseDeepLinkParams(window.location.search);
+  return resolveDeepLinkQuestionId(questions, deepLink.resultId, deepLink.questionIndex);
+}
+
 function resolveInitialStudentId(
   students: StudentRow[],
   deepLinkStudentId: string | null,
@@ -509,7 +532,15 @@ function needsReviewerReason(draft: Record<string, unknown>): boolean {
   return ["outcome", "earned_marks", "max_marks"].some((field) => Object.prototype.hasOwnProperty.call(draft, field));
 }
 
-function WorkspaceView({ detail, onBack }: { detail: AttemptDetail; onBack: () => void }) {
+function WorkspaceView({
+  detail,
+  onBack,
+  initialResultId,
+}: {
+  detail: AttemptDetail;
+  onBack: () => void;
+  initialResultId?: string | null;
+}) {
   const [viewerMode, setViewerMode] = useState<ViewerMode>("attempt");
   const [viewerZoomPct, setViewerZoomPct] = useState<number>(50);
   const [activeQuestionId, setActiveQuestionId] = useState<string>("");
@@ -527,10 +558,11 @@ function WorkspaceView({ detail, onBack }: { detail: AttemptDetail; onBack: () =
   const [amendmentError, setAmendmentError] = useState<string | null>(null);
 
   useEffect(() => {
+    const urlInitialResultId = resolveRequestedQuestionIdFromCurrentUrl(detail.marking_result?.question_results ?? []);
     setActiveDetail(detail);
     setViewerMode("attempt");
     setViewerZoomPct(50);
-    setActiveQuestionId("");
+    setActiveQuestionId(initialResultId ?? urlInitialResultId ?? "");
     setActiveImageUrl(null);
     setNoteScope("question");
     setNotesExpanded(false);
@@ -541,7 +573,7 @@ function WorkspaceView({ detail, onBack }: { detail: AttemptDetail; onBack: () =
     setReviewerReason("");
     setAmendmentSaveStatus("idle");
     setAmendmentError(null);
-  }, [detail]);
+  }, [detail, initialResultId]);
 
   const questions = activeDetail.marking_result?.question_results ?? [];
   const baseQuestions = activeDetail.marking_result_base?.question_results ?? [];
@@ -581,13 +613,18 @@ function WorkspaceView({ detail, onBack }: { detail: AttemptDetail; onBack: () =
     if (questions.length === 0) {
       return;
     }
-    if (!activeQuestionId) {
+    const requestedQuestionId = resolveRequestedQuestionIdFromCurrentUrl(questions);
+    if (requestedQuestionId && activeQuestionId !== requestedQuestionId) {
+      setActiveQuestionId(requestedQuestionId);
+      return;
+    }
+    const selectedQuestion = questions.find((q) => q.result_id === activeQuestionId);
+    if (!activeQuestionId || !selectedQuestion) {
       const priorityQuestion = questions.find((q) => isIncorrectQuestion(q)) ?? questions[0];
       setActiveQuestionId(priorityQuestion.result_id);
       return;
     }
-    const selected = questions.find((q) => q.result_id === activeQuestionId);
-    const pageStart = selected?.attempt_page_start;
+    const pageStart = selectedQuestion.attempt_page_start;
     const imagePool = viewerImagePool(activeDetail.viewer, viewerMode);
     if (imagePool.length === 0) {
       setActiveImageUrl(null);
@@ -596,6 +633,17 @@ function WorkspaceView({ detail, onBack }: { detail: AttemptDetail; onBack: () =
     const exact = pageStart != null ? imagePool.find((img) => img.page_num === pageStart) : undefined;
     setActiveImageUrl((exact ?? imagePool[0]).url);
   }, [questions, activeQuestionId, viewerMode, activeDetail.viewer]);
+
+  useEffect(() => {
+    if (!activeQuestionId) {
+      return;
+    }
+    replaceReviewWorkspaceUrl({
+      attemptId: activeDetail.attempt.attempt_id,
+      studentId: activeDetail.attempt.student_id,
+      resultId: activeQuestionId,
+    });
+  }, [activeQuestionId, activeDetail.attempt.attempt_id, activeDetail.attempt.student_id]);
 
   const activeQuestion = useMemo(
     () => questions.find((q) => q.result_id === activeQuestionId) ?? null,
@@ -1330,6 +1378,7 @@ export default function App() {
   const [error, setError] = useState<string | null>(null);
   const [deepLinkError, setDeepLinkError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
+  const [workspaceInitialResultId, setWorkspaceInitialResultId] = useState<string | null>(null);
 
   const [subjectFilter, setSubjectFilter] = useState<string>("all");
   const [collectionFilter, setCollectionFilter] = useState<"all" | "exam" | "book">("all");
@@ -1374,11 +1423,18 @@ export default function App() {
               return;
             }
 
+            const initialResultId = resolveDeepLinkQuestionId(
+              attemptDetail.marking_result?.question_results ?? [],
+              deepLink.resultId,
+              deepLink.questionIndex,
+            );
+            setWorkspaceInitialResultId(initialResultId);
             setDetail(attemptDetail);
             setScreen("workspace");
             replaceReviewWorkspaceUrl({
               attemptId: deepLink.attemptId,
               studentId: attemptStudentId,
+              resultId: initialResultId,
             });
             return;
           } catch (e) {
@@ -1393,6 +1449,7 @@ export default function App() {
         }
 
         if (chosen) {
+          setWorkspaceInitialResultId(null);
           replaceReviewWorkspaceUrl({ studentId: chosen });
           setScreen("my_work");
         }
@@ -1459,6 +1516,7 @@ export default function App() {
       setLoading(true);
       setDeepLinkError(null);
       const payload = await fetchAttemptDetail(attemptId);
+      setWorkspaceInitialResultId(null);
       setDetail(payload);
       setScreen("workspace");
       replaceReviewWorkspaceUrl({
@@ -1518,8 +1576,10 @@ export default function App() {
     return (
       <WorkspaceView
         detail={detail}
+        initialResultId={workspaceInitialResultId}
         onBack={() => {
           setDetail(null);
+          setWorkspaceInitialResultId(null);
           setScreen("my_work");
           replaceReviewWorkspaceUrl({ studentId: detail.attempt.student_id });
         }}

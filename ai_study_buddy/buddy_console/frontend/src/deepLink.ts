@@ -1,12 +1,27 @@
 export type DeepLinkParams = {
   attemptId: string | null;
   studentId: string | null;
+  resultId: string | null;
+  questionIndex: number | null;
 };
 
 export type ReviewWorkspaceUrlParams = {
   attemptId?: string | null;
   studentId?: string | null;
+  resultId?: string | null;
+  questionIndex?: number | null;
 };
+
+function parseQuestionIndex(rawValue: string | null): number | null {
+  if (!rawValue) {
+    return null;
+  }
+  const parsed = Number(rawValue.trim());
+  if (!Number.isInteger(parsed) || parsed < 1) {
+    return null;
+  }
+  return parsed;
+}
 
 export function parseDeepLinkParams(search: string): DeepLinkParams {
   const raw = search.startsWith("?") ? search.slice(1) : search;
@@ -14,6 +29,8 @@ export function parseDeepLinkParams(search: string): DeepLinkParams {
   return {
     attemptId: q.get("attempt_id")?.trim() || null,
     studentId: q.get("student_id")?.trim() || null,
+    resultId: q.get("result_id")?.trim() || null,
+    questionIndex: parseQuestionIndex(q.get("question_index")),
   };
 }
 
@@ -24,6 +41,12 @@ export function buildReviewWorkspaceSearch(params: ReviewWorkspaceUrlParams): st
   }
   if (params.studentId) {
     q.set("student_id", params.studentId);
+  }
+  if (params.resultId) {
+    q.set("result_id", params.resultId);
+  }
+  if (params.questionIndex && Number.isInteger(params.questionIndex) && params.questionIndex > 0) {
+    q.set("question_index", String(params.questionIndex));
   }
   const serialized = q.toString();
   return serialized ? `?${serialized}` : "";

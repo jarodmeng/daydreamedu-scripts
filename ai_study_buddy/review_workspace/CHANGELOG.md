@@ -4,6 +4,14 @@ All notable changes to `ai_study_buddy/review_workspace` are documented here.
 
 ---
 
+## [v0.1.9] — Question-level deep links (2026-06-02)
+
+Implemented:
+
+- frontend deep links now accept `result_id` for canonical question targeting and optional `question_index` (1-based) fallback.
+- workspace URL sync now keeps `result_id` in query params as users change active questions, so copied links preserve question context.
+- `frontend/package.json` version aligned to `0.1.9`.
+
 ## [v0.1.8] — Review completion + amendment consistency fixes (2026-06-02)
 
 Implemented:

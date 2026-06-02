@@ -7,7 +7,7 @@ student review-state notes and human grading amendment overlays.
 > operator app, but this package remains available for rollback and reference
 > use while review functionality is still seeded from it.
 
-Current version: `v0.1.8`
+Current version: `v0.1.9`
 
 Current phase: `single-student alpha` (scope locked on April 23, 2026).
 
@@ -57,5 +57,12 @@ Open a specific marked attempt directly (also used by **Student File Browser** c
 
 - `attempt_id` — required for deep open; equals `pdf_files.id` / Review Workspace list `attempt_id`.
 - `student_id` — optional but recommended when known; pre-selects the student before attempt load.
+- `result_id` — optional canonical question key; opens the workspace on that question when found.
+- `question_index` — optional 1-based fallback selector used when `result_id` is missing/invalid.
+
+Question-specific examples:
+
+- `http://127.0.0.1:5178/?attempt_id=<registry_uuid>&student_id=<students.id>&result_id=Q4`
+- `http://127.0.0.1:5178/?attempt_id=<registry_uuid>&student_id=<students.id>&question_index=3`
 
 On load the app fetches `GET /api/student/attempts/{attempt_id}` and opens the workspace when `marking_status === "marked"`. In-app navigation syncs the URL via `history.replaceState`.
