@@ -299,7 +299,7 @@ Psycopg 3 (`psycopg[binary]>=3.1`). All functions return dict shapes compatible 
 | `get_user_prioritized_characters(user_id)` | Return active, unexpired user priority rows ordered by `priority ASC, created_at ASC` for phase-1 新字 selection. |
 | `bulk_insert_pinyin_recall_item_presented(payloads)` | Bulk insert into `pinyin_recall_item_presented` (e.g. upload script). |
 | `bulk_insert_pinyin_recall_item_answered(payloads)` | Bulk insert into `pinyin_recall_item_answered` (e.g. upload script). |
-| `get_pinyin_recall_category_daily_trend(user_id, days=60)` | Return daily end-of-day counts for the four bands (难字, 普通在学字, 普通已学字, 掌握字) by replaying `pinyin_recall_item_answered` for the user. No new table; used by `GET /api/profile/progress` for the 掌握度每日趋势 chart. |
+| `get_pinyin_recall_category_daily_trend(user_id, days=60)` | Return daily end-of-day counts for the four bands (难字, 普通在学字, 普通已学字, 掌握字) by replaying `pinyin_recall_item_answered` for the user. Pass `days=None` for full history (Profile chart range selector slices client-side). No new table; used by `GET /api/profile/progress` for the 掌握度每日趋势 chart. |
 
 ---
 

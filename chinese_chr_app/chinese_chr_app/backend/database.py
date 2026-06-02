@@ -1015,7 +1015,7 @@ def _sync_category_trend_with_live_counts(
 
 def get_pinyin_recall_category_daily_trend(
     user_id: str,
-    days: int = 60,
+    days: Optional[int] = 60,
     *,
     live_counts: Optional[Dict[str, int]] = None,
     enabled_unit_ids: Optional[List[str]] = None,
@@ -1037,8 +1037,10 @@ def get_pinyin_recall_category_daily_trend(
     - ignore legacy rows missing unit_id (pre-Phase-3), since mapping those rows
       to modern reading-units is ambiguous and would otherwise inflate counts
       relative to the Profile table.
+
+    When ``days`` is ``None``, return the full filled daily series (client may slice).
     """
-    if days <= 0:
+    if days is not None and days <= 0:
         return []
 
     unit_ids = sorted(enabled_unit_ids) if enabled_unit_ids is not None else sorted(_get_enabled_recall_unit_ids())
@@ -1134,11 +1136,11 @@ def get_pinyin_recall_category_daily_trend(
             filled[d] = dict(last_counts)
             d += timedelta(days=1)
 
-        # Restrict to the last `days` days relative to `end`.
-        cutoff = end - timedelta(days=days - 1)
+        # Restrict to the last `days` days relative to `end` (skip when days is None).
+        cutoff = None if days is None else end - timedelta(days=days - 1)
         output: List[Dict[str, Any]] = []
         for day_key in sorted(filled.keys()):
-            if day_key < cutoff:
+            if cutoff is not None and day_key < cutoff:
                 continue
             counts = filled[day_key]
             output.append(
@@ -1152,7 +1154,7 @@ def get_pinyin_recall_category_daily_trend(
             )
 
         output = _sync_category_trend_with_live_counts(user_id, output, live_counts=live_counts)
-        if days > 0 and len(output) > days:
+        if days is not None and days > 0 and len(output) > days:
             output = output[-days:]
         return output
     finally:

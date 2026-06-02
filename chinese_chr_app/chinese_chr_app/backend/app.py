@@ -1152,7 +1152,7 @@ def get_profile_progress():
         )
         category_trend = db.get_pinyin_recall_category_daily_trend(
             user.user_id,
-            days=60,
+            days=None,
             live_counts=category_counts,
             enabled_unit_ids=enabled_unit_ids,
         )

@@ -234,6 +234,47 @@
   color: #888;
 }
 
+.profile-trend-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.profile-trend-header h2 {
+  margin-bottom: 0;
+}
+
+.profile-trend-range {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.profile-trend-range-btn {
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  border: 1px solid #ccc;
+  border-radius: 999px;
+  background: #fff;
+  color: #444;
+  cursor: pointer;
+}
+
+.profile-trend-range-btn:hover {
+  border-color: #4CAF50;
+  color: #2e7d32;
+}
+
+.profile-trend-range-btn-active {
+  border-color: #4CAF50;
+  background: rgba(76, 175, 80, 0.12);
+  color: #2e7d32;
+  font-weight: 500;
+}
+
 .profile-trend-chart {
   width: 100%;
   height: 260px;

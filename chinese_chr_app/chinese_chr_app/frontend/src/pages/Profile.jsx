@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import {
   Area,
@@ -14,6 +14,20 @@ import './Profile.css'
 
 const API_BASE = import.meta.env.VITE_API_URL || ''
 const TOTAL_UNITS_FALLBACK = 3664
+
+/** null = full history (全部) */
+const CATEGORY_TREND_RANGE_OPTIONS = [
+  { days: 30, label: '30天' },
+  { days: 60, label: '60天' },
+  { days: 90, label: '90天' },
+  { days: null, label: '全部' },
+]
+
+function sliceCategoryTrendForRange(trend, rangeDays) {
+  if (!trend?.length) return []
+  if (rangeDays == null) return trend
+  return trend.length <= rangeDays ? trend : trend.slice(-rangeDays)
+}
 
 function formatCategoryStats(answered, correct) {
   if (answered <= 0) return null
@@ -40,6 +54,7 @@ export default function Profile() {
   const [editName, setEditName] = useState('')
   const [isEditingName, setIsEditingName] = useState(false)
   const [nameSaving, setNameSaving] = useState(false)
+  const [categoryTrendRangeDays, setCategoryTrendRangeDays] = useState(60)
 
   useEffect(() => {
     if (!user || !accessToken) {
@@ -102,6 +117,12 @@ export default function Profile() {
     setIsEditingName(true)
   }
 
+  const categoryTrend = progress?.category_trend ?? []
+  const categoryTrendChartData = useMemo(
+    () => sliceCategoryTrendForRange(categoryTrend, categoryTrendRangeDays),
+    [categoryTrend, categoryTrendRangeDays],
+  )
+
   if (!user) {
     return (
       <main className="profile-page">
@@ -132,7 +153,6 @@ export default function Profile() {
   const learnedMastered = proficiency?.learned_mastered ?? 0
   const learnedNormal = proficiency?.learned_normal ?? 0
   const pct = (n) => (totalUnits > 0 ? Math.round((n / totalUnits) * 100) : 0)
-  const categoryTrend = progress?.category_trend ?? []
   const practiceSummary = progress?.practice_summary ?? []
   const hasPracticeHistory = practiceSummary.length > 0 || (progress?.daily_stats?.length ?? 0) > 0
 
@@ -258,10 +278,33 @@ export default function Profile() {
             {/* Daily category trend chart (four bands, excluding 未学项) */}
             {categoryTrend.length >= 5 && (
               <section className="profile-section">
-                <h2>掌握度每日趋势</h2>
+                <div className="profile-trend-header">
+                  <h2>掌握度每日趋势</h2>
+                  <div
+                    className="profile-trend-range"
+                    role="group"
+                    aria-label="趋势图日期范围"
+                  >
+                    {CATEGORY_TREND_RANGE_OPTIONS.map((opt) => (
+                      <button
+                        key={opt.label}
+                        type="button"
+                        className={
+                          categoryTrendRangeDays === opt.days
+                            ? 'profile-trend-range-btn profile-trend-range-btn-active'
+                            : 'profile-trend-range-btn'
+                        }
+                        aria-pressed={categoryTrendRangeDays === opt.days}
+                        onClick={() => setCategoryTrendRangeDays(opt.days)}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
                 <div className="profile-trend-chart">
                   <ResponsiveContainer width="100%" height={260}>
-                    <AreaChart data={categoryTrend} margin={{ top: 10, right: 16, bottom: 0, left: -4 }}>
+                    <AreaChart data={categoryTrendChartData} margin={{ top: 10, right: 16, bottom: 0, left: -4 }}>
                       <XAxis dataKey="date" />
                       <YAxis allowDecimals={false} />
                       <Tooltip />

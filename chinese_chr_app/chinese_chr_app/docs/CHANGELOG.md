@@ -6,6 +6,10 @@ Release history and version notes. Newest releases are at the top.
 
 ---
 
+## [v0.3.9]
+
+- **Profile 掌握度 trend date range:** Add **30天** / **60天** / **90天** / **全部** selectors above the 掌握度每日趋势 chart on the 我的 page (default 60天). `GET /api/profile/progress` returns full `category_trend` history; the chart slices client-side.
+
 ## [v0.3.8]
 
 - **Pinyin search false positives:** Match only on normalized keys recomputed from `hwxnet_characters.pinyin`, not stale `searchable_pinyin` index rows, so removed alternate readings (e.g. 食 for `yi`) no longer appear when the results card shows a different primary reading.

@@ -140,7 +140,7 @@ def test_profile_progress_returns_unit_level_denominator(monkeypatch):
             }
         ],
         _get_enabled_recall_unit_ids=lambda: {"u1", "u2"},
-        get_pinyin_recall_category_daily_trend=lambda user_id, days=60, **kwargs: [],
+        get_pinyin_recall_category_daily_trend=lambda user_id, days=None, **kwargs: [],
         get_pinyin_recall_category_counts=lambda user_id, **kwargs: {
             "total_units": 904,
             "learned": 200,
