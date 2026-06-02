@@ -4,6 +4,14 @@ All notable changes to `ai_study_buddy/review_workspace` are documented here.
 
 ---
 
+## [v0.1.8] — Review completion + amendment consistency fixes (2026-06-02)
+
+Implemented:
+
+- `frontend/src/App.tsx`: completion gating now treats explicit `outcome=correct` as correct (mark-based fallback no longer overrides explicit corrected outcome).
+- `frontend/src/App.tsx`: after amendment save, review status is immediately recomputed/persisted from resolved question results so attempts can move to **Review completed** without requiring separate manual review-state edits.
+- Depends on backend `marking` **v0.3.18+** for amendment outcome↔score auto-alignment (wrong/correct with zero/full-credit inference).
+
 ## [v0.1.7] — Template evidence viewer (2026-06-02)
 
 Implemented:

@@ -227,6 +227,9 @@ function formatPct(value: number | null | undefined): string {
 
 function isIncorrectQuestion(q: QuestionRow): boolean {
   const outcome = (q.outcome ?? "").toLowerCase();
+  if (outcome === "correct") {
+    return false;
+  }
   if (outcome === "wrong" || outcome === "incorrect" || outcome === "partial") {
     return true;
   }
@@ -698,17 +701,22 @@ function WorkspaceView({ detail, onBack }: { detail: AttemptDetail; onBack: () =
     attemptNotes: AttemptDetail["review_state"]["attempt_notes"];
     studentSubjectNotes: AttemptDetail["review_state"]["student_subject_notes"];
     forceCompleted?: boolean;
+    questionRowsOverride?: QuestionRow[];
   }) {
-    const { questionReviews, attemptNotes, studentSubjectNotes, forceCompleted = false } = params;
+    const { questionReviews, attemptNotes, studentSubjectNotes, forceCompleted = false, questionRowsOverride } = params;
+    const effectiveQuestions = questionRowsOverride ?? questions;
     const hasReviewed = questionReviews.some((q) => isQuestionReviewMarkedReviewed(q));
-    const questionIds = new Set(questions.map((q) => q.result_id));
+    const questionIds = new Set(effectiveQuestions.map((q) => q.result_id));
     const reviewedQuestionCount = questionReviews.filter(
       (q) => isQuestionReviewMarkedReviewed(q) && questionIds.has(q.result_id),
     ).length;
     const allQuestionsReviewed = questionIds.size > 0 && reviewedQuestionCount === questionIds.size;
+    const incorrectOrPartialQuestionIdsForState = new Set(
+      effectiveQuestions.filter((q) => isIncorrectQuestion(q)).map((q) => q.result_id),
+    );
     const allIncorrectOrPartialHaveNotes =
-      incorrectOrPartialQuestionIds.size === 0 ||
-      [...incorrectOrPartialQuestionIds].every((resultId) =>
+      incorrectOrPartialQuestionIdsForState.size === 0 ||
+      [...incorrectOrPartialQuestionIdsForState].every((resultId) =>
         questionReviews.some((q) => q.result_id === resultId && (q.note_text ?? "").trim().length > 0),
       );
     const hasAnyNote =
@@ -849,6 +857,12 @@ function WorkspaceView({ detail, onBack }: { detail: AttemptDetail; onBack: () =
         marking_result_base: payload.marking_result_base,
         marking_result_resolved: payload.marking_result_resolved,
         amendment_state: payload.amendment_state,
+      });
+      await persistReviewState({
+        questionReviews: activeDetail.review_state.question_reviews,
+        attemptNotes: activeDetail.review_state.attempt_notes,
+        studentSubjectNotes: activeDetail.review_state.student_subject_notes,
+        questionRowsOverride: payload.marking_result?.question_results ?? questions,
       });
       setAmendmentSaveStatus("saved");
       setEditField(null);
