@@ -21,6 +21,7 @@ from ai_study_buddy.marking.review.models import (
     default_review_state,
     infer_subject_context,
 )
+from ai_study_buddy.marking.file_question_info.api import file_question_info_run_dir_for_pdf
 from ai_study_buddy.marking.review.payload_reader import read_marking_result_payload
 from ai_study_buddy.marking.review.repository import StudentReviewRepository
 
@@ -36,18 +37,19 @@ def _extract_page_num(path: Path) -> int:
     return int(match.group(1))
 
 
-def _list_images(context_root: Path, asset_dir: Path, subdir: str) -> list[dict[str, Any]]:
-    target = asset_dir / subdir
-    if not target.is_dir():
+def _list_images_in_directory(context_root: Path, image_dir: Path) -> list[dict[str, Any]]:
+    resolved_root = context_root.resolve()
+    resolved_dir = image_dir.resolve()
+    if not resolved_dir.is_dir():
         return []
     candidates = [
         p
-        for p in target.iterdir()
+        for p in resolved_dir.iterdir()
         if p.is_file() and p.suffix.lower() in {".png", ".jpg", ".jpeg", ".webp"}
     ]
     out: list[dict[str, Any]] = []
     for path in sorted(candidates, key=lambda p: (_extract_page_num(p), p.name)):
-        rel = path.relative_to(context_root).as_posix()
+        rel = path.resolve().relative_to(resolved_root).as_posix()
         out.append(
             {
                 "name": path.name,
@@ -56,6 +58,55 @@ def _list_images(context_root: Path, asset_dir: Path, subdir: str) -> list[dict[
             }
         )
     return out
+
+
+def _list_images(context_root: Path, asset_dir: Path, subdir: str) -> list[dict[str, Any]]:
+    return _list_images_in_directory(context_root, asset_dir / subdir)
+
+
+def _resolve_template_file_id(
+    context: dict[str, Any],
+    *,
+    completion_id: str,
+    manager: PdfFileManager,
+) -> str | None:
+    template_file_id = context.get("template_file_id")
+    if isinstance(template_file_id, str) and template_file_id.strip():
+        return template_file_id.strip()
+    template = manager.get_template(completion_id)
+    return template.id if template is not None else None
+
+
+def _template_images_for_attempt(
+    *,
+    context: dict[str, Any],
+    completion_id: str,
+    context_root: Path,
+    manager: PdfFileManager,
+) -> list[dict[str, Any]]:
+    template_file_id = _resolve_template_file_id(context, completion_id=completion_id, manager=manager)
+    if not template_file_id:
+        return []
+    template_file = manager.get_file(template_file_id)
+    if template_file is None:
+        return []
+    try:
+        run_dir = file_question_info_run_dir_for_pdf(template_file, context_root=context_root)
+    except (ValueError, TypeError):
+        return []
+    return _list_images_in_directory(context_root, run_dir / "rendered_pages")
+
+
+def _empty_viewer_payload() -> dict[str, Any]:
+    return {
+        "mode_default": "attempt",
+        "attempt_images": [],
+        "answer_images": [],
+        "template_images": [],
+        "answer_page_start": None,
+        "answer_page_end": None,
+        "marking_asset": None,
+    }
 
 
 def _find_attempt_page_for_result(question_page_map: list[dict[str, Any]], result_id: str) -> int | None:
@@ -162,14 +213,7 @@ def get_attempt_detail(
             "marking_status": "not_marked",
             "marking_result": None,
             "review_state": default_review_state(),
-            "viewer": {
-                "mode_default": "attempt",
-                "attempt_images": [],
-                "answer_images": [],
-                "answer_page_start": None,
-                "answer_page_end": None,
-                "marking_asset": None,
-            },
+            "viewer": _empty_viewer_payload(),
         }
 
     payload = read_marking_result_payload(
@@ -188,6 +232,12 @@ def get_attempt_detail(
     asset_dir = context_root / marking_asset if marking_asset else None
     attempt_images = _list_images(context_root, asset_dir, "attempt") if asset_dir else []
     answer_images = _list_images(context_root, asset_dir, "answers") if asset_dir else []
+    template_images = _template_images_for_attempt(
+        context=context,
+        completion_id=completion.id,
+        context_root=context_root,
+        manager=manager,
+    )
 
     student_id = context.get("student_id") if isinstance(context.get("student_id"), str) else (completion.student_id or "unknown")
     resolved_subject = (
@@ -245,6 +295,7 @@ def get_attempt_detail(
             "mode_default": "attempt",
             "attempt_images": attempt_images,
             "answer_images": answer_images,
+            "template_images": template_images,
             "answer_page_start": context.get("answer_page_start"),
             "answer_page_end": context.get("answer_page_end"),
             "marking_asset": marking_asset,

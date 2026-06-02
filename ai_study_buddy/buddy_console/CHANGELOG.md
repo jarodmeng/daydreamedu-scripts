@@ -2,6 +2,16 @@
 
 All notable changes to `ai_study_buddy/buddy_console` are documented here.
 
+## [v0.1.9] - Template evidence viewer (2026-06-02)
+
+### Added
+
+1. Review panel evidence toolbar **Template** mode (clean worksheet pages from linked template FQI `rendered_pages/`); shown only when `viewer.template_images` is non-empty.
+
+### Changed
+
+1. Depends on `marking` **v0.3.17** for `viewer.template_images[]` on attempt detail API.
+
 ## [v0.1.8] - Amendment save and overlay fixes (2026-05-30)
 
 ### Fixed

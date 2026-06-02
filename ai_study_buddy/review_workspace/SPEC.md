@@ -105,6 +105,7 @@ Behavior:
     - `marking_result`: backward-compatible alias for `marking_result_resolved`
   - enriches question rows with `attempt_page_start` using `context.question_page_map`
   - returns attempt/answer image URLs from marking asset bundle when present
+  - returns template image URLs from linked template FQI `rendered_pages/` when present
 - for unmarked attempts:
   - returns `marking_status = not_marked`
   - `marking_result = null` and empty viewer image pools

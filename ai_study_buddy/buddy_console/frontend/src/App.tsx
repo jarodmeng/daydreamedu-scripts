@@ -113,10 +113,24 @@ type AttemptDetail = {
     mode_default: "attempt" | "answer";
     attempt_images: Array<{ name: string; page_num: number; url: string }>;
     answer_images: Array<{ name: string; page_num: number; url: string }>;
+    template_images: Array<{ name: string; page_num: number; url: string }>;
   };
 };
 
-type ViewerMode = "attempt" | "answer";
+type ViewerMode = "attempt" | "answer" | "template";
+
+function viewerImagePool(
+  viewer: AttemptDetail["viewer"],
+  mode: ViewerMode,
+): Array<{ name: string; page_num: number; url: string }> {
+  if (mode === "attempt") {
+    return viewer.attempt_images;
+  }
+  if (mode === "template") {
+    return viewer.template_images ?? [];
+  }
+  return viewer.answer_images;
+}
 type NoteScope = "question" | "attempt" | "student_subject";
 type SaveStatus = "idle" | "unsaved" | "saving" | "saved" | "error";
 type EditableFieldKey =
@@ -574,14 +588,14 @@ function WorkspaceView({ detail, onBack }: { detail: AttemptDetail; onBack: () =
     }
     const selected = questions.find((q) => q.result_id === activeQuestionId);
     const pageStart = selected?.attempt_page_start;
-    const imagePool = viewerMode === "attempt" ? activeDetail.viewer.attempt_images : activeDetail.viewer.answer_images;
+    const imagePool = viewerImagePool(activeDetail.viewer, viewerMode);
     if (imagePool.length === 0) {
       setActiveImageUrl(null);
       return;
     }
     const exact = pageStart != null ? imagePool.find((img) => img.page_num === pageStart) : undefined;
     setActiveImageUrl((exact ?? imagePool[0]).url);
-  }, [questions, activeQuestionId, viewerMode, activeDetail.viewer.attempt_images, activeDetail.viewer.answer_images]);
+  }, [questions, activeQuestionId, viewerMode, activeDetail.viewer]);
 
   const activeQuestion = useMemo(
     () => questions.find((q) => q.result_id === activeQuestionId) ?? null,
@@ -865,7 +879,8 @@ function WorkspaceView({ detail, onBack }: { detail: AttemptDetail; onBack: () =
     0,
     questions.findIndex((q) => q.result_id === activeQuestionId),
   );
-  const imagePool = viewerMode === "attempt" ? activeDetail.viewer.attempt_images : activeDetail.viewer.answer_images;
+  const imagePool = viewerImagePool(activeDetail.viewer, viewerMode);
+  const templateImagesAvailable = (activeDetail.viewer.template_images ?? []).length > 0;
   const activeImageIndex = Math.max(
     0,
     imagePool.findIndex((img) => img.url === activeImageUrl),
@@ -1064,6 +1079,11 @@ function WorkspaceView({ detail, onBack }: { detail: AttemptDetail; onBack: () =
                 <button className={viewerMode === "answer" ? "active" : ""} onClick={() => setViewerMode("answer")}>
                   Answer
                 </button>
+                {templateImagesAvailable ? (
+                  <button className={viewerMode === "template" ? "active" : ""} onClick={() => setViewerMode("template")}>
+                    Template
+                  </button>
+                ) : null}
               </div>
               <span className="toolbar-sep" aria-hidden="true">
                 |
@@ -1096,7 +1116,7 @@ function WorkspaceView({ detail, onBack }: { detail: AttemptDetail; onBack: () =
                   transformOrigin: "top center",
                 }}
                 src={activeImageUrl}
-                alt="Attempt evidence page"
+                alt={`${viewerMode === "template" ? "Template" : viewerMode === "answer" ? "Answer" : "Attempt"} evidence page`}
               />
             ) : (
               <p>No image available.</p>

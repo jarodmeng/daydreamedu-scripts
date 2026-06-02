@@ -4,6 +4,19 @@ All notable changes to `ai_study_buddy.marking` are documented in this file.
 
 Committed changes under `ai_study_buddy/marking/` should add an entry here and bump **Current version** in `README.md` (semver: **patch** for docs or small renderer tweaks, **minor** for schema or public API changes). `SPEC.md` / `TESTING.md` titles do not carry the package version.
 
+## [0.3.17] - 2026-06-02
+
+Patch: review-workspace viewer adds template evidence images from FQI `rendered_pages/`.
+
+### Added
+
+- `marking/review/detail_service.py`: `viewer.template_images[]` on `GET /api/student/attempts/{attempt_id}` — resolves linked template (`context.template_file_id` or registry `completed_from`), lists `file_question_info/.../rendered_pages/` via static URLs.
+- `marking/tests/test_review_workspace_template_viewer.py`: template image listing and empty fallback when no template link.
+
+### Changed
+
+- `marking/review/detail_service.py`: `_list_images_in_directory` resolves paths before `relative_to` so macOS `/var` vs `/private/var` does not drop image URLs.
+
 ## [0.3.16] - 2026-05-30
 
 Patch: amendment PUT returns freshly resolved marking (not stale DB reload).

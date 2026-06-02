@@ -109,7 +109,8 @@ Notable fields:
 - `marking_result_resolved` is base plus saved amendment overlay
 - `marking_result_resolved.question_results[].attempt_page_start` is derived from resolved `context.question_page_map`
 - `amendment_state` is either loaded persisted data or backend default empty state
-- `viewer.attempt_images[]` and `viewer.answer_images[]` contain `name`, `page_num`, `url`
+- `viewer.attempt_images[]`, `viewer.answer_images[]`, and `viewer.template_images[]` contain `name`, `page_num`, `url`
+- `viewer.template_images[]` is empty when the completion has no linked template or no FQI `rendered_pages/` images exist
 - `review_state` is either loaded persisted data or backend default:
   - `review_status: "not_started"`
   - empty arrays for note/review collections

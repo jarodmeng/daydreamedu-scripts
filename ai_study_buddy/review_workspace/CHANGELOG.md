@@ -4,6 +4,14 @@ All notable changes to `ai_study_buddy/review_workspace` are documented here.
 
 ---
 
+## [v0.1.7] — Template evidence viewer (2026-06-02)
+
+Implemented:
+
+- Evidence toolbar **Template** mode: clean worksheet pages from linked template FQI `rendered_pages/` (shown only when images exist).
+- Backend `GET /api/student/attempts/{attempt_id}` viewer payload adds `template_images[]` (`marking` **v0.3.17+** / `marking/review/detail_service.py`).
+- `frontend/package.json` version aligned to `0.1.7`.
+
 ## [v0.1.6] — Amendment save diff vs AI base (2026-05-30)
 
 Implemented:

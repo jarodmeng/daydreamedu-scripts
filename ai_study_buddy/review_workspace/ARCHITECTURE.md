@@ -21,7 +21,7 @@ Review Workspace is a focused student-facing app surface that:
 
 - reads registry-backed student attempts
 - resolves one canonical marking artifact at a time for detail view
-- renders review UI over attempt and answer evidence images
+- renders review UI over attempt, template, and answer evidence images
 - persists student review-state notes separately from marking artifacts
 - persists human grading amendments as overlay artifacts
 
