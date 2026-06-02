@@ -4,6 +4,21 @@ All notable changes to `ai_study_buddy.marking` are documented in this file.
 
 Committed changes under `ai_study_buddy/marking/` should add an entry here and bump **Current version** in `README.md` (semver: **patch** for docs or small renderer tweaks, **minor** for schema or public API changes). `SPEC.md` / `TESTING.md` titles do not carry the package version.
 
+## [0.3.18] - 2026-06-02
+
+Patch: enforce score/outcome consistency for review amendments.
+
+### Changed
+
+- `marking/review/amendment_service.py`: auto-align amendment fields bidirectionally during merge:
+  - `outcome=correct` forces `earned_marks=max_marks`.
+  - `outcome=wrong` forces `earned_marks=0`.
+  - when only `earned_marks` is amended, infer `outcome=wrong` at `0`, and `outcome=correct` when `earned_marks==max_marks` (including amended `max_marks`).
+
+### Added
+
+- `marking/tests/test_review_workspace_amendments.py`: regression coverage for outcome→marks and marks→outcome auto-alignment, including amended-`max_marks` full-credit inference.
+
 ## [0.3.17] - 2026-06-02
 
 Patch: review-workspace viewer adds template evidence images from FQI `rendered_pages/`.

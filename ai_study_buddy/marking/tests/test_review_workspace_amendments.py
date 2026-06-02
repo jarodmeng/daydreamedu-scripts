@@ -270,6 +270,111 @@ def test_panel_save_merges_fields_for_same_question():
     assert fields["outcome"] == "correct"
 
 
+def test_panel_save_auto_sets_earned_marks_when_outcome_amended_to_correct():
+    base = _base_payload()
+    existing = normalize_amendment_state({}, context=_context(base))
+
+    merged = merge_panel_amendment(
+        existing_state=existing,
+        body={
+            "updated_by": "review_workspace_ui",
+            "question_amendments": [
+                {
+                    "result_id": "Q2",
+                    "fields": {"outcome": "correct"},
+                    "reviewer_reason": "Marked correct after review.",
+                }
+            ],
+        },
+        base_payload=base,
+        context=_context(base),
+        valid_attempt_pages={1, 2},
+    )
+
+    fields = merged["question_amendments"][0]["fields"]
+    assert fields["outcome"] == "correct"
+    assert fields["earned_marks"] == 2
+
+
+def test_panel_save_auto_sets_earned_marks_to_zero_when_outcome_amended_to_wrong():
+    base = _base_payload()
+    existing = normalize_amendment_state({}, context=_context(base))
+
+    merged = merge_panel_amendment(
+        existing_state=existing,
+        body={
+            "updated_by": "review_workspace_ui",
+            "question_amendments": [
+                {
+                    "result_id": "Q1",
+                    "fields": {"outcome": "wrong"},
+                    "reviewer_reason": "Answer is incorrect.",
+                }
+            ],
+        },
+        base_payload=base,
+        context=_context(base),
+        valid_attempt_pages={1, 2},
+    )
+
+    fields = merged["question_amendments"][0]["fields"]
+    assert fields["outcome"] == "wrong"
+    assert fields["earned_marks"] == 0
+
+
+def test_panel_save_auto_sets_outcome_to_wrong_when_earned_marks_amended_to_zero():
+    base = _base_payload()
+    existing = normalize_amendment_state({}, context=_context(base))
+
+    merged = merge_panel_amendment(
+        existing_state=existing,
+        body={
+            "updated_by": "review_workspace_ui",
+            "question_amendments": [
+                {
+                    "result_id": "Q1",
+                    "fields": {"earned_marks": 0},
+                    "reviewer_reason": "No credit after re-check.",
+                }
+            ],
+        },
+        base_payload=base,
+        context=_context(base),
+        valid_attempt_pages={1, 2},
+    )
+
+    fields = merged["question_amendments"][0]["fields"]
+    assert fields["earned_marks"] == 0
+    assert fields["outcome"] == "wrong"
+
+
+def test_panel_save_auto_sets_outcome_to_correct_when_earned_marks_matches_amended_max():
+    base = _base_payload()
+    existing = normalize_amendment_state({}, context=_context(base))
+
+    merged = merge_panel_amendment(
+        existing_state=existing,
+        body={
+            "updated_by": "review_workspace_ui",
+            "question_amendments": [
+                {
+                    "result_id": "Q2",
+                    "fields": {"max_marks": 3, "earned_marks": 3},
+                    "reviewer_reason": "Rubric adjusted; full credit.",
+                }
+            ],
+        },
+        base_payload=base,
+        context=_context(base),
+        valid_attempt_pages={1, 2},
+    )
+
+    fields = merged["question_amendments"][0]["fields"]
+    assert fields["max_marks"] == 3
+    assert fields["earned_marks"] == 3
+    assert fields["outcome"] == "correct"
+
+
 def test_amendment_api_saves_overlay_and_returns_resolved_payload(tmp_path, monkeypatch):
     # This test uses filesystem-backed artifacts under tmp_path; ensure we don't
     # force DB reads (which would require a populated study_buddy.db).

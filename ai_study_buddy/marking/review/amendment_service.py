@@ -133,6 +133,7 @@ def merge_panel_amendment(
         incoming["updated_by"] = updated_by
         _upsert_page_map_amendment(merged["question_page_map_amendments"], incoming)
 
+    _auto_align_correct_outcome_scores(merged, base_payload=base_payload)
     merged["review_meta"] = {"updated_at": timestamp, "updated_by": updated_by}
     validate_amendment_state(
         base_payload=base_payload,
@@ -370,6 +371,46 @@ def _apply_question_amendments(payload: dict[str, Any], amendment_state: dict[st
         fields = amendment.get("fields")
         if isinstance(result_id, str) and isinstance(fields, dict) and result_id in rows:
             _apply_fields_to_row(rows[result_id], fields)
+
+
+def _auto_align_correct_outcome_scores(amendment_state: dict[str, Any], *, base_payload: dict[str, Any]) -> None:
+    rows_by_id: dict[str, dict[str, Any]] = {
+        result_id: deepcopy(row)
+        for result_id, row in _question_rows_by_id(base_payload).items()
+    }
+    for amendment in amendment_state.get("question_amendments", []):
+        if not isinstance(amendment, dict):
+            continue
+        result_id = amendment.get("result_id")
+        fields = amendment.get("fields")
+        if not isinstance(result_id, str) or not isinstance(fields, dict):
+            continue
+        resolved_row = rows_by_id.get(result_id)
+        if resolved_row is None:
+            continue
+        _apply_fields_to_row(resolved_row, fields)
+        max_marks = _finite_mark(resolved_row.get("max_marks"))
+        earned_marks = _finite_mark(resolved_row.get("earned_marks"))
+        if max_marks is None or earned_marks is None:
+            continue
+        if "outcome" in fields:
+            outcome = fields.get("outcome")
+            if outcome not in {"correct", "wrong"}:
+                continue
+            target_earned_marks = max_marks if outcome == "correct" else 0.0
+            if not math.isclose(earned_marks, target_earned_marks, abs_tol=1e-6):
+                fields["earned_marks"] = _clean_mark(target_earned_marks)
+                resolved_row["earned_marks"] = fields["earned_marks"]
+            continue
+
+        if "earned_marks" not in fields:
+            continue
+        if math.isclose(earned_marks, 0.0, abs_tol=1e-6):
+            fields["outcome"] = "wrong"
+            resolved_row["outcome"] = "wrong"
+        elif math.isclose(earned_marks, max_marks, abs_tol=1e-6):
+            fields["outcome"] = "correct"
+            resolved_row["outcome"] = "correct"
 
 
 def _apply_fields_to_row(row: dict[str, Any], fields: dict[str, Any]) -> None:
