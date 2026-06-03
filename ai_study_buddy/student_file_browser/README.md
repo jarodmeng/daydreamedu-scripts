@@ -1,6 +1,6 @@
 # Student File Browser
 
-**Version: v0.1.9**
+**Version: v0.1.10**
 
 > Legacy standalone operator tool. `buddy_console` is now the preferred unified
 > app for inventory -> PDF -> review workflows, but this browser remains

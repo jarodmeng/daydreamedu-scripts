@@ -7,7 +7,9 @@ def test_filter_criteria_from_query_defaults() -> None:
     c = filter_criteria_from_query({})
     assert c.scope == "completion"
     assert c.root_id == "all"
-    assert c.subject == "all"
+    assert c.subject == ()
+    assert c.grade == ()
+    assert c.doc_type == ()
     assert c.is_registered is None
     assert c.sort == "recent"
 
@@ -48,3 +50,18 @@ def test_filter_criteria_from_query_sort_name() -> None:
 def test_filter_criteria_from_query_invalid_sort() -> None:
     c = filter_criteria_from_query({"sort": ["bogus"]})
     assert c.sort == "recent"
+
+
+def test_filter_criteria_from_query_multi_subject() -> None:
+    c = filter_criteria_from_query({"subject": ["math", "science"]})
+    assert c.subject == ("math", "science")
+
+
+def test_filter_criteria_from_query_single_subject_legacy() -> None:
+    c = filter_criteria_from_query({"subject": ["math"]})
+    assert c.subject == ("math",)
+
+
+def test_filter_criteria_from_query_subject_all_ignored() -> None:
+    c = filter_criteria_from_query({"subject": ["all"]})
+    assert c.subject == ()

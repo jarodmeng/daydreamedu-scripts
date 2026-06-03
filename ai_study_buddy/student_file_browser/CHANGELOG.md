@@ -1,5 +1,11 @@
 # Changelog — `student_file_browser`
 
+## [v0.1.10] — Multi-select Subject / Grade / Type (2026-06-03)
+
+- Checkbox facet pickers for **Subject**, **Grade**, and **Type** (repeated query params, e.g. `?subject=math&subject=science`).
+- `filters.py` parses multi-value facets via `normalize_facet_values` (`files` v0.3.10+).
+- UI: click-outside and single-open-menu behavior; selecting every option in a facet equals **All**; facet lists preserved when contextual meta is empty.
+
 ## [v0.1.9] — Runtime files version from package (2026-05-28)
 
 - `/api/health` `files_version` is `ai_study_buddy.files.__version__` (requires `files` v0.3.8+).

@@ -22,15 +22,48 @@
     return "all";
   }
 
+  const DEFAULT_SCOPES = ["completion", "template"];
+
+  function normalizeFacetQuery(selected, options) {
+    if (!selected.length || !options.length) return [];
+    if (selected.length < options.length) return selected;
+    const allowed = new Set(options);
+    if (selected.every((value) => allowed.has(value))) return [];
+    return selected;
+  }
+
+  function queryFacetsFromState(state) {
+    return {
+      subject: normalizeFacetQuery(state.subject || [], config?.subjects || []),
+      grade: normalizeFacetQuery(state.grade || [], config?.grades || []),
+      doc_type: normalizeFacetQuery(state.doc_type || [], config?.doc_types || []),
+    };
+  }
+
+  function scopeOptionsFromConfig() {
+    const scopes = config?.scopes;
+    return scopes && scopes.length ? scopes : DEFAULT_SCOPES;
+  }
+
+  function mergeFilterMeta(prev, next) {
+    const merged = { ...(prev || {}), ...next };
+    if (!next.scopes?.length && prev?.scopes?.length) merged.scopes = prev.scopes;
+    if (!next.subjects?.length && prev?.subjects?.length) merged.subjects = prev.subjects;
+    if (!next.grades?.length && prev?.grades?.length) merged.grades = prev.grades;
+    if (!next.doc_types?.length && prev?.doc_types?.length) merged.doc_types = prev.doc_types;
+    return merged;
+  }
+
   function qsFromState(state) {
+    const facets = queryFacetsFromState(state);
     const p = new URLSearchParams();
     if (state.scope && state.scope !== "completion") p.set("scope", state.scope);
     const defaultRoot = defaultRootId();
     if (state.root_id && state.root_id !== defaultRoot) p.set("root_id", state.root_id);
     if (state.student) p.set("student", state.student);
-    if (state.subject && state.subject !== "all") p.set("subject", state.subject);
-    if (state.grade && state.grade !== "all") p.set("grade", state.grade);
-    if (state.doc_type && state.doc_type !== "all") p.set("doc_type", state.doc_type);
+    facets.subject.forEach((value) => p.append("subject", value));
+    facets.grade.forEach((value) => p.append("grade", value));
+    facets.doc_type.forEach((value) => p.append("doc_type", value));
     if (state.book) p.set("book", state.book);
     if (state.is_registered === "true" || state.is_registered === "false") {
       p.set("is_registered", state.is_registered);
@@ -46,14 +79,21 @@
     return p.toString();
   }
 
+  function readFacetValues(params, key) {
+    return params
+      .getAll(key)
+      .map((value) => value.trim())
+      .filter((value) => value && value !== "all");
+  }
+
   function defaultFilterState() {
     return {
       scope: "completion",
       root_id: defaultRootId(),
       student: "",
-      subject: "all",
-      grade: "all",
-      doc_type: "all",
+      subject: [],
+      grade: [],
+      doc_type: [],
       book: "",
       is_registered: "",
       has_template: "",
@@ -69,9 +109,9 @@
       scope: p.get("scope") || "completion",
       root_id: p.get("root_id") || "",
       student: p.get("student") || localStorage.getItem(STORAGE_KEY) || "",
-      subject: p.get("subject") || "all",
-      grade: p.get("grade") || "all",
-      doc_type: p.get("doc_type") || "all",
+      subject: readFacetValues(p, "subject"),
+      grade: readFacetValues(p, "grade"),
+      doc_type: readFacetValues(p, "doc_type"),
       book: p.get("book") || "",
       is_registered: p.get("is_registered") || "",
       has_template: p.get("has_template") || "",
@@ -146,10 +186,136 @@
     return null;
   }
 
+  function closeOtherFacetMenus(active) {
+    const root = document.getElementById("filters");
+    if (!root) return;
+    root.querySelectorAll("details.multi-select[open]").forEach((node) => {
+      if (node !== active) node.removeAttribute("open");
+    });
+  }
+
+  let facetClickOutsideInstalled = false;
+
+  function installFacetClickOutside() {
+    if (facetClickOutsideInstalled) return;
+    facetClickOutsideInstalled = true;
+    document.addEventListener("pointerdown", (event) => {
+      const filters = document.getElementById("filters");
+      if (!filters) return;
+      const target = event.target;
+      if (!(target instanceof Node)) return;
+      filters.querySelectorAll("details.multi-select[open]").forEach((details) => {
+        const facet = details.closest(".multi-select-filter");
+        if (facet && facet.contains(target)) return;
+        details.removeAttribute("open");
+      });
+    });
+  }
+
   function buildFilters(state) {
     const el = document.getElementById("filters");
     el.innerHTML = "";
     const templateMode = state.scope === "template";
+
+    function addMultiSelect(id, label, options, selected, counts, parent) {
+      const host = parent || el;
+      const selectedSet = new Set(selected || []);
+      const lab = document.createElement("label");
+      lab.className = "multi-select-filter";
+      lab.htmlFor = id;
+      const title = document.createElement("span");
+      title.textContent = label;
+      const details = document.createElement("details");
+      details.className = "multi-select";
+      details.id = id;
+      details.addEventListener("toggle", () => {
+        if (details.open) closeOtherFacetMenus(details);
+      });
+      const summary = document.createElement("summary");
+      function refreshSummary() {
+        const current = Array.from(
+          details.querySelectorAll('input[type="checkbox"][data-value]:checked')
+        ).map((cb) => cb.dataset.value);
+        if (current.length === 0) {
+          summary.textContent = labelWithCount("All", "all", counts);
+        } else if (current.length === 1) {
+          summary.textContent = labelWithCount(current[0], current[0], counts);
+        } else {
+          summary.textContent = `${current.length} selected`;
+        }
+      }
+      const panel = document.createElement("div");
+      panel.className = "multi-select-panel";
+      panel.setAttribute("role", "group");
+      panel.setAttribute("aria-label", label);
+
+      const allLab = document.createElement("label");
+      allLab.className = "multi-select-option";
+      const allCb = document.createElement("input");
+      allCb.type = "checkbox";
+      allCb.checked = selectedSet.size === 0;
+      allCb.addEventListener("change", () => {
+        if (allCb.checked) {
+          panel.querySelectorAll('input[type="checkbox"][data-value]').forEach((cb) => {
+            cb.checked = false;
+          });
+        }
+        refreshSummary();
+        void onDraftLayoutChange({ rebuild: false });
+      });
+      const allText = document.createElement("span");
+      allText.textContent = labelWithCount("All", "all", counts);
+      allLab.appendChild(allCb);
+      allLab.appendChild(allText);
+      panel.appendChild(allLab);
+
+      options.forEach((opt) => {
+        const optLab = document.createElement("label");
+        optLab.className = "multi-select-option";
+        const cb = document.createElement("input");
+        cb.type = "checkbox";
+        cb.dataset.value = opt.value;
+        cb.checked = selectedSet.has(opt.value);
+        cb.addEventListener("change", () => {
+          if (cb.checked) allCb.checked = false;
+          let current = Array.from(
+            panel.querySelectorAll('input[type="checkbox"][data-value]:checked')
+          ).map((node) => node.dataset.value);
+          if (options.length > 0 && current.length >= options.length) {
+            const allowed = new Set(options.map((o) => o.value));
+            if (current.every((value) => allowed.has(value))) {
+              panel.querySelectorAll('input[type="checkbox"][data-value]').forEach((node) => {
+                node.checked = false;
+              });
+              allCb.checked = true;
+              refreshSummary();
+              void onDraftLayoutChange({ rebuild: false });
+              return;
+            }
+          }
+          const anyChecked = panel.querySelector('input[type="checkbox"][data-value]:checked');
+          if (!anyChecked) allCb.checked = true;
+          refreshSummary();
+          void onDraftLayoutChange({ rebuild: false });
+        });
+        const text = document.createElement("span");
+        text.textContent = opt.label;
+        optLab.appendChild(cb);
+        optLab.appendChild(text);
+        panel.appendChild(optLab);
+      });
+
+      panel.addEventListener("click", (event) => {
+        event.stopPropagation();
+      });
+
+      refreshSummary();
+      details.appendChild(summary);
+      details.appendChild(panel);
+      lab.appendChild(title);
+      lab.appendChild(details);
+      host.appendChild(lab);
+    }
 
     function addSelect(id, label, options, value, parent) {
       const host = parent || el;
@@ -166,7 +332,7 @@
         if (o.value === value) opt.selected = true;
         sel.appendChild(opt);
       });
-      if (id === "scope" || id === "doc_type") {
+      if (id === "scope") {
         sel.addEventListener("change", onDraftLayoutChange);
       }
       if (id === "sort") {
@@ -177,7 +343,7 @@
       host.appendChild(lab);
     }
 
-    const scopes = config.scopes || [];
+    const scopes = scopeOptionsFromConfig();
     const scopeCounts = config.scope_counts || {};
     if (scopes.length > 1) {
       addSelect(
@@ -238,45 +404,42 @@
     const subjectCounts = config.subject_counts || {};
     const gradeCounts = config.grade_counts || {};
     const docTypeCounts = config.doc_type_counts || {};
-    addSelect(
+    addMultiSelect(
       "subject",
       "Subject",
-      [{ value: "all", label: labelWithCount("All", "all", subjectCounts) }].concat(
-        (config.subjects || []).map((s) => ({
-          value: s,
-          label: labelWithCount(s, s, subjectCounts),
-        }))
-      ),
-      state.subject
+      (config.subjects || []).map((s) => ({
+        value: s,
+        label: labelWithCount(s, s, subjectCounts),
+      })),
+      state.subject,
+      subjectCounts
     );
-    addSelect(
+    addMultiSelect(
       "grade",
       "Grade",
-      [{ value: "all", label: labelWithCount("All", "all", gradeCounts) }].concat(
-        (config.grades || []).map((g) => ({
-          value: g,
-          label: labelWithCount(g, g, gradeCounts),
-        }))
-      ),
-      state.grade
+      (config.grades || []).map((g) => ({
+        value: g,
+        label: labelWithCount(g, g, gradeCounts),
+      })),
+      state.grade,
+      gradeCounts
     );
-    addSelect(
+    addMultiSelect(
       "doc_type",
       "Type",
-      [{ value: "all", label: labelWithCount("All", "all", docTypeCounts) }].concat(
-        (config.doc_types || []).map((t) => ({
-          value: t,
-          label: labelWithCount(
-            t.charAt(0).toUpperCase() + t.slice(1),
-            t,
-            docTypeCounts
-          ),
-        }))
-      ),
-      state.doc_type
+      (config.doc_types || []).map((t) => ({
+        value: t,
+        label: labelWithCount(
+          t.charAt(0).toUpperCase() + t.slice(1),
+          t,
+          docTypeCounts
+        ),
+      })),
+      state.doc_type,
+      docTypeCounts
     );
 
-    if (state.doc_type === "book") {
+    if (state.doc_type.length === 1 && state.doc_type[0] === "book") {
       const bookNames = config.book_names || [];
       const bookCounts = config.book_counts || {};
       const bookOptions = [
@@ -378,7 +541,8 @@
     el.appendChild(actions);
   }
 
-  async function onDraftLayoutChange() {
+  async function onDraftLayoutChange(options = {}) {
+    const rebuild = options.rebuild !== false;
     const state = readStateFromDom();
     try {
       const cfgRes = await fetch(`/api/config?${qsFromState(state)}`);
@@ -387,7 +551,15 @@
     } catch {
       /* keep prior options */
     }
-    buildFilters(state);
+    if (rebuild) buildFilters(state);
+  }
+
+  function readFacetFromDom(id) {
+    const host = document.getElementById(id);
+    if (!host) return [];
+    return Array.from(host.querySelectorAll('input[type="checkbox"][data-value]:checked'))
+      .map((cb) => cb.dataset.value)
+      .filter(Boolean);
   }
 
   function readStateFromDom() {
@@ -395,9 +567,9 @@
     const root_id =
       document.getElementById("root_id")?.value || defaultRootId();
     const student = document.getElementById("student")?.value || "";
-    const subject = document.getElementById("subject")?.value || "all";
-    const grade = document.getElementById("grade")?.value || "all";
-    const doc_type = document.getElementById("doc_type")?.value || "all";
+    const subject = readFacetFromDom("subject");
+    const grade = readFacetFromDom("grade");
+    const doc_type = readFacetFromDom("doc_type");
     const book = document.getElementById("book")?.value || "";
     const is_registered = document.getElementById("is_registered")?.value || "";
     const has_template = document.getElementById("has_template")?.value || "";
@@ -690,13 +862,10 @@
   }
 
   function applyFilterOptionsFromMeta(meta) {
-    if (Array.isArray(meta.scopes)) config.scopes = meta.scopes;
+    config = mergeFilterMeta(config, meta);
     if (meta.scope_counts) config.scope_counts = meta.scope_counts;
-    if (Array.isArray(meta.subjects)) config.subjects = meta.subjects;
     if (meta.subject_counts) config.subject_counts = meta.subject_counts;
-    if (Array.isArray(meta.grades)) config.grades = meta.grades;
     if (meta.grade_counts) config.grade_counts = meta.grade_counts;
-    if (Array.isArray(meta.doc_types)) config.doc_types = meta.doc_types;
     if (meta.doc_type_counts) config.doc_type_counts = meta.doc_type_counts;
     if (Array.isArray(meta.student_ids)) config.student_ids = meta.student_ids;
     if (meta.student_counts) config.student_counts = meta.student_counts;
@@ -721,7 +890,7 @@
   function coerceStateToFilterOptions(state) {
     const next = { ...state };
     let changed = false;
-    const scopes = config.scopes || [];
+    const scopes = scopeOptionsFromConfig();
     if (scopes.length === 1 && next.scope !== scopes[0]) {
       next.scope = scopes[0];
       changed = true;
@@ -761,24 +930,32 @@
       next.review_status = "";
       changed = true;
     }
-    if (
-      next.subject !== "all" &&
-      !(config.subjects || []).some((s) => s === next.subject)
-    ) {
-      next.subject = "all";
-      changed = true;
+    if (next.subject.length && (config.subjects || []).length) {
+      const filtered = next.subject.filter((value) => (config.subjects || []).includes(value));
+      if (filtered.length !== next.subject.length) {
+        next.subject = filtered;
+        changed = true;
+      }
     }
-    if (next.grade !== "all" && !(config.grades || []).some((g) => g === next.grade)) {
-      next.grade = "all";
-      changed = true;
+    if (next.grade.length && (config.grades || []).length) {
+      const filtered = next.grade.filter((value) => (config.grades || []).includes(value));
+      if (filtered.length !== next.grade.length) {
+        next.grade = filtered;
+        changed = true;
+      }
     }
-    if (
-      next.doc_type !== "all" &&
-      !(config.doc_types || []).some((t) => t === next.doc_type)
-    ) {
-      next.doc_type = "all";
-      next.book = "";
-      changed = true;
+    if (next.doc_type.length && (config.doc_types || []).length) {
+      const filtered = next.doc_type.filter((value) => (config.doc_types || []).includes(value));
+      if (filtered.length !== next.doc_type.length) {
+        next.doc_type = filtered;
+        changed = true;
+      }
+    }
+    if (next.doc_type.length !== 1 || next.doc_type[0] !== "book") {
+      if (next.book) {
+        next.book = "";
+        changed = true;
+      }
     }
     if (next.student && next.student.includes("@")) {
       const byEmail = (config.students || []).find(
@@ -860,6 +1037,7 @@
   }
 
   async function init() {
+    installFacetClickOutside();
     let state = stateFromUrl();
     document.getElementById("meta").textContent = "Loading…";
     const cfgRes = await fetch(`/api/config?${qsFromState(state)}`);
@@ -870,7 +1048,7 @@
     } else if (!state.root_id) {
       state = { ...state, root_id: defaultRootId() };
     }
-    config.scopes = config.scopes || ["completion", "template"];
+    config.scopes = scopeOptionsFromConfig();
     config.scope_counts = config.scope_counts || {};
     config.subjects = config.subjects || [];
     config.subject_counts = config.subject_counts || {};
