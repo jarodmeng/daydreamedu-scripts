@@ -7,7 +7,7 @@ student review-state notes and human grading amendment overlays.
 > operator app, but this package remains available for rollback and reference
 > use while review functionality is still seeded from it.
 
-Current version: `v0.1.9`
+Current version: `v0.1.10`
 
 Current phase: `single-student alpha` (scope locked on April 23, 2026).
 

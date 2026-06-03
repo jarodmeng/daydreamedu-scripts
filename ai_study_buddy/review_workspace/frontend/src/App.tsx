@@ -616,11 +616,6 @@ function WorkspaceView({
     if (questions.length === 0) {
       return;
     }
-    const requestedQuestionId = resolveRequestedQuestionIdFromCurrentUrl(questions);
-    if (requestedQuestionId && activeQuestionId !== requestedQuestionId) {
-      setActiveQuestionId(requestedQuestionId);
-      return;
-    }
     const selectedQuestion = questions.find((q) => q.result_id === activeQuestionId);
     if (!activeQuestionId || !selectedQuestion) {
       const priorityQuestion = questions.find((q) => isIncorrectQuestion(q)) ?? questions[0];

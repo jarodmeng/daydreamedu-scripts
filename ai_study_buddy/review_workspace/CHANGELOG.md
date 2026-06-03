@@ -4,6 +4,12 @@ All notable changes to `ai_study_buddy/review_workspace` are documented here.
 
 ---
 
+## [v0.1.10] — Question navigation vs URL deep link (2026-06-03)
+
+### Fixed
+
+- `frontend/src/App.tsx`: stop re-applying `result_id` / `question_index` from the URL on every question-list effect pass. Deep-link targeting still runs once when the attempt loads; in-workspace question changes are no longer overridden by stale query params.
+
 ## [v0.1.9] — Question-level deep links (2026-06-02)
 
 Implemented:
