@@ -22,20 +22,53 @@ from ai_study_buddy.marking.review.repository import StudentReviewRepository
 from ai_study_buddy.pdf_file_manager.pdf_file_manager import PdfFile, PdfFileManager
 
 
+_FACET_ALL_VALUES = frozenset({"", "all"})
+
+
+def normalize_facet_values(raw: str | tuple[str, ...] | list[str] | None = None) -> tuple[str, ...]:
+    """Normalize subject/grade/doc_type filters: empty tuple means no restriction (all)."""
+    if raw is None:
+        return ()
+    if isinstance(raw, str):
+        vals = [raw] if raw.strip() and raw.strip().lower() not in _FACET_ALL_VALUES else []
+    else:
+        vals = [
+            str(v).strip()
+            for v in raw
+            if v and str(v).strip() and str(v).strip().lower() not in _FACET_ALL_VALUES
+        ]
+    seen: set[str] = set()
+    out: list[str] = []
+    for v in vals:
+        if v not in seen:
+            seen.add(v)
+            out.append(v)
+    return tuple(out)
+
+
+def _facet_matches(selected: tuple[str, ...], value: str) -> bool:
+    return not selected or value in selected
+
+
 @dataclass(frozen=True)
 class FilterCriteria:
     scope: str = "completion"
     root_id: str = "all"
     student: str = ""
-    subject: str = "all"
-    grade: str = "all"
-    doc_type: str = "all"
+    subject: tuple[str, ...] | str = ()
+    grade: tuple[str, ...] | str = ()
+    doc_type: tuple[str, ...] | str = ()
     book: str = ""
     is_registered: str | None = None
     has_template: str | None = None
     has_marking: str | None = None
     review_status: str | None = None
     sort: str = "recent"
+
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "subject", normalize_facet_values(self.subject))
+        object.__setattr__(self, "grade", normalize_facet_values(self.grade))
+        object.__setattr__(self, "doc_type", normalize_facet_values(self.doc_type))
 
 
 _VALID_SORT_KEYS = frozenset({"name", "recent"})
@@ -290,8 +323,8 @@ def distinct_book_group_names(
     *,
     pfm: PdfFileManager | None = None,
 ) -> list[str]:
-    """Book group names in the index matching filters except ``book`` (requires ``doc_type=book``)."""
-    if criteria.doc_type != "book":
+    """Book group names in the index matching filters except ``book`` (requires type = book only)."""
+    if criteria.doc_type != ("book",):
         return []
     sans_book = replace(criteria, book="", is_registered=None)
     subset = filter_main_pdf_cards(cards, sans_book, pfm=pfm)
@@ -359,19 +392,19 @@ def filter_dropdown_options(
     sub_roots = subset(root_id="all")
     root_ids_set = {c.root_id for c in sub_roots if c.root_id}
 
-    sub_subjects = subset(subject="all")
+    sub_subjects = subset(subject=())
     subjects = {
         c.subject for c in sub_subjects if c.subject and c.subject not in ("unknown", "all")
     }
 
-    sub_grades = subset(grade="all")
+    sub_grades = subset(grade=())
     grades = {
         c.grade_or_scope
         for c in sub_grades
         if c.grade_or_scope and c.grade_or_scope not in ("unknown", "all")
     }
 
-    sub_types = subset(doc_type="all")
+    sub_types = subset(doc_type=())
     doc_types = {c.doc_type for c in sub_types if c.doc_type and c.doc_type not in ("unknown", "all")}
 
     sub_students = subset(student="")
@@ -571,11 +604,11 @@ def filter_main_pdf_cards(
             continue
         if criteria.root_id not in ("", "all") and card.root_id != criteria.root_id:
             continue
-        if criteria.subject != "all" and card.subject != criteria.subject:
+        if not _facet_matches(criteria.subject, card.subject):
             continue
-        if criteria.grade != "all" and card.grade_or_scope != criteria.grade:
+        if not _facet_matches(criteria.grade, card.grade_or_scope):
             continue
-        if criteria.doc_type != "all" and card.doc_type != criteria.doc_type:
+        if not _facet_matches(criteria.doc_type, card.doc_type):
             continue
         if criteria.book and (card.book_group_name or "") != criteria.book:
             continue

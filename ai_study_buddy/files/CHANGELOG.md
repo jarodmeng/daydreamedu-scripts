@@ -4,6 +4,13 @@ All notable changes to the **`ai_study_buddy.files`** package are documented her
 
 ---
 
+## [v0.3.10] — Multi-select Subject / Grade / Type filters
+
+- **`FilterCriteria`:** `subject`, `grade`, and `doc_type` are tuples (`()` = no restriction); legacy single-string values still normalize in `__post_init__`.
+- **`filter_main_pdf_cards`:** OR within each facet dimension; `normalize_facet_values` helper.
+- **`filter_dropdown_options`:** contextual facet lists clear each multi-value field with `()` instead of `"all"`.
+- Consumers: `student_file_browser` v0.1.10, `buddy_console` v0.1.12.
+
 ## [v0.3.9] — Batch marking artifact index for inventory enrichment
 
 - **`build_enriched_inventory`:** builds one `marking.core.artifact_lookup.build_marking_artifact_index` per pass and passes it through `enrich_on_disk_main_pdf` / `enrich_registered_completion` (avoids per-PDF `marking_results` `rglob`).

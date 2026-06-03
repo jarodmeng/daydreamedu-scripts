@@ -132,6 +132,30 @@ def test_filter_main_pdf_cards_scope_and_subject(tmp_path: Path) -> None:
     assert filtered[0].subject == "math"
 
 
+def test_filter_main_pdf_cards_multi_subject_or() -> None:
+    cards = [
+        _card(subject="math"),
+        _card(subject="science"),
+        _card(subject="english"),
+    ]
+    filtered = filter_main_pdf_cards(cards, FilterCriteria(subject=("math", "science")))
+    assert {c.subject for c in filtered} == {"math", "science"}
+
+
+def test_filter_main_pdf_cards_multi_grade_and_type() -> None:
+    cards = [
+        _card(subject="math", grade_or_scope="P5", doc_type="exam"),
+        _card(subject="math", grade_or_scope="P6", doc_type="exam"),
+        _card(subject="math", grade_or_scope="P5", doc_type="book"),
+    ]
+    filtered = filter_main_pdf_cards(
+        cards,
+        FilterCriteria(grade=("P5",), doc_type=("exam", "book")),
+    )
+    assert len(filtered) == 2
+    assert all(c.grade_or_scope == "P5" for c in filtered)
+
+
 def test_inventory_meta_show_is_registered_filter() -> None:
     cards = [
         SimpleNamespace(is_registered=True),
@@ -185,7 +209,7 @@ def test_should_show_is_registered_filter_contextual() -> None:
     assert (
         should_show_is_registered_filter(
             cards,
-            FilterCriteria(scope="completion", subject="all"),
+            FilterCriteria(scope="completion"),
         )
         is True
     )
