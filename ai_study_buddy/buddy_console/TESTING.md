@@ -88,6 +88,46 @@ Expected:
 2. `pdfs[]`
 3. `currentRel`
 
+### Student marks by question type (v0.1.11+)
+
+Requires live `study_buddy.db` and marking data under `context/marking_results/`.
+
+```bash
+curl -s "http://localhost:8010/api/student/marks-by-question-type?student_id=winston&subject=math"
+```
+
+Expected:
+
+1. **200** with `student_id`, `subject`, `generated_at`, `subjects[]`
+2. each block has `display_label`, `type_order`, `marks_by_question_type.by_type`
+3. empty scope → `subjects: []` and `message`
+
+Chinese picker (schema split — should match report CLI flags):
+
+```bash
+# Standard Chinese only (exclude 高华 FQI under singapore_primary_chinese)
+python3 ai_study_buddy/context/student_understandings/scripts/report_marked_completion_fqi_stats.py \
+  --student-slug winston --subject-context singapore_primary_chinese \
+  --exclude-fqi-schema-prefix high-chinese --json
+
+# Higher Chinese only (include 高华 FQI from both marking paths)
+python3 ai_study_buddy/context/student_understandings/scripts/report_marked_completion_fqi_stats.py \
+  --student-slug winston \
+  --subject-context singapore_primary_chinese \
+  --subject-context singapore_primary_higher_chinese \
+  --include-fqi-schema-prefix high-chinese --json
+
+curl -s "http://localhost:8010/api/student/marks-by-question-type?student_id=winston&subject=chinese"
+```
+
+Portal `subjects[]` totals should match `marking_marks_by_type` from the corresponding report runs (standard block vs higher block).
+
+Backend tests:
+
+```bash
+python3 -m pytest ai_study_buddy/buddy_console/tests/test_student_marks_api.py -q
+```
+
 ## Frontend Checks
 
 From `ai_study_buddy/buddy_console/frontend`:
@@ -158,6 +198,23 @@ In the review tab verify:
 1. a marked attempt deep link opens correctly
 2. seeded review functionality still loads without fetch errors
 
+### Student portal (v0.1.11+)
+
+Open:
+
+```text
+http://127.0.0.1:5178/student?student_id=winston
+```
+
+Verify:
+
+1. subject picker shows; no table until a subject is selected
+2. `http://127.0.0.1:5178/student?student_id=winston&subject=math` loads math table on landing
+3. Chinese picker shows standard and higher blocks when data exists
+4. footnote shows `Computed: <generated_at>`
+5. no top-nav link to `/student` on inventory (deep link only)
+6. after a marking or amendment change in `/review`, reload `/student` — numbers update without re-running `report_marked_completion_fqi_stats.py --write-artifacts`
+
 ## Regression Checklist
 
 Before considering a `buddy_console` change safe:
@@ -170,6 +227,7 @@ Before considering a `buddy_console` change safe:
 3. inventory deep links still open new tabs
 4. PDF deep links still open the intended file
 5. review deep links still open the intended marked attempt
+6. `/student` marks API and UI still load when `study_buddy.db` is present
 
 ## Rollback Steps
 

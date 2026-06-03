@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 """Report marked-completion and FQI question stats for one student × subject scope.
 
+Also consumed at serve time by Buddy Console ``GET /api/student/marks-by-question-type``
+(``buddy_console`` ``/student`` route) via ``build_marked_completion_fqi_stats``.
+
 Traces active marking_result rows under
 ``context/marking_results/<student_slug>/<subject_context>/`` to each completion's
 template ``file_question_info`` run and aggregates question counts and counted

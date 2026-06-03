@@ -2,6 +2,23 @@
 
 All notable changes to `ai_study_buddy/buddy_console` are documented here.
 
+## [v0.1.11] - Student portal marks by question type (2026-06-03)
+
+### Fixed
+
+1. Chinese picker: split standard vs higher Chinese stats by FQI `high-chinese` schema prefix (e.g. 字词改正 no longer rolls into standard Chinese when HC markings live under `singapore_primary_chinese`).
+
+### Added
+
+1. Route `/student` with four-choice subject picker and marks-by-type tables (serve-time compute).
+2. `GET /api/student/marks-by-question-type` backed by `build_marked_completion_fqi_stats` (no static `student_understandings` JSON reads).
+3. Backend `student_portal_api.py` / `student_portal_service.py`; frontend `StudentPortalApp.tsx` / `studentPortalApi.ts`.
+4. Tests: `tests/test_student_marks_api.py`, Vitest helpers in `studentPortalMarks.test.ts`.
+
+### Changed
+
+1. `frontend/package.json` version aligned to `0.1.11`.
+
 ## [v0.1.10] - Question-level review deep links (2026-06-02)
 
 ### Added

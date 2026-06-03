@@ -3,11 +3,15 @@ import ReactDOM from "react-dom/client";
 import App from "./App";
 import InventoryApp from "./InventoryApp";
 import PdfApp from "./PdfApp";
+import StudentPortalApp from "./StudentPortalApp";
 import "./styles.css";
 
-function resolveView(): "inventory" | "pdf" | "review" {
+function resolveView(): "inventory" | "pdf" | "review" | "student" {
   const params = new URLSearchParams(window.location.search);
   const path = window.location.pathname;
+  if (path === "/student") {
+    return "student";
+  }
   if (path === "/pdf") {
     return "pdf";
   }
@@ -21,6 +25,9 @@ const view = resolveView();
 document.body.setAttribute("data-buddy-console-view", view);
 
 function resolveRootComponent(): React.ReactNode {
+  if (view === "student") {
+    return <StudentPortalApp />;
+  }
   if (view === "pdf") {
     return <PdfApp />;
   }

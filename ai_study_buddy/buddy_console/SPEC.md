@@ -59,6 +59,20 @@ Expected behavior:
 1. preserve direct attempt deep links
 2. allow inventory cards to open a marked attempt directly
 
+### `/student`
+
+Student portal route (marks by question type).
+
+Expected behavior:
+
+1. require `student_id` query param (same trust model as `/review`)
+2. four-choice subject picker (English, Chinese, Math, Science); default none selected — no API call until chosen
+3. optional `subject` query param pre-selects picker and loads on first paint
+4. fetch `GET /api/student/marks-by-question-type` only after a subject is selected
+5. Chinese picker shows standard and higher Chinese as separate table blocks when data exists (split by FQI `high-chinese` schema — see API behavior below)
+
+No top-nav link to `/student` in v0.1.11 (bookmark / deep link only).
+
 ## Backend API Contract
 
 ### `GET /api/health`
@@ -145,6 +159,52 @@ Streams a single PDF when:
 2. the file exists
 3. the file belongs to an allowed leaf-folder path
 
+### `GET /api/student/marks-by-question-type`
+
+Serve-time marks rollup by FQI `question_type` (amendment-resolved), one student × subject picker.
+
+Query:
+
+1. `student_id` — required (`students.id` / marking slug)
+2. `subject` — required: `english` | `chinese` | `math` | `science`
+
+Response **200**:
+
+```json
+{
+  "student_id": "winston",
+  "subject": "math",
+  "generated_at": "2026-06-03T10:00:00+08:00",
+  "subjects": [
+    {
+      "subject_context": "singapore_primary_math",
+      "display_label": "Math",
+      "type_order": ["MCQ", "SAQ", "LAQ"],
+      "marks_by_question_type": {
+        "question_count": 412,
+        "earned_marks": 318.5,
+        "max_marks": 420.0,
+        "percentage": 75.8,
+        "by_type": {}
+      }
+    }
+  ]
+}
+```
+
+Behavior:
+
+1. Computes via `build_marked_completion_fqi_stats` (same logic as `report_marked_completion_fqi_stats.py`); does **not** read `student_understandings/**/*.json`.
+2. `chinese` returns up to two blocks (standard first, then higher), each omitted when `question_count` is 0:
+   - **Standard Chinese** — `singapore_primary_chinese` markings only; **exclude** FQI schemas whose `schema_version` starts with `high-chinese` (Higher Chinese work often lives under this path).
+   - **Higher Chinese** — markings under `singapore_primary_chinese` and `singapore_primary_higher_chinese`; **include only** `high-chinese` FQI (e.g. 字词改正, 综合填空).
+3. Other pickers: one block per subject context, no FQI prefix filters.
+4. Empty scope → `subjects: []` and `message`.
+5. **400** when `student_id` or `subject` missing/invalid.
+6. **503** when study DB or context root unavailable.
+
+See [proposal 2](./docs/proposal/2-student-marks-by-question-type.md).
+
 ### Review APIs
 
 The backend also includes the seeded review API contract from
@@ -170,6 +230,13 @@ That currently provides:
 
 ```text
 /pdf?id=<root_id>&rel=<root_relative_pdf_path>
+```
+
+### Student portal
+
+```text
+/student?student_id=<students.id>
+/student?student_id=<students.id>&subject=<english|chinese|math|science>
 ```
 
 Both link forms are expected to be stable enough for inventory card actions and

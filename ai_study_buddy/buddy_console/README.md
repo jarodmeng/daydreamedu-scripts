@@ -1,6 +1,6 @@
 # Buddy Console
 
-**Version: v0.1.10**
+**Version: v0.1.11**
 
 `buddy_console` is the new unified browser app for AI Study Buddy.
 
@@ -32,6 +32,7 @@ Primary routes in the frontend:
 - `/` and `/inventory` -> inventory hub
 - `/pdf` -> root-style PDF browser
 - `/review` -> review surface
+- `/student` -> student portal — marks by question type (serve-time; [proposal 2](./docs/proposal/2-student-marks-by-question-type.md), [L4 overview](../docs/L4_STUDENT_PORTAL_IN_BUDDY_CONSOLE.md))
 
 Inventory cards show **Completed** (`completion_date`) and **Registered** (`registry_added_at`) separately when `files` v0.3.6+ is in use ([proposal 17](../pdf_file_manager/docs/proposals/17-completion-date.md) Phase 4). Operators can **set or edit** the completed date on registered completion cards (v0.1.5+; [proposal](./docs/proposal/1-manual-completion-date-ui.md)). **Completed (recent)** sort uses unified recency fallback in `files` v0.3.7+. Inventory health reports `files_version` from `files.__version__` (`files` v0.3.8+). Inventory enrichment is cached in-process with workflow-file invalidation (`buddy_console` v0.1.7+; requires `files` v0.3.9+ / `marking` v0.3.17+ for batch artifact index, amendment save fixes, and template evidence images).
 
@@ -89,6 +90,13 @@ Open a specific PDF in a fresh tab:
 
 ```text
 http://127.0.0.1:5178/pdf?id=<root_id>&rel=<root_relative_pdf_path>
+```
+
+Student marks by question type (deep link only — no top-nav entry in v0.1.11):
+
+```text
+http://127.0.0.1:5178/student?student_id=<students.id>
+http://127.0.0.1:5178/student?student_id=<students.id>&subject=math
 ```
 
 Inventory is the operator hub. Card actions are expected to open PDF and review
