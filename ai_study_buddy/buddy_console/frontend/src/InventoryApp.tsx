@@ -1,6 +1,15 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import CompletionDateEditor from "./CompletionDateEditor";
 import { buildPdfHref, buildReviewHref } from "./inventoryLinks";
+import MultiSelectFilter from "./MultiSelectFilter";
+import {
+  cloneFilterState,
+  filterStateForQuery,
+  filterStateQueryKey,
+  mergeInventoryConfig,
+  scopeOptionsFromConfig,
+  type FacetFilterState,
+} from "./inventoryFilterState";
 
 type StudentOption = {
   student_id: string;
@@ -86,20 +95,7 @@ type InventoryResponse = {
   };
 };
 
-type FilterState = {
-  scope: string;
-  root_id: string;
-  student: string;
-  subject: string;
-  grade: string;
-  doc_type: string;
-  book: string;
-  is_registered: string;
-  has_template: string;
-  has_marking: string;
-  review_status: string;
-  sort: string;
-};
+type FilterState = FacetFilterState;
 
 const STORAGE_KEY = "buddy_console.inventory.lastStudent";
 
@@ -108,9 +104,9 @@ function defaultState(): FilterState {
     scope: "completion",
     root_id: "all",
     student: "",
-    subject: "all",
-    grade: "all",
-    doc_type: "all",
+    subject: [],
+    grade: [],
+    doc_type: [],
     book: "",
     is_registered: "",
     has_template: "",
@@ -118,6 +114,13 @@ function defaultState(): FilterState {
     review_status: "",
     sort: "recent",
   };
+}
+
+function readFacetValues(params: URLSearchParams, key: string): string[] {
+  return params
+    .getAll(key)
+    .map((value) => value.trim())
+    .filter((value) => value && value !== "all");
 }
 
 function readInitialState(): FilterState {
@@ -128,9 +131,9 @@ function readInitialState(): FilterState {
     scope: params.get("scope") || state.scope,
     root_id: params.get("root_id") || state.root_id,
     student: params.get("student") || storedStudent,
-    subject: params.get("subject") || state.subject,
-    grade: params.get("grade") || state.grade,
-    doc_type: params.get("doc_type") || state.doc_type,
+    subject: readFacetValues(params, "subject"),
+    grade: readFacetValues(params, "grade"),
+    doc_type: readFacetValues(params, "doc_type"),
     book: params.get("book") || state.book,
     is_registered: params.get("is_registered") || state.is_registered,
     has_template: params.get("has_template") || state.has_template,
@@ -140,20 +143,21 @@ function readInitialState(): FilterState {
   };
 }
 
-function toQueryString(state: FilterState): string {
+function toQueryString(state: FilterState, config: InventoryConfig | null = null): string {
+  const queryState = filterStateForQuery(state, config);
   const params = new URLSearchParams();
-  if (state.scope !== "completion") params.set("scope", state.scope);
-  if (state.root_id !== "all") params.set("root_id", state.root_id);
-  if (state.student) params.set("student", state.student);
-  if (state.subject !== "all") params.set("subject", state.subject);
-  if (state.grade !== "all") params.set("grade", state.grade);
-  if (state.doc_type !== "all") params.set("doc_type", state.doc_type);
-  if (state.book) params.set("book", state.book);
-  if (state.is_registered) params.set("is_registered", state.is_registered);
-  if (state.has_template) params.set("has_template", state.has_template);
-  if (state.has_marking) params.set("has_marking", state.has_marking);
-  if (state.review_status) params.set("review_status", state.review_status);
-  if (state.sort !== "recent") params.set("sort", state.sort);
+  if (queryState.scope !== "completion") params.set("scope", queryState.scope);
+  if (queryState.root_id !== "all") params.set("root_id", queryState.root_id);
+  if (queryState.student) params.set("student", queryState.student);
+  for (const subject of queryState.subject) params.append("subject", subject);
+  for (const grade of queryState.grade) params.append("grade", grade);
+  for (const docType of queryState.doc_type) params.append("doc_type", docType);
+  if (queryState.book) params.set("book", queryState.book);
+  if (queryState.is_registered) params.set("is_registered", queryState.is_registered);
+  if (queryState.has_template) params.set("has_template", queryState.has_template);
+  if (queryState.has_marking) params.set("has_marking", queryState.has_marking);
+  if (queryState.review_status) params.set("review_status", queryState.review_status);
+  if (queryState.sort !== "recent") params.set("sort", queryState.sort);
   return params.toString();
 }
 
@@ -240,17 +244,22 @@ function applyFilterVisibility(state: FilterState, config: InventoryConfig): Fil
   if (!config.show_has_marking_filter) next.has_marking = "";
   if (!config.show_review_status_filter) next.review_status = "";
   if (next.scope === "template") next.student = "";
-  if (next.doc_type !== "book") next.book = "";
+  if (next.doc_type.length !== 1 || next.doc_type[0] !== "book") next.book = "";
   return next;
+}
+
+function coerceFacetSelection(selected: string[], allowed: string[]): string[] {
+  if (!allowed.length) return selected;
+  return selected.filter((value) => allowed.includes(value));
 }
 
 function coerceStateToConfig(state: FilterState, config: InventoryConfig): FilterState {
   const next = applyFilterVisibility(state, config);
   const allowedRoots = ["all", ...(config.root_ids || [])];
   if (!allowedRoots.includes(next.root_id)) next.root_id = "all";
-  if (next.subject !== "all" && !(config.subjects || []).includes(next.subject)) next.subject = "all";
-  if (next.grade !== "all" && !(config.grades || []).includes(next.grade)) next.grade = "all";
-  if (next.doc_type !== "all" && !(config.doc_types || []).includes(next.doc_type)) next.doc_type = "all";
+  next.subject = coerceFacetSelection(next.subject, config.subjects || []);
+  next.grade = coerceFacetSelection(next.grade, config.grades || []);
+  next.doc_type = coerceFacetSelection(next.doc_type, config.doc_types || []);
   if (next.student && !(config.student_ids || []).includes(next.student)) next.student = "";
   if (next.book && !(config.book_names || []).includes(next.book)) next.book = "";
   if (next.review_status && !(config.review_status_options || []).includes(next.review_status)) {
@@ -297,7 +306,7 @@ export default function InventoryApp() {
           );
         }
 
-        const qs = toQueryString(appliedState);
+        const qs = toQueryString(appliedState, config);
         const suffix = qs ? `?${qs}` : "";
         const [configRes, inventoryRes] = await Promise.all([
           fetch(`/api/config${suffix}`),
@@ -314,7 +323,7 @@ export default function InventoryApp() {
         if (cancelled) {
           return;
         }
-        setConfig(nextConfig);
+        setConfig((prev) => mergeInventoryConfig(prev, nextConfig));
         if (!cancelled) {
           setInventory(nextInventory);
           inventoryReadyRef.current = true;
@@ -334,7 +343,12 @@ export default function InventoryApp() {
     return () => {
       cancelled = true;
     };
-  }, [appliedState]);
+  }, [
+    filterStateQueryKey(appliedState),
+    (config?.subjects || []).join("\0"),
+    (config?.grades || []).join("\0"),
+    (config?.doc_types || []).join("\0"),
+  ]);
 
   useEffect(() => {
     if (!inventoryReadyRef.current) {
@@ -343,13 +357,13 @@ export default function InventoryApp() {
     let cancelled = false;
     async function loadDraftConfig(): Promise<void> {
       try {
-        const qs = toQueryString(draftState);
+        const qs = toQueryString(draftState, config);
         const suffix = qs ? `?${qs}` : "";
         const res = await fetch(`/api/config${suffix}`);
         if (!res.ok) return;
         const nextConfig = (await res.json()) as InventoryConfig;
         if (cancelled) return;
-        setConfig((prev) => ({ ...(prev || {}), ...nextConfig }));
+        setConfig((prev) => mergeInventoryConfig(prev, nextConfig));
         setDraftState((prev) => coerceStateToConfig(prev, nextConfig));
       } catch {
         // Best-effort refresh only.
@@ -359,19 +373,7 @@ export default function InventoryApp() {
     return () => {
       cancelled = true;
     };
-  }, [
-    draftState.scope,
-    draftState.root_id,
-    draftState.student,
-    draftState.subject,
-    draftState.grade,
-    draftState.doc_type,
-    draftState.book,
-    draftState.is_registered,
-    draftState.has_template,
-    draftState.has_marking,
-    draftState.review_status,
-  ]);
+  }, [filterStateQueryKey(draftState)]);
 
   const rootsById = useMemo(() => {
     const out: Record<string, string> = {};
@@ -389,8 +391,11 @@ export default function InventoryApp() {
       if (key === "scope" && value === "template") {
         next.student = "";
       }
-      if (key === "doc_type" && value !== "book") {
-        next.book = "";
+      if (key === "doc_type") {
+        const types = value as string[];
+        if (types.length !== 1 || types[0] !== "book") {
+          next.book = "";
+        }
       }
       return next;
     });
@@ -403,7 +408,7 @@ export default function InventoryApp() {
   }
 
   const reloadInventory = useCallback(async (): Promise<void> => {
-    const qs = toQueryString(appliedState);
+    const qs = toQueryString(appliedState, config);
     const suffix = qs ? `?${qs}` : "";
     const inventoryRes = await fetch(`/api/inventory${suffix}`);
     if (!inventoryRes.ok) {
@@ -411,7 +416,7 @@ export default function InventoryApp() {
     }
     const nextInventory = (await inventoryRes.json()) as InventoryResponse;
     setInventory(nextInventory);
-  }, [appliedState]);
+  }, [appliedState, config]);
 
   return (
     <div className="inventory-shell inventory-legacy">
@@ -426,7 +431,7 @@ export default function InventoryApp() {
         <label>
           <span>Scope</span>
           <select value={draftState.scope} onChange={(e) => updateDraft("scope", e.target.value)}>
-            {(config?.scopes || ["completion", "template"]).map((scope) => (
+            {scopeOptionsFromConfig(config).map((scope) => (
               <option key={scope} value={scope}>
                 {labelWithCount(scope === "completion" ? "Completion" : "Template", scope, config?.scope_counts)}
               </option>
@@ -459,40 +464,29 @@ export default function InventoryApp() {
             ))}
           </select>
         </label>
-        <label>
-          <span>Subject</span>
-          <select value={draftState.subject} onChange={(e) => updateDraft("subject", e.target.value)}>
-            <option value="all">{labelWithCount("All", "all", config?.subject_counts)}</option>
-            {(config?.subjects || []).map((subject) => (
-              <option key={subject} value={subject}>
-                {labelWithCount(subject, subject, config?.subject_counts)}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label>
-          <span>Grade</span>
-          <select value={draftState.grade} onChange={(e) => updateDraft("grade", e.target.value)}>
-            <option value="all">{labelWithCount("All", "all", config?.grade_counts)}</option>
-            {(config?.grades || []).map((grade) => (
-              <option key={grade} value={grade}>
-                {labelWithCount(grade, grade, config?.grade_counts)}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label>
-          <span>Type</span>
-          <select value={draftState.doc_type} onChange={(e) => updateDraft("doc_type", e.target.value)}>
-            <option value="all">{labelWithCount("All", "all", config?.doc_type_counts)}</option>
-            {(config?.doc_types || []).map((type) => (
-              <option key={type} value={type}>
-                {labelWithCount(type, type, config?.doc_type_counts)}
-              </option>
-            ))}
-          </select>
-        </label>
-        {draftState.doc_type === "book" ? (
+        <MultiSelectFilter
+          label="Subject"
+          options={config?.subjects || []}
+          selected={draftState.subject}
+          counts={config?.subject_counts}
+          onChange={(next) => updateDraft("subject", next)}
+        />
+        <MultiSelectFilter
+          label="Grade"
+          options={config?.grades || []}
+          selected={draftState.grade}
+          counts={config?.grade_counts}
+          onChange={(next) => updateDraft("grade", next)}
+        />
+        <MultiSelectFilter
+          label="Type"
+          options={config?.doc_types || []}
+          selected={draftState.doc_type}
+          counts={config?.doc_type_counts}
+          onChange={(next) => updateDraft("doc_type", next)}
+          formatOption={(value) => value.charAt(0).toUpperCase() + value.slice(1)}
+        />
+        {draftState.doc_type.length === 1 && draftState.doc_type[0] === "book" ? (
           <label>
             <span>Book</span>
             <select value={draftState.book} onChange={(e) => updateDraft("book", e.target.value)}>
@@ -579,7 +573,11 @@ export default function InventoryApp() {
           </label>
         ) : null}
         <div className="filter-actions">
-          <button type="button" className="apply-filters" onClick={() => setAppliedState(draftState)}>
+          <button
+            type="button"
+            className="apply-filters"
+            onClick={() => setAppliedState(cloneFilterState(draftState))}
+          >
             Apply filters
           </button>
           <button

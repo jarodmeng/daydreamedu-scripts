@@ -2,6 +2,22 @@
 
 All notable changes to `ai_study_buddy/buddy_console` are documented here.
 
+## [v0.1.12] - Inventory multi-select facets (2026-06-03)
+
+### Fixed
+
+1. Review workspace (`/review`): in-attempt question navigation no longer overridden by re-parsing URL `result_id` after initial load (`App.tsx`; same fix as `review_workspace` v0.1.10).
+
+### Added
+
+1. **Subject**, **Grade**, and **Type** multi-select filters on Student File Browser (`MultiSelectFilter`, `inventoryFilterState`).
+2. Repeated URL query params for facet values; **all options selected** in a facet is treated as no restriction before apply.
+
+### Changed
+
+1. `frontend/package.json` version aligned to `0.1.12`.
+2. Requires `ai_study_buddy.files` v0.3.10+ for multi-value `FilterCriteria`.
+
 ## [v0.1.11] - Student portal marks by question type (2026-06-03)
 
 ### Fixed
