@@ -102,7 +102,7 @@ Per-user profile data for the Chinese character app (currently only the profile 
 
 Per-user, per-character state for MVP1 pinyin recall (score −50–100, stage, next_due_utc, counts). Score: correct +10 (cap 100), wrong/我不知道 −10 (floor −50). Used for queue building and persistence across restarts.
 
-**Queue construction (Issue #12):** Characters are partitioned into five score bands: 难字 (score ≤ −20), 普通在学字 (−20 &lt; score ≤ 0), 普通已学字 (0 &lt; score &lt; 20), 掌握字 (score ≥ 20). **Total Load** = count(难字) + count(普通在学字) + 0.3×count(普通已学字). Batch mode: **Expansion** (Total Load &lt; 100), **Consolidation** (100–250), **Rescue** (&gt; 250). In Expansion/Consolidation, reserve 4–6 slots for 巩固 before 在学字. Rescue recipe: 4 掌握字 + 8 普通已学字 + 6 在学字 (难字 first) + 2 新字; within 在学字 slots, 难字 first (score asc), no cap. **Cooling intervals** (next_due_utc after correct answer): 难字 0 days, 普通在学字 1 day, 普通已学字 5 days, 掌握字 22 days.
+**Queue construction (Issue #12):** Characters are partitioned into six score bands: 难字 (score ≤ −20), 普通在学字 (−20 &lt; score &lt; 10), 普通已学字 (10 ≤ score &lt; 20), 掌握字 (20 ≤ score &lt; 40), 精通字 (score ≥ 40). **Total Load** = count(难字) + count(普通在学字) + 0.3×count(普通已学字), where 在学字 = score &lt; 10 (aligned with the proficiency threshold). Batch mode: **Expansion** (Total Load &lt; 100), **Consolidation** (100–250), **Rescue** (&gt; 250), and **Deep Consolidation** (no 未学字 left and not in Rescue; Rescue takes precedence). In Expansion/Consolidation, reserve 4–6 slots for 巩固 before 在学字, drawing from a merged 掌握字+精通字 pool. Rescue recipe: 4 掌握字 + 8 普通已学字 + 6 在学字 (难字 first) + 2 新字; within 在学字 slots, 难字 first (score asc), no cap. Deep Consolidation recipe: 6 在学字 + 4 普通已学字 + 8 掌握字 (elevation toward 精通字) + 2 精通字 + 0 新字 (confidence-first order, distinct 掌握字/精通字 pools). **Cooling intervals** (next_due_utc after correct answer): 难字 0 days, 普通在学字 1 day, 普通已学字 5 days, 掌握字 22 days, 精通字 60/90/120 days (scaled by score, capped).
 
 | Column | Type | Notes |
 |--------|------|--------|
@@ -136,7 +136,7 @@ Session events are written to Supabase (two-table design).
 | session_id | text | NOT NULL |
 | batch_id | uuid | Identifies the batch (each session/next-batch call); NULL for rows before migration |
 | batch_mode | text | Queue mode for the batch: expansion, consolidation, or rescue (Issue #12); NULL for rows before migration |
-| batch_character_category | text | Character's five-band category at batch creation: new, hard, learning_normal, learned_normal, mastered; NULL for rows before migration |
+| batch_character_category | text | Character's band category at batch creation: new, hard, learning_normal, learned_normal, mastered, memorized; NULL for rows before migration |
 | from_user_priority | boolean | Whether the served item matched an active user priority row at serve time; NULL for rows before migration |
 | priority_label | text | Serve-time human-readable priority label such as `第二学期听写`; NULL when not prioritized or before migration |
 | priority_source | text | Serve-time machine-readable priority source tag; NULL when not prioritized or before migration |
@@ -299,7 +299,7 @@ Psycopg 3 (`psycopg[binary]>=3.1`). All functions return dict shapes compatible 
 | `get_user_prioritized_characters(user_id)` | Return active, unexpired user priority rows ordered by `priority ASC, created_at ASC` for phase-1 新字 selection. |
 | `bulk_insert_pinyin_recall_item_presented(payloads)` | Bulk insert into `pinyin_recall_item_presented` (e.g. upload script). |
 | `bulk_insert_pinyin_recall_item_answered(payloads)` | Bulk insert into `pinyin_recall_item_answered` (e.g. upload script). |
-| `get_pinyin_recall_category_daily_trend(user_id, days=60)` | Return daily end-of-day counts for the four bands (难字, 普通在学字, 普通已学字, 掌握字) by replaying `pinyin_recall_item_answered` for the user. Pass `days=None` for full history (Profile chart range selector slices client-side). No new table; used by `GET /api/profile/progress` for the 掌握度每日趋势 chart. |
+| `get_pinyin_recall_category_daily_trend(user_id, days=60)` | Return daily end-of-day counts for the five bands (难字, 普通在学字, 普通已学字, 掌握字, 精通字) by replaying `pinyin_recall_item_answered` for the user. Pass `days=None` for full history (Profile chart range selector slices client-side). No new table; used by `GET /api/profile/progress` for the 掌握度每日趋势 chart. |
 
 ---
 

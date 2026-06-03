@@ -6,6 +6,13 @@ Release history and version notes. Newest releases are at the top.
 
 ---
 
+## [v0.4.0]
+
+- **新增 精通项 band (score ≥ 40):** 已学项 now decomposes into 普通已学项 (10–19), 掌握项 (20–39), and 精通项 (≥ 40). A unit reaches 精通项 only after two spaced correct answers past mastery (20 → 30 → 40), making it a "deeply retained" tier. No schema change — derived from the existing `score` column. Profile (`GET /api/profile/progress`), the per-category drill-down (`/api/profile/progress/category/learned_memorized`), and the 掌握度每日趋势 chart all gain a 精通项 series/link.
+- **New Deep Consolidation queue mode:** Triggered when a learner has no 未学项 left (no 新字 to serve) and is not in Rescue (Rescue still takes precedence for heavy backlogs). Recipe: 6 在学项 + 4 普通已学项 + 8 掌握项 (elevation toward 精通项) + 2 精通项 + 0 新字, confidence-first order. The no-新字 trigger uses the authoritative `not_tested_count`. In the other three modes, 掌握项 + 精通项 are merged into one maintenance pool so 精通项 is never dropped.
+- **精通项 cooling scales with score:** next_due_utc for 精通项 is 60 days (40–59), 90 days (60–79), 120 days (80–100, cap); 掌握项 stays a flat 22 days.
+- **Fix 在学/已学 boundary (0 → 10) in the queue:** `_score_band()`, the Total Load computation, and `_cooling_days_for_score()` now split 在学项/已学项 at score 10 (matching the profile and proficiency threshold) instead of 0. This reclassifies score 1–9 units from 普通已学项 → 普通在学项, so they cool 1 day instead of 5 and Total Load rises slightly — a correction that may move some active users from Expansion to Consolidation sooner. Existing learners with remaining 新字 never see Deep Consolidation.
+
 ## [v0.3.9]
 
 - **Profile 掌握度 trend date range:** Add **30天** / **60天** / **90天** / **全部** selectors above the 掌握度每日趋势 chart on the 我的 page (default 60天). `GET /api/profile/progress` returns full `category_trend` history; the chart slices client-side.

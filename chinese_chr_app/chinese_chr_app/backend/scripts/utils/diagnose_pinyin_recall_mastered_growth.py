@@ -41,6 +41,7 @@ except ImportError:
 
 
 MASTERY_MIN_SCORE = 20
+MEMORIZED_MIN_SCORE = 40  # 精通项: deeply-retained subset of mastered (>= 40)
 PROFICIENCY_MIN_SCORE = 10
 
 
@@ -283,6 +284,8 @@ def analyze_user(
 
     mastered_start = sum(1 for score in scores_before_start.values() if score >= MASTERY_MIN_SCORE)
     mastered_end = sum(1 for score in latest_scores.values() if score >= MASTERY_MIN_SCORE)
+    memorized_start = sum(1 for score in scores_before_start.values() if score >= MEMORIZED_MIN_SCORE)
+    memorized_end = sum(1 for score in latest_scores.values() if score >= MEMORIZED_MIN_SCORE)
 
     correct_count = sum(1 for ev in window_events if ev.correct)
     idk_count = sum(1 for ev in window_events if ev.i_dont_know)
@@ -398,6 +401,9 @@ def analyze_user(
             "re_mastered_units": len(re_mastered_units),
             "mastered_exit_events": mastered_exit_events,
             "net_entries_minus_exits": mastered_entry_events - mastered_exit_events,
+            "memorized_start": memorized_start,
+            "memorized_end": memorized_end,
+            "memorized_delta": memorized_end - memorized_start,
         },
         "activity": {
             "answers": len(window_events),

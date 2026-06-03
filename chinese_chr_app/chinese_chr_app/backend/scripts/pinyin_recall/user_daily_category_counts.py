@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-Compute daily pinyin-recall category counts (难字 / 普通在学字 / 普通已学字 / 掌握字) for one user.
+Compute daily pinyin-recall category counts (难字 / 普通在学字 / 普通已学字 / 掌握字 / 精通字) for one user.
 
 This replays that user's `pinyin_recall_item_answered` history and produces, for each day,
-the number of characters whose score falls into each of the four score bands at end-of-day.
+the number of characters whose score falls into each of the five score bands at end-of-day.
 
 Run from backend/:
   python3 scripts/pinyin_recall/user_daily_category_counts.py --email "emma@example.com" [--days 30]
@@ -59,16 +59,18 @@ def score_to_band(
     score: int,
     learning_hard_max: int,
     learned_mastered_min: int,
+    learned_memorized_min: int = 40,
 ) -> str:
     """
-    Map a pinyin-recall score to one of the four bands used in the profile:
+    Map a pinyin-recall score to one of the five bands used in the profile:
 
     Profile banding matches the app's unit-bank thresholds:
 
     - 难字: score <= learning_hard_max (typically -20)
     - 普通在学字: learning_hard_max < score < PROFILE_PROFICIENCY_MIN_SCORE (typically 10)
     - 普通已学字: PROFILE_PROFICIENCY_MIN_SCORE <= score < learned_mastered_min (typically 20)
-    - 掌握字: score >= learned_mastered_min
+    - 掌握字: learned_mastered_min <= score < learned_memorized_min (typically 20-39)
+    - 精通字: score >= learned_memorized_min (typically 40)
     """
     try:
         import database as db  # type: ignore[import-not-found]
@@ -80,6 +82,8 @@ def score_to_band(
         return "难字" if score <= learning_hard_max else "普通在学字"
     if score < learned_mastered_min:
         return "普通已学字"
+    if score >= learned_memorized_min:
+        return "精通字"
     return "掌握字"
 
 
@@ -88,6 +92,7 @@ def compute_daily_counts(
     learning_hard_max: int,
     learned_mastered_min: int,
     days: int,
+    learned_memorized_min: int = 40,
 ) -> List[Dict[str, object]]:
     """
     Replay events in chronological order and compute end-of-day band membership counts.
@@ -99,6 +104,7 @@ def compute_daily_counts(
         "learning_normal": int,  # 普通在学字
         "learned_normal": int,   # 普通已学字
         "mastered": int,         # 掌握字
+        "memorized": int,        # 精通字
       }
     Limited to the last `days` days of available history.
     """
@@ -106,7 +112,7 @@ def compute_daily_counts(
         return []
 
     # Track current band per character and global band counts.
-    band_keys = ["难字", "普通在学字", "普通已学字", "掌握字"]
+    band_keys = ["难字", "普通在学字", "普通已学字", "掌握字", "精通字"]
     band_counts: Dict[str, int] = {k: 0 for k in band_keys}
     per_char_band: Dict[str, str] = {}
 
@@ -125,7 +131,7 @@ def compute_daily_counts(
 
         ch = ev.character
         prev_band = per_char_band.get(ch)
-        new_band = score_to_band(ev.score_after, learning_hard_max, learned_mastered_min)
+        new_band = score_to_band(ev.score_after, learning_hard_max, learned_mastered_min, learned_memorized_min)
 
         if prev_band == new_band:
             continue
@@ -171,6 +177,7 @@ def compute_daily_counts(
                 "learning_normal": counts.get("普通在学字", 0),
                 "learned_normal": counts.get("普通已学字", 0),
                 "mastered": counts.get("掌握字", 0),
+                "memorized": counts.get("精通字", 0),
             }
         )
 
@@ -215,7 +222,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(
         description=(
             "Compute daily pinyin-recall category counts "
-            "(难字 / 普通在学字 / 普通已学字 / 掌握字) for one user."
+            "(难字 / 普通在学字 / 普通已学字 / 掌握字 / 精通字) for one user."
         ),
     )
     group = parser.add_mutually_exclusive_group(required=True)
@@ -256,6 +263,7 @@ def main() -> None:
 
     learning_hard_max = getattr(db, "PROFILE_LEARNING_HARD_MAX_SCORE", -20)
     learned_mastered_min = getattr(db, "PROFILE_LEARNED_MASTERED_MIN_SCORE", 20)
+    learned_memorized_min = getattr(db, "PROFILE_LEARNED_MEMORIZED_MIN_SCORE", 40)
 
     conn = psycopg.connect(url, row_factory=dict_row)
     user_id = args.user_id
@@ -283,6 +291,7 @@ def main() -> None:
             learning_hard_max=learning_hard_max,
             learned_mastered_min=learned_mastered_min,
             days=max(1, args.days),
+            learned_memorized_min=learned_memorized_min,
         )
 
         print(

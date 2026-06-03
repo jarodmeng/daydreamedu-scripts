@@ -151,6 +151,7 @@ export default function Profile() {
   const learningHard = proficiency?.learning_hard ?? 0
   const learningNormal = proficiency?.learning_normal ?? 0
   const learnedMastered = proficiency?.learned_mastered ?? 0
+  const learnedMemorized = proficiency?.learned_memorized ?? 0
   const learnedNormal = proficiency?.learned_normal ?? 0
   const pct = (n) => (totalUnits > 0 ? Math.round((n / totalUnits) * 100) : 0)
   const practiceSummary = progress?.practice_summary ?? []
@@ -264,13 +265,13 @@ export default function Profile() {
                     </p>
                     <div className="profile-proficiency-sub">
                       <span className="profile-proficiency-sub-line">
-                        <Link to="/profile/category/learned_mastered" className="profile-link">掌握项</Link>: <strong>{learnedMastered}</strong>（{pct(learnedMastered)}%）　<Link to="/profile/category/learned_normal" className="profile-link">普通</Link>: <strong>{learnedNormal}</strong>（{pct(learnedNormal)}%）
+                        <Link to="/profile/category/learned_memorized" className="profile-link">精通项</Link>: <strong>{learnedMemorized}</strong>（{pct(learnedMemorized)}%）　<Link to="/profile/category/learned_mastered" className="profile-link">掌握项</Link>: <strong>{learnedMastered}</strong>（{pct(learnedMastered)}%）　<Link to="/profile/category/learned_normal" className="profile-link">普通</Link>: <strong>{learnedNormal}</strong>（{pct(learnedNormal)}%）
                       </span>
                     </div>
                   </div>
                 </div>
                 <p className="profile-proficiency-hint">
-                  掌握度根据拼音记忆游戏的读音项计算（一个学习项 = 汉字 + 读音；得分 ≥ 10 为已学项，&lt; 10 为在学项，未测试为未学项）
+                  掌握度根据拼音记忆游戏的读音项计算（一个学习项 = 汉字 + 读音；得分 ≥ 10 为已学项，&lt; 10 为在学项，未测试为未学项）。已学项再分为普通已学项（10–19）、掌握项（20–39）与精通项（≥ 40）
                 </p>
               </div>
             </section>
@@ -340,6 +341,14 @@ export default function Profile() {
                         name="掌握项"
                         stroke="#2e7d32"
                         fill="#a5d6a7"
+                      />
+                      <Area
+                        type="monotone"
+                        dataKey="memorized"
+                        stackId="1"
+                        name="精通项"
+                        stroke="#6a1b9a"
+                        fill="#ce93d8"
                       />
                     </AreaChart>
                   </ResponsiveContainer>

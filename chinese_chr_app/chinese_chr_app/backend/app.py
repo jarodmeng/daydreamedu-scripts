@@ -1173,6 +1173,7 @@ def get_profile_progress():
                 "learning_hard": category_counts.get("learning_hard", 0),
                 "learning_normal": category_counts.get("learning_normal", 0),
                 "learned_mastered": category_counts.get("learned_mastered", 0),
+                "learned_memorized": category_counts.get("learned_memorized", 0),
                 "learned_normal": category_counts.get("learned_normal", 0),
             },
             "daily_stats": daily_stats,
@@ -1189,11 +1190,11 @@ def get_profile_progress():
 # CORS: headers from after_request; OPTIONS preflight handled by before_request (all routes).
 @app.route('/api/profile/progress/category/<category>', methods=['GET'])
 def get_profile_progress_category(category: str):
-    """Get characters in a profile sub-category (learning_hard, learning_normal, learned_mastered, learned_normal), ordered by last tested (latest first). Requires Bearer token."""
+    """Get characters in a profile sub-category (learning_hard, learning_normal, learned_normal, learned_mastered, learned_memorized), ordered by last tested (latest first). Requires Bearer token."""
     user = _get_profile_user_or_dev()
     if user is None:
         return jsonify({"error": "Unauthorized"}), 401
-    allowed = {"learning_hard", "learning_normal", "learned_mastered", "learned_normal"}
+    allowed = {"learning_hard", "learning_normal", "learned_mastered", "learned_memorized", "learned_normal"}
     if category not in allowed:
         return jsonify({"error": "Invalid category"}), 400
     try:
@@ -1315,6 +1316,11 @@ def pinyin_recall_session():
     learning_state = _get_pinyin_recall_learning_state(user.user_id)
     import database as db
     prioritized_characters = db.get_user_prioritized_characters(user.user_id)
+    # Authoritative 未学项 count drives the Deep Consolidation (no-新字) trigger.
+    try:
+        not_tested_count = db.get_pinyin_recall_category_counts(user.user_id)["not_tested"]
+    except Exception:
+        not_tested_count = None
     t5 = time.perf_counter()
     timings["load_learning_state_ms"] = int((t5 - t4) * 1000)
 
@@ -1329,6 +1335,7 @@ def pinyin_recall_session():
         prioritized_characters=prioritized_characters,
         total_target=20,
         new_count=8,
+        not_tested_count=not_tested_count,
     )
     t7 = time.perf_counter()
     timings["build_session_queue_ms"] = int((t7 - t6) * 1000)
@@ -1397,6 +1404,11 @@ def pinyin_recall_next_batch():
     learning_state = _get_pinyin_recall_learning_state(user.user_id)
     import database as db
     prioritized_characters = db.get_user_prioritized_characters(user.user_id)
+    # Authoritative 未学项 count drives the Deep Consolidation (no-新字) trigger.
+    try:
+        not_tested_count = db.get_pinyin_recall_category_counts(user.user_id)["not_tested"]
+    except Exception:
+        not_tested_count = None
     t5 = time.perf_counter()
     timings["load_learning_state_ms"] = int((t5 - t4) * 1000)
 
@@ -1411,6 +1423,7 @@ def pinyin_recall_next_batch():
         prioritized_characters=prioritized_characters,
         total_target=20,
         new_count=8,
+        not_tested_count=not_tested_count,
     )
     t7 = time.perf_counter()
     timings["build_session_queue_ms"] = int((t7 - t6) * 1000)

@@ -964,11 +964,13 @@ def get_pinyin_recall_practice_summary(user_id: str) -> List[Dict[str, Any]]:
 
 
 def _profile_sub_band_for_score(score: int) -> str:
-    """Map a unit-bank score to one of the four profile sub-bands (chart/table)."""
+    """Map a unit-bank score to one of the five profile sub-bands (chart/table)."""
     if score < PROFILE_PROFICIENCY_MIN_SCORE:
         return "难字" if score <= PROFILE_LEARNING_HARD_MAX_SCORE else "普通在学字"
     if score < PROFILE_LEARNED_MASTERED_MIN_SCORE:
         return "普通已学字"
+    if score >= PROFILE_LEARNED_MEMORIZED_MIN_SCORE:
+        return "精通字"
     return "掌握字"
 
 
@@ -980,6 +982,7 @@ def _category_trend_point_from_counts(counts: Dict[str, int], day: date) -> Dict
         "learning_normal": int(counts.get("learning_normal") or 0),
         "learned_normal": int(counts.get("learned_normal") or 0),
         "mastered": int(counts.get("learned_mastered") or 0),
+        "memorized": int(counts.get("learned_memorized") or 0),
     }
 
 
@@ -1021,12 +1024,13 @@ def get_pinyin_recall_category_daily_trend(
     enabled_unit_ids: Optional[List[str]] = None,
 ) -> List[Dict[str, Any]]:
     """
-    Return daily counts of recall units in the four profile bands for a user:
+    Return daily counts of recall units in the five profile bands for a user:
 
     - hard (难字)
     - learning_normal (普通在学字)
     - learned_normal (普通已学字)
     - mastered (掌握字)
+    - memorized (精通字)
 
     Counts reflect band membership at end-of-day. Derived at runtime from
     pinyin_recall_item_answered.score_after.
@@ -1080,7 +1084,7 @@ def get_pinyin_recall_category_daily_trend(
             return []
 
         # Track current band per recall unit and global band counts.
-        band_keys = ["难字", "普通在学字", "普通已学字", "掌握字"]
+        band_keys = ["难字", "普通在学字", "普通已学字", "掌握字", "精通字"]
         band_counts: Dict[str, int] = {k: 0 for k in band_keys}
         per_entity_band: Dict[str, str] = {}
 
@@ -1150,6 +1154,7 @@ def get_pinyin_recall_category_daily_trend(
                     "learning_normal": counts.get("普通在学字", 0),
                     "learned_normal": counts.get("普通已学字", 0),
                     "mastered": counts.get("掌握字", 0),
+                    "memorized": counts.get("精通字", 0),
                 }
             )
 
@@ -1180,9 +1185,10 @@ def get_proficient_character_count(user_id: str, min_score: int = PROFILE_PROFIC
         conn.close()
 
 
-# Sub-category thresholds for profile display (在学字: 难字 <= -20; 已学字: 掌握字 >= 20)
-PROFILE_LEARNING_HARD_MAX_SCORE = -20   # 难字: score <= -20
-PROFILE_LEARNED_MASTERED_MIN_SCORE = 20  # 掌握字: score >= 20
+# Sub-category thresholds for profile display (在学项: 难项 <= -20; 已学项: 掌握项 20-39, 精通项 >= 40)
+PROFILE_LEARNING_HARD_MAX_SCORE = -20   # 难项: score <= -20
+PROFILE_LEARNED_MASTERED_MIN_SCORE = 20  # 掌握项: 20 <= score < 40
+PROFILE_LEARNED_MEMORIZED_MIN_SCORE = 40  # 精通项 (memorized): score >= 40
 
 
 def get_pinyin_recall_category_counts(
@@ -1194,7 +1200,8 @@ def get_pinyin_recall_category_counts(
     Return counts for 未学项 / 在学项 / 已学项 and sub-categories.
     learned = score >= 10, learning = score < 10, not_tested = enabled_units - (learned + learning).
     Sub: learning_hard (score <= -20), learning_normal (-20 < score < 10),
-         learned_mastered (score >= 20), learned_normal (10 <= score < 20).
+         learned_normal (10 <= score < 20), learned_mastered (20 <= score < 40),
+         learned_memorized (score >= 40, 精通项).
     """
     unit_ids = sorted(enabled_unit_ids) if enabled_unit_ids is not None else sorted(_get_enabled_recall_unit_ids())
     if not unit_ids:
@@ -1206,6 +1213,7 @@ def get_pinyin_recall_category_counts(
             "learning_hard": 0,
             "learning_normal": 0,
             "learned_mastered": 0,
+            "learned_memorized": 0,
             "learned_normal": 0,
         }
     conn = _get_connection()
@@ -1218,7 +1226,8 @@ def get_pinyin_recall_category_counts(
                     COUNT(*) FILTER (WHERE score < %s) AS learning,
                     COUNT(*) FILTER (WHERE score < %s AND score <= %s) AS learning_hard,
                     COUNT(*) FILTER (WHERE score < %s AND score > %s) AS learning_normal,
-                    COUNT(*) FILTER (WHERE score >= %s) AS learned_mastered,
+                    COUNT(*) FILTER (WHERE score >= %s AND score < %s) AS learned_mastered,
+                    COUNT(*) FILTER (WHERE score >= %s) AS learned_memorized,
                     COUNT(*) FILTER (WHERE score >= %s AND score < %s) AS learned_normal
                 FROM pinyin_recall_unit_bank
                 WHERE user_id = %s
@@ -1232,6 +1241,8 @@ def get_pinyin_recall_category_counts(
                     PROFILE_PROFICIENCY_MIN_SCORE,
                     PROFILE_LEARNING_HARD_MAX_SCORE,
                     PROFILE_LEARNED_MASTERED_MIN_SCORE,
+                    PROFILE_LEARNED_MEMORIZED_MIN_SCORE,
+                    PROFILE_LEARNED_MEMORIZED_MIN_SCORE,
                     PROFILE_PROFICIENCY_MIN_SCORE,
                     PROFILE_LEARNED_MASTERED_MIN_SCORE,
                     user_id.strip(),
@@ -1251,6 +1262,7 @@ def get_pinyin_recall_category_counts(
             "learning_hard": int(row.get("learning_hard") or 0),
             "learning_normal": int(row.get("learning_normal") or 0),
             "learned_mastered": int(row.get("learned_mastered") or 0),
+            "learned_memorized": int(row.get("learned_memorized") or 0),
             "learned_normal": int(row.get("learned_normal") or 0),
         }
     finally:
@@ -1261,6 +1273,7 @@ def get_pinyin_recall_category_counts(
 PROFILE_CATEGORY_LEARNING_HARD = "learning_hard"
 PROFILE_CATEGORY_LEARNING_NORMAL = "learning_normal"
 PROFILE_CATEGORY_LEARNED_MASTERED = "learned_mastered"
+PROFILE_CATEGORY_LEARNED_MEMORIZED = "learned_memorized"
 PROFILE_CATEGORY_LEARNED_NORMAL = "learned_normal"
 
 
@@ -1269,7 +1282,7 @@ def get_pinyin_recall_characters_by_category(
 ) -> List[Dict[str, Any]]:
     """
     Return reading units in the given profile sub-category, ordered by last_answered_at DESC (latest first).
-    category: learning_hard | learning_normal | learned_mastered | learned_normal.
+    category: learning_hard | learning_normal | learned_normal | learned_mastered | learned_memorized.
     """
     enabled_unit_ids = sorted(_get_enabled_recall_unit_ids())
     if not enabled_unit_ids:
@@ -1283,8 +1296,11 @@ def get_pinyin_recall_characters_by_category(
             where = "user_id = %s AND unit_id = ANY(%s) AND score < %s AND score > %s"
             params = (user_id.strip(), enabled_unit_ids, PROFILE_PROFICIENCY_MIN_SCORE, PROFILE_LEARNING_HARD_MAX_SCORE)
         elif category == PROFILE_CATEGORY_LEARNED_MASTERED:
+            where = "user_id = %s AND unit_id = ANY(%s) AND score >= %s AND score < %s"
+            params = (user_id.strip(), enabled_unit_ids, PROFILE_LEARNED_MASTERED_MIN_SCORE, PROFILE_LEARNED_MEMORIZED_MIN_SCORE)
+        elif category == PROFILE_CATEGORY_LEARNED_MEMORIZED:
             where = "user_id = %s AND unit_id = ANY(%s) AND score >= %s"
-            params = (user_id.strip(), enabled_unit_ids, PROFILE_LEARNED_MASTERED_MIN_SCORE)
+            params = (user_id.strip(), enabled_unit_ids, PROFILE_LEARNED_MEMORIZED_MIN_SCORE)
         elif category == PROFILE_CATEGORY_LEARNED_NORMAL:
             where = "user_id = %s AND unit_id = ANY(%s) AND score >= %s AND score < %s"
             params = (user_id.strip(), enabled_unit_ids, PROFILE_PROFICIENCY_MIN_SCORE, PROFILE_LEARNED_MASTERED_MIN_SCORE)
@@ -1355,21 +1371,37 @@ PINYIN_RECALL_SCORE_MAX = 100
 PINYIN_RECALL_STAGE_INTERVAL_DAYS = [0, 1, 3, 7, 14, 30]
 PINYIN_RECALL_MAX_STAGE = len(PINYIN_RECALL_STAGE_INTERVAL_DAYS) - 1
 
-# Cooling intervals by five-band (Issue #12): 难字 0d, 普通在学字 1d, 普通已学字 5d, 掌握字 22d
+# Cooling intervals by band: 难项 0d, 普通在学项 1d, 普通已学项 5d, 掌握项 22d.
+# 在学/已学 boundary is PROFILE_PROFICIENCY_MIN_SCORE (10), matching the profile bands.
 PINYIN_RECALL_COOLING_DAYS_HARD = 0
 PINYIN_RECALL_COOLING_DAYS_LEARNING_NORMAL = 1
 PINYIN_RECALL_COOLING_DAYS_LEARNED_NORMAL = 5
 PINYIN_RECALL_COOLING_DAYS_MASTERED = 22
+# 精通项 (score >= 40): cooling scales with score, capped (60 -> 90 -> 120 days).
+PINYIN_RECALL_COOLING_DAYS_MEMORIZED_BASE = 60   # at score 40
+PINYIN_RECALL_COOLING_DAYS_MEMORIZED_STEP = 30   # +30 days per +20 score above 40
+PINYIN_RECALL_COOLING_DAYS_MEMORIZED_MAX = 120   # cap
 
 
 def _cooling_days_for_score(score: int) -> int:
-    """Return cooling days for next_due_utc by score band (难字 0, 普通在学字 1, 普通已学字 5, 掌握字 22)."""
+    """
+    Return cooling days for next_due_utc by score band:
+    难项 0, 普通在学项 (score < 10) 1, 普通已学项 (10-19) 5, 掌握项 (20-39) 22,
+    精通项 (>= 40) 60/90/120 scaling with score.
+    """
     if score <= PROFILE_LEARNING_HARD_MAX_SCORE:
         return PINYIN_RECALL_COOLING_DAYS_HARD
-    if score <= 0:
+    if score < PROFILE_PROFICIENCY_MIN_SCORE:
         return PINYIN_RECALL_COOLING_DAYS_LEARNING_NORMAL
     if score < PROFILE_LEARNED_MASTERED_MIN_SCORE:
         return PINYIN_RECALL_COOLING_DAYS_LEARNED_NORMAL
+    if score >= PROFILE_LEARNED_MEMORIZED_MIN_SCORE:
+        return min(
+            PINYIN_RECALL_COOLING_DAYS_MEMORIZED_BASE
+            + PINYIN_RECALL_COOLING_DAYS_MEMORIZED_STEP
+            * ((score - PROFILE_LEARNED_MEMORIZED_MIN_SCORE) // 20),
+            PINYIN_RECALL_COOLING_DAYS_MEMORIZED_MAX,
+        )
     return PINYIN_RECALL_COOLING_DAYS_MASTERED
 
 
@@ -1542,7 +1574,7 @@ def insert_pinyin_recall_item_presented(payload: Dict[str, Any]) -> None:
     Insert one item_presented event into pinyin_recall_item_presented.
     payload: user_id, session_id, unit_id?, character, reading_key?, reading_display?, prompt_type, correct_choice, choices, batch_id?, batch_mode?, batch_character_category?, from_user_priority?, priority_label?, priority_source?.
     Table must exist (run scripts/create_pinyin_recall_log_tables.py once).
-    batch_character_category: five-band at batch time (new|hard|learning_normal|learned_normal|mastered).
+    batch_character_category: band at batch time (new|hard|learning_normal|learned_normal|mastered|memorized).
     """
     conn = _get_connection()
     try:

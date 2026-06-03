@@ -69,7 +69,7 @@ All under `/api/`. Base URL in development: `http://localhost:5001`.
 | GET | `/api/stroke-counts/<count>` | Characters with that stroke count. |
 | GET | `/api/profile` | Current user profile (display name). Requires Bearer token. |
 | PUT | `/api/profile` | Update display name. Requires Bearer token. |
-| GET | `/api/profile/progress` | Progress summary: viewed characters, daily stats, and pinyin-recall progress (`读音掌握度`) over the enabled reading-unit pool, plus `category_trend` (daily counts for 难项/普通在学项/普通已学项/掌握项, computed from pinyin-recall history). Requires Bearer token. |
+| GET | `/api/profile/progress` | Progress summary: viewed characters, daily stats, and pinyin-recall progress (`读音掌握度`) over the enabled reading-unit pool, plus `category_trend` (daily counts for 难项/普通在学项/普通已学项/掌握项/精通项, computed from pinyin-recall history). Requires Bearer token. |
 | GET | `/api/profile/progress/category/<category>` | Reading-unit entries in a given category (e.g. learning_hard, learned_normal). Category pages still link through to character detail pages by design. Requires Bearer token. |
 | GET | `/api/games/pinyin-recall/session` | First batch of pinyin-recall items (20). Requires Bearer token. |
 | POST | `/api/games/pinyin-recall/next-batch` | Next batch of 20 items. Optional body: `session_id`. Requires Bearer token. |
@@ -106,11 +106,12 @@ Schema, configuration, data-access layer, and all migration/backfill scripts are
 
 - **Session:** User gets a first batch of 20 items from `GET /api/games/pinyin-recall/session`. After finishing a batch, `POST /api/games/pinyin-recall/next-batch` returns the next 20. Session is open-ended until the user ends it.
 - **Batch size:** 20 items per batch. `new_count` cap per batch is 8 (at most 8 新字 per batch).
-- **Queue construction:** Total Load = count(难项) + count(普通在学项) + 0.3×count(普通已学项). Three modes:
+- **Queue construction:** Total Load = count(难项) + count(普通在学项) + 0.3×count(普通已学项), where 在学项 = score < 10 (aligned with the proficiency threshold). Four modes:
   - **Expansion** (Total Load < 100): 10 新字 + 10 review; reserve 4 slots for 巩固 before 在学项.
   - **Consolidation** (100 ≤ Total Load ≤ 250): 5 新字 + 15 review; reserve 6 slots for 巩固 before 在学项.
-  - **Rescue** (Total Load > 250): 4 掌握项 + 8 普通已学项 + 6 在学项 (难项 first) + 2 新字; within 在学项 slots, 难项 first (score ascending), no cap.
-- **Slot reservation:** In Expansion/Consolidation, reserve slots for 巩固 (普通已学项 + 掌握项) before allocating to 在学项, so 巩固 is never crowded out.
+  - **Rescue** (Total Load > 250): 4 掌握项 + 8 普通已学项 + 6 在学项 (难项 first) + 2 新字; within 在学项 slots, 难项 first (score ascending), no cap. **Rescue takes precedence over Deep Consolidation.**
+  - **Deep Consolidation** (no 未学项 left to serve, and Total Load not in Rescue range): 6 在学项 (难项 first) + 4 普通已学项 + 8 掌握项 (elevation toward 精通项) + 2 精通项 + 0 新字; confidence-first order (精通项 → 掌握项 → 普通已学项 → 在学项). Triggered by the authoritative `not_tested_count` from `get_pinyin_recall_category_counts`. For elevation, 掌握项 and 精通项 are tracked as distinct pools; in the other three modes they are merged into one "mastered" (score ≥ 20) maintenance pool.
+- **Slot reservation:** In Expansion/Consolidation, reserve slots for 巩固 (普通已学项 + 掌握项 + 精通项) before allocating to 在学项, so 巩固 is never crowded out.
 - **Priority-aware 新字:** Active user-priority rows front-load eligible 新字 before the shuffled remainder. Explicit priority targets may override the normal zibiao candidate window, but still compete within the existing 新字 slot budget.
 - **Priority-aware due ordering:** Weak due items (`score < 10`) that match an active user-priority row sort earlier within the existing due pools. Mastered items keep their normal ordering.
 
@@ -118,7 +119,7 @@ Schema, configuration, data-access layer, and all migration/backfill scripts are
 
 - **Score range:** −50 to 100. Correct: +10 (cap 100). Wrong or 我不知道: −10 (floor −50).
 - **Proficiency threshold:** score ≥ 10 = 已学项 (learned item). Used for profile `读音掌握度` and for 巩固 vs 重测.
-- **Five bands (for queue selection):** 难项 (score ≤ −20), 普通在学项 (−20 < score ≤ 0), 普通已学项 (0 < score < 20), 掌握项 (score ≥ 20). 未学项 = not yet in `pinyin_recall_unit_bank`.
+- **Six bands (for queue selection):** 难项 (score ≤ −20), 普通在学项 (−20 < score < 10), 普通已学项 (10 ≤ score < 20), 掌握项 (20 ≤ score < 40), 精通项 (score ≥ 40). 未学项 = not yet in `pinyin_recall_unit_bank`. The 在学/已学 boundary is 10 everywhere (queue, profile, cooling), matching the proficiency threshold.
 - **Display categories (three):** 新字 (first time), 重测 (retest / still learning), 巩固 (consolidation / maintenance). Session items include `is_polyphonic`; when true, a 多音字 tag is shown next to the category in the question header. When an item is being emphasized by a user-priority row, the question header also shows a neutral priority chip such as `第二学期听写`.
 
 ### 8.3 Cooling (next_due_utc)
@@ -126,11 +127,12 @@ Schema, configuration, data-access layer, and all migration/backfill scripts are
 After a correct answer, `next_due_utc` is set by band:
 
 - 难项: 0 days  
-- 普通在学项: 1 day  
-- 普通已学项: 5 days  
-- 掌握项: 22 days  
+- 普通在学项 (score < 10): 1 day  
+- 普通已学项 (10 ≤ score < 20): 5 days  
+- 掌握项 (20 ≤ score < 40): 22 days  
+- 精通项 (score ≥ 40): scales with score — 60 days (40–59), 90 days (60–79), 120 days (80–100, cap)  
 
-Only due items (and new items within cap) are eligible for the next batch.
+The 22-day 掌握项 cooling holding through score 39 spaces the two correct answers that elevate a unit from 掌握项 (20) → 30 → 精通项 (40). Only due items (and new items within cap) are eligible for the next batch.
 
 ### 8.4 Prompt and distractors
 

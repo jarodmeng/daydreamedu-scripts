@@ -58,18 +58,25 @@ def _category_for_character(state: Dict[str, Any]) -> str:
 
 
 def _score_band(score: int) -> str:
-    """Return five-band label: hard, learning_normal, learned_normal, mastered. Used for queue allocation."""
+    """
+    Return six-band label: hard, learning_normal, learned_normal, mastered, memorized. Used for queue allocation.
+
+    The 在学/已学 boundary is PROFICIENCY_MIN_SCORE (10), matching the profile bands
+    (score < 10 = 在学项). 掌握项 = [20, 40); 精通项 (memorized) = score >= 40.
+    """
     if score <= HARD_MAX_SCORE:
         return "hard"
-    if score <= 0:
+    if score < PROFICIENCY_MIN_SCORE:
         return "learning_normal"
     if score < MASTERED_MIN_SCORE:
         return "learned_normal"
+    if score >= MEMORIZED_MIN_SCORE:
+        return "memorized"
     return "mastered"
 
 
 def _batch_category_for_character(state: Dict[str, Any]) -> str:
-    """Return five-band category at batch time: new, hard, learning_normal, learned_normal, mastered. For logging in item_presented."""
+    """Return band category at batch time: new, hard, learning_normal, learned_normal, mastered, memorized. For logging in item_presented."""
     if not state:
         return "new"
     try:
@@ -271,9 +278,10 @@ ZIBIAO_EXPAND_MASTERED_STEP = 200
 ZIBIAO_EXPAND_POOL_STEP = 500
 PROFICIENCY_MIN_SCORE = 10
 
-# Five score bands for queue construction (Issue #12). Align with profile thresholds.
-HARD_MAX_SCORE = -20          # 难字: score <= -20
-MASTERED_MIN_SCORE = 20       # 掌握字: score >= 20
+# Score bands for queue construction (Issue #12). Align with profile thresholds.
+HARD_MAX_SCORE = -20          # 难项: score <= -20
+MASTERED_MIN_SCORE = 20       # 掌握项: 20 <= score < 40
+MEMORIZED_MIN_SCORE = 40      # 精通项 (memorized): score >= 40 (PROPOSAL_精通项_And_Deep_Consolidation_Mode)
 # Total Load = count(难字) + count(普通在学字) + α×count(普通已学字). Modes: Expansion (< 100), Consolidation (100-250), Rescue (> 250).
 ACTIVE_LOAD_EXPANSION_MAX = 99
 ACTIVE_LOAD_CONSOLIDATION_MAX = 250
@@ -290,6 +298,13 @@ EXPANSION_NEW = 10
 EXPANSION_REVIEW = 10
 CONSOLIDATION_NEW = 5
 CONSOLIDATION_REVIEW = 15
+# Deep Consolidation (no 未学项 left, and not in Rescue): elevate 掌握项 -> 精通项.
+# Recipe (total_target=20, 0 新字): 6 在学项 (难项 first) + 4 普通已学项 + 8 掌握项 (elevation) + 2 精通项.
+DEEP_CONSOLIDATION_LEARNING = 6
+DEEP_CONSOLIDATION_LEARNED_NORMAL = 4
+DEEP_CONSOLIDATION_MASTERED = 8
+DEEP_CONSOLIDATION_MEMORIZED = 2
+DEEP_CONSOLIDATION_NEW = 0
 
 _PINYIN_INDEX_CACHE: Tuple[
     Dict[Tuple[str, int], List[str]], List[str]
@@ -862,13 +877,20 @@ def build_session_queue(
     due_confirm_min: int = 4,
     new_count: int = 4,
     total_target: int = 20,
+    not_tested_count: Optional[int] = None,
 ) -> Tuple[List[Dict[str, Any]], str]:
     """
-    Build ordered list of session items (20 per batch) using five score-based categories and
-    Active Load mode (Expansion / Consolidation / Rescue). See PROPOSAL_Queue_By_Five_Score_Categories.
+    Build ordered list of session items (20 per batch) using six score-based bands and the
+    queue mode (Expansion / Consolidation / Rescue / Deep Consolidation).
+    See PROPOSAL_Queue_By_Five_Score_Categories and PROPOSAL_精通项_And_Deep_Consolidation_Mode.
 
-    Five bands: 难字 (score <= -20), 普通在学字 (-20 < score <= 0), 普通已学字 (0 < score < 20), 掌握字 (>= 20).
-    Total Load = count(难字) + count(普通在学字) + α×count(普通已学字). Mode: Expansion (< 100), Consolidation (100-250), Rescue (> 250).
+    Six bands: 难项 (<= -20), 普通在学项 (-20 < score < 10), 普通已学项 (10 <= score < 20),
+    掌握项 (20 <= score < 40), 精通项 (>= 40); 未学项 = not yet in bank.
+    Total Load = count(难项) + count(普通在学项) + α×count(普通已学项). Mode: Expansion (< 100),
+    Consolidation (100-250), Rescue (> 250). Deep Consolidation is selected when there are no
+    未学项 anywhere (no 新字 to serve) and Total Load is not in Rescue range (Rescue takes precedence);
+    its recipe elevates 掌握项 -> 精通项. ``not_tested_count`` (authoritative count of enabled units
+    with no bank row) drives the no-新字 trigger when provided; otherwise a full-corpus fallback is used.
     In Expansion/Consolidation: reserve slots for 巩固 (普通已学字 + 掌握字) before 在学字.
     Rescue recipe: 4 掌握字 + 8 普通已学字 + 6 在学字 (难字 first) + 2 新字; confidence-first order.
     Within 在学字 slots: 难字 first (score asc), then 普通在学字 — no cap on 难字.
@@ -945,6 +967,7 @@ def build_session_queue(
     due_learning_normal: List[Dict[str, Any]] = []
     due_learned_normal: List[Dict[str, Any]] = []
     due_mastered: List[Dict[str, Any]] = []
+    due_memorized: List[Dict[str, Any]] = []
     new_items: List[Dict[str, Any]] = []
 
     for candidate in candidates:
@@ -963,27 +986,25 @@ def build_session_queue(
             due_learning_normal.append(candidate)
         elif band == "learned_normal":
             due_learned_normal.append(candidate)
+        elif band == "memorized":
+            due_memorized.append(candidate)
         else:
             due_mastered.append(candidate)
 
+    # Total Load uses the profile-aligned 在学/已学 boundary (PROFICIENCY_MIN_SCORE = 10):
+    # active_load = 难项 + 普通在学项 (score < 10); n_learned_normal_bank = 普通已学项 (10 <= score < 20).
     active_load = 0
     n_learned_normal_bank = 0
     for state in user_state.values():
         if not isinstance(state, dict):
             continue
         s = int(state.get("score") or 0)
-        if s <= HARD_MAX_SCORE or (HARD_MAX_SCORE < s <= 0):
+        if s < PROFICIENCY_MIN_SCORE:
             active_load += 1
-        elif 0 < s < MASTERED_MIN_SCORE:
+        elif s < MASTERED_MIN_SCORE:
             n_learned_normal_bank += 1
 
     total_load = active_load + LEARNED_NORMAL_LOAD_WEIGHT * n_learned_normal_bank
-    if total_load <= ACTIVE_LOAD_EXPANSION_MAX:
-        mode = "expansion"
-    elif total_load <= ACTIVE_LOAD_CONSOLIDATION_MAX:
-        mode = "consolidation"
-    else:
-        mode = "rescue"
 
     def _score_key(candidate: Dict[str, Any]) -> int:
         unit_id = candidate["unit"]["unit_id"]
@@ -999,6 +1020,10 @@ def build_session_queue(
     due_learning_normal.sort(key=lambda candidate: (_priority_due_sort_key(candidate, user_state, now_ts, normalized_prioritized_characters), _score_key(candidate)))
     due_learned_normal.sort(key=lambda candidate: _priority_due_sort_key(candidate, user_state, now_ts, normalized_prioritized_characters))
     due_mastered.sort(key=_next_due_key)
+    due_memorized.sort(key=_next_due_key)
+    # Legacy modes (expansion/consolidation/rescue) treat 掌握项 + 精通项 (score >= 20) as one
+    # "mastered" review pool, ordered by next_due. Deep Consolidation keeps them separate.
+    due_mastered_and_memorized = sorted(due_mastered + due_memorized, key=_next_due_key)
     priority_new_items, priority_new_unit_ids = _select_priority_new_items(
         normalized_prioritized_characters,
         new_items,
@@ -1015,12 +1040,66 @@ def build_session_queue(
     ]
     rng.shuffle(new_items_rest)
 
-    n_mastered = len(due_mastered)
+    # 掌握项 / 精通项 counts: legacy modes use the combined pool; Deep Consolidation uses them apart.
+    n_mastered_only = len(due_mastered)
+    n_memorized = len(due_memorized)
+    n_mastered = len(due_mastered_and_memorized)
     n_learned_normal = len(due_learned_normal)
     n_learning = len(due_hard) + len(due_learning_normal)
     n_new_avail = len(priority_new_items) + len(new_items_rest)
 
-    if mode == "rescue":
+    # No 新字 anywhere? Prefer the authoritative not_tested_count; otherwise fall back to the
+    # in-window availability, but only trust it when the candidate window already covers the corpus.
+    if not_tested_count is not None:
+        no_new_available = int(not_tested_count) <= 0
+    else:
+        no_new_available = (
+            n_new_avail == 0
+            and zibiao_max_effective >= (max_zibiao_in_corpus or zibiao_max_effective)
+        )
+
+    # Mode selection: Rescue (heavy backlog) takes precedence over Deep Consolidation.
+    if total_load > ACTIVE_LOAD_CONSOLIDATION_MAX:
+        mode = "rescue"
+    elif no_new_available:
+        mode = "deep_consolidation"
+    elif total_load <= ACTIVE_LOAD_EXPANSION_MAX:
+        mode = "expansion"
+    else:
+        mode = "consolidation"
+
+    n_memorized_slots = 0
+    if mode == "deep_consolidation":
+        n_new_slots = DEEP_CONSOLIDATION_NEW
+        n_learning_slots = min(DEEP_CONSOLIDATION_LEARNING, n_learning)
+        n_learned_normal_slots = min(DEEP_CONSOLIDATION_LEARNED_NORMAL, n_learned_normal)
+        n_mastered_slots = min(DEEP_CONSOLIDATION_MASTERED, n_mastered_only)
+        n_memorized_slots = min(DEEP_CONSOLIDATION_MEMORIZED, n_memorized)
+        spare = total_target - (
+            n_learning_slots + n_learned_normal_slots + n_mastered_slots + n_memorized_slots
+        )
+        # Redistribute spare: 掌握项 (elevation) -> 普通已学项 -> 精通项 -> 在学项.
+        while spare > 0 and (
+            n_mastered_slots < n_mastered_only
+            or n_learned_normal_slots < n_learned_normal
+            or n_memorized_slots < n_memorized
+            or n_learning_slots < n_learning
+        ):
+            if n_mastered_slots < n_mastered_only:
+                n_mastered_slots += 1
+                spare -= 1
+            elif n_learned_normal_slots < n_learned_normal:
+                n_learned_normal_slots += 1
+                spare -= 1
+            elif n_memorized_slots < n_memorized:
+                n_memorized_slots += 1
+                spare -= 1
+            elif n_learning_slots < n_learning:
+                n_learning_slots += 1
+                spare -= 1
+            else:
+                break
+    elif mode == "rescue":
         n_mastered_slots = min(RESCUE_MASTERED, n_mastered)
         n_learned_normal_slots = min(RESCUE_LEARNED_NORMAL, n_learned_normal)
         n_learning_slots = min(RESCUE_LEARNING, n_learning)
@@ -1062,11 +1141,18 @@ def build_session_queue(
     learning_pool: List[Dict[str, Any]] = list(due_hard) + list(due_learning_normal)
     learning_pool = learning_pool[:n_learning_slots]
 
-    mastered_queue = due_mastered[:n_mastered_slots]
+    if mode == "deep_consolidation":
+        # 掌握项 and 精通项 stay separate so we can elevate 掌握项 and lightly touch 精通项.
+        mastered_queue = due_mastered[:n_mastered_slots]
+        memorized_queue = due_memorized[:n_memorized_slots]
+    else:
+        # Legacy modes draw the "mastered" slots from the combined 掌握项 + 精通项 pool.
+        mastered_queue = due_mastered_and_memorized[:n_mastered_slots]
+        memorized_queue = []
     learned_normal_queue = due_learned_normal[:n_learned_normal_slots]
     new_queue: List[Dict[str, Any]] = []
     seen: Set[str] = set()
-    for x in mastered_queue + learned_normal_queue + learning_pool:
+    for x in memorized_queue + mastered_queue + learned_normal_queue + learning_pool:
         seen.add(x["unit"]["unit_id"])
     for candidate in priority_new_items + new_items_rest:
         if len(new_queue) >= n_new_slots:
@@ -1077,8 +1163,11 @@ def build_session_queue(
         new_queue.append(candidate)
         seen.add(unit_id)
 
-    if mode == "rescue":
-        queue: List[Dict[str, Any]] = mastered_queue + learned_normal_queue + learning_pool + new_queue
+    if mode == "deep_consolidation":
+        # Confidence-first: 精通项 -> 掌握项 -> 普通已学项 -> 在学项 (难项 first). No 新字.
+        queue: List[Dict[str, Any]] = memorized_queue + mastered_queue + learned_normal_queue + learning_pool
+    elif mode == "rescue":
+        queue = mastered_queue + learned_normal_queue + learning_pool + new_queue
     else:
         learned_queue = learned_normal_queue + mastered_queue
         queue = learned_queue + learning_pool + new_queue

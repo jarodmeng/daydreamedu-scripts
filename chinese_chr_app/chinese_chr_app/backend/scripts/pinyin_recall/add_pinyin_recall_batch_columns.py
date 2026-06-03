@@ -2,8 +2,8 @@
 """
 Add batch_mode and batch_character_category columns to pinyin_recall_item_presented.
 
-- batch_mode: queue mode for the batch (expansion, consolidation, or rescue; Issue #12).
-- batch_character_category: character's five-band category at batch creation (new, hard, learning_normal, learned_normal, mastered).
+- batch_mode: queue mode for the batch (expansion, consolidation, rescue, or deep_consolidation; Issue #12).
+- batch_character_category: character's band category at batch creation (new, hard, learning_normal, learned_normal, mastered, memorized).
 
 Existing rows get NULL for both. Safe to run multiple times (ADD COLUMN IF NOT EXISTS).
 

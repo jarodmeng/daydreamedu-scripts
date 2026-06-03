@@ -148,7 +148,8 @@ def test_profile_progress_returns_unit_level_denominator(monkeypatch):
             "not_tested": 654,
             "learning_hard": 10,
             "learning_normal": 40,
-            "learned_mastered": 80,
+            "learned_mastered": 65,
+            "learned_memorized": 15,
             "learned_normal": 120,
         },
         PROFILE_HWXNET_TOTAL=3664,
@@ -168,6 +169,8 @@ def test_profile_progress_returns_unit_level_denominator(monkeypatch):
     assert proficiency["learned_count"] == 200
     assert proficiency["learning_count"] == 50
     assert proficiency["not_tested_count"] == 654
+    assert proficiency["learned_mastered"] == 65
+    assert proficiency["learned_memorized"] == 15
     assert practice_summary[0]["label"] == "最近7天"
     assert practice_summary[0]["active_days"] == 2
     assert practice_summary[0]["accuracy_pct"] == 78
@@ -213,6 +216,42 @@ def test_profile_category_returns_unit_entries(monkeypatch):
     assert payload["characters"] == fake_units
 
 
+def test_profile_category_accepts_learned_memorized(monkeypatch):
+    app_module.app.config["TESTING"] = True
+    _set_auth(monkeypatch)
+
+    fake_units = [
+        {
+            "unit_id": "好|hao3",
+            "character": "好",
+            "reading_key": "hao3",
+            "reading_display": "hǎo",
+            "score": 45,
+            "last_answered_at": "2026-06-01T12:00:00+00:00",
+        },
+    ]
+    captured = {}
+
+    def _by_category(user_id, category):
+        captured["category"] = category
+        return fake_units
+
+    fake_db = SimpleNamespace(get_pinyin_recall_characters_by_category=_by_category)
+    monkeypatch.setitem(sys.modules, "database", fake_db)
+
+    client = app_module.app.test_client()
+    response = client.get(
+        "/api/profile/progress/category/learned_memorized",
+        headers={"Authorization": "Bearer fake-token"},
+    )
+
+    assert response.status_code == 200
+    payload = response.get_json()
+    assert payload["category"] == "learned_memorized"
+    assert captured["category"] == "learned_memorized"
+    assert payload["units"] == fake_units
+
+
 def test_profile_sub_band_for_score_matches_table_thresholds():
     assert database_module._profile_sub_band_for_score(-25) == "难字"
     assert database_module._profile_sub_band_for_score(0) == "普通在学字"
@@ -220,6 +259,30 @@ def test_profile_sub_band_for_score_matches_table_thresholds():
     assert database_module._profile_sub_band_for_score(10) == "普通已学字"
     assert database_module._profile_sub_band_for_score(19) == "普通已学字"
     assert database_module._profile_sub_band_for_score(20) == "掌握字"
+    assert database_module._profile_sub_band_for_score(39) == "掌握字"
+    assert database_module._profile_sub_band_for_score(40) == "精通字"
+    assert database_module._profile_sub_band_for_score(100) == "精通字"
+
+
+def test_category_trend_point_includes_memorized():
+    point = database_module._category_trend_point_from_counts(
+        {
+            "learning_hard": 1,
+            "learning_normal": 2,
+            "learned_normal": 3,
+            "learned_mastered": 4,
+            "learned_memorized": 5,
+        },
+        date(2026, 6, 3),
+    )
+    assert point == {
+        "date": "2026-06-03",
+        "hard": 1,
+        "learning_normal": 2,
+        "learned_normal": 3,
+        "mastered": 4,
+        "memorized": 5,
+    }
 
 
 def test_sync_category_trend_replaces_today_with_live_counts(monkeypatch):

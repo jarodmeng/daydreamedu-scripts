@@ -8,6 +8,7 @@ const API_BASE = import.meta.env.VITE_API_URL || ''
 const CATEGORY_TITLES = {
   learning_hard: '难项',
   learning_normal: '普通（在学项）',
+  learned_memorized: '精通项',
   learned_mastered: '掌握项',
   learned_normal: '普通（已学项）',
 }
