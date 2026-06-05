@@ -460,6 +460,13 @@ body[data-buddy-console-view="inventory"] {
   cursor: pointer;
 }
 
+.inventory-legacy .card-review-status-error {
+  flex-basis: 100%;
+  margin: 0;
+  font-size: 0.7rem;
+  color: #b42318;
+}
+
 .inventory-header,
 .pdf-header {
   display: flex;

@@ -2,6 +2,20 @@
 
 All notable changes to `ai_study_buddy/buddy_console` are documented here.
 
+## [v0.1.14] - Inventory review-status toggle (2026-06-05)
+
+### Added
+
+1. Student File Browser card action **Mark review completed** / **Revert review** for marked completions (`ReviewStatusEditor`, `PATCH /api/inventory/items/{registry_file_id}/review-status`).
+
+### Fixed
+
+1. Student File Browser blank page on macOS: component import collided with helper module name on case-insensitive filesystem (`ReviewStatusEditor` + `reviewStatusEdit.ts`).
+
+### Changed
+
+1. `frontend/package.json` version aligned to `0.1.14`.
+
 ## [v0.1.13] - GoodNotes Review exclusion + amendment override cleanup (2026-06-05)
 
 ### Fixed

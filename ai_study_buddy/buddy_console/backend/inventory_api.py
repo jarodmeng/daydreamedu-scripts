@@ -26,6 +26,9 @@ from ai_study_buddy.files import (
 )
 from ai_study_buddy.files.main_pdfs import OnDiskMainPdfRow
 from ai_study_buddy.files.pdf_registry_paths import RegistryPathIndex, is_pdf_registered
+from ai_study_buddy.marking.core.artifact_lookup import find_marking_artifacts_for_attempt
+from ai_study_buddy.marking.review.note_service import ReviewStateWriteError, put_review_state
+from ai_study_buddy.marking.review.payload_reader import read_marking_result_payload
 from ai_study_buddy.marking.review.repository import StudentReviewRepository
 from ai_study_buddy.pdf_file_manager import PdfFileManager
 from ai_study_buddy.pdf_file_manager.completion_date import CompletionDateRecord
@@ -209,6 +212,10 @@ class CompletionDatePatchBody(BaseModel):
     completion_date: str = Field(min_length=1)
 
 
+class ReviewStatusPatchBody(BaseModel):
+    review_status: str = Field(pattern=r"^(completed|not_started)$")
+
+
 def _workflow_context_stamp(context_root: Path) -> float:
     """Cheap fingerprint for marking/review JSON trees (invalidates enriched cache when changed)."""
     best = 0.0
@@ -372,6 +379,82 @@ def patch_inventory_completion_date(
         "registry_file_id": registry_file_id,
         "completion_date": row.completion_date,
         "completion_date_source": row.source,
+    }
+
+
+@router.patch("/api/inventory/items/{registry_file_id}/review-status")
+def patch_inventory_review_status(
+    request: Request,
+    registry_file_id: str,
+    body: ReviewStatusPatchBody,
+) -> dict[str, str]:
+    runtime = _get_runtime(request)
+    try:
+        pfm = PdfFileManager()
+    except Exception as exc:
+        raise HTTPException(status_code=503, detail="Registry unavailable") from exc
+
+    completion = pfm.get_file(registry_file_id)
+    if completion is None:
+        raise HTTPException(status_code=404, detail="File not found")
+
+    refs = find_marking_artifacts_for_attempt(
+        registry_file_id,
+        manager=pfm,
+        context_root=runtime.context_root,
+    )
+    if not refs:
+        raise HTTPException(status_code=400, detail="No marking artifact for this completion")
+
+    latest_ref = refs[0]
+    payload = read_marking_result_payload(
+        marking_result_json=latest_ref.marking_result_json,
+        context_root=runtime.context_root,
+    )
+    context = payload.get("context") if isinstance(payload, dict) else {}
+    if not isinstance(context, dict):
+        context = {}
+    student_id = (
+        context.get("student_id")
+        if isinstance(context.get("student_id"), str)
+        else (completion.student_id or "unknown")
+    )
+    subject_context = (
+        context.get("subject_context")
+        if isinstance(context.get("subject_context"), str)
+        else "unknown"
+    )
+    artifact_stem = latest_ref.marking_result_json.stem
+
+    review_repo = StudentReviewRepository(context_root=runtime.context_root)
+    existing = review_repo.load_review_state(
+        student_id=student_id,
+        subject_context=subject_context,
+        artifact_stem=artifact_stem,
+    )
+
+    try:
+        result = put_review_state(
+            attempt_id=registry_file_id,
+            body={
+                "review_status": body.review_status,
+                "question_reviews": existing.get("question_reviews", []),
+                "attempt_notes": existing.get("attempt_notes", []),
+                "student_subject_notes": existing.get("student_subject_notes", []),
+                "updated_by": "buddy_console_inventory",
+            },
+            context_root=runtime.context_root,
+            manager=pfm,
+            review_repo=review_repo,
+        )
+    except ReviewStateWriteError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    invalidate_enriched_cache(request.app)
+
+    return {
+        "registry_file_id": registry_file_id,
+        "review_status": result["review_state"]["review_status"],
     }
 
 

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import CompletionDateEditor from "./CompletionDateEditor";
+import ReviewStatusEditor from "./ReviewStatusEditor";
 import { buildPdfHref, buildReviewHref } from "./inventoryLinks";
 import MultiSelectFilter from "./MultiSelectFilter";
 import {
@@ -701,6 +702,7 @@ export default function InventoryApp() {
                     Review Workspace
                   </a>
                 ) : null}
+                <ReviewStatusEditor item={item} onSaved={reloadInventory} />
               </div>
             </article>
           );
