@@ -2,7 +2,7 @@
 
 This document is the **contract** for the public Python API of `ai_study_buddy.files`. It is registry-agnostic: no SQLite, no `PdfFileManager`, no scan-root configuration.
 
-**Version:** align with [README.md](./README.md) (package **v0.3.10**; runtime: `ai_study_buddy.files.__version__`).
+**Version:** align with [README.md](./README.md) (package **v0.3.11**; runtime: `ai_study_buddy.files.__version__`).
 
 Core leaf listing and root resolution are **registry-agnostic**. Optional correlation with `pdf_file_manager` / `pdf_registry.db` lives in **`pdf_registry_paths.py`** (see §3).
 
@@ -68,7 +68,8 @@ Builds an internal excluded set from **all** leaves (under the same suffix set),
 
 - equals `root` (resolved), or
 - has any path segment matching regex `^x[A-Z].*$` (segment name only), or
-- when **`exclude_not_completed`** is `True` (default): has any path segment equal to `Not completed` (case-insensitive). When `False`, those leaves stay **included** (e.g. browse WIP completion PDFs); root and x-prefix exclusions still apply.
+- has any path segment equal to `Review` (case-insensitive; GoodNotes post-review backup subtree), or
+- when **`exclude_not_completed`** is `True` (default): has any path segment equal to `Not completed` (case-insensitive). When `False`, those leaves stay **included** (e.g. browse WIP completion PDFs); root, x-prefix, and `Review` exclusions still apply.
 
 Then calls `list_leaf_folders_under_root` with that excluded set.
 
@@ -79,7 +80,7 @@ Builds an internal excluded set: any leaf that equals `root` (resolved) — the 
 ### 2.5 `is_goodnotes_excluded_relative_path(rel: str, *, exclude_not_completed=True) -> bool`
 
 - **Input *rel*:** a path string relative to ``GOODNOTES_ROOT``, using `/` segments (may be normalized by the caller). Empty or whitespace-only means the sync root itself → returns `False`.
-- **True** if any non-empty path segment matches `^x[A-Z].*$`, or (when *exclude_not_completed* is `True`) any segment equals `Not completed` case-insensitively.
+- **True** if any non-empty path segment matches `^x[A-Z].*$`, equals `Review` case-insensitively, or (when *exclude_not_completed* is `True`) any segment equals `Not completed` case-insensitively.
 - **Purpose:** single source for GoodNotes “structural” exclusions when walking a tree (for example `root_pdf_browser`), without duplicating regex rules. Aligns with `list_goodnotes_leaf_folders_under_root` when the same *exclude_not_completed* flag is passed.
 
 ---

@@ -471,6 +471,27 @@ export function pickMeaningfulDraft(
   return out;
 }
 
+/** Fields to persist: overrides from AI base. Clears stale saved overrides when draft matches base. */
+export function pickAmendmentFieldsForSave(
+  draft: Record<string, unknown>,
+  persisted: Record<string, unknown>,
+  baseByField: (field: EditableFieldKey) => unknown,
+): Record<string, unknown> {
+  const out: Record<string, unknown> = {};
+  const fields = new Set([...Object.keys(draft), ...Object.keys(persisted)] as EditableFieldKey[]);
+  fields.forEach((field) => {
+    const raw = Object.prototype.hasOwnProperty.call(draft, field)
+      ? draft[field]
+      : Object.prototype.hasOwnProperty.call(persisted, field)
+        ? persisted[field]
+        : baseByField(field);
+    if (fieldMeaningfullyChanged(field, raw, baseByField(field))) {
+      out[field] = normalizeComparableFieldValue(field, raw);
+    }
+  });
+  return out;
+}
+
 function savedQuestionFields(amendmentState: AmendmentState | undefined, resultId: string): Record<string, unknown> {
   const row = amendmentState?.question_amendments.find((item) => item.result_id === resultId);
   return row?.fields ?? {};
@@ -683,18 +704,27 @@ function WorkspaceView({
       ),
     [amendmentDraft, activeBaseQuestion, activeBasePageMap],
   );
-  const meaningfulAmendmentDraftForSave = useMemo(
+  const amendmentFieldsForSave = useMemo(
     () =>
-      pickMeaningfulDraft(amendmentDraft, (field) =>
+      pickAmendmentFieldsForSave(amendmentDraft, persistedAmendmentDraft, (field) =>
         field === "page_map.confidence"
           ? activeBasePageMap?.confidence ?? null
           : getQuestionFieldValue(activeBaseQuestion, field),
       ),
-    [amendmentDraft, activeBaseQuestion, activeBasePageMap],
+    [amendmentDraft, persistedAmendmentDraft, activeBaseQuestion, activeBasePageMap],
+  );
+  const persistedAmendmentFieldsForSave = useMemo(
+    () =>
+      pickAmendmentFieldsForSave(persistedAmendmentDraft, {}, (field) =>
+        field === "page_map.confidence"
+          ? activeBasePageMap?.confidence ?? null
+          : getQuestionFieldValue(activeBaseQuestion, field),
+      ),
+    [persistedAmendmentDraft, activeBaseQuestion, activeBasePageMap],
   );
   const amendmentDirty = useMemo(
-    () => !valuesEqual(meaningfulAmendmentDraft, meaningfulPersistedAmendmentDraft),
-    [meaningfulAmendmentDraft, meaningfulPersistedAmendmentDraft],
+    () => !valuesEqual(amendmentFieldsForSave, persistedAmendmentFieldsForSave),
+    [amendmentFieldsForSave, persistedAmendmentFieldsForSave],
   );
 
   useEffect(() => {
@@ -844,7 +874,7 @@ function WorkspaceView({
     if (!activeQuestionId || !amendmentDirty) {
       return;
     }
-    if (needsReviewerReason(meaningfulAmendmentDraftForSave) && reviewerReason.trim().length === 0) {
+    if (needsReviewerReason(amendmentFieldsForSave) && reviewerReason.trim().length === 0) {
       setAmendmentSaveStatus("error");
       setAmendmentError("Reviewer reason is required for score-changing amendments.");
       return;
@@ -853,7 +883,7 @@ function WorkspaceView({
     const pageMapAmendment: Record<string, unknown> = { result_id: activeQuestionId };
     let hasPageMapChange = false;
 
-    Object.entries(meaningfulAmendmentDraftForSave).forEach(([field, value]) => {
+    Object.entries(amendmentFieldsForSave).forEach(([field, value]) => {
       if (field === "attempt_page_start") {
         pageMapAmendment.attempt_page_start = value;
         hasPageMapChange = true;
@@ -866,7 +896,7 @@ function WorkspaceView({
     });
 
     const questionAmendments =
-      Object.keys(questionFields).length > 0
+      Object.keys(questionFields).length > 0 || Object.keys(persistedAmendmentFieldsForSave).length > 0
         ? [
             {
               result_id: activeQuestionId,

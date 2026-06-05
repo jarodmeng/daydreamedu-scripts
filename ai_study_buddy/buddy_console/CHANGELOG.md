@@ -2,6 +2,18 @@
 
 All notable changes to `ai_study_buddy/buddy_console` are documented here.
 
+## [v0.1.13] - GoodNotes Review exclusion + amendment override cleanup (2026-06-05)
+
+### Fixed
+
+1. Amendment save: `pickAmendmentFieldsForSave` clears stale persisted overrides when the draft matches the AI base (`App.tsx`, `App.test.ts`).
+
+### Changed
+
+1. `frontend/package.json` version aligned to `0.1.13`.
+2. Requires `ai_study_buddy.files` v0.3.11+ (GoodNotes `Review` subtree excluded from inventory index).
+3. Requires `ai_study_buddy.marking` v0.3.19+.
+
 ## [v0.1.12] - Inventory multi-select facets (2026-06-03)
 
 ### Fixed

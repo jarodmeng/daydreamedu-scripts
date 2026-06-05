@@ -524,16 +524,20 @@ def _is_string_list(value: Any) -> bool:
 
 def _upsert_question_amendment(rows: list[dict[str, Any]], incoming: dict[str, Any]) -> None:
     result_id = incoming["result_id"]
+    incoming_fields = incoming.get("fields") if isinstance(incoming.get("fields"), dict) else {}
     for index, row in enumerate(rows):
         if row.get("result_id") == result_id:
-            fields = row.get("fields") if isinstance(row.get("fields"), dict) else {}
-            rows[index] = {
-                **row,
-                **incoming,
-                "fields": {**fields, **incoming.get("fields", {})},
-            }
+            if not incoming_fields:
+                rows.pop(index)
+            else:
+                rows[index] = {
+                    **row,
+                    **incoming,
+                    "fields": incoming_fields,
+                }
             return
-    rows.append(incoming)
+    if incoming_fields:
+        rows.append(incoming)
 
 
 def _upsert_page_map_amendment(rows: list[dict[str, Any]], incoming: dict[str, Any]) -> None:

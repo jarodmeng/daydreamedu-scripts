@@ -22,6 +22,7 @@ Implement this command **exclusively** through **`ai_study_buddy.files.pdf_regis
 
 - **Leaf folder:** A directory under the GoodNotes root that has **at least one `*.pdf` file directly inside it**, regardless of whether it has subdirectories.
 - **Excluded folder subtree:** Any directory whose path contains a segment named exactly `Not completed` (case-insensitive). Exclude these directories and all descendants from traversal and reporting.
+- **Excluded folder subtree (Review):** Any directory whose path contains a segment named exactly `Review` (case-insensitive). GoodNotes post-review backup exports; exclude from traversal and reporting (canonical completions live under DaydreamEdu).
 - **Excluded folder subtree (x-prefix):** Any directory whose path contains a segment matching regex `^x[A-Z].*$` (lowercase `x`, second character uppercase). Exclude these directories and all descendants from traversal and reporting.
 - **Excluded leaf folders:** Treat these relative paths as fully excluded from `leaf_folders_total` and every subsequent count/table in this report:
   - `.`

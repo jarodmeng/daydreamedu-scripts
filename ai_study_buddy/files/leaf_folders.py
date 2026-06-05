@@ -58,6 +58,11 @@ def _goodnotes_segment_x_prefix_excluded(segment: str) -> bool:
     return bool(_GOODNOTES_X_PREFIX_SEGMENT_RE.fullmatch(segment))
 
 
+def _goodnotes_segment_review_excluded(segment: str) -> bool:
+    """GoodNotes post-review backup subtree (second-order exports; not inventory gaps)."""
+    return segment.casefold() == "review"
+
+
 def _rel_segments_normalized(rel: str) -> tuple[str, ...]:
     rel = (rel or "").strip().replace("\\", "/")
     while "//" in rel:
@@ -71,11 +76,14 @@ def _rel_segments_normalized(rel: str) -> tuple[str, ...]:
 def is_goodnotes_excluded_relative_path(rel: str, *, exclude_not_completed: bool = True) -> bool:
     """True when *rel* should be omitted under ``GOODNOTES_ROOT`` (POSIX segments).
 
-    Always excludes segments matching ``^x[A-Z].*$``. Excludes ``Not completed`` segments
-    when *exclude_not_completed* is True (default); pass False so WIP *Not completed*
-    trees stay visible (e.g. ``root_pdf_browser``). Empty *rel* is never excluded."""
+    Always excludes segments matching ``^x[A-Z].*$`` and any segment named ``Review``
+    (case-insensitive). Excludes ``Not completed`` segments when *exclude_not_completed*
+    is True (default); pass False so WIP *Not completed* trees stay visible (e.g.
+    ``root_pdf_browser``). Empty *rel* is never excluded."""
     for part in _rel_segments_normalized(rel):
         if _goodnotes_segment_x_prefix_excluded(part):
+            return True
+        if _goodnotes_segment_review_excluded(part):
             return True
         if exclude_not_completed and part.casefold() == "not completed":
             return True
@@ -100,6 +108,9 @@ def _goodnotes_excluded_leaf_folders(
             excluded.add(leaf)
             continue
         if any(_goodnotes_segment_x_prefix_excluded(part) for part in rel_parts):
+            excluded.add(leaf)
+            continue
+        if any(_goodnotes_segment_review_excluded(part) for part in rel_parts):
             excluded.add(leaf)
             continue
         if exclude_not_completed and any(part.casefold() == "not completed" for part in rel_parts):

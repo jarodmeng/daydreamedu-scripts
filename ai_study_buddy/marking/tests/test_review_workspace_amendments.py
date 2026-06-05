@@ -375,6 +375,37 @@ def test_panel_save_auto_sets_outcome_to_correct_when_earned_marks_matches_amend
     assert fields["outcome"] == "correct"
 
 
+def test_panel_save_clears_stale_question_override_when_fields_empty():
+    base = _base_payload()
+    base["question_results"][1]["student_answer"] = "$214"
+    existing = normalize_amendment_state(
+        {
+            "question_amendments": [
+                {
+                    "result_id": "Q2",
+                    "fields": {"student_answer": "$213"},
+                }
+            ]
+        },
+        context=_context(base),
+    )
+
+    merged = merge_panel_amendment(
+        existing_state=existing,
+        body={
+            "updated_by": "review_workspace_ui",
+            "question_amendments": [{"result_id": "Q2", "fields": {}}],
+        },
+        base_payload=base,
+        context=_context(base),
+        valid_attempt_pages={1, 2},
+    )
+
+    assert merged["question_amendments"] == []
+    resolved = resolve_marking_result(base_payload=base, amendment_state=merged)
+    assert resolved["question_results"][1]["student_answer"] == "$214"
+
+
 def test_amendment_api_saves_overlay_and_returns_resolved_payload(tmp_path, monkeypatch):
     # This test uses filesystem-backed artifacts under tmp_path; ensure we don't
     # force DB reads (which would require a populated study_buddy.db).

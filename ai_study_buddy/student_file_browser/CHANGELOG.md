@@ -1,5 +1,9 @@
 # Changelog — `student_file_browser`
 
+## [v0.1.11] — GoodNotes Review exclusion docs (2026-06-05)
+
+- README: GoodNotes leaf listing excludes post-review `Review` subtrees (requires `files` v0.3.11+).
+
 ## [v0.1.10] — Multi-select Subject / Grade / Type (2026-06-03)
 
 - Checkbox facet pickers for **Subject**, **Grade**, and **Type** (repeated query params, e.g. `?subject=math&subject=science`).

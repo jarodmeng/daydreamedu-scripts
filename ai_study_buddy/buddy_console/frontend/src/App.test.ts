@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { fieldMeaningfullyChanged, pickMeaningfulDraft, questionHasMeaningfulSavedAmendment } from "./App";
+import {
+  fieldMeaningfullyChanged,
+  pickAmendmentFieldsForSave,
+  pickMeaningfulDraft,
+  questionHasMeaningfulSavedAmendment,
+} from "./App";
 
 describe("amendment meaningful-change detection", () => {
   it("treats equal amendment values as no-op (no meaningful amendment)", () => {
@@ -66,5 +71,15 @@ describe("amendment meaningful-change detection", () => {
     expect(fieldMeaningfullyChanged("earned_marks", "1", 1)).toBe(false);
     expect(fieldMeaningfullyChanged("student_answer", "  ", null)).toBe(false);
     expect(fieldMeaningfullyChanged("skill_tags", ["a", " b "], ["a", "b"])).toBe(false);
+  });
+
+  it("clears stale persisted overrides when draft matches AI base", () => {
+    const baseByField = (field: string) => (field === "student_answer" ? "$214" : null);
+    const fields = pickAmendmentFieldsForSave(
+      { student_answer: "$214" },
+      { student_answer: "$213" },
+      baseByField,
+    );
+    expect(fields).toEqual({});
   });
 });

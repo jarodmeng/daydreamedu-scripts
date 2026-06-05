@@ -24,7 +24,7 @@ flowchart LR
     DT["template subtree\ntemplate/&lt;subject&gt;/&lt;grade&gt;/&lt;type&gt;/&lt;optional book name&gt;/file.pdf"]
     DC["completion subtree\ncompletion/&lt;subject&gt;/&lt;student&gt;/&lt;grade&gt;/&lt;type&gt;/&lt;optional book name&gt;/file.pdf"]
 
-    GEX["Coverage / leaf-report exclusions (examples)\n- root leaf '.'\n- 'Not completed' subtree (reports only; nuance ↓ Notes)\n- segment matching xUppercase... pattern (structural)"]
+    GEX["Coverage / leaf-report exclusions (examples)\n- root leaf '.'\n- 'Not completed' subtree (reports only; nuance ↓ Notes)\n- 'Review' subtree (GoodNotes post-review backups)\n- segment matching xUppercase... pattern (structural)"]
     GC["completion subtree\n&lt;subject&gt;/&lt;student&gt;/&lt;grade&gt;/&lt;type&gt;/&lt;optional book name&gt;/file.pdf"]
 
     D --> DEX
@@ -282,7 +282,7 @@ Use `ai_study_buddy.files` as the centralized file-utility surface for determini
 - **Roots + leaf folders (registry-agnostic):**
   - `resolve_daydreamedu_root()`, `resolve_goodnotes_root()`
   - `list_leaf_folders_under_root()`, `list_daydreamedu_leaf_folders_under_root()`, `list_goodnotes_leaf_folders_under_root()`
-  - `is_goodnotes_excluded_relative_path(...)` for structural GoodNotes exclusions (including optional `exclude_not_completed`)
+  - `is_goodnotes_excluded_relative_path(...)` for structural GoodNotes exclusions (`Review`, x-prefix, optional `exclude_not_completed`)
 - **Registry correlation (read-only, via `PdfFileManager` rows):**
   - `RegistryPathIndex.from_pdf_file_manager(pfm)` builds canonical resolved-path sets and row counts.
   - Leaf partition/profile helpers: `partition_daydreamedu_leaf_folders(...)`, `partition_goodnotes_leaf_folders(...)`.

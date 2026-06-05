@@ -4,6 +4,17 @@ All notable changes to `ai_study_buddy/review_workspace` are documented here.
 
 ---
 
+## [v0.1.11] — Amendment override cleanup (2026-06-05)
+
+### Fixed
+
+- Amendment save: `pickAmendmentFieldsForSave` clears stale persisted overrides when the draft matches the AI base (`App.tsx`; same fix as `buddy_console` v0.1.13).
+
+### Changed
+
+- `frontend/package.json` version aligned to `0.1.11`.
+- Requires `ai_study_buddy.marking` v0.3.19+.
+
 ## [v0.1.10] — Question navigation vs URL deep link (2026-06-03)
 
 ### Fixed

@@ -4,6 +4,18 @@ All notable changes to `ai_study_buddy.marking` are documented in this file.
 
 Committed changes under `ai_study_buddy/marking/` should add an entry here and bump **Current version** in `README.md` (semver: **patch** for docs or small renderer tweaks, **minor** for schema or public API changes). `SPEC.md` / `TESTING.md` titles do not carry the package version.
 
+## [0.3.19] - 2026-06-05
+
+Patch: clear stale question amendments when save sends empty fields.
+
+### Changed
+
+- `marking/review/amendment_service.py`: `_upsert_question_amendment` removes the row when incoming `fields` is empty; non-empty `fields` replaces the stored override (no merge with stale values).
+
+### Added
+
+- `marking/tests/test_review_workspace_amendments.py`: regression for clearing a stale override via `{ result_id, fields: {} }`.
+
 ## [0.3.18] - 2026-06-02
 
 Patch: enforce score/outcome consistency for review amendments.

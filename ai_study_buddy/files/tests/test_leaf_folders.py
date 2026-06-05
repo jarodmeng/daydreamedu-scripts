@@ -78,6 +78,19 @@ def test_is_goodnotes_excluded_relative_path_empty_and_not_completed_toggle() ->
     )
     assert is_goodnotes_excluded_relative_path("xNotes")
     assert is_goodnotes_excluded_relative_path("Math/xArchived", exclude_not_completed=False)
+    assert is_goodnotes_excluded_relative_path("P6/Exam/Review")
+    assert is_goodnotes_excluded_relative_path("P6/Exam/Review", exclude_not_completed=False)
+
+
+def test_goodnotes_excludes_review_subtree_even_when_not_completed_included(
+    goodnotes_profile_root,
+):
+    leaves = list_goodnotes_leaf_folders_under_root(
+        goodnotes_profile_root,
+        exclude_not_completed=False,
+    )
+    paths = {str(p) for p in leaves}
+    assert not any("/Review" in p or p.endswith("/Review") for p in paths)
 
 
 def test_goodnotes_x_prefix_requires_uppercase_second_letter(tmp_path: Path):

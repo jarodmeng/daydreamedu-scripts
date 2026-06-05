@@ -4,6 +4,11 @@ All notable changes to the **`ai_study_buddy.files`** package are documented her
 
 ---
 
+## [v0.3.11] — GoodNotes `Review` folder exclusion
+
+- **`list_goodnotes_leaf_folders_under_root`** / **`is_goodnotes_excluded_relative_path`:** omit any leaf or relative path with a `Review` segment (case-insensitive), always (same structural class as x-prefix). GoodNotes post-review backup PDFs under `…/Review/` are not indexed for operator inventory or leaf-registry reports.
+- Consumers: `student_file_browser`, `buddy_console` inventory (restart to refresh index).
+
 ## [v0.3.10] — Multi-select Subject / Grade / Type filters
 
 - **`FilterCriteria`:** `subject`, `grade`, and `doc_type` are tuples (`()` = no restriction); legacy single-string values still normalize in `__post_init__`.
