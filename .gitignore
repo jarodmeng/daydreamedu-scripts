@@ -86,3 +86,6 @@ ai_study_buddy/pdf_file_manager/scripts/archive/
 # ---- split_book_answer_by_unit_using_ai (generated batch I/O) ----
 ai_study_buddy/split_book_answer_by_unit_using_ai/batch_artifacts/
 ai_study_buddy/split_book_answer_by_unit_using_ai/pilot_ground_truth/
+
+# ---- batch_mark_student_work (local queue JSON, not tracked) ----
+utility_scripts/batch_mark_student_work/queues/
