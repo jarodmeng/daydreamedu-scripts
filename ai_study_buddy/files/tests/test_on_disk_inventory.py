@@ -220,9 +220,15 @@ def test_workflow_filter_options_shown_when_multiple_values() -> None:
         _card(is_registered=True, has_template=True, has_marking=True, review_status="completed"),
         _card(
             is_registered=True,
+            has_template=True,
+            has_marking=True,
+            review_status="not_started",
+        ),
+        _card(
+            is_registered=True,
             has_template=False,
             has_marking=False,
-            review_status="not_started",
+            review_status=None,
         ),
     ]
     opts = workflow_filter_options(cards, FilterCriteria(scope="completion"))
@@ -237,8 +243,8 @@ def test_workflow_filter_options_shown_when_multiple_values() -> None:
 def test_workflow_filter_options_hidden_when_uniform_multi_file() -> None:
     """≥2 registered completions with identical flags → no workflow filters (nothing to narrow)."""
     cards = [
-        _card(is_registered=True, has_template=True, has_marking=False, review_status="not_started"),
-        _card(is_registered=True, has_template=True, has_marking=False, review_status="not_started"),
+        _card(is_registered=True, has_template=True, has_marking=False, review_status=None),
+        _card(is_registered=True, has_template=True, has_marking=False, review_status=None),
     ]
     opts = workflow_filter_options(cards, FilterCriteria(scope="completion"))
     assert not opts.show_has_template_filter
@@ -250,7 +256,7 @@ def test_workflow_filter_options_hidden_when_uniform_multi_file() -> None:
 
 def test_workflow_filter_options_hidden_for_single_registered() -> None:
     cards = [
-        _card(is_registered=True, has_template=True, has_marking=False, review_status="not_started"),
+        _card(is_registered=True, has_template=True, has_marking=False, review_status=None),
     ]
     opts = workflow_filter_options(cards, FilterCriteria(scope="completion"))
     assert not opts.show_has_template_filter
@@ -260,8 +266,8 @@ def test_workflow_filter_options_hidden_for_single_registered() -> None:
 
 def test_filter_main_pdf_cards_has_template_and_review() -> None:
     cards = [
-        _card(is_registered=True, has_template=True, review_status="completed"),
-        _card(is_registered=True, has_template=False, review_status="not_started"),
+        _card(is_registered=True, has_template=True, has_marking=True, review_status="completed"),
+        _card(is_registered=True, has_template=False, has_marking=True, review_status="not_started"),
     ]
     filtered = filter_main_pdf_cards(
         cards,
@@ -269,6 +275,101 @@ def test_filter_main_pdf_cards_has_template_and_review() -> None:
     )
     assert len(filtered) == 1
     assert filtered[0].has_template is True
+
+
+def test_workflow_filter_options_review_counts_marked_only() -> None:
+    marked = [
+        _card(is_registered=True, has_template=True, has_marking=True, review_status="completed")
+        for _ in range(80)
+    ]
+    unmarked = [
+        _card(is_registered=True, has_template=True, has_marking=False, review_status=None)
+    ]
+    opts = workflow_filter_options(
+        marked + unmarked,
+        FilterCriteria(scope="completion", has_marking="true"),
+    )
+    assert opts.review_status_counts[""] == 80
+    assert opts.review_status_counts["completed"] == 80
+
+
+def test_filter_main_pdf_cards_review_status_excludes_unmarked() -> None:
+    cards = [
+        _card(is_registered=True, has_template=True, has_marking=False, review_status=None),
+        _card(is_registered=True, has_template=True, has_marking=True, review_status="not_started"),
+    ]
+    filtered = filter_main_pdf_cards(
+        cards,
+        FilterCriteria(scope="completion", review_status="not_started"),
+    )
+    assert len(filtered) == 1
+    assert filtered[0].has_marking is True
+
+
+def test_enrich_on_disk_main_pdf_unmarked_omits_review_status() -> None:
+    from ai_study_buddy.files.path_facets import PathFacets
+    from ai_study_buddy.pdf_file_manager.pdf_file_manager import PdfFile
+
+    path = Path("/tmp/winston/_c_unmarked.pdf")
+    facets = PathFacets(
+        root_id="daydreamedu",
+        scope="completion",
+        subject="math",
+        grade_or_scope="P6",
+        doc_type="book",
+        book_group_name=None,
+        student_email="winston@example.com",
+        parse_status="ok",
+    )
+    row = OnDiskMainPdfRow(absolute_path=path, basename="_c_unmarked.pdf", root_id="daydreamedu", facets=facets)
+    pdf_file = PdfFile(
+        id="completion-unmarked",
+        name="_c_unmarked.pdf",
+        path=str(path),
+        file_type="main",
+        doc_type="book",
+        student_id="winston",
+        subject="math",
+        is_template=False,
+        size_bytes=10,
+        page_count=1,
+        has_raw=False,
+        metadata=None,
+        added_at="2026-01-01T00:00:00Z",
+        updated_at="2026-01-01T00:00:00Z",
+        notes=None,
+    )
+    index = MagicMock()
+    index.file_by_resolved_path = {path.resolve().as_posix(): pdf_file}
+    pfm = MagicMock()
+    pfm.get_template.return_value = MagicMock(id="template-1")
+    pfm.get_completion_series_member.return_value = None
+    pfm.get_completion_date.return_value = None
+    review_repo = MagicMock()
+    with patch(
+        "ai_study_buddy.files.on_disk_inventory.is_pdf_registered",
+        return_value=True,
+    ), patch(
+        "ai_study_buddy.files.on_disk_inventory.has_template_link",
+        return_value=True,
+    ), patch(
+        "ai_study_buddy.files.on_disk_inventory.enrich_registered_completion",
+    ) as enrich_mock:
+        enrich_mock.return_value = MagicMock(
+            has_marking=False,
+            has_marking_amendment=False,
+            review_status="not_started",
+        )
+        card = enrich_on_disk_main_pdf(
+            row,
+            index=index,
+            pfm=pfm,
+            review_repo=review_repo,
+            context_root=Path("/ctx"),
+        )
+
+    assert card.has_marking is False
+    assert card.review_status is None
 
 
 def test_workflow_filter_options_template_only_true_in_slice() -> None:

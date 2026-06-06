@@ -275,7 +275,8 @@ def workflow_filter_options(
 
     template_vals = {c.has_template for c in registered}
     marking_vals = {c.has_marking for c in registered}
-    review_vals = {c.review_status for c in registered if c.review_status}
+    reviewable = [c for c in subset if c.has_marking is True]
+    review_vals = {c.review_status for c in reviewable if c.review_status}
 
     has_template_options = _bool_query_options(template_vals)
     has_marking_options = _bool_query_options(marking_vals)
@@ -295,10 +296,10 @@ def workflow_filter_options(
         has_marking_options,
         lambda c: c.has_marking is True,
     )
-    review_status_counts: dict[str, int] = {"": len(subset)}
+    review_status_counts: dict[str, int] = {"": len(reviewable)}
     for status in review_status_options:
         review_status_counts[status] = sum(
-            1 for c in subset if (c.review_status or "") == status
+            1 for c in reviewable if (c.review_status or "") == status
         )
 
     return WorkflowFilterOptions(
@@ -567,7 +568,7 @@ def enrich_on_disk_main_pdf(
     )
     card.has_marking = workflow.has_marking
     card.has_marking_amendment = workflow.has_marking_amendment
-    card.review_status = workflow.review_status
+    card.review_status = workflow.review_status if workflow.has_marking else None
     card.marking_earned_marks = workflow.marking_earned_marks
     card.marking_total_marks = workflow.marking_total_marks
     card.marking_percentage = workflow.marking_percentage

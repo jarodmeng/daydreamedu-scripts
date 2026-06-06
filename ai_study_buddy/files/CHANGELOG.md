@@ -4,6 +4,14 @@ All notable changes to the **`ai_study_buddy.files`** package are documented her
 
 ---
 
+## [v0.3.12] — Review facet scoped to marked completions
+
+- **`enrich_on_disk_main_pdf`:** set `review_status` to `None` on inventory cards when `has_marking` is false (review applies only after a completion has been marked).
+- **`workflow_filter_options`:** build review-status dropdown options and counts from marked completions only (`has_marking is True`); “All” count matches the marked subset so Review “All” aligns with Marking = Marked when that filter is active.
+- **Filtering:** `review_status` query values no longer match unmarked cards (they carry `review_status=None` after enrichment).
+- **Tests:** `test_on_disk_inventory.py` — marked-only review counts, review filter excludes unmarked, enrich omits review on unmarked.
+- **Consumers:** `student_file_browser`, `buddy_console` inventory (restart backend to refresh index).
+
 ## [v0.3.11] — GoodNotes `Review` folder exclusion
 
 - **`list_goodnotes_leaf_folders_under_root`** / **`is_goodnotes_excluded_relative_path`:** omit any leaf or relative path with a `Review` segment (case-insensitive), always (same structural class as x-prefix). GoodNotes post-review backup PDFs under `…/Review/` are not indexed for operator inventory or leaf-registry reports.
