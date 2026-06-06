@@ -2,6 +2,18 @@
 
 All notable changes to `ai_study_buddy/buddy_console` are documented here.
 
+## [v0.1.15] - Review inventory facet + workspace deep links (2026-06-06)
+
+### Fixed
+
+1. **Student File Browser (review state):** unmarked completions no longer show **Review: not started** or appear in Review facet counts; Review “All” matches Marked count when Marking = Marked (inventory cards come from `ai_study_buddy.files` v0.3.12+).
+2. **Review workspace deep links:** opening a marking review with `result_id` / `question_index` in the URL (including parenthetical IDs such as `Q17(b)`) now selects that question on load instead of defaulting to the first incorrect item (`WorkspaceView` initial state + image sync).
+
+### Changed
+
+1. Requires `ai_study_buddy.files` v0.3.12+ (restart inventory backend to refresh index).
+2. `frontend/package.json` version aligned to `0.1.15`.
+
 ## [v0.1.14] - Inventory review-status toggle (2026-06-05)
 
 ### Added

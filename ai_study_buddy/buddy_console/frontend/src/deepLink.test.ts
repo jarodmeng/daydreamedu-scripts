@@ -106,6 +106,15 @@ describe("review workspace deep links", () => {
     ).toBe("?attempt_id=d88d78e1-0844-44c4-be4e-230651166612&student_id=winston");
   });
 
+  it("parses parenthetical result_id values", () => {
+    expect(parseDeepLinkParams("?result_id=Q17%28b%29&question_index=21")).toEqual({
+      attemptId: null,
+      studentId: null,
+      resultId: "Q17(b)",
+      questionIndex: 21,
+    });
+  });
+
   it("builds empty search when no params", () => {
     expect(buildReviewWorkspaceSearch({})).toBe("");
     expect(buildReviewWorkspaceSearch({ studentId: "winston" })).toBe("?student_id=winston");

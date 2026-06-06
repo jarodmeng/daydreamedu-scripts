@@ -564,7 +564,10 @@ function WorkspaceView({
 }) {
   const [viewerMode, setViewerMode] = useState<ViewerMode>("attempt");
   const [viewerZoomPct, setViewerZoomPct] = useState<number>(50);
-  const [activeQuestionId, setActiveQuestionId] = useState<string>("");
+  const [activeQuestionId, setActiveQuestionId] = useState<string>(() => {
+    const initialQuestions = detail.marking_result?.question_results ?? [];
+    return initialResultId ?? resolveRequestedQuestionIdFromCurrentUrl(initialQuestions) ?? "";
+  });
   const [activeImageUrl, setActiveImageUrl] = useState<string | null>(null);
   const [noteScope, setNoteScope] = useState<NoteScope>("question");
   const [notesExpanded, setNotesExpanded] = useState<boolean>(false);
@@ -636,7 +639,12 @@ function WorkspaceView({
     }
     const selectedQuestion = questions.find((q) => q.result_id === activeQuestionId);
     if (!activeQuestionId || !selectedQuestion) {
-      const priorityQuestion = questions.find((q) => isIncorrectQuestion(q)) ?? questions[0];
+      const deepLinkId = initialResultId ?? resolveRequestedQuestionIdFromCurrentUrl(questions);
+      const deepLinkedQuestion = deepLinkId
+        ? questions.find((row) => row.result_id === deepLinkId)
+        : undefined;
+      const priorityQuestion =
+        deepLinkedQuestion ?? questions.find((q) => isIncorrectQuestion(q)) ?? questions[0];
       setActiveQuestionId(priorityQuestion.result_id);
       return;
     }
@@ -648,7 +656,7 @@ function WorkspaceView({
     }
     const exact = pageStart != null ? imagePool.find((img) => img.page_num === pageStart) : undefined;
     setActiveImageUrl((exact ?? imagePool[0]).url);
-  }, [questions, activeQuestionId, viewerMode, activeDetail.viewer]);
+  }, [questions, activeQuestionId, viewerMode, activeDetail.viewer, initialResultId]);
 
   useEffect(() => {
     if (!activeQuestionId) {
