@@ -10,10 +10,16 @@ from ai_study_buddy.pdf_file_manager.pdf_file_manager import (
     PdfFileManager,
     has_raw_pdf_prefix,
 )
+from ai_study_buddy.files.roots import resolve_goodnotes_root
+from ai_study_buddy.files.supervised_review_redo import resolve_supervised_review_pdf_for_attempt
 from ai_study_buddy.marking.review.amendment_service import (
     build_amendment_context,
     normalize_amendment_state,
     resolve_marking_result,
+)
+from ai_study_buddy.marking.review.review_redo_service import (
+    ensure_review_redo_images,
+    review_redo_unit_dir_for_attempt,
 )
 from ai_study_buddy.marking.review.models import (
     STATIC_ROUTE_PREFIX,
@@ -97,12 +103,37 @@ def _template_images_for_attempt(
     return _list_images_in_directory(context_root, run_dir / "rendered_pages")
 
 
+def _review_redo_payload_for_attempt(
+    *,
+    completion: PdfFile,
+    manager: PdfFileManager,
+) -> dict[str, Any]:
+    goodnotes_root = resolve_goodnotes_root()
+    resolution = resolve_supervised_review_pdf_for_attempt(
+        completion,
+        manager=manager,
+        goodnotes_root=goodnotes_root,
+    )
+    if not resolution.available:
+        return {"available": False}
+
+    resolved_path = None
+    if goodnotes_root is not None:
+        resolved_path = resolution.resolved_path_relative_to(goodnotes_root)
+    return {
+        "available": True,
+        "resolved_path": resolved_path,
+    }
+
+
 def _empty_viewer_payload() -> dict[str, Any]:
     return {
         "mode_default": "attempt",
         "attempt_images": [],
         "answer_images": [],
         "template_images": [],
+        "review_redo": {"available": False},
+        "review_images": [],
         "answer_page_start": None,
         "answer_page_end": None,
         "marking_asset": None,
@@ -238,6 +269,7 @@ def get_attempt_detail(
         context_root=context_root,
         manager=manager,
     )
+    review_redo = _review_redo_payload_for_attempt(completion=completion, manager=manager)
 
     student_id = context.get("student_id") if isinstance(context.get("student_id"), str) else (completion.student_id or "unknown")
     resolved_subject = (
@@ -296,8 +328,79 @@ def get_attempt_detail(
             "attempt_images": attempt_images,
             "answer_images": answer_images,
             "template_images": template_images,
+            "review_redo": review_redo,
+            "review_images": [],
             "answer_page_start": context.get("answer_page_start"),
             "answer_page_end": context.get("answer_page_end"),
             "marking_asset": marking_asset,
         },
+    }
+
+
+class ReviewEvidenceNotFoundError(Exception):
+    pass
+
+
+def get_attempt_review_evidence(
+    *,
+    attempt_id: str,
+    context_root: Path,
+    manager: PdfFileManager,
+) -> dict[str, Any]:
+    completion = manager.get_file(attempt_id)
+    if completion is None or not _is_completion_candidate(completion):
+        raise AttemptNotFoundError(f"Attempt not found: {attempt_id}")
+
+    refs = find_marking_artifacts_for_attempt(completion.id, manager=manager, context_root=context_root)
+    if not refs:
+        raise ReviewEvidenceNotFoundError(f"No marking result for attempt {attempt_id}")
+
+    payload = read_marking_result_payload(
+        marking_result_json=refs[0].marking_result_json,
+        context_root=context_root,
+    )
+    if payload is None:
+        raise ReviewEvidenceNotFoundError(f"Invalid marking artifact for attempt {attempt_id}")
+
+    context = payload.get("context") if isinstance(payload.get("context"), dict) else {}
+    resolution = resolve_supervised_review_pdf_for_attempt(
+        completion,
+        manager=manager,
+        goodnotes_root=resolve_goodnotes_root(),
+    )
+    if not resolution.available or resolution.resolved_path is None:
+        raise ReviewEvidenceNotFoundError(f"Review redo evidence unavailable for attempt {attempt_id}")
+
+    template = manager.get_template(completion.id)
+    if template is None:
+        raise ReviewEvidenceNotFoundError(f"No template link for attempt {attempt_id}")
+
+    subject_context = (
+        context.get("subject_context")
+        if isinstance(context.get("subject_context"), str)
+        else infer_subject_context(completion.subject) or "unknown"
+    )
+    student_id = context.get("student_id") if isinstance(context.get("student_id"), str) else completion.student_id
+    student = manager.get_student(student_id) if student_id else None
+    student_name = student.name if student is not None else None
+
+    unit_dir = review_redo_unit_dir_for_attempt(
+        context_root=context_root,
+        attempt=completion,
+        template=template,
+        subject_context=subject_context,
+        student_id=student_id,
+        student_name=student_name,
+    )
+    review_images, rendered_at = ensure_review_redo_images(
+        context_root=context_root,
+        source_pdf=resolution.resolved_path,
+        unit_dir=unit_dir,
+    )
+    if not review_images:
+        raise ReviewEvidenceNotFoundError(f"Review redo render produced no images for attempt {attempt_id}")
+
+    return {
+        "review_images": review_images,
+        "rendered_at": rendered_at,
     }

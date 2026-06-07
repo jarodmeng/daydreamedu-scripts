@@ -15,7 +15,9 @@ from ai_study_buddy.marking.review.amendment_service import (
 )
 from ai_study_buddy.marking.review.detail_service import (
     AttemptNotFoundError,
+    ReviewEvidenceNotFoundError,
     get_attempt_detail,
+    get_attempt_review_evidence,
     normalize_marking_result_for_frontend,
 )
 from ai_study_buddy.marking.review.note_service import ReviewStateWriteError, put_review_state
@@ -77,6 +79,21 @@ def attempt_detail(attempt_id: str) -> dict[str, Any]:
         )
     except AttemptNotFoundError:
         raise HTTPException(status_code=404, detail="attempt not found") from None
+
+
+@router.get("/api/student/attempts/{attempt_id}/review-evidence")
+def attempt_review_evidence(attempt_id: str) -> dict[str, Any]:
+    manager = _manager()
+    try:
+        return get_attempt_review_evidence(
+            attempt_id=attempt_id,
+            context_root=CONTEXT_ROOT,
+            manager=manager,
+        )
+    except AttemptNotFoundError:
+        raise HTTPException(status_code=404, detail="attempt not found") from None
+    except ReviewEvidenceNotFoundError:
+        raise HTTPException(status_code=404, detail="review evidence unavailable") from None
 
 
 def _invalidate_buddy_console_inventory_cache(request: Request) -> None:

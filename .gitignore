@@ -70,6 +70,7 @@ ai_study_buddy/context/marking_results/
 ai_study_buddy/context/marking_amendments/
 ai_study_buddy/context/student_review_states/
 ai_study_buddy/context/file_question_info/
+ai_study_buddy/context/review_redo/
 ai_study_buddy/context/rename_manifests/
 ai_study_buddy/context/student_understandings/*
 !ai_study_buddy/context/student_understandings/scripts/

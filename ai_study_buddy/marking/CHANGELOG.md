@@ -4,6 +4,22 @@ All notable changes to `ai_study_buddy.marking` are documented in this file.
 
 Committed changes under `ai_study_buddy/marking/` should add an entry here and bump **Current version** in `README.md` (semver: **patch** for docs or small renderer tweaks, **minor** for schema or public API changes). `SPEC.md` / `TESTING.md` titles do not carry the package version.
 
+## [0.3.20] - 2026-06-07
+
+Minor: supervised review redo evidence (Review Workspace v0.1.16).
+
+### Added
+
+- **`marking/review/review_redo_service.py`:** `review_redo_render_dir`, `render_review_redo_pages`, `list_review_redo_images`, `ensure_review_redo_images` — cache-first raster into `context/review_redo/<student_slug>/<subject_context>/<normal_name>/rendered_pages/`.
+- **`marking/review/detail_service.py`:** `viewer.review_redo` on attempt detail (step i); `get_attempt_review_evidence` (step ii).
+- **`GET /api/student/attempts/{attempt_id}/review-evidence`** in `marking/review/api_routes.py` — lazy render; **404** when Review PDF unavailable.
+- **Tests:** `marking/tests/test_review_workspace_review_redo.py`.
+
+### Consumers
+
+- `buddy_console` v0.1.16 Review tab ([proposal 3](../buddy_console/docs/proposal/3-review-workspace-supervised-redo-tab.md)).
+- Requires `ai_study_buddy.files` v0.3.13+ (`resolve_supervised_review_pdf_for_attempt`).
+
 ## [0.3.19] - 2026-06-05
 
 Patch: clear stale question amendments when save sends empty fields.
