@@ -108,6 +108,39 @@ Important top-level attempt detail fields consumed by the frontend include:
 7. `review_state`
 8. `viewer`
 
+### `viewer` (evidence modes)
+
+Image entry shape (all pools): `{ "name", "page_num", "url" }` where `url` is under `/review-workspace-static/…`.
+
+| Field | Source | Notes |
+|-------|--------|-------|
+| `attempt_images[]` | `context/marking_assets/…/attempt/` | `page-NN.png` naming |
+| `answer_images[]` | `context/marking_assets/…/answers/` | answer-page slice |
+| `template_images[]` | `context/file_question_info/…/rendered_pages/` | `page_NNN.png`; empty when no template link or no renders |
+| `review_redo.available` | GoodNotes `Review/` PDF resolver | v0.1.16+; tab gating — not `review_images.length` |
+| `review_redo.resolved_path` | Same resolver | Relative to `goodnotes_root`; debug only |
+| `review_images[]` | Empty on detail load | Filled client-side from `review-evidence` response |
+
+### `context/review_redo/` (generated cache, gitignored)
+
+Supervised redo page PNGs (v0.1.16+). Not under `file_question_info/` (avoids slug collision with template FQI renders).
+
+```text
+<context_root>/review_redo/<student_slug>/<subject_context>/<normal_name>/rendered_pages/page_%03d.png
+```
+
+| Segment | Helper |
+|---------|--------|
+| `<student_slug>` | `slugify_student(student_id, student_name)` — same as `marking_assets/` |
+| `<subject_context>` | Marking artifact `context.subject_context` |
+| `<normal_name>` | `normalize_pdf_display_name(template.name)` — same as FQI slug / marking stem (no `__timestamp` suffix) |
+
+Static URL example:
+
+```text
+/review-workspace-static/review_redo/winston/singapore_primary_math/P6 Math WA1/rendered_pages/page_001.png
+```
+
 Those models are still owned by the shared review domain, but they remain part
 of the current `buddy_console` runtime contract because `/review` depends on
 them.

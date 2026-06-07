@@ -114,20 +114,29 @@ type AttemptDetail = {
     attempt_images: Array<{ name: string; page_num: number; url: string }>;
     answer_images: Array<{ name: string; page_num: number; url: string }>;
     template_images: Array<{ name: string; page_num: number; url: string }>;
+    review_redo?: {
+      available: boolean;
+      resolved_path?: string | null;
+    };
+    review_images?: Array<{ name: string; page_num: number; url: string }>;
   };
 };
 
-type ViewerMode = "attempt" | "answer" | "template";
+type ViewerMode = "attempt" | "answer" | "template" | "review";
 
 function viewerImagePool(
   viewer: AttemptDetail["viewer"],
   mode: ViewerMode,
+  cachedReviewImages: Array<{ name: string; page_num: number; url: string }> = [],
 ): Array<{ name: string; page_num: number; url: string }> {
   if (mode === "attempt") {
     return viewer.attempt_images;
   }
   if (mode === "template") {
     return viewer.template_images ?? [];
+  }
+  if (mode === "review") {
+    return cachedReviewImages;
   }
   return viewer.answer_images;
 }
@@ -563,6 +572,12 @@ function WorkspaceView({
   initialResultId?: string | null;
 }) {
   const [viewerMode, setViewerMode] = useState<ViewerMode>("attempt");
+  const [reviewImagesCache, setReviewImagesCache] = useState<Array<{ name: string; page_num: number; url: string }> | null>(
+    null,
+  );
+  const [reviewImagesLoading, setReviewImagesLoading] = useState<boolean>(false);
+  const [reviewImagesError, setReviewImagesError] = useState<string | null>(null);
+  const [reviewTabAvailable, setReviewTabAvailable] = useState<boolean>(false);
   const [viewerZoomPct, setViewerZoomPct] = useState<number>(50);
   const [activeQuestionId, setActiveQuestionId] = useState<string>(() => {
     const initialQuestions = detail.marking_result?.question_results ?? [];
@@ -585,6 +600,10 @@ function WorkspaceView({
     const urlInitialResultId = resolveRequestedQuestionIdFromCurrentUrl(detail.marking_result?.question_results ?? []);
     setActiveDetail(detail);
     setViewerMode("attempt");
+    setReviewImagesCache(null);
+    setReviewImagesLoading(false);
+    setReviewImagesError(null);
+    setReviewTabAvailable(detail.viewer.review_redo?.available === true);
     setViewerZoomPct(50);
     setActiveQuestionId(initialResultId ?? urlInitialResultId ?? "");
     setActiveImageUrl(null);
@@ -598,6 +617,47 @@ function WorkspaceView({
     setAmendmentSaveStatus("idle");
     setAmendmentError(null);
   }, [detail, initialResultId]);
+
+  async function activateViewerMode(mode: ViewerMode) {
+    if (mode !== "review") {
+      setViewerMode(mode);
+      return;
+    }
+    if (!reviewTabAvailable) {
+      return;
+    }
+    setViewerMode("review");
+    if (reviewImagesCache !== null || reviewImagesLoading) {
+      return;
+    }
+    setReviewImagesLoading(true);
+    setReviewImagesError(null);
+    try {
+      const res = await fetch(
+        `/api/student/attempts/${encodeURIComponent(activeDetail.attempt.attempt_id)}/review-evidence`,
+      );
+      if (res.status === 404) {
+        setReviewTabAvailable(false);
+        setReviewImagesError("Review evidence is no longer available.");
+        setViewerMode("attempt");
+        return;
+      }
+      if (!res.ok) {
+        throw new Error(`Failed to load review evidence: ${res.status}`);
+      }
+      const payload = (await res.json()) as {
+        review_images: Array<{ name: string; page_num: number; url: string }>;
+      };
+      setReviewImagesCache(payload.review_images ?? []);
+    } catch (e) {
+      setReviewImagesError(e instanceof Error ? e.message : "Failed to load review evidence");
+      setViewerMode("attempt");
+    } finally {
+      setReviewImagesLoading(false);
+    }
+  }
+
+  const cachedReviewImages = reviewImagesCache ?? [];
 
   const questions = activeDetail.marking_result?.question_results ?? [];
   const baseQuestions = activeDetail.marking_result_base?.question_results ?? [];
@@ -649,14 +709,14 @@ function WorkspaceView({
       return;
     }
     const pageStart = selectedQuestion.attempt_page_start;
-    const imagePool = viewerImagePool(activeDetail.viewer, viewerMode);
+    const imagePool = viewerImagePool(activeDetail.viewer, viewerMode, cachedReviewImages);
     if (imagePool.length === 0) {
       setActiveImageUrl(null);
       return;
     }
     const exact = pageStart != null ? imagePool.find((img) => img.page_num === pageStart) : undefined;
     setActiveImageUrl((exact ?? imagePool[0]).url);
-  }, [questions, activeQuestionId, viewerMode, activeDetail.viewer, initialResultId]);
+  }, [questions, activeQuestionId, viewerMode, activeDetail.viewer, initialResultId, cachedReviewImages]);
 
   useEffect(() => {
     if (!activeQuestionId) {
@@ -960,8 +1020,16 @@ function WorkspaceView({
     0,
     questions.findIndex((q) => q.result_id === activeQuestionId),
   );
-  const imagePool = viewerImagePool(activeDetail.viewer, viewerMode);
+  const imagePool = viewerImagePool(activeDetail.viewer, viewerMode, cachedReviewImages);
   const templateImagesAvailable = (activeDetail.viewer.template_images ?? []).length > 0;
+  const reviewModeLabel =
+    viewerMode === "template"
+      ? "Template"
+      : viewerMode === "answer"
+        ? "Answer"
+        : viewerMode === "review"
+          ? "Review"
+          : "Attempt";
   const activeImageIndex = Math.max(
     0,
     imagePool.findIndex((img) => img.url === activeImageUrl),
@@ -1154,15 +1222,20 @@ function WorkspaceView({
             <div className="evidence-toolbar">
               <span className="evidence-title">Evidence</span>
               <div className="toggle">
-                <button className={viewerMode === "attempt" ? "active" : ""} onClick={() => setViewerMode("attempt")}>
+                <button className={viewerMode === "attempt" ? "active" : ""} onClick={() => void activateViewerMode("attempt")}>
                   Attempt
                 </button>
-                <button className={viewerMode === "answer" ? "active" : ""} onClick={() => setViewerMode("answer")}>
+                <button className={viewerMode === "answer" ? "active" : ""} onClick={() => void activateViewerMode("answer")}>
                   Answer
                 </button>
                 {templateImagesAvailable ? (
-                  <button className={viewerMode === "template" ? "active" : ""} onClick={() => setViewerMode("template")}>
+                  <button className={viewerMode === "template" ? "active" : ""} onClick={() => void activateViewerMode("template")}>
                     Template
+                  </button>
+                ) : null}
+                {reviewTabAvailable ? (
+                  <button className={viewerMode === "review" ? "active" : ""} onClick={() => void activateViewerMode("review")}>
+                    Review
                   </button>
                 ) : null}
               </div>
@@ -1187,6 +1260,8 @@ function WorkspaceView({
             </div>
           </div>
           <div className="viewer">
+            {reviewImagesLoading && viewerMode === "review" ? <p>Rendering pages…</p> : null}
+            {reviewImagesError ? <p>{reviewImagesError}</p> : null}
             {activeImageUrl ? (
               <img
                 className="fit-width"
@@ -1197,9 +1272,9 @@ function WorkspaceView({
                   transformOrigin: "top center",
                 }}
                 src={activeImageUrl}
-                alt={`${viewerMode === "template" ? "Template" : viewerMode === "answer" ? "Answer" : "Attempt"} evidence page`}
+                alt={`${reviewModeLabel} evidence page`}
               />
-            ) : (
+            ) : reviewImagesLoading && viewerMode === "review" ? null : (
               <p>No image available.</p>
             )}
           </div>

@@ -58,6 +58,8 @@ Expected behavior:
 
 1. preserve direct attempt deep links
 2. allow inventory cards to open a marked attempt directly
+3. evidence toolbar: **Attempt** / **Answer** / **Template** (when `viewer.template_images` non-empty) / **Review** (v0.1.16+ when `viewer.review_redo.available`)
+4. **Review** tab: lazy load on first click — no `review-evidence` request on detail load; client caches returned `review_images`
 
 ### `/student`
 
@@ -215,8 +217,46 @@ That currently provides:
 1. student list and attempt detail endpoints
 2. review-state persistence
 3. amendment persistence
+4. supervised redo evidence (v0.1.16+): `GET /api/student/attempts/{attempt_id}/review-evidence`
 
 `buddy_console` consumes those routes through the `/review` surface.
+
+#### `GET /api/student/attempts/{attempt_id}` (marked attempts)
+
+Viewer payload (evidence modes):
+
+| Field | Load behavior |
+|-------|----------------|
+| `viewer.attempt_images[]`, `viewer.answer_images[]` | From marking-asset bundle when present |
+| `viewer.template_images[]` | From linked template FQI `file_question_info/…/rendered_pages/` (list only) |
+| `viewer.review_redo.available` | Step **i**: attempt → template → GoodNotes `Review/` PDF `stat`; drives **Review** tab visibility |
+| `viewer.review_redo.resolved_path` | When available: path relative to `goodnotes_root` (debug; not shown in production UI) |
+| `viewer.review_images[]` | Always `[]` on detail load in v0.1.16; populated client-side after step **ii** |
+
+#### `GET /api/student/attempts/{attempt_id}/review-evidence` (v0.1.16+)
+
+Lazy supervised redo render. Call only when **Review** tab is shown (`review_redo.available === true`).
+
+1. Re-runs `resolve_supervised_review_pdf_for_attempt` (do not trust client paths).
+2. **404** when Review PDF unavailable (missing template, moved file, unset `goodnotes_root`, stale availability).
+3. **200** when available: cache-first raster into `context/review_redo/<student_slug>/<subject_context>/<normal_name>/rendered_pages/page_%03d.png`; returns:
+
+```json
+{
+  "review_images": [
+    {
+      "name": "page_003.png",
+      "page_num": 3,
+      "url": "/review-workspace-static/review_redo/winston/singapore_primary_math/P6 Math WA1/rendered_pages/page_003.png"
+    }
+  ],
+  "rendered_at": "2026-06-07T12:00:00Z"
+}
+```
+
+Path segments match `marking_assets/` / `file_question_info/` conventions (`slugify_student`, `normalize_pdf_display_name` on template stem). Re-render when source Review PDF mtime is newer than cached PNGs. No `register_file`; Review-folder PDFs remain excluded from inventory ([`files` SPEC §2.6](../files/SPEC.md#26-goodnotes-review-folder-vs-review-workspace)).
+
+See [proposal 3](./docs/proposal/3-review-workspace-supervised-redo-tab.md).
 
 ## Deep-Link Contract
 

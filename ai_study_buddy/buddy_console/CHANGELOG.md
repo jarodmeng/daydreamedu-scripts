@@ -2,6 +2,21 @@
 
 All notable changes to `ai_study_buddy/buddy_console` are documented here.
 
+## [v0.1.16] - Review Workspace supervised redo tab (2026-06-07)
+
+### Added
+
+1. Review Workspace evidence toolbar **Review** mode — supervised redo pages from GoodNotes `Review/` exports (full template re-import; same page alignment as Attempt/Template).
+2. Two-step load: attempt detail exposes `viewer.review_redo.available` (cheap stat); first tab click calls `GET /api/student/attempts/{attempt_id}/review-evidence` to cache-first raster into `context/review_redo/<student_slug>/<subject_context>/<normal_name>/rendered_pages/` (gitignored).
+3. Page jump on **Review** reuses marking `question_page_map` (`attempt_page_start` per question).
+
+### Changed
+
+1. Requires `ai_study_buddy.files` **v0.3.13+** (`resolve_supervised_review_pdf_for_attempt`) and `ai_study_buddy.marking` **v0.3.20+** (review redo render + `review-evidence` API).
+2. `frontend/package.json` version aligned to `0.1.16`.
+
+See [proposal 3-review-workspace-supervised-redo-tab.md](./docs/proposal/3-review-workspace-supervised-redo-tab.md).
+
 ## [v0.1.15] - Review inventory facet + workspace deep links (2026-06-06)
 
 ### Fixed

@@ -397,12 +397,15 @@ Recommended contents:
 
 - completion attempt viewer
 - answer/template viewer
+- supervised redo viewer (GoodNotes `Review/` export — shipped `buddy_console` v0.1.16)
 - page context for the active question
 
 Viewer mode should support:
 
 - `Attempt`
 - `Answer`
+- `Template` (linked template FQI renders — shipped v0.1.9+)
+- `Review` (supervised redo evidence — shipped `buddy_console` v0.1.16; lazy render)
 
 Future mode:
 
@@ -411,9 +414,18 @@ Future mode:
 MVP behavior:
 
 - default to `Attempt`
-- when the active question changes, tune the viewer using `context.question_page_map[result_id].attempt_page_start` when available
+- when the active question changes, tune the viewer using `context.question_page_map[result_id].attempt_page_start` when available (applies to **Attempt**, **Template**, and **Review** — same page indices)
 - when mapping is absent, use graceful fallback (current page or attempt page 1)
 - do **not** wait for per-question cropping before shipping
+
+**Supervised redo load (v0.1.16+, two-step):**
+
+| Step | When | Behavior |
+|------|------|----------|
+| **i** | Attempt detail load | `viewer.review_redo.available` from attempt → template → GoodNotes `Review/` PDF `stat`; show **Review** tab when true; `viewer.review_images` stays `[]` |
+| **ii** | First **Review** tab click | `GET …/review-evidence` cache-first raster into `context/review_redo/`; client caches `review_images`; **404** hides tab if PDF gone |
+
+Review-folder PDFs stay **excluded** from operator inventory (`files` v0.3.11+); Review Workspace resolves them deliberately via `resolve_supervised_review_pdf_for_attempt`. No marking of Review PDFs. See [buddy_console proposal 3](../buddy_console/docs/proposal/3-review-workspace-supervised-redo-tab.md) and [`files` SPEC §2.6](../files/SPEC.md#26-goodnotes-review-folder-vs-review-workspace).
 
 This is the grounded near-term solution to the current "switching between report and file" pain.
 

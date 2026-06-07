@@ -197,6 +197,21 @@ In the review tab verify:
 
 1. a marked attempt deep link opens correctly
 2. seeded review functionality still loads without fetch errors
+3. **Review tab (v0.1.16+):** when `viewer.review_redo.available` on a marked attempt with a GoodNotes `Review/` export, **Review** appears without waiting for render; first click shows loading then page images; second click uses cache; question nav jumps to same page as **Attempt**; attempts without Review redo show three tabs only and never call `review-evidence` on load
+
+Optional API check (replace `ATTEMPT_ID` with registry `attempt_id` where Review redo exists):
+
+```bash
+curl -s "http://localhost:8010/api/student/attempts/ATTEMPT_ID" | jq '.viewer.review_redo'
+curl -s "http://localhost:8010/api/student/attempts/ATTEMPT_ID/review-evidence" | jq '.review_images | length'
+```
+
+Backend tests (supervised redo):
+
+```bash
+python3 -m pytest ai_study_buddy/files/tests/test_supervised_review_redo.py \
+  ai_study_buddy/marking/tests/test_review_workspace_review_redo.py -q
+```
 
 ### Student portal (v0.1.11+)
 
@@ -228,6 +243,7 @@ Before considering a `buddy_console` change safe:
 4. PDF deep links still open the intended file
 5. review deep links still open the intended marked attempt
 6. `/student` marks API and UI still load when `study_buddy.db` is present
+7. Review redo: `review-evidence` returns **404** when resolver misses; **200** with non-empty `review_images` when Review PDF exists
 
 ## Rollback Steps
 
