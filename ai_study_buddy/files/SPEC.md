@@ -2,7 +2,7 @@
 
 This document is the **contract** for the public Python API of `ai_study_buddy.files`. It is registry-agnostic: no SQLite, no `PdfFileManager`, no scan-root configuration.
 
-**Version:** align with [README.md](./README.md) (package **v0.3.11**; runtime: `ai_study_buddy.files.__version__`).
+**Version:** align with [README.md](./README.md) (package **v0.3.13**; runtime: `ai_study_buddy.files.__version__`).
 
 Core leaf listing and root resolution are **registry-agnostic**. Optional correlation with `pdf_file_manager` / `pdf_registry.db` lives in **`pdf_registry_paths.py`** (see §3).
 
@@ -82,6 +82,26 @@ Builds an internal excluded set: any leaf that equals `root` (resolved) — the 
 - **Input *rel*:** a path string relative to ``GOODNOTES_ROOT``, using `/` segments (may be normalized by the caller). Empty or whitespace-only means the sync root itself → returns `False`.
 - **True** if any non-empty path segment matches `^x[A-Z].*$`, equals `Review` case-insensitively, or (when *exclude_not_completed* is `True`) any segment equals `Not completed` case-insensitively.
 - **Purpose:** single source for GoodNotes “structural” exclusions when walking a tree (for example `root_pdf_browser`), without duplicating regex rules. Aligns with `list_goodnotes_leaf_folders_under_root` when the same *exclude_not_completed* flag is passed.
+
+### 2.6 GoodNotes `Review` folder vs Review Workspace (v0.3.12+)
+
+GoodNotes Auto Backup may write post-review PDFs under a `Review` leaf (e.g. `GoodNotes/…/P6/Exam/Review/c_<template_stem>.pdf`). These paths are **always excluded** from operator inventory and leaf-registry reports via §2.4 / §2.5 above — by design.
+
+Review Workspace (`buddy_console` `/review`, v0.1.16+) resolves supervised redo evidence **outside** the inventory index:
+
+| Surface | Review-folder PDFs |
+|---------|-------------------|
+| Inventory / Student File Browser | **Excluded** (`Review` segment) |
+| Review Workspace **Review** tab | **Included** via attempt-scoped resolver |
+
+**Resolver (not an inventory scan):** `resolve_supervised_review_pdf_for_attempt(attempt, *, manager, goodnotes_root) -> SupervisedReviewRedoResolution` in `supervised_review_redo.py`:
+
+1. `manager.get_template(attempt.id)` — template link required.
+2. Build `goodnotes_root / <mirror segments from attempt.path> / Review` (mirror after `GoodNotes/` or `DaydreamEdu/completion/`).
+3. Look for `c_<template_stem>.pdf` (fallback `_c_<template_stem>.pdf`) from **template** basename.
+4. `stat` first hit → `available=True`.
+
+Rendered page cache lives under `context/review_redo/` (not `file_question_info/`). Contract: [buddy_console proposal 3](../buddy_console/docs/proposal/3-review-workspace-supervised-redo-tab.md), [buddy_console DATA_MODEL § review_redo](../buddy_console/DATA_MODEL.md#contextreview_redo-generated-cache-gitignored).
 
 ---
 

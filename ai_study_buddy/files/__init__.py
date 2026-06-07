@@ -1,6 +1,6 @@
 """Shared filesystem utilities for AI Study Buddy."""
 
-__version__ = "0.3.12"
+__version__ = "0.3.13"
 
 from .leaf_folders import (
     is_goodnotes_excluded_relative_path,
@@ -56,11 +56,17 @@ from .pdf_registry_paths import (
     suspicious_all_leaves_marked_non_scan_root,
 )
 from .roots import resolve_daydreamedu_root, resolve_goodnotes_root
+from .supervised_review_redo import (
+    SupervisedReviewRedoResolution,
+    resolve_supervised_review_pdf_for_attempt,
+)
 
 __all__ = [
     "__version__",
     "resolve_daydreamedu_root",
     "resolve_goodnotes_root",
+    "SupervisedReviewRedoResolution",
+    "resolve_supervised_review_pdf_for_attempt",
     "list_leaf_folders_under_root",
     "list_daydreamedu_leaf_folders_under_root",
     "list_goodnotes_leaf_folders_under_root",

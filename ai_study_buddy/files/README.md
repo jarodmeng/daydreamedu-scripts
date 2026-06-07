@@ -1,6 +1,6 @@
 # ai_study_buddy.files
 
-**Version: v0.3.12**
+**Version: v0.3.13**
 
 Small helpers for local synced study material: resolve DaydreamEdu and GoodNotes roots from environment or gitignored config files, and list **leaf folders** (directories with direct files matching chosen suffixes) with optional profile-specific exclusions.
 
@@ -19,6 +19,7 @@ The core modules (`roots`, `leaf_folders`) are **registry-agnostic**. For correl
 | [`pdf_registry_paths.py`](./pdf_registry_paths.py) | `RegistryPathIndex`, registration helpers, `registry_file_for_path`, `has_template_link` |
 | [`completion_enrichment.py`](./completion_enrichment.py) | Marking / amendment / review flags for registered completions |
 | [`on_disk_inventory.py`](./on_disk_inventory.py) | `enrich_on_disk_main_pdf`, `filter_main_pdf_cards`, `sort_main_pdf_cards`, `filter_meta_for_response`, `FilterCriteria` |
+| [`supervised_review_redo.py`](./supervised_review_redo.py) | `resolve_supervised_review_pdf_for_attempt()` — GoodNotes `Review/` PDF lookup for Review Workspace |
 
 Public re-exports: [`__init__.py`](./__init__.py).
 

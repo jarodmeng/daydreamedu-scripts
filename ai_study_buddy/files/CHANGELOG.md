@@ -4,6 +4,19 @@ All notable changes to the **`ai_study_buddy.files`** package are documented her
 
 ---
 
+## [v0.3.13] — Supervised review redo path resolver
+
+### Added
+
+- **`supervised_review_redo.py`:** `SupervisedReviewRedoResolution`, `resolve_supervised_review_pdf_for_attempt(...)` — attempt → template → GoodNotes `Review/` PDF `stat` (no inventory scan; complements v0.3.11 `Review` leaf exclusion).
+- **`SPEC.md` §2.6:** cross-link — inventory exclusion vs Review Workspace resolver.
+- **Tests:** `files/tests/test_supervised_review_redo.py` (d_root / g_root / book paths; missing template / Review PDF).
+
+### Consumers
+
+- `marking.review.detail_service` (step i availability + step ii lazy render input path).
+- `buddy_console` v0.1.16 Review tab ([proposal 3](../buddy_console/docs/proposal/3-review-workspace-supervised-redo-tab.md)).
+
 ## [v0.3.12] — Review facet scoped to marked completions
 
 - **`enrich_on_disk_main_pdf`:** set `review_status` to `None` on inventory cards when `has_marking` is false (review applies only after a completion has been marked).
