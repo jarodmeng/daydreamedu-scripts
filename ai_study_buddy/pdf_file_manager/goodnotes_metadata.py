@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import re
 import sqlite3
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -19,6 +20,8 @@ GoodnotesDocumentMatchStatus = Literal[
     "not_found",
     "ambiguous",
 ]
+
+GoodnotesFolderScope = Literal["attempt", "review"]
 
 
 @dataclass(frozen=True)
@@ -44,6 +47,7 @@ class GoodnotesDocumentMatch:
     goodnotes_folder_path: str | None
     goodnotes_folder_ids: tuple[str, ...]
     timestamps: GoodnotesDocumentTimestamps | None
+    share_link: str | None = None
     message: str | None = None
 
 
@@ -194,8 +198,35 @@ def _empty_match(
         goodnotes_folder_path=None,
         goodnotes_folder_ids=(),
         timestamps=None,
+        share_link=None,
         message=message,
     )
+
+
+_GOODNOTES_SHARE_LINK_PREFIX = "https://share.goodnotes.com/s/"
+
+
+def _fetch_share_link(conn: sqlite3.Connection, document_id: str) -> str | None:
+    row = conn.execute(
+        """
+        SELECT data
+        FROM document_share
+        WHERE document_id = ?
+        ORDER BY updated_at DESC
+        LIMIT 1
+        """,
+        (document_id,),
+    ).fetchone()
+    if row is None or row["data"] is None:
+        return None
+
+    data = row["data"]
+    if isinstance(data, str):
+        data = data.encode("utf-8", errors="surrogateescape")
+    match = re.search(rb'"documentAlias":"([^"]+)"', data)
+    if not match:
+        return None
+    return f"{_GOODNOTES_SHARE_LINK_PREFIX}{match.group(1).decode()}"
 
 
 def _connect_projection_db() -> sqlite3.Connection | None:
@@ -236,6 +267,32 @@ def _fetch_matches(
         sql += " AND d.deleted = 0 AND COALESCE(m.is_deleted, 0) = 0"
     sql += " ORDER BY d.name, d.id"
     return conn.execute(sql, params).fetchall()
+
+
+def _is_in_review_folder(folder_path: str | None) -> bool:
+    if not folder_path:
+        return False
+    parts = [part.strip() for part in folder_path.split(" / ")]
+    return bool(parts) and parts[-1] == "Review"
+
+
+def _filter_rows_by_folder_scope(
+    conn: sqlite3.Connection,
+    rows: list[sqlite3.Row],
+    folder_scope: GoodnotesFolderScope | None,
+) -> list[sqlite3.Row]:
+    if folder_scope is None or len(rows) <= 1:
+        return rows
+
+    filtered: list[sqlite3.Row] = []
+    for row in rows:
+        folder_path, _ = _folder_path_for_document(conn, row["id"])
+        in_review = _is_in_review_folder(folder_path)
+        if folder_scope == "review" and in_review:
+            filtered.append(row)
+        elif folder_scope == "attempt" and not in_review:
+            filtered.append(row)
+    return filtered
 
 
 def _folder_path_for_document(conn: sqlite3.Connection, document_id: str) -> tuple[str | None, tuple[str, ...]]:
@@ -280,6 +337,45 @@ def _folder_path_for_document(conn: sqlite3.Connection, document_id: str) -> tup
     return folder_path, folder_ids
 
 
+def _match_from_row(
+    conn: sqlite3.Connection,
+    *,
+    row: sqlite3.Row,
+    file_id: str,
+    registered_path: str,
+    backup_stem: str,
+    candidates: tuple[_Candidate, ...],
+    active_candidates: tuple[_Candidate, ...],
+) -> GoodnotesDocumentMatch:
+    candidate_by_name = {candidate.name: candidate for candidate in active_candidates}
+    matched_candidate = candidate_by_name.get(row["name"])
+    status: GoodnotesDocumentMatchStatus = matched_candidate.status if matched_candidate else "matched_exact"
+    folder_path, folder_ids = _folder_path_for_document(conn, row["id"])
+    share_link = _fetch_share_link(conn, row["id"])
+    timestamps = GoodnotesDocumentTimestamps(
+        created_at=_iso_utc_from_unix_ms(row["created_at"]),
+        updated_at=_iso_utc_from_unix_ms(row["updated_at"]),
+        last_modified=_iso_utc_from_sqlite_datetime(row["last_modified"]),
+        created_at_raw=row["created_at"],
+        updated_at_raw=row["updated_at"],
+        last_modified_raw=row["last_modified"],
+    )
+    return GoodnotesDocumentMatch(
+        status=status,
+        file_id=file_id,
+        registered_path=registered_path,
+        backup_stem=backup_stem,
+        candidate_names=tuple(candidate.name for candidate in candidates),
+        matched_candidate_name=row["name"],
+        goodnotes_document_id=row["id"],
+        goodnotes_document_name=row["name"],
+        goodnotes_folder_path=folder_path,
+        goodnotes_folder_ids=folder_ids,
+        timestamps=timestamps,
+        share_link=share_link,
+    )
+
+
 def get_goodnotes_document_match(
     *,
     file_id: str,
@@ -287,6 +383,7 @@ def get_goodnotes_document_match(
     file_type: str,
     raw_source_stems: tuple[str, ...] = (),
     include_deleted: bool = False,
+    folder_scope: GoodnotesFolderScope | None = None,
 ) -> GoodnotesDocumentMatch:
     path = Path(registered_path)
     backup_stem = path.stem
@@ -343,41 +440,35 @@ def get_goodnotes_document_match(
                 backup_stem=backup_stem,
                 candidates=candidates,
             )
-        if len(rows) > 1:
+
+        scoped_rows = _filter_rows_by_folder_scope(conn, rows, folder_scope)
+        if not scoped_rows:
+            return _empty_match(
+                status="not_found",
+                file_id=file_id,
+                registered_path=registered_path,
+                backup_stem=backup_stem,
+                candidates=candidates,
+                message=f"No Goodnotes document matched folder scope {folder_scope!r}",
+            )
+        if len(scoped_rows) > 1:
             return _empty_match(
                 status="ambiguous",
                 file_id=file_id,
                 registered_path=registered_path,
                 backup_stem=backup_stem,
                 candidates=candidates,
-                message=f"Matched {len(rows)} Goodnotes documents",
+                message=f"Matched {len(scoped_rows)} Goodnotes documents",
             )
 
-        row = rows[0]
-        candidate_by_name = {candidate.name: candidate for candidate in active_candidates}
-        matched_candidate = candidate_by_name.get(row["name"])
-        status: GoodnotesDocumentMatchStatus = matched_candidate.status if matched_candidate else "matched_exact"
-        folder_path, folder_ids = _folder_path_for_document(conn, row["id"])
-        timestamps = GoodnotesDocumentTimestamps(
-            created_at=_iso_utc_from_unix_ms(row["created_at"]),
-            updated_at=_iso_utc_from_unix_ms(row["updated_at"]),
-            last_modified=_iso_utc_from_sqlite_datetime(row["last_modified"]),
-            created_at_raw=row["created_at"],
-            updated_at_raw=row["updated_at"],
-            last_modified_raw=row["last_modified"],
-        )
-        return GoodnotesDocumentMatch(
-            status=status,
+        return _match_from_row(
+            conn,
+            row=scoped_rows[0],
             file_id=file_id,
             registered_path=registered_path,
             backup_stem=backup_stem,
-            candidate_names=tuple(candidate.name for candidate in candidates),
-            matched_candidate_name=row["name"],
-            goodnotes_document_id=row["id"],
-            goodnotes_document_name=row["name"],
-            goodnotes_folder_path=folder_path,
-            goodnotes_folder_ids=folder_ids,
-            timestamps=timestamps,
+            candidates=candidates,
+            active_candidates=active_candidates,
         )
     except sqlite3.Error as exc:
         return _empty_match(

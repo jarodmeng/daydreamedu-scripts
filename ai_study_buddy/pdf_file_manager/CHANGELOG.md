@@ -4,6 +4,12 @@ All notable changes to the pdf_file_manager utility are documented here.
 
 ---
 
+## [v0.3.36] — Goodnotes share link + Review-folder disambiguation
+
+- `GoodnotesDocumentMatch.share_link` — read `documentAlias` from local `projection.sqlite.document_share` and return `https://share.goodnotes.com/s/{alias}` when the notebook has been shared.
+- `get_goodnotes_document_timestamps_for_file(..., folder_scope=)` — optional `attempt` | `review` scope disambiguates duplicate Goodnotes document names: `attempt` prefers notebooks outside a `Review` leaf folder; `review` prefers `.../Review`.
+- Tests: share-link extraction; attempt vs review folder disambiguation (`tests/test_goodnotes_metadata.py`).
+
 ## [v0.3.35] — `composition` doc_type and Activity → Composition migration
 
 - Added sixth canonical **`doc_type`**: `composition`, mapped from L3 folder **`Composition`** (`metadata.content_folder=Composition`) in `_infer_from_path`.

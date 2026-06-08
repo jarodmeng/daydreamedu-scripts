@@ -1,0 +1,26 @@
+#!/bin/bash
+set -euo pipefail
+
+if [[ $# -lt 1 ]]; then
+  echo "Usage: $0 <url>" >&2
+  exit 1
+fi
+
+LINK="$1"
+ROOT="$(cd "$(dirname "$0")" && pwd)"
+APP="$ROOT/AirDropShareLink.app"
+APP_BIN="$APP/Contents/MacOS/AirDropShareLink"
+
+if [[ ! -x "$APP_BIN" ]]; then
+  "$ROOT/build_app.sh" >/dev/null
+fi
+
+# Clipboard fallback if AirDrop UI fails.
+printf '%s' "$LINK" | pbcopy
+
+# Launch as a standalone GUI app (not a child of this terminal).
+export AIRDROP_SHARE_LINK="$LINK"
+open -n -a "$APP" --args "$LINK"
+
+echo "AirDrop launched for $LINK"
+echo "Link copied to clipboard as fallback."

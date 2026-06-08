@@ -60,6 +60,7 @@ Expected behavior:
 2. allow inventory cards to open a marked attempt directly
 3. evidence toolbar: **Attempt** / **Answer** / **Template** (when `viewer.template_images` non-empty) / **Review** (v0.1.16+ when `viewer.review_redo.available`)
 4. **Review** tab: lazy load on first click — no `review-evidence` request on detail load; client caches returned `review_images`
+5. **GoodNotes share link** (v0.1.18+): on **Attempt** / **Review** when `viewer.goodnotes_share_link` / `viewer.goodnotes_review_share_link` is set (g_root completions only); optional **AirDrop** button calls `POST /api/goodnotes/airdrop-share-link` (macOS)
 
 ### `/student`
 
@@ -232,6 +233,12 @@ Viewer payload (evidence modes):
 | `viewer.review_redo.available` | Step **i**: attempt → template → GoodNotes `Review/` PDF `stat`; drives **Review** tab visibility |
 | `viewer.review_redo.resolved_path` | When available: path relative to `goodnotes_root` (debug; not shown in production UI) |
 | `viewer.review_images[]` | Always `[]` on detail load in v0.1.16; populated client-side after step **ii** |
+| `viewer.goodnotes_share_link` | v0.1.18+: GoodNotes `document_share` alias for the original notebook (`folder_scope=attempt`); shown in **Attempt** toolbar |
+| `viewer.goodnotes_review_share_link` | v0.1.18+: same lookup with `folder_scope=review` (`.../Review` notebook); shown in **Review** toolbar |
+
+#### `POST /api/goodnotes/airdrop-share-link` (v0.1.18+, macOS)
+
+Launch AirDrop for a GoodNotes share URL. Body: `{ "url": "https://share.goodnotes.com/s/..." }`. **200** `{ "status": "launched" }` when the helper starts; **400** invalid URL; **503** when `goodnotes_airdrop/airdrop_share_link` or `AirDropShareLink.app` is missing (helper auto-builds the app on first run).
 
 #### `GET /api/student/attempts/{attempt_id}/review-evidence` (v0.1.16+)
 

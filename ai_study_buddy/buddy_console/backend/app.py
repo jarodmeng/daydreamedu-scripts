@@ -6,6 +6,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
+from ai_study_buddy.buddy_console.backend.goodnotes_airdrop_api import router as goodnotes_airdrop_router
 from ai_study_buddy.buddy_console.backend.inventory_api import router as inventory_router, warm_enriched_cache
 from ai_study_buddy.buddy_console.backend.student_portal_api import router as student_portal_router
 from ai_study_buddy.marking.review.api_routes import CONTEXT_ROOT, router as review_router
@@ -33,6 +34,7 @@ app.add_middleware(
 app.mount(STATIC_ROUTE_PREFIX, StaticFiles(directory=str(CONTEXT_ROOT)), name="review-workspace-static")
 app.include_router(inventory_router)
 app.include_router(student_portal_router)
+app.include_router(goodnotes_airdrop_router)
 app.include_router(review_router)
 
 

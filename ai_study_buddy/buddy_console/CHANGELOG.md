@@ -2,6 +2,19 @@
 
 All notable changes to `ai_study_buddy/buddy_console` are documented here.
 
+## [v0.1.18] - GoodNotes share links and AirDrop in evidence toolbar (2026-06-08)
+
+### Added
+
+1. Review Workspace evidence toolbar shows GoodNotes share links for g_root completions — `viewer.goodnotes_share_link` (Attempt / original notebook) and `viewer.goodnotes_review_share_link` (Review / `.../Review` notebook).
+2. **AirDrop** button beside the active share link — `POST /api/goodnotes/airdrop-share-link` launches `goodnotes_airdrop/AirDropShareLink.app` on macOS.
+3. `goodnotes_airdrop/` macOS helper (`share_link_app.m`, `build_app.sh`, `airdrop_share_link`); built `.app` is gitignored and auto-built on first use.
+
+### Changed
+
+1. Requires `pdf_file_manager` **v0.3.36+** (`share_link`, `folder_scope` on Goodnotes lookup) and `marking` **v0.3.21+** (attempt-detail viewer fields).
+2. `frontend/package.json` version aligned to `0.1.18`.
+
 ## [v0.1.17] - Review Workspace evidence page navigation fix (2026-06-08)
 
 ### Fixed

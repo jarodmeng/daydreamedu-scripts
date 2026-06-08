@@ -4,6 +4,17 @@ All notable changes to `ai_study_buddy/review_workspace` are documented here.
 
 ---
 
+## [v0.1.12] — Evidence default zoom + page jump fix (2026-06-08)
+
+### Fixed
+
+- Evidence image sync passes `viewerMode` into `resolveInitialEvidenceImageUrl` so Answer mode opens at page 1 (same fix as `buddy_console` v0.1.17).
+
+### Changed
+
+- Default evidence zoom 50% → 90%.
+- `frontend/package.json` version aligned to `0.1.12`.
+
 ## [v0.1.11] — Amendment override cleanup (2026-06-05)
 
 ### Fixed

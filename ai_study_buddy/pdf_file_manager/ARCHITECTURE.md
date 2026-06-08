@@ -448,7 +448,7 @@ Only `main` files are ingested. The pipeline never processes `raw` archives.
 
 ## Integration with Goodnotes metadata
 
-Registered mains under `GOODNOTES_ROOT` can be matched to local Goodnotes macOS metadata DB rows via `get_goodnotes_document_timestamps_for_file` / `get_goodnotes_document_timestamps_for_path` ([`goodnotes_metadata.py`](./goodnotes_metadata.py)). This is read-only lookup for timestamps and document identity — not registry mutation. Used by completion-date inference (`goodnotes_last_modified`) and operator diagnostics. Design: [proposal 16](./docs/proposals/16-goodnotes-document-timestamps.md).
+Registered mains under `GOODNOTES_ROOT` can be matched to local Goodnotes macOS metadata DB rows via `get_goodnotes_document_timestamps_for_file` / `get_goodnotes_document_timestamps_for_path` ([`goodnotes_metadata.py`](./goodnotes_metadata.py)). This is read-only lookup for timestamps, document identity, and (v0.3.36+) public share links from `document_share` — not registry mutation. Optional `folder_scope` (`attempt` | `review`) disambiguates duplicate notebook names between the original tree and `.../Review`. Used by completion-date inference (`goodnotes_last_modified`), Review Workspace share links (`marking` v0.3.21+), and operator diagnostics. Design: [proposal 16](./docs/proposals/16-goodnotes-document-timestamps.md).
 
 ---
 

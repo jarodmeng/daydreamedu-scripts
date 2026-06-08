@@ -77,6 +77,9 @@ ai_study_buddy/context/student_understandings/*
 ai_study_buddy/cache/
 ai_study_buddy/.local_sandboxes/
 
+# ---- buddy_console frontend static artifacts (local / not tracked) ----
+ai_study_buddy/buddy_console/frontend/public/
+
 # ---- pdf_file_manager ----
 ai_study_buddy/db/
 ai_study_buddy/local_daydreamedu_root.txt

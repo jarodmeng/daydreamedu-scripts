@@ -161,7 +161,7 @@ Read-only lookup for local Goodnotes document metadata corresponding to a regist
 
 | Method | Returns | Notes |
 |--------|---------|-------|
-| `get_goodnotes_document_timestamps_for_file(file_id, include_deleted=False)` | `GoodnotesDocumentMatch` | Resolve registered file by UUID, then look up the source Goodnotes document. |
+| `get_goodnotes_document_timestamps_for_file(file_id, include_deleted=False, folder_scope=None)` | `GoodnotesDocumentMatch` | Resolve registered file by UUID, then look up the source Goodnotes document. Optional `folder_scope`: `attempt` (outside `Review`) or `review` (`.../Review` leaf). |
 | `get_goodnotes_document_timestamps_for_path(path, include_deleted=False)` | `GoodnotesDocumentMatch` | Resolve registered file by exact path first. |
 
 The lookup reads Goodnotes local DBs only:
@@ -190,6 +190,8 @@ Returned timestamps are UTC ISO strings where available:
 - `timestamps.last_modified` from `fts.document_meta.last_modified`
 
 `GoodnotesDocumentMatch.goodnotes_folder_path` is the Goodnotes app-folder path reconstructed from `folder_to_folder_items` / `folders`; it is not a filesystem path. The API does not fuzzy-match names and does not write to Goodnotes databases.
+
+`GoodnotesDocumentMatch.share_link` (v0.3.36+): when the matched notebook has a `document_share` row, returns `https://share.goodnotes.com/s/{documentAlias}` from the embedded JSON in `document_share.data`; otherwise `None`.
 
 #### `open_file(file_id_or_path)`
 
@@ -526,7 +528,7 @@ For all returned data class shapes (`PdfFile`, `FileGroup`, `FileGroupMember`, a
 | Raw ↔ main relations (`link_files`, `unlink_files`) | ✅ Implemented |
 | Template relations (`link_to_template`, `unlink_template`, `get_template`, `get_completions`) | ✅ Implemented |
 | Completion series (`get_completion_series*`, `completion_series_id`, `next_attempt_sequence_for_completion`) | ✅ Implemented (v0.3.19) |
-| Goodnotes document timestamps (`get_goodnotes_document_timestamps_for_file`, `get_goodnotes_document_timestamps_for_path`) | ✅ Implemented (v0.3.21) |
+| Goodnotes document timestamps + share link (`get_goodnotes_document_timestamps_for_file`, `get_goodnotes_document_timestamps_for_path`; `folder_scope`, `share_link` v0.3.36+) | ✅ Implemented (v0.3.21 timestamps; v0.3.36 share link) |
 | Completion dates (`get_completion_date`, `set_completion_date`, `clear_completion_date`; unified `infer_completion_date*`; `scripts/infer_completion_dates.py`) | ✅ Implemented (v0.3.22–v0.3.31) |
 | File group operations | ✅ Implemented |
 | `suggest_groups` | ✅ Implemented |

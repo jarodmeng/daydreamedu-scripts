@@ -4,6 +4,19 @@ All notable changes to `ai_study_buddy.marking` are documented in this file.
 
 Committed changes under `ai_study_buddy/marking/` should add an entry here and bump **Current version** in `README.md` (semver: **patch** for docs or small renderer tweaks, **minor** for schema or public API changes). `SPEC.md` / `TESTING.md` titles do not carry the package version.
 
+## [0.3.21] - 2026-06-08
+
+Patch: GoodNotes share links on attempt detail for Review Workspace evidence toolbar.
+
+### Added
+
+- **`marking/review/detail_service.py`:** `viewer.goodnotes_share_link` and `viewer.goodnotes_review_share_link` on marked attempt detail — resolved via `pdf_file_manager.get_goodnotes_document_timestamps_for_file(..., folder_scope=)`.
+- **Tests:** `marking/tests/test_review_workspace_goodnotes_share_link.py`.
+
+### Consumers
+
+- `buddy_console` v0.1.18+ (Attempt / Review evidence toolbar share link + AirDrop).
+
 ## [0.3.20] - 2026-06-07
 
 Minor: supervised review redo evidence (Review Workspace v0.1.16).

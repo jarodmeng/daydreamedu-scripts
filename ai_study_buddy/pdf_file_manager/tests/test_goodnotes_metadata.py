@@ -39,6 +39,16 @@ def _create_goodnotes_dbs(base: Path, docs: list[dict]) -> tuple[Path, Path]:
             item_type INTEGER,
             deleted BOOLEAN DEFAULT 0
         );
+        CREATE TABLE document_share (
+            id TEXT PRIMARY KEY,
+            document_id TEXT NOT NULL,
+            owner_id TEXT NOT NULL,
+            current_user_id TEXT NOT NULL,
+            updated_at DOUBLE NOT NULL,
+            service NUMERIC NOT NULL,
+            data BLOB NOT NULL,
+            created_at DOUBLE NOT NULL DEFAULT 0
+        );
         """
     )
     conn.executemany(
@@ -76,6 +86,20 @@ def _create_goodnotes_dbs(base: Path, docs: list[dict]) -> tuple[Path, Path]:
             """,
             (f"ffi-{doc['id']}", doc["id"], doc["name"]),
         )
+        share_alias = doc.get("share_alias")
+        if share_alias:
+            payload = (
+                f'{{"documentResponse":{{"documentAlias":"{share_alias}",'
+                f'"documentId":"{doc["id"]}"}}}}'
+            ).encode("utf-8")
+            conn.execute(
+                """
+                INSERT INTO document_share
+                    (id, document_id, owner_id, current_user_id, updated_at, service, data, created_at)
+                VALUES (?, ?, 'owner', 'owner', 1.0, 2, ?, 0)
+                """,
+                (f"{doc['id']}:1", doc["id"], payload),
+            )
     conn.commit()
     conn.close()
 
@@ -119,6 +143,28 @@ def goodnotes_env(tmp_path, monkeypatch):
     monkeypatch.setenv("GOODNOTES_PROJECTION_DB", str(projection))
     monkeypatch.setenv("GOODNOTES_FTS_DB", str(fts))
     return goodnotes_root
+
+
+def test_goodnotes_share_link_from_document_share(tmp_path, monkeypatch):
+    goodnotes_root = tmp_path / "GoodNotes"
+    goodnotes_root.mkdir()
+    monkeypatch.setenv("GOODNOTES_ROOT", str(goodnotes_root))
+    projection, fts = _create_goodnotes_dbs(
+        tmp_path / "goodnotes-db",
+        [{"id": "DOC-SHARE", "name": "_c_numbers_laq", "share_alias": "Amwv4ubzFA1GGgvqwo83b7"}],
+    )
+    monkeypatch.setenv("GOODNOTES_PROJECTION_DB", str(projection))
+    monkeypatch.setenv("GOODNOTES_FTS_DB", str(fts))
+
+    pdf_path = goodnotes_root / "c_numbers_laq.pdf"
+    _touch(pdf_path)
+    mgr = PdfFileManager(db_path=tmp_path / "registry.db")
+    pdf_file = mgr.register_file(pdf_path, file_type="main")
+
+    match = mgr.get_goodnotes_document_timestamps_for_file(pdf_file.id)
+
+    assert match.status == "matched_leading_underscore_restored"
+    assert match.share_link == "https://share.goodnotes.com/s/Amwv4ubzFA1GGgvqwo83b7"
 
 
 def test_goodnotes_timestamps_match_leading_underscore_and_folder_path(tmp_path, goodnotes_env):
@@ -211,6 +257,66 @@ def test_goodnotes_timestamps_metadata_unavailable(tmp_path, monkeypatch):
     match = mgr.get_goodnotes_document_timestamps_for_file(pdf_file.id)
 
     assert match.status == "metadata_unavailable"
+
+
+def test_goodnotes_share_link_disambiguates_attempt_vs_review_folder(tmp_path, monkeypatch):
+    goodnotes_root = tmp_path / "GoodNotes"
+    goodnotes_root.mkdir()
+    monkeypatch.setenv("GOODNOTES_ROOT", str(goodnotes_root))
+    projection, fts = _create_goodnotes_dbs(
+        tmp_path / "goodnotes-db",
+        [
+            {
+                "id": "DOC-ATTEMPT",
+                "name": "_c_PP Math PSLE Part D P6 Topical Practice Percentage",
+                "share_alias": "attempt-alias",
+            },
+            {
+                "id": "DOC-REVIEW",
+                "name": "_c_PP Math PSLE Part D P6 Topical Practice Percentage",
+                "share_alias": "review-alias",
+            },
+        ],
+    )
+    monkeypatch.setenv("GOODNOTES_PROJECTION_DB", str(projection))
+    monkeypatch.setenv("GOODNOTES_FTS_DB", str(fts))
+
+    conn = sqlite3.connect(projection)
+    conn.execute("INSERT INTO folders (id, name) VALUES ('REVIEW', 'Review')")
+    conn.execute(
+        """
+        INSERT INTO folder_to_folder_items
+            (id, parent_folder_id, root_folder_id, item_id, item_name, item_type, deleted)
+        VALUES ('ffi-review-parent', 'TYPE', 'ROOT', 'REVIEW', 'Review', 0, 0)
+        """
+    )
+    conn.execute(
+        """
+        UPDATE folder_to_folder_items
+        SET parent_folder_id = 'REVIEW'
+        WHERE item_id = 'DOC-REVIEW'
+        """
+    )
+    conn.commit()
+    conn.close()
+
+    pdf_path = goodnotes_root / "c_PP Math PSLE Part D P6 Topical Practice Percentage.pdf"
+    _touch(pdf_path)
+    mgr = PdfFileManager(db_path=tmp_path / "registry.db")
+    pdf_file = mgr.register_file(pdf_path, file_type="main")
+
+    attempt_match = mgr.get_goodnotes_document_timestamps_for_file(pdf_file.id, folder_scope="attempt")
+    review_match = mgr.get_goodnotes_document_timestamps_for_file(pdf_file.id, folder_scope="review")
+
+    assert attempt_match.status == "matched_leading_underscore_restored"
+    assert attempt_match.goodnotes_document_id == "DOC-ATTEMPT"
+    assert attempt_match.share_link == "https://share.goodnotes.com/s/attempt-alias"
+    assert attempt_match.goodnotes_folder_path.endswith("Exam")
+
+    assert review_match.status == "matched_leading_underscore_restored"
+    assert review_match.goodnotes_document_id == "DOC-REVIEW"
+    assert review_match.share_link == "https://share.goodnotes.com/s/review-alias"
+    assert review_match.goodnotes_folder_path.endswith("Review")
 
 
 def test_goodnotes_timestamps_not_found_and_ambiguous(tmp_path, monkeypatch):

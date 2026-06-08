@@ -31,3 +31,6 @@ Thumbs.db
 # Logs
 logs/
 *.log
+
+# macOS AirDrop helper (built on demand)
+goodnotes_airdrop/AirDropShareLink.app/

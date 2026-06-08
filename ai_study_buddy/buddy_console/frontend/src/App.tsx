@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { parseDeepLinkParams, replaceReviewWorkspaceUrl } from "./deepLink";
 import {
   cachedReviewImagesForViewer,
+  goodnotesShareLinkForViewerMode,
   resolveInitialEvidenceImageUrl,
   viewerImagePool,
   type ViewerMode,
@@ -125,6 +126,8 @@ type AttemptDetail = {
       resolved_path?: string | null;
     };
     review_images?: Array<{ name: string; page_num: number; url: string }>;
+    goodnotes_share_link?: string | null;
+    goodnotes_review_share_link?: string | null;
   };
 };
 
@@ -181,6 +184,7 @@ const SCIENCE_SKILL_TAG_PRESET_OPTIONS: string[][] = [
 ];
 
 const STORAGE_KEY_STUDENT = "buddy_console.review.student_id";
+const DEFAULT_VIEWER_ZOOM_PCT = 90;
 
 async function fetchJson<T>(url: string): Promise<T> {
   const res = await fetch(url);
@@ -188,6 +192,26 @@ async function fetchJson<T>(url: string): Promise<T> {
     throw new Error(`Request failed: ${res.status}`);
   }
   return res.json() as Promise<T>;
+}
+
+async function invokeGoodnotesAirDrop(url: string): Promise<void> {
+  const res = await fetch("/api/goodnotes/airdrop-share-link", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ url }),
+  });
+  if (!res.ok) {
+    let detail = `Request failed: ${res.status}`;
+    try {
+      const payload = (await res.json()) as { detail?: string };
+      if (payload.detail) {
+        detail = payload.detail;
+      }
+    } catch {
+      // ignore parse errors
+    }
+    throw new Error(detail);
+  }
 }
 
 async function fetchAttemptDetail(attemptId: string): Promise<AttemptDetail> {
@@ -566,7 +590,7 @@ function WorkspaceView({
   const [reviewImagesLoading, setReviewImagesLoading] = useState<boolean>(false);
   const [reviewImagesError, setReviewImagesError] = useState<string | null>(null);
   const [reviewTabAvailable, setReviewTabAvailable] = useState<boolean>(false);
-  const [viewerZoomPct, setViewerZoomPct] = useState<number>(50);
+  const [viewerZoomPct, setViewerZoomPct] = useState<number>(DEFAULT_VIEWER_ZOOM_PCT);
   const [activeQuestionId, setActiveQuestionId] = useState<string>(() => {
     const initialQuestions = detail.marking_result?.question_results ?? [];
     return initialResultId ?? resolveRequestedQuestionIdFromCurrentUrl(initialQuestions) ?? "";
@@ -583,6 +607,8 @@ function WorkspaceView({
   const [reviewerReason, setReviewerReason] = useState<string>("");
   const [amendmentSaveStatus, setAmendmentSaveStatus] = useState<SaveStatus>("idle");
   const [amendmentError, setAmendmentError] = useState<string | null>(null);
+  const [airdropLaunching, setAirdropLaunching] = useState<boolean>(false);
+  const [airdropError, setAirdropError] = useState<string | null>(null);
 
   useEffect(() => {
     const urlInitialResultId = resolveRequestedQuestionIdFromCurrentUrl(detail.marking_result?.question_results ?? []);
@@ -592,7 +618,7 @@ function WorkspaceView({
     setReviewImagesLoading(false);
     setReviewImagesError(null);
     setReviewTabAvailable(detail.viewer.review_redo?.available === true);
-    setViewerZoomPct(50);
+    setViewerZoomPct(DEFAULT_VIEWER_ZOOM_PCT);
     setActiveQuestionId(initialResultId ?? urlInitialResultId ?? "");
     setActiveImageUrl(null);
     setNoteScope("question");
@@ -696,9 +722,10 @@ function WorkspaceView({
       setActiveQuestionId(priorityQuestion.result_id);
       return;
     }
-    const pageStart = selectedQuestion.attempt_page_start;
     const imagePool = viewerImagePool(activeDetail.viewer, viewerMode, cachedReviewImages);
-    setActiveImageUrl(resolveInitialEvidenceImageUrl(imagePool, pageStart));
+    setActiveImageUrl(
+      resolveInitialEvidenceImageUrl(imagePool, viewerMode, selectedQuestion.attempt_page_start),
+    );
   }, [questions, activeQuestionId, viewerMode, activeDetail.viewer, initialResultId, reviewImagesCache]);
 
   useEffect(() => {
@@ -1004,6 +1031,7 @@ function WorkspaceView({
     questions.findIndex((q) => q.result_id === activeQuestionId),
   );
   const imagePool = viewerImagePool(activeDetail.viewer, viewerMode, cachedReviewImages);
+  const activeGoodnotesShareLink = goodnotesShareLinkForViewerMode(activeDetail.viewer, viewerMode);
   const templateImagesAvailable = (activeDetail.viewer.template_images ?? []).length > 0;
   const reviewModeLabel =
     viewerMode === "template"
@@ -1229,7 +1257,7 @@ function WorkspaceView({
                 <button onClick={() => setViewerZoomPct((z) => Math.max(20, z - 10))}>-</button>
                 <span>{viewerZoomPct}%</span>
                 <button onClick={() => setViewerZoomPct((z) => Math.min(150, z + 10))}>+</button>
-                <button onClick={() => setViewerZoomPct(50)}>Reset</button>
+                <button onClick={() => setViewerZoomPct(DEFAULT_VIEWER_ZOOM_PCT)}>Reset</button>
                 <input
                   type="range"
                   min={20}
@@ -1240,6 +1268,43 @@ function WorkspaceView({
                   aria-label="Evidence zoom"
                 />
               </div>
+              {activeGoodnotesShareLink ? (
+                <div className="goodnotes-share-actions">
+                  <a
+                    className="goodnotes-share-link"
+                    href={activeGoodnotesShareLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title={activeGoodnotesShareLink}
+                  >
+                    {activeGoodnotesShareLink}
+                  </a>
+                  <button
+                    type="button"
+                    className="goodnotes-airdrop-btn"
+                    disabled={airdropLaunching}
+                    title="AirDrop this GoodNotes link"
+                    onClick={() => {
+                      const link = activeGoodnotesShareLink;
+                      if (!link) {
+                        return;
+                      }
+                      setAirdropError(null);
+                      setAirdropLaunching(true);
+                      void invokeGoodnotesAirDrop(link)
+                        .catch((err: unknown) => {
+                          setAirdropError(err instanceof Error ? err.message : "AirDrop failed");
+                        })
+                        .finally(() => {
+                          setAirdropLaunching(false);
+                        });
+                    }}
+                  >
+                    {airdropLaunching ? "Opening…" : "AirDrop"}
+                  </button>
+                  {airdropError ? <span className="goodnotes-airdrop-error">{airdropError}</span> : null}
+                </div>
+              ) : null}
             </div>
           </div>
           <div className="viewer">

@@ -2,9 +2,10 @@ from __future__ import annotations
 
 import re
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 from ai_study_buddy.marking.core.artifact_lookup import find_marking_artifacts_for_attempt
+from ai_study_buddy.pdf_file_manager.goodnotes_metadata import GoodnotesDocumentMatchStatus
 from ai_study_buddy.pdf_file_manager.pdf_file_manager import (
     PdfFile,
     PdfFileManager,
@@ -126,6 +127,31 @@ def _review_redo_payload_for_attempt(
     }
 
 
+_GOODNOTES_MATCHED_STATUSES: frozenset[GoodnotesDocumentMatchStatus] = frozenset(
+    {
+        "matched_exact",
+        "matched_leading_underscore_restored",
+        "matched_raw_source",
+        "matched_raw_source_leading_underscore_restored",
+    }
+)
+
+
+def _goodnotes_share_link_for_completion(
+    completion: PdfFile,
+    manager: PdfFileManager,
+    *,
+    folder_scope: Literal["attempt", "review"],
+) -> str | None:
+    match = manager.get_goodnotes_document_timestamps_for_file(
+        completion.id,
+        folder_scope=folder_scope,
+    )
+    if match.status not in _GOODNOTES_MATCHED_STATUSES:
+        return None
+    return match.share_link
+
+
 def _empty_viewer_payload() -> dict[str, Any]:
     return {
         "mode_default": "attempt",
@@ -137,6 +163,8 @@ def _empty_viewer_payload() -> dict[str, Any]:
         "answer_page_start": None,
         "answer_page_end": None,
         "marking_asset": None,
+        "goodnotes_share_link": None,
+        "goodnotes_review_share_link": None,
     }
 
 
@@ -270,6 +298,8 @@ def get_attempt_detail(
         manager=manager,
     )
     review_redo = _review_redo_payload_for_attempt(completion=completion, manager=manager)
+    goodnotes_share_link = _goodnotes_share_link_for_completion(completion, manager, folder_scope="attempt")
+    goodnotes_review_share_link = _goodnotes_share_link_for_completion(completion, manager, folder_scope="review")
 
     student_id = context.get("student_id") if isinstance(context.get("student_id"), str) else (completion.student_id or "unknown")
     resolved_subject = (
@@ -333,6 +363,8 @@ def get_attempt_detail(
             "answer_page_start": context.get("answer_page_start"),
             "answer_page_end": context.get("answer_page_end"),
             "marking_asset": marking_asset,
+            "goodnotes_share_link": goodnotes_share_link,
+            "goodnotes_review_share_link": goodnotes_review_share_link,
         },
     }
 

@@ -120,6 +120,8 @@ Image entry shape (all pools): `{ "name", "page_num", "url" }` where `url` is un
 | `review_redo.available` | GoodNotes `Review/` PDF resolver | v0.1.16+; tab gating — not `review_images.length` |
 | `review_redo.resolved_path` | Same resolver | Relative to `goodnotes_root`; debug only |
 | `review_images[]` | Empty on detail load | Filled client-side from `review-evidence` response |
+| `goodnotes_share_link` | GoodNotes `document_share` via `get_goodnotes_document_timestamps_for_file(..., folder_scope="attempt")` | Original notebook (outside `Review` leaf folder); shown in Attempt evidence toolbar |
+| `goodnotes_review_share_link` | Same lookup with `folder_scope="review"` | Supervised-redo notebook under `.../Review`; shown in Review evidence toolbar |
 
 ### `context/review_redo/` (generated cache, gitignored)
 

@@ -36,7 +36,7 @@ from .completion_date.filename_term import (
     FILENAME_TERM_SOURCE,
     infer_completion_date_from_filename_term,
 )
-from .goodnotes_metadata import GoodnotesDocumentMatch, get_goodnotes_document_match
+from .goodnotes_metadata import GoodnotesDocumentMatch, GoodnotesFolderScope, get_goodnotes_document_match
 
 logger = logging.getLogger(__name__)
 
@@ -919,11 +919,16 @@ class PdfFileManager:
         file_id: str,
         *,
         include_deleted: bool = False,
+        folder_scope: GoodnotesFolderScope | None = None,
     ) -> GoodnotesDocumentMatch:
         """Return Goodnotes document timestamps/folder metadata for a registered g_root main.
 
         The lookup is read-only against Goodnotes' local macOS metadata DBs and returns a
         structured status rather than guessing for unsupported or unmatched files.
+
+        When multiple Goodnotes notebooks share the same name, ``folder_scope`` disambiguates:
+        ``attempt`` prefers notebooks outside a ``Review`` leaf folder; ``review`` prefers
+        notebooks inside ``... / Review``.
         """
         pdf_file = self.get_file(file_id)
         if pdf_file is None:
@@ -934,6 +939,7 @@ class PdfFileManager:
             file_type=pdf_file.file_type,
             raw_source_stems=self._raw_source_stems_for_file(pdf_file.id),
             include_deleted=include_deleted,
+            folder_scope=folder_scope,
         )
 
     def get_goodnotes_document_timestamps_for_path(
@@ -941,6 +947,7 @@ class PdfFileManager:
         path: str | Path,
         *,
         include_deleted: bool = False,
+        folder_scope: GoodnotesFolderScope | None = None,
     ) -> GoodnotesDocumentMatch:
         """Return Goodnotes document timestamps/folder metadata for a registered g_root path."""
         pdf_file = self.get_file_by_path(path)
@@ -949,6 +956,7 @@ class PdfFileManager:
         return self.get_goodnotes_document_timestamps_for_file(
             pdf_file.id,
             include_deleted=include_deleted,
+            folder_scope=folder_scope,
         )
 
     # ---------------------------------------------------------------------------

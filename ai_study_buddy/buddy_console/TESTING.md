@@ -198,12 +198,16 @@ In the review tab verify:
 1. a marked attempt deep link opens correctly
 2. seeded review functionality still loads without fetch errors
 3. **Review tab (v0.1.16+):** when `viewer.review_redo.available` on a marked attempt with a GoodNotes `Review/` export, **Review** appears without waiting for render; first click shows loading then page images; second click uses cache; question nav jumps to same page as **Attempt**; attempts without Review redo show three tabs only and never call `review-evidence` on load
+4. **GoodNotes share link (v0.1.18+):** on a g_root marked attempt, **Attempt** toolbar shows `viewer.goodnotes_share_link` when the notebook has been shared; **Review** toolbar shows `viewer.goodnotes_review_share_link` when the `.../Review` copy exists and is shared; **AirDrop** opens the macOS sheet (non-macOS or missing helper → API 503 / UI error)
 
 Optional API check (replace `ATTEMPT_ID` with registry `attempt_id` where Review redo exists):
 
 ```bash
-curl -s "http://localhost:8010/api/student/attempts/ATTEMPT_ID" | jq '.viewer.review_redo'
+curl -s "http://localhost:8010/api/student/attempts/ATTEMPT_ID" | jq '.viewer | {review_redo, goodnotes_share_link, goodnotes_review_share_link}'
 curl -s "http://localhost:8010/api/student/attempts/ATTEMPT_ID/review-evidence" | jq '.review_images | length'
+curl -s -X POST "http://localhost:8010/api/goodnotes/airdrop-share-link" \
+  -H 'Content-Type: application/json' \
+  -d '{"url":"https://share.goodnotes.com/s/Amwv4ubzFA1GGgvqwo83b7"}' | jq .
 ```
 
 Backend tests (supervised redo):
@@ -211,6 +215,14 @@ Backend tests (supervised redo):
 ```bash
 python3 -m pytest ai_study_buddy/files/tests/test_supervised_review_redo.py \
   ai_study_buddy/marking/tests/test_review_workspace_review_redo.py -q
+```
+
+Backend tests (GoodNotes share link + AirDrop API, v0.1.18+):
+
+```bash
+python3 -m pytest ai_study_buddy/pdf_file_manager/tests/test_goodnotes_metadata.py \
+  ai_study_buddy/marking/tests/test_review_workspace_goodnotes_share_link.py \
+  ai_study_buddy/buddy_console/tests/test_goodnotes_airdrop_api.py -q
 ```
 
 ### Student portal (v0.1.11+)

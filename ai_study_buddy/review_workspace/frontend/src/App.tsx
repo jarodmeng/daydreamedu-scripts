@@ -184,6 +184,7 @@ const SCIENCE_SKILL_TAG_PRESET_OPTIONS: string[][] = [
 ];
 
 const STORAGE_KEY_STUDENT = "review_workspace.student_id";
+const DEFAULT_VIEWER_ZOOM_PCT = 90;
 
 async function fetchJson<T>(url: string): Promise<T> {
   const res = await fetch(url);
@@ -566,7 +567,7 @@ function WorkspaceView({
   initialResultId?: string | null;
 }) {
   const [viewerMode, setViewerMode] = useState<ViewerMode>("attempt");
-  const [viewerZoomPct, setViewerZoomPct] = useState<number>(50);
+  const [viewerZoomPct, setViewerZoomPct] = useState<number>(DEFAULT_VIEWER_ZOOM_PCT);
   const [activeQuestionId, setActiveQuestionId] = useState<string>("");
   const [activeImageUrl, setActiveImageUrl] = useState<string | null>(null);
   const [noteScope, setNoteScope] = useState<NoteScope>("question");
@@ -585,7 +586,7 @@ function WorkspaceView({
     const urlInitialResultId = resolveRequestedQuestionIdFromCurrentUrl(detail.marking_result?.question_results ?? []);
     setActiveDetail(detail);
     setViewerMode("attempt");
-    setViewerZoomPct(50);
+    setViewerZoomPct(DEFAULT_VIEWER_ZOOM_PCT);
     setActiveQuestionId(initialResultId ?? urlInitialResultId ?? "");
     setActiveImageUrl(null);
     setNoteScope("question");
@@ -643,12 +644,13 @@ function WorkspaceView({
       setActiveQuestionId(priorityQuestion.result_id);
       return;
     }
-    const pageStart = selectedQuestion.attempt_page_start;
     const imagePool = viewerImagePool(activeDetail.viewer, viewerMode);
     if (imagePool.length === 0) {
       setActiveImageUrl(null);
       return;
     }
+    // L4: page jump applies to Attempt/Template only — Answer always opens at p1.
+    const pageStart = viewerMode === "answer" ? null : selectedQuestion.attempt_page_start;
     const exact = pageStart != null ? imagePool.find((img) => img.page_num === pageStart) : undefined;
     setActiveImageUrl((exact ?? imagePool[0]).url);
   }, [questions, activeQuestionId, viewerMode, activeDetail.viewer]);
@@ -1179,7 +1181,7 @@ function WorkspaceView({
                 <button onClick={() => setViewerZoomPct((z) => Math.max(20, z - 10))}>-</button>
                 <span>{viewerZoomPct}%</span>
                 <button onClick={() => setViewerZoomPct((z) => Math.min(150, z + 10))}>+</button>
-                <button onClick={() => setViewerZoomPct(50)}>Reset</button>
+                <button onClick={() => setViewerZoomPct(DEFAULT_VIEWER_ZOOM_PCT)}>Reset</button>
                 <input
                   type="range"
                   min={20}

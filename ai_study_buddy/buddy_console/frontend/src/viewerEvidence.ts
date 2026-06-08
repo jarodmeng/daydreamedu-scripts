@@ -32,13 +32,32 @@ export function viewerImagePool(
   return viewer.answer_images;
 }
 
+export function goodnotesShareLinkForViewerMode(
+  viewer: {
+    goodnotes_share_link?: string | null;
+    goodnotes_review_share_link?: string | null;
+  },
+  mode: ViewerMode,
+): string | null {
+  if (mode === "attempt") {
+    return viewer.goodnotes_share_link ?? null;
+  }
+  if (mode === "review") {
+    return viewer.goodnotes_review_share_link ?? null;
+  }
+  return null;
+}
+
 export function resolveInitialEvidenceImageUrl(
   imagePool: ViewerImage[],
-  pageStart: number | null | undefined,
+  mode: ViewerMode,
+  attemptPageStart: number | null | undefined,
 ): string | null {
   if (imagePool.length === 0) {
     return null;
   }
+  // L4: page jump applies to Attempt/Template/Review only — Answer always opens at p1.
+  const pageStart = mode === "answer" ? null : attemptPageStart;
   const exact = pageStart != null ? imagePool.find((img) => img.page_num === pageStart) : undefined;
   return (exact ?? imagePool[0]).url;
 }

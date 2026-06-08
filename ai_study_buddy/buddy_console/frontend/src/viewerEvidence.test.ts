@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   cachedReviewImagesForViewer,
+  goodnotesShareLinkForViewerMode,
   resolveInitialEvidenceImageUrl,
   viewerImagePool,
 } from "./viewerEvidence";
@@ -47,16 +48,40 @@ describe("viewerImagePool", () => {
   });
 });
 
+describe("goodnotesShareLinkForViewerMode", () => {
+  const viewer = {
+    goodnotes_share_link: "https://share.goodnotes.com/s/attempt-link",
+    goodnotes_review_share_link: "https://share.goodnotes.com/s/review-link",
+  };
+
+  it("returns attempt link in attempt mode", () => {
+    expect(goodnotesShareLinkForViewerMode(viewer, "attempt")).toBe(viewer.goodnotes_share_link);
+  });
+
+  it("returns review link in review mode", () => {
+    expect(goodnotesShareLinkForViewerMode(viewer, "review")).toBe(viewer.goodnotes_review_share_link);
+  });
+
+  it("returns null for answer and template modes", () => {
+    expect(goodnotesShareLinkForViewerMode(viewer, "answer")).toBeNull();
+    expect(goodnotesShareLinkForViewerMode(viewer, "template")).toBeNull();
+  });
+});
+
 describe("resolveInitialEvidenceImageUrl", () => {
-  it("jumps to the mapped page when present in the pool", () => {
-    expect(resolveInitialEvidenceImageUrl(sampleViewer.answer_images, 36)).toBe("/answer/36");
+  it("jumps to the mapped page in attempt mode when present in the pool", () => {
+    expect(resolveInitialEvidenceImageUrl(sampleViewer.attempt_images, "attempt", 15)).toBe("/attempt/15");
+  });
+
+  it("always opens answer mode at the first page", () => {
+    expect(resolveInitialEvidenceImageUrl(sampleViewer.answer_images, "answer", 36)).toBe("/answer/35");
   });
 
   it("falls back to the first page when the mapped page is missing", () => {
-    expect(resolveInitialEvidenceImageUrl(sampleViewer.answer_images, 14)).toBe("/answer/35");
+    expect(resolveInitialEvidenceImageUrl(sampleViewer.attempt_images, "attempt", 99)).toBe("/attempt/14");
   });
 
   it("returns null for an empty pool", () => {
-    expect(resolveInitialEvidenceImageUrl([], 14)).toBeNull();
+    expect(resolveInitialEvidenceImageUrl([], "attempt", 14)).toBeNull();
   });
 });

@@ -1454,6 +1454,56 @@ body[data-buddy-console-view="inventory"] {
   width: 96px;
 }
 
+.goodnotes-share-actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.goodnotes-share-link {
+  max-width: min(300px, 36vw);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 11px;
+  color: #0b57d0;
+  text-decoration: none;
+}
+
+.goodnotes-share-link:hover {
+  text-decoration: underline;
+}
+
+.goodnotes-airdrop-btn {
+  flex-shrink: 0;
+  padding: 4px 8px;
+  font-size: 11px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--surface);
+  cursor: pointer;
+}
+
+.goodnotes-airdrop-btn:hover:not(:disabled) {
+  background: var(--surface-muted, #f4f4f4);
+}
+
+.goodnotes-airdrop-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.goodnotes-airdrop-error {
+  font-size: 10px;
+  color: crimson;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .viewer {
   padding: 10px;
   min-height: 0;
