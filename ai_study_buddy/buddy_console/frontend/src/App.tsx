@@ -2,6 +2,12 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
 
 import { parseDeepLinkParams, replaceReviewWorkspaceUrl } from "./deepLink";
+import {
+  cachedReviewImagesForViewer,
+  resolveInitialEvidenceImageUrl,
+  viewerImagePool,
+  type ViewerMode,
+} from "./viewerEvidence";
 
 type StudentRow = {
   student_id: string;
@@ -122,24 +128,6 @@ type AttemptDetail = {
   };
 };
 
-type ViewerMode = "attempt" | "answer" | "template" | "review";
-
-function viewerImagePool(
-  viewer: AttemptDetail["viewer"],
-  mode: ViewerMode,
-  cachedReviewImages: Array<{ name: string; page_num: number; url: string }> = [],
-): Array<{ name: string; page_num: number; url: string }> {
-  if (mode === "attempt") {
-    return viewer.attempt_images;
-  }
-  if (mode === "template") {
-    return viewer.template_images ?? [];
-  }
-  if (mode === "review") {
-    return cachedReviewImages;
-  }
-  return viewer.answer_images;
-}
 type NoteScope = "question" | "attempt" | "student_subject";
 type SaveStatus = "idle" | "unsaved" | "saving" | "saved" | "error";
 type EditableFieldKey =
@@ -657,7 +645,7 @@ function WorkspaceView({
     }
   }
 
-  const cachedReviewImages = reviewImagesCache ?? [];
+  const cachedReviewImages = cachedReviewImagesForViewer(reviewImagesCache);
 
   const questions = activeDetail.marking_result?.question_results ?? [];
   const baseQuestions = activeDetail.marking_result_base?.question_results ?? [];
@@ -710,13 +698,8 @@ function WorkspaceView({
     }
     const pageStart = selectedQuestion.attempt_page_start;
     const imagePool = viewerImagePool(activeDetail.viewer, viewerMode, cachedReviewImages);
-    if (imagePool.length === 0) {
-      setActiveImageUrl(null);
-      return;
-    }
-    const exact = pageStart != null ? imagePool.find((img) => img.page_num === pageStart) : undefined;
-    setActiveImageUrl((exact ?? imagePool[0]).url);
-  }, [questions, activeQuestionId, viewerMode, activeDetail.viewer, initialResultId, cachedReviewImages]);
+    setActiveImageUrl(resolveInitialEvidenceImageUrl(imagePool, pageStart));
+  }, [questions, activeQuestionId, viewerMode, activeDetail.viewer, initialResultId, reviewImagesCache]);
 
   useEffect(() => {
     if (!activeQuestionId) {

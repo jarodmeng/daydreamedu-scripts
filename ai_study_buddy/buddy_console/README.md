@@ -1,6 +1,6 @@
 # Buddy Console
 
-**Version: v0.1.16**
+**Version: v0.1.17**
 
 `buddy_console` is the new unified browser app for AI Study Buddy.
 

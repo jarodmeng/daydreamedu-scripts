@@ -2,6 +2,16 @@
 
 All notable changes to `ai_study_buddy/buddy_console` are documented here.
 
+## [v0.1.17] - Review Workspace evidence page navigation fix (2026-06-08)
+
+### Fixed
+
+1. **Review Workspace evidence page navigation:** Answer (and Attempt/Template) Previous/Next and page dropdown no longer snap back on every render — `reviewImagesCache ?? []` had created a new empty-array reference each render, retriggering the image-sync effect (regression from v0.1.16 Review tab work). Covered by `viewerEvidence.test.ts`.
+
+### Changed
+
+1. `frontend/package.json` version aligned to `0.1.17`.
+
 ## [v0.1.16] - Review Workspace supervised redo tab (2026-06-07)
 
 ### Added
