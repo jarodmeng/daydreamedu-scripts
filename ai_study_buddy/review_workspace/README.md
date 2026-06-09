@@ -3,11 +3,25 @@
 This folder contains the backend/frontend app for Review Workspace, including
 student review-state notes and human grading amendment overlays.
 
-> Legacy standalone review app. `buddy_console` is now the preferred unified
-> operator app, but this package remains available for rollback and reference
-> use while review functionality is still seeded from it.
+> Legacy standalone review app. **`buddy_console` is the ship target** for Review
+> Workspace and new review features (including tutor chat v0.2.0). This package
+> remains available for rollback and reference only.
 
 Current version: `v0.1.13`
+
+## Maintenance policy (June 2026+)
+
+| Layer | Policy |
+|-------|--------|
+| **`marking.review` API** | Shared — new review/tutor routes land here; both backends mount the same router. |
+| **`buddy_console` frontend** | **Required** — all new Review Workspace UI work ships here (`/review`). |
+| **`review_workspace` frontend** | **Not mirrored** — tutor chat UI removed; use `buddy_console` `/review` for **Ask AI**. |
+| **`review_workspace` backend** | Thin shell only — keep mounting `marking.review.api_routes` for rollback; no feature logic here. |
+| **Tests** | `marking/tests/test_tutor_chat_api.py` may use this app's FastAPI entrypoint as a minimal host; that does not require frontend parity. |
+
+Use `buddy_console` for day-to-day review and tutor chat. Run standalone `review_workspace` only when debugging rollback or comparing legacy `:5178` behavior.
+
+See [L4 browser consolidation](../docs/L4_BROWSER_APP_CONSOLIDATION.md) and [buddy_console README](../buddy_console/README.md).
 
 Current phase: `single-student alpha` (scope locked on April 23, 2026).
 

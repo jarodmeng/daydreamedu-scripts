@@ -58,6 +58,7 @@ Actionable plans for building specific components. Each L4 doc drills into one d
 | [STUDENT_FILE_MANAGEMENT](./L4_STUDENT_FILE_MANAGEMENT.md) | **Implemented** — `files` v0.3.0+, `marking` v0.3.8 workflow flags, **Student File Browser** v0.1.1 (8771), `root_pdf_browser` v0.1.6 + Review Workspace v0.1.4 deep links; operator filter-first inventory |
 | [BROWSER_APP_CONSOLIDATION](./L4_BROWSER_APP_CONSOLIDATION.md) | **In progress** — `buddy_console` now exists as the preferred unified operator app, combining inventory, PDF browsing, and review while legacy standalone apps remain available for rollback |
 | [LOCAL_LEARNING_DB](./L4_LOCAL_LEARNING_DB.md) | Proposal: create `study_buddy.db` as a local Postgres-shaped SQLite data layer for marking facts, amendments, review state, backup, and future migration |
+| [REVIEW_WORKSPACE_QUESTION_TUTOR_CHAT](./L4_REVIEW_WORKSPACE_QUESTION_TUTOR_CHAT.md) | **Shipped** (`buddy_console` v0.2.0, feature-flagged): question-scoped **Ask AI** in `/review`; Cursor SDK local agent; [proposal 4](../buddy_console/docs/proposal/4-review-workspace-question-tutor-chat.md) |
 
 ## Sources and attribution
 

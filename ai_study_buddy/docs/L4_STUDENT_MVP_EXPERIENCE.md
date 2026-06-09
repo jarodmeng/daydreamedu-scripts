@@ -98,7 +98,7 @@ This aligns better with the broader AI Study Buddy vision:
 
 ### Out of Scope
 
-1. Tutor chat, hint ladder, or Socratic tutoring loop.
+1. Tutor chat, hint ladder, or Socratic tutoring loop — **exception:** question-scoped **Ask AI** in `buddy_console` `/review` (v0.2.0+, `VITE_REVIEW_TUTOR_CHAT=1`); see [L4_REVIEW_WORKSPACE_QUESTION_TUTOR_CHAT](./L4_REVIEW_WORKSPACE_QUESTION_TUTOR_CHAT.md). Still out of scope for `/student` and production student portal.
 2. Quest board as the primary home screen.
 3. Parent dashboard and admin ingestion/review tooling.
 4. Full question-object extraction with bounding boxes and per-question image crops.

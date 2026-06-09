@@ -1,6 +1,6 @@
 # AI Study Buddy Review Workspace Architecture
 
-Status: active MVP architecture baseline (`single-student alpha`).
+Status: legacy standalone app (`single-student alpha` baseline). **`buddy_console`** is the maintained operator app for `/review`; see `README.md` §Maintenance policy.
 
 This document defines:
 
