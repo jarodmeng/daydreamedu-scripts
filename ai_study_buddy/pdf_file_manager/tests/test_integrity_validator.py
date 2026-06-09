@@ -166,6 +166,53 @@ def test_integrity_validator_reports_known_issue_types():
         assert payload["summary"]["main_raw_metadata_drift"] == 1
 
 
+def test_integrity_validator_allows_activity_template_doc_type():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmpdir = Path(tmpdir)
+        db_path = tmpdir / "registry.db"
+        mgr = PdfFileManager(db_path=str(db_path))
+
+        activity_template_pdf = (
+            tmpdir
+            / "DaydreamEdu"
+            / "Singapore Primary Math"
+            / "P4"
+            / "Activity"
+            / "activity_template.pdf"
+        )
+        activity_template_pdf.parent.mkdir(parents=True, exist_ok=True)
+        activity_template_pdf.write_bytes(b"%PDF-1.0\n")
+        mgr.register_file(
+            activity_template_pdf,
+            file_type="main",
+            doc_type="activity",
+            subject="math",
+            is_template=True,
+        )
+
+        note_template_pdf = (
+            tmpdir
+            / "DaydreamEdu"
+            / "Singapore Primary Math"
+            / "P4"
+            / "Note"
+            / "note_template.pdf"
+        )
+        note_template_pdf.parent.mkdir(parents=True, exist_ok=True)
+        note_template_pdf.write_bytes(b"%PDF-1.0\n")
+        mgr.register_file(
+            note_template_pdf,
+            file_type="main",
+            doc_type="note",
+            subject="math",
+            is_template=True,
+        )
+
+        report = build_report(mgr)
+        assert report["summary"]["template_invalid_doc_type"] == 1
+        assert report["checks"]["template_invalid_doc_type"][0]["doc_type"] == "note"
+
+
 def test_integrity_validator_reports_path_inferred_metadata_drift():
     with tempfile.TemporaryDirectory() as tmpdir:
         tmpdir = Path(tmpdir)

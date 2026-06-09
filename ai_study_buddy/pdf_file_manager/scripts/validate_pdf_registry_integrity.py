@@ -18,7 +18,7 @@ Health checks (for large registry operations):
 9. any stored ``subject`` must be in the allowed enum set
 10. any populated ``metadata.grade_or_scope`` must be in the allowed token set
 11. raw/main relation graph is consistent (has_raw, reciprocal edges, and valid endpoint types)
-12. template files are constrained to ``doc_type`` in ``exam``, ``exercise``, ``book``
+12. template files are constrained to ``doc_type`` in ``exam``, ``exercise``, ``book``, ``activity``
 13. ``file_relations`` rows whose ``source_id`` or ``target_id`` does not exist in ``pdf_files``
     (orphan edges — e.g. leftover template/completion links after rows were removed without CASCADE
     when SQLite ``PRAGMA foreign_keys`` was off)
@@ -148,7 +148,7 @@ def collect_invalid_grade_or_scope_values(mgr: PdfFileManager) -> list[dict]:
 
 
 def collect_template_invalid_doc_type(mgr: PdfFileManager) -> list[dict]:
-    allowed_template_doc_types = {"exam", "exercise", "book"}
+    allowed_template_doc_types = {"exam", "exercise", "book", "activity"}
     bad: list[dict] = []
     for file in mgr.find_files(is_template=True):
         if file.doc_type in allowed_template_doc_types:
@@ -806,7 +806,7 @@ def _print_human_report(report: dict, *, limit: int) -> None:
         else:
             print(f"- {issue}: {item}")
 
-    print("\nTemplate files with invalid doc_type (allowed: exam, exercise, book):")
+    print("\nTemplate files with invalid doc_type (allowed: exam, exercise, book, activity):")
     for item in report["checks"]["template_invalid_doc_type"][:limit]:
         print(f"- {item['path']} [{item['file_type']}/{item['doc_type']}] id={item['id']}")
 
