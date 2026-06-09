@@ -82,4 +82,19 @@ describe("amendment meaningful-change detection", () => {
     );
     expect(fields).toEqual({});
   });
+
+  it("clears stale persisted page-map override when draft matches AI base", () => {
+    const baseByField = (field: string) => {
+      if (field === "attempt_page_start") return 43;
+      return null;
+    };
+    const fields = pickAmendmentFieldsForSave({ attempt_page_start: 43 }, { attempt_page_start: 44 }, baseByField);
+    expect(fields).toEqual({});
+    const persistedFields = pickAmendmentFieldsForSave({ attempt_page_start: 44 }, {}, baseByField);
+    expect(persistedFields).toEqual({ attempt_page_start: 44 });
+    const shouldSendPageMapClear =
+      Object.keys(fields).length === 0 &&
+      Object.prototype.hasOwnProperty.call(persistedFields, "attempt_page_start");
+    expect(shouldSendPageMapClear).toBe(true);
+  });
 });

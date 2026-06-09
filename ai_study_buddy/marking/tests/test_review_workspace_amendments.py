@@ -375,6 +375,64 @@ def test_panel_save_auto_sets_outcome_to_correct_when_earned_marks_matches_amend
     assert fields["outcome"] == "correct"
 
 
+def test_panel_save_clears_stale_page_map_override_when_override_keys_omitted():
+    base = _base_payload()
+    existing = normalize_amendment_state(
+        {
+            "question_page_map_amendments": [
+                {"result_id": "Q2", "attempt_page_start": 1, "confidence": "high"}
+            ]
+        },
+        context=_context(base),
+    )
+
+    merged = merge_panel_amendment(
+        existing_state=existing,
+        body={
+            "updated_by": "buddy_console_ui",
+            "question_page_map_amendments": [{"result_id": "Q2"}],
+        },
+        base_payload=base,
+        context=_context(base),
+        valid_attempt_pages={1, 2},
+    )
+
+    assert merged["question_page_map_amendments"] == []
+    resolved = resolve_marking_result(
+        base_payload=base,
+        amendment_state=merged,
+        valid_attempt_pages={1, 2},
+    )
+    assert resolved["context"]["question_page_map"][1]["attempt_page_start"] == 2
+
+
+def test_panel_save_reverts_page_map_override_to_base_value():
+    base = _base_payload()
+    existing = normalize_amendment_state(
+        {"question_page_map_amendments": [{"result_id": "Q2", "attempt_page_start": 1}]},
+        context=_context(base),
+    )
+
+    merged = merge_panel_amendment(
+        existing_state=existing,
+        body={
+            "updated_by": "buddy_console_ui",
+            "question_page_map_amendments": [{"result_id": "Q2"}],
+        },
+        base_payload=base,
+        context=_context(base),
+        valid_attempt_pages={1, 2},
+    )
+
+    assert merged["question_page_map_amendments"] == []
+    resolved = resolve_marking_result(
+        base_payload=base,
+        amendment_state=merged,
+        valid_attempt_pages={1, 2},
+    )
+    assert resolved["context"]["question_page_map"][1]["attempt_page_start"] == 2
+
+
 def test_panel_save_clears_stale_question_override_when_fields_empty():
     base = _base_payload()
     base["question_results"][1]["student_answer"] = "$214"

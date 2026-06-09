@@ -2,6 +2,17 @@
 
 All notable changes to `ai_study_buddy/buddy_console` are documented here.
 
+## [v0.1.19] - Page-map amendment revert fix (2026-06-09)
+
+### Fixed
+
+1. **Review Workspace mapped-page amendments:** reverting `attempt_page_start` (or map confidence) to the AI base value now clears the persisted override instead of leaving a stale saved page (`App.tsx`, `App.test.ts`).
+
+### Changed
+
+1. `frontend/package.json` version aligned to `0.1.19`.
+2. Requires `ai_study_buddy.marking` v0.3.22+.
+
 ## [v0.1.18] - GoodNotes share links and AirDrop in evidence toolbar (2026-06-08)
 
 ### Added

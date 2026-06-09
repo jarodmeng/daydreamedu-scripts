@@ -4,6 +4,17 @@ All notable changes to `ai_study_buddy/review_workspace` are documented here.
 
 ---
 
+## [v0.1.13] — Page-map amendment revert fix (2026-06-09)
+
+### Fixed
+
+- Amendment save: reverting mapped page (or map confidence) to the AI base now clears the persisted override (`App.tsx`; same fix as `buddy_console` v0.1.19).
+
+### Changed
+
+- `frontend/package.json` version aligned to `0.1.13`.
+- Requires `ai_study_buddy.marking` v0.3.22+.
+
 ## [v0.1.12] — Evidence default zoom + page jump fix (2026-06-08)
 
 ### Fixed

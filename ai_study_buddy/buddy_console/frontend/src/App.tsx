@@ -975,7 +975,10 @@ function WorkspaceView({
             },
           ]
         : [];
-    const pageMapAmendments = hasPageMapChange ? [pageMapAmendment] : [];
+    const hasPersistedPageMapOverride =
+      Object.prototype.hasOwnProperty.call(persistedAmendmentFieldsForSave, "attempt_page_start") ||
+      Object.prototype.hasOwnProperty.call(persistedAmendmentFieldsForSave, "page_map.confidence");
+    const pageMapAmendments = hasPageMapChange || hasPersistedPageMapOverride ? [pageMapAmendment] : [];
 
     try {
       setAmendmentSaveStatus("saving");

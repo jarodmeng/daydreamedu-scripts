@@ -4,6 +4,19 @@ All notable changes to `ai_study_buddy.marking` are documented in this file.
 
 Committed changes under `ai_study_buddy/marking/` should add an entry here and bump **Current version** in `README.md` (semver: **patch** for docs or small renderer tweaks, **minor** for schema or public API changes). `SPEC.md` / `TESTING.md` titles do not carry the package version.
 
+## [0.3.22] - 2026-06-09
+
+Patch: clear stale page-map amendment overrides when reverted to AI base.
+
+### Fixed
+
+- **`marking/review/amendment_service.py`:** `_upsert_page_map_amendment` removes override rows when the panel sends no override keys (revert to base); partial updates replace only keys present in the payload.
+- **Tests:** `test_panel_save_clears_stale_page_map_override_when_override_keys_omitted`, `test_panel_save_reverts_page_map_override_to_base_value`.
+
+### Consumers
+
+- `buddy_console` v0.1.19+ and `review_workspace` v0.1.13+ (mapped-page amendment save).
+
 ## [0.3.21] - 2026-06-08
 
 Patch: GoodNotes share links on attempt detail for Review Workspace evidence toolbar.

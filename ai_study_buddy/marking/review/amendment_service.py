@@ -542,11 +542,28 @@ def _upsert_question_amendment(rows: list[dict[str, Any]], incoming: dict[str, A
 
 def _upsert_page_map_amendment(rows: list[dict[str, Any]], incoming: dict[str, Any]) -> None:
     result_id = incoming["result_id"]
+    override_keys = ("attempt_page_start", "confidence")
+    incoming_overrides = {key: incoming[key] for key in override_keys if key in incoming}
+
     for index, row in enumerate(rows):
-        if row.get("result_id") == result_id:
-            rows[index] = {**row, **incoming}
-            return
-    rows.append(incoming)
+        if row.get("result_id") != result_id:
+            continue
+        if not incoming_overrides:
+            rows.pop(index)
+        else:
+            updated = {**row, **incoming}
+            for key in override_keys:
+                if key not in incoming_overrides:
+                    updated.pop(key, None)
+            rows[index] = updated
+        return
+
+    if incoming_overrides:
+        new_row: dict[str, Any] = {"result_id": result_id, **incoming_overrides}
+        for meta_key in ("updated_at", "updated_by"):
+            if meta_key in incoming:
+                new_row[meta_key] = incoming[meta_key]
+        rows.append(new_row)
 
 
 def _error(field: str, message: str) -> dict[str, str]:
