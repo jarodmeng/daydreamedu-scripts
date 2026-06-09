@@ -17,6 +17,14 @@ See:
   - consumed through `PdfFileManager`
 - `AI_STUDY_BUDDY_CONTEXT_ROOT` optional
   - overrides the default context root used by inventory/review services
+- `CURSOR_API_KEY` (v0.2.0+ tutor chat)
+  - required when tutor routes are active; server-side only
+- `VITE_REVIEW_TUTOR_CHAT` (frontend build)
+  - `1` shows **Ask AI** in Review Workspace
+- `BUDDY_CONSOLE_TUTOR_CHAT_DEBUG` optional
+  - `1` enables `GET …/tutor-chat/context-preview`
+- `BUDDY_CONSOLE_DISABLE_TUTOR_CHAT` optional
+  - `1` → tutor routes return **404** (rollback)
 
 ### Filesystem Dependencies
 
@@ -61,6 +69,7 @@ Expected behavior:
 3. evidence toolbar: **Attempt** / **Answer** / **Template** (when `viewer.template_images` non-empty) / **Review** (v0.1.16+ when `viewer.review_redo.available`)
 4. **Review** tab: lazy load on first click — no `review-evidence` request on detail load; client caches returned `review_images`
 5. **GoodNotes share link** (v0.1.18+): on **Attempt** / **Review** when `viewer.goodnotes_share_link` / `viewer.goodnotes_review_share_link` is set (g_root completions only); optional **AirDrop** button calls `POST /api/goodnotes/airdrop-share-link` (macOS)
+6. **Ask AI** tutor chat (v0.2.0+ when `VITE_REVIEW_TUTOR_CHAT=1`): collapsible panel below review card, above Review Notes; thread per `(attempt_id, result_id)`; resizable height (`sessionStorage`); stale-context banner; **Stop** and elapsed timer while waiting
 
 ### `/student`
 
@@ -219,6 +228,7 @@ That currently provides:
 2. review-state persistence
 3. amendment persistence
 4. supervised redo evidence (v0.1.16+): `GET /api/student/attempts/{attempt_id}/review-evidence`
+5. question-scoped tutor chat (v0.2.0+): `GET`/`POST /api/student/attempts/{attempt_id}/questions/{result_id}/tutor-chat`, `POST …/tutor-chat/sessions`, optional debug `GET …/tutor-chat/context-preview`
 
 `buddy_console` consumes those routes through the `/review` surface.
 
@@ -264,6 +274,23 @@ Lazy supervised redo render. Call only when **Review** tab is shown (`review_red
 Path segments match `marking_assets/` / `file_question_info/` conventions (`slugify_student`, `normalize_pdf_display_name` on template stem). Re-render when source Review PDF mtime is newer than cached PNGs. No `register_file`; Review-folder PDFs remain excluded from inventory ([`files` SPEC §2.6](../files/SPEC.md#26-goodnotes-review-folder-vs-review-workspace)).
 
 See [proposal 3](./docs/proposal/3-review-workspace-supervised-redo-tab.md).
+
+#### Question-scoped tutor chat (v0.2.0+)
+
+Routes under `…/questions/{result_id}/tutor-chat`. Disabled when `BUDDY_CONSOLE_DISABLE_TUTOR_CHAT=1`. Requires `CURSOR_API_KEY` when enabled (**503** if missing).
+
+| Method | Path | Behavior |
+|--------|------|----------|
+| `GET` | `…/tutor-chat` | Latest session messages + `stale_context`; **404** if no session |
+| `POST` | `…/tutor-chat/sessions` | New `session_id` |
+| `POST` | `…/tutor-chat` | Send message; SSE stream (`status` → `token` → `done` \| `error`) |
+| `GET` | `…/tutor-chat/context-preview` | Assembled bundle (debug); **404** unless `BUDDY_CONSOLE_TUTOR_CHAT_DEBUG=1` |
+
+POST body: `{ "message": "…", "session_id?": "…", "refresh_context?": false }`.
+
+Transcripts persist as `tutor_chat.v1` under `context/tutor_chats/` (gitignored). Normative product rules: [L4](../docs/L4_REVIEW_WORKSPACE_QUESTION_TUTOR_CHAT.md); API shapes: [proposal 4](./docs/proposal/4-review-workspace-question-tutor-chat.md).
+
+See [proposal 4](./docs/proposal/4-review-workspace-question-tutor-chat.md).
 
 ## Deep-Link Contract
 

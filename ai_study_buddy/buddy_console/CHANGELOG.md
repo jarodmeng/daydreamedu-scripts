@@ -2,6 +2,30 @@
 
 All notable changes to `ai_study_buddy/buddy_console` are documented here.
 
+## [v0.2.0] - Review Workspace question-scoped tutor chat (2026-06-09)
+
+### Added
+
+1. **Ask AI** panel in Review Workspace (`/review`) — question-scoped tutor chat for marked attempts, behind `VITE_REVIEW_TUTOR_CHAT=1` ([proposal 4](./docs/proposal/4-review-workspace-question-tutor-chat.md), [L4](../docs/L4_REVIEW_WORKSPACE_QUESTION_TUTOR_CHAT.md)).
+2. Tutor chat API (via `marking.review.api_routes`): `GET`/`POST …/tutor-chat`, `POST …/tutor-chat/sessions`, debug `GET …/tutor-chat/context-preview` when `BUDDY_CONSOLE_TUTOR_CHAT_DEBUG=1`.
+3. Server-side context bundle (resolved marking, amendments, all labeled review notes, attempt page path) and `tutor_chat.v1` transcripts under `context/tutor_chats/` (gitignored).
+4. Cursor SDK local agent inference (`model="auto"`, multi-turn `Agent.resume`); SSE `status` heartbeats + `token`/`done`/`error` events.
+5. Stale-context banner when amendments or review notes drift; **Refresh & continue** on next send.
+6. Resizable chat dock (height in `sessionStorage`); assistant replies as markdown + GFM tables.
+7. In-progress UX: elapsed timer on status pill, **Stop**, 2-minute client timeout, expectation hints.
+
+### Changed
+
+1. `frontend/package.json` version aligned to `0.2.0`.
+2. Requires `ai_study_buddy.marking` **v0.3.23+** (tutor chat routes and services in `marking.review`).
+3. Backend `requirements.txt` includes `cursor-sdk`; set `CURSOR_API_KEY` for tutor routes (see `backend/.env.local.example`).
+4. Rollback: `BUDDY_CONSOLE_DISABLE_TUTOR_CHAT=1` → tutor routes **404**; unset frontend flag to hide panel.
+
+### Notes
+
+- Incremental token streaming during the SDK run is **deferred** (tokens still arrive in a burst after inference completes).
+- True streaming and student-portal tutor chat remain out of scope for this release.
+
 ## [v0.1.19] - Page-map amendment revert fix (2026-06-09)
 
 ### Fixed

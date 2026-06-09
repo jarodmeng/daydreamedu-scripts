@@ -105,3 +105,4 @@ Near-term architecture direction:
 2. preserve deep-link workflow from inventory to PDF/review
 3. continue reducing behavioral gaps with the legacy apps
 4. progressively replace legacy-seeded assumptions with `buddy_console`-native ones
+5. do **not** mirror new Review Workspace frontend features into `review_workspace` (API changes in `marking.review` are shared; UI ships in `buddy_console` only)

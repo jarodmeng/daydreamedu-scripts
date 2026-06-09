@@ -147,6 +147,48 @@ Those models are still owned by the shared review domain, but they remain part
 of the current `buddy_console` runtime contract because `/review` depends on
 them.
 
+### Tutor chat (v0.2.0+)
+
+Filesystem companion artifact `tutor_chat.v1` (not in git):
+
+```text
+context/tutor_chats/<student_id>/<subject_context>/<marking_artifact_stem>/<result_id>/<session_id>.json
+```
+
+#### `GET /api/student/attempts/{attempt_id}/questions/{result_id}/tutor-chat`
+
+```json
+{
+  "session_id": "550e8400-e29b-41d4-a716-446655440000",
+  "messages": [
+    { "role": "student", "content": "…", "at": "2026-06-09T10:00:00Z" },
+    {
+      "role": "assistant",
+      "content": "…",
+      "at": "2026-06-09T10:00:15Z",
+      "model": "auto",
+      "runtime": "cursor-sdk-local",
+      "run_id": "…"
+    }
+  ],
+  "stale_context": {
+    "marking": false,
+    "review_notes": false
+  }
+}
+```
+
+#### `POST …/tutor-chat` (SSE)
+
+| Event | Payload |
+|-------|---------|
+| `status` | `{ "phase": "started" \| "running" }` |
+| `token` | `{ "text": "…" }` |
+| `done` | `{ "session_id", "stale_context", "message" }` |
+| `error` | `{ "code", "message" }` |
+
+Schema: `ai_study_buddy/schemas/marking/tutor_chat.v1.schema.json`. See [proposal 4](./docs/proposal/4-review-workspace-question-tutor-chat.md).
+
 ## Client-Side Local State
 
 ### Inventory
@@ -172,6 +214,8 @@ Stored in local storage:
 1. `buddy_console.pdf.showRaw`
 2. `buddy_console.pdf.bookmarks`
 3. `buddy_console.pdf.sidebarWidthPx`
+4. `buddy-console-tutor-chat-height` (sessionStorage; v0.2.0+)
+5. `buddy-console-tutor-chat-expanded` (sessionStorage; v0.2.0+)
 
 Stored in URL query params:
 

@@ -257,6 +257,99 @@ Before considering a `buddy_console` change safe:
 6. `/student` marks API and UI still load when `study_buddy.db` is present
 7. Review redo: `review-evidence` returns **404** when resolver misses; **200** with non-empty `review_images` when Review PDF exists
 
+## Tutor chat (v0.2.0+)
+
+Shipped behind `VITE_REVIEW_TUTOR_CHAT=1`. See [proposal 4](./docs/proposal/4-review-workspace-question-tutor-chat.md).
+
+### Phase 0 — Cursor SDK spike (historical)
+
+One-off script (not shipped runtime): `backend/_spike_cursor_sdk_context.py`
+
+Prerequisites:
+
+```bash
+python3 -m pip install -r ai_study_buddy/buddy_console/backend/requirements.txt
+set -a && source ai_study_buddy/buddy_console/backend/.env.local && set +a
+```
+
+Run from repo root:
+
+```bash
+python3 ai_study_buddy/buddy_console/backend/_spike_cursor_sdk_context.py
+```
+
+Optional: `--marking-json <path>` (under repo), `--skip-follow-up`.
+
+### Context preview (Phase 1)
+
+With backend running and debug flag set:
+
+```bash
+export BUDDY_CONSOLE_TUTOR_CHAT_DEBUG=1
+curl -s "http://localhost:8010/api/student/attempts/<attempt_id>/questions/Q1/tutor-chat/context-preview" | jq .
+```
+
+Without `BUDDY_CONSOLE_TUTOR_CHAT_DEBUG=1`, the route returns **404**.
+
+### Inference API (Phase 3)
+
+Requires `CURSOR_API_KEY` in backend env. Rollback: `BUDDY_CONSOLE_DISABLE_TUTOR_CHAT=1` → tutor routes **404**.
+
+```bash
+# Latest session (404 if none yet)
+curl -s "http://localhost:8010/api/student/attempts/<attempt_id>/questions/Q1/tutor-chat" | jq .
+
+# Start a new session explicitly
+curl -s -X POST "http://localhost:8010/api/student/attempts/<attempt_id>/questions/Q1/tutor-chat/sessions" | jq .
+
+# Send a message (SSE stream)
+curl -N -X POST "http://localhost:8010/api/student/attempts/<attempt_id>/questions/Q1/tutor-chat" \
+  -H "Content-Type: application/json" \
+  -d '{"message":"Why was I wrong?","refresh_context":false}'
+```
+
+Unit tests (mocked SDK, no API key needed):
+
+```bash
+pytest ai_study_buddy/marking/tests/test_tutor_chat_api.py -q
+```
+
+### Frontend chat panel (Phase 4–4.5)
+
+Panel is hidden unless the build flag is set (`frontend/.env.development` may set `VITE_REVIEW_TUTOR_CHAT=1` locally):
+
+```bash
+cd ai_study_buddy/buddy_console/frontend
+VITE_REVIEW_TUTOR_CHAT=1 npm run dev
+```
+
+Open a **marked** attempt in `/review`, pick a question, then use **Ask AI** in the right panel (resizable dock below the review card, above Review Notes). While waiting: status pill shows elapsed seconds; **Stop** aborts the browser wait; 2-minute timeout shows a recovery message. SSE `status` heartbeats confirm the backend is alive before tokens arrive.
+
+Frontend unit tests:
+
+```bash
+npm test -- tutorChatApi
+npm run build
+```
+
+### Manual acceptance (Phase 6)
+
+1. ~~Winston (or Emma) **marked** attempt → ask “Why was I wrong on this question?” → streamed reply references the marked answer.~~ **Passed** — operator smoke-tested multiple incorrect questions in `/review` (2026-06-09).
+2. Amend outcome or review note → stale banner → **Refresh & continue** → next reply uses refreshed context.
+3. `VITE_REVIEW_TUTOR_CHAT` unset → no **Ask AI** UI; `BUDDY_CONSOLE_DISABLE_TUTOR_CHAT=1` → tutor API **404**.
+
+### Recorded result (2026-06-09, local)
+
+| Check | Result |
+|-------|--------|
+| `Cursor.models.list` | 29 models |
+| `Agent.create` + `model="auto"` + `cwd=repo_root` | OK |
+| Read tracked `math_error_types.md` + gitignored marking JSON | OK (first turn) |
+| In-session follow-up (`agent.send` × 2) | OK |
+| Latency (first / follow-up) | ~19s / ~20s |
+| Assistant text | Use `run.text()` after `wait()` (`run.messages()` empty post-wait on cursor-sdk 0.1.7) |
+| End-to-end **Ask AI** on incorrect questions (`buddy_console` v0.2.0) | **Passed** — operator smoke test; replies useful and context-aware |
+
 ## Rollback Steps
 
 If validation uncovers a blocking regression:

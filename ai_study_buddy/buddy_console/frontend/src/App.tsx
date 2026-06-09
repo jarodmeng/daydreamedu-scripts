@@ -1,7 +1,11 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
 
 import { parseDeepLinkParams, replaceReviewWorkspaceUrl } from "./deepLink";
+import { TutorChatPanel } from "./TutorChatPanel";
+import { TUTOR_CHAT_ENABLED } from "./tutorChatApi";
+import { readTutorChatExpandedPreference } from "./tutorChatPrefs";
+import { useVerticalResizeHandle } from "./useVerticalResizeHandle";
 import {
   cachedReviewImagesForViewer,
   goodnotesShareLinkForViewerMode,
@@ -602,6 +606,30 @@ function WorkspaceView({
   const [noteSaved, setNoteSaved] = useState<boolean>(true);
   const [activeDetail, setActiveDetail] = useState<AttemptDetail>(detail);
   const reviewCardRef = useRef<HTMLElement | null>(null);
+  const rightPanelRef = useRef<HTMLElement | null>(null);
+  const notesRef = useRef<HTMLElement | null>(null);
+  const [tutorChatExpanded, setTutorChatExpanded] = useState<boolean>(() => readTutorChatExpandedPreference());
+  const showTutorChat =
+    TUTOR_CHAT_ENABLED && Boolean(activeQuestionId) && activeDetail.marking_status === "marked";
+
+  const getMaxBottomDockHeight = useCallback(() => {
+    const panel = rightPanelRef.current;
+    if (!panel) {
+      return 600;
+    }
+    const headHeight = panel.querySelector<HTMLElement>(".panel-head")?.offsetHeight ?? 48;
+    const minMainHeight = 80;
+    return Math.max(200, panel.clientHeight - headHeight - minMainHeight);
+  }, []);
+
+  const { panelHeight: bottomDockHeight, setPanelHeight, startResize } = useVerticalResizeHandle(
+    "buddy-console-tutor-chat-height",
+    getMaxBottomDockHeight,
+  );
+
+  useEffect(() => {
+    setPanelHeight((height) => height);
+  }, [notesExpanded, setPanelHeight]);
   const [amendmentDraft, setAmendmentDraft] = useState<Record<string, unknown>>({});
   const [editField, setEditField] = useState<EditableFieldKey | null>(null);
   const [reviewerReason, setReviewerReason] = useState<string>("");
@@ -1370,7 +1398,7 @@ function WorkspaceView({
           </div>
         </aside>
 
-        <section className="right-panel">
+        <section ref={rightPanelRef} className="right-panel">
           <div className="panel-head">
             <span>Review</span>
             <select value={activeQuestionId} onChange={(e) => setActiveQuestionId(e.target.value)}>
@@ -1391,106 +1419,132 @@ function WorkspaceView({
             </select>
           </div>
 
-          {activeQuestion ? (
-            <article ref={reviewCardRef} className="card">
-              <div className="review-card-head">
-                <h2>{activeQuestion.result_id}</h2>
-                <div className="review-head-pills">
-                  {activeQuestionIsReviewed ? <span className="pill reviewed-pill">Reviewed</span> : null}
-                  {savedQuestionChanged ? <span className="pill changed-pill">Amended</span> : null}
+          <div className="right-panel-main">
+            {activeQuestion ? (
+              <article ref={reviewCardRef} className="card">
+                <div className="review-card-head">
+                  <h2>{activeQuestion.result_id}</h2>
+                  <div className="review-head-pills">
+                    {activeQuestionIsReviewed ? <span className="pill reviewed-pill">Reviewed</span> : null}
+                    {savedQuestionChanged ? <span className="pill changed-pill">Amended</span> : null}
+                  </div>
                 </div>
+                <div className="score-strip">
+                  <strong>{activeQuestion.outcome}</strong>
+                  <span>
+                    {activeQuestion.earned_marks}/{activeQuestion.max_marks}
+                  </span>
+                  <span>Page {activeQuestion.attempt_page_start ?? "-"}</span>
+                </div>
+                <div className="amend-grid">
+                  {renderAmendmentField("Outcome", "outcome")}
+                  {renderAmendmentField("Earned marks", "earned_marks")}
+                  {renderAmendmentField("Max marks", "max_marks")}
+                  {renderAmendmentField("Student answer", "student_answer")}
+                  {renderAmendmentField("Correct answer", "correct_answer")}
+                  {renderAmendmentField("Diagnosis type", "diagnosis.mistake_type")}
+                  {renderAmendmentField("Diagnosis reasoning", "diagnosis.reasoning")}
+                  {renderAmendmentField("Skill tags", "skill_tags")}
+                  {renderAmendmentField("Human note", "human_note")}
+                  {renderAmendmentField("Mapped page", "attempt_page_start")}
+                  {renderAmendmentField("Map confidence", "page_map.confidence")}
+                </div>
+                {amendmentDirty || amendmentSaveStatus === "saving" || amendmentSaveStatus === "saved" || amendmentError ? (
+                  <div className="amend-save-panel">
+                    {needsReviewerReason(amendmentDraft) ? (
+                      <label>
+                        Reviewer reason
+                        <textarea
+                          value={reviewerReason}
+                          onChange={(e) => setReviewerReason(e.target.value)}
+                          placeholder="Why is this score or outcome changing?"
+                        />
+                      </label>
+                    ) : null}
+                    <div className="amend-actions">
+                      <span className={`save-status ${amendmentSaveStatus}`}>{amendmentSaveStatus}</span>
+                      <button type="button" disabled={!amendmentDirty || amendmentSaveStatus === "saving"} onClick={() => void saveAmendmentDraft()}>
+                        Save amendment
+                      </button>
+                      <button type="button" disabled={!amendmentDirty || amendmentSaveStatus === "saving"} onClick={revertAmendmentDraft}>
+                        Revert amendment
+                      </button>
+                    </div>
+                    {amendmentError ? <p className="error-text">{amendmentError}</p> : null}
+                  </div>
+                ) : null}
+                {questionSelectionRawText ? <p>Marked scope: {questionSelectionRawText}</p> : null}
+              </article>
+            ) : null}
+          </div>
+
+          <div
+            className={`right-panel-bottom${showTutorChat && tutorChatExpanded ? " chat-expanded" : ""}`}
+            style={showTutorChat && tutorChatExpanded ? { height: bottomDockHeight } : undefined}
+          >
+            {showTutorChat && tutorChatExpanded ? (
+              <div
+                className="right-panel-resize-handle"
+                role="separator"
+                aria-orientation="horizontal"
+                aria-label="Resize Ask AI panel"
+                title="Drag to resize"
+                onMouseDown={startResize}
+              />
+            ) : null}
+            {showTutorChat ? (
+              <TutorChatPanel
+                attemptId={activeDetail.attempt.attempt_id}
+                resultId={activeQuestionId}
+                expanded={tutorChatExpanded}
+                onExpandedChange={setTutorChatExpanded}
+              />
+            ) : null}
+
+            <article ref={notesRef} className={`notes ${notesExpanded ? "expanded" : "collapsed"}`}>
+              <div className="notes-head">
+                <div className="notes-title-row">
+                  <strong>Review Notes</strong>
+                  {!noteSaved ? <span className="notes-unsaved-pill">Unsaved</span> : null}
+                </div>
+                <button
+                  type="button"
+                  className="notes-toggle"
+                  aria-expanded={notesExpanded}
+                  onClick={() => setNotesExpanded((prev) => !prev)}
+                >
+                  {notesExpanded ? "Hide notes" : "Add notes"}
+                </button>
               </div>
-              <div className="score-strip">
-                <strong>{activeQuestion.outcome}</strong>
-                <span>
-                  {activeQuestion.earned_marks}/{activeQuestion.max_marks}
-                </span>
-                <span>Page {activeQuestion.attempt_page_start ?? "-"}</span>
-              </div>
-              <div className="amend-grid">
-                {renderAmendmentField("Outcome", "outcome")}
-                {renderAmendmentField("Earned marks", "earned_marks")}
-                {renderAmendmentField("Max marks", "max_marks")}
-                {renderAmendmentField("Student answer", "student_answer")}
-                {renderAmendmentField("Correct answer", "correct_answer")}
-                {renderAmendmentField("Diagnosis type", "diagnosis.mistake_type")}
-                {renderAmendmentField("Diagnosis reasoning", "diagnosis.reasoning")}
-                {renderAmendmentField("Skill tags", "skill_tags")}
-                {renderAmendmentField("Human note", "human_note")}
-                {renderAmendmentField("Mapped page", "attempt_page_start")}
-                {renderAmendmentField("Map confidence", "page_map.confidence")}
-              </div>
-              {amendmentDirty || amendmentSaveStatus === "saving" || amendmentSaveStatus === "saved" || amendmentError ? (
-                <div className="amend-save-panel">
-                  {needsReviewerReason(amendmentDraft) ? (
-                    <label>
-                      Reviewer reason
-                      <textarea
-                        value={reviewerReason}
-                        onChange={(e) => setReviewerReason(e.target.value)}
-                        placeholder="Why is this score or outcome changing?"
-                      />
-                    </label>
-                  ) : null}
-                  <div className="amend-actions">
-                    <span className={`save-status ${amendmentSaveStatus}`}>{amendmentSaveStatus}</span>
-                    <button type="button" disabled={!amendmentDirty || amendmentSaveStatus === "saving"} onClick={() => void saveAmendmentDraft()}>
-                      Save amendment
+              {notesExpanded ? (
+                <>
+                  <div className="scope-tabs">
+                    <button className={noteScope === "question" ? "active" : ""} onClick={() => setNoteScope("question")}>
+                      Question
                     </button>
-                    <button type="button" disabled={!amendmentDirty || amendmentSaveStatus === "saving"} onClick={revertAmendmentDraft}>
-                      Revert amendment
+                    <button className={noteScope === "attempt" ? "active" : ""} onClick={() => setNoteScope("attempt")}>
+                      Attempt
+                    </button>
+                    <button
+                      className={noteScope === "student_subject" ? "active" : ""}
+                      onClick={() => setNoteScope("student_subject")}
+                    >
+                      Student+Subject
                     </button>
                   </div>
-                  {amendmentError ? <p className="error-text">{amendmentError}</p> : null}
-                </div>
+                  <textarea
+                    value={noteDraft}
+                    onChange={(e) => {
+                      setNoteDraft(e.target.value);
+                      setNoteSaved(false);
+                    }}
+                    placeholder={`Write ${noteScope} note...`}
+                  />
+                  <button onClick={() => void saveCurrentNote()}>Save Note</button>
+                </>
               ) : null}
-              {questionSelectionRawText ? <p>Marked scope: {questionSelectionRawText}</p> : null}
             </article>
-          ) : null}
-
-          <article className={`notes ${notesExpanded ? "expanded" : "collapsed"}`}>
-            <div className="notes-head">
-              <div className="notes-title-row">
-                <strong>Review Notes</strong>
-                {!noteSaved ? <span className="notes-unsaved-pill">Unsaved</span> : null}
-              </div>
-              <button
-                type="button"
-                className="notes-toggle"
-                aria-expanded={notesExpanded}
-                onClick={() => setNotesExpanded((prev) => !prev)}
-              >
-                {notesExpanded ? "Hide notes" : "Add notes"}
-              </button>
-            </div>
-            {notesExpanded ? (
-              <>
-                <div className="scope-tabs">
-                  <button className={noteScope === "question" ? "active" : ""} onClick={() => setNoteScope("question")}>
-                    Question
-                  </button>
-                  <button className={noteScope === "attempt" ? "active" : ""} onClick={() => setNoteScope("attempt")}>
-                    Attempt
-                  </button>
-                  <button
-                    className={noteScope === "student_subject" ? "active" : ""}
-                    onClick={() => setNoteScope("student_subject")}
-                  >
-                    Student+Subject
-                  </button>
-                </div>
-                <textarea
-                  value={noteDraft}
-                  onChange={(e) => {
-                    setNoteDraft(e.target.value);
-                    setNoteSaved(false);
-                  }}
-                  placeholder={`Write ${noteScope} note...`}
-                />
-                <button onClick={() => void saveCurrentNote()}>Save Note</button>
-              </>
-            ) : null}
-          </article>
+          </div>
         </section>
       </section>
 
