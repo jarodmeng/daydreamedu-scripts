@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Any
 
 from fastapi import APIRouter, HTTPException, Query, Request
+from fastapi.responses import StreamingResponse
 
 from ai_study_buddy.pdf_file_manager.pdf_file_manager import PdfFileManager
 from ai_study_buddy.marking.core.artifact_lookup import find_marking_artifacts_for_attempt
@@ -22,6 +23,22 @@ from ai_study_buddy.marking.review.detail_service import (
 )
 from ai_study_buddy.marking.review.note_service import ReviewStateWriteError, put_review_state
 from ai_study_buddy.marking.review.repository import StudentReviewRepository
+from ai_study_buddy.marking.review.tutor_chat_context_service import (
+    TutorChatContextError,
+    build_context_bundle,
+    tutor_chat_debug_enabled,
+)
+from ai_study_buddy.marking.review.tutor_chat_repository import TutorChatRepository
+from ai_study_buddy.marking.review.tutor_chat_service import (
+    TutorChatNotFoundError,
+    TutorChatUnavailableError,
+    assert_tutor_chat_ready,
+    create_tutor_chat_session,
+    get_latest_tutor_chat,
+    iter_tutor_chat_post_sse,
+    preflight_tutor_chat_send,
+    tutor_chat_api_key,
+)
 
 
 def _repo_root() -> Path:
@@ -40,6 +57,19 @@ def _manager() -> PdfFileManager:
 
 def _repo() -> StudentReviewRepository:
     return StudentReviewRepository(context_root=CONTEXT_ROOT)
+
+
+def _tutor_repo() -> TutorChatRepository:
+    return TutorChatRepository(context_root=CONTEXT_ROOT)
+
+
+def _tutor_chat_guard() -> None:
+    try:
+        assert_tutor_chat_ready()
+    except TutorChatNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from None
+    except TutorChatUnavailableError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from None
 
 
 @router.get("/api/health")
@@ -170,3 +200,120 @@ def update_amendments(
     except AmendmentWriteError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from None
     _invalidate_buddy_console_inventory_cache(request)
+
+
+@router.get("/api/student/attempts/{attempt_id}/questions/{result_id}/tutor-chat")
+def tutor_chat_get_latest(attempt_id: str, result_id: str) -> dict[str, Any]:
+    _tutor_chat_guard()
+    manager = _manager()
+    repo = _repo()
+    tutor_repo = _tutor_repo()
+    try:
+        return get_latest_tutor_chat(
+            attempt_id=attempt_id,
+            result_id=result_id,
+            context_root=CONTEXT_ROOT,
+            manager=manager,
+            review_repo=repo,
+            tutor_repo=tutor_repo,
+        )
+    except TutorChatNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from None
+
+
+@router.post("/api/student/attempts/{attempt_id}/questions/{result_id}/tutor-chat/sessions")
+def tutor_chat_create_session(attempt_id: str, result_id: str) -> dict[str, str]:
+    _tutor_chat_guard()
+    manager = _manager()
+    repo = _repo()
+    tutor_repo = _tutor_repo()
+    try:
+        return create_tutor_chat_session(
+            attempt_id=attempt_id,
+            result_id=result_id,
+            context_root=CONTEXT_ROOT,
+            manager=manager,
+            review_repo=repo,
+            tutor_repo=tutor_repo,
+        )
+    except TutorChatNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from None
+
+
+@router.post("/api/student/attempts/{attempt_id}/questions/{result_id}/tutor-chat")
+def tutor_chat_post_message(
+    attempt_id: str,
+    result_id: str,
+    body: dict[str, Any],
+) -> StreamingResponse:
+    _tutor_chat_guard()
+    message = body.get("message") if isinstance(body, dict) else None
+    session_id = body.get("session_id") if isinstance(body, dict) else None
+    refresh_context = bool(body.get("refresh_context")) if isinstance(body, dict) else False
+    if session_id is not None and not isinstance(session_id, str):
+        session_id = None
+
+    if not isinstance(message, str) or not message.strip():
+        raise HTTPException(status_code=400, detail="message is required") from None
+
+    api_key = tutor_chat_api_key()
+    if not api_key:
+        raise HTTPException(status_code=503, detail="CURSOR_API_KEY not configured") from None
+
+    manager = _manager()
+    repo = _repo()
+    tutor_repo = _tutor_repo()
+    try:
+        preflight_tutor_chat_send(
+            attempt_id=attempt_id,
+            result_id=result_id,
+            session_id=session_id,
+            context_root=CONTEXT_ROOT,
+            manager=manager,
+            review_repo=repo,
+            tutor_repo=tutor_repo,
+        )
+    except TutorChatNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from None
+
+    return StreamingResponse(
+        iter_tutor_chat_post_sse(
+            attempt_id=attempt_id,
+            result_id=result_id,
+            message=message,
+            session_id=session_id,
+            refresh_context=refresh_context,
+            context_root=CONTEXT_ROOT,
+            repo_root=REPO_ROOT,
+            manager=manager,
+            review_repo=repo,
+            tutor_repo=tutor_repo,
+            api_key=api_key,
+        ),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
+        },
+    )
+
+
+@router.get("/api/student/attempts/{attempt_id}/questions/{result_id}/tutor-chat/context-preview")
+def tutor_chat_context_preview(attempt_id: str, result_id: str) -> dict[str, Any]:
+    if not tutor_chat_debug_enabled():
+        raise HTTPException(status_code=404, detail="not found") from None
+    manager = _manager()
+    repo = _repo()
+    try:
+        return build_context_bundle(
+            attempt_id=attempt_id,
+            result_id=result_id,
+            context_root=CONTEXT_ROOT,
+            manager=manager,
+            review_repo=repo,
+        )
+    except AttemptNotFoundError:
+        raise HTTPException(status_code=404, detail="attempt not found") from None
+    except TutorChatContextError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from None

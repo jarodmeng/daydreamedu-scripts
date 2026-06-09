@@ -8,7 +8,7 @@ Canonical marking pipeline for AI Study Buddy. This package defines the
 3. render markdown as a derived view
 4. support human note edits in the canonical JSON
 
-Current version: `v0.3.22`
+Current version: `v0.3.23`
 
 ## Package Scope
 
@@ -95,11 +95,29 @@ Example `context` snippet:
 - `workflows/`: CLI/workflow modules for migration, rendering, and note editing
 - `ai_study_buddy/schemas/marking/marking_result.v1.6.schema.json`: canonical JSON schema for `marking_result.v1.6` (strict, closed contract)
 - `ai_study_buddy/schemas/marking/marking_amendment.v1.schema.json`: companion amendment overlay schema contract (`marking_amendment.v1`)
-- `review/`: review-domain APIs/services (attempt list/detail shaping, review-state and amendment writes)
+- `review/`: review-domain APIs/services (attempt list/detail shaping, review-state and amendment writes, question-scoped tutor chat v0.3.23+)
+- `ai_study_buddy/schemas/marking/tutor_chat.v1.schema.json`: companion transcript schema (`tutor_chat.v1`, gitignored runtime under `context/tutor_chats/`)
 - `tests/test_artifact_core.py`: core artifact and rendering tests
 - `tests/test_migration.py`: migration parser and migration flow tests
 
 Per-run renders, answer crops, and disposable `_mark_*.py` / `_render_*.py` helpers live under the standardized bundle root in `context.marking_asset` (for example `ai_study_buddy/context/marking_assets/<student>/<subject>/<artifact_stem>/`), not in this package root.
+
+## Question-scoped tutor chat (`v0.3.23+`)
+
+Review Workspace **Ask AI** (`buddy_console` v0.2.0+, feature-flagged): per-`(attempt_id, result_id)` tutor threads persisted as `tutor_chat.v1` under `context/tutor_chats/` (gitignored).
+
+API (via `marking/review/api_routes.py`):
+
+- `GET /api/student/attempts/{attempt_id}/questions/{result_id}/tutor-chat`
+- `POST …/tutor-chat` (SSE)
+- `POST …/tutor-chat/sessions`
+- `GET …/tutor-chat/context-preview` when `BUDDY_CONSOLE_TUTOR_CHAT_DEBUG=1`
+
+Requires `CURSOR_API_KEY` on the backend host. Normative product rules: [L4_REVIEW_WORKSPACE_QUESTION_TUTOR_CHAT](../docs/L4_REVIEW_WORKSPACE_QUESTION_TUTOR_CHAT.md).
+
+```bash
+pytest ai_study_buddy/marking/tests/test_tutor_chat_api.py -q
+```
 
 ## File Question Info Helpers (`v0.3.2+`)
 

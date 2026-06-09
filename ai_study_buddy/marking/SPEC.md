@@ -45,6 +45,7 @@ Ownership and boundaries:
 2. `marking.review` may write only companion artifacts:
    - `context/student_review_states/**`
    - `context/marking_amendments/**`
+   - `context/tutor_chats/**` (v0.3.23+; `tutor_chat.v1` transcripts)
 3. `marking.review` must never mutate canonical `context/marking_results/**` artifacts.
 4. Latest-artifact selection for attempts must reuse `find_marking_artifacts_for_attempt(...)`.
 
@@ -56,6 +57,11 @@ Route surface (via `api_routes.py`):
 4. `GET /api/student/attempts/{attempt_id}`
 5. `PUT /api/student/attempts/{attempt_id}/review-state`
 6. `PUT /api/student/attempts/{attempt_id}/amendments`
+7. `GET /api/student/attempts/{attempt_id}/review-evidence` (v0.3.20+)
+8. `GET /api/student/attempts/{attempt_id}/questions/{result_id}/tutor-chat` (v0.3.23+)
+9. `POST …/questions/{result_id}/tutor-chat` — SSE send (v0.3.23+)
+10. `POST …/questions/{result_id}/tutor-chat/sessions` (v0.3.23+)
+11. `GET …/questions/{result_id}/tutor-chat/context-preview` — debug only (v0.3.23+)
 
 Implementation modules:
 
@@ -65,6 +71,8 @@ Implementation modules:
 4. `amendment_service.py`: amendment validation/merge and overlay writes (`marking_amendment.v1`)
 5. `repository.py`: filesystem persistence helpers for review companion artifacts
 6. `models.py`: shared normalization and timestamp helper behavior for review payloads
+7. `review_redo_service.py`: supervised redo page render/list (v0.3.20+)
+8. `tutor_chat_context_service.py`, `tutor_chat_stale.py`, `tutor_chat_repository.py`, `tutor_chat_service.py` (v0.3.23+)
 
 ### 1) Artifact identity and naming
 

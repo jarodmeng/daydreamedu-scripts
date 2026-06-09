@@ -17,6 +17,10 @@ Primary automated coverage lives in:
 - `ai_study_buddy/marking/tests/test_migration.py`
 - `ai_study_buddy/marking/tests/test_review_workspace_amendments.py`
 - `ai_study_buddy/marking/tests/test_workflow_flags.py` (`v0.3.8`)
+- `ai_study_buddy/marking/tests/test_tutor_chat_context_service.py` (`v0.3.23+`)
+- `ai_study_buddy/marking/tests/test_tutor_chat_repository.py` (`v0.3.23+`)
+- `ai_study_buddy/marking/tests/test_tutor_chat_api.py` (`v0.3.23+`)
+- `ai_study_buddy/marking/tests/test_tutor_chat_service.py` (`v0.3.23+`)
 
 These tests cover:
 
@@ -84,6 +88,9 @@ python3 -m pytest ai_study_buddy/marking/tests/test_review_workspace_amendments.
 
 # Completion workflow flags (v0.3.8)
 python3 -m pytest ai_study_buddy/marking/tests/test_workflow_flags.py -q
+
+# Tutor chat (v0.3.23+; mocked SDK in API tests)
+python3 -m pytest ai_study_buddy/marking/tests/test_tutor_chat_context_service.py ai_study_buddy/marking/tests/test_tutor_chat_repository.py ai_study_buddy/marking/tests/test_tutor_chat_api.py ai_study_buddy/marking/tests/test_tutor_chat_service.py -q
 
 # file_question_info consumer/read tests (v0.3.2)
 python3 -m pytest ai_study_buddy/marking/tests/test_file_question_info.py -q

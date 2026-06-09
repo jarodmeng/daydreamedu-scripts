@@ -4,6 +4,30 @@ All notable changes to `ai_study_buddy.marking` are documented in this file.
 
 Committed changes under `ai_study_buddy/marking/` should add an entry here and bump **Current version** in `README.md` (semver: **patch** for docs or small renderer tweaks, **minor** for schema or public API changes). `SPEC.md` / `TESTING.md` titles do not carry the package version.
 
+## [0.3.23] - 2026-06-09
+
+Minor: question-scoped tutor chat API and `tutor_chat.v1` persistence (`buddy_console` v0.2.0).
+
+### Added
+
+- **`marking/review/tutor_chat_context_service.py`:** server-side context bundle from `get_attempt_detail` + labeled review notes; optional pedagogy markdown; debug `context-preview` gate.
+- **`marking/review/tutor_chat_stale.py`:** `context_snapshot` fingerprints and stale-context drift (`marking`, `review_notes`).
+- **`marking/review/tutor_chat_repository.py`:** read/write `context/tutor_chats/…/<session_id>.json` (`tutor_chat.v1`).
+- **`marking/review/tutor_chat_service.py`:** Cursor SDK local inference (`model="auto"`, `Agent.resume`), SSE (`status` heartbeats, `token`, `done`, `error`).
+- **`marking/review/api_routes.py`:** `GET`/`POST …/questions/{result_id}/tutor-chat`, `POST …/tutor-chat/sessions`, debug `GET …/tutor-chat/context-preview`.
+- **Schema:** `ai_study_buddy/schemas/marking/tutor_chat.v1.schema.json`.
+- **Tests:** `test_tutor_chat_context_service.py`, `test_tutor_chat_repository.py`, `test_tutor_chat_api.py`, `test_tutor_chat_service.py`.
+
+### Notes
+
+- Tutor routes require backend `CURSOR_API_KEY`; rollback via `BUDDY_CONSOLE_DISABLE_TUTOR_CHAT=1` → **404**.
+- Incremental token streaming during SDK `iter_text()` is deferred; tokens still emit in a burst after `run.wait()`.
+
+### Consumers
+
+- `buddy_console` v0.2.0 **Ask AI** ([proposal 4](../buddy_console/docs/proposal/4-review-workspace-question-tutor-chat.md), [L4](../docs/L4_REVIEW_WORKSPACE_QUESTION_TUTOR_CHAT.md)).
+- Standalone `review_workspace` mounts the same API but is not a maintained UI ship target for tutor chat.
+
 ## [0.3.22] - 2026-06-09
 
 Patch: clear stale page-map amendment overrides when reverted to AI base.
