@@ -2,6 +2,18 @@
 
 All notable changes to `ai_study_buddy/buddy_console` are documented here.
 
+## [v0.2.1] - Tutor chat evidence hierarchy policy (2026-06-10)
+
+### Changed
+
+1. **Ask AI** tutor prompt (via `marking` **v0.3.24+**): automated grader `correct_answer` / `diagnosis` are **challengeable references**; human **amendments** are **authoritative overrides**; tutor may dispute base marking when question clues or page evidence warrant it ([L4](../docs/L4_REVIEW_WORKSPACE_QUESTION_TUTOR_CHAT.md), [proposal 4](./docs/proposal/4-review-workspace-question-tutor-chat.md)).
+2. Requires `ai_study_buddy.marking` **v0.3.24+**.
+3. `frontend/package.json` version aligned to `0.2.1`.
+
+### Notes
+
+- Existing tutor threads retain the prior first-turn policy until **Refresh & continue** or **New conversation**.
+
 ## [v0.2.0] - Review Workspace question-scoped tutor chat (2026-06-09)
 
 ### Added

@@ -4,6 +4,20 @@ All notable changes to `ai_study_buddy.marking` are documented in this file.
 
 Committed changes under `ai_study_buddy/marking/` should add an entry here and bump **Current version** in `README.md` (semver: **patch** for docs or small renderer tweaks, **minor** for schema or public API changes). `SPEC.md` / `TESTING.md` titles do not carry the package version.
 
+## [0.3.24] - 2026-06-10
+
+Patch: tutor chat prompt evidence hierarchy (grader output challengeable; human amendments authoritative).
+
+### Changed
+
+- **`marking/review/tutor_chat_context_service.py`:** prompt labels base marking as **AI grader output — challengeable**; human amendments as **authoritative overrides**; tutor may dispute grader `correct_answer` / `diagnosis` when clues, page evidence, or student reasoning warrant it.
+- **Docs:** [L4_REVIEW_WORKSPACE_QUESTION_TUTOR_CHAT.md](../docs/L4_REVIEW_WORKSPACE_QUESTION_TUTOR_CHAT.md) §System prompt policy; [buddy_console proposal 4](../buddy_console/docs/proposal/4-review-workspace-question-tutor-chat.md).
+- **Tests:** `test_tutor_chat_context_service.py` asserts new prompt section headers and policy text.
+
+### Notes
+
+- Consumed by `buddy_console` **v0.2.1+**. Existing tutor threads keep prior first-turn policy until **Refresh & continue** or a new session.
+
 ## [0.3.23] - 2026-06-09
 
 Minor: question-scoped tutor chat API and `tutor_chat.v1` persistence (`buddy_console` v0.2.0).

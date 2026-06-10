@@ -23,7 +23,7 @@
 
 Add an **Ask AI** chat panel to Review Workspace (`/review`). Each `(attempt_id, result_id)` gets a persisted tutor thread. The backend:
 
-1. Builds a **context bundle** (resolved marking, amendments, all labeled review notes, attempt page image path). Marking, amendments, and review notes are **DB-first** via `get_attempt_detail` / `StudentReviewRepository` (same as Review Workspace; see L4 read-source policy).
+1. Builds a **context bundle** (base marking row, human amendments, all labeled review notes, attempt page image path). Marking, amendments, and review notes are **DB-first** via `get_attempt_detail` / `StudentReviewRepository` (same as Review Workspace; see L4 read-source policy). Prompt policy labels grader output as **challengeable** and amendments as **authoritative overrides** (see L4 §System prompt policy).
 2. Runs **Cursor SDK local agent** (`model="auto"`) with `Agent.resume` for multi-turn.
 3. Streams assistant text via **SSE**.
 4. Persists **`tutor_chat.v1`** under `context/tutor_chats/` (gitignored).

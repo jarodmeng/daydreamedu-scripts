@@ -173,7 +173,26 @@ def test_build_context_bundle_from_detail_includes_amendments_and_snapshot(tmp_p
     assert bundle["context_snapshot"]["review_state_updated_at"] == "2026-06-02T10:00:00Z"
     assert "resolved_question_fingerprint" in bundle["context_snapshot"]
     assert "[QUESTION — Q2]" in bundle["review_notes_labeled"][0]
-    assert "Socratic tutor" in bundle["prompt_text"]
+    prompt = bundle["prompt_text"]
+    assert "Socratic tutor" in prompt
+    assert "Base marking (AI grader output — challengeable)" in prompt
+    assert "Human amendments (authoritative overrides)" in prompt
+    assert "may be wrong" in prompt
+    assert "Active question (resolved marking)" not in prompt
+
+
+def test_render_context_bundle_prompt_without_amendments_omits_human_override_section():
+    bundle = {
+        "attempt_meta": {"student_id": "emma"},
+        "question": {"result_id": "Q1", "outcome": "wrong"},
+        "amendments": None,
+        "review_notes_labeled": [],
+        "attempt_summary": None,
+    }
+    prompt = render_context_bundle_prompt(bundle)
+    assert "Base marking (AI grader output — challengeable)" in prompt
+    assert "Human amendments (authoritative overrides)" not in prompt
+    assert "inconsistent, incomplete, or mistaken" in prompt
 
 
 def test_load_pedagogy_refs_truncates_large_files(tmp_path: Path):
