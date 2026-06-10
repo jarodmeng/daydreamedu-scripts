@@ -52,27 +52,64 @@ Review Workspace (`/review`) evidence modes: **Attempt**, **Answer**, **Template
 - [TESTING.md](./TESTING.md)
 - [CHANGELOG.md](./CHANGELOG.md)
 
-## Run Backend
+## Local development
 
-From repo root:
+Two processes: **backend `:8010`** + **frontend `:5178`** (Vite proxies `/api` and `/review-workspace-static` to the backend).
+
+### One-time setup
+
+From **repo root**:
 
 ```bash
 python3 -m pip install -r ai_study_buddy/buddy_console/backend/requirements.txt
+cd ai_study_buddy/buddy_console/frontend && npm install
+```
+
+Copy backend secrets (never commit `.env.local`):
+
+```bash
+cp ai_study_buddy/buddy_console/backend/.env.local.example \
+   ai_study_buddy/buddy_console/backend/.env.local
+```
+
+Edit `.env.local`:
+
+| Variable | Required for | Notes |
+|----------|----------------|-------|
+| `CURSOR_API_KEY` | **Ask AI** tutor chat (v0.2.0+) | [Cursor integrations](https://cursor.com/dashboard/integrations). Without it, tutor routes return **503**. |
+| `STUDY_BUDDY_DB_PATH` | Review, inventory, tutor context | When not using the default `study_buddy.db` location. Marking/amendments/review notes are DB-first. |
+
+Optional: `BUDDY_CONSOLE_TUTOR_CHAT_DEBUG=1` (context-preview route), `BUDDY_CONSOLE_DISABLE_TUTOR_CHAT=1` (tutor routes **404**).
+
+Frontend dev enables **Ask AI** via `frontend/.env.development` (`VITE_REVIEW_TUTOR_CHAT=1`). Omit or unset for a build without the chat panel.
+
+### Start backend
+
+From **repo root** (load env, then uvicorn):
+
+```bash
+set -a && source ai_study_buddy/buddy_console/backend/.env.local && set +a
 python3 -m uvicorn ai_study_buddy.buddy_console.backend.app:app --reload --port 8010
 ```
 
-## Run Frontend
+Smoke check:
 
-From repo root:
+```bash
+curl -s http://localhost:8010/api/health
+```
+
+### Start frontend
+
+In a **second terminal**:
 
 ```bash
 cd ai_study_buddy/buddy_console/frontend
-npm install
 npm run dev
 ```
 
-Frontend runs on `http://localhost:5178` and proxies `/api` and
-`/review-workspace-static` to backend `:8010`.
+Open `http://127.0.0.1:5178`. For review + tutor chat, use `/review` on a **marked** attempt (see deep links below).
+
+More validation: [TESTING.md](./TESTING.md) (including §Tutor chat).
 
 ## Deep-Link Examples
 
