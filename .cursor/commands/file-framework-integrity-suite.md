@@ -8,7 +8,7 @@ This suite reports one **overall PASS/FAIL** by running:
 
 1. DaydreamEdu leaf folder vs registry check
 2. GoodNotes leaf folder vs registry check (default excludes `Not completed`)
-3. Completion-template link gap check (default excludes `activity`/`note`; always excludes `composition`)
+3. Completion-template link gap check (default excludes `activity`/`note` and `Not completed` WIP paths; always excludes `composition`)
 4. Registry integrity audit
 5. Marking context DB drift (`marking_results`/`marking_assets` path coupling)
 6. Marking cardinality integrity (template/completion uniqueness)
@@ -55,7 +55,7 @@ python3 -m ai_study_buddy.pdf_file_manager.scripts.file_framework_integrity_suit
 ## Pass criteria
 
 - Leaf-registry checks pass only when all included leaves fall into `scan-root + all direct PDFs registered`.
-- Completion-template gap check passes when `without_template = 0` among completions that require a template link (`exam`, `exercise`, `book`; `composition` is always excluded).
+- Completion-template gap check passes when `without_template = 0` among completions that require a template link (`exam`, `exercise`, `book`; `composition` is always excluded; GoodNotes `Not completed` WIP paths are excluded by default).
 - Registry integrity audit passes when all summary counters are zero.
 - Marking context DB drift check passes when:
   - `marking_artifacts_missing_artifact_path = 0`

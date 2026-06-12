@@ -9,7 +9,9 @@ completion's ``id``.
 By default, ``doc_type`` values ``activity`` and ``note`` are excluded so the
 report targets exam / exercise / book completions only (see L4 framework).
 ``composition`` completions are always excluded: they do not require a template
-link (proposal 18).
+link (proposal 18). GoodNotes WIP completions under a ``Not completed`` path
+segment are also excluded by default (same convention as GoodNotes leaf-registry
+reports).
 
 Usage::
 
@@ -53,17 +55,38 @@ def _doc_type_filter_sql(include_activity_note: bool) -> str:
     return f"f.doc_type NOT IN ({quoted})"
 
 
-def build_report(db_path: Path, *, include_activity_note: bool) -> dict:
+def _path_has_not_completed_segment_sql() -> str:
+    """SQL truth value: ``f.path`` has a ``Not completed`` segment (case-insensitive)."""
+    normalized = "LOWER(REPLACE(f.path, '\\\\', '/'))"
+    return f"INSTR({normalized}, '/not completed/') > 0"
+
+
+def _scope_filter_sql(*, include_activity_note: bool, exclude_not_completed: bool) -> str:
+    clauses = [_doc_type_filter_sql(include_activity_note)]
+    if exclude_not_completed:
+        clauses.append(f"NOT ({_path_has_not_completed_segment_sql()})")
+    return " AND ".join(clauses)
+
+
+def build_report(
+    db_path: Path,
+    *,
+    include_activity_note: bool,
+    exclude_not_completed: bool = True,
+) -> dict:
     conn = sqlite3.connect(str(db_path))
     conn.row_factory = sqlite3.Row
     cur = conn.cursor()
-    doc_clause = _doc_type_filter_sql(include_activity_note)
+    scope_clause = _scope_filter_sql(
+        include_activity_note=include_activity_note,
+        exclude_not_completed=exclude_not_completed,
+    )
 
     cur.execute(
         f"""
         SELECT COUNT(*) AS n
         FROM pdf_files f
-        WHERE f.file_type = 'main' AND f.is_template = 0 AND ({doc_clause})
+        WHERE f.file_type = 'main' AND f.is_template = 0 AND ({scope_clause})
         """
     )
     completion_total = int(cur.fetchone()["n"])
@@ -72,7 +95,7 @@ def build_report(db_path: Path, *, include_activity_note: bool) -> dict:
         f"""
         SELECT COUNT(*) AS n
         FROM pdf_files f
-        WHERE f.file_type = 'main' AND f.is_template = 0 AND ({doc_clause})
+        WHERE f.file_type = 'main' AND f.is_template = 0 AND ({scope_clause})
           AND EXISTS (
             SELECT 1 FROM file_relations r
             WHERE r.source_id = f.id AND r.relation_type = 'completed_from'
@@ -96,7 +119,7 @@ def build_report(db_path: Path, *, include_activity_note: bool) -> dict:
           COUNT(*) AS cnt
         FROM pdf_files f
         LEFT JOIN students s ON s.id = f.student_id
-        WHERE f.file_type = 'main' AND f.is_template = 0 AND ({doc_clause})
+        WHERE f.file_type = 'main' AND f.is_template = 0 AND ({scope_clause})
           AND NOT EXISTS (
             SELECT 1 FROM file_relations r
             WHERE r.source_id = f.id AND r.relation_type = 'completed_from'
@@ -119,6 +142,7 @@ def build_report(db_path: Path, *, include_activity_note: bool) -> dict:
         "registry_db": str(db_path.resolve()),
         "filters": {
             "include_activity_note": include_activity_note,
+            "exclude_not_completed": exclude_not_completed,
         },
         "summary": {
             "completion_mains": completion_total,
@@ -135,10 +159,14 @@ def _print_human(report: dict) -> None:
     summ = report["summary"]
     gaps = report["gaps"]
     print(f"Registry: {report['registry_db']}")
+    filter_bits = []
     if filt["include_activity_note"]:
-        print("Filter: all completion doc_types except composition (no template required)")
+        filter_bits.append("all completion doc_types except composition")
     else:
-        print("Filter: doc_type NOT IN (activity, note, composition)")
+        filter_bits.append("doc_type NOT IN (activity, note, composition)")
+    if filt.get("exclude_not_completed", True):
+        filter_bits.append("exclude Not completed path segment")
+    print("Filter: " + "; ".join(filter_bits))
     print()
     print(
         f"Completion mains: {summ['completion_mains']}  "
@@ -173,6 +201,11 @@ def main() -> int:
         action="store_true",
         help="Include activity and note doc_types (default excludes them).",
     )
+    parser.add_argument(
+        "--include-not-completed",
+        action="store_true",
+        help="Include completions under a Not completed path segment (default excludes WIP).",
+    )
     parser.add_argument("--json", action="store_true", help="Emit machine-readable JSON")
     args = parser.parse_args()
 
@@ -181,7 +214,11 @@ def main() -> int:
         print(f"error: registry database not found: {db_path}", flush=True)
         return 2
 
-    report = build_report(db_path, include_activity_note=args.include_activity_note)
+    report = build_report(
+        db_path,
+        include_activity_note=args.include_activity_note,
+        exclude_not_completed=not args.include_not_completed,
+    )
     if args.json:
         print(json.dumps(report, ensure_ascii=False, indent=2))
     else:
