@@ -57,8 +57,18 @@ def main() -> int:
     mgr = PdfFileManager()
     req = V3InputRequest(attempt_file_id_or_path=str(completion))
     attempt = resolve_attempt_input_to_pdf_file(manager=mgr, request=req)
+    bundled_answer_path = item.get("answer_file_path")
+    bundled_answer_pages = item.get("book_answer_pages") or {}
     mode_kwarg = marking_mode_for_item(item, payload)
-    ctx = resolve_v3_marking_context(manager=mgr, request=req, marking_mode=mode_kwarg)
+    if bundled_answer_path and bundled_answer_pages:
+        # Cross-file bundled answer keys (e.g. RGPS worksheets 1–3 keyed in set3 template).
+        ctx = resolve_v3_marking_context(manager=mgr, request=req, marking_mode="teacher_annotated")
+        effective_marking_mode = item.get("marking_mode") or "standard_mapped_answer"
+        effective_answer_path = str(bundled_answer_path)
+    else:
+        ctx = resolve_v3_marking_context(manager=mgr, request=req, marking_mode=mode_kwarg)
+        effective_marking_mode = ctx.marking_mode
+        effective_answer_path = ctx.answer_file_path
     bundle = resolve_or_create_bundle_for_v3_run(
         context_root=context_root,
         attempt_file_path=attempt.path,
@@ -82,13 +92,13 @@ def main() -> int:
     phase2_batches = plan_phase2_batches(section_inputs)
 
     render_attempt_pdf_to_bundle(attempt.path, bundle.bundle_root)
-    bap = item.get("book_answer_pages") or {}
-    if ctx.marking_mode == "teacher_annotated" or not bap:
+    bap = bundled_answer_pages if bundled_answer_pages else (item.get("book_answer_pages") or {})
+    if effective_marking_mode == "teacher_annotated" or not bap or not effective_answer_path:
         pages: list[int] = []
     else:
         pages = list(range(int(bap["start_page"]), int(bap["end_page"]) + 1))
         render_answers_pdf_pages_to_bundle(
-            ctx.answer_file_path, bundle.bundle_root, pages_1_based=pages
+            effective_answer_path, bundle.bundle_root, pages_1_based=pages
         )
 
     out = {
@@ -99,8 +109,8 @@ def main() -> int:
         "completion_path": item["completion_path"],
         "template_path": item["template_path"],
         "template_file_id": item["template_file_id"],
-        "answer_file_path": ctx.answer_file_path,
-        "marking_mode": ctx.marking_mode,
+        "answer_file_path": effective_answer_path,
+        "marking_mode": effective_marking_mode,
         "book_answer_pages": bap,
         "sections": [
             {

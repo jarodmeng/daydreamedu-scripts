@@ -13,7 +13,7 @@ Resumable **folder/queue** driver for student-work marking. **Grading is not imp
 | Layer | Owner |
 |-------|--------|
 | Queue, policies, skip/pilot | This skill + `utility_scripts/batch_mark_student_work/` |
-| Question-section detector | Task → `math-question-section-detector` or `english-paper-2-question-section-detector` |
+| Question-section detector | Task → detector from queue `detector` (math / english / science / chinese) |
 | Phase A/B bundle prep | `batch_item_prep.py` (v3 workflow APIs) |
 | **Phase 2 / Phase 3 grading** | **One** Task → `mark-student-work-v3-batch-orchestrator` (that agent reads v3 skill + spawns graders; writes `debug/` traces) |
 | Phase 2 validate + debug persist | `batch_item_validate_phase2.py` → `batch_item_persist_grade_debug.py` |
@@ -26,7 +26,7 @@ Resumable **folder/queue** driver for student-work marking. **Grading is not imp
 **Read when needed:**
 
 - [pdf-file-manager](../pdf-file-manager/SKILL.md) — register/link templates, answer mappings
-- Detector agents: `.cursor/agents/math-question-section-detector.md`, `.cursor/agents/english-paper-2-question-section-detector.md`
+- Detector agents: `.cursor/agents/math-question-section-detector.md`, `.cursor/agents/english-paper-2-question-section-detector.md`, `.cursor/agents/science-question-section-detector.md`, `.cursor/agents/chinese-paper-2-question-section-detector.md`, `.cursor/agents/higher-chinese-paper-2-question-section-detector.md`
 
 **Do not grade from this skill.** Step 3 uses agent `mark-student-work-v3-batch-orchestrator`, which reads [mark-student-work-multi-agent-v3](../mark-student-work-multi-agent-v3/SKILL.md) and spawns `marking-phase2-fast-pass-grader-v3` Tasks.
 
@@ -46,8 +46,25 @@ All commands assume **repo root** as cwd.
 | `book` | Book units with `book_answer_mapping` | `math-question-section-detector` | `standard_mapped_answer` |
 | `exercise` | Math worksheets (P*/WA, topical) | `math-question-section-detector` | `teacher_annotated` |
 | `english_exercise` | English Paper 2-style worksheets | `english-paper-2-question-section-detector` | `teacher_annotated` |
+| `science_exercise` | Science exam/practice (MCQ + OEQ) | `science-question-section-detector` | `teacher_annotated` |
+| `chinese_exercise` | Chinese / 高华 Paper 2 | `chinese-paper-2-question-section-detector` | `teacher_annotated` |
 
-Paste **marking policy** text from `work_queue_status.py --next` (or `--ord N`) into every detector and grader Task prompt.
+**Marking policy prompt:** presets live in `policies.py` (`PROMPT_BY_POLICY_KIND`). Override with top-level or per-item `marking_policy_prompt` (full string).
+
+- **Detector Tasks:** paste policy text from `work_queue_status.py --ord N` (payload preset) or from the queue row’s `marking_policy_prompt` when set.
+- **Grading Task:** authoritative prompt is embedded by `batch_item_grade_context.py` via `policy_prompt_for_item` (per-item `marking_policy_prompt` wins). Do not paraphrase — use the `prompt` field from `/tmp/batch_grade_task_N.json`.
+
+### Bundled answer key (cross-file)
+
+When answer pages live in a **different registered PDF** than the completion’s default linked answer file (e.g. RGPS P2 worksheets 1–3 keyed inside a set3 template), set **both** on the queue item:
+
+- `answer_file_path` — absolute path to the answer-key PDF
+- `book_answer_pages` — `{ "start_page", "end_page", "starts_mid_page"?, "ends_mid_page"? }` (1-based in that file)
+- `marking_mode`: `standard_mapped_answer` (default when omitted)
+
+`batch_item_prep.py` / `batch_item_finalize.py` render those pages and set `answer_mapping_source=bundled_exercise_answer_key`. `build_work_queue.py` does **not** populate these — hand-edit the queue JSON.
+
+For RGPS supplementary worksheets, set `marking_policy_prompt` to `RGPS_BUNDLED_ANSWER_KEY_POLICY_PROMPT` from `policies.py`.
 
 ---
 
@@ -61,13 +78,13 @@ Use when the user names **one** completion PDF (path or “mark Emma’s P4 Math
 ```bash
 python3 $BATCH/build_work_queue.py \
   --folder "<parent_dir_of_completion>" \
-  --policy <book|exercise|english_exercise> \
+  --policy <book|exercise|english_exercise|science_exercise|chinese_exercise> \
   --output $BATCH/queues/ad_hoc_<short_label>.json
 ```
 
 3. Find **`ord`** for the target row (`completion_path` or `completion_file_id` in queue `items`).
 4. If status is `skipped` (already marked), report artifact path and stop unless user wants re-mark.
-5. If status is `blocked`, fix registry (template link / book mapping) then rebuild queue.
+5. If status is `blocked`, fix registry (template link / book mapping, or add per-item bundled answer key) then rebuild or edit queue.
 6. Run **per-item loop** below for that `ord` only.
 
 ---
@@ -81,7 +98,7 @@ Use when the user names a **folder** of completions or an existing queue file.
 ```bash
 python3 $BATCH/build_work_queue.py \
   --folder "<completion_folder>" \
-  --policy <book|exercise|english_exercise> \
+  --policy <book|exercise|english_exercise|science_exercise|chinese_exercise> \
   --output $BATCH/queues/<name>.json
 ```
 
@@ -106,7 +123,7 @@ Queue path: `$QUEUE`. Replace `N` with `ord`.
 python3 $BATCH/work_queue_status.py --queue $QUEUE --ord N
 ```
 
-Copy the printed **marking_policy** block into downstream Task prompts.
+Copy the printed **marking_policy** block into detector Task prompts. If the queue row has `marking_policy_prompt`, use that text instead. Grading prompt comes from `batch_item_grade_context.py` (Step 3a), not from retyping here.
 
 ### Step 1 — Detector (template only, if `needs_detection`)
 
@@ -261,3 +278,4 @@ Target: all `done`, or explicit `failed` / `skipped` with reasons reported to th
 4. **Phase 2 invalid `mistake_type`** — finalize normalizes common aliases; prefer valid enum or `null`.
 5. **English** — use `english_exercise` policy; indices may use `Q51(2020)` under `english-v1.4`.
 6. **Re-mark** — same completion `file_id` may be `skipped` in preflight; user must delete/prune old artifact or use a fresh queue build after prune ([prune-marking-run-artifacts](../prune-marking-run-artifacts/SKILL.md)).
+7. **Bundled answer key** — requires both `answer_file_path` and `book_answer_pages` on the queue item; grade against answer-key pages, not red teacher ink on the completion (unless policy says otherwise).

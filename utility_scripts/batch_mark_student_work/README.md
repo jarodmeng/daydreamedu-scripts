@@ -25,8 +25,8 @@ Related skills/agents:
 |-------------|--------|
 | **Repo root** | Run commands from the monorepo root |
 | **PdfFileManager** | Completions registered; each linked to a **template** |
-| **Book policy** | Each template needs **`book_answer_mapping`** |
-| **Exercise / English** | Usually **no** answer mapping — use `--policy exercise` or `english_exercise` (teacher-annotated) |
+| **Book policy** | Each template needs **`book_answer_mapping`** (or per-item bundled answer key — see below) |
+| **Exercise / English / Science / Chinese** | Usually **no** answer mapping — use `--policy exercise`, `english_exercise`, `science_exercise`, or `chinese_exercise` (teacher-annotated) |
 | **Completions** | `_c_*.pdf` (DaydreamEdu) and/or `c_*.pdf` (GoodNotes) in the scan folder |
 | **Skip rule** | Per **completion `file_id`** — marks on GoodNotes `c_*.pdf` do **not** skip DaydreamEdu `_c_` copies |
 
@@ -39,10 +39,16 @@ Related skills/agents:
 | `book` | `math-question-section-detector` | `standard_mapped_answer` (answer-key pages) |
 | `exercise` | `math-question-section-detector` | `teacher_annotated` |
 | `english_exercise` | `english-paper-2-question-section-detector` | `teacher_annotated` |
+| `science_exercise` | `science-question-section-detector` | `teacher_annotated` |
+| `chinese_exercise` | `chinese-paper-2-question-section-detector` | `teacher_annotated` |
 
-Policy prompt text is stored in the queue JSON (`marking_policy`) and printed by `work_queue_status.py --next`.
+Policy prompt text comes from the preset in `policies.py` (`PROMPT_BY_POLICY_KIND`), stored in queue JSON as `marking_policy`, and printed by `work_queue_status.py --next` / `--ord`.
+
+**Overrides:** set top-level or per-item `marking_policy_prompt` (full prompt string) to replace the preset. Grading uses the per-item resolver in `batch_item_grade_context.py` (`policy_prompt_for_item`).
 
 **Book:** answer-key mapped (`book_answer_mapping`); standard math types from layout — see `BOOK_MARKING_POLICY_PROMPT` in `policies.py`.
+
+**Bundled answer key (cross-file):** when the authoritative answer pages live in a **different registered PDF** than the completion’s default linked answer file (e.g. RGPS P2 worksheets 1–3 keyed inside a set3 template), set **both** per-item `answer_file_path` and `book_answer_pages` on the queue row. `batch_item_prep.py` / `batch_item_finalize.py` render those pages into the bundle and set `answer_mapping_source=bundled_exercise_answer_key`. Use per-item `marking_mode: standard_mapped_answer` (default when omitted). `build_work_queue.py` does not populate these fields — edit the queue JSON by hand or extend the builder. For RGPS supplementary worksheets, copy `RGPS_BUNDLED_ANSWER_KEY_POLICY_PROMPT` from `policies.py` into `marking_policy_prompt`.
 
 ---
 
@@ -253,9 +259,11 @@ python3 $BATCH/mark_done.py --queue $BATCH/queues/<name>.json \
 
 ## Queue JSON fields
 
-Top-level: `generated_at`, `source_folder`, `student_email`, `subject`, `policy`, `detector`, `marking_mode`, `marking_policy`, `completion_globs`, `items[]`.
+Top-level: `generated_at`, `source_folder`, `student_email`, `subject`, `policy`, `detector`, `marking_mode`, `marking_policy`, `marking_policy_prompt` (optional full prompt override), `completion_globs`, `items[]`.
 
-Per item: `ord`, `completion_path`, `completion_file_id`, `template_*`, `book_answer_pages`, `needs_detection`, `needs_marking`, `status`, `marking_artifact_path`, `error`.
+Per item: `ord`, `completion_path`, `completion_file_id`, `template_*`, `book_answer_pages`, `answer_file_path` (optional — bundled/cross-file answer PDF), `marking_mode` (optional per-item override), `policy` (optional per-item preset name), `marking_policy_prompt` (optional per-item prompt override), `needs_detection`, `needs_marking`, `status`, `marking_artifact_path`, `error`.
+
+`book_answer_pages` shape: `{ "start_page", "end_page", "starts_mid_page"?, "ends_mid_page"? }` (1-based pages in `answer_file_path`, or the completion’s mapped answer file when `answer_file_path` is omitted).
 
 Statuses: `pending`, `done`, `failed`, `skipped`, `blocked`.
 

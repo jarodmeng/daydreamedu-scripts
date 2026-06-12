@@ -22,6 +22,15 @@ BOOK_MARKING_POLICY: dict[str, Any] = {
     ),
 }
 
+RGPS_BUNDLED_ANSWER_KEY_POLICY_PROMPT = """Batch marking policy (RGPS P2 supplementary worksheets — bundled answer key):
+- Grade student attempt against answers/ page images from the bundled WORKSHEET answer key in the set3 template PDF (not teacher ink on the completion).
+- question_index rows follow file_question_info (aligned to WORKSHEET answer-key indices).
+- WORKSHEET 3 Q4(1): the printed answer key is wrong — use correct_answer 158 cm (350 − 192 = 158), not 458 cm or any other keyed typo.
+- WORKSHEET 3 Q4(2): if the keyed addend disagrees with the worksheet statement, derive correct_answer from the worksheet numbers (235 + 487 = 722 m).
+- Award full marks when the student attempt matches the corrected reference answer; partial credit only when workings show a clear slip with otherwise sound method.
+- Black/blue on the completion = student attempt; do not treat red teacher ink as authoritative when grading against the answer key.
+"""
+
 BOOK_MARKING_POLICY_PROMPT = """Batch marking policy (book unit practice — answer-key mapped):
 - Use standard Singapore primary math question types (MCQ, SAQ, LAQ) from the worksheet layout.
 - Non-MCQ without per-question assigned marks ([1m], [2m], [n], etc.): default question_type to SAQ (not LAQ).
@@ -141,6 +150,9 @@ def resolve_policy(name: str) -> dict[str, Any]:
 
 
 def policy_prompt_for_payload(payload: dict[str, Any]) -> str:
+    custom = payload.get("marking_policy_prompt")
+    if isinstance(custom, str) and custom.strip():
+        return custom.strip()
     kind = (payload.get("marking_policy") or {}).get("policy_kind")
     if kind in PROMPT_BY_POLICY_KIND:
         return PROMPT_BY_POLICY_KIND[kind]
@@ -149,6 +161,9 @@ def policy_prompt_for_payload(payload: dict[str, Any]) -> str:
 
 def policy_prompt_for_item(item: dict[str, Any], payload: dict[str, Any]) -> str:
     """Per-item policy wins when queue rows set ``policy`` (mixed-subject batches)."""
+    item_custom = item.get("marking_policy_prompt")
+    if isinstance(item_custom, str) and item_custom.strip():
+        return item_custom.strip()
     policy_name = item.get("policy")
     if isinstance(policy_name, str) and policy_name in POLICY_BY_NAME:
         kind = resolve_policy(policy_name)["policy_kind"]

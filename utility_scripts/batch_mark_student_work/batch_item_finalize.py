@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+from dataclasses import replace
 from pathlib import Path
 
 _SCRIPT_DIR = Path(__file__).resolve().parent
@@ -57,7 +58,27 @@ def main() -> int:
         print(f"ERROR: ord={args.ord} not found in queue", file=sys.stderr)
         return 1
     mode_kwarg = marking_mode_for_item(queue_item, payload_queue)
-    ctx = resolve_v3_marking_context(manager=mgr, request=req, marking_mode=mode_kwarg)
+    bundled_answer_path = queue_item.get("answer_file_path")
+    bundled_answer_pages = queue_item.get("book_answer_pages") or {}
+    if bundled_answer_path and bundled_answer_pages:
+        ctx = resolve_v3_marking_context(manager=mgr, request=req, marking_mode="teacher_annotated")
+        bap = bundled_answer_pages
+        answer_file = mgr.get_file_by_path(Path(str(bundled_answer_path)).resolve())
+        ctx = replace(
+            ctx,
+            marking_mode=queue_item.get("marking_mode") or meta.get("marking_mode") or "standard_mapped_answer",
+            answer_file_id=answer_file.id if answer_file else ctx.answer_file_id,
+            answer_file_path=str(bundled_answer_path),
+            answer_page_start=int(bap["start_page"]),
+            answer_page_end=int(bap["end_page"]),
+            starts_mid_page=bool(bap.get("starts_mid_page")),
+            ends_mid_page=bool(bap.get("ends_mid_page")),
+            answer_mapping_source="bundled_exercise_answer_key",
+            answer_mapping_notes=str(queue_item.get("notes") or ""),
+            needs_visual_answer_pages=True,
+        )
+    else:
+        ctx = resolve_v3_marking_context(manager=mgr, request=req, marking_mode=mode_kwarg)
     template = mgr.get_template(attempt.id)
     authority = resolve_question_sections_authority(template_file=template)
 
