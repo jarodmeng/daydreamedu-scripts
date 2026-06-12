@@ -12,6 +12,8 @@ Stable **`#`**: **1** = oldest, **higher = newer** (never renumber). Rows are **
 
 | # | Run id | Run name |
 |---|--------|----------|
+| 18 | `grammar_mcqs_explained_primary_1.v01` | Grammar MCQs Explained Primary 1 (Gemini 2.5 Pro, answer p1–36) |
+| 17 | `math_weekly_revision_primary_1.v01` | Math Weekly Revision Primary 1 (Gemini 2.5 Pro, answer p1–36) |
 | 16 | `visible_thinking_math_p1a.v01` | Visible Thinking in Mathematics Primary 1A (Gemini 2.5 Pro, answer p1–13) |
 | 15 | `grammar-practice-primary-1.v01` | Grammar Practice Primary 1 (Gemini 2.5 Pro, answer p1–4) |
 | 14 | `conquer_exam_terry_chew_p5_lessons_p1_37.v01` | Conquer Exam Standard Mathematics Problem Sums with Terry Chew Primary 5 (lessons only, answer p1–37, Gemini 2.5 Pro) |
@@ -32,6 +34,97 @@ Stable **`#`**: **1** = oldest, **higher = newer** (never renumber). Rows are **
 ---
 
 ## Runs
+
+### 18. grammar_mcqs_explained_primary_1.v01 — Grammar MCQs Explained Primary 1 (Gemini)
+
+| Field | Value |
+|--------|--------|
+| **Run id** | `grammar_mcqs_explained_primary_1.v01` |
+| **Logged** | 2026-06-12 |
+| **Pipeline** | split_book_answer_by_unit_using_ai (Gemini Batch, continuation page-segments) |
+| **Registry book label** | `Grammar MCQs Explained Primary 1` |
+| **Model** | `models/gemini-2.5-pro` |
+| **Batch request key** | `book:grammar_mcqs_explained_primary_1:page_segments_continuation_gemini:p1_36` |
+| **Answer pages in batch** | 1–36 |
+| **Units in manifest (build)** | 39 |
+| **Assembled mapping rows** | 38 |
+| **Gemini batch job** | `batches/jqeyjm7p4r4jgdwcgu5q26sfh469uvsoh4bx` |
+| **Uploaded JSONL (API)** | `files/sqfhvel4elpy` |
+| **Status** | completed (`JOB_STATE_SUCCEEDED`; `job.end_time` `2026-06-12T08:11:33.049171+00:00`). |
+
+**Token usage** (from `response.usageMetadata` in `grammar_mcqs_explained_primary_1.v01.output.jsonl`)
+
+| Field | Value |
+|--------|--------|
+| **Prompt tokens** | 14,112 |
+| **Thoughts tokens** | 6,929 |
+| **Candidates tokens** | 3,615 |
+| **Total tokens** | 24,656 |
+
+**Artifacts (repo-relative)**
+
+| Stage | Path |
+|--------|------|
+| Batch input JSONL | `batch_artifacts/grammar_mcqs_explained_primary_1.v01.jsonl` |
+| Job metadata | `batch_artifacts/grammar_mcqs_explained_primary_1.v01.job.json` |
+| Job name (one line) | `batch_artifacts/grammar_mcqs_explained_primary_1.v01.job_name.txt` |
+| Raw batch output | `batch_artifacts/grammar_mcqs_explained_primary_1.v01.output.jsonl` |
+| Processed JSON | `batch_artifacts/grammar_mcqs_explained_primary_1.v01.processed.json` |
+| Assembled mappings | `batch_artifacts/grammar_mcqs_explained_primary_1.v01.assembled.json` |
+| Ground-truth JSON | `pilot_ground_truth/grammar_mcqs_explained_primary_1_ground_truth.json` |
+| Ground-truth table | `pilot_ground_truth/grammar_mcqs_explained_primary_1_ground_truth_table.md` |
+
+**Notes**
+
+- **Build prerequisite:** `--answer-file-substring "41 Answer Key"` required — `_c_…09 Worksheet 9 Questions and Short Answers.pdf` also matches default answer-key heuristics.
+- **Validation:** Assembled output reports **0** `continuation_rule_violations`; **38** mapping rows (worksheets 1–40; Worksheet 9 answer sheet not mapped as a separate unit).
+- **Import:** `PdfFileManager.import_book_answer_mappings_from_json` with source `ground_truth_grammar_mcqs_explained_primary_1_v01` — **38** rows imported.
+- **Spot-check (Abigail marking unblock):** Worksheet 1 Nouns → answer pages **1–2**.
+
+### 17. math_weekly_revision_primary_1.v01 — Math Weekly Revision Primary 1 (Gemini)
+
+| Field | Value |
+|--------|--------|
+| **Run id** | `math_weekly_revision_primary_1.v01` |
+| **Logged** | 2026-06-12 |
+| **Pipeline** | split_book_answer_by_unit_using_ai (Gemini Batch, continuation page-segments) |
+| **Registry book label** | `Math Weekly Revision Primary 1` |
+| **Model** | `models/gemini-2.5-pro` |
+| **Batch request key** | `book:math_weekly_revision_primary_1:page_segments_continuation_gemini:p1_36` |
+| **Answer pages in batch** | 1–36 |
+| **Units in manifest (build)** | 40 |
+| **Assembled mapping rows** | 40 |
+| **Gemini batch job** | `batches/2jq9p97aw9ch4p52eosrhvj5h3qn6i3i86wr` |
+| **Uploaded JSONL (API)** | `files/w7jcplbr3xqm` |
+| **Status** | completed (`JOB_STATE_SUCCEEDED`; `job.end_time` `2026-06-12T02:44:57.399336+00:00`). |
+
+**Token usage** (from `response.usageMetadata` in `math_weekly_revision_primary_1.v01.output.jsonl`)
+
+| Field | Value |
+|--------|--------|
+| **Prompt tokens** | 14,844 |
+| **Thoughts tokens** | 9,055 |
+| **Candidates tokens** | 3,482 |
+| **Total tokens** | 27,381 |
+
+**Artifacts (repo-relative)**
+
+| Stage | Path |
+|--------|------|
+| Batch input JSONL | `batch_artifacts/math_weekly_revision_primary_1.v01.jsonl` |
+| Job metadata | `batch_artifacts/math_weekly_revision_primary_1.v01.job.json` |
+| Job name (one line) | `batch_artifacts/math_weekly_revision_primary_1.v01.job_name.txt` |
+| Raw batch output | `batch_artifacts/math_weekly_revision_primary_1.v01.output.jsonl` |
+| Processed JSON | `batch_artifacts/math_weekly_revision_primary_1.v01.processed.json` |
+| Assembled mappings | `batch_artifacts/math_weekly_revision_primary_1.v01.assembled.json` |
+| Ground-truth JSON | `pilot_ground_truth/math_weekly_revision_primary_1_ground_truth.json` |
+| Ground-truth table | `pilot_ground_truth/math_weekly_revision_primary_1_ground_truth_table.md` |
+
+**Notes**
+
+- **Validation:** Assembled output reports **0** `continuation_rule_violations`; all 40 unit indices 1–40 present with no gaps.
+- **Import:** `PdfFileManager.import_book_answer_mappings_from_json` with source `ground_truth_math_weekly_revision_primary_1_v01` — **40** rows imported.
+- **Spot-check (Abigail marking unblock):** Practice 12 → answer pages 9–10; Practice 13 → 10; Practice 14 → 10–11.
 
 ### 16. visible_thinking_math_p1a.v01 — Visible Thinking in Mathematics Primary 1A (Gemini)
 
