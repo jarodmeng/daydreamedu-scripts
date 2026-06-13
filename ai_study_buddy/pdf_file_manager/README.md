@@ -1,6 +1,6 @@
 # pdf_file_manager
 
-**Version: v0.3.36**
+**Version: v0.3.37**
 
 A local utility that keeps a SQLite registry of PDF files in the study archive. It tracks exams, exercises, books, activities, compositions, notes, and templates (with optional completed variants), keeps on-disk paths and database records in sync, and supports first-class book unit → answer-page mappings inside `group_type='book'` collections. Optional **completion dates** record when student work was done (separate from registry registration time). You can scan one or more folders for new PDFs, optionally compress and archive originals, classify documents by type and metadata, group multi-file documents (e.g. exam booklets or book folders), link completions to templates, and query or import validated book-answer coverage. Every state-mutating operation is recorded in an append-only operation log.
 

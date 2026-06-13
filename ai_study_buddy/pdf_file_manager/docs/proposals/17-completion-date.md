@@ -385,7 +385,7 @@ Implementation modules:
 | [`.cursor/agents/completion-date-page1-inspector.md`](../../../../.cursor/agents/completion-date-page1-inspector.md) | **Cursor agent** for page-1 then page-2 visual inspection (`model: inherit`) |
 | [`scripts/infer_completion_dates.py`](../../scripts/infer_completion_dates.py) | Operator CLI wrapping `infer_completion_dates` |
 
-**Goodnotes integration:** `infer_completion_date_for_file` calls `get_goodnotes_document_match`; map `status` in `matched_*` only; never guess on `not_found` / `ambiguous`.
+**Goodnotes integration:** `infer_completion_date_for_file` calls `get_goodnotes_document_timestamps_for_file`; map `status` in `matched_*` only; never guess on `not_found` / `ambiguous`.
 
 ---
 

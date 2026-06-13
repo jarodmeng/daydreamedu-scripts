@@ -4,6 +4,11 @@ All notable changes to the pdf_file_manager utility are documented here.
 
 ---
 
+## [v0.3.37] — Fix GoodNotes completion-date inference
+
+- **Fix:** `infer_completion_date_for_file` GoodNotes step now calls `get_goodnotes_document_timestamps_for_file` instead of an invalid direct `get_goodnotes_document_match(self, file_id)` invocation (broken since v0.3.31).
+- Docs: [proposal 17](./docs/proposals/17-completion-date.md) Goodnotes integration note.
+
 ## [v0.3.36] — Goodnotes share link + Review-folder disambiguation
 
 - `GoodnotesDocumentMatch.share_link` — read `documentAlias` from local `projection.sqlite.document_share` and return `https://share.goodnotes.com/s/{alias}` when the notebook has been shared.

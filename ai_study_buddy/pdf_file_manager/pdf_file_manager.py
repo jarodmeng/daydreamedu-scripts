@@ -3179,7 +3179,7 @@ class PdfFileManager:
         ):
             from .completion_date.goodnotes import infer_completion_date_from_goodnotes_match
 
-            match = get_goodnotes_document_match(self, file_id)
+            match = self.get_goodnotes_document_timestamps_for_file(file_id)
             if isinstance(match, GoodnotesDocumentMatch):
                 inf = infer_completion_date_from_goodnotes_match(match)
                 if inf is not None and inf.source in active:
