@@ -2100,6 +2100,20 @@ body[data-buddy-console-view="inventory"] {
   border-radius: 4px;
 }
 
+.tutor-chat-message-body.markdown .katex {
+  font-size: 1.2em;
+}
+
+.tutor-chat-message-body.markdown table .katex {
+  font-size: 1.35em;
+}
+
+.tutor-chat-message-body.markdown .katex-display {
+  margin: 0.45em 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
 .tutor-chat-message-body.markdown .tutor-chat-table-wrap {
   overflow-x: auto;
   margin: 0.45em 0;

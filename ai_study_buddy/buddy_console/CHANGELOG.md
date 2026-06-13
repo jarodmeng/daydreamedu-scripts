@@ -2,6 +2,18 @@
 
 All notable changes to `ai_study_buddy/buddy_console` are documented here.
 
+## [v0.2.2] - Tutor chat LaTeX and markdown rendering (2026-06-13)
+
+### Fixed
+
+1. **Ask AI** assistant replies render LaTeX (fractions, `\times`, `\div`, `\text`, etc.) via KaTeX instead of raw `\frac{…}` / red error blocks.
+2. Tutor markdown normalization handles model quirks: `$50` vs math `$` collisions, spurious `$$…$$` swallowing headings/tables, `\(...\)` delimiters, and bare `\frac{…}` outside math spans.
+
+### Changed
+
+1. KaTeX sizing in tutor chat message body (larger inline fractions; slightly larger in tables).
+2. `frontend/package.json` version aligned to `0.2.2`.
+
 ## [v0.2.1] - Tutor chat evidence hierarchy policy (2026-06-10)
 
 ### Changed
